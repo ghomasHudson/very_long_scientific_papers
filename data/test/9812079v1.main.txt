@@ -1,0 +1,1501 @@
+##### Keywords:
+
+machine learning, classification, ordinal data, neural networks, support
+vector machines
+
+### Resumo
+
+Tradicionalmente, a aprendizagem automática predictiva tem sido uma
+aprendizagem indutiva padrão, onde diferentes sub-problemas foram sendo
+formulados. Um dos mais representativos é o da classificação, que
+consiste na estimação de uma função do espaço dos atributos para um
+espaço finito de classes. Dependendo da cardinalidade do espaço das
+classes temos um problema de classificação binário ou multi-classe.
+Finalmente, a existência ou ausência de uma ordem “natural” entre as
+classes distingue problemas multi-classe nominais de problemas
+multi-classe ordinais.
+
+Embora os problemas de classificação binária e multi-classe nominal
+tenham sido dissecados na literatura, o problema-irmão de dados ordinais
+tem passado despercebido, mesmo com muitos problemas de aprendizagem
+automática envolvendo a classificação de dados que possuem uma ordem
+natural. Cenários em que é natural ordenar exemplos ocorrem nas mais
+diversas áreas, tais como pesquisa ou recuperação de informação,
+filtragem colaborativa, modelação económica e ciências naturais.
+
+Os métodos convencionais para classes nominais ou para problemas de
+regressão podem ser empregues para resolver o problema ordinal; contudo,
+a utilização de técnicas desenvolvidas especificamente para classes
+ordenadas produz classificadores mais simples, facilitando a
+interpretação dos factores que estão a desempenhar um papel importante
+para discriminar as classes, e generaliza melhor. Embora a formulação
+ordinal aparente ser conceptualmente mais simples que a nominal, algumas
+dificuldades técnicas para incorporar nos algoritmos este pedaço de
+informação adicional – a ordem – pode explicar o uso generalizado de
+métodos convencionais para atacar o problema de dados ordinais.
+
+Esta dissertação aborda este vazio, propondo um método não-paramétrico
+para a classificação de dados ordinais baseado na extensão do conjunto
+de dados original com variáveis adicionais, reduzindo o problema de
+classificação ao familiar problema de classificação binária. A
+metodologia proposta unifica duas abordagens bem estabelecidas para a
+classificação de dados ordinais, o princípio da margem mínima e o método
+genérico de Frank e Hall. É também apresentado uma interpretação
+probabilística para o modelo mapeado em redes neuronais. Um segundo
+modelo, o modelo unimodal, é também introduzido e uma versão paramêtrica
+é mapeada em redes neuronais. Vários casos de estudo são apresentados
+para evidenciar a validade dos modelos propostos.
+
+###### Palavras-chave:
+
+aprendizagem automática, classificação, dados ordinais, redes neuronais,
+máquinas de vectores de suporte \afterpreface
+
+## Chapter 1 Introduction
+
+### 1.1 Problem formulation
+
+Predictive learning has traditionally been a standard inductive
+learning, with two modes of inference: system identification (with the
+goal of density estimation) and system imitation (for generalization).
+Nonetheless, predictive learning does not end with inductive learning.
+While with inductive learning the main assumptions are a finite training
+set and a large (infinite), unknown test set, other problem settings may
+be devised.
+
+The transduction formulation [ 1 ] assumes a given set of labeled,
+training data and a finite , known set of unlabeled test points, with
+the interest to estimate the class labels only at these points. The
+selection type of inference is, in some sense, even simpler than
+transduction: given a set of labeled training data and unlabeled test
+points, select a subset of test points with the highest probability of
+belonging to one class. Selective inference needs only to select a
+subset of @xmath test points, rather than assign class labels to all
+test points. An hierarchy of types of inference can be, not
+exhaustively, listed [ 2 ] : identification, imitation, transduction,
+selection, etc.
+
+Under the traditional inductive learning, different (sub-)problem
+formulations have been identified. Two of the most representative are
+regression and classification . While both consist on estimating a
+mapping from the feature space, the regression looks for a real-valued
+function defined in the feature space, whereas classification maps the
+feature space into a finite class space. Depending on the cardinality of
+the finite class space we are left with two-class or multiclass
+classification problems. Finally, the presence or absence of a “natural”
+order among classes will separate nominal from ordinal problems:
+
+### 1.2 Motivation
+
+Although two-class and nominal data classification problems have been
+dissected in the literature, the ordinal sibling has not yet received a
+lot of attention, even with many learning problems involving classifying
+examples into classes which have a “natural” order. Settings in which it
+is natural to rank instances arise in many fields, such as information
+retrieval [ 3 ] , collaborative filtering [ 4 ] , econometric modeling [
+5 ] and natural sciences [ 6 ] . ^(†) ^(†) † It is worth pointing out
+that distinct tasks of relation learning, where an example is no longer
+associated with a class or rank, which include preference learning and
+reranking [ 7 ] , are topics of research on their own.
+
+Conventional methods for nominal classes or for regression problems
+could be employed to solve ordinal data problems ( [ 8 , 9 , 10 ] );
+however, the use of techniques designed specifically for ordered classes
+results in simpler classifiers, making it easier to interpret the
+factors that are being used to discriminate among classes [ 5 ] .
+Although the ordinal formulation seems conceptually simpler than
+nominal, some technical difficulties to incorporate the piece of
+additional information – the order – in the algorithms may explain the
+widespread use of conventional methods to tackle the ordinal data
+problem.
+
+### 1.3 Tools
+
+As seen, there are relatively few predictive learning formulations;
+however, the number of learning algorithms, especially for the inductive
+case, is overwhelming. Many frameworks, adaptations to real-life
+problems, intertwining of base algorithms were, and continue to be,
+proposed in the literature; ranging from statistical approaches to state
+of the art machine learning algorithms, parametric to non parametric
+procedures, a plethora of methods is available to users.
+
+Our study will not attempt to cover them all. Limited by time (and
+competence to add significant contributions), two major algorithms will
+be the “horsepower” of our work: support vector machines and neural
+networks. Other base approaches, such as decision trees, for which
+interesting algorithms for ordinal data have already been proposed ( [
+11 , 12 , 13 ] ), will have to wait for a next opportunity.
+
+#### 1.3.1 The ABC of support vector machines
+
+Consider briefly how the SVM binary classification problem is formulated
+[ 1 ] . ^(‡) ^(‡) ‡ The following introduction to SVMs is based largely
+on [ 14 ] .
+
+For two training classes linearly separable in the selected feature
+space, the distinctive idea of SVM is to define a linear discriminant
+function @xmath in the feature space bisecting the two training classes
+and characterized by @xmath . However, there may be infinitely many such
+surfaces. To select the surface best suited to the task, the SVM
+maximizes the distance between the decision surface and those training
+points lying closest to it (the support vectors). Considering the
+training set @xmath , where @xmath denotes the class number, @xmath is
+the index within each class, it is easy to show [ 1 ] that maximizing
+this distance is equivalent to solving
+
+  -- -------- -- -------
+     @xmath      (1.1)
+  -- -------- -- -------
+
+If the training classes are not linearly separable in feature space, the
+inequalities in ( 1.1 ) can be relaxed using slack variables and the
+cost function modified to penalise any failure to meet the original
+(strict) inequalities. The problem becomes
+
+  -- -------- -- -------
+     @xmath      (1.2)
+  -- -------- -- -------
+
+The constraint parameter @xmath controls the tradeoff between the dual
+objectives of maximizing the margin of separation and minimizing the
+misclassification error. For an error to occur, the corresponding @xmath
+must exceed unity so @xmath is an upper bound on the number of the
+training errors, that is @xmath , where @xmath is the classification
+rule induced by the hyperplane @xmath . Hence the added penalty
+component is a natural way to assign an extra cost for errors.
+
+However, optimization of the above is difficult since it involves a
+discontinuous function @xmath . As it is common in such cases, we choose
+to optimize a closely related cost function, and the goal becomes to
+
+  -- -------- -- -------
+     @xmath      (1.3)
+  -- -------- -- -------
+
+under the same set of constraints as ( 1.2 ).
+
+In order to account for different misclassification costs or sampling
+bias, the model can be extended to penalise the slack variables
+according to different weights in the objective function [ 15 ] :
+
+  -- -------- -- -------
+     @xmath      (1.4)
+  -- -------- -- -------
+
+#### 1.3.2 The ABC of neural networks
+
+Neural networks were originally developed from attempts to model the
+communication and processing information in the human brain. Analogous
+to the brain, a neural network consists of a number of inputs
+(variables), each of which is multiplied by a weight, which is analogous
+to a dendrite. The products are summed and transformed in a “neuron”
+(i.e. simple processing unit) and the result becomes an input value for
+another neuron [ 16 ] .
+
+A multilayer feedforward neural network consists of an input layer of
+signals, an output layer of output signals, and a number of layers of
+neurons in between, called hidden layers [ 17 , 18 , 19 ] . It was shown
+that, under mild conditions, these models can approximate any decision
+function and its derivatives to any degree of accuracy.
+
+To use a neural network for classification, we need to construct an
+equivalent function approximation problem by assigning a target value
+for each class. For a two-class problem we can use a network with a
+single output, and binary target values: 1 for one class, and 0 for the
+other. We can thus interpret the network’s output as an estimate of the
+probability that a given pattern belongs to the ’1’ class. The training
+of the network is commonly performed using the popular mean square
+error.
+
+For multiclass classification problems ( @xmath -of- @xmath , where
+@xmath ) we use a network with @xmath outputs, one corresponding to each
+class, and target values of 1 for the correct class, and 0 otherwise.
+Since these targets are not independent of each other, however, it is no
+longer appropriate to use the same error measure. The correct
+generalization is through a special activation function (the softmax )
+designed so as to satisfy the normalization constraint on the total
+probability [ 10 ] .
+
+However, this approach does not retain the ordinality or rank order of
+the classes and is not, therefore, appropriate for ordinal multiclass
+classification problems. An clear exception is the PRank algorithm by
+Crammer [ 20 ] , and its improvement by Harrington [ 21 ] , which is a
+variant of the perceptron algorithm. As we progress in this work,
+several other approaches will be presented, making use of generic neural
+networks.
+
+### 1.4 Thesis’ structure
+
+This thesis introduces in chapter 2 the data replication method, a
+nonparametric procedure for the classification of ordinal data based on
+the extension of the original dataset with additional variables,
+reducing the classification task to the well known two-class problem.
+Starting with the simpler linear case, the chapter evolves to the
+nonlinear case; from there the method is extended to incorporate the
+procedure of Frank and Hall [ 22 ] . Finally, the generic version of the
+data replication method is presented, allowing partial constraints on
+variables.
+
+In chapter 3 the data replication method is mapped into two important
+machine learning algorithms: support vector machines and neural
+networks. A comparison is made with a previous SVM approach introduced
+by Shashua [ 4 ] , the minimum margin principle, showing that the data
+replication method leads essentially to the same solution, but with some
+key advantages. The chapter is elegantly concluded with a
+reinterpretation of the neural network model as a generalization of the
+ordinal logistic regression model.
+
+The second novel model, the unimodal model, is introduced in chapter 4 ,
+and a parametric version is mapped into neural networks. A parallelism
+of this approach with regression models concludes the chapter.
+
+Chapter 5 introduces the experimental methodology and the algorithms
+that were compared in the conducted experiments reported in the
+succeeding chapters. Finally, results are discussed, conclusions are
+drawn and future work is oriented in chapter 9 .
+
+### 1.5 Contributions
+
+We summarize below the contributions of this thesis towards more
+efficient and parsimonious methods for classification of ordinal data.
+In this thesis we have
+
+1.  introduced in the machine learning community the data replication
+    method , a nonparametric procedure for the classification of ordinal
+    categorical data. Presented also the mapping of this method for
+    neural networks and support vector machines;
+
+2.  unified under this framework two well-known approaches for the
+    classification of ordinal categorical data, the minimum margin
+    principle [ 4 ] and the generic approach by Frank and Hall [ 22 ] .
+    It was also presented a probabilistic interpretation for the neural
+    network model;
+
+3.  introduced the unimodal model, mapped to neural networks, a second
+    approach for the classification of ordinal data, and established
+    links to previous works.
+
+#### Publications related to the thesis
+
+[ 23 ] J. S. Cardoso, J. F. P. da Costa, and M. J. Cardoso, “SVMs
+applied to objective aesthetic evaluation of conservative breast cancer
+treatment,” in Proceedings of International Joint Conference on Neural
+Networks (IJCNN) 2005 , 2005, pp. 2481–2486.
+
+[ 6 ] J. S. Cardoso, J. F. P. da Costa, and M. J. Cardoso, “Modelling
+ordinal relations with SVMs: an application to objective aesthetic
+evaluation of breast cancer conservative treatment,” (ELSEVIER)Neural
+Networks , vol. 18, pp. 808–817, june-july 2005.
+
+[ 24 ] J. F. P. da Costa and J. S. Cardoso, “Classification of ordinal
+data using neural networks,” in Proceedings of European Conference
+Machine Learning (ECML) 2005 , 2005, pp. 690–697.
+
+[ 25 ] J. S. Cardoso and J. F. P. da Costa, “Learning to classify
+ordinal data: the data replication method,” (submitted) Journal of
+Machine Learning Research .
+
+## Chapter 2 The data replication method444Some portions of this chapter
+appeared in [6].
+
+Let us formulate the problem of separating @xmath ordered classes @xmath
+. Consider the training set @xmath , where @xmath denotes the class
+number, @xmath is the index within each class, and @xmath , with @xmath
+the dimension of the feature space. Let @xmath be the total number of
+training examples.
+
+Suppose that a @xmath -class classifier was forced, by design, to have
+@xmath noncrossing boundaries , with boundary @xmath discriminating
+classes @xmath against classes @xmath . As the intersection point of two
+boundaries would indicate an example with three or more classes equally
+probable – not plausible with ordinal classes –, this strategy imposes
+an (arguably) intuitive restriction. With this constraint emerges a
+monotonic model, where a better value in an attribute does not lead to a
+lower decision class. For the linear case, this translates to choosing
+the same weighted sum for all decisions – the classifier would be just a
+set of weights, one for each feature, and a set of biases, the scale in
+the weighted sum. By avoiding the intersection of any two boundaries,
+this simplified model captures better the essence of the ordinal data
+problem. Another strength of this approach is the reduced number of
+parameters to estimate, which may lead to a more robust classifier, with
+greater capacity for generalization.
+
+This rationale leads to a straight-forward generalization of the
+two-class separating hyperplane [ 4 ] . Define @xmath separating
+hyperplanes that separate the training data into @xmath ordered classes
+by modeling the ranks as intervals on the real line – an idea with roots
+in the classical cumulative model, [ 3 , 26 ] . The geometric
+interpretation of this approach is to look for @xmath parallel
+hyperplanes represented by vector @xmath and scalars @xmath , such that
+the feature space is divided into equally ranked regions by the decision
+boundaries @xmath .
+
+It would be interesting to accommodate this formulation under the
+two-class problem. That would allow the use of mature and optimized
+algorithms, developed for the two-class problem. The data replication
+method allows us to do precisely that.
+
+### 2.1 Data replication method – the linear case
+
+To outline the rationale behind the proposed model for the linear case,
+consider first an hypothetical, simplified scenario with three classes
+in @xmath . The plot of the dataset is presented in figure 2.1(a) .
+
+Using a transformation from the @xmath initial feature-space to a @xmath
+feature space, replicate each original point, according to the rule
+(figure 2.1(b) ):
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Observe that each any two points created from the same starting point
+differ only in the new variable.
+
+Define now a binary training set in the high-dimensional space according
+to (figure 2.1(c) ):
+
+  -- -- -- -------
+           (2.1)
+  -- -- -- -------
+
+A linear two-class classifier can now be applied to the extended
+dataset, yielding a hyperplane separating the two classes – figure
+2.1(d) . The intersection of this hyperplane with each of the subspace
+replicas (by setting @xmath and @xmath in the equation of the
+hyperplane) can be used to derive the boundaries in the original dataset
+– figure 2.1(e) .
+
+Although the foregoing analysis enables to classify unseen examples in
+the original dataset, classification can be done directly in the
+extended dataset, using the binary classifier, without explicitly
+resorting to the original dataset. For a given example @xmath , classify
+each of its two replicas @xmath , obtaining a sequence of two labels
+@xmath . From this sequence infer the class according to the rule
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+With the material on how to construct a set of optimal hyperplanes for
+the toy example, we are now in a position to formally describe the
+construction of a @xmath -class classifier for ordinal classification.
+Define @xmath as the sequence of @xmath zeros and @xmath as the sequence
+of @xmath symbols @xmath , with @xmath in the @xmath -th position.
+Considering the problem of separating @xmath classes @xmath with
+training set @xmath , define a new high-dimensional binary training
+dataset as
+
+  -- -------- -- -------
+     @xmath      (2.2)
+  -- -------- -- -------
+
+where the role of parameter @xmath is to bound the number of classes, to
+the ‘left’ and to the ‘right’, involved in the constraints of a
+boundary. This allows to control the increase of data points inherent to
+this method. The toy example in figure 2.1(b) was illustrated with
+@xmath ; setting @xmath would result as illustrated in 2.2 , with
+essentially the same solution.
+
+Then construct a linear two-class classifier on this extended dataset;
+to classify an unseen example obtain a sequence of @xmath labels @xmath
+by classifying each of the @xmath replicas in the extended dataset with
+the binary classifier. Note that, because the @xmath boundaries do not
+cross each other, there are only @xmath different possible sequences.
+The target class can be obtained by summing one to the number of @xmath
+labels in the sequence.
+
+### 2.2 Data replication method – the nonlinear case
+
+So far we have assumed linear boundaries between classes. There are
+important situations in which such a restriction does not exist, but the
+order of the classes is kept. Inspired by the data replication method
+just presented, we can look for boundaries that are level curves of some
+nonlinear function @xmath defined in the feature space. For the linear
+version we take @xmath .
+
+Extending the feature space and modifying to a binary problem, as
+dictated by the data replication method, we can search for a partially
+linear (nonlinear in the original variables but linear in the introduced
+variables) boundary @xmath , with @xmath , and @xmath . The intersection
+of the constructed high-dimensional boundary with each of the subspace
+replicas provides the desired @xmath boundaries. This approach is
+plotted in figure 2.3 for the toy example. ^(†) ^(†) † Although a
+partial linear function @xmath is the simplest to provide noncrossing
+boundaries in the original space (level curves of some function @xmath
+), it is by no means the only type of function to provide them.
+
+### 2.3 A general framework
+
+As presented so far the data replication method allows only to search
+for parallel hyperplanes ( level curves in the nonlinear case)
+boundaries. That is, a single direction is specified for all boundaries.
+In the quest for an extension allowing more loosely coupled boundaries,
+let us start by reviewing a method for ordinal data already presented in
+the literature.
+
+#### 2.3.1 The method of Frank and Hall
+
+Frank and Hall [ 22 ] introduced a simple algorithm that enables
+standard classification algorithms to exploit the ordering information
+in ordinal prediction problems. First, the data is transformed from a
+@xmath -class ordinal problem to @xmath binary class problems. Training
+of the @xmath -th classifier is performed by converting the ordinal
+dataset with classes @xmath into a binary dataset, discriminating @xmath
+against @xmath ; in fact it represents the test @xmath . To predict the
+class value of an unseen instance, the @xmath binary outputs are
+combined to produce a single estimation. Any binary classifier can be
+used as the building block of this scheme.
+
+Observe that, under our approach, the @xmath -th boundary is also
+discriminating @xmath against @xmath ; the major difference lies in the
+independence of the boundaries found with Frank and Hall method.
+
+#### 2.3.2 A parameterized family of classifiers
+
+Up to now, when replicating the original dataset, the original @xmath
+variables were the first @xmath variables of the @xmath variables of the
+new dataset, for each subspace replica, as seen in ( 2.2 ).
+
+Returning to the toy example, assume that the replication was done not
+according to ( 2.1 ) but instead using the following rule:
+
+  -- -- -- -------
+           (2.3)
+  -- -- -- -------
+
+where @xmath is the sequence of @xmath zeros. Intuitively, by
+misaligning variables involved in the determination of different
+boundaries (variables in different subspaces), we are decoupling those
+same boundaries.
+
+Proceeding this way, boundaries can be designed almost independently
+(more on this later, when mapping to SVMs). In the linear case we have
+now four parameters to estimate, the same as for two independent lines
+in @xmath . Intuitively, this new rule to replicate the data allows the
+estimation of the direction of each boundary essentially independently.
+
+The general formulation in ( 2.2 ) becomes
+
+  -- -------- -- -------
+     @xmath      (2.4)
+  -- -------- -- -------
+
+where @xmath is the sequence of @xmath zeros, @xmath .
+
+While the linear basic data replication method requires the estimation
+of @xmath parameters, the new rule necessitates of @xmath , the same as
+the Frank and Hall approach; this corresponds to the number of free
+parameters in @xmath independent @xmath -dimensional hyperplanes.
+
+While this does not aim at being a practical alternative to Frank’s
+method, it does paves the way for intermediate solutions, filling the
+gap between the totally coupled and totally independent boundaries.
+
+To constraint only the first @xmath variables of the @xmath initial
+variables to have the same direction in all boundaries, while leaving
+the @xmath final variables unconstrained, we propose to extend the data
+according to
+
+  -- -------- -- -------
+     @xmath      (2.5)
+  -- -------- -- -------
+
+With this rule @xmath , @xmath , parameters are to be estimated.
+
+This general formulation of the data replication method allows the
+enforcement of only the amount of knowledge (constraints) that is
+effectively known a priori , building the right amount of parsimony into
+the model.
+
+## Chapter 3 Mapping the data replication method to learning algorithms
+
+Suppose that examples in a classification problem come from one of
+@xmath classes, numbered from @xmath to @xmath , corresponding to their
+natural order if one exists, and arbitrarily otherwise. The learning
+task is to select a prediction function @xmath from a family of possible
+functions that minimizes the expected loss .
+
+In the absence of reliable information on relative costs, a natural
+approach for unordered classes is to treat every misclassification as
+equally likely. This translates to adopting the non-metric indicator
+function @xmath if @xmath and @xmath if @xmath , where @xmath and @xmath
+are the predicted and true classes, respectively. Measuring the
+performance of a classifier using the @xmath loss function is equivalent
+to simply considering the misclassification error rate. However, for
+ordered classes, losses that increase with the absolute difference
+between the class numbers are more natural choices in the absence of
+better information [ 5 ] . This loss should be naturally incorporated
+during the training period of the learning algorithm.
+
+A risk functional that takes into account the ordering of the classes
+can be defined as
+
+  -- -------- -- -------
+     @xmath      (3.1)
+  -- -------- -- -------
+
+with
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The empirical risk is the average of the number of mistakes, where the
+magnitude of a mistake is related to the total ordering: @xmath .
+
+Arguing as [ 3 ] , we see that the role of parameter @xmath (bounding
+the loss incurred in each example) is to allow for an incorporation of a
+priori knowledge about the probability of the classes, conditioned by ,
+@xmath . This can be treated as an assumption on the concentration of
+the probability around a “true” rank. Let us see how all this finds its
+place with the data replication method.
+
+### 3.1 Mapping the data replication method to SVMs
+
+#### 3.1.1 The minimum margin principle
+
+Let us formulate the problem of separating @xmath ordered classes @xmath
+in the spirit of SVMs.
+
+Starting from the generalization of the two-class separating hyperplane
+presented in the beginning of previous section, let us look for @xmath
+parallel hyperplanes represented by vector @xmath and scalars @xmath ,
+such that the feature space is divided into equally ranked regions by
+the decision boundaries @xmath .
+
+Going for a strategy to maximize the margin of the closest pair of
+classes, the goal becomes to maximize @xmath . Recalling that an
+algebraic measure of the distance of a point to the hyperplane @xmath is
+given by @xmath , we can scale and @xmath so that the value of the
+minimum margin is @xmath .
+
+The constraints to consider result from the @xmath binary
+classifications related to each hyperplane; the number of classes
+involved in each binary classification can be made dependent on a
+parameter @xmath , as depicted in figure 3.1 . For the hyperplane @xmath
+, the constraints result as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Our model can now be summarized as:
+
+  -- -------- -- -------
+     @xmath      (3.2)
+  -- -------- -- -------
+
+Reasoning as in the two-class SVM for the non-linearly separable
+dataset, the model becomes
+
+  -- -------- -- -------
+     @xmath      (3.3)
+  -- -------- -- -------
+
+Since each point @xmath is replicated @xmath times, it is involved in
+the definition of @xmath boundaries (see figure 3.1 ); consequently, it
+can be shown to be misclassified @xmath times, where @xmath is the class
+estimated by the model. As with the two-class example, @xmath is an
+upperbound of @xmath , proportional to the empirical risk. ^(†) ^(†) †
+Two parameters named @xmath have been introduced. In section 2.1 the
+@xmath parameter bounds the number of classes involved in the definition
+of each boundary, controlling this way the growth of the original
+dataset. The parameter @xmath introduced in equation ( 3.1 ) bounds the
+loss incurred in each example. Here we see that they are the same
+parameter.
+
+Continuing the parallelism with the two-class SVM, the function to
+minimize simplifies to
+
+  -- -------- -- -------
+     @xmath      (3.4)
+  -- -------- -- -------
+
+subject to the same constraints as ( 3.3 ).
+
+As easily seen, the proposed formulation resembles the fixed margin
+strategy in [ 4 ] . However, instead of using only the two closest
+classes in the constraints of an hyperplane, more appropriate for the
+loss function @xmath , we adopt a formulation that captures better the
+performance of a classifier for ordinal data.
+
+Two issues were identified in the above formulation. First, this is an
+incompletely specified model because the scalars @xmath are not well
+defined. In fact, although the direction of the hyperplanes is unique
+under the above formulation (proceeding as [ 1 ] for the binary case),
+the scalars @xmath are not uniquely defined, figure 3.2 .
+
+Another issue is that, although the formulation was constructed from the
+two-class SVM, it is no longer solvable with the same algorithms. It
+would be interesting to accommodate this formulation under the two-class
+problem. Both issues are addressed by mapping the data replication
+method to SVMs.
+
+#### 3.1.2 The oSVM algorithm
+
+In order to get a better intuition of the general result, consider first
+the toy example previously presented.
+
+The binary SVM formulation for the extended and binarized training set
+can be described as ( with @xmath )
+
+  -- -- -- -------
+           (3.5)
+  -- -- -- -------
+
+But because @xmath , and renaming @xmath to @xmath and @xmath to @xmath
+the formulation above simplifies to
+
+  -- -------- -- -------
+     @xmath      (3.6)
+  -- -------- -- -------
+
+Two points are worth to mention: a) this formulation, being the result
+of a pure SVM method, has an unique solution [ 1 ] ; b) this formulation
+equals the formulation ( 3.4 ) for ordinal data previously introduced,
+with @xmath , @xmath , and a slightly modified objective function by the
+introduction of a regularization member, proportional to the distance
+between the hyperplanes. The oSVM solution is the one that
+simultaneously minimizes the distance between boundaries and maximizes
+the minimum of the margins – figure 3.3 . The @xmath parameter controls
+the tradeoff between the objectives of maximizing the margin of
+separation and minimizing the distance between the hyperplanes.
+
+To reiterate, the data replication method enabled us to formulate the
+classification of ordinal data as a standard SVM problem, removing the
+ambiguity in the solution by the introduction of a regularization term
+in the objective function.
+
+With the material on how to construct a set of optimal hyperplanes for
+the toy example, we are now in a position to formally describe the
+construction of a support vector machine for ordinal classification.
+
+Consider a general extended dataset, as defined in ( 2.2 ). After the
+simplifications and change of variables suggested in the toy example,
+the binary SVM formulation for this extended dataset yields
+
+  -- -------- -- -------
+     @xmath      (3.7)
+  -- -------- -- -------
+
+with the same set of constraints as ( 3.3 ).
+
+This formulation for the high-dimensional dataset matches the proposed
+formulation for ordinal data up to an additional regularization member
+in the objective function. This additional member is responsible for the
+unique determination of the biases. ^(‡) ^(‡) ‡ Different regulation
+members could be obtained by different extensions of the dataset. For
+example, if @xmath had been defined as the sequence @xmath , with @xmath
+@xmath ’s and @xmath @xmath ’s, the regularization member would be
+@xmath .
+
+It is important to stress that the complexity of the SVM model does not
+depend on the dimensionality of the data. So, the only increase in the
+complexity of the problem is due to the duplication of the data (more
+generally, for a @xmath -class problem, the dataset is increased at most
+@xmath times). As such, it compares favourably with the formulation in [
+27 ] , which squares the dataset.
+
+##### Nonlinear boundaries
+
+As explained before, the search for nonlinear level curves can be
+pursued in the extended feature space by searching for a partially
+linear function @xmath . Since nonlinear boundaries are handled in the
+SVM context making use of the well known kernel trick, a specified
+kernel @xmath in the original feature space can be easily modified to
+@xmath in the extended space.
+
+Summarizing, the nonlinear ordinal problem can be solved by extending
+the feature set and modifying the kernel function, figure 3.4 .
+
+As we see, the extension to nonlinear decision boundaries follows the
+same reasoning as with the standard SVM [ 1 ] .
+
+##### Independent boundaries
+
+Considering now the setup for independent boundaries, as presented in (
+2.4 ), the linear, binary SVM formulation yields
+
+  -- -------- -- -------
+     @xmath      (3.8)
+  -- -------- -- -------
+
+We see that if the regularization term @xmath is zero (in practice,
+sufficiently small), the optimization problem could be broken in @xmath
+independent optimization problems, reverting to the procedure of Frank
+and Hall [ 22 ] .
+
+### 3.2 Mapping the data replication method to NNs
+
+By letting @xmath be the output of a neural network, a flexible
+architecture for ordinal data can be devised as represented
+diagrammatically in figure 3.5 . @xmath is the output of a generic
+feedforward network (in fact, it could be any neural network, with a
+single output), which is then linearly combined with the added @xmath
+components.
+
+For the simple case of searching for linear boundaries, the overall
+network simplifies to a single neuron with @xmath inputs. A less
+simplified model, also used in the conducted experiments, is to consider
+a single hidden layer, as depicted in figure 3.6 .
+
+Interestingly, it is possible to provide a probabilistic interpretation
+to this neural network model.
+
+#### 3.2.1 Ordinal logistic regression model
+
+The traditional statistical approach for ordinal classification models
+the cumulative class probability @xmath by
+
+  -- -------- -- -------
+     @xmath      (3.9)
+  -- -------- -- -------
+
+Remember that @xmath , @xmath and @xmath .
+
+For the linear version ( [ 28 , 26 ] ) we take @xmath . Mathieson [ 5 ]
+presents a nonlinear version by letting @xmath be the output of a neural
+network. However other setups can be devised. Start by observing that in
+( 3.9 ) we can always assume @xmath by incorporating an appropriate
+additive constant in @xmath . We are left with the estimation of @xmath
+and @xmath cut points. By fixing @xmath as the activation function in
+the output layer of our oNN network, we can train the network to predict
+the values @xmath , when fed with @xmath , @xmath . By setting @xmath
+and @xmath we see that the extended dataset as defined in ( 2.2 ) can be
+used to train the oNN network. The predicted cut points are simply the
+weights of the connection of the added @xmath components, scaled by
+@xmath .
+
+Illustrating this model with the synthetic dataset from Mathieson [ 5 ]
+, we attained the decision boundaries depicted in figure 3.7 .
+
+## Chapter 4 The unimodal method for NNs444The text and idea presented
+in this section is thanks to Prof. Joaquim F. Pinto da Costa. Some
+portions of this chapter appeared in [24].
+
+Given a new query point , Bayes decision theory suggests to classify in
+the class which maximizes the a posteriori probability @xmath . To do
+so, one usually has to estimate these probabilities, either implicitly
+or explicitly. Suppose for instance that we have 7 classes and, for a
+given point @xmath , the highest probability is @xmath ; we then assign
+class @xmath to the given point. If there is not an order relation
+between the classes, it is perfectly natural that the second highest a
+posteriori probability is, for instance, @xmath . However, if the
+classes are ordered, @xmath , classes @xmath and @xmath are closer to
+class @xmath and therefore the second and third highest a posteriori
+probabilities should be attained in these classes. This argument extends
+easily to the classes, @xmath and @xmath , and so on. This is the main
+idea behind the method proposed here, which is now detailed.
+
+Our method assumes that in a supervised classification problem with
+ordered classes, the random variable class associated with a given query
+should be unimodal. That is to say that if we plot the a posteriori
+probabilities @xmath , from the first @xmath to the last @xmath , there
+should be only one mode in this graphic. Here, we apply this idea in the
+context of neural networks. Usually in neural networks, the output layer
+has as many units as there are classes, @xmath . We will use the same
+order for these units and the classes. In order to force the output
+values (which represent the a posteriori probabilities) to have just one
+mode, we will use a parametric model for these output units. This model
+consists in assuming that the output values come from a binomial
+distribution, @xmath . This distribution is unimodal in most cases and
+when it has two modes, these are for contiguous values, which makes
+sense in our case, since we can have exactly the same probability for
+two classes. This binomial distribution takes integer values in the set
+@xmath ; value @xmath corresponds to class @xmath , value 1 to class
+@xmath and so on until value @xmath to class @xmath . As @xmath is
+known, the only parameter left to be estimated from this model is the
+probability @xmath . We will therefore use a different architecture for
+the neural network; that is, the output layer will have just one output
+unit, corresponding to the value of @xmath – figure 4.1 . For a given
+query , the output of the network will be a single numerical value in
+the range [0,1], which we call @xmath . Then, the probabilities @xmath
+are calculated from the binomial model:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In fact these probabilities can be calculated recursively, to save
+computing time:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and so
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We start with @xmath and compute the other probabilities, @xmath using
+the above formula.
+
+When the training case is presented, the error is defined as
+
+  -- -------- -- -------
+     @xmath      (4.1)
+  -- -------- -- -------
+
+where @xmath and @xmath the true class of . The network is trained to
+minimize the average value over all training cases of such error.
+Finally, in the test phase, we choose the class @xmath which maximizes
+the probability @xmath . As trivially confirmed, that simplifies to the
+rounding of @xmath to the nearest integer, where @xmath is the network
+output.
+
+### 4.1 Connection with regression models
+
+Consider the following equivalences:
+
+@xmath
+
+Let @xmath the parameter that maximizes @xmath . For the binomial case
+@xmath . Then
+
+  -- -------- -- -------
+     @xmath      (4.2)
+  -- -------- -- -------
+
+and
+
+  -- -------- -- -------
+     @xmath      (4.3)
+  -- -------- -- -------
+
+both attain the global optimal value at the same @xmath value. That is
+to say that the training of the network could be also performed by
+minimizing the error of the network output to the optimal parameter: a
+simple case of regression of the parameter of the binomial distribution.
+
+Note that both approaches are not mathematically equivalent. Although
+they share the same global optimum, the error surface is different and
+is natural that practical optimization algorithms stop at different
+values, maybe trapped at some local optimum value. Another way of
+looking to the problem is to say that both are a regression of the
+parameter @xmath , using different error measures. The advantage of
+minimizing directly @xmath , or the squared version of it, is that it
+fits directly in existing software packages. However, both impose a
+unimodal distribution of the output probabilities.
+
+As the above formulation suggests, the adjustment of any probability
+distribution, dependent on a single parameter resumes to a regression of
+that parameter against its optimal value. This approach is then part of
+a larger set of techniques to estimate by regression any ordered scores
+@xmath – the simplest case would be the set of integers @xmath . [ 5 ,
+29 , 30 ]
+
+Using a neural network with not one but two outputs, it is natural to
+extend the former reasoning to unimodal distribution with two
+parameters, as a greater flexibility should bring a better fitting to
+the data. The training could be performed directly with some of the
+regression errors discussed above and the test phase would be just the
+selection of the mode class dictated by the network output.
+
+## Chapter 5 Experimental Results
+
+Next we present experimental results for several models based on SVMs
+and NNs, when applied to several datasets, ranging from synthetic
+datasets, real ordinal data, to quantized data from regression problems.
+
+### 5.1 SVM based algorithms
+
+We compare the following algorithms:
+
+-   A conventional multiclass SVM formulation (cSVM), based on the
+    one-against-one decomposition. The one-against-one decomposition
+    transforms the multiclass problem into a series of @xmath binary
+    subtasks that can be trained by a binary SVM. Classification is
+    carried out by a voting scheme.
+
+-   Pairwise SVM (pSVM): Frank and Hall [ 22 ] introduced a simple
+    algorithm that enables standard classification algorithms to exploit
+    the ordering information in ordinal prediction problems. First, the
+    data is transformed from a @xmath -class ordinal problem to @xmath
+    binary class problems. To predict the class value of an unseen
+    instance the probabilities of the @xmath original classes are
+    estimated using the outputs from the @xmath binary classifiers.
+
+-   Herbrich [ 27 ] model (hSVM), based on the correspondence of the
+    ordinal regression task and the task of learning a preference
+    relation on pairs of objects. A function loss was defined on pairs
+    of objects and the classification task formulated in this space. The
+    size of the new training set, derived from an @xmath -sized training
+    set, can be as high as @xmath . Only the direction was computed
+    directly from this model. Scalars @xmath were obtained in a second
+    step, performing a 1-dimensional SVM. Due to limitations of the
+    implementation of this method and its excessively long training
+    time, some results are not available (NA).
+
+-   Proposed ordinal method (oSVM), based on the data extension
+    technique, as previously introduced.
+
+Experiments were carried out in Matlab 7.0 (R14), using the Support
+Vector Machine toolbox, version 2.51, by Anton Schwaighofer. This
+toolbox was used to construct the oSVM classifier, the Herbrich [ 27 ]
+model and the pairwise SVM. It was also used the STPRtool, version 2.01,
+for the implementation of the generic multiclass SVM. The @xmath and
+@xmath parameters were experimentally tuned for the best performance.
+
+### 5.2 Neural network based algorithms
+
+We compare the following algorithms:
+
+-   Conventional neural network (cNN). To test the hypothesis that
+    methods specifically targeted for ordinal data improve the
+    performance of a standard classifier, we tested a conventional feed
+    forward network, fully connected, with a single hidden layer,
+    trained with the traditional least square approach and with the
+    special activation function softmax . For each case study, the
+    result presented is the best of the two configurations.
+
+-   Pairwise NN (pNN): mapping in neural networks the strategy of [ 22 ]
+    mentioned above for pSVM.
+
+-   Costa [ 31 ] , following a probabilistic approach, proposes a neural
+    network architecture (iNN) that exploits the ordinal nature of the
+    data, by defining the classification task on a suitable space
+    through a “partitive approach”. It is proposed a feedforward neural
+    network with @xmath outputs to solve a @xmath -class ordinal
+    problem. The probabilistic meaning assigned to the network outputs
+    is exploited to rank the elements of the dataset.
+
+-   Proposed unimodal model (uNN). Several variants of the unimodal
+    model were gauged, ranging from one-parameter distributions, such as
+    the binomial and the poison, to two-parameter distributions, such as
+    the hypergeometric and the gaussian distribution. Other ideas such
+    as modifying a conventional neural network to penalise multimodal
+    outputs were also considered. However, models whose optimization did
+    not fit directly under a standard implementation of the
+    backpropagation algorithm were optimized with generic optimization
+    functions available in Matlab. Presumably due to that fact, the best
+    results were obtained when performing direct regression of the
+    binomial parameter, as in ( 4.3 ), for which we present the results.
+
+-   Proposed ordinal method (oNN), based on the data extension
+    technique, as previously introduced.
+
+Experiments were carried out in Matlab 7.0 (R14), making use of the
+Neural Network Toolbox. All models were configured with a single hidden
+layer and trained with Levenberg-Marquardt back propagation method, over
+2000 epochs.
+
+The number of neurons in the hidden layer was experimentally tuned for
+the best performance.
+
+### 5.3 Measuring classifier performance
+
+Having built a classifier, the obvious question is “how good is it?”.
+This begs the question of what we mean by good. The obvious answer is to
+treat every misclassification as equally likely, adopting the
+misclassification error rate (MER) criterion to measure the performance
+of the classifier. However, for ordered classes, losses that increase
+with the absolute difference between the class numbers are more natural
+choices in the absence of better information [ 5 ] .
+
+The mean absolute error (MAE) criterion takes into account the degree of
+misclassification and is thus a richer criterion than MER. The loss
+function corresponding to this criterion is @xmath .
+
+A variant of the above MAE measure is the mean square error (MSE), where
+the absolute difference is replaced with the square of the difference,
+@xmath .
+
+Finally, the performance of the classifiers was also assessed with the
+Spearman ( @xmath ) and Kendall’s tau-b ( @xmath ) coefficients,
+nonparametric rank-order correlation coefficients well established in
+the literature [ 32 ] . A proposal for yet another coefficient, @xmath ,
+was also implemented. ^(†) ^(†) † The idea for this coefficient is
+thanks to Prof. Joaquim F. Pinto da Costa. To define @xmath , we start
+with the @xmath data points @xmath and consider all @xmath pairs of data
+points. Following the notation in [ 32 ] , we call a pair concordant if
+the relative ordering of the ranks of the two @xmath ’s is the same as
+the relative ordering of the ranks of the two @xmath ’s. We call a pair
+discordant if the relative ordering of the ranks of the @xmath ’s is
+opposite from the relative ordering of the ranks of the two @xmath ’s.
+If there is a tie in either the ranks of the two @xmath ’s or the ranks
+of the two @xmath ’s, then we do not call the pair either concordant or
+discordant. If the tie is in the @xmath ’s, we will call the pair an
+“extra @xmath pair”, @xmath . If the tie is in the @xmath ’s, we will
+call the pair an “extra @xmath pair”, @xmath . If the tie is both on the
+@xmath ’s and the @xmath ’s, we ignore the pair.
+
+Inspired by the work of Lerman [ 33 , 34 ] , a simplified coefficient
+was conceived from a set theoretic representation of the two variables
+to be compared. After a straight forward mathematical manipulation, the
+@xmath coefficient can be computed as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where the scale factor and bias are used just to set the parameter
+between @xmath and @xmath .
+
+This expression shows a striking resemblance with the formula for
+Kendall’s @xmath :
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+## Chapter 6 Results for a synthetic dataset
+
+### 6.1 Results for neural networks methods
+
+In a first comparative study we generated a synthetic dataset in a
+similar way to Herbrich [ 27 ] .
+
+We generated @xmath example points @xmath uniformly at random in the
+unit square @xmath . Each point was assigned a rank @xmath from the set
+@xmath , according to
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is a random value, normally distributed with zero mean and
+standard deviation @xmath . Figure 6.1(a) shows the five regions and
+figure 6.1(b) the points which were assigned to a different rank after
+the corruption with the normally distributed noise.
+
+In order to compare the different algorithms, and similarly to [ 27 ] ,
+we randomly selected training sequences of point-rank pairs of length
+@xmath ranging from @xmath to @xmath . The remaining points were used to
+estimate the classification error, which were averaged over @xmath runs
+of the algorithms for each size of the training sequence. Thus we
+obtained the learning curves shown in figure 6.2 , for 5 neurons in the
+hidden layer.
+
+#### 6.1.1 Accuracy dependence on the number of classes
+
+To investigate the relation between the number of classes and the
+performance of the evaluated algorithms, we also ran all models on the
+same dataset but with @xmath classes.
+
+This time each point was assigned a rank @xmath from the set @xmath ,
+according to
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is a random value, normally distributed with zero mean and
+standard deviation @xmath . Figure 6.3(a) shows the ten regions and
+figure 6.3(b) the points which were assigned to a different rank after
+the corruption with the normally distributed noise.
+
+The learning curves obtained for this arrangement are shown in figure
+6.4 (again, for 5 neurons in the hidden layer).
+
+#### 6.1.2 Accuracy dependence on the data dimension
+
+The described experiments in @xmath were repeated for data points in
+@xmath , to evaluate the influence of data dimension on models’ relative
+performance.
+
+We generated @xmath example points @xmath uniformly at random in the
+unit square in @xmath .
+
+For @xmath classes, each point was assigned a rank @xmath from the set
+@xmath , according to
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is a random value, normally distributed with zero mean and
+standard deviation @xmath .
+
+Finally, for @xmath classes the rank was assigned according to the rule
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is a random value, normally distributed with zero mean and
+standard deviation @xmath . Class distributions are presented in figure
+6.5 ; the learning curves are shown in figures 6.6 and 6.7 , for 16
+neurons in the hidden layer.
+
+#### 6.1.3 Network complexity
+
+One final point to make in any comparison of methods regards complexity.
+The number of learnable parameters for each model is presented in table
+6.1 .
+
+### 6.2 Results for SVM methods
+
+Because the comparative study for the SVM based methods followed the
+same reasoning as for the neural network methods, we restrict to present
+here the attained results in figures 6.8(a) , 6.8(b) , 6.8(c) and 6.8(d)
+. Because all classification indices portrayed essentially the same
+relative performance, and to facilitate the comparison with results
+previously reported in the literature, we will restrict here and in the
+future to the MER criterion.
+
+### 6.3 Discussion
+
+A first comment relates to the unfairness of comparing SVM to NN based
+methods since the kernel parameters were illegally tuned to the
+datasets. The main assertions concerns the superiority of all algorithms
+specific to ordinal data over conventional methods, both for SVMs and
+NNs; the proposed method, in spite of being the simplest model, performs
+as good or better than the other models under comparison.
+
+## Chapter 7 Results for practical ordinal datasets
+
+The next sections present results for datasets with real data.
+
+### 7.1 Pasture production
+
+The next experiment is based on a publicly available dataset with
+real-life data, available at the WEKA website ^(†) ^(†) †
+http://www.cs.waikato.ac.nz/ml/weka/ The information is a replica of the
+notes made available with the data. . The objective was to predict
+pasture production from a variety of biophysical factors. Vegetation and
+soil variables from areas of grazed North Island hill country with
+different management (fertilizer application/stocking rate) histories
+(1973-1994) were measured and subdivided into 36 paddocks. Nineteen
+vegetation (including herbage production); soil chemical, physical and
+biological; and soil water variables were selected as potentially useful
+biophysical indicators – table 7.1 . The target feature, the pasture
+production, has been categorized in three classes (Low, Medium, High),
+evenly distributed in the dataset of 36 instances.
+
+The results attained are summarized in table 7.2 . Before training, the
+data was scaled to fall always within the range @xmath , using the
+transformation @xmath . The fertiliser attribute was represented using 4
+variables: LL = (1, 0, 0, 0), LN = (0, 1, 0, 0), HL = (0, 0, 1, 0) and
+HH = (0, 0, 0, 1).
+
+The lack of motivation to impose an ordered relation in the fertiliser
+attribute, suggests a good scenario to apply the general version of the
+data replication method, where only 21 attributes ( @xmath ) are
+constrained to have the same direction, with the fertiliser attribute
+left free. Using a linear kernel with @xmath ( @xmath , @xmath ) emerges
+a classifier with expected MER of 22.2%. This way, a very simple
+classifier was obtained at the best performance.
+
+### 7.2 Employee selection: the ESL dataset
+
+The next experiment is also based on a publicly dataset available at the
+WEKA website. The ESL dataset contains @xmath profiles of applicants for
+certain industrial jobs. Expert psychologists of a recruiting company,
+based upon psychometric test results and interviews with the candidates,
+determined the values of the input attributes ( @xmath attributes, with
+integer values from @xmath to @xmath ). The output is an overall score (
+@xmath ) corresponding to the degree of fitness of the candidate to this
+type of job, distributed according to figure 7.1 .
+
+The comparative study of the learning algorithms followed the same
+reasoning as for the synthetic datasets; therefore we restrict to
+present here the attained results for the MER criterion – figures 7.2(a)
+and 7.2(b) .
+
+In the pasture dataset conventional methods performed as well as ordinal
+methods, while algorithms based on SVMs clearly outperformed NN based
+algorithms – an expected result if we attend to the limited number of
+examples in the dataset. On the other side, for the ESL dataset, there
+is no discernible difference between SVM and NN based algorithms, but
+conventional methods are clearly behind specific methods for ordinal
+data.
+
+### 7.3 Aesthetic evaluation of breast cancer conservative
+treatment444Some portions of this section appeared in [6, 23].
+
+In this section we illustrate the application of the learning algorithms
+to the prediction of the cosmetic result of breast cancer conservative
+treatment.
+
+Breast cancer conservative treatment (BCCT) has been increasingly used
+over the last few years, as a consequence of its much more acceptable
+cosmetic outcome than traditional techniques, but with identical
+oncological results. Although considerable research has been put into
+BCCT techniques, diverse aesthetic results are common, highlighting the
+importance of this evaluation in institutions performing breast cancer
+treatment, so as to improve working practices.
+
+Traditionally, aesthetic evaluation has been performed subjectively by
+one or more observers [ 35 , 36 , 37 ] . However, this form of
+assessment has been shown to be poorly reproducible [ 38 , 39 , 40 , 41
+] , which creates uncertainty when comparing results between studies. It
+has also been demonstrated that observers with different backgrounds
+evaluate cases in different ways [ 42 ] .
+
+Objective methods of evaluation have emerged as a way to overcome the
+poor reproducibility of subjective assessment and have until now
+consisted of measurements between identifiable points on patient
+photographs [ 38 , 43 , 41 ] . The correlation of objective measurements
+with subjective overall evaluation has been reported by several authors
+[ 39 , 40 , 41 , 44 ] . Until now though, the overall cosmetic outcome
+was simply the sum of the individual scores of subjective and objective
+individual indices [ 45 , 39 , 40 , 44 ] .
+
+#### 7.3.1 Data and method
+
+Instead of heuristically weighting the individual indices in an overall
+measure, we introduced pattern classification techniques to find the
+correct contribution of each individual feature in the final result and
+the scale intervals for each class, constructing this way an optimal
+rule to classify patients.
+
+##### Reference classification
+
+Twenty-four clinicians working in twelve different countries were
+selected, based on their experience in BCCT (number of cases seen per
+year and/or participation in published work on evaluation of aesthetic
+results). They were asked to evaluate individually a series of 240
+photographs taken from 60 women submitted to BCCT (surgery and
+radiotherapy). Photographs were taken (with a 4M digital camera) in four
+positions with the patient standing on floor marks: facing, arms down;
+facing, arms up; left side, arms up; right side, arms up – figure 7.3 .
+
+Participants were asked to evaluate overall aesthetic results,
+classifying each case into one of four categories: excellent – treated
+breast nearly identical to untreated breast; good – treated breast
+slightly different from untreated; fair – treated breast clearly
+different from untreated but not seriously distorted; poor – treated
+breast seriously distorted [ 35 ] .
+
+In order to obtain a consensus among observers, the Delphi process was
+used [ 46 , 47 ] . Evaluation of each case was considered consensual
+when more than 50% of observers provided the same classification. When
+this did not occur, another round of agreement between observers was
+performed. By means of the Delphi process each and every patient was
+classified in one of the four categories (table 7.3 ): poor , fair ,
+good , and excellent .
+
+The evaluation of two individual aesthetic characteristics, scar
+visibility and colour dissimilarities between the breasts, were asked to
+the panel, using the same grading scale: excellent ; good ; fair ; poor
+.
+
+##### Feature Selection
+
+As possible objective features we considered those already identified by
+domain experts as relevant to the aesthetic evaluation of the surgical
+procedure [ 38 , 43 ] . The cosmetic result after breast conserving
+treatment is mainly determined by visible skin alterations or changes in
+breast volume or shape. Skin changes may consist of a disturbing
+surgical scar or radiation-induced pigmentation or telangiectasia [ 43 ]
+. Breast asymmetry was assessed by Breast Retraction Assessment (BRA),
+Lower Breast Contour (LBC) or Upward Nipple Retraction (UNR) – figure
+7.4 .
+
+Because breast asymmetry was insufficient to discriminate among
+patients, we adopted the mean of the scar visibility and skin colour
+change, as measured by the Delphi panel, as additional features to help
+in the separation task, as we had not yet established the evaluation of
+those features by quantitative methods [ 23 ] .
+
+##### Classifier
+
+The leave one out method [ 8 ] was selected for the validation of the
+classifiers: the classifier is trained in a round-robin fashion, each
+time using the available dataset from which a single patient has been
+deleted; each resulting classifier is then tested on the single deleted
+patient.
+
+When in possession of a nearly separable dataset, a simple linear
+separator is bound to misclassify some points. But the real question is
+if the non-linearly-separable data indicates some intrinsic property of
+the problem (in which case a more complex classifier, allowing more
+general boundaries between classes may be more appropriate) or if it can
+be interpreted as the result of noisy points (measurement errors,
+uncertainty in class membership, etc), in which case keeping the linear
+separator and accept some errors is more natural. Supported by Occam’s
+razor principle (“one should not increase, beyond what is necessary, the
+number of entities required to explain anything”), the latter was the
+option taken in this research.
+
+#### Datasets
+
+A fast visual checking of the quality of the data (figure 7.5 ) shows
+that there is a data value that is logically inconsistent with the
+others: an individual (patient @xmath ) labeled as good when in fact it
+is placed between fair and poor in the feature space. The classifiers
+were evaluated using datasets with and without this outlier in order to
+assess the behaviour in the presence of noisy examples.
+
+In summary, results are reported for six different datasets: { LBC (arms
+down); scar visibility (mean); skin colour change (mean)}, { BRA (arms
+down); scar visibility (mean); skin colour change (mean)}, { UNR (arms
+down); scar visibility (mean); skin colour change (mean)}, each with
+@xmath and @xmath examples. In [ 23 ] other datasets were evaluated,
+showing similar behaviour.
+
+#### Results
+
+The bar graph 7.6 summarizes the generalization error estimated for each
+classifier. It is apparent that algorithms specially designed for
+ordinal data perform better than generic algorithms for nominal classes.
+It is also noticeable the superiority of the LBC measure over the other
+asymmetry measures under study to discriminate classes.
+
+## Chapter 8 Results for datasets from regression problems
+
+Because of the general lack of benchmark datasets for ordinal
+classification, we also performed experiments with datasets from
+regression problems, by converting the target variable into an ordinal
+quantity. The datasets were taken from a publicly available collection
+of regression problems ^(†) ^(†) † The datasets were selected from
+http://www.liacc.up.pt/~ltorgo/Regression/DataSets.html .
+
+### 8.1 Abalone dataset
+
+The goal is to predict the age of abalone from physical measurements.
+^(‡) ^(‡) ‡ The information is a replica of the notes for the abalone
+dataset from the UCI repository. The age of abalone is determined by
+cutting the shell through the cone, staining it, and counting the number
+of rings through a microscope – a boring and time-consuming task. Other
+measurements, which are easier to obtain, are used to predict the age.
+Further information, such as weather patterns and location (hence food
+availability) may be required to solve the problem.
+
+Examples with missing values were removed from the original data (the
+majority missing the predicted value), and the ranges of the continuous
+values have been scaled for the use with an artificial neural network
+(by dividing by 200). The sex attribute was represented as @xmath ,
+@xmath , @xmath . The characteristics of the dataset are summarized in
+table 8.1 , where are listed the attribute name, attribute type, the
+measurement unit and a brief description; the class distribution is
+depicted in figure 8.1 .
+
+The results obtained, table 8.3 , can be confronted with results
+reported in previous studies – table 8.2 .
+
+If it is true that generally we might prefer simpler models for
+explanation at the same performance – a parsimonious representation of
+the observed data –, then the simple weighted sum of the attributes
+yielded by the data replication method is clearly in advantage.
+
+### 8.2 CPU performance dataset
+
+The goal is to predict the relative CPU performance. From the 10 initial
+attributes 6 were used as predictive attributes and 1 as the goal field,
+discarding the vendor name, model name and estimated relative
+performance from the original article. The characteristics of the fields
+used are summarized in table 8.4 , for the 209 instances.
+
+Before training, the predictive attributes were scaled to fall always
+within the range @xmath , using the transformation @xmath . The results
+obtained, table 8.6 , can be confronted with results reported in
+previous studies – table 8.5 .
+
+These results continue to suggest the merit of specific methods for
+ordinal data over conventional methods, attaining the best performance
+at the greatest simplicity.
+
+## Chapter 9 Conclusion
+
+This study focuses on the application of machine learning methods, and
+in particular of neural networks and support vector machines, to the
+problem of classifying ordinal data. Two novel approaches to train
+learning algorithms for ordinal data were presented. The first idea is
+to reduce the problem to the standard two-class setting, using the so
+called data replication method , a nonparametric procedure for the
+classification of ordinal categorical data. This method was mapped into
+neural networks and support vector machines. Two well-known approaches
+for the classification of ordinal categorical data were unified under
+this framework, the minimum margin principle [ 4 ] and the generic
+approach by Frank and Hall [ 22 ] . Finally, it was also presented a
+probabilistic interpretation for the neural network model.
+
+The second idea is to retain the ordinality of the classes by imposing a
+parametric model for the output probabilities. The introduced unimodal
+model, mapped to neural networks, was then confronted with established
+regression methods.
+
+The study compares the results of the proposed models with conventional
+learning algorithms for nominal classes and with models proposed in the
+literature specifically for ordinal data. Simple misclassification, mean
+absolute error, root mean square error, Spearman and Kendall’s tau-b
+coefficients are used as measures of performance for all models and used
+for model comparison. The new methods are likely to produce simpler and
+more robust classifiers, and compare favourably with state-of-the-art
+methods. However, the reported results must be taken with caution. In
+most of the experiments the effort to find the correct setting for the
+parameters of the algorithms was limited (although unbiased among
+methods). So, although reasonable conclusions are drawn from the
+experiments, we do not wish to overstate our claims.
+
+This thesis has covered the multiclass classification accuracy and
+classifier simplicity, but a brief word on speed is in order. Comparing
+different machine learning algorithms for speed is notoriously
+difficult; we are simultaneously judging mathematical algorithms and
+specific implementations. However, some useful general observations can
+be made. Empirically, SVM training time tends to be superlinear in the
+number of the training points [ 48 ] . Armed only with this assumption,
+it is a simple exercise to conclude that the complexity of the data
+replication formulation is placed between the simple approach of Frank
+and Hall and the pairwise of Herbrich.
+
+An issue intentionally avoided until now was the very own definition of
+ordinal classes. Although we do not wish to delve deeply on that now, a
+few comments are in order.
+
+Apparently, a model that restricts the search to noncrossing boundaries
+is too restrictive, imposing unnecessary and unnatural constraints on
+the solution, limiting this way the feasible solutions to a subset of
+what we would expect to be a valid solution to an ordinal data problem.
+On the other side, the unimodal model, more plausible and intuitive,
+seems to capture better the essence of the problem. However, it is a
+simple exercise to verify that the unimodal model does not allow
+boundaries’ intersections – the intersection point would indicate an
+example where three or more classes are equally probable. For that
+reason, the unimodal model (parametric or not) seems to be a subset of
+the noncrossing boundaries model. It is also reasonable to accept that
+each noncrossing boundary solution may be explained by, at least, an
+unimodal model (however, there is not a bijection between the two, as
+different unimodal models may lead to the same noncrossing boundary
+solution; in fact, non-unimodal models may also lead to noncrossing
+boundaries).
+
+It is visible here a resemblance with the parallelism between parametric
+classifiers that must estimate the probability density function for each
+class in order to apply the bayes likelihood ratio test and classifiers
+that specify the mathematical form of the classifier (linear, quadratic,
+etc), leaving a finite set of parameters to be determined.
+
+We are not advocating any model in particular. Pragmatically, see them
+as two more tools: only testing will say which is best in a specific
+machine learning problem.
+
+Finally, as all unfinished jobs, this also leaves some interesting
+anchors for future work. As mentioned in this thesis, several unimodal
+models were implemented making use of a generic optimization function
+available in Matlab. It would be most interesting to adapt the
+backpropagation method to all unimodal models and perform a fair
+comparison. The data replication method is parameterised by @xmath (and
+@xmath ); because it may be difficult and time consuming to choose the
+best value for @xmath , it would be interesting to study possible ways
+to automatically set this parameter, probably as a function of the data
+and @xmath . It would also be interesting to study if these algorithms
+can be successfully applied to nominal data. Although the data
+replication method was designed for ordinal classes, nothing impedes its
+application to nominal classes. It is expected that the classifier
+should be evaluated for each possible order of the classes, choosing the
+one conducting to the best performance (feasible only when the number of
+classes is small). A systematic study of decision trees’ algorithms for
+ordinal data is also indispensable. It would be a significant
+accomplishment to map the models introduced in this thesis to decision
+trees.

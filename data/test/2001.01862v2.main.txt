@@ -1,0 +1,2228 @@
+# 1 Introduction
+
+The notion of an algorithm is fundamental for computing, so it may seem
+surprising that there is still no commonly accepted definition. This is
+different for the notion of computable function that is captured by
+several equivalent formalisms such as Turing machines, random access
+machines, partial-recursive functions, @xmath -definable functions and
+many more [ 15 ] . However, as there is typically a huge gap between the
+abstraction level of an algorithm and the one of Turing machines,
+Gurevich concluded that the latter ones cannot serve as a definition for
+the notion of an algorithm [ 22 ] . He proposed to extend Turing’s
+thesis to a new thesis, based on the observation that “if an abstraction
+level is fixed (disregarding low-level details and a possible
+higher-level picture) and the states of an algorithm reflect all the
+relevant information, then a particular small instruction set suffices
+to model any algorithm, never mind how abstract, by a generalised
+machine very closely and faithfully”.
+
+Still it took many years from the formulation of this new thesis to the
+publication of the behavioural theory of sequential algorithms in [ 24 ]
+. In this seminal work—also known as the “sequential ASM thesis”—a
+sequential algorithm (seq-algorithm) is defined by three postulates ¹ ¹
+1 A mathematically precise formulation of these postulates requires more
+care, see below, but the rough summary here will be sufficient for now.
+:
+
+  Sequential Time.  
+
+    A sequential algorithm proceeds in sequential time using states,
+    initial states and transitions from states to successor states.
+
+  Abstract State.  
+
+    States are universal algebras (aka Tarski structures), i.e.
+    functions resulting from the interpretation of a signature, i.e. a
+    set of function symbols, over a base set.
+
+  Bounded Exploration.  
+
+    There exists a finite set of ground terms such that the difference
+    between a state and its successor state is uniquely determined by
+    the values of these terms in the state ² ² 2 This set of terms is
+    usually called a bounded exploration witness , while the difference
+    between a state and its successor is formally given by an update set
+    . Informally, bounded exploration requires that there are only
+    finitely many terms, the interpretation of which determine how a
+    state will be updated by the algorithm to produce the successor
+    state. .
+
+The behavioural theory further comprises the definition of sequential
+Abstract State Machines (seq-ASMs) and the proof that seq-ASMs capture
+seq-algorithms, i.e. they satisfy the postulates, and every
+seq-algorithm can be step-by-step simulated by a seq-ASM. As pointed out
+in [ 24 , Sect.9.2] (and elaborated to a full proof in [ 14 , Sect.7.2.2
+-7.2.3] ) it is easy to extend the theory to cover also bounded
+non-determinism, using non-deterministic sequential ASMs (nd-seq ASMs) ³
+³ 3 It suffices to slightly modify the sequential time and the abstract
+state postulates, using in particular a successor relation instead of a
+function and permitting the choice between finitely many rules. Gurevich
+uses the term ‘bounded-choice nondeterministic algorithm’ instead of
+‘nd-seq algorithm’. .
+
+It should be noted that the definition of a sequential algorithm given
+by Gurevich does not require a particular formalism for the
+specification . Seq-ASMs capture seq-algorithms, so they are a suitable
+candidate for specification ⁴ ⁴ 4 In particular, as pointed out in [ 14
+] , rules in an ASM look very much like pseudo-code, so the appearance
+of ASM specifications is often close to the style, in which algorithms
+have been described in the past and in textbooks. The difference is of
+course that the semantics of ASMs is precisely defined. , but they are
+not the only possible choice. For instance, in the light of the proofs
+in [ 24 ] it is not an overly difficult exercise to show that
+deterministic Event-B [ 2 ] or B [ 1 ] also capture seq-algorithms.
+
+We believe that in order to obtain a commonly acceptable definition of
+the notion of algorithm, this distinction between an axiomatic
+definition (as by Gurevich’s postulates for seq-algorithms), which does
+not refer to a particular language or programming style, and the capture
+by an abstract machine model (such as seq-ASMs, deterministic Event-B or
+others) is fundamental.
+
+In [ 29 ] Moschovakis raised the question how recursive algorithms like
+the well-known mergesort are covered. He questions that algorithms can
+be adequately defined by machines (see also [ 30 ] ). Although the
+perception that Gurevich used seq-ASMs as a definition for the general
+notion of algorithm—not only for its sequential instance—is a
+misinterpretation, unfortunately the response by Blass and Gurevich [ 8
+] to Moschovakis’s criticism does not clarify the issue in a convincing
+way. Instead of admitting that an extended behavioural theory for
+recursive algorithms still needs to be developed, distributed ASMs with
+a semantics defined through partial-order runs [ 23 ] are claimed to be
+sufficient to capture recursive algorithms. ⁵ ⁵ 5 The definition of
+recursive ASMs in [ 21 ] uses a special case of this translation of
+recursive into distributed computations. As Börger and Bolognesi point
+out in their contribution to the debate [ 9 ] , a much simpler extension
+of seq-ASMs suffices for the specification of algorithms of the
+mergesort kind, which define recursive functions (as do Moschovakis’
+systems of recursive equations called ‘recursive programs’ [ 30 ] , see
+the discussion in Sect. 6 ). Furthermore, the response by Blass and
+Gurevich blurs the subtle distinction between the axiomatic definition
+and the possibility to express any algorithm on an arbitrary level of
+abstraction by an abstract machine. This led also to Vardi’s almost
+cynical comment that the debate is merely about the preferred
+specification style (functional or imperative), which is as old as the
+field of programming [ 35 ] . ⁶ ⁶ 6 This debate, however, is still much
+younger than the use of the notion of algorithm.
+
+While the difficult epistemological issue concerning the definition of
+the general notion of algorithm has been convincingly addressed for
+sequential algorithms by Gurevich’s behavioural theory, no such theory
+for recursive algorithms or distributed algorithms was available at the
+time of the debate between Moschovakis, Blass and Gurevich, Börger and
+Bolognesi, and Vardi. In the meantime a behavioural theory for
+concurrent algorithms has been developed [ 11 ] . It comprises an
+axiomatic definition of the notion of concurrent algorithm as a family
+of nd-seq algorithms indexed by agents that is subject to an additional
+concurrency postulate for their runs, by means of which Lamport’s
+sequential consistency requirement is covered and generalised [ 25 ] .
+In a nutshell, the concurrency postulate requires that a successor state
+of the global state of the concurrent algorithm results from
+simultaneously applying update sets of finitely many agents that have
+been built on some previous (not necessarily the latest) states.
+
+Using this theory of concurrency it is possible to reformulate the
+answer given by Blass and Gurevich to Moschovakis’s question: every
+recursive algorithm is a concurrent algorithm with partial-order runs.
+Since concurrent ASMs capture concurrent algorithms (as shown in [ 11 ]
+), they provide a natural candidate for the specification of all
+concurrent algorithms, thus in particular of recursive algorithms.
+However, the “overkill” argument will remain, as the class of concurrent
+algorithms is much larger than the class of recursive algorithms.
+
+For example, take the mergesort algorithm (see Sect. 4.1 ). Every call
+to (a copy of) itself and every call to (a copy of) the auxiliary merge
+algorithm could give rise to a new agent. However, these agents only
+interact by passing input parameters and return values, but otherwise
+operate on disjoint sets of locations. In addition, a calling agent
+always waits to receive return values, which implies that only one or
+(in case of parallel calls) two agents are active in any state. In
+contrast, in a concurrent algorithm all agents may be active, and they
+can interact in many different ways on shared locations as well as on
+different clocks. As a consequence, concurrent runs may become highly
+non-deterministic and not linearisable, whereas a sequential ⁷ ⁷ 7 We
+use here the attribute ‘sequential’ to emphasize that we view recursive
+algorithms as sequential algorithms which call sequential algorithms, so
+that no unbounded parallelism is allowed. The reason is that unbounded
+parallelism permits to define recursion, as we explain in Sect. 4 .
+recursive algorithm permits at most bounded non-determinism and without
+loss of generality several simultaneous calls can always be
+sequentialised.
+
+This motivates the research we report in this article. Our objective is
+to develop a behavioural theory of sequential recursive algorithms. For
+this we propose an axiomatic definition of sequential recursive
+algorithms which enriches sequential algorithms by call steps, such that
+the parent-child relationship between caller and callee defines
+well-defined shared locations representing input and return parameters.
+We will present and motivate our axiomatisation in Section 2 . In
+Section 3 we define recursive ASMs by an appropriate extension of nd-seq
+ASMs ⁸ ⁸ 8 Since by definition recursive ASMs are extensions of nd-seq
+ASMs, to obtain a short name we skip the two attributes
+‘non-deterministic’ and ‘sequential’. with a call rule and show our main
+result, aka Recursive ASM Thesis:
+
+Main Theorem. Sequential recursive algorithms are captured by recursive
+ASMs.
+
+Section 4 is dedicated to an illustration of our theory by examples. We
+concentrate on mergesort , quicksort and the sieve of Eratosthenes for
+which we present recursive ASMs. We use the examples to show that the
+parallelism of ASMs, which is unbounded, is stronger than sequential
+recursion, so that there is no need to investigate parallel recursive
+algorithms separately from parallel algorithms.
+
+In Section 5 we report an application of the recursive ASM thesis. ⁹ ⁹ 9
+A preliminary version of the result presented in Section 5 appeared in [
+13 ] . We return to the observation by Blass and Gurevich—though not
+explicitly stated in [ 8 ] —that sequential recursive algorithms are
+linked to concurrent algorithms with partial-order runs. We first show
+that indeed the runs of a sequential recursive algorithm (read: of a
+recursive ASM) are definable by partial-order runs (Theorem 5.2 ), which
+comes at no surprise. The amazing second discovery was that also a
+converse relation holds, namely if all runs of a finitely composed
+concurrent algorithm (read: of a concurrent ASM @xmath which consists
+only of instances of a bounded number of nd-seq ASMs) are definable by
+partial-order runs, then this algorithm is equivalent to a recursive ASM
+(Theorem 5.3 ). This relativizes the overkill argument. ¹⁰ ¹⁰ 10 In
+fact, it shows that, roughly speaking, finitely composed concurrent
+algorithms with partial-order runs are indeed the sequential recursive
+algorithms, and the response given in [ 8 ] may be seen as the result of
+ingenious serendipity. However, arbitrary concurrent algorithms as
+discussed in [ 11 ] are a much wider class of algorithms.
+
+Theorem 5.3 can be strengthened if the given concurrent ASM is static,
+i.e. with a fixed set of agents with associated programs. Such
+concurrent ASMs are equivalent to nd-seq ASMs (Theorem 5.4 ). An
+interesting corollary of this theorem concerns the Process Rewrite
+Systems investigated in [ 27 ] . They form the most general and most
+expressive set in a hierarchy of classes of rewrite systems which can be
+used to model certain state-based concurrent systems and are classified
+in [ 27 ] by their expressiveness. Furthermore, the Process Rewrite
+Systems are shown in [ 27 ] to strictly extend Petri nets (by
+subroutines that can return a value to their caller), but still to have
+a decidable reachability problem. As a corollary of Theorem 5.4 it turns
+out that for each Process Rewrite System, its partial-order runs can be
+simulated by runs of a nd-seq ASM (Corollary 1 ).
+
+Finally, in Section 6 we embed our work into a larger picture of related
+work on behavioural theories, and in Section 7 we present a brief
+summary and outlook on further research.
+
+## 2 Axiomatisation of Recursive Algorithms
+
+A decisive feature of a recursive algorithm is that it calls itself, or
+more precisely a copy (we also say an instance) of itself. If we
+consider mutual recursion, then this becomes slightly more general, as
+there is a finite family of algorithms calling (copies of) each other.
+Therefore, providing copies of algorithms and enabling calls will be
+essential for the intended definition of the notion of recursive
+algorithm, whereas otherwise we rely on Gurevich’s axiomatic definition
+of sequential algorithms. Furthermore, there may be several simultaneous
+calls, which give rise to non-determinism, ¹¹ ¹¹ 11 The presence of this
+non-determinism in recursive algorithms has also been observed in
+Moschovakis’ criticism [ 29 ] , e.g. mergesort calls two copies of
+itself, each sorting one half of the list of given elements. as these
+simultaneously called copies may run sequentially in one order or the
+other, or in parallel or even asynchronously. However, there is no
+interaction between simultaneously called algorithms, which implies that
+the mentioned execution latitude already covers all choices.
+
+### 2.1 Non-deterministic Sequential Algorithms
+
+In this section we recall the axiomatic definition of non-deterministic
+sequential algorithms.
+
+###### Definition 1
+
+A non-deterministic sequential algorithm (for short: nd-seq algorithm )
+is defined by the branching time, abstract state and bounded exploration
+postulates 1 , 2 and 3 in [ 24 ] , paper to which we refer for the
+motivation for these axioms.
+
+###### Postulate 1 (Branching Time Postulate)
+
+An nd-seq algorithm @xmath comprises a set @xmath , elements of which
+are called states , a subset @xmath , elements of which are called
+initial states , and a one-step transition relation @xmath . ¹² ¹² 12
+For deterministic algorithms @xmath is a function. Whenever @xmath
+holds, the state @xmath is called a successor state of the state @xmath
+and we say that the algorithm performs a step in @xmath to yield @xmath
+.
+
+Though Postulate 1 only gives a necessary condition for nd-seq
+algorithms and in particular leaves open what states are, one can
+already derive some consequences from it such as the notions of run ,
+final state and behavioural equivalence .
+
+###### Definition 2
+
+Let @xmath be a nd-seq algorithm with states @xmath , intial states
+@xmath and transition relation @xmath . A run of @xmath is a sequence
+@xmath with @xmath for all @xmath and @xmath such that @xmath holds for
+all @xmath .
+
+Often @xmath is called a final state of a run @xmath of @xmath (and the
+run is called terminated in this state) if @xmath holds for all @xmath .
+But sometimes it is more convenient to use a dynamic termination
+predicate whose negation guards the execution of the algorithm @xmath
+and which is set to true by @xmath when @xmath reaches a state one wants
+to consider as final.
+
+States are postulated to be universal algebras (aka Tarski structures ),
+which capture all desirable structures that appear in mathematics and
+computing.
+
+###### Definition 3
+
+A signature @xmath is a finite set of function symbols, and each @xmath
+is associated with an arity @xmath . A structure over @xmath comprises a
+base set ¹³ ¹³ 13 For convenience to capture partial functions it is
+tacitly assumed that base sets contain a constant undef and that each
+isomorphism @xmath maps undef to itself. @xmath and an interpretation of
+the function symbols @xmath by functions @xmath . An isomorphism @xmath
+between two structures is given by a bijective mapping @xmath between
+the base sets that is extended to the functions by @xmath for all @xmath
+and @xmath .
+
+###### Postulate 2 (Abstract State Postulate)
+
+Each nd-seq algorithm @xmath comprises a signature @xmath such that
+
+1.  Each state @xmath of @xmath is a structure over @xmath .
+
+2.  The sets @xmath and @xmath of states and initial states,
+    respectively, are both closed under isomorphisms.
+
+3.  Whenever @xmath holds, then the states @xmath and @xmath have the
+    same base set.
+
+4.  Whenever @xmath holds and @xmath is an isomorphism defined on @xmath
+    , then also @xmath holds.
+
+In the following we write @xmath to denote the interpretation of the
+function symbol @xmath in the state @xmath . Though we still have only
+necessary conditions for nd-seq algorithms, one can define further
+notions that are important for the development of the theory.
+
+###### Definition 4
+
+A location of the nd-seq algorithm @xmath is a pair @xmath with a
+function symbol @xmath of arity @xmath and all @xmath . If @xmath is the
+base set of state @xmath and @xmath holds, then @xmath is called the
+value of the location @xmath in state @xmath .
+
+We write @xmath for the value of the location @xmath in state @xmath .
+The evaluation function val can be extended to ground terms in a
+straightforward way.
+
+###### Definition 5
+
+The set of ground terms over the signature @xmath is the smallest set
+@xmath such that @xmath holds for all @xmath with @xmath and @xmath ¹⁴
+¹⁴ 14 Clearly, for the special case @xmath we get @xmath . Instead of
+@xmath we usually write simply @xmath . . The value @xmath of a term
+@xmath in a state @xmath is defined by @xmath .
+
+With the notions of location and value one can further define updates
+and their result on states ¹⁵ ¹⁵ 15 Note that update sets as we use them
+are merely differences of states. .
+
+###### Definition 6
+
+An update of an nd-seq algorithm @xmath in state @xmath is a pair @xmath
+with a location @xmath and a value @xmath , where @xmath is the base set
+of @xmath . An update @xmath is trivial iff @xmath holds. An update set
+is a set of updates. An update set @xmath in state @xmath is consistent
+iff @xmath implies @xmath , i.e. there can be at most one non-trivial
+update of a location @xmath in a consistent update set. If @xmath is a
+consistent ¹⁶ ¹⁶ 16 Otherwise, usually the term @xmath used to define
+the successor state is considered as not defined. An alternative is to
+extend this definition letting @xmath , if @xmath is inconsistent.
+update set in state @xmath , then @xmath denotes the unique state @xmath
+with @xmath .
+
+Considering the locations, where a state @xmath and a successor state
+@xmath differ, gives us the following well-known fact (see [ 24 ] ).
+
+###### Fact 1
+
+If @xmath holds, then there exists a unique minimal consistent update
+set @xmath with @xmath . ¹⁷ ¹⁷ 17 The conclusion is true for any given
+pair @xmath of states, independently of the relation @xmath .
+
+We use the notation @xmath for the consistent update set that is defined
+by @xmath . We further write @xmath for the set of all such update sets
+defined in state @xmath , i.e. @xmath .
+
+The third postulate concerns bounded exploration. It is motivated by the
+simple observation that any algorithm requires a finite representation,
+which implies that only finitely many ground terms may appear in the
+representation, and these must then already determine the successor
+state—for a more detailed discussion see [ 24 ] —or the successor states
+in the case of non-determinism. Formally, this requires a notion of
+coincidence for a set of ground terms in different states.
+
+###### Definition 7
+
+Let @xmath be a set of ground terms for a nd-seq algorithm @xmath . Two
+states @xmath and @xmath with the same base set @xmath coincide on
+@xmath iff @xmath holds for all terms @xmath .
+
+###### Postulate 3 (Bounded Exploration Postulate)
+
+Each nd-seq algorithm @xmath comprises a finite set of ground terms
+@xmath such that whenever two states @xmath and @xmath with the same
+base set coincide on @xmath the corresponding sets of update sets for
+@xmath and @xmath are equal, i.e. we have @xmath . The set @xmath is
+called a bounded exploration witness .
+
+Bounded exploration witnesses are not unique. In particular, the
+defining property remains valid, if @xmath is extended by finitely many
+terms. Therefore, without loss of generality we may tacitly assume that
+a bounded exploration witness @xmath is always closed under subterms. We
+then call the elements of @xmath critical terms . If @xmath is a
+critical term, then its value @xmath in a state @xmath is called a
+critical value . This gives rise to the following well-known fact.
+
+###### Fact 2
+
+The set @xmath of update sets of an nd-seq algorithm @xmath in a state
+@xmath is finite, and every update set @xmath is also finite.
+
+For a proof we first need to show that in every update @xmath in an
+update set @xmath the values @xmath are critical [ 24 ] . As @xmath is
+finite, there are only finitely many critical values, and we can only
+build finite update sets @xmath and only finitely many sets of update
+sets with these. We will use such arguments later in Section 3 to show
+that recursive algorithms are captured by recursive ASMs, and dispense
+with giving more details here.
+
+### 2.2 Recursion Postulate
+
+As remarked initially, an essential property of any recursive algorithm
+is the ability to perform call steps, i.e. to trigger an instance of a
+given algorithm (maybe of itself) and remain waiting until the callee
+has computed an output for the given input. We make this explicit by
+extending the postulate on the one-step transition relation @xmath of
+nd-seq algorithms by characteristic conditions for a call step (see
+Postulate 4 below).
+
+Furthermore, it seems to be characteristic for runs of recursive
+algorithms that in a given state, the caller may issue in one step more
+than one call, though only finitely many, of callees which perform their
+subcomputations independently of each other. For an example see the
+@xmath rule in the mergesort algorithm in Section 4 . The resulting
+‘asynchronous parallelism’ implies that the states in runs of a
+recursive algorithm are built over the union of the signatures of the
+calling and the called algorithms.
+
+The independency condition for parallel computations of different
+instances of the given algorithms requires that for different calls, in
+particular for different calls of the same algorithm, the state spaces
+of the triggered subcomputations are separated from each other. Below we
+make the term instance of an algorithm more precise to capture the
+needed encapsulation of subcomputations. This must be coupled with an
+appropriate input/output relation between the input provided by the
+caller and the output computed by the callee for this input, which will
+be captured by a call relationship in Definition 9 .
+
+This explains the following definition of an i/o-algorithm as nd-seq
+algorithm with call steps and distinguished function symbols for input
+and output.
+
+###### Definition 8
+
+An algorithm with input and output (for short: i/o-algorithm ) is an
+nd-seq algorithm whose one-step transition relation @xmath may comprise
+call steps satisfying the Call Step Postulate 4 formulated below and
+whose signature @xmath is the disjoint union of three subsets
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+containing respectively input, local and output function symbols that
+satisfy the input/output assumption defined below.
+
+Function symbols in @xmath , @xmath and @xmath , respectively, are
+called input , output and local function symbols. Correspondingly,
+locations with function symbol in @xmath , @xmath and @xmath ,
+respectively, are called input , output and local locations . We include
+into input resp. output locations also variables which appear as input
+resp. output parameters of calls, although they are not function
+symbols.
+
+The assumption on input/output locations of i/o-algorithms is not
+strictly needed, but it can always be arranged and it eases the
+development of the theory.
+
+#### Input/Output Assumption
+
+for i/o algorithms @xmath :
+
+1.  Input locations of @xmath are only read by @xmath , but never
+    updated by @xmath . Formally, this implies that if @xmath is an
+    update in an update set @xmath of @xmath in any state @xmath , then
+    the function symbol @xmath in @xmath is not in @xmath of @xmath .
+
+2.  Output locations of @xmath are never read by @xmath , but can be
+    written by @xmath . This can be formalised by requiring that if
+    @xmath is a bounded exploration witness, then for any term @xmath we
+    have @xmath .
+
+3.  Any initial state of @xmath only depends on its input locations, so
+    we may assume that @xmath holds in every initial state @xmath of
+    @xmath for all output and local locations @xmath . This assumption
+    guarantees that when an i/o-algorithm is called, its run is
+    initialized by the given input, which reflects the common intuition
+    using input and output.
+
+In a call relationship we call the caller the parent and the callee the
+child algorithm. Intuitively,
+
+1.  the parent algorithm is able to update input locations of the child
+    algorithm, which determines the child’s initial state;
+
+2.  when the child algorithm is called, control is handed over to it
+    until it reaches a final state, in which state the parent takes back
+    control and is able to read the output locations of the child;
+
+3.  the two algorithms have no other common locations.
+
+Therefore we define:
+
+###### Definition 9
+
+A call relationship holds for (instances of) two i/o-algorithms @xmath
+(parent) and @xmath (child) if and only if they satisfy the following:
+
+-   @xmath . Furthermore, @xmath may update input locations of @xmath ,
+    but never reads these locations. Formally this implies that for a
+    bounded exploration witness @xmath of @xmath and any term @xmath we
+    have @xmath .
+
+-   @xmath . Furthermore, @xmath may read but never updates output
+    locations of @xmath , so we have that for any update in an update
+    set @xmath in any state @xmath of @xmath , its function symbol is
+    not in @xmath .
+
+-   @xmath (no other common locations).
+
+###### Postulate 4 (Call Step Postulate)
+
+When an i/o-algorithm @xmath —the caller, viewed as parent
+algorithm—calls a finite number of i/o-algorithms @xmath —the callees,
+viewed as child algorithms @xmath —a call relationship (denoted as
+@xmath ) holds between the caller and each callee. The caller activates
+a fresh instance of each callee @xmath so that they can start their
+computations. These computations are independent of each other and the
+caller remains waiting—i.e. performs no step—until every callee has
+terminated its computation (read: has reached a final state). For each
+callee, the initial state of its computation is determined only by the
+input passed by the caller; the only other interaction of the callee
+with the caller is to return in its final state an output to @xmath .
+
+###### Definition 10
+
+A sequential recursive algorithm @xmath is a finite set of
+i/o-algorithms—i.e. satisfying the branching time, abstract state,
+bounded exploration and call step postulates 1 , 2 , 3 and 4 —one of
+which is distinguished as main algorithm. The elements of @xmath are
+also called components of @xmath .
+
+Differently from runs of a nd-seq algorithm as defined by Definition 2 ,
+where in each state at most one step of the nd-seq algorithm is
+performed, in a recursive run a sequential recursive algorithm @xmath
+can perform in one step simultaneously one step of each of finitely many
+not terminated and not waiting called instances of its i/o-algorithms.
+This is expressed by the recursive run postulate 5 below. In this
+postulate we refer to @xmath and not @xmath instances of components,
+which are defined as follows:
+
+###### Definition 11
+
+To be @xmath resp. @xmath in a state @xmath is defined as follows:
+
+-   @xmath
+
+    @xmath
+
+    @xmath
+
+@xmath collects the instances of algorithms that are called during the
+run. @xmath denotes the subset of @xmath which contains all the children
+called by @xmath . @xmath and @xmath are true in the initial state
+@xmath , for each i/o-algorithm @xmath . In particular, in @xmath the
+original component @xmath is considered to not be @xmath , for any
+@xmath .
+
+###### Postulate 5 (Recursive Run Postulate)
+
+For a sequential recursive algorithm @xmath with main component @xmath a
+recursive run is a sequence @xmath of states together with a sequence
+@xmath of sets of instances of components of @xmath which satisfy the
+following constraints concerning the recursive run and bounded call tree
+branching:
+
+  Recursive run constraint.  
+
+    -   @xmath is the singleton set @xmath , i.e. every run starts with
+        @xmath ,
+
+    -   every @xmath is a finite set of in @xmath @xmath and not @xmath
+        instances of components of @xmath ,
+
+    -   every @xmath is obtained in one @xmath -step by performing in
+        @xmath simultaneously one step of each i/o-algorithm in @xmath .
+        ¹⁸ ¹⁸ 18 Our reviewers worried here about synchronous,
+        asynchronous and interleaving executions. Due to the
+        independence of all the instances, whether they are executed in
+        parallel, asynchronously or interleaved does not matter here.
+        Note that @xmath is a not furthermore restricted finite subset
+        of all in @xmath @xmath and not @xmath (completely independent)
+        instances of components of @xmath . If @xmath contains more than
+        one instance, the instances in this @xmath and only these are
+        synchronized (independently for each @xmath ), but also
+        interleaving (where each @xmath is a singleton set) and
+        asynchronous execution are possible. We impose no constraint at
+        all on how the sets @xmath are determined, e.g. by an external
+        scheduling mechanism. Such an @xmath -step is also called a
+        recursive step of @xmath .
+
+  Bounded call tree branching.  
+
+    There is a fixed natural number @xmath , depending only on @xmath ,
+    which in every @xmath -run bounds the number of callees which can be
+    called by a call step.
+
+To capture the required independence of callee computations we now
+describe a way to make the concept of an instance of an algorithm and
+its computation more precise. The idea is to use for each callee a
+different state space, with the required connection between caller and
+callee through input and output terms. One can define an instance of an
+algorithm @xmath by adding a label @xmath , which we invite the reader
+to view as an agent executing the instance @xmath of @xmath . The label
+@xmath can be used as environment parameter for the evaluation @xmath of
+a term @xmath in state @xmath with the given environment. This yields
+different functions @xmath as interpretation of the same function symbol
+@xmath for different agents @xmath , so that the run-time
+interpretations of a common signature element @xmath can be made to
+differ for different agents, due to different inputs which determine
+their initial states. ¹⁹ ¹⁹ 19 The idea underlies the definition of
+ambient ASMs we will use in the following. It allows one to classify
+certain @xmath as ambient-dependent functions, whereby the algorithm
+instances become context-aware. For the technical details we refer to
+the definition in the textbook [ 10 , Ch.4.1] .
+
+This allows us to make the meaning of ‘activating a fresh instance of a
+callee’ in the Call Step Postulate more precise by using as fresh
+instance of a child algorithm @xmath called by @xmath an instance @xmath
+with a new label @xmath , where the interpretation @xmath of each input
+or output function @xmath satisfies @xmath during the run of @xmath .
+Note that by the call relationship constraint in the Call Step
+Postulate, input/output function symbols are in the signature of both
+the parent and the child algorithm. This provides the ground for the
+‘asynchronous parallelism’ of independent subcomputations in the run
+constraint of the recursive run postulate. In fact, when a state @xmath
+is obtained from state @xmath by one step of each of finitely many
+@xmath and not @xmath i/o-algorithms @xmath , this means that for each
+@xmath the one-step transition relation holds for the corresponding
+state restrictions, namely @xmath where @xmath denotes the restriction
+of state @xmath to the signature @xmath .
+
+With the above definitions one can make the Call Step Postulate more
+explicit by saying that if @xmath calls @xmath in a state @xmath so that
+as a result @xmath holds ²⁰ ²⁰ 20 To simplify the presentation we adopt
+a slight abuse of notation, writing @xmath with the global states @xmath
+even where @xmath really holds for their restriction to the
+sub-signature of the concrete algorithm @xmath . , then for fresh
+instances @xmath of @xmath with input locations @xmath ( @xmath ) the
+following holds:
+
+-   @xmath
+
+    @xmath
+
+    @xmath ²¹ ²¹ 21 Except the trivial case that all @xmath when @xmath
+    in @xmath are already @xmath .
+
+The predicate @xmath expresses that the restriction @xmath of @xmath to
+the signature of @xmath is an initial state of @xmath determined by
+@xmath , so that @xmath is ready to start its computation.
+
+###### Remark (on Call Trees)
+
+If in a recursive @xmath -run the main algorithm calls some
+i/o-algorithms, this call creates a finitely branched call tree whose
+nodes are labeled by the instances of the i/o-algorithms involved, with
+active and not waiting algorithms labeling the leaves and with the main
+(the parent) algorithm labeling the root of the tree and becoming
+waiting. When the algorithm at a leaf makes a call, this extends the
+tree correspondingly. When the algorithm at a child of a node has
+terminated its computation, we delete the child from the tree. The
+leaves of this (dynamic) call tree are labeled by the active not waiting
+algorithms in the run. When the main algorithm terminates, the call tree
+is reduced again to the root labeled by the initially called main
+algorithm .
+
+Usually, it is expected that for recursive @xmath -runs each called
+i/o-algorithm reaches a final state, but in general it is not excluded
+that this is not the case. An example of the former case is given by
+mergesort , whereas an example for the latter case is given by the
+recursive sieve of Eratosthenes algorithm discussed in [ 29 ] and used
+in Section 4 to illustrate our definitions.
+
+## 3 Capture of Recursive Algorithms
+
+We now proceed with the second step of our behavioural theory, the
+definition of an abstract machine model—these will be recursive ASMs, an
+extension of sequential ASMs—and the proof of the main theorem that the
+runs of this model capture the runs of sequential recursive algorithms
+(Theorems 3.1 and 3.2 ).
+
+### 3.1 Recursive Abstract State Machines
+
+As common with ASMs let @xmath be a signature and let @xmath be a
+universe of values. In addition, we assume a background structure
+comprising at least truth values and their connectives as well as the
+operations on them. Values defined by the background are assumed to be
+elements of @xmath . Then (ground) terms over @xmath are built in the
+usual way (using also the operations from the background), and they are
+interpreted taking @xmath as base set—for details we refer to the
+standard definitions of ASMs [ 14 ] . This defines the set of states of
+recursive ASM rules we are going to define now syntactically. We proceed
+by induction, adding to the usual rules of non-deterministic sequential
+(nd-seq) ASMs (which we repeat here for the sake of completeness) named
+rules which can be called. ²² ²² 22 The terse definition here avoids
+complicated syntax. We tacitly permit parentheses to be used in rules
+when needed. We use an arbitrary set @xmath of names for named rules.
+
+  Assignment.  
+
+    If @xmath are terms over the signature @xmath and @xmath is a
+    function symbol of arity @xmath , then @xmath is a recursive ASM
+    rule.
+
+  Branching.  
+
+    If @xmath is a Boolean term over the signature @xmath and @xmath is
+    a recursive ASM rule, then also IF @xmath THEN @xmath is a recursive
+    ASM rule.
+
+  Bounded Parallelism.  
+
+    If @xmath are recursive ASM rules, then also their parallel
+    composition, denoted PAR @xmath @xmath is a recursive ASM rule.
+
+  Bounded Choice.  
+
+    If @xmath are recursive ASM rules, then also the non-deterministic
+    choice among them, denoted CHOOSE @xmath is a recursive ASM rule.
+
+  Let.  
+
+    If @xmath is a recursive ASM rule and @xmath is a term and @xmath is
+    a variable, then LET @xmath IN @xmath is also a recursive ASM rule.
+
+  Call.  
+
+    Let @xmath be terms where the outermost function symbol of @xmath is
+    different from the outermost function symbol of @xmath for every
+    @xmath . Let @xmath be the name of a rule of arity @xmath , declared
+    by @xmath , where @xmath is a recursive ASM rule all of whose free
+    variables are contained in @xmath . Then @xmath is a recursive ASM
+    rule.
+
+###### Definition 12
+
+A recursive ASM rule of form @xmath is called a named i/o-rule or simply
+i/o-rule.
+
+The same way a sequential recursive algorithm consists of finitely many
+i/o-algorithms, a recursive ASM @xmath consists of finitely many
+recursive ASM rules, also called component (or component ASM) of @xmath
+.
+
+###### Definition 13
+
+A recursive Abstract State Machine (rec-ASM) @xmath consists of a finite
+set of recursive ASM rules, one of which is declared to be the main
+rule.
+
+For the signature @xmath of recursive ASM rules we use the notation
+@xmath for the split of @xmath into the disjoint union of input, output
+and local functions. For named i/o-rules @xmath the outermost function
+symbol of @xmath is declared as an element of @xmath and for each @xmath
+the outermost function symbol of @xmath is declared as an element of
+@xmath ( @xmath ). In the definition of the semantics of a named
+i/o-rule we will take care that the input/output assumption and the call
+relationship defined in Section 2.2 for i/o-algorithms are satisfied by
+named i/o-rules.
+
+Sequential and recursive ASMs differ in their run concept, analogously
+to the difference between runs of an nd-seq algorithm and of a
+sequential recursive algorithm. A sequential ASM is a ‘mono-agent’
+machine: it consists of just one rule ²³ ²³ 23 For notational
+convenience, this rule is often spelled out as a set of rules, however
+these rules are always executed together, in parallel. and in a
+sequential run this very same rule is applied in each step—by an
+execution agent that normally remains unmentioned. This changes with
+recursive ASMs which are ‘multi-agent’ machines. They consist of a set
+of independent rules, multiple instances of which (even of a same rule)
+may be called to be executed independently (for an example see the
+@xmath rule in Sect. 4 ). We capture this by associating an execution
+agent @xmath with each rule @xmath so that each agent can execute its
+rule instance independently of the other agents, in its own copy of the
+state space (i.e. instances of states over the signature of the executed
+rule), taking into account the call relationship between caller and
+callee (see below).
+
+Therefore every single step of a recursive ASM @xmath may involve the
+execution of one step by each of finitely many @xmath and not @xmath
+agents @xmath which execute in their state space the rule @xmath they
+are associated (we also say equipped ) with. To describe this separation
+of state spaces of different agents (in particular if they execute the
+same program), we define instances of a rule @xmath by ambient ASMs of
+form @xmath with agents @xmath (see below for details). The following
+definition paraphrases the run constraint in the Recursive Run Postulate
+5 .
+
+###### Definition 14
+
+A recursive run of a recursive ASM @xmath is a sequence @xmath of states
+together with a sequence @xmath of subsets of @xmath , where each @xmath
+is equipped with a @xmath that is an instance @xmath of a rule @xmath ,
+such that the following holds:
+
+-   @xmath is a singleton set @xmath , which in @xmath equals the set
+    @xmath , and its agent @xmath is equipped with @xmath .
+
+-   @xmath is a finite set of in @xmath @xmath and not @xmath agents. We
+    define (see Definition 11 ):
+
+    -   @xmath
+
+        @xmath
+
+-   @xmath is obtained from @xmath in one @xmath -step by performing for
+    each agent @xmath one step of @xmath . ²⁴ ²⁴ 24 If one wants to
+    stick to interleaving executions, it suffices to determine @xmath as
+    singleton sets.
+
+To complete the definition of recursive ASM runs, which extends the
+notion of runs of sequential ASMs, it suffices (besides explaining
+ambient ASMs) to add a definition for what it means semantically to
+apply a named i/o-rule. Using the ASM framework this boils down to
+extend the inductive definition of the update sets computed by
+sequential ASMs in a given state by defining the update sets computed by
+named i/o-rules.
+
+A detailed definition of ambient ASMs can be found in [ 10 , Ch.4.1] .
+Here it suffices to say that using @xmath as instance of a called rule
+@xmath permits to isolate the state space of agent @xmath from that of
+other agents, namely by evaluating terms @xmath in state @xmath
+considering also the agent parameter @xmath , using @xmath instead of
+@xmath . To establish the call relationship we require below the
+following: when a recursive ASM rule @xmath , executed by a parent agent
+@xmath , calls a rule @xmath to be executed by a child agent @xmath ,
+then the input/output functions @xmath of @xmath are also functions in
+@xmath and are interpreted there in the state space of @xmath the same
+way as in the state space of @xmath .
+
+For the sake of completeness we repeat the definition of update sets for
+sequential ASM rules from [ 23 ] and extend it for named i/o-rules.
+Rules @xmath of sequential ASMs do not change neither the set @xmath nor
+the @xmath function, so @xmath and @xmath do not appear in the
+definition of @xmath . ²⁵ ²⁵ 25 Note that @xmath defines the set of
+update sets by which rule @xmath changes state @xmath into a successor
+state @xmath . @xmath -rules are the only rules which involve also
+introducing a new element @xmath into @xmath (with a value assigned to
+@xmath ) and a state initialization corresponding to the provided input,
+so that @xmath executes its instance of the called rule.
+
+-   If @xmath is an assignment rule @xmath , then let @xmath . We define
+    @xmath .
+
+-   If @xmath is a branching rule IF @xmath THEN @xmath , then let
+    @xmath be the truth value @xmath . We define @xmath for @xmath and
+    @xmath otherwise.
+
+-   If @xmath is a parallel composition rule PAR @xmath , ²⁶ ²⁶ 26
+    Parallel composition rules are also written by displaying the
+    components @xmath vertically, omitting PAR and @xmath . then we
+    define @xmath .
+
+-   If @xmath is a bounded choice rule CHOOSE @xmath , then we define
+    @xmath .
+
+-   If @xmath is a let rule LET @xmath IN @xmath , then let @xmath , and
+    define @xmath .
+
+Now consider the case that @xmath is a call rule @xmath . In this case
+let @xmath , and let @xmath be the declaration of the rule named @xmath
+, with all free variables of @xmath among @xmath .
+
+In the call tree, the caller program @xmath plays the role of the parent
+of the called child program that will be executed by a new agent @xmath
+. The child program is an instance @xmath of @xmath with the outer
+function symbols of @xmath for @xmath classified as denoting input
+functions (which are not read by the caller program) and with the outer
+function symbol @xmath of @xmath classified as denoting an output
+function (which is not updated by the caller program). ²⁷ ²⁷ 27 The
+input parameters and the output location parameters are passed by value,
+so that the involved i/o-function symbols can be considered as belonging
+to the signature of caller and callee. The first two of the call
+relationship conditions are purely syntactical and can be assumed
+(without loss of generality) for caller and callee programs. The third
+condition is satisfied, because each local function symbol @xmath of
+arity @xmath is implicitly turned in a program instance into an ( @xmath
+)-ary function symbol, namely by adding the additional agent as
+environment parameter for the evaluation of terms with @xmath as leading
+function symbol. Therefore, each local function of the callee is
+different from each local function of the caller, and to execute the
+call rule means to create a new agent @xmath , ²⁸ ²⁸ 28 The function
+@xmath is assumed to yield for each invocation a fresh element, pairwise
+different ones for parallel invocations. One can define such a function
+also by an @xmath construct which operates on a (possibly infinite)
+special reserve set and comes with an additional constraint on the
+@xmath construct to guarantee that parallel imports yield pairwise
+different fresh elements, see [ 14 , 2.4.4] . which is @xmath the agent
+@xmath that executes the call, to equip @xmath with the fresh program
+instance @xmath and its state by the values of @xmath . This makes the
+callee ready to run and puts the caller into @xmath mode, in the sense
+defined by Definition 11 (except the trivial case that @xmath is already
+@xmath when @xmath so that it will not be executed).
+
+In other words we define @xmath as the singleton set containing the
+update set computed in state @xmath by the following ASM, a rule we
+denote by @xmath which interpretes the named i/o-rule @xmath .
+
+###### Definition 15
+
+-   @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+Note that @xmath denotes the output location which the caller expects to
+be updated by the callee with the return value.
+
+###### Theorem 3.1
+
+Each recursive ASM @xmath defines a sequential recursive algorithm
+@xmath (in the sense of Definition 10 ) such that the recursive runs of
+@xmath can be step-for-step simulated by the runs of @xmath .
+
+###### Proof
+
+Let @xmath be a recursive ASM. First of all we have to show that it
+satisfies the postulates in Definition 10 whereby it is a sequential
+recursive algorithm.
+
+Each rule @xmath belonging to @xmath , including named i/o-rules, is
+associated with a signature @xmath given by the function symbols that
+appear in the rule or in the rule body if the rule is a named rule. This
+together with the agents @xmath in @xmath , defines the states (as sets
+of states of signature @xmath , one per @xmath ) and gives the
+satisfaction of the abstract state postulate 2 .
+
+The satisfaction of the branching time postulate 1 is an immediate
+consequence of the fact that for every state @xmath , applying any
+recursive ASM rule in @xmath , including named i/o-rules, yields a
+successor state.
+
+For the satisfaction of the bounded exploration postulate 3 we exploit
+that by [ 24 ] , each sequential ASM (i.e. without named i/o-rules)
+which appears in @xmath is an nd-seq algorithm and thus satisfies the
+bounded exploration postulate. To extend this to the rules of @xmath ,
+for each (of the finitely many) named i/o-rule we take every bounded
+exploration witness which appears in the rule body (including the
+parameters). By Definition 15 these witnesses determine the update sets
+yielded by the named i/o-rule in any given state.
+
+By the definition of recursive ASM runs (Definition 14 ) and of the
+effect of a call rule step (Definition 15 ), the call step postulate 4
+is satisfied by every recursive ASM.
+
+As to the recursive run postulate 5 , the run constraint is satisfied by
+the definition of recursive ASM runs (Definition 14 ). The bounded call
+tree branching constraint is satisfied, because there are only finitely
+many named i/o-rules in each of the finitely many rules @xmath .
+
+It remains to show that the recursive runs of @xmath can be
+step-for-step simulated by corresponding runs of the sequential
+recursive algorithm @xmath that is induced by this interpretation of
+@xmath . This follows from the two run characterizations in Postulate 5
+and Definition 14 and from the fact that the successor relation of
+@xmath is defined by the update sets which are yielded by the rules of
+@xmath and define also the successor relation of @xmath .
+
+### 3.2 The Characterisation Theorem
+
+We now show the converse of Theorem 3.1 . The proof largely follows the
+ideas underlying the proof of the sequential ASM thesis in [ 24 ] .
+
+###### Theorem 3.2
+
+For each sequential recursive algorithm @xmath in the sense of
+Definition 10 there exists a recursive Abstract State Machine which is
+equivalent to @xmath with respect to recursive runs (in the sense of
+Definition 14 and Postulate 5 ).
+
+###### Proof
+
+Let @xmath denote any sequential recursive algorithm. Then for each
+state @xmath and a successor state @xmath in a recursive run of @xmath
+we obtain by Fact 1 an update set @xmath . According to the Recursive
+Run Postulate 5 each such state transition is defined by one step of
+each of finitely many @xmath and not @xmath i/o-algorithms @xmath . Each
+of these i/o-algorithms is a fresh instance @xmath of some component of
+@xmath . In particular, by the freshness and the independence condition
+in the Call Step Postulate 4 , the instances @xmath have disjoint
+signatures @xmath and yield subruns with states @xmath and update sets
+@xmath .
+
+Consider now any such fresh instance @xmath of a component @xmath . All
+function symbols used by @xmath in its states and update sets are copies
+of function symbols of @xmath , labelled to ensure the freshness
+condition of the instance. Removing these labels we obtain for any state
+@xmath of @xmath and successor state @xmath of @xmath pairs @xmath with
+@xmath . Let @xmath be the set of all pairs @xmath obtained this way,
+for any state @xmath in the given recursive run of @xmath .
+
+To complete the proof of the theorem it therefore suffices to show that
+the result of any @xmath -step in the given run, namely to apply an
+update set @xmath to a state @xmath , can be described as result of a
+step of a recursive ASM rule @xmath , namely to apply to @xmath an
+update set in @xmath . This is established by the following Lemma 1 .
+
+###### Lemma 1
+
+For each @xmath there exists a recursive ASM rule @xmath with @xmath for
+all states @xmath appearing in @xmath .
+
+###### Proof
+
+We choose a fixed bounded exploration witness @xmath for each @xmath .
+
+First we show that the argument values of any location @xmath in an
+update of @xmath in any state @xmath are critical values in @xmath . The
+proof uses the same argument as in [ 24 , Lemma 6.2] .
+
+To show the property consider an arbitrary update set @xmath and let
+@xmath be an update at location @xmath . We show that the assumption
+that @xmath is not a critical value leads to a contradiction.
+
+If @xmath is not a critical value, one can create a new structure @xmath
+by swapping @xmath with a fresh value @xmath not appearing in @xmath
+(e.g. @xmath taken from the @xmath set), so @xmath is a state of @xmath
+. As @xmath is assumed to not being critical, we must have @xmath for
+all terms @xmath . Therefore it follows from the bounded exploration
+postulate that @xmath . This implies that the update @xmath appears in
+at least one update set in @xmath (since @xmath ), contradicting the
+fact that @xmath does not occur in @xmath and thus cannot occur in an
+update set created in this state.
+
+Furthermore, for each pair @xmath we have a recursion depth function
+which indicates the maximal nesting of recursive calls performed
+starting in state @xmath to compute the value of an output location in a
+possible successor state @xmath . The function is defined inductively as
+follows (induction on the call tree), taking the maximum over all
+successor states @xmath of @xmath and over all updates leading from
+@xmath to @xmath .
+
+-   @xmath
+
+-   @xmath
+
+-   @xmath (with @xmath ) defined as follows:
+
+    -   Case 1: @xmath is an output function symbol of a terminating
+        recursive subcomputation started in @xmath and leading to @xmath
+        .
+
+        Formally this means that for some callee @xmath just activated
+        in the run by @xmath , the restriction @xmath of @xmath to the
+        signature of @xmath is an initial state @xmath of a terminating
+        run @xmath of the callee, during which @xmath remains waiting,
+        and such that
+
+        -   the callee receives in state @xmath the input from the
+            caller, expressed by the equation @xmath ,
+
+        -   the caller receives in state @xmath the callee’s output in
+            the callee’s final state, formally @xmath @xmath for the
+            final state @xmath for @xmath
+
+        and @xmath .
+
+        Then the depth of the update is defined as successor of the
+        maximal recursion depth between any two successive states in the
+        subcomputation, formalized by the equation @xmath .
+
+    -   Case 2: Otherwise. Then we define @xmath .
+
+We now proceed by a case distinction for @xmath .
+
+#### Case 1:
+
+@xmath is defined for all states @xmath . In this case we proceed by
+induction over @xmath . The base case is de facto the proof of the
+non-deterministic sequential ASM thesis.
+
+#### Induction Base:
+
+Let @xmath . First we construct for every state @xmath with @xmath a
+(sequential ASM) rule @xmath whose application to @xmath yields the
+updates sets defined for @xmath by @xmath , formally such that @xmath ,
+and the same for all states @xmath that are ‘similar’ to @xmath (as
+defined below) wrt the bounded exploration witness @xmath .
+
+To show this let @xmath be a state with @xmath and let @xmath be any
+successor state, resulting from @xmath by applying the updates in @xmath
+. Consider any such update @xmath at location @xmath . As all @xmath are
+critical values and there is no child with @xmath , there exist terms
+@xmath with @xmath . Thus, the assignment rule @xmath yields the given
+update in state @xmath and the parallel composition @xmath of all these
+assignment rules for every update in @xmath yields in @xmath the update
+set @xmath . Therefore the bounded choice composition of these rules for
+all successor states @xmath defines a rule @xmath with @xmath .
+
+Next we extend @xmath from @xmath to all states which are ‘similar’ to
+@xmath with respect to the bounded exploration witness @xmath . ²⁹ ²⁹ 29
+These cases are captured in Lemmata 6.7, 6.8. and 6.9 in [ 24 ]
+
+1.  First, we show the equation @xmath for every state @xmath which
+    coincides with @xmath on @xmath . In fact, if @xmath and @xmath
+    coincide on @xmath , then @xmath holds because the rule @xmath only
+    uses terms in @xmath , which have the same values in @xmath and
+    @xmath . We further have @xmath due to the bounded exploration
+    postulate. These equations together give @xmath .
+
+2.  Second, we show that @xmath carries over to isomorphic states @xmath
+    . Let @xmath be isomorphic states for which @xmath is true. Let
+    @xmath be the isomorphism with @xmath . Then we have @xmath (because
+    all ASMs satisfy the Abstract State Postulate) and also @xmath (by
+    the Abstract State Postulate). These equations together give @xmath
+    and hence also @xmath .
+
+3.  Third, we conclude from (i) and (ii) that the equation @xmath holds
+    for every state @xmath that is @xmath -similar to @xmath . We define
+    states @xmath to be @xmath -similar iff they identify the same
+    critical terms, i.e. formally iff @xmath holds for all terms @xmath
+    . No let @xmath be any state that is @xmath -similar to @xmath . We
+    can assume without loss of generality that @xmath and @xmath are
+    disjoint.
+
+    In fact, if this is not the case consider a state @xmath isomorphic
+    to @xmath , in which each value that appears also in @xmath is
+    replaced by a fresh one. Then @xmath is disjoint from @xmath and by
+    construction @xmath -similar to @xmath , hence also @xmath -similar
+    to @xmath .
+
+    Now define a structure @xmath isomorphic to @xmath by replacing
+    @xmath by @xmath for all @xmath . The definition of @xmath is
+    consistent because since @xmath and @xmath are @xmath -similar,
+    @xmath holds for all terms @xmath . Since @xmath and @xmath coincide
+    on @xmath , we obtain by (i) that @xmath which by (ii) implies
+    @xmath .
+
+To complete the proof for the induction base we exploit that @xmath is
+finite, hence there are only finitely many partitions of @xmath and only
+finitely many @xmath -similarity classes @xmath (say @xmath ). For each
+such class we define a formula @xmath such that for each state @xmath
+this formula evaluates in @xmath to true if and only if @xmath holds.
+@xmath formalizes the similarity type of @xmath by the conjunction of
+all equations @xmath with @xmath and all inequalities @xmath with @xmath
+for all critical terms @xmath . Then we can define the rule @xmath as
+follows:
+
+  PAR ( IF @xmath THEN @xmath ) @xmath … @xmath ( IF @xmath THEN @xmath
+  )
+
+#### Induction Step:
+
+Let @xmath . For a state @xmath with @xmath we proceed as in the base
+case to construct a rule @xmath such that @xmath holds for all states
+@xmath that are @xmath -similar to @xmath . For the case that @xmath we
+construct such a rule as follows.
+
+Let @xmath be any update at location @xmath . Then we have two cases:
+
+1.  If there is no child algorithm @xmath with @xmath , then we argue as
+    in the base case, i.e. as all @xmath are critical values, there
+    exist terms @xmath with @xmath , and thus the assignment rule @xmath
+    produces the given update in state @xmath .
+
+2.  If we have @xmath for some child algorithm @xmath , i.e. @xmath is
+    an output function symbol of an algorithm that is called by @xmath ,
+    then according to our assumption on call relationships, locations
+    with such function symbols never appear in an update set created by
+    @xmath itself, so the update results from a final state of a run of
+    @xmath . Let this run be @xmath with final state @xmath .
+
+    Then we must have @xmath , so we can apply the induction hypothesis.
+    That is, there exists an ASM rule @xmath with @xmath for all @xmath
+    .
+
+    -   As the values @xmath for @xmath are critical in @xmath , we find
+        terms @xmath with @xmath .
+
+    -   As @xmath results from an update made by @xmath , it is critical
+        in @xmath for some @xmath , so there must exist a term @xmath
+        with @xmath .
+
+    -   The initial state @xmath is defined by values @xmath ( @xmath )
+        of input locations, which are critical for @xmath , which gives
+        rise to terms @xmath with @xmath .
+
+    -   As the input values @xmath for @xmath have been produced by
+        updates made by @xmath we further find terms @xmath with @xmath
+        .
+
+    Using a name @xmath for the rule of @xmath we obtain a named rule
+    @xmath . Furthermore, according to the definition of update sets
+    produced by call rules, we see that the call @xmath produces the
+    update @xmath .
+
+Again the parallel composition of all the assignment and call rules (for
+every update in @xmath ) yields in @xmath the update set @xmath .The
+bounded choice composition of these rules for all successor states
+@xmath defines a rule @xmath with @xmath .
+
+Using again the same arguments as in (i), (ii), and (iii) for the base
+case we get @xmath for all states @xmath that are @xmath -similar to
+@xmath , and exploiting the finiteness of bounded exploration witnesses
+we obtain again the rule @xmath with the required property, i.e. @xmath
+for all states @xmath .
+
+#### Case 2:
+
+Assume that @xmath is not defined for all states @xmath .
+
+For states @xmath for which @xmath is defined we use the same
+construction as above to obtain a rule @xmath with @xmath .
+
+Now take a state @xmath , for which @xmath is not defined. Then there
+exists a child algorithm @xmath with an initial state @xmath initiated
+by @xmath , but no run starting in @xmath leads to a final state. Then
+the input values define terms @xmath and @xmath for @xmath in the same
+way as for the construction of the call rule above. We can use arbitrary
+critical terms @xmath , @xmath ( @xmath ) and a named rule @xmath as
+before, then the call rule @xmath will lead to the run of @xmath without
+final state.
+
+The rule @xmath with the required property, i.e. @xmath for all states
+@xmath , then results by applying again the same arguments as above.
+
+## 4 Examples
+
+We now present three simple examples of sequential recursive algorithms,
+mergesort , quicksort and the sieve of Eratosthenes . These algorithms
+will be specified by recursive ASMs, which we use to illustrate the
+concepts in our axiomatisation. Furthermore, we show that sequential
+recursion can already be expressed by ASMs, as these support unbounded
+parallelelism. We illustrate this for the first two selected algorithms.
+This shows that unbounded parallelism, which is a decisive feature of
+ASMs, is much stronger than sequential recursion, and there is no need
+to separately investigate recursive parallel algorithms.
+
+### 4.1 Mergesort
+
+We first give a specification of a recursive ASM comprising two named
+rules sort (the main rule) and merge .
+
+  ------------------------------------------- ------------------------------------ -------------------------------------------------------- --------------------------------------------------------------------- ------------ ------------------------------------------------
+  sorted_list @xmath sort (unsorted_list) =                                                                                                                                                                                    
+                                              IF sorted_list = undef THEN                                                                                                                                                      
+                                              LET @xmath = length(unsorted_list)                                                                                                                                               
+                                              IN                                   PAR                                                                                                                                         
+                                                                                   ( IF @xmath THEN sorted_list := unsorted_list ) @xmath                                                                                      
+                                                                                   ( IF @xmath                                                                                                                                 
+                                                                                   THEN                                                     LET @xmath                                                                         
+                                                                                                                                            IN                                                                    LET @xmath   
+                                                                                                                                                                                                                  IN           PAR
+                                                                                                                                                                                                                               (sorted_list @xmath sort (list @xmath ) @xmath
+                                                                                                                                                                                                                               sorted_list @xmath sort (list @xmath )) @xmath
+                                                                                   ( IF @xmath                                                                                                                                 
+                                                                                   THEN                                                     sorted_list @xmath merge (sorted_list @xmath ,sorted_list @xmath ))                
+  ------------------------------------------- ------------------------------------ -------------------------------------------------------- --------------------------------------------------------------------- ------------ ------------------------------------------------
+
+Here we used terms of the form @xmath with a variable @xmath and a
+formula @xmath , in which @xmath is free to denote the unique value
+@xmath satisfying @xmath ³⁰ ³⁰ 30 In the cases above we could have used
+equivalently @xmath denoting an arbitrary value @xmath satisfying @xmath
+, but emphasising that the value exists and is indeed unique makes the
+specification clearer. Both kinds of terms were originally introduced by
+David Hilbert using @xmath instead of @xmath and @xmath instead of
+@xmath . The notation @xmath reflects the common use of ANY ( @xmath )
+in rigorous methods and @xmath comes from Fourman’s formalisation of
+higher-order intuitionistic logic. .
+
+  ------------------------------------------------------------ --------------------------------------------------------------- --------------- ------------------------------------------------------------------------------
+  merged_list @xmath merge (inlist @xmath ,inlist @xmath ) =                                                                                   
+                                                               IF merged_list = undef THEN                                                     
+                                                               PAR                                                                             
+                                                               ( IF inlist @xmath THEN merged_list := inlist @xmath ) @xmath                   
+                                                               ( IF inlist @xmath THEN merged_list := inlist @xmath ) @xmath                   
+                                                               ( IF @xmath                                                                     
+                                                               THEN                                                            LET @xmath IN   
+                                                                                                                               LET @xmath IN   
+                                                                                                                               LET @xmath IN   
+                                                                                                                               LET @xmath IN   
+                                                                                                                                               PAR
+                                                                                                                                               ( IF @xmath
+                                                                                                                                               THEN merged_restlist @xmath merge (restlist @xmath , inlist @xmath )) @xmath
+                                                                                                                                               ( IF @xmath
+                                                                                                                                               THEN merged_restlist @xmath merge (inlist @xmath , restlist @xmath )) @xmath
+                                                                                                                                               ( IF @xmath
+                                                                                                                                               THEN merged_list := concat( @xmath ,merged_restlist)) @xmath
+                                                                                                                                               ( IF @xmath
+                                                                                                                                               THEN merged_list := concat( @xmath ,merged_restlist))
+  ------------------------------------------------------------ --------------------------------------------------------------- --------------- ------------------------------------------------------------------------------
+
+The root of the call tree is labelled by sort . Every node labelled by
+sort has three children labelled by instances of sort , sort and merge ,
+respectively. A node labelled by merge has two children, both labelled
+by merge .
+
+Since in a run of a sequential recursive algorithm, in each step only
+finitely many algorithms are executed at the same time and these do not
+stand in an ancestor relationship, we can in fact instead of using
+copies of the algorithms use directly copies of the locations and run
+all these part-algorithms in parallel. They can only make a step, if
+their input has been defined. The parallelism is then unbounded, but in
+each step only finitely many parallel branches are executed. We present
+such a specification using parallel ASMs for the mergesort algorithm,
+using sequences of indeces @xmath for the parameters. The original input
+we are interested in is @xmath , the computed output of interest is
+@xmath . ³¹ ³¹ 31 We use the vertical notation of @xmath instead of PAR
+@xmath .
+
+-   @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+The three submachines are defined as follows:
+
+-   @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+-   @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+###### Remark
+
+Note that in this way every sequential recursive algorithms can be
+captured by an ASM as defined in [ 14 ] , i.e. exploiting FORALL rules.
+This shows that the concept of unbounded parallelism that is decisive
+for ASMs and is theoretically founded by the behavioural theory of
+parallel algorithms [ 17 ] covers the needs of sequential recursive
+algorithms. ³² ³² 32 A reviewer objected that we cannot describe
+‘recursive algorithms with unbounded number of callees’. In fact one
+cannot do this with sequential recursive ASM because they satisfy the
+Bounded Exploration and the Bounded Call Tree Branching Postulates. But
+one can do it using ASMs with unbounded FORALL . Similarly, the
+reviewer’s question how to define ‘recursive symmetry-braking
+algorithms’ can be answered by using ASMs with unbounded choice.
+However, parallel algorithms are a much wider class than sequential
+recursive algorithms ³³ ³³ 33 This explains why in the behavioural
+theories developed so far the emphasis was more on parallel than on
+recursive algorithms. Nonetheless, the ASM rule above expressing the
+sequential recursive algorithm is somehow easier to read than the rule
+for the behaviourally equivalent parallel ASM, because in the latter one
+the copies of locations are made explicit. . We dispense with discussing
+this any further here. It further means that the concept of recursion
+extends the class of sequential algorithms, but an extension of the
+class of parallel algorithms by means of recursion is meaningless.
+
+Furthermore, instead of using a single parallel ASM with the rule above
+we can also define agents @xmath for all indices @xmath , each
+associated with an ASM @xmath using a rule @xmath defined as above
+without the outermost FORALL . The effect on runs is that for the
+concurrent runs of the concurrent ASM @xmath the individual agents
+operate asynchronously, which permits additional runs. However, these
+runs only reflect the combination of runs of the individual agent
+machines at different paces as already mentioned in the introduction.
+This will be exploited in Section 5 .
+
+### 4.2 Quicksort
+
+Again we first give a specification of a sequential recursive ASM with a
+single named i/o-rule qsort .
+
+  -------------------------------------------- ----- ----------------------------------------------------------------- --------------- -------------------
+  sorted_list @xmath qsort (unsorted_list) =                                                                                           
+                                               PAR   ( IF unsorted_list = @xmath THEN sorted_list := @xmath ) @xmath                   
+                                                     ( IF @xmath                                                                       
+                                                     THEN                                                              LET @xmath IN   
+                                                                                                                       LET @xmath IN   
+                                                                                                                       LET @xmath IN   
+                                                                                                                       PAR             ( @xmath ) @xmath
+                                                                                                                                       ( @xmath ))
+                                                     ( IF @xmath                                                                       
+                                                     THEN                                                              @xmath )        
+  -------------------------------------------- ----- ----------------------------------------------------------------- --------------- -------------------
+
+In this case all nodes of the call tree are labelled by instances of the
+one i/o-algorithm qsort . The following ASM rule shows how to capture
+the algorithm by a parallel ASM.
+
+  ------------------ ---------------------------------- -------------------- -------- -------------------- -----------
+  FORALL @xmath DO                                                                                         
+  PAR                ( IF @xmath THEN @xmath ) @xmath                                                      
+                     ( IF @xmath                                                                           
+                     THEN                               PAR                                                
+                                                        ( IF @xmath                                        
+                                                        THEN LET @xmath IN                                 
+                                                                             PAR      ( @xmath ) @xmath    
+                                                                                      ( @xmath )) @xmath   
+                                                        ( IF @xmath                                        
+                                                        THEN                 @xmath                        
+                                                                                                           @xmath ))
+  ------------------ ---------------------------------- -------------------- -------- -------------------- -----------
+
+As for mergesort , one can define a concurrent ASM @xmath , where the
+rule @xmath of the machine @xmath is defined as above without the
+outermost FORALL .
+
+### 4.3 Sieve of Eratosthenes
+
+The sieve of Eratosthenes algorithm computes all prime numbers. Starting
+from the set @xmath as the start sieve, the smallest number of the sieve
+is added to the output (or printed)—so the output will be infinite—and
+all elements of the sieve that are divisable by the number added to the
+output are removed from the sieve. The following is a simple recursive
+ASM rule for this algorithm.
+
+  ------------------------------- ----- -----------
+  @xmath eratosthenes (sieve) =         
+                                  LET   @xmath IN
+                                  LET   @xmath IN
+                                  PAR   @xmath
+  ------------------------------- ----- -----------
+
+More generally, if the input sieve is any subset of @xmath , then the
+algorithm will return all numbers in @xmath (via values assigned to
+out_prime). None of the calls in this algorithm will reach a final
+state.
+
+The crucial problem with this algorithm is not only the infinite input
+and output (both can in principle be handled using streams), but the
+fact that the involved computation of reduced_sieve requires the
+availability of all elements of sieve, i.e. in general infinitely many.
+A remedy is the following rule, which keeps sieve constant, but uses all
+previously determined output values in a set divisors (initially @xmath
+) to determine the next number in the output, which requires only the
+investigation of an initial segment of sieve.
+
+  ---------------------------------- ----- -----------
+  @xmath eratos (divisors,sieve) =         
+                                     LET   @xmath IN
+                                     PAR   @xmath
+  ---------------------------------- ----- -----------
+
+It is an easy exercise to describe this algorithm by a parallel or a
+concurrent ASM.
+
+## 5 Recursive Algorithms and Partial-Order Runs
+
+In their response to Moschovakis’ criticism [ 29 ] Blass and Gurevich
+argued in [ 8 ] with the capture of sequential recursive algorithms by
+what is known as distributed ASMs . The semantics of distributed ASMs
+has been defined by partial-order runs [ 23 ] , which later have been
+recognized as too restrictive and have been replaced in [ 11 ] by a
+rather comprehensive definition of concurrency. In this section we
+investigate the relationship between distributed ASMs and recursive
+algorithms/ASMs, as defined in Section 2 . We will show (a precise
+version of) the following theorem.
+
+###### Theorem 5.1
+
+Characterization of partial-order runs. Recursive algorithms are exactly
+those finitely-composed concurrent algorithms @xmath with nd-seq
+components such that all concurrent @xmath -runs are definable by
+partial-order runs.
+
+The decisive notions used in this theorem such as partial-order runs and
+finitely-composed concurrent algorithms will be formally introduced
+below, together with the corresponding concepts for concurrent ASMs. The
+theorem fortifies the argument that partial-order runs are too weak a
+concept to serve as a semantic foundation for concurrent algorithms ³⁴
+³⁴ 34 As our discussion in the previous section shows, even the concept
+of unbounded parallelism, by means of which synchronous parallelism is
+captured, is stronger than recursion. . The latter aspect has been
+overcome by the definition of concurrent ASM runs and the corresponding
+concurrent ASM thesis in [ 11 ] .
+
+We will also show that if the concurrent runs are restricted further to
+partial-order runs of a concurrent algorithm with a fixed finite number
+of agents and their nd-seq programs, one can simulate them even by a
+non-deterministic sequential algorithm (see Theorem 5.4 ). An
+interesting example of this special case are partial-order runs of
+Process Rewrite Systems [ 27 ] (see Corollary 1 ).
+
+To prove the theorem we use the characterization of runs of sequential
+recursive algorithms as recursive runs of recursive ASMs (Theorem 3.2 )
+and of runs of concurrent algorithms as concurrent ASM runs (see [ 11 ]
+).
+
+### 5.1 Partial-Order Runs
+
+Syntactically, a concurrent algorithm @xmath is defined as a family of
+algorithms @xmath , each associated with (‘indexed by’) an agent @xmath
+(see [ 23 ] , [ 11 ] ) that executes the algorithm in concurrent runs.
+These algorithms are often assumed to be (possibly non-deterministic)
+sequential algorithms, though this restriction is not necessary in
+general. In our case here this restriction is, however, important, as we
+have seen in Section 4 that without this restriction, permitting
+unbounded @xmath and @xmath constructs, we obtain algorithms far more
+powerful than the recursive ones. Sometimes it is also assumed that the
+@xmath set is finite, a special case we consider in Sect. 5.3 .
+
+In a concurrent run, as in recursive runs, different agents can be
+associated dynamically with different instances of the same algorithm.
+Therefore, when relating concurrent runs of a concurrent algorithm
+@xmath to recursive runs of a sequential recursive algorithm—which by
+Definition 10 is a finite set of i/o-algorithms—we need to finitely
+compose @xmath , namely by a finite set of nd-seq components of which
+each @xmath is an instance.
+
+In a concurrent run as defined in [ 11 ] , multiple agents with
+different clocks may contribute by their single moves to define the
+successor state of a state. Therefore, when a successor state @xmath of
+a state @xmath is obtained by applying to @xmath multiple update sets
+@xmath with agents @xmath in a finite set @xmath , each @xmath is
+required to have been computed by @xmath in a preceding state @xmath ,
+i.e. with @xmath . It is possible that @xmath holds so that for
+different agents different @xmath -execution speeds (and purely local
+subruns to compute @xmath ) can be taken into account.
+
+This can be considered as resulting from a separation of a step of an
+nd-seq algorithm @xmath into a read step —which reads location values in
+a state @xmath —followed by a write step which applies the update set
+@xmath computed on the basis of the values read in @xmath to a later
+state @xmath ( @xmath ). We say that @xmath contributes to updating the
+state @xmath to the successor state @xmath , and that a @xmath starts in
+@xmath and contributes to updating @xmath (i.e. it finishes in @xmath ).
+This is formally expressed by the following definition of concurrent
+ASMs and their runs.
+
+###### Definition 16
+
+A concurrent ASM is defined as a family @xmath of ASMs @xmath (also
+called programs and written @xmath ) with associated agents @xmath . A
+concurrent run of @xmath is defined as a sequence @xmath of states
+together with a sequence @xmath of finite subsets of @xmath , such that
+@xmath is an initial state and each @xmath is obtained from @xmath by
+applying to it the updates computed by the agents in @xmath , where each
+@xmath computes its update set @xmath on the basis of the location
+values (including the input and shared locations) read in some preceding
+state @xmath (i.e. with @xmath ) depending on @xmath .
+
+###### Remark
+
+In this definition we deliberately permit the set of @xmath s to be
+infinite or dynamic and potentially infinite, growing or shrinking in a
+run. Below we consider the special cases that @xmath is a static finite
+set (see Section 5.3 ) or a dynamic set all of whose members are
+equipped however with instances of a fixed (static) finite set of
+programs (see Definition 18 ). In Definition 17 below the set of @xmath
+s is fixed by the set of @xmath oves.
+
+For the reason explained above, in the following we restrict our
+attention to concurrent ASMs in which each component @xmath is an nd-seq
+ASM.
+
+In [ 23 ] Gurevich defined the notion of partial-order run of concurrent
+algorithms. ³⁵ ³⁵ 35 Note that in [ 23 ] Gurevich actually uses the
+wording distributed algorithm instead of concurrent algorithm, whereas
+we prefer to stick with the notation from [ 11 ] . One reason for this
+is that distribution requires also to discuss (physical) notations and
+messaging (as handled in [ 12 ] ), whereas concurrency abstracts from
+this. The partial order is defined on the set of single moves of the
+agents which execute the individual algorithms. For a nd-seq algorithm
+@xmath , to make one move means to perform one step in a state @xmath ,
+as defined by the Branching Time Postulate 1 , applying a set @xmath of
+updates to @xmath .
+
+###### Definition 17
+
+Let @xmath be a concurrent algorithm, in which each @xmath is an nd-seq
+algorithm. A partial-order run for @xmath is defined by a set @xmath of
+moves of instances of the algorithms @xmath ( @xmath ), a function
+@xmath assigning to each move the agent performing the move, a partial
+order @xmath on @xmath , and an initial segment function @xmath such
+that the following conditions are satisfied:
+
+  finite history.  
+
+    For each move @xmath its history @xmath is finite.
+
+  sequentiality of agents.  
+
+    The moves of each agent are ordered, i.e. for any two moves @xmath
+    and @xmath of one agent @xmath we either have @xmath or @xmath .
+
+  coherence.  
+
+    For each finite initial segment @xmath (i.e. for @xmath and @xmath
+    we also have @xmath ) there exists a state @xmath over the combined
+    signatures of the algorithms @xmath such that for each maximum
+    element @xmath the state @xmath is the result of applying @xmath to
+    @xmath .
+
+In order to characterise recursive ASM runs in terms of partial-order
+runs of a concurrent ASM @xmath several restrictions have to be made.
+First of all the component ASMs must be nd-seq ASMs, an assumption we
+already justified above. Second, the component machines @xmath can only
+be copies (read: instances) of finitely many different ASMs, which we
+will call the program base of @xmath . ³⁶ ³⁶ 36 This reflects the
+stipulation in [ 23 ] that in concurrent ASMs the agents are equipped
+with instances of programs which are taken from ‘a finite indexed set of
+single-agent programs’ (p.31). Third, runs must be started by executing
+a distinguished main component. ³⁷ ³⁷ 37 The restriction to one
+component is equivalent to, but notationally simplifies, the requirement
+stated in [ 23 , 6.2, p.31] for concurrent ASM runs that in initial
+states there are only finitely many agents, each equipped with a
+program. We capture these restrictions by the notion of finitely
+composed concurrent ASM.
+
+###### Definition 18
+
+A concurrent ASM @xmath is finitely composed iff (i) and (ii) hold:
+
+1.  There exists a finite set @xmath of nd-seq ASMs such that each
+    @xmath -program is of form @xmath for some program @xmath —call
+    @xmath the program base of @xmath .
+
+2.  There exists a distinguished agent @xmath which is the only one
+    @xmath in any initial state. Formally this means that in every
+    initial state of a @xmath -run, @xmath holds. We denote by main the
+    component in @xmath of which @xmath executes an instance. For
+    partial-order runs of @xmath this implies that they start with a
+    minimal move which consists in executing the program @xmath .
+
+3.  Any program base component may contain rules of form @xmath . ³⁸ ³⁸
+    38 This reflects the stipulation for concurrent ASMs in [ 23 ] that
+    ‘An agent @xmath can make a move at @xmath by firing Prog( @xmath )
+    … and change @xmath accordingly. As part of the move, @xmath may
+    create new agents’ (p.32), which then may contribute by their moves
+    to the run in which they were created. Together with (ii) this
+    implies that every agent, except the distinguished @xmath , before
+    making a move in a run must have been created in the run.
+
+@xmath is called finite iff @xmath is finite.
+
+We are now ready to more precisely state and prove the first part of
+Theorem 5.1 . It should come as no surprise; it provides the
+justification for the argumentation by Blass and Gurevich in [ 8 ] .
+
+###### Theorem 5.2
+
+For every recursive ASM @xmath one can construct an equivalent finitely
+composed concurrent ASM @xmath with nd-seq ASM components such that
+every concurrent run of @xmath is definable by a partial-order run.
+
+###### Proof
+
+Let @xmath be a recursive ASM given with distinguished program @xmath .
+We define a finitely composed concurrent ASM @xmath with program base
+@xmath , where @xmath is defined as
+
+-   @xmath
+
+That is, @xmath can only contribute a non-empty update set to form a
+state @xmath in a concurrent run, if @xmath is @xmath and not @xmath ;
+this is needed, because in every step of a recursive run of @xmath only
+@xmath and not @xmath rules are executed.
+
+In doing so we use for each call rule @xmath in the @xmath part of
+@xmath instead of @xmath its interpretation by the ASM rule @xmath
+defined in Sect. 3.1 . The definition of @xmath obviously guarantees the
+behavioral equivalence of @xmath and @xmath : in each run step the same
+@xmath and not @xmath rules @xmath respectively @xmath and their agents
+are selected for their simultaneous execution. Remember that, by the
+definition of ( i/o-rule ), each agent operates in its own state space
+so that the view of an agent’s step as read-step followed by a
+write-step is equivalent to the atomic view of this step.
+
+Note that in a concurrent run of @xmath the @xmath set is dynamic, in
+fact it grows with each execution of a call rule, together with the
+number of instances of @xmath -components executed during a recursive
+run of @xmath .
+
+It remains to define every concurrent run @xmath of @xmath by a
+partial-order run. For this we define an order on the set @xmath of
+moves made during a concurrent run, showing that it satisfies the
+constraint on finite history and sequentiality of agents, and then
+relate each state @xmath of the run to the state computed by the set
+@xmath of moves performed to compute @xmath (from @xmath ), showing that
+@xmath is a finite initial segment of @xmath and that the associated
+state @xmath equals @xmath and satisfies the coherence condition.
+
+Each successor state @xmath in a concurrent run of @xmath is the result
+of applying to @xmath the write steps of finitely many moves of agents
+in @xmath . This defines the function @xmath , which associates agents
+with moves, and the finite set @xmath of all moves finished in a state
+belonging to the initial run segment @xmath . Let @xmath . The partial
+order @xmath on @xmath is defined by @xmath iff move @xmath contributes
+to update some state @xmath (read: finishes in @xmath ) and move @xmath
+starts reading in a later state @xmath with @xmath . Thus, by
+definition, @xmath is an initial segment of @xmath .
+
+To prove the finite history condition, consider any @xmath and let
+@xmath be the state in which it is started. There are only finitely many
+earlier states @xmath , and in each of them only finitely many moves
+@xmath can be finished, contributing to update @xmath or an earlier
+state.
+
+The condition on the sequentiality of the agents follows directly from
+the definition of the order relation @xmath and from the fact that in a
+concurrent run, for every move @xmath executed by an agent, this agent
+performs no other move between the @xmath -step and the corresponding
+@xmath -step in the run.
+
+This leaves us to define the function @xmath for finite initial segments
+@xmath and to show the coherence property. We define @xmath as result of
+the application of the moves in @xmath in any total order extending the
+partial order @xmath . For the initial state @xmath we have @xmath .
+This implies the definability claim @xmath .
+
+The definition of @xmath is consistent for the following reason.
+Whenever two moves @xmath are incomparable, then either they both start
+in the same state or say @xmath starts earlier than @xmath . But @xmath
+also starts earlier than @xmath finishes. This is only possible for
+agents @xmath and @xmath whose programs @xmath are not in an ancestor
+relationship in the call tree. Therefore these programs have disjoint
+signatures, so that the moves @xmath and @xmath could be applied in any
+order with the same resulting state change.
+
+To prove the coherence property let @xmath be a finite initial segment,
+and let @xmath , where @xmath is the set of all maximal elements of
+@xmath . Then @xmath is the result of applying simultaneously all moves
+@xmath to @xmath , and the order, in which the maximum moves are applied
+is irrelevant. This implies in particular the desired coherence
+property.
+
+Note that the key argument in the proof exploits the fact that for
+recursive runs of @xmath , the runs of different agents are initiated by
+calls and concern different state spaces with pairwise disjoint
+signatures, due to the function parameterization by agents, unless
+@xmath is a child (or a descendant) of @xmath , in which case the
+relationship between the signatures is defined by the call relationship.
+Independent moves can be guaranteed in full generality only for
+algorithms with disjoint signatures.
+
+### 5.2 Capture of Partial-Order Runs
+
+While Theorem 5.2 is not surprising, we will now show the less obvious
+converse of Theorem 5.1 . The fact that (by Definition 13 ) a recursive
+ASM @xmath is a finite set of recursive ASM rules, starts its runs with
+a main program and uses during any run only instances of its rules
+implies that if @xmath simulates a concurrent ASM, this concurrent ASM
+must be finitely composed (as assumed in [ 23 , Sect. 6] for the
+definition of partial-order runs) and must use only instances of its
+finitely many nd-seq components.
+
+###### Theorem 5.3
+
+For each finitely composed concurrent ASM @xmath with program base
+@xmath of nd-seq ASMs such that all its concurrent runs are definable by
+partial-order runs, one can construct a recursive ASM @xmath which
+simulates @xmath , i.e. such that for each concurrent run of @xmath
+there is an equivalent recursive run of @xmath . ³⁹ ³⁹ 39 Equivalence
+via an inverse simulation of every recursive @xmath -run by a concurrent
+@xmath -run can be obtained if the delegates of @xmath -agents, called
+in the recursive run to perform the step of their @xmath in the
+concurrent run, act in an ‘eager’ way. See the remark at the end of the
+proof.
+
+###### Proof
+
+Let a concurrent @xmath -run @xmath be given. If it is definable by a
+partial-order run @xmath , the transition from @xmath to @xmath is
+performed in one concurrent step by parallel independent moves @xmath ,
+where @xmath is the set of moves which contributed to transform @xmath
+into @xmath . Let @xmath be a move performed by an agent @xmath with
+rule @xmath , an instance of a rule @xmath in the program base of @xmath
+. To execute the concurrent step by steps of a recursive ASM @xmath , we
+simulate each of its moves @xmath by letting agent @xmath act in the
+@xmath -run as @xmath of a named rule @xmath . The callee agent @xmath
+acts as delegate for one step of @xmath : it executes @xmath and makes
+its program immediately @xmath .
+
+To achieve this, we refine the recursive machine of Definition 15 to a
+recursive ASM @xmath by adding to the update @xmath . When @xmath is
+applied to @xmath , the update of @xmath makes the delegate @xmath so
+that it can make a step to execute @xmath . @xmath is defined to perform
+@xmath and immediately terminate (by setting @xmath to true). For ease
+of exposition we add in Definition 15 also the update @xmath , to
+distinguish agents in the concurrent run—the @xmath s of @xmath
+-machines—from the delegates each of which simulates one step of its
+@xmath and immediately terminates its life cycle.
+
+It remains to determine the input and output for calling @xmath . For
+the input we exploit the existence of a bounded exploration witness
+@xmath for @xmath . All updates produced in a single step are determined
+by the values of @xmath in the state, in which the call is launched. So
+@xmath defines the input terms of the called rule @xmath , combined in
+@xmath . Analogously, a single step of @xmath provides updates to
+finitely many locations that are determined by terms appearing in the
+rule, which defines @xmath .
+
+We summarize the explanations by the following definition:
+
+-   @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+Note that each caller step step @xmath in an @xmath -run is by
+definition equivalent to the machine @xmath and triggers the execution
+of the delegate program @xmath (where @xmath , which triggers @xmath (by
+definition). Furthermore, since the innermost ambient binding counts,
+this machine is equivalent to the simulated @xmath -run step @xmath .
+
+Thus the recursive @xmath -run which simulates @xmath starts by
+Definition 18 in @xmath ⁴⁰ ⁴⁰ 40 For the sake of notational simplicity
+we disregard the auxiliary locations of @xmath . with program @xmath .
+Let
+
+-   @xmath
+
+    @xmath
+
+We use the same agents @xmath for @xmath in the @xmath -run, but with
+@xmath as program. Their step in the recursive run leads to a state
+@xmath where all callers @xmath are @xmath and the newly created
+delegates @xmath are @xmath and not @xmath . So we can choose them for
+the set @xmath of agents which perform the next @xmath step, whereby
+
+-   all rules @xmath are performed simultaneously (as in the given
+    concurrent run step), in the ambient of @xmath thus leading as
+    desired to the state @xmath ,
+
+-   the delegates make their program @xmath , whereby their callers
+    @xmath become again not @xmath and thereby ready to take part in the
+    next step of the concurrent run. We assume for this that whenever in
+    the @xmath -run (not in the @xmath run) a new agent @xmath is
+    created, it is made not @xmath (by initializing @xmath ).
+
+###### Remark
+
+Consider an @xmath -run where each recursive step of the concurrent
+caller agents in @xmath , which call each some program, alternates with
+a recursive step of all—the just called—delegates whose program is not
+yet @xmath . Then this run is equivalent to a corresponding concurrent
+@xmath -run.
+
+Note that Theorem 5.3 heavily depends on the prerequisite that @xmath
+only has partial-order runs. With general concurrent runs as defined in
+[ 11 ] the construction would not be possible. ⁴¹ ⁴¹ 41 The other
+prerequisites in Theorem 5.3 appear to be rather natural. Unbounded runs
+can only result, if in a single step arbitrarily many new agents are
+created. Also, infinitely many different rules associated with the
+agents are only possible, if new agents are created and added during a
+concurrent run. Though this is captured in the general theory of
+concurrency in [ 11 ] , it was not intended in Gurevich’s definition of
+partial-order runs. The rather strong conclusion from this is that the
+class of sequential recursive algorithms is already rather powerful, as
+it captures all attempts to capture asynchronous parallelism by a
+formalism that includes some form of a lockstep application of updates
+defined by several agents. However, true asynchronous behaviour only
+results, if it is possible that steps by different agents can be started
+as well as terminated in an independent way, which is covered by the
+theory of concurrency in [ 11 ] .
+
+### 5.3 Finite Static Concurrent ASMs with partial-order runs
+
+In this section we consider the special case of static finite concurrent
+ASMs, which means by Definition 16 a static set of pairs @xmath . These
+ASMs have fixed finite sets of agents and programs and a fixed
+association of each program with an executing agent, so that there is no
+rule instantiation with new agents which could be created during a run.
+Therefore one can define global states as the union of the component
+states and the functions @xmath associated with the po-runs yield for
+every finite initial segment @xmath as value the global state obtained
+by firing the rules in @xmath .
+
+For this particular kind of concurrent ASMs with partial-order runs one
+can define the concurrent runs by runs of nd-seq ASMs, as we are going
+to show in this section. This theorem illustrates the rather special
+character the axiomatic coherence condition imposes on partial-order
+runs.
+
+###### Theorem 5.4
+
+For each finite static concurrent ASM @xmath with nd-seq component ASMs
+@xmath such that all its concurrent runs are definable by partial-order
+runs one can construct a nd-seq ASM @xmath such that the concurrent runs
+of @xmath and the runs of @xmath are equivalent.
+
+###### Corollary 1
+
+The partial-order runs of every Process Rewrite System [ 27 ] can be
+simulated by runs of a non-deterministic sequential ASM.
+
+###### Proof
+
+For the states @xmath of a given concurrent run of @xmath let @xmath be
+the state associated with an initial segment @xmath of a corresponding
+partial order run @xmath , where each step leading from @xmath to @xmath
+consists of pairwise incomparable moves in @xmath . We call such a
+sequence @xmath of states a linearised run of @xmath . For @xmath the
+initial segments @xmath are non empty.
+
+The linearized runs of @xmath can be characterized as runs of a nd-seq
+ASM @xmath : in each step this machine chooses one of finitely many
+non-empty subsets of the fixed finite set of rules in @xmath to execute
+them in parallel. Formally:
+
+-   @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+    @xmath
+
+To complete the proof it suffices to show the following lemma.
+
+###### Lemma 2
+
+The linearised runs of @xmath are exactly the runs of @xmath .
+
+###### Proof
+
+To show that each run @xmath of the nd-seq ASM @xmath is a linearised
+run of @xmath we proceed by induction to construct the underlying
+partial-order run @xmath with its finite initial segments @xmath . For
+the initial state @xmath there is nothing to show, so let @xmath result
+from @xmath by applying an update set produced by @xmath for some
+non-empty set @xmath . By induction we have @xmath for some initial
+segment of a partial-order run @xmath . Since @xmath is a parallel
+composition, @xmath results from applying the union of update sets
+@xmath for @xmath to @xmath . Each @xmath defines a move @xmath of some
+@xmath , move which finishes in state @xmath . We now have two cases:
+
+1.  The moves @xmath with @xmath are pairwise independent, i.e. their
+    application in any order produces the same new state. Then @xmath
+    can be extended with these moves such that @xmath becomes an initial
+    segment and @xmath holds.
+
+2.  If the moves @xmath with @xmath are not pairwise independent, the
+    union of the corresponding update sets is inconsistent, hence the
+    run terminates in state @xmath .
+
+To show the converse we proceed analogously. If we have a linearized run
+of states @xmath for all @xmath , then @xmath results from @xmath by
+applying in parallel all moves in @xmath . Applying a move @xmath means
+to apply an update set produced by some rule @xmath of @xmath in state
+@xmath , and applying several update sets in parallel means to apply
+their union @xmath , which then must be consistent. So we have @xmath
+with @xmath for some non-empty @xmath , where each @xmath is an update
+set produced by @xmath (for @xmath ), i.e. @xmath is an update set
+produced by @xmath , which implies that the linearised run @xmath is a
+run of @xmath .
+
+## 6 Related Work
+
+The behavioural theory developed in this article contributes to answer
+the fundamental epistemological question “What is an algorithm?”. It has
+been inspired by Gurevich’s behavioural theory of sequential algorithms
+[ 24 ] , the ur-instance of a behavioural theory, and motivated by
+Moschovakis’ claim that recursive algorithms, which obviously cannot be
+modeled ‘closely and faithfully’ by sequential ASMs, can be ‘directly
+expressed’ by systems of recursive equations (called ‘recursive
+programs’) [ 30 , p.100] .
+
+In [ 30 , p.99] Moschovakis places “the basic foundational problem of
+defining algorithms … outside the scope of this book” and treats
+recursive algorithms as “faithfully expressed” (ibid. p.101) by
+syntactically well defined recursive programs (read: systems of
+recursive equations) which permit to compute (partial) functions from
+auxiliary (in ASM terminology background) functions in whatever given
+structures. Besides restricting the attention to algorithms which
+compute (partial) functions as least fixed point of a system of
+equations, such a definition is fundamentally different from the
+behavioural theory approach to capture recursive algorithms by a class
+of abstract machines which can be shown to satisfy an a priori given
+precise, axiomatic, programming language independent characterization of
+recursion. Furthermore, we use a class of machines which provide a
+general framework to characterize besides sequential or recursive
+algorithms also other classes of algorithms, e.g. parallel, interactive
+or reflective algorithms (see below), which are deliberately left out in
+[ 30 ] .
+
+Nevertheless, every function which is computable by a recursive program
+in the sense of Moschovakis can be computed (in the standard meaning of
+the term) by a recursive ASM. This can be shown easily, for example by
+using Moschovakis’ ‘recursive machine’ [ 30 , Sect.2D] , an abstract
+machine which is considered by its author as ‘‘one of the classical
+implementations of recursion” (ibid.p.74). ⁴² ⁴² 42 As pointed out in [
+8 ] and also in [ 9 ] , using the set of equations of a recursive
+program to compute a concrete function value still requires a
+determination of control, i.e. in which way the recursion equations are
+to be applied, a feature which is considered in [ 30 ] as implementation
+detail. Alternatively one can use sequential recursive ASMs to describe
+the fixed point construction for systems of recursive equations.
+Apparently it can also be shown that vice versa, every function which is
+computable by a recursive ASM can be computed by a recursive program in
+the sense of Moschovakis (use an induction on the recursion depth of
+recursive ASMs, with nd-seq ASMs at the basis of the induction).
+
+As the sequential ASM thesis shows, the notion of sequential algorithm
+includes a form of bounded parallelism, which is a priori defined by the
+algorithm and does not depend on the actual state. ⁴³ ⁴³ 43 Note that by
+their definition, Moschovakis’ recursive programs satisfy the bounded
+exploration postulate and their non-deterministic version [ 30 , Sect.
+2E] is carefully restricted to bounded choice. However, parallel
+algorithms, e.g. for graph inversion or leader election, require
+unbounded parallelism. A behavioural theory of synchronous parallel
+algorithms has been first approached by Blass and Gurevich [ 6 , 7 ] ,
+but different from the sequential thesis the theory was not accepted,
+not even by the ASM community despite its inherent proof that ASMs [ 14
+] capture parallel algorithms. One reason is that the axiomatic
+definition exploits non-logical concepts such as mailbox, display and
+ken, whereas the sequential thesis only used logical concepts such as
+structures and sets of terms ⁴⁴ ⁴⁴ 44 Even the background, that is left
+implicit in the sequential thesis, only refers to truth values and
+operations on them. .
+
+In [ 17 ] an alternative behavioural theory of synchronous parallel
+algorithms (aka “simplified parallel ASM thesis”) was developed. It was
+inspired by previous research on a behavioural theory for
+non-deterministic database transformations [ 33 ] . Largely following
+the careful motivation in [ 6 ] it was first conjectured in [ 34 ] that
+it should be sufficient to generalise bounded exploration witnesses to
+sets of multiset comprehension terms ⁴⁵ ⁴⁵ 45 The rationale behind this
+conjecture is that in a particular state the multiset comprehension
+terms give rise to multisets, and selecting one value out each of these
+multisets defines the proclets used by Blass and Gurevich. and to make
+assumptions about background domains, constructors and operations for
+truth values, records and finite multisets explicit ⁴⁶ ⁴⁶ 46 The latter
+aspect was already part of the thesis by Blass and Gurevich. . The
+formal proof of the simplified ASM thesis in [ 17 ] requires among
+others an investigation in finite model theory.
+
+At the same time another behavioural theory of parallel algorithms was
+developed in [ 16 ] , which is independent from the simplified parallel
+ASM thesis ⁴⁷ ⁴⁷ 47 Apparently, authors of [ 17 ] and [ 16 ] seemed not
+to be aware of each others’ research. , but refers also to previous work
+by Blass and Gurevich. It is debatable, whether the criticism of the
+defining postulates by Blass and Gurevich also applies to this work; a
+thorough comparison with the simplified parallel ASM thesis has not yet
+been conducted.
+
+There have been many attempts to capture asynchronous parallelism, as
+marked in theories of concurrency as well as distribution (see [ 26 ]
+for a collection of many distributed or concurrent algorithms). Commonly
+known approaches are among others the actor model [ 3 ] , Process
+Algebras [ 4 ] , Petri nets [ 5 ] , high-level Petri nets [ 20 ] , and
+trace theory [ 28 ] . Gurevich’s axiomatic definition of partial-order
+runs [ 23 ] tries to reduce the problem to families of sequential
+algorithms, but the theory is too strict. As shown in [ 11 ] it is easy
+to find concurrent algorithms that satisfy sequential consistency [ 25 ]
+, but their runs are not partial-order runs. One problem is that the
+requirements for partial-order runs always lead to linearisability.
+
+The lack of a convincing definition of asynchronous parallel algorithms
+was overcome by the work on concurrent algorithms in [ 11 ] , in which a
+concurrent algorithm is defined by a family of agents, each equipped
+with a sequential algorithm, possibly with shared locations. While each
+individual sequential algorithm in the family is defined by the
+postulates for sequential algorithms ⁴⁸ ⁴⁸ 48 A remark in [ 11 ] states
+that the restriction to sequential algorithms is not really needed. An
+extension to concurrent algorithms covering families of parallel
+algorithms is handled in [ 31 ] . , the family as a whole is subject to
+a concurrency postulate requiring that in a concurrent run, a successor
+state of the global state of the concurrent algorithm results from
+simultaneously applying update sets of finitely many agents that have
+been built on some previous states (not necessarily the current one).
+The theory shows that concurrent algorithms are captured by concurrent
+ASMs. Given the fact that in concurrent algorithms, in particular in
+case of distribution, message passing between agents is more common than
+shared locations, it has further been shown in [ 12 ] that message
+passing can be captured by regarding mailboxes as shared locations,
+which leads to communicating concurrent ASMs capturing concurrent
+algorithms with message passing. In [ 18 ] it has been shown how the
+popular bulk synchronous parallel bridging model can be captured by a
+specialised behavioural theory that builds on top of the concurrent ASM
+thesis in [ 11 ] .
+
+Recently, there is an increased interest in distributed adaptive
+systems. Adaptivity refers to the ability of an algorithm to modify
+itself, which is known as linguistic reflection. A behavioural theory of
+reflective sequential algorithms has been developed in [ 32 ] . ⁴⁹ ⁴⁹ 49
+A preliminary version of this theory appeared in [ 19 ] . Again the key
+aspect is the generalisation of bounded exploration witnesses, which for
+reflective algorithms comprise terms that can be evaluated to terms and
+these to values in the base set, so coincidence after double evaluation
+is required for the equality of update sets in states. The integration
+of the behavioural theories for parallelism, concurrency and reflection
+has been sketched in [ 31 ] , but a more detailed presentation of the
+combined theory still has to be written up.
+
+## 7 Conclusion
+
+The main contribution of this article is a behavioural theory of
+sequential recursive algorithms, providing a) a purely logical
+definition of this notion, which is independent from any particular
+abstract machine or programming model, b) a natural extension of nd-seq
+ASMs to recursive ASMs, and c) a proof that recursive ASMs capture
+sequential recursive algorithms. The resulting recursive ASM thesis
+shows (together with the sequential and the concurrent ASM thesis) that
+the class of recursive algorithms is strictly larger and more expressive
+than the class of nd-seq algorithms and strictly smaller and less
+expressive than the class of concurrent algorithms.
+
+As an application of this theory we add to the observation in [ 23 ]
+—namely that recursive algorithms give rise to partial-order runs—a
+proof that conversely, every finitely composed concurrent algorithm with
+only partial-order runs is equivalent to a recursive algorithm. This
+corrects the criticism formulated in [ 9 ] that the answer given by
+Blass and Gurevich in [ 8 ] is an “overkill”, as partial-order runs
+capture only a restricted concept of concurrency. On the other hand, it
+underlines also the need for a much more general theory of concurrent
+algorithms, which is provided by the behavioural theory of concurrent
+algorithms [ 11 ] .
+
+The debate about ‘‘What is an algorithm?’’ is not yet finished, as only
+an integration of all partial behavioural theories of sequential,
+recursive, parallel, concurrent, reflective, etc. algorithms ⁵⁰ ⁵⁰ 50
+This list is not yet complete, as in most of the related work mentioned
+above the aspect of non-determinism as well as randomness is not yet
+included. However, non-determinism is covered in ASMs [ 14 ] and is
+crucial for their applications in system design and analysis. will
+provide a final answer to the question. A comprehensive definition of
+the notion of algorithm will require all the known particular classes of
+algorithms to be integrated in such a way that the specific subclasses
+arise as special cases of the general definition. However, given that in
+all the behavioural theories we mentioned above the postulates always
+concern sequential or branching time, abstract state, background and
+bounded exploration, the perspective of such an integration looks
+promising. We invite the reader to contribute to this endeavor.

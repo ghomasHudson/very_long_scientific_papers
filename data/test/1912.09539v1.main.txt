@@ -1,0 +1,1974 @@
+### 6.1.1 Restaurant Object Dataset
+
+The Restaurant Object Dataset ¹ ¹ 1 Restaurant Object Dataset is
+available online at : https://goo.gl/64IXx9 was created in the framework
+of the RACE project. It contains 341 views of instances of 10 categories
+from different perspectives ( Bottle , Bowl , Flask , Fork , Knife , Mug
+, Plate , Spoon , Teapot , and Vase ) and 30 views of false or unknown
+objects (e.g. points that belong to the instructor’s hands) (Kasaei
+et al., 2015a ) . Each object view contains exactly one object. These
+object views were extracted from 100 views of table-top scenes by
+running the proposed object detection module and storing the segmented
+point clouds. In our setting, a Kinect camera is placed about one meter
+away from the table. This is the minimum distance required for the
+Kinect camera to return reliable depth data. The images were recorded
+with the camera mounted on a tripot at approximately @xmath height and
+@xmath degrees relative to the table (Fig. 6.1 left ). All segmented
+point clouds, i.e., the object views, were hand-annotated with the
+respective category labels. Figure 6.2 displays one sample point cloud
+per category and can give an idea of the type of objects in this
+dataset.
+
+#### 6.1.2 Washington RGB-D Object Dataset
+
+Several experiments were also carried out on one of the largest
+available RGB-D object datasets namely the Washington RGB-D Object
+Dataset (Lai et al., 2011b ) . This dataset is highly popular in the
+computer vision and robotics communities for evaluating 3D object
+recognition methods. The Washington RGB-D Object Dataset is a large
+scale dataset with respect to the number of images. It consists of
+250,000 views of 300 common household objects taken from multiple views.
+The objects are organized into 51 categories arranged using WordNet
+(Miller, 1995 ) hypernym-hyponym relationships (similar to ImageNet
+(Deng et al., 2009 ) ). This dataset was recorded using a Kinect style
+3D camera that records synchronized and aligned @xmath RGB and depth
+images. Each object was placed on a turntable and video sequences were
+captured for one whole rotation. We have excluded the Ball and Binder
+categories because of high shape similarity to the Apple and Notebook
+categories respectively. Since we are using only depth information, it
+is impossible to distinguish these categories only based on shape
+features. Therefore, we worked with the remaining 49 categories. Figure
+6.3 shows some example objects from the dataset (Lai et al., 2011b ) .
+
+### 6.2 Evaluation Metrics
+
+In machine learning literature, the main metrics for evaluating
+supervised multi-class learning algorithms are accuracy , micro and
+macro precision (i.e., indices @xmath and @xmath respectively) and micro
+and macro recall . In multi-class classification, each test instance
+gets assigned to one of the @xmath classes leading to an @xmath
+confusion matrix, @xmath . All the mentioned evaluation metrics can be
+computed from the confusion matrix as:
+
+-   accuracy is computed as the fraction of correct predictions to total
+    number of predictions:
+
+      -- -------- -- -------
+         @xmath      (6.1)
+      -- -------- -- -------
+
+-   @xmath is the ratio of number of correct predictions to total number
+    of predictions.
+
+      -- -------- -- -------
+         @xmath      (6.2)
+      -- -------- -- -------
+
+-   @xmath is the average precision for @xmath categories. The precision
+    of each category is computed as the ratio of number of correct
+    predictions to total number of instances that are predicted to
+    belong to that category.
+
+      -- -------- -- -------
+         @xmath      (6.3)
+      -- -------- -- -------
+
+-   @xmath : is the ratio of the number of correct predictions to the
+    total number of instances of the known categories.
+
+      -- -------- -- -------
+         @xmath      (6.4)
+      -- -------- -- -------
+
+-   @xmath is the average recall across the N categories.
+
+      -- -------- -- -------
+         @xmath      (6.5)
+      -- -------- -- -------
+
+where @xmath is the total number of predictions, @xmath and @xmath are
+true positive and false positive respectively. False negative and true
+negative are shown by @xmath and @xmath respectively. It is worth
+mentioning that the difference between @xmath and @xmath (also valid for
+@xmath and @xmath ) is that @xmath gives equal weight to each category,
+whereas @xmath gives equal weight to each prediction. Furthermore, there
+are many other common metrics in machine learning literature such as
+F-measure, kappa statistic, etc (Powers, 2011 ) . The focus of this
+chapter is on evaluating the performance of the proposed approaches. The
+choice of evaluation metric is based on its suitability. In multi-class
+learning and recognition, if an approach can not detect unknown objects,
+then @xmath , @xmath and @xmath will lead to the same results.
+Therefore, we use accuracy as the primary evaluation measure in our
+experimental setup in this chapter.
+
+### 6.3 Instance-Based Learning
+
+The instance-based learning approach is a baseline approach to evaluate
+object representations for the purpose of object recognition.
+Experiments in this section mainly reflect how the different object
+representations support object recognition. Each approach has a set of
+parameters that must be tuned to provide a good balance between
+recognition performance, memory usage and computation time. As mentioned
+earlier, the restaurant object dataset has a small number of classes
+with significant intra-class variation. Therefore, we use this dataset
+to examine the accuracy of each approach using different parameter
+configurations. Based on the obtained results, we finally select a
+default value for each parameter of all the approaches.
+
+#### 6.3.1 Sets of Local Features
+
+For the instance-based approaches with variable size representations,
+i.e., Approach I and Approach II, as discussed in section 5.4.3 , two
+sets of @xmath experiments were performed for different values of the
+three system parameters namely the voxel size (VS), which is related to
+the number of keypoints extracted from each object view, the image width
+(IW) and the support length (SL) of spin images. Results are presented
+in Table 6.1 . The accuracy value presented for each parameter value is
+an average computed over the experiments carried out for all
+combinations of the other parameters values. One important observation
+is that, by increasing the SL, the classification performance also
+increases. This is due to the fact that the support length parameter
+determines the amount of space swept out by a spin-image, which will
+have a radius of SL and height of @xmath SL. Therefore, selecting a
+large value for the SL parameter causes the spin image to behave like a
+global descriptor. To prove this observation, we ran a set of @xmath
+experiments for each approach. Results are summarized in Table 6.2 . The
+parameters that obtained the best average accuracy were selected as the
+default system parameters. For Approach I, the default system
+configurations are the following: VS = @xmath , IW = @xmath and SL =
+@xmath . The accuracy of the proposed system with the default
+configuration was @xmath percent. For Approach II, the following
+parameters obtained the best average accuracy and were set as the
+default system parameters: VS = @xmath , IW = @xmath and SL = @xmath .
+The accuracy of the proposed system with this configuration was @xmath .
+Results show that the overall performance of the recognition system is
+promising. Spin images are capable of collecting distinctive traits of
+the local surface patches of each object. For an entire experiment, the
+average computation time for the first instance-based approach (
+Approach I) was around @xmath seconds while the second approach (
+Approach II) in average took around @xmath seconds. It can be concluded
+that both approaches require significant computational resources. This
+set of experiments shows the pros and cons of considering a large value
+for the SL parameter. We conclude that a larger SL adds more information
+and causes the object representation takes more time to be computed.
+Since we mainly focus on robotics applications, especially open-ended
+learning, the computation time is an important factor. Therefore, we
+prefer to choose a value for the support length parameter in the range
+of 0.02m to 0.05m in the following approaches.
+
+#### 6.3.2 Bag of Words
+
+The descriptiveness of the BoW layer was evaluated with varying
+dictionary size. All the parameters must be well selected to provide a
+good balance between recognition performance, memory usage and
+computation time. Towards this end, a set of 120 experiments has been
+performed. Experiments were repeated for different values of four
+parameters of the system, namely the voxel size (VS), the image width
+(IW) and support length (SL) of spin images and the dictionary size
+(DS). Results are summarized in Table 6.3 and Fig. 6.4 . Based on the
+obtained results, the default system configuration is set as follow: VS
+= @xmath , IW = @xmath , SL = @xmath and DS = @xmath . The accuracy of
+this configuration was @xmath percent.
+
+#### 6.3.3 Standard LDA
+
+In the topic layer, we have four new parameters in addition to those of
+the Bag of Words layer: Number of Topics (NT), the Dirichlet prior
+hyper-parameters @xmath and @xmath and Number of Iterations for Gibbs
+sampling. In this thesis, we assumed symmetric Dirichlet prior for both
+@xmath and @xmath parameters. Therefore, a high @xmath value means that
+each object is likely to contain a mixture of most of the topics, and
+not a single specific topic. Likewise, a low @xmath value means that a
+topic may contain a mixture of just a few of the words. We have ran
+several experiments and concluded that @xmath and @xmath should be set
+to @xmath and @xmath respectively. Moreover, the number of Gibbs
+sampling iterations was set to @xmath . Experiments must be performed
+for different values of the remaining five parameters. In this section,
+the standard LDA approach is evaluated. This is the baseline to which
+the proposed Local LDA approach must be compared (see the next
+subsection). A set of 360 experiments was performed with standard LDA
+for different values of the considered parameters.
+
+The obtained results are summarized in Table 6.4 which shows the average
+accuracies obtained with different configurations. Similar to the
+previous approaches, the parameter configuration that obtained the best
+average accuracy and leads to better efficiency was selected as the
+default configuration: VS @xmath , IW @xmath and SL @xmath , DS @xmath
+and K @xmath . The performance of the topic layer with LDA (i.e., shared
+topics among all categories) was carried out using this configuration
+and the accuracy of this configuration was @xmath .
+
+#### 6.3.4 Local LDA
+
+A similar set of 360 experiments was performed with the proposed Local
+LDA approach for the same values of the five considered parameters. A
+summary of the experiments is reported in Table 6.5 . The parameter
+configuration that obtained the best average accuracy was selected as
+the default configuration: VS @xmath , IW @xmath and SL @xmath , DS
+@xmath and K @xmath . The accuracy of this configuration was @xmath .
+This configuration displays a good balance between recognition
+performance and memory usage.
+
+#### 6.3.5 Good
+
+A set of experiments was performed to evaluate the performance of
+instance-based learning using the GOOD descriptor. As described in
+chapter 4 , GOOD has single a parameter namely the number of bins ,
+@xmath . We performed five experiments for different values of this
+parameter: @xmath . Results are summarized in Fig. 6.5 . In these
+experiments, the best result was obtained with @xmath bins. The accuracy
+of the proposed system with this configuration was @xmath percent. The
+experiment time for this approach on average was around @xmath seconds.
+
+By comparing the results obtained with the different instance-based
+approaches using the default configurations, several points can be
+concluded. One important observation is that the overall performance,
+concerning classification accuracy and computation time, obtained with
+GOOD descriptor is clearly better than the best performances obtained
+with the local-feature based approaches. Experimental results also show
+that, among approaches based on local-feature, the overall performance
+of the recognition system based on topic modelling is promising and the
+proposed Local LDA representation is capable of providing a distinctive
+representation for the objects. Moreover, it was observed that the
+discriminative power of the Local LDA representation was better than the
+other local-feature based approaches. In addition, independent topics
+for each category provide better representation than shared topics for
+all categories. Furthermore, it has been observed that the
+discriminative power of shared topics depends on the order of
+introduction of categories (Ando et al., 2013 ) . The accuracy of object
+recognition based on variable size representation (i.e., sets of
+spin-images) was not as good as the other approaches. The BoW and LDA
+(shared topics) representations obtained an acceptable performance. The
+local topic representation provided a good balance between memory usage
+and descriptiveness. The variable size representations were the less
+compact representations.
+
+### 6.4 Model-Based Learning
+
+The performance of the model-based object category learning approach was
+evaluated using BoW, LDA (standard and local) and GOOD representations.
+The variable-size representation approaches are not considered since
+most of the machine learning methods, including the proposed model-based
+learning approach, take fixed-length vectors as input. In the case of
+BoW and Local LDA, three parameters (IW, SL and DS) have different
+effects on both memory usage and recognition accuracy. Dictionary size
+(DS) determines the number of words in the dictionary. For LDA
+approaches, an additional parameter, NT is the number of topics. We
+tried to find a good value for these parameters to obtain a good balance
+between recognition performance, memory usage, and processing speed. In
+the case of GOOD, the number of bins , is the parameter that has to be
+set optimally. We describe in detail each set of experiments in the
+following subsections.
+
+#### 6.4.1 Bag of Words
+
+A set of 120 experiments was carried out to evaluate the proposed
+model-based learning approach with BoW representation for different
+values of the four BoW parameters. The obtained results are summarized
+in Table 6.6 . The object recognition performance for each system
+configuration is depicted in figure 6.6 where the system parameters are
+represented as a tuple (VS, IW, SL, DS).
+
+The parameters that obtained the best average accuracy were selected as
+the default system parameters: VS = 0.01, IW = 4, SL = 0.05 and DS = 90.
+The accuracy of the proposed system with this configuration was @xmath .
+
+One important observation is that the accuracy of the proposed
+model-based object recognition approach using BoW is similar to the
+instance-based approach with BoW (see section 6.3.2 ). Although, the
+instance-based approach achieves a good description power, it increases
+computation time, memory usage and sensitivity to outliers. In
+instance-based approaches, the number of instances directly affects
+computation time and memory usage. Therefore, we calculate the average
+time required to complete all the 120 experiments for the proposed
+instance-based and model-based approaches using BoW. The average
+computation time of the model-based approach is around @xmath less than
+the instance-based approach with BoW representation. In particular, the
+average computation time for the instance based approach was around
+@xmath seconds while the model-based approach on average took @xmath
+seconds. It is worth mentioning that the difference of computation time
+was significant for such a small dataset and could grow exponentially by
+increasing the number of instances and categories.
+
+#### 6.4.2 Standard LDA
+
+Another round of experiments was carried out for different values of
+five parameters of the LDA approach. Similar to the previous
+experiments, we tried to find a good value for these parameters to
+obtain a good balance between recognition performance, memory usage, and
+processing speed. A summary of all experiments is reported in Table 6.7
+. The parameters that obtained the best average accuracy was selected as
+the default configuration: VS @xmath , IW @xmath and SL @xmath , DS
+@xmath , K @xmath . The accuracy of the proposed system in topic layer
+with the default configuration was @xmath percent. It can be noticed
+that the model-based learning approach with LDA representation performs
+better than the instance-based approach with LDA representation. We
+believe that this difference can be explained by the fact that the
+former approach is not sensitive to the outliers.
+
+The computation time for a complete experiment of model-based learning
+with LDA representation (including both learning and recognition phases)
+on average was @xmath seconds, which is @xmath times less than the
+instance-based learning with the same object representation. In terms of
+computation time, it was observed that among the object representation
+approaches based on local-feature, the BoW with model-based learning
+approach achieved the best performance, which is around @xmath and
+@xmath times less than model-based approach with LDA and Local LDA
+representations respectively. The underlying reason is that there is a
+Gibbs sampling procedure in the LDA approaches which takes time to
+accurately represent the desired distribution.
+
+#### 6.4.3 Local LDA
+
+Another round of experiments was performed to evaluate the system using
+the proposed Local LDA representation and model-based object category
+learning and recognition. In this case, @xmath experiments were carried
+out. In these experiments, the parameters that got the best average
+accuracy were: VS @xmath , IW @xmath and SL @xmath , DS @xmath , K
+@xmath . This is adapted as the default configuration. The accuracy of
+the system with this configuration was @xmath percent. Table 6.8
+provides a detailed summary of the obtained results.
+
+Similar to the previous evaluation, by comparing the obtained results of
+instance-based and the model-based approaches, the value of model based
+learning approaches is highlighted. The average computation time of the
+model-based approach with Local LDA was around @xmath times less than
+the instance-based approach with Local LDA. Specificity, for all
+experiments, the average computation time for the instance-based
+approach was @xmath seconds while model-based approach on average took
+@xmath seconds. It was observed that the proposed local topic modelling
+is capable to provide distinctive object representation for recognizing
+different type of objects.
+
+#### 6.4.4 Good
+
+A set of experiments was carried out to evaluate the proposed
+model-based learning approach representing object views with the GOOD
+descriptor. In particular, we performed five 10-fold cross-validation
+experiments with different values for the number of bins parameter:
+@xmath and @xmath . Results are plotted in Fig. 6.7 . Although a large
+number of bins may provide more details about the point distribution, it
+increases computation time and memory usage. Therefore, since the
+difference in accuracy is relatively small, @xmath is set to @xmath bins
+by default. This is a good balance between recognition performance,
+memory usage, and processing speed (see additional details in section
+6.5 ). The accuracy of the proposed system with this configuration was
+@xmath percent. It is interesting that instance-based learning with GOOD
+achieved better accuracy than the model-based approach. We believe that
+the reason lies in the learning procedure. In the model-based approach,
+a probabilistic model for a given category is created by combining
+information from all the instances of the category. This procedure works
+fine with all local feature-based object representations. In the case of
+a global object representation, i.e., GOOD, the presence of some
+instances with diverging appearances, i.e., totally different from the
+other instances, will lead to create a poor model for the given
+category. The instance-based approach with GOOD does not suffer from
+this drawback and therefore, showed a better performance.
+
+Although model-based object category learning and recognition with BoW
+and LDA representations are the two most compact approaches in this
+evaluation, their computation time and descriptiveness are not as good
+as the GOOD representation. Overall, instance-based learning with GOOD
+achieves the best recognition performance, which is 2 percentage points
+(p.p.) better than GOOD with model-based learning, 4 p.p. better than
+Local LDA and 7 p.p. and 8 p.p. better than LDA and BoW representations
+respectively. The BoW and Local LDA led to experiment times 2.2 to 3.5
+times higher than the experiment time obtained with GOOD. The underlying
+reason is that GOOD works directly on 3D point cloud and requires
+neither computation of local features nor a sampling procedure.
+According to the evaluations, this approach is competent for robotic
+applications with strict limits on the computation time requirement. A
+summary of all evaluations is reported in Table 6.9 . In the next
+section, we provide a detailed analysis of the GOOD descriptor.
+
+### 6.5 GOOD Descriptor
+
+Several additional experiments were carried out to evaluate the
+performance of the proposed GOOD descriptor concerning descriptiveness ,
+scalability , robustness and efficiency . In these experiments, we
+mainly use the Washington RGB-D Object Dataset (Lai et al., 2011b ) ,
+one of the largest publicly available datasets for object recognition.
+For some experiments, the Restaurant Object Dataset (Kasaei et al.,
+2015a ) is also used (for datasets, see Section 6.1 ).
+
+In all experiments, the instance-based learning approach is used (see
+section 5.4.5 ). GOOD was compared with four state-of-the-art object
+descriptors that are available in the Point-Cloud Library ² ² 2
+http://pointclouds.org/ , namely VFH (Rusu et al., 2010 ) , ESF
+(Wohlkinger and Vincze, 2011 ) , GFPFH (Rusu et al., 2009b ) , from PCL
+1.7, and GRSD (Marton et al., 2010 ) , from PCL 1.8. For all selected
+descriptors, the default parameters in the respective PCL
+implementations were used (Aldoma et al., 2012b ) .
+
+#### 6.5.1 Descriptiveness
+
+As mentioned above, GOOD has a parameter called number of bins that has
+effect on descriptiveness, efficiency and robustness. Therefore, it must
+be well selected to provide a good balance between recognition
+performance, memory usage and computation time. The descriptiveness of
+the proposed descriptor with respect to varying number of bins was
+evaluated using the Washington RGB-D Object Dataset. For each value of
+the number of bins, 10-fold cross validation experiments were performed.
+
+Results are presented in Fig. 6.8 ( left ) and Table 6.10 . In these
+experiments, the configurations that obtained the best accuracy figures
+were 15 and 25 bins. Although, a large number of bins provides more
+details about the point distribution, it increases computation time,
+memory usage and sensitivity to noise. Therefore, since the difference
+to other configurations is not very large, we prefer to use the first
+configuration, i.e., @xmath bins which displays a good balance between
+recognition performance, memory usage, and processing speed. The
+accuracy of the proposed system with this configuration was 92 percent.
+It shows that the overall performance of the recognition system is
+distinctive. Unless otherwise noted, the remaining results are computed
+using this configuration.
+
+#### 6.5.2 Scalability
+
+A set of experiments was carried out to evaluate the performance of the
+proposed descriptor on the Washington RGB-D Object Dataset, concerning
+its scalability with respect to varying number of categories. Results
+are depicted in Fig. 6.8 ( center ) and ( right ). One important
+observation is that the accuracy decreases in all approaches as more
+categories are covered (Fig. 6.8 ( center )). This is expected since a
+higher number of categories tends to make the classification task more
+difficult. Moreover, it can be concluded from Table 6.11 that when the
+number of object categories increases (i.e., more than 35 categories),
+VFH and GOOD (15 bins) descriptors achieve the best accuracy and stable
+performance regarding varying numbers of categories.
+
+It is clear from Fig. 6.8 ( right ) that the experiment time of our
+approach is significantly smaller than VFH, GRSD and GFPFH. Although
+GOOD, VFH and ESF descriptors obtain an acceptable scalability regarding
+varying numbers of categories, the scalability of GRSD and GFPFH is very
+low and their performance drops aggressively when the number of
+categories increases. Although EFS descriptor achieves better
+performance than our approach with 5 bins (i.e., GOOD 5bins), the length
+of EFS (i.e., an inverse indicator of compactness) is around 8.5 times
+more than our descriptor (see Table 6.13 ). For a number of known
+categories greater than 35, the difference in accuracy between ESF and
+GOOD with 5 bins, is equal or less than 1%, whereas GOOD 15 bins is
+clearly better than the others.
+
+#### 6.5.3 Robustness
+
+The robustness of the proposed object descriptor with respect to
+different levels of Gaussian noise and varying point cloud resolutions
+was evaluated and compared with other global object descriptors. These
+experiments were run on the mentioned Restaurant Object Dataset. This
+dataset is suitable for such evaluations since it is a small dataset and
+the objects are extracted from cluttered scenes. Furthermore, the
+Restaurant Object Dataset contains some occluded or truncated objects,
+which improves the generalization power of the relevant learnt models.
+
+##### Gaussian Noise
+
+Ten levels of Gaussian noise with standard deviations from 1 to 10mm
+were added to the test data. For a given test object, Gaussian noise is
+independently added to the X, Y and Z-axes. As an example, a Vase object
+with three levels of standard deviation of Gaussian noise ( @xmath ) is
+depicted in Fig. 6.9 . The robustness results under different levels of
+noise are presented in Table 6.12 and Fig. 6.10 ( left ). An important
+observation can be made from Fig. 6.10 and Fig. 6.8 . Although, GOOD,
+ESF and VFH achieved a really good performance on noise free data, GOOD
+outperformed ESF, GFPFH and GRSD descriptors by a large margin under all
+levels of Gaussian noise. While the performance of VFH was similar to
+our approach under a low-level noise (i.e., @xmath ), our shape
+descriptor outperformed all descriptors under high levels of noise.
+
+It can be concluded from this observation that GOOD is robust to noise
+due to using a stable, unique and unambiguous object reference frame. In
+contrast, since VFH and GFPFH rely on surface normals to calculate their
+shape descriptions, they are highly sensitive to noise. GRSD employs
+radial relationships to describe the geometry of points at each voxel
+cell and ESF uses distances and angles between randomly sampled points
+to generate a shape description; therefore, GRSD and ESF are also
+sensitive to noise and their performances decrease rapidly when the
+standard deviation of the Gaussian noise increases. In addition, GOOD
+uses three distribution matrices that are constructed based on
+orthographic projection, therefore less affected by noise (i.e., in each
+projection one dimension is discarded).
+
+##### Varying Point Cloud Density
+
+Two sets of experiments were performed to examine the robustness of the
+proposed descriptor with respect to varying point cloud density. In the
+first set of experiments, the original density of training objects has
+been used and the point cloud density of test objects was reduced
+(downsampling) using a voxelized grid approach ³ ³ 3
+http://pointclouds.org/documentation/tutorials/voxel_grid.php . The
+methodology of this kind of downsampling commences with a voxelization
+of the surface points. This is initiated with a root volume element
+(voxel) and the eight children voxels in which each internal node has
+exactly eight children nodes. These are recursively subdivided until all
+voxels contain at most one point or the minimum voxel size is reached
+(i.e., the cloud is divided in multiple voxels with the desired
+resolution). Afterwards all the points that fall into the same voxel
+will be downsampled with their centroid. In this evaluation, each test
+object is downsampled using five different voxel sizes: @xmath and
+@xmath mm. An example of a Flask object with four levels of downsampling
+is depicted in Fig. 6.11 . The robustness results regarding varying
+point cloud density in test data are presented in Fig. 6.10 ( center ).
+
+From experiments of reducing density of test data (i.e., Fig 6.10 ( left
+)), it was found that our approach is more robust than the other
+descriptors concerning low-level downsampling (i.e., @xmath ) and works
+slightly better than the other in high-level downsampling resolution
+(i.e., @xmath ). In contrast, the performance of VFH, ESF and GRSD were
+better than GOOD in mid-level downsampling resolution (i.e., @xmath ).
+The performance of GFPFH was very low under all levels of point cloud
+resolution. Besides, it can be concluded from Fig. 6.10 ( right ) that
+when the level of down-sampling decreases, VFH, ESF and GRSD descriptors
+achieve better performance than GOOD and GFPFH descriptors.
+
+#### 6.5.4 Efficiency
+
+In this subsection, two evaluations regarding memory footprint (i.e.,
+the amount of main memory that a program uses or references while
+running) and computation time are provided and discussed.
+
+##### Memory Footprint
+
+The length of a descriptor has influence on memory usage and computation
+time in object recognition (see Fig. 6.8 ). The length of all
+descriptors used in this evaluation is given in Table 6.13 . Although
+GFPFH and GRSD are the two most compact shape descriptors (see Table
+6.13 ), their computation time and descriptive power are not good as
+depicted in figures 6.8 and 6.12 . Our approach is the third most
+compact descriptor and provides good balance between computation time
+and descriptiveness with 75 floats. Although, VFH and ESF descriptors
+achieve a good description power, their lengths are around 4.10 and 8.50
+times larger than GOOD with 5 bins and 19 and 40 times larger than GFPFH
+respectively. ESF is the less compact descriptor compared to all the
+other descriptors.
+
+##### Computation Time
+
+Several experiments were performed to measure computation time for all
+descriptors used in this evaluation. Since the number of object’s points
+directly affects the computation time, first, we randomly select 20
+objects from the Washington RGB-D dataset. We then calculate the average
+time required to generate a description for the 20 selected objects.
+Figure 6.12 compares the average computation time of the selected object
+descriptors. Several observations can be made. GOOD is the most time
+efficient descriptor. In contrast, GFPFH is the most computationally
+expensive descriptor. ESF, VFH and GRSD achieve a medium performance in
+terms of computation time. GOOD is around 10 times faster than ESF and
+44, 50 and 254 times faster than VFH, GRSD and GFPFH descriptors. The
+underlying reason is that GOOD works directly on 3D point clouds and
+requires neither triangulation of the object’s points nor surface
+meshing. According to this evaluation and the memory footprint
+evaluation (i.e., subsection 6.5.4 ), our approach is especially well
+suited for robotic applications with strict limits on the memory
+footprint and computation time requirements.
+
+### 6.6 Summary
+
+In this chapter, we first focused on the classical evaluation of
+instance-based (Section 6.3 ) and model-based (Section 6.4 ) object
+category learning and recognition approaches. The reported results
+indicate that the overall classification performance obtained with the
+proposed instance-based learning approach using GOOD feature is better
+than the best performances achieved with the other approaches. The
+underlying reason was that GOOD feature encodes the object globally,
+while the other representations encode the entire object based on a set
+of local features. Furthermore, it was observed that the model-based
+learning approach with the GOOD feature provided the best computation
+time performance. Among the local feature-based approaches, Local LDA
+achieved the best results. It is due to this point that Local LDA
+transforms objects from bag-of-words space into a local semantic space
+and used distribution over distribution representation for providing
+dominant representation.
+
+After evaluation of all the proposed learning and recognition
+approaches, a set of experiments was carried out to assess the
+performance of the GOOD descriptor and compare its performance with
+other state-of-art descriptors. Experimental results show that the
+overall classification performance obtained with GOOD is comparable to
+the best performances obtained with the state-of-the-art Global object
+descriptors. GOOD outperformed the selected state-of-the-art descriptors
+(i.e., VFH, ESF, GRSD and GFPFH descriptors), achieving appropriate
+descriptiveness and significant robustness to Gaussian noise. GOOD was
+robust to varying low-level point cloud density too. The accuracy of
+VFH, ESF and GRSD was better than GOOD in the case of varying medium and
+high point cloud density. In addition, GOOD obtained the best
+computation time performance.
+
+The off-line evaluation methodologies (e.g k-fold cross validation,
+etc.) are not well suited to evaluate open-ended learning systems,
+because they do not abide to the simultaneous nature of learning and
+recognition and also those methodologies imply that the set of
+categories must be predefined. We address this issue in the next chapter
+by proposing an approach for evaluating open-ended object category
+learning and recognition approaches in open-ended and multi-context
+scenarios.
+
+## Chapter 7 Open-Ended Evaluations
+
+One of the primary goals in computer vision is to develop reliable
+capabilities that will allow robots to work in an unconstrained
+environment by recognizing a large number of object categories. It is
+still a challenging problem because of ill-definition of objects, large
+variations in object appearance and concept drift. To deploy a robot in
+a human-centric environment, it is important that the robot is able to
+continuously acquire and update object categories while working in the
+environment. Therefore, autonomous robots must have the ability to
+continuously execute learning and recognition in a concurrent and
+interleaved fashion. In an unstructured environment, an agent must
+process observations that become gradually available over time, and form
+hypotheses about the environment. If the agent works in a single-context
+environment, or if the agent can receive/extract explicit information
+about the current context, one may consider to pre-program the agent to
+use this information for memory management and for adapting to the
+environment. In the first part of this chapter, in order to evaluate and
+compare the proposed object category learning and recognition approaches
+in an open-ended manner, the teaching protocol proposed by Seabra Lopes
+and Chauhan ( 2007 ) is used. An extensive set of experiments was
+carried out to evaluate each approach.
+
+The second part of this chapter is dedicated to evaluating how different
+approaches cope with the effects of context switch. In a real-world
+environment, the context may change implicitly and it is not feasible to
+assume that one can pre-program all the contexts required by an agent.
+Therefore, the agent must have the ability to continuously execute
+learning and recognition in a concurrent and interleaved fashion even
+when changes of context occur without explicit cueing. For instance, an
+intelligent robot working in a human-centric environment needs to learn
+and remember many different object categories. This is a challenging
+task since in such environments context may change implicitly and some
+of the object categories may disappear for some time. As a baseline, the
+robot must demonstrate a capacity for open-ended learning: that is, the
+ability to learn new object categories sequentially without forgetting
+the previously learned object categories. In other words, whenever an
+agent migrates to a novel context, some new object categories should be
+learned to represent the environment. To achieve adaptability, the agent
+can either preserve and update the current category models, learning
+additional categories as needed, or discard the categories learned so
+far and learn new category models from scratch. In unstructured
+environments, since the learning agent may need to go back to a past
+context, discarding the category models learned in previous contexts is
+not a rational choice (see Fig. 7.1 ).
+
+Having this in mind, we propose an approach for evaluating the
+adaptability of different open-ended object category learning and
+recognition methods to context change; A new teaching protocol,
+supporting context change, was designed and used for experimental
+evaluation. A full round of experiments was carried out to assess and
+compare the proposed methods in depth from the point of view of
+adaptability to context change. In this chapter, all evaluations are
+conducted using the Washington RGB-D dataset described in the previous
+chapter (see Section 6.1 ).
+
+This chapter presents three main contributions: ( i ) Open-ended
+evaluation of the proposed object category learning and recognition
+approaches; ( ii ) An approach for evaluating the adaptability of
+open-ended object category learning and recognition systems to context
+change; ( iii ) Evaluation of the adaptability of the proposed object
+category learning and recognition approaches to context change. Parts of
+the work presented herein have been published in the IROS conference
+(Kasaei et al., 2018a ) . The remainder of this chapter is organized as
+follows. In section 7.1 , we discuss related works. Open-ended
+evaluation of selected approaches is presented in Section 7.2 . An
+evaluation of adaptability to context change is the topic of Section 7.3
+. Finally, summary is presented and future research is discussed.
+
+### 7.1 Related Work
+
+In recent years, the role of open-ended learning in robotics has been a
+topic of considerable interest (Collet et al., 2014 ; Oliveira et al.,
+2015b ) . In the last decade, various research groups have made
+substantial progress towards the development of learning approaches
+which support online, incremental and open-ended category learning
+(Oliveira et al., 2016 ; Kasaei et al., 2016a ; Celikkanat et al., 2016
+; Kasaei et al., 2015b ) . Although all the proposed methods have been
+shown to make progress over the previous one, it is challenging to
+quantify this progress without a concerted evaluation protocol.
+Therefore, learning in online and open-ended scenarios calls for new
+evaluation procedures. Although classical evaluation procedures
+(holdout, cross-validation, leave-one-out) provide unbiased estimates of
+the learning performance, they are not suitable for the cases where the
+problem domain changes over time (Seabra Lopes and Chauhan, 2007 ; Gama
+et al., 2009 ) . Accordingly, a well-defined protocol can facilitate the
+comparison of different approaches as well as the assessment of future
+improvements.
+
+#### 7.1.1 Teaching Protocols for Open-Ended Evaluation
+
+The well established evaluation methodologies follow the classical
+train-and-test procedure, i.e., two separate stages, training followed
+by testing. Training is accomplished offline, and once it is complete
+the testing is performed. These methodologies are not well suited to
+evaluate open-ended learning systems, because they do not abide to the
+simultaneous nature of learning and recognition and because the number
+of categories must be predefined.
+
+Teaching protocols for open-ended evaluation of a learning algorithm
+determines which examples are used for training the algorithm, and which
+are used to test the algorithm. Seabra Lopes and Chauhan proposed a
+teaching protocol to evaluate the ability of an agent to incrementally
+acquire visual object categories in an open-ended setting (Seabra Lopes
+and Chauhan, 2007 ; Chauhan and Seabra Lopes, 2011 ) . This protocol,
+which can be followed by a human teacher or by a simulated teacher, is
+based on a Test-then-Train scheme. It is an elaborate and exhaustive
+evaluation procedure, where, for every new category introduced to the
+agent, the average accuracy of the system is calculated by performing
+classification with all known categories. Towards this end, a teacher
+repeatedly presents instances of known categories to the agent, checks
+the agent’s predictions and provides corrective feedback in case of
+misclassification. This way, the system is trained, and at the same time
+the recognition performance of the system is continuously estimated.
+More specifically, the teacher interacts with the learning agent using
+three basic actions (see sections 3.5 and 5.3 for additional details):
+
+-    Teach : used for introducing a new object category;
+
+-    Ask : used to ask the system what is the category of a given object
+    view;
+
+-    Correct : used for providing corrective feedback in case of
+    misclassification.
+
+Algorithm 7.1 describes the teaching protocol. This protocol has been
+used in several recent works (Oliveira et al., 2016 ; Kasaei et al.,
+2016a ) .
+
+1: Introduce @xmath
+
+2: @xmath
+
+3: repeat
+
+4: @xmath @xmath ready for the next category
+
+5: Introduce @xmath
+
+6: @xmath
+
+7: @xmath
+
+8: repeat @xmath question / correction iteration
+
+9: Present a previously unseen instance of @xmath
+
+10: Ask the category of this instance
+
+11: If needed, provide correct feedback
+
+12: c @xmath c+1 if else @xmath
+
+13: if @xmath then @xmath sliding window
+
+14: @xmath
+
+15: @xmath accuracy in last @xmath question/correction iterations
+
+16: until ( ( @xmath > @xmath and @xmath >= @xmath ) @xmath accuracy
+threshold crossed
+
+17: or (user sees no improvement in accuracy) ) @xmath breakpoint
+reached
+
+18: until ( user sees no improvement in accuracy ) @xmath breakpoint
+reached
+
+Teaching protocol for performance evaluation
+
+The teacher continuously estimates the recognition performance
+(accuracy) of the agent using a sliding window of size @xmath
+iterations, where @xmath is the number of categories that have already
+been introduced. If @xmath , the number of iterations since the last
+time a new category was introduced, is less than @xmath , all results
+are used. In case accuracy exceeds a given classification threshold (
+@xmath ), the teacher introduces a new object category.
+
+In another work, this protocol has been modified to cope with scenarios
+in which the learning agent is able to acquire large sets of categories
+(hundreds or more) (Chauhan and Seabra Lopes, 2015 ) . The major
+differences are two fold: in the original protocol, after introducing a
+new category, all known categories are tested once, while Chauhan and
+Seabra Lopes ( 2015 ) proposed that it is enough to test a randomly
+generated subset of all known categories for introducing a new category;
+the second difference, with respect to the original protocol, is that,
+in the original protocol, categories are tested in the sequence in which
+they were introduced to the agent, while in the modified protocol,
+categories are tested in a random sequence, which steers to prevent
+storing more instances for the categories introduced earlier.
+
+In the field of data-stream learning, i.e., sensor networks, social
+networks, financial data etc., the data usually became available through
+the time and can significantly change over time. Given that the number
+of categories is usually predefined in data-stream learning, the
+evaluation procedure follows the standard train and test approach.
+Therefore, the evaluation of these algorithms faces the same issues as
+that for evaluating open-ended learning algorithms. To handle this
+issue, some online evaluation approaches have been proposed, such as
+Prequential evaluation (Gama et al., 2009 , 2013 ) and MOA (Bifet
+et al., 2010 ) . These approaches also follow a Test-then-Train scheme.
+However, they do not take into account the impact of learning new
+categories and the capability of learning algorithms to scale up to
+larger sets of categories. The existing online evaluation approaches do
+not take into account the possibility of context change. In this
+chapter, the mentioned teaching protocol (Seabra Lopes and Chauhan, 2007
+; Chauhan and Seabra Lopes, 2011 ) is modified to evaluate the learning
+agent in scenarios of context change.
+
+#### 7.1.2 Metrics for Open-Ended Evaluation
+
+After deciding which teaching protocol is suitable for evaluating an
+open-ended learning system, one of the unique concerns is how to build a
+picture of performance over time. Some authors consider the classical
+measures versus training time. In classical scenarios with a fixed set
+of categories, such evaluations show a gradual increase of the classical
+measures and a convergence to a stable value. The performance evaluation
+of an open-ended learning system cannot be limited to the classical
+evaluation metrics (see Section 6.2 ). In addition to classical measures
+such as accuracy, precision and recall, an open-ended learning approach
+should be evaluated by the other measures like “ number of learned
+categories ” and “ number of teaching iterations ”.
+
+In the continuation of their earlier works (Seabra Lopes and Chauhan,
+2007 ; Chauhan and Seabra Lopes, 2011 ) , Chauhan and Seabra Lopes (
+2015 ) proposed additional criteria and measures to evaluate the overall
+learning performance of the agent during an open-ended experiment. In
+particular, they suggested the following measures to characterize the
+quality and coverage of the learned knowledge after an experiment has
+finished:
+
+1.  Global accuracy : This is given as the percentage of correct
+    predictions made during a complete teaching protocol experiment,
+    i.e., in an experiment that reached the breakpoint.
+
+2.  Average protocol accuracy : The average of all protocol accuracy
+    values, i.e., computed over all the question/correction iterations
+    in a complete teaching protocol experiment;
+
+3.  Number of learned categories in a complete teaching protocol
+    experiment.
+
+In applications where the learning agent can recognize an object as
+belonging to an “ unknown ” category, the accuracy measure can be
+replaced by some other recognition success measure, e.g. F-measure.
+Additionally, they considered the following measures to characterize the
+learning process in terms of memory and time:
+
+1.  Number of question/correction iterations during the experiment;
+
+2.  Average number of stored instances per category in a complete
+    teaching protocol experiment (this measure is applicable to
+    instance-based learning approaches only).
+
+Oliveira et al. ( 2015a ) proposed to organize these evaluation metrics
+in three groups:
+
+1.  How much does it learn? This is measured as the number of categories
+    learned in a complete teaching protocol experiment;
+
+2.  How well does it learn? They mentioned that classical evaluation
+    metrics such as accuracy, precision and recall are well suited for
+    this metric. They used global accuracy measured as defined above.
+
+3.  How fast does it learn? This is measured as the number
+    question/correction iterations in a teaching protocol experiment up
+    to a certain number of learned categories.
+
+#### 7.1.3 Context Change in Open-Ended Learning
+
+Humans can adapt to different environments dynamically by watching and
+learning. Learning is closely related to memory in human cognition. Yeh
+and Barsalou ( 2006 ) demonstrated in a series of experiments that human
+subjects perform better at a variety of cognitive tasks when taking
+context into account. Without considering contextual information, all
+possibilities in a classification space must be explored, which scales
+poorly with large-scale data.
+
+Several cognitive experiments have been performed showing that animals
+also retain knowledge of past contexts (Sissons and Miller, 2009 ; Rosas
+and Callejas-Aguilera, 2006 ) . Cognitive scientists demonstrated that
+humans use contextual information to handle large-scale object
+recognition tasks faster and more accurately (Oliva and Torralba, 2007 )
+.
+
+Some authors make a useful distinction between internal and external
+contexts (Kokinov, 1997 ; Snidaro et al., 2015 ) . External context is
+the state of the physical and social environment while internal context
+is the current mental (memory) state of the agent. Kokinov’s dynamic
+theory of context (Kokinov, 1995 , 1997 ) assumes that the internal
+context influences perception, memory, and reasoning processes. He
+suggests that the internal context is formed by the interaction between
+at least three processes: building new representations based on
+perception of the environment; accessing memory traces therefore
+reactivating and possibly modifying old representations; and
+constructing new representations based on reasoning.
+
+Kokinov ( 1995 , 1997 ) introduced several distinctions between various
+concepts, e.g. internal versus external context, implicit versus
+explicit context, and proposed a dynamic approach to context modeling.
+External context is related to the social and situational dimensions of
+contexts such as location, time, light and co-location. Internal context
+can be understood as a mental (memory) state of the agent. Researchers
+in both cognitive science (Rosas et al., 2013 ) and computer vision
+communities (Galleguillos and Belongie, 2010 ; Oliva and Torralba, 2007
+) have mainly studied the effects of external context and very rarely
+the internal context (Snidaro et al., 2015 ) . Recently, several
+computer vision approaches have shown that information about the
+external context improves the efficiency of the perceptual tasks such as
+object detection (Mottaghi et al., 2014 ) and semantic segmentation
+(Mottaghi et al., 2014 ; Shelhamer et al., 2016 ) .
+
+In robotics, the notion of context has grown in prominence over the last
+decade. Several researchers considered the role of context in object
+recognition. They used explicit context information, in training and/or
+in recognition, with different methods for representing the context in
+terms of relationship among objects in a scene (Galleguillos and
+Belongie, 2010 ; Mottaghi et al., 2014 ; Ruiz-Sarmiento et al., 2015b ,
+a ) . Moreover, they showed that a statistical summary of the scene
+(i.e., global scene representation) provides a rich source of
+information for contextual inference. For instance, Mottaghi et al. (
+2014 ) investigated the role of context for object detection and
+semantic segmentation. They proposed a new deformable part-based model,
+which exploits both local and global context for object segmentation in
+unstructured environments and showed that this contextual reasoning was
+useful to detect objects at all scales. Nigam and Riek ( 2015 ) proposed
+a social context perception approach for mobile robots. They considered
+different aspects of the external context, including social environment,
+physical location, audio (i.e., varied levels of noise) and the time of
+day, to recognize dining, studying and lobby (waiting) contexts.
+
+Such approaches are at some point dependent on an explicit context cue
+and may fail when the environment undergoes a change in context without
+explicit cueing. This is an important limitation since no matter how
+extensive the training data, an agent might always be confronted with
+unknown objects in new contexts when operating in everyday environments.
+Therefore, the agent should be able to deal with implicit context
+changes in an incremental and open-ended manner. The ability of
+different learning techniques to cope with context change in the absence
+of explicit cueing is usually not evaluated. Furthermore, the existing
+online evaluation approaches do not take into account the possibility of
+context change. That is precisely one of the focuses of this chapter. In
+particular, the teaching protocol of (Seabra Lopes and Chauhan, 2007 ;
+Chauhan and Seabra Lopes, 2011 ) is modified to evaluate the learning
+agent in scenarios of context change. The idea is to emulate the
+interactions of a learning and recognition system with the surrounding
+environment over long periods of time and evaluate how different
+approaches cope with the effects of context switch. For this purpose, a
+simulated teacher was developed to follow the modified teaching protocol
+and autonomously interact with the developed learning agent. After
+teaching a certain number of categories, the simulated teacher changes
+the context and continues teaching and testing the agent in the new
+context.
+
+### 7.2 Open-Ended Evaluation of Selected Approaches
+
+This section presents the experimental setup and the results obtained
+for the main approaches proposed and explored in this thesis. For each
+approach, the default parameters, as reported in the previous chapter,
+were used.
+
+#### 7.2.1 Simulated Teacher
+
+Off-line evaluation methodologies do not comply with the simultaneous
+nature of learning and recognition in autonomous agents. Moreover, they
+assume that the set of categories is predefined. Therefore, the
+mentioned teaching protocol (Seabra Lopes and Chauhan, 2007 ; Chauhan
+and Seabra Lopes, 2011 ) is adopted in this evaluation (Algorithm 7.1;
+see section 7.1.1 ). The idea is to emulate the interactions of a
+learning agent with the surrounding environment over long periods of
+time. The protocol can be followed by a human teacher. However,
+replacing a human teacher with a simulated one makes it possible to
+conduct systematic, consistent and reproducible experiments for
+different approaches. It allows the possibility to perform multiple
+experiments and explore different experimental conditions in a fraction
+of time a human would take to carry out the same task.
+
+For this purpose, a simulated teacher, connected to a large database of
+labelled object views was developed. The overall system architecture is
+depicted in Fig. 7.2 . In this chapter, the Washington RGB-D dataset is
+used (i.e., see Section 6.1 ). The idea is that the simulated teacher
+repeatedly picks unseen object views from the currently known categories
+and presents them to the agent for testing. Inside the learning agent,
+the object view is recorded in the Perceptual Memory if it is marked as
+a training sample (i.e., whenever the teacher uses teach or correct
+instructions), otherwise it is dispatched to the Object Recognition
+module.
+
+For introducing a new category, the simulated teacher presents three
+randomly selected object views. Since the order in which categories are
+introduced in a teaching protocol experiment may have an effect on the
+performance of the system, 10 experiments were carried out for each
+approach and, in each experiment, categories were introduced in random
+sequences. These sequences were the same for all approaches.
+
+In case the agent cannot reach the classification threshold after a
+certain number of iterations (i.e., 100 iterations), the simulated
+teacher can infer that the agent is no longer able to learn more
+categories and therefore, terminates the experiment. It is possible that
+an approach learns all existing categories before reaching the
+breakpoint. In such case, it is no longer possible to continue the
+protocol and the evaluation process is halted. In the reported results,
+this is shown by the stopping condition, “ lack of data ”.
+
+#### 7.2.2 Evaluation Metrics
+
+When an experiment is carried out, learning performance is evaluated
+using several measures, including: ( i ) the number of learned
+categories (NLC) at the end of the experiment, an indicator of how much
+the system was capable of learning ; ( ii ) the number of question /
+correction iterations (QCI) required to learn those categories and the
+average number of stored instances per category (AIC), indicators of
+time and memory resources required for learning ; ( iii ) Global
+Classification Accuracy (GCA), computed using all predictions in a
+complete experiment, and the Average Protocol Accuracy (APA), i.e.,
+average of all accuracy values successively computed during the
+experiment to control the application of the teaching protocol. GCA and
+APA are indicators of how well the system learns .
+
+#### 7.2.3 Evaluation of Instance-Based Approaches
+
+The first round of experiments was performed to evaluate the proposed
+learning approaches concerning their scalability with respect to the
+number of learned categories.
+
+The left column in Fig. 7.3 provides a detailed summary of the obtained
+results. By comparing all approaches, it is visible that the agent
+learned (on average) more categories using GOOD than with other
+approaches. The GOOD approach was able to learn about 39 categories, on
+average, while the other approaches learned less than 30 categories. In
+particular, GOOD learned around 11 categories more than Local LDA and
+19, 17 and 25 categories more than Approach II, BoW and standard LDA
+approaches, respectively. Based on the obtained results, it can be
+concluded that the agent with the global feature does lead to a better
+incremental and open-ended performance when compared with the
+performances of the agent using local-features. Similar results have
+been reported previously on classical evaluation using instance-based
+approaches where GOOD led to better category descriptions when compared
+with the other approaches. It is worth to mention that among the local
+feature-based approaches, Local LDA very clearly outperforms the other
+three approaches. Although, Approach II and BoW approaches stored fewer
+instances per category (AIC), on average, than Local LDA, their
+discriminative power is lower and their performance dropped quickly as
+the number of categories increased (see the right column of Fig. 7.3 ).
+It was also observed that the discriminative power of shared topics
+depends a lot on the order of introduction of categories.
+
+The center column of Fig. 7.3 illustrates how fast the learning occurred
+in each of the experiments. It shows the number of question/correction
+iterations required to learn a certain number of categories. From Fig.
+7.3 , we see that on overage the longest experiments were observed with
+GOOD and the shortest ones were observed with standard LDA. In the case
+of standard LDA, the agent on average learned @xmath categories using
+@xmath question/correction iterations. GOOD on average continued for
+@xmath question/correction iterations and the agent was able to learn
+@xmath categories. By comparing all the experiments based on GOOD, it is
+visible that in the seventh experiment, the number of iterations
+required to learn 41 object categories was greater than other
+experiments. The maximum number of categories that the agent could learn
+with GOOD was 45 categories (i.e., Exp. #9). This experiment took 1540
+question/correction iterations for the agent to acquire these
+categories. It can be observed that both evaluation measures (i.e., GCA
+and APA) of this experiment are also higher than the other experiments.
+
+The right column of the Fig. 7.3 shows the global classification
+accuracy obtained by the selected approaches as a function of the number
+of learned categories. One important observation is that accuracy
+decreases in all approaches as more categories are introduced. This is
+expected since a higher number of categories known by the system tends
+to make the classification task more difficult. BoW and Local LDA
+achieved the best accuracies with stable performance. One important
+observation is that BoW achieved better APA than GOOD and Local LDA
+approaches. This is expected since BoW learned fewer categories, and it
+is easier to get better APA in fewer categories. By comparing all
+experiments, it is visible that the agent learned more categories when
+using GOOD while in the case of other metrics, including accuracies (but
+this is inversely related to the number of learned categories), memory
+usage and computation time, its performance is not as good as Local LDA.
+The Local LDA provides an appropriate balance between all critical
+parameters.
+
+#### 7.2.4 Evaluation of Model-Based Approaches
+
+In these experiments, the performance and scalability of the proposed
+model-based approaches (i.e., naive Bayes with different fixed-size
+representations), with respect to an increasing number of categories
+were evaluated. Results are presented in Fig. 7.4 . One important
+observation is that the agent learned all @xmath categories using GOOD
+and Local LDA in all experiments and all experiments concluded
+prematurely due to the “ Lack of data ”, i.e., no more categories
+available in the dataset (indicating the potential for learning many
+more categories). The agent with BoW obtained an acceptable scalability
+(i.e., the agent on average learned @xmath categories) while the
+scalability of standard LDA was very low (i.e., on average learned
+@xmath categories). It should be noted that 8 out of 10 BoW experiments
+were finished because no more categories were available to be learned (“
+lack of data ”).
+
+The left column in Fig. 7.4 provides a detailed summary of the obtained
+results. The center column of Fig. 7.4 shows the number of learned
+categories as a function of the number of protocol iterations. This
+gives a measure of how fast the learning occurred in each of the
+experiments. Moreover, it shows the number of question / correction
+iterations required to learn a certain number of categories. It can be
+concluded that the agent with GOOD learned all categories faster than
+with Local LDA. The agent with BoW and LDA achieved the third and forth
+places respectively.
+
+The right column of the Fig. 7.4 shows the global classification
+accuracy obtained by the proposed approaches as a function of the number
+of learned categories. By comparing all approaches, it is visible that
+the agent with GOOD achieved the best accuracy (i.e., @xmath ) with
+stable performance and outperformed the other approaches by a large
+margin (i.e., 4% or more). The agent with Local LDA also showed a
+promising performance and provide a good balance among all parameters.
+Although, BoW and standard LDA approaches on average achieved similar
+accuracies, the discriminative power of standard LDA is lower than BoW
+and its performance dropped quickly as the number of categories
+increased (see the right column of Fig. 7.4 ( a and b )).
+
+The average protocol accuracy of the agent with GOOD feature is also
+considerably higher than the other approaches (i.e., more than @xmath ).
+It should be noted that these results should be seen in the light of the
+number of categories learned. For example, BoW and LDA seem to indicate
+similar average protocol accuracy (APA), however, standard LDA on
+average reached the breakpoint after the introduction of the 31st
+category whereas BoW learned around all (49) categories in six
+experiments and between 43 and 46 categories in the remaining four
+experiments.
+
+### 7.3 Evaluation of Adaptability to Context Change
+
+In this section, a methodology is proposed and used for evaluation
+learning agents in open-ended learning scenarios with context change.
+This includes a new teaching protocol and an adaptability measure.
+
+#### 7.3.1 Open-Ended Evaluation with Context Change
+
+In order to evaluate the adaptability to context change, we modified the
+standard teaching protocol described above to include a change of
+context. A simulated teacher is developed to follow the teaching
+protocol and autonomously interact with the system using teach , ask and
+correct actions. The main idea is to emulate the interactions of an
+agent with the environment over long periods of time in two different
+contexts. Towards this end, the object categories in the database and
+respective object views are randomly assigned to two different contexts,
+A and B. Then, the teacher starts presenting categories from context A.
+The simulated teacher repeatedly picks object views of the currently
+known categories from the context A and presents them to the system for
+checking whether the system can recognize them. If not, the simulated
+teacher provides corrective feedback. Whenever the agent learned @xmath
+categories from context A, the simulated teacher changes to the other
+context, B, and interacts (i.e., teach, ask and correct) with the
+learning agent using the object categories of context B. The complete
+process is summarized in Algorithm 7.2.
+
+In this way, the agent begins with zero knowledge and the training
+instances become gradually available according to the teaching protocol.
+After context change, the learning agent will recognize object views
+taking into account all acquired category models from both contexts.
+Note that, although, a learning agent can have internal mechanisms
+specifically designed for keeping track of context (explicit context
+information, either inferred by the learning agent or obtained from an
+external source), no such mechanism was developed in this work.
+Therefore, what was evaluated was the potential of the different
+representations and recognition rules for implicitly coping with context
+change.
+
+1: Input: @xmath
+
+2: context @xmath
+
+3: Introduce @xmath from context
+
+4: @xmath
+
+5: repeat
+
+6: if context @xmath and @xmath then @xmath context switch
+
+7: context @xmath
+
+8: @xmath @xmath ready for the next category
+
+9: Introduce @xmath from context
+
+10: @xmath
+
+11: @xmath
+
+12: repeat @xmath question / correction iteration
+
+13: if ( inContext ( @xmath , context )) then
+
+14: Present a previously unseen instance of @xmath
+
+15: Ask the category of this instance
+
+16: If needed, provide correct feedback
+
+17: c @xmath c+1 if else @xmath
+
+18: if ( @xmath ) then @xmath sliding window
+
+19: @xmath
+
+20: @xmath accuracy in last @xmath question/correction iterations
+
+21: until ( ( @xmath > @xmath and @xmath ) or @xmath accuracy threshold
+crossed
+
+22: (user sees no improvement) ) @xmath breakpoint reached
+
+23: until ( user sees no improvement in accuracy ) @xmath breakpoint
+reached
+
+Teaching protocol with context change
+
+#### 7.3.2 Measuring the Adaptability to Context Change
+
+A new adaptability metric is proposed here in order to compare the
+adaptability of different approaches to context change. This metric is
+intended to be orthogonal to other metrics, namely accuracy or number
+learned categories. Adaptability is a measure of relative performance of
+the learning agent in the second context, B, when compared with the
+performance of the same agent in the first context, A. To carry out this
+comparison in a controlled way, we define, for each learning approach,
+the size (i.e., number of categories) of the first context based on the
+average number of learned categories of that learning approach in a set
+of standard teaching protocol experiments i.e., without context change
+(see subsection 7.2 ). To ensure that all categories in context A are
+learned, enabling the agent to move to context B, the number of
+categories of context A is set to be on average 0.75 ALC, where ALC is
+the average number of learned categories in a round of experiments
+without context change. In order to converge to that average context
+size, the context transition point, @xmath , is generated randomly in
+the interval @xmath . for each context change experiment. This way, for
+each learning approach, the context change happens at the same point
+(i.e., around 0.75 ALC) with respect to the full capacity of that
+approach as captured by ALC. This enables an evaluation of adaptability
+orthogonal to the evaluation of learning capacity. With this setup,
+adaptability is measured by:
+
+  -- -------- -- -------
+     @xmath      (7.1)
+  -- -------- -- -------
+
+where @xmath and @xmath are the average numbers of categories learned in
+the first and second contexts respectively. It should be noted that, if
+the experiment is finished due to “ lack of data ”, it is not possible
+to measure adaptability. In order for the adaptability to be comparable
+across different experiments, it is essential that all experiments end
+with the same terminating condition (breakpoint).
+
+#### 7.3.3 Instance-Based Approaches
+
+The results obtained with the instance-based approaches are presented in
+Fig. 7.5 and Fig. 7.6 . Several observations can be made based on Fig.
+7.5 . The agent with GOOD and Local LDA representations show a good
+balance among all evaluation criteria. In particular, the best
+performance, in terms of total number of learned categories in both
+contexts, was obtained with GOOD, closely followed by the local LDA
+approach. Approach II achieved the best GCA and APA accuracies. This
+point could be explained by the fact that a higher number of categories
+learned by the other approaches tends to make the classification task
+more difficult. It is worth to mention that the agent was never able to
+learn all the existing categories with instance-based approaches.
+
+In terms of number of learned categories in the second context, the
+agent learned (on average) more categories using Local LDA than with
+other approaches. The underlying reason is that Local LDA transforms
+objects from bag-of-words space into a more complex space and used
+distribution over distribution representation for providing powerful
+representation. BoW, GOOD and Approach II achieved the second, third and
+forth places respectively. The worst one was LDA since the agent needs
+more data and time to reduce the effects of the topics learned in the
+first context (left column of Fig. 7.5 ).
+
+In terms of average number of stored instances per category (AIC),
+although Approach II on average stored smallest number of instance per
+category, its discriminative power is not good. BoW, GOOD and local LDA
+achieved the second, third and forth places respectively while they
+provided a good balance between discriminative power and number of
+question/correction iterations (QCI). LDA was the worst approach in this
+comparison. The results of adaptability evaluation of all approaches are
+reported in Fig. 7.6 . By comparing all experiments, it is visible that
+only when the agent used BoW approach, it could learn more categories in
+the second context than in the first context. Therefore, the most
+adaptable approach was BoW (adaptability of 1.01), followed by Local LDA
+(adaptability of 0.86). The Approach II and standard LDA achieved the
+third and forth places respectively. The agent with GOOD was the less
+adaptable approach.
+
+#### 7.3.4 Model-Based Approaches
+
+Another set of experiments in a multi context scenario was carried out
+to evaluate how different model-based object recognition approaches cope
+with the effects of the context change (see Fig. 7.7 ).
+
+The left column in Fig. 7.7 provides a detailed summary of the obtained
+results. Concerning ALC, in all experiments, the agent learned all the
+existing categories in the dataset using GOOD and Local-LDA. Therefore,
+experiments finished due to “ lack of data ”, and not by reaching the
+breakpoint. Therefore, more categories have been learned with GOOD and
+Local LDA if they were available in the dataset (see Fig. 7.7 ( c and d
+)). BoW achieved the third place. We observed that in 8 out of 10
+experiments with BoW, all the categories in the dataset were learned by
+the agent. Standard LDA achieved the fourth place. The agent in none of
+the tests could learn all categories in the second context.
+
+By comparing all experiments, it is clear that the number of iterations
+required to learn all object categories with GOOD was smaller than other
+approaches. The agent with GOOD, on average, learned all categories
+after @xmath iterations. Local LDA achieved the second place. It is also
+clear from Fig. 7.7 that the GOOD achieved the best accuracies (i.e.,
+APA and GCA) with stable performance and clearly outperforms the other
+approaches.
+
+As depicted in the center column of Fig. 7.7 , the best performance, in
+terms of number of learned categories and the number of iterations
+required to learn a certain number of categories, was obtained with the
+GOOD, closely followed by the Local LDA approach. The agent with BoW
+also showed good results. The worst one was standard LDA since the agent
+needs more data and time to reduce the effects of the topics learned in
+the first context.
+
+The right column of Fig. 7.7 shows the global classification accuracy
+(i.e., since the beginning of the experiment) as a function of the
+number of learned categories. It is clear from Fig. 7.7 (right) that
+GOOD achieved the best accuracies with stable performance and clearly
+outperforms the other approaches. Local LDA achieved the second places
+also with stable performance. The worst one was standard LDA, since it
+uses shared topics among all categories and the agent needs more data
+and time to reduce the effects of the topics learned in the first
+context.
+
+Since the proposed adaptability evaluation presupposes that experiments
+reach the breakpoint, it was not possible to compute the adaptability of
+GOOD, Local LDA and BoW approaches. In fact, the agent with GOOD and
+Local LDA successfully learned all categories in both contexts and all
+experiments concluded prematurely due to the “ Lack of data ”.
+Similarly, the agent with BoW, in 8 out of 10 experiments could learn
+all categories in both contexts. The adaptability of the standard LDA
+approach was 0.85, much better than the adaptability of instance-base
+learning with the same representation (adaptability of 0.58).
+
+#### 7.3.5 Demonstration
+
+A real demonstration was carried out using Imperial College domestic
+environment dataset (Doumanoglou et al., 2016 ) . For this
+demonstration, an instance-based learning approach with BoW has been
+integrated into the object perception system. The system initially had
+no prior knowledge. In the first context, an instructor teaches two
+object categories including oreo and amita to the system, and the system
+conceptualizes those categories. The system is then tested by the other
+scenes captured from different viewpoints. The system could recognize
+all objects properly (see Fig. 7.1 top-left ). Then, the system is moved
+to the second context. In this context, the system gains knowledge about
+lipton and softkings categories. Similar to the first context, the
+knowledge of system is validated using several scenes (see Fig. 7.1
+bottom-left ). Later, we moved the system to a new context, which is
+much more crowded and complex than the previous contexts. In this
+context, eight instances of the four categories exist. The robot could
+recognize all objects correctly by using knowledge from previous
+contexts (see Fig. 7.1 right ). This evaluation illustrates the process
+of acquiring object categories in an open-ended fashion from multi
+contexts. Moreover, it shows that disrupting or erasing the category
+models learned from the previous contexts is not a rational choice. A
+video of this demonstration is online at: https://youtu.be/l6q6fI5H6zY .
+
+### 7.4 Summary
+
+In this chapter, we defined an online evaluation approach to assess the
+performance of open-ended object recognition approaches regarding their
+ability to cope with the effects of the context change in multi-context
+scenarios. Two learning approaches (instance-based and model-based) with
+several object representations were evaluated using the proposed
+methodology. Two sets of experiments were carried out to assess the
+performance of all the proposed 3D object category learning and
+recognition approaches in single context and two-context scenarios.
+Experimental results proved that all the approaches can incrementally
+learn new object categories.
+
+In case of instance-based approaches, the overall number of categories
+learned with GOOD is clearly better than the best performances obtained
+with the other approaches. The agent with Local LDA also demonstrated an
+appropriate balance among all criteria. The underlying reason was that
+Local LDA used distribution over distribution representation for
+providing powerful representations. Furthermore, adaptability of all
+approaches was evaluated. BoW was the most adaptable approach
+immediately followed by the Local LDA. Therefore, the agent could adapt
+better to a new context when it uses BoW or Local LDA approaches. It was
+observed that BoW and Local LDA provided a good balance between
+discriminative power and number of question/correction iterations (QCI).
+The discriminative power of Approach II and standard LDA were clearly
+not good for such context-sensitive environments.
+
+In case of model-based approaches, experimental results show that the
+overall classification performance obtained with GOOD is comparable to
+the best performances obtained with the other approaches. Moreover, it
+was observed that the agent could learn all categories in both contexts
+when it uses GOOD and Local LDA approaches. Similar to the
+instance-based experiments, it was observed that GOOD and Local LDA
+provided a good balance between discriminative power and number of
+question/correction iterations (QCI). The discriminative power of
+standard LDA was not good when compared with the other approaches.
+Furthermore, adaptability of all approaches was evaluated. Since the
+proposed adaptability evaluation presupposes that experiments reach the
+breakpoint, it was not possible to compute the adaptability of GOOD, BoW
+and Local LDA. Therefore, the best adaptability was achieved by standard
+LDA.
+
+For future work we would like to investigate the possibility of
+improving performance by considering both external and internal
+contexts, since there are several evidences of a relation between the
+external and internal contexts (Kokinov, 1997 ) (Qian et al., 2012 ) .
+It would also be important to do experiments with a larger dataset in
+order to avoid the “lack-of-data” termination condition in open-ended
+evaluations.
+
+## Chapter 8 System Demonstration and Profiling
+
+Throughout this thesis, a set of interactive open-ended learning
+approaches for grounding 3D object categories has been presented,
+enabling robots to adapt to different environments and reason out how to
+behave in response to the request of a complex task. In this chapter,
+three types of experiments were carried out to evaluate the proposed
+approaches. First, based on a session where users manipulate objects on
+a table and interact with the developed perception and perceptual
+learning system, we carry out a profiling analysis of the main modules
+of the system. We also used the recorded session to demonstrate all the
+characteristics of the proposed GOOD descriptor. Second, two scenarios
+namely clear_table and serve_a_meal have been designed to show all
+functionalities of the object recognition and grasping. These
+demonstrations show that the proposed approaches have been successfully
+tested on a PR2 robot and a JACO arm, showing the importance of having a
+tight coupling between perception and manipulation. Finally, two
+demonstrations using Washington RGB-D Scenes Dataset v2 and Imperial
+College Domestic Environment Dataset (Doumanoglou et al., 2016 ) have
+been performed. These demonstrations showed that the system is capable
+of using prior knowledge to recognize new objects in the scene and learn
+about new object categories in an open-ended fashion. All tests were
+performed with an i7, 2.40GHz processor and 16GB RAM.
+
+### 8.1 Open-Ended 3D Object Category Learning Scenarios
+
+To show all the functionalities of the system, a session has been
+recorded, where several users interacted with the system. During this
+session, users presented objects to the system and provided the
+respective category labels. All raw data from the RGB-D sensor was
+recorded in a rosbag, which was then used to test different
+configurations of our system. Three demonstrations were performed using
+the recorded rosbag. In all demonstrations, we have assumed that the set
+of object categories to be learned is not known in advance and the
+training instances are extracted from actual experiences of a robot
+rather than being available at the beginning of the learning process. In
+the first and third demonstrations, when the system started, the set of
+categories known to the system was empty while in the second
+demonstration, the system initially had prior knowledge about two
+categories and there is no information about the other categories. In
+these demonstrations, we have used instance-based object category
+learning and recognition as discussed in chapter 6 , section 5.4 .
+
+#### 8.1.1 The object perception system in an interactive session
+
+A 3.5 minutes session has been recorded, where several users interacted
+with the object perception system. During this session, users present
+objects to the system and provide their respective category labels. The
+system detects pointing gestures of the user and detects and tracks the
+presented objects. Figure 8.1 presents some snapshots of this session.
+Table 8.1 presents a summary of the main events. In more detail, the
+session progressed as follows:
+
+1.  The system works in scenario where a table is in front of the robot
+    and there is no knowledge about any category. The graphical menu in
+    front of the table is the interactive menu that enables teaching new
+    object categories. The instructor puts a Mug on the table. Tracking
+    is initialized with track ID 1 (TID1). The gray bonding box signals
+    the pose of the object as estimated by the tracker. TID1 is
+    classified as Unknown because mugs are not yet known to the system;
+
+2.  Instructor labels TID1 as a Mug . The system conceptualizes the
+    category;
+
+3.  The Mug is correctly classified. The instructor places a Vase on the
+    table. Tracking is initialized with TID2. The Vase is unknown to the
+    system; this frame shows that the system is able to detect and track
+    multiple objects in the scene. Moreover, it demonstrates that both
+    the tracking and recognition work when the user is holding the
+    objects;
+
+4.  The instructor labels TID2 as a Vase. This labeling is done using a
+    different interaction modality: the instructor points at track ID 2,
+    and labels this object as Vase ;
+
+5.  The Vase is properly recognized. An additional Mug is placed at the
+    center of the table. Tracking is initialized with TID3. This
+    particular Mug had not been previously seen, but the system can
+    correctly recognize it, because the Mug category was previously
+    taught. This shows that the system is capable of using prior
+    knowledge to recognize new objects in the scene;
+
+6.  Another instructor arrives; once he sits on front of the robot, he
+    will be considered as the system’s instructor. This frame shows
+    instructor detection and tracking;
+
+7.  The instructor removes all objects from the scene; no objects will
+    be visible;
+
+8.  A Plate enters the scene. It is detected and assigned to TID4.
+    Because there is no prior knowledge about plates, TID4 is classified
+    as Unknown. TID4 is labeled as a Plate and the system conceptualized
+    the category.
+
+This sequence shows that the proposed architecture is capable of
+detecting new objects, tracking and recognizing those object in various
+positions. Moreover, it shows capability of human-robot interaction
+based on a graphical interface and pointing gesture recognition.
+
+All raw data from the RGB-D sensor was recorded in a rosbag, which was
+then used to test different configurations of our system. Three
+demonstrations were performed using the recorded rosbag.
+
+#### 8.1.2 Profiling
+
+In the first demonstration, objects are represented by sets of
+spin-images. The instance-based learning approach (section 5.4 ) is
+adopted. In addition to the basic object and user perception already
+included in the recorded rosbag, the system now conceptualizes and
+recognizes object categories. A video of this demonstration is available
+at: https://youtu.be/XvnF2JMfhvc
+
+Based on this demonstration, different aspects of the performance of the
+system were profiled. As discussed in chapter 2 , section 2.4 , nodelets
+can significantly improve the efficiency since they support zero copy
+transport and they enable simultaneous access to LevelDB. Figure 8.2
+compares the processing time of the object perception modules. The
+tracker modules (Fig. 8.2 ( a ) nodes and ( d ) nodelets) tend to
+display a stable processing time shortly after their initialization.
+This is explained by the fact that the size of the input data is more or
+less stable over time. In this case, nodelets are more efficient when
+compared to nodes: for example for pipelines 1, 2 and 3 in the 100 to
+150 time interval, nodes display an average processing time of 45
+miliseconds, compared to 25 miliseconds in the case of nodelets. Since
+the trackers do not access the database, the main factor contributing to
+the increase in efficiency is the zero copy transport.
+
+The messages that are received (sensor point cloud) and sent (partial
+object point cloud) by the trackers are of large size, which explains
+why zero copy transport enables such a significant improvement. The
+feature extraction modules (Fig. 8.2 ( b ) nodes and ( e ) nodelets)
+show a different behaviour. These modules periodically compute the
+spin-image representation from the partial object point cloud. At some
+points, the point cloud is signaled to belong to a key view, which will
+trigger the writting of that representation to the perceptual memory.
+
+The curves show these points in time with a rapid increase in processing
+time. Nodelets also display these peaks, but because access to the
+database is much faster, the peaks are smaller, as is the average
+processing time. The object recognition modules (Fig. 8.2 ( c ) nodes
+and ( f ) nodelets) receive a representation of the current object view
+from the feature extraction, and compare it against the representations
+of all known category views. Thus, they are continuously reading the
+database in the search for an update to the known categories. As a
+result, the larger the size of the database, the slower the reading of
+the complete set of categories. However, in the case of nodelets, this
+deterioration is minor when compared with nodes, since accessing the
+database is much more efficient.
+
+Figure 8.3 ( left ) shows the memory usage of the system. Notice that at
+the end of the experiment the memory size would be above 1 MB if all
+object point clouds extracted by the trackers would be stored (roughly 5
+Kb / sec.). In a continously running system, this rate of data
+acumulation would be hard to handle, and would not bring any real
+benefit. The total size of the point clouds of all the selected key
+views is much smaller (one order of magnitude in this experiment). The
+data actually acumulated in memory (shape representations based on
+spin-images) is even smaller.
+
+Figure 8.3 ( right ) shows the evolution of object recognition
+performance throughout the experiment. When the first Mug (T1) is placed
+on the table the system recognizes it as Unknown. After some time, the
+instructor labels T1 as a Mug and the system starts displaying a
+precision of 1.0. However, the recall score is under 0.2, because the
+system classified T1 as Unknown several times before the user labelled
+the object. After the labelling, the recall starts improving
+continuously. The instructor then places a Vase (T2) on the table.
+Because the category Vase has not been taught yet, the performance goes
+down. After labelling T2 as Vase, performance starts going up again.
+When a second Mug (T3) enters the scene, the system can correctly
+recognize it and the scores continue to increase. Then, a Plate (T4)
+enters the scene, causing recall to drop. Successively, the Plate is
+taught, a Bottle is placed on the table and then taught, and eventually
+performance starts going up again. This illustrates the process of
+acquiring categories in an open-ended fashion with user mediation.
+
+#### 8.1.3 Local LDA
+
+In this demonstration, we configured the system to use the Local LDA
+representation proposed in Chapter 4 . Initially, the system only had
+prior knowledge about the Vase and Dish categories, learned from batch
+data (i.e. set of observations with ground truth labels), and there is
+no information about other categories (i.e. Mug , Bottle , Spoon ).
+Throughout this session, the system must be able to recognize instances
+of learned categories and incrementally learn new object categories.
+Figure 8.4 illustrates the behaviour of the system:
+
+1.  The instructor puts object TID6 (a Mug ) on the table. It is
+    classified as Unknown because mugs are not known to the system;
+    Instructor labels TID6 as a Mug . The system conceptualizes Mug and
+    TID6 is correctly recognized. The instructor places a Vase on the
+    table. The system has learned the Vase category from batch data,
+    therefore, the Vase is properly recognized (Fig. 8.4 ( left )).
+
+2.  Later, another Mug is placed on the table. This particular Mug had
+    not been previously seen, but the system can recognize it, because
+    the Mug category was previously taught (Fig. 8.4 ( right )).
+
+This demonstration shows that the system is capable of using prior
+knowledge to recognize new objects in the scene and learn about new
+object categories in an open-ended fashion. A video of this
+demonstration is available at: https://youtu.be/J0QOc_Ifde4 .
+
+#### 8.1.4 Good
+
+To show all the described functionalities and properties of the GOOD
+descriptor, another demonstration was performed using the recorded
+rosbag. For this purpose, GOOD has been integrated in the RACE object
+perception system presented in Chapter 2 (see Fig. 2.3 ) (Kasaei et al.,
+2015a ; Oliveira et al., 2015b , 2014a ) . It should be noted that a
+constraint has been set on the Z axis that the initial direction of
+@xmath axis of objects’ LRF should be similar to the @xmath axis
+direction of the table LRF. There are no learned categories in memory at
+the beginning of the demonstration. It was observed that the proposed
+object descriptor is capable to provide distinctive global feature for
+recognizing different types of objects. It also estimates poses of
+objects and build orthographic projections for object manipulation
+purposes (see Fig. 8.5 ). A video of this demonstration is available in:
+https://youtu.be/iEq9TAaY9u8 .
+
+### 8.2 Assistive Robotic Scenarios: Coupling Perception and
+Manipulation
+
+Elderly, injured, and disabled people have consistently attributed a
+high priority to object manipulation tasks (Jain and Kemp, 2010 ) .
+Object manipulation tasks consist of two phases: the first is the
+perception of the object and the second is the planning and execution of
+arm or body motions for grasping the object and carrying out the
+manipulation task. These two phases are closely related: object
+perception provides information to update the model of the environment,
+while planning uses this world model information to generate sequences
+of arm movements and grasp actions for the robot. In addition, assistive
+robots must perform the tasks in reasonable time. It is also expected
+that the competence of the robot increases over time, that is, robots
+must robustly adapt to new environments by being capable of handling new
+objects.
+
+To show the strength of the proposed perception system, two qualitative
+analysis of the coupling between perception and manipulation for service
+robots are shown and analysed in this section. In this case, two
+demonstrations are described, where users manipulate objects on a table
+and interact with the system to instruct the robot to perform a
+“clear_table” and “serve a meal” task as well as teach object categories
+to the robot. In both demonstrations, a naive Bayes learning approach
+with a Bag-of-Words object representation are used to acquire and refine
+object category models. Moreover, a JACO robotic arm manufactured by
+KINOVA, as depicted in Fig. 8.7 , is used. It has six degrees of freedom
+and a three fingers gripper. Since the JACO arm can carry up to 1.5kg ¹
+¹ 1 http://www.kinovarobotics.com , it is ideal for manipulating
+everyday objects. Moreover, infinite rotation around the wrist joints
+allows for flexible and effective interaction in a domestic environment.
+It should be noted that grasping itself is not in the scope of this
+thesis. Previously, we showed how to grasp household objects in
+different situations (Kasaei et al., 2016e ; Shafii et al., 2016 ) .
+
+#### 8.2.1 “Clear_Table” Scenario
+
+In this demonstration, the system works in a scenario where a table is
+in front of the robot and a user interacts with the system. Note that,
+at the start of the experiment, the set of categories known to the
+system is empty. During the session, a user presents objects to the
+system and provides the respective category labels. The user then
+instructs the robot to perform a clear_table task (i.e. puts the table
+back into a clear state). To achieve this task, the robot must be able
+to detect and recognize different objects and transport all objects
+except standard table items (e.g. table sign, flower, etc.) to
+predefined areas. While there are active objects on the table, the robot
+retrieves the world model information from the Working Memory including
+label and position of all active objects. The robot then selects the
+object which is closer to the arm’s base and clears it from the table
+(see Fig. 2.7 left ). In case the system predicts a category that is not
+the true object category, both a false negative (true object category
+not detected) and a false positive (predicted object category not
+correct) are accounted for. Figure 8.6 ( right ) shows the evolution of
+object recognition performance throughout the experiment. First, the
+system recognizes all table-top objects as Unknown . After some time,
+the instructor labels T1 as a Vase and the system starts displaying a
+recall of 1.0. However, the precision starts to decrease, because the
+categories Bottle , Coffee Jug and Plastic Cup have not been taught yet,
+the performance goes down. After labelling the objects, the precision
+starts improving continuously. As it is shown in the Fig. 8.6 ( right ),
+whenever the robot grasps an object (i.e. iterations 155, 280, 332), the
+shape of the object is partially changed, misclassification might happen
+and the performance goes down. The grasped object is then transported to
+the placing area and the tracking of the object is lost (i.e. iterations
+181, 302, 375). Afterwards, the performance starts going up again. A
+video of this session is available at: https://youtu.be/cTK10iNyYXg .
+
+We also provide another demonstration for the clear_table task. A video
+of this demonstration can be found at: https://youtu.be/LZtI-s95uTk
+
+#### 8.2.2 “Serve_A_Meal” Scenario
+
+Similar to the previous demonstration, a user presents objects to the
+system and provides the respective category labels throughout the
+session. The user then instructs the robot to perform a serve a meal
+task (i.e. puts different restaurant objects on the table in front of
+the user). The setup of our robotic system and the system reference
+frames for the serve a meal scenario are shown in Fig. 8.7 . To achieve
+this task, the robot must be able to detect and recognize different
+objects and transport the objects to the predefined areas and completely
+serve a meal. For this purpose, the robot retrieves the world model
+information from the Working Memory , including label and position of
+all active objects. The robot then chooses the object that is nearest to
+the arm base frame and serves it to the user. A video of this
+demonstration is available at: https://youtu.be/GtXBiejdccw .
+
+These small demonstrations show that the developed system is capable of
+detecting new objects, tracking and recognizing them, as well as
+manipulating objects in various positions. Moreover, it shows how
+human-robot interaction is currently supported.
+
+### 8.3 Demonstrations using Scenes Datasets
+
+Two demonstrations have been performed using the Washington RGB-D Scenes
+Dataset v2 (Lai et al., 2014 ) and the Imperial College Domestic
+Environment Dataset (Doumanoglou et al., 2016 ) . In particular, the
+first demonstration was conducted using Washington RGB-D Scenes Dataset
+(Lai et al., 2014 ) to show the strength of the proposed Local LDA
+representation. In the second demonstration, a set of tests was executed
+to measure the accuracy of the proposed GOOD descriptor on the Imperial
+College Domestic Environment Dataset (Doumanoglou et al., 2016 ) . In
+both demonstrations, an instance-based learning approach is used, i.e.,
+object categories are represented by sets of known instances. Similarly,
+a simple baseline recognition mechanism in the form of an Euclidean
+nearest neighbor classifier is used. These demonstrations show that the
+proposed system supports classical learning from a batch of train
+labeled data and open-ended learning from actual experiences of a robot.
+
+#### 8.3.1 Demonstration I
+
+A real demonstration was carried out using the Washington RGB-D Scenes
+Dataset v2 (Lai et al., 2014 ) . This dataset consists of 14 scenes
+containing a subset of the objects in the RGB-D Object Dataset,
+including bowls , caps , mugs , soda , cans and cereal boxes . For this
+demonstration, an instance-based learning approach with the Local LDA
+has been integrated into the object perception system presented in
+chapter 2 . It is worth mentioning that in Local LDA each object view
+was described as a random mixture over a set of latent topics, and each
+topic was defined as a discrete distribution over visual words. The
+system initially had no prior knowledge. The four first objects are
+introduced to the system using the first scene and the system
+conceptualizes those categories. The system is then tested using the
+second scene of the dataset and it can recognize all objects except
+cereal boxes, because this category was not previously taught. The
+instructor provided corrective feedback and the system conceptualized
+the cereal boxes category. Afterwards, all objects are classified
+correctly in all 12 remaining scenes. This evaluation illustrates the
+process of acquiring categories in an open-ended fashion. Results are
+depicted in Fig. 8.8 . A video of this demonstration is online at:
+https://youtu.be/pe29DYNolBE .
+
+#### 8.3.2 Demonstration II
+
+Imperial College dataset is related to domestic environments, where
+everyday objects are placed on a kitchen table (Doumanoglou et al., 2016
+) . It consists of variety of different scenes with a set of table top
+objects including amita , colgate , lipton , elite , oreo , softkings ,
+mug , shampoo and salt-shaker . This dataset contains @xmath different
+sets of table-top scenes from two different heights which has @xmath
+scenes in total (see Fig. 8.9 ). Each set consists of several views of
+table-top scenes to cover 360 degrees view around the table. The objects
+were extracted from the table-top scenes by running the proposed object
+detection. This is an especially suitable dataset to evaluate the system
+since the object dataset was collected under various clutter conditions
+and distances. The objects were extracted from the scenes by running the
+object segmentation proposed in chapter 3 . All detected objects were
+manually labelled by the author. To examine the performance of the
+proposed approach, a 10-fold cross-validation has been used. The
+accuracy of the object recognition system was @xmath for the extracted
+objects. A set of results is visualized on Fig. 8.10 .
+
+### 8.4 Summary
+
+In this chapter, a set of evaluations and demonstrations has been
+performed to show all the functionalities of the system for object
+recognition as well as its relevance for grasping. These demonstrations
+showed that the system can incrementally learn new object categories and
+perform manipulation tasks in reasonable time and appropriate manner.
+Our approach to object perception has been successfully tested on a JACO
+arm, showing the importance of having a tight coupling between
+perception and manipulation. We also report on two demonstrations of the
+system using Washington RGB-D Scenes Dataset v2 and Imperial College
+Dataset (Doumanoglou et al., 2016 ) . These demonstrations showed that
+the system is capable of using prior knowledge to recognize new objects
+in the scene and learn about new object categories in an open-ended
+fashion.
+
+## Chapter 9 Conclusions and Future Research Directions
+
+One of the primary challenges of service robotics is the adaptation of
+robots to new tasks in changing environments, where they interact with
+non-expert users. This challenge requires support from complex
+perception routines which can learn and recognize object categories in
+open-ended manner based on human-robot interaction. In this thesis, we
+assumed that versatility and competence enhancement can be obtained by
+learning from experiences. This thesis focused on acquiring and
+conceptualizing experiences about objects as a means to enhance robot
+competence over time thus achieving robustness. Towards this end, two
+perception architectures were explored that can be used by robotic
+agents for long-term and open-ended category learning. The problem of
+scaling-up to larger number of categories and adapting to new contexts
+were addressed using these architectures and the corresponding learning
+approaches. Moreover, some realistic scenarios were designed, where a
+human or a simulated instructor taught the robot the names of the
+objects present in their shared visual environment. This work has been
+integrated in a larger effort in the framework of the European project
+RACE (Robustness by Autonomous Competence Enhancement (Hertzberg et al.,
+2014 ) ), in which robot performance improves with accumulated
+experiences and conceptualizations.
+
+### 9.1 Contributions
+
+The contributions of this thesis consist in multiple theoretical
+formulations and practical solutions to the problem of open-ended 3D
+object category learning and recognition. They are listed as follows:
+
+-   The first contribution is focused on the development of a 3D object
+    perception and perceptual learning system designed for a complex
+    artificial cognitive agent working in a restaurant scenario. This
+    system, developed in collaboration with other researchers in IEETA
+    and within the scope of the European project RACE, integrates
+    detection, tracking, learning and recognition of tabletop objects.
+    Interaction capabilities were also developed to enable a human user
+    to take the role of instructor and teach new object categories.
+    Thus, the system learns in an incremental and open-ended way from
+    user-mediated experiences. Thorough details of the agent’s complete
+    architecture have been presented in chapter 2 .
+
+-   The second contribution is related to the gathering object
+    experiences in both supervised and unsupervised manner. In general,
+    gathering object experiences is a challenging task because of the
+    dynamic nature of the world and ill-definition of the objects. In
+    this work, a system of boolean equations was used for encoding the
+    world and object candidates. In particular, we proposed automatic
+    perception capabilities that will allow robots to automatically
+    detect multiple objects in a crowded scene. The relevant aspects
+    have been described in chapter 3 .
+
+-   Other contributions, presented in chapter 4 , are concerned with
+    object representation. Object representation is one of the most
+    challenging tasks in robotics because it must provide reliable
+    information in real-time to enable the robot to physically interact
+    with the objects in its environment. We have tackled the problem of
+    object representation, by proposing a novel global object descriptor
+    named Global Orthographic Object Descriptor (GOOD). It has been
+    designed to be robust, descriptive and efficient to compute and use.
+    The overall classification performance obtained with GOOD was
+    comparable to the best performances obtained with the
+    state-of-the-art descriptors. Concerning memory and computation
+    time, GOOD clearly outperformed the other descriptors. Therefore,
+    GOOD is especially suited for real-time applications. The estimated
+    object’s pose is precise enough for real-time object manipulation
+    tasks.
+
+    We also proposed an extension of Latent Dirichlet Allocation to
+    learn structural semantic features (i.e., topics) from low-level
+    feature co-occurrences for each object category independently.
+    Although the model we developed has been intended to be used for
+    object category learning and recognition, it is a novel
+    probabilistic model that can be used in the fields of computer
+    vision and machine learning.
+
+-   The problem of open-ended learning for 3D object category
+    recognition has been tackled in chapter 5 . We approached object
+    category learning and recognition from a long-term perspective and
+    with emphasis on open-endedness, i.e. not assuming a pre-defined set
+    of categories. The major contributions are the following: ( i )
+    defining new distance functions for estimating dissimilarity between
+    sets of local shape features that can be used in instance-based
+    learning approaches; ( ii ) proposing a learning approach to
+    incrementally learn probabilistic models of object categories to
+    achieve adaptability.
+
+-   The last contribution of this dissertation is concerned with the
+    evaluation of open-ended object category learning and recognition
+    approaches in multi-context scenarios. Off-line evaluation
+    approaches such as cross-validation do not comply with the
+    simultaneous nature of learning and recognition autonomous agents.
+    An adaptability measure and a teaching protocol, supporting context
+    change, were therefore designed and used for open-ended experimental
+    evaluation. This contribution has been presented and discussed in
+    chapter 7 .
+
+All the algorithms and concepts presented in this thesis have been
+implemented and tested on data acquired in realistic restaurant
+environments. A set of experimental results was also carried out on two
+different robotic platforms, including the PR2 and the manipulation
+platform at the university of Aveiro (see Figure 2.1 ).
+
+### 9.2 Future Research Directions
+
+Despite the promising results presented in this thesis, there are a list
+of open issues that still remain to be tackled for future research:
+
+-   Though we proved the usefulness of 3D geometry in the context of
+    learning and recognizing object categories, this thesis has not
+    addressed the fusion of color information with geometry at all.
+    Color and texture are two important features for particular
+    applications which geometry alone cannot solve. For example, color
+    and texture information can also be used to distinguish objects that
+    have the same geometric properties with different texture (e.x. a
+    Coke can from a Diet Coke can).
+
+-   In this thesis, we already tackled the problem of environment
+    exploration and visual word dictionary construction but mostly in
+    terms of building the dictionary in advance by feeding a sample set
+    of features of extracted objects to a clustering algorithm e.g.,
+    K-means. Since the proposed architectures receive a continuous
+    stream of 3D data, we would like to consider data stream clustering
+    methods to update the visual word dictionary as another direction of
+    future work. We are already taking steps towards addressing this
+    point (Oliveira et al., 2015a ) .
+
+-   Although the work in this thesis mainly focused on 3D object
+    category learning, it would be interesting and relevant to extend
+    the proposed learning architecture to other domains, including grasp
+    learning for object manipulation. We are already taking steps
+    towards addressing this point and some interesting results have
+    already been published (Kasaei et al., 2016e ; Shafii et al., 2016 )
+    .
+
+-   Currently, a popular approach in computer vision is deep learning.
+    However, there are several limitations to use Deep Neural Networks
+    (DNN) in open-ended domains. Deep networks are incremental by nature
+    but not open-ended, since the inclusion of novel categories enforces
+    a restructuring in the topology of the network. Overcoming such
+    limitations is also one of the possible directions of continuation
+    of the work in thesis. The relevant keywords for this research topic
+    are Zero-shot learning , Low-shot learning and Overcoming
+    catastrophic forgetting in neural networks .
+
+-   In the continuation of this work, we will also investigate the
+    possibility of improving memory management by considering salience
+    and forgetting mechanisms.
+
+-   I believe this framework has great potential for further
+    developments. During the development of the proposed architecture, I
+    attended several conferences to discuss my research with many
+    experts. The feedbacks I received broadened my view and encouraged
+    me to further develop the system. The functionalities of the
+    developed system make it unique in the robotic community. Currently,
+    it provides several functionalities that will allow robots to: ( i )
+    detect objects in highly crowded scenes, ( ii ) incrementally learn
+    object categories from the set of accumulated experiences, ( iii )
+    construct the full model of an unknown object in an on-line manner,
+    ( iv ) infer how to grasp objects in different situations, ( v )
+    predict the next-best-view to improve object detection and
+    manipulation.

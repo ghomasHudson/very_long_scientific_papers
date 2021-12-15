@@ -1,0 +1,2389 @@
+##### Contents
+
+-    1 Introduction
+    -    1.1 Origins and Acknowledgements
+    -    1.2 Motivation and Applications
+    -    1.3 Broad Outline of the Report
+    -    1.4 Contents of the Report
+-    2 Theory
+    -    2.1 M-Matrices
+    -    2.2 Graph Laplacian
+    -    2.3 Graph Partitioning
+    -    2.4 Spectral Partitioning Algorithm
+    -    2.5 Minimum Cover
+    -    2.6 Lanczos Algorithm
+    -    2.7 Recursive Decomposition
+-    3 Implementation
+    -    3.1 The Function decomp
+    -    3.2 The Function mk_sp_graph
+    -    3.3 The Function select
+    -    3.4 The Program gr_lap
+    -    3.5 The Program testdc
+-    4 Results and Problems
+    -    4.1 Partitioning
+    -    4.2 Full Recursive Decomposition
+    -    4.3 Problems
+-    5 Further Work
+-    6 Listing of Graphic Examples
+    -    6.1 Idit
+    -    6.2 Moshe
+    -    6.3 Itzchak
+    -    6.4 Shimuel
+    -    6.5 Ishmail
+    -    6.6 Yacov
+-    7 Code Listing
+    -    7.1 Listing of decomp
+    -    7.2 Listing of mk_sp_graph
+    -    7.3 Listing of select
+    -    7.4 Listing of gr_lap
+    -    7.5 Listing of testdc
+
+###### List of Figures
+
+-    1 C Data structure for edge-listing and degree-recording.
+-    2 Idit.
+-    3 The sparse graph Laplacian of Idit.
+-    4 The eigenvalue spectrum of Idit.
+-    5 The second eigenvector of Idit.
+-    6 Moshe.
+-    7 Moshe, after partitioning.
+-    8 The eigenvalue spectrum of Moshe.
+-    9 The second eigenvector of Moshe.
+-    10 The adjacency matrix @xmath of Itzchak.
+-    11 Itzchak.
+-    12 Shimuel.
+-    13 The eigenvalue spectrum of Itzchak.
+-    14 The second eigenvector of Itzchak.
+-    15 The eigenvalue spectrum of Shimuel.
+-    16 The second eigenvector of Shimuel.
+-    17 Ishmail.
+-    18 The eigenvalue spectrum of Ishmail.
+-    19 The second eigenvector of Ishmail.
+-    20 The eigenvalue spectrum of Yacov.
+-    21 The second eigenvector of Yacov.
+
+###### List of Tables
+
+-    1 Times (in CPU seconds) and @xmath for decomp to partition graphs
+    listed in Table 2 .
+-    2 Listing of the experimental graphs.
+
+## 1 Introduction
+
+This report is a detailing of the research carried out by myself during
+the four months of Semester 1 (March-June) 1991, at the Department of
+Mathematics, University of Queensland, Australia. It was carried out
+under the supervision of Dr David E Stewart, and was accredited as a #30
+project, subject classification code MN881.
+
+### 1.1 Origins and Acknowledgements
+
+This work was motivated by the publication of a paper [ 21 ] , titled
+“Partitioning Sparse Matrices with Eigenvectors of Graphs”, by Alex
+Pothen, Horst D. Simon and Kang-Pu Liou in the SIAM Journal on Matrix
+Analysis and Applications , September 1990, 11(3):430–452, and emulates
+some of the implementation contained therein. Their paper is mainly
+based on some work appearing in an earlier paper [ 6 ] , titled “A
+Property of Eigenvectors of Nonnegative Symmetric Matrices and its
+Application to Graph Theory”, by Miroslav Fiedler in the Czechoslovak
+Mathematical Journal , 1975, 25(100):619-633, which provides a
+substantial amount of the theory quoted in § 2 .
+
+I implemented these results in C , interfacing with a library of C
+data-structures and functions called meschach [ 23 ] , written by my
+supervisor, Dr David Stewart. He is also responsible for selected pieces
+of code that I have used (see Appendix 7 ), as well as large amounts of
+time spent educating me in unix , C , algorithms, numerical linear
+algebra and scientific writing. Proof reading was also done by my wife,
+Nerida Iwasiuk.
+
+### 1.2 Motivation and Applications
+
+The problem dealt with in this report is to partition the set of
+vertices @xmath of an undirected, unvaluated graph @xmath into @xmath
+disjoint sets; a minimally small separator set @xmath , and @xmath
+“banks” @xmath and @xmath , of size of order @xmath each.
+
+Immediate applications of this partitioning apply the
+“divide-and-conquer”
+paradigm to a range of graph-theoretic problems such as the travelling
+sales representative problem. Industrial application problems, in
+particular those relating to the layout of components in VLSI design,
+are discussed in [ 14 ] . Other application problems are available in
+the Boeing-Harwell sparse matrix test problem library [ 3 ] , and
+include large-scale network-analysis problems such as power-grid
+distribution problems.
+
+An immediate application in numerical linear algebra is in the efficient
+solution of large sparse linear systems via factorisation and parallel
+solution of subproblems. Methods for doing this are outlined below.
+
+Consider the solution of the @xmath (sparse) symmetric linear system
+@xmath . If a permutation of the indices of @xmath can be made, such
+that in block form:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+then the system can often be solved much faster. Here @xmath , @xmath
+and @xmath are symmetric, and @xmath , @xmath are usually not (they are
+usually not even square). The system can be solved using the @xmath
+(Cholesky-type) factorisation for indefinite, symmetric matrices.
+Firstly, be aware that simple Cholesky factorisation @xmath is only
+applicable to positive definite matrices, and problems dealt with are
+not guaranteed to be positive definite. (Note that most of the
+experimental graphs used in this report are 5-point grid graphs, which
+are always positive semi-definite.) Whilst the graph Laplacian matrices
+mentioned here are singular, the @xmath matrices actually involved are
+not. Writing @xmath in block form gives:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath , @xmath are lower triangular, @xmath is symmetric but not
+generally triangular, and @xmath and @xmath are generally sparse @xmath
+and @xmath matrices. In a similar procedure to the usual Cholesky
+procedure, the solution of the system is done in stages (3, not 2, as
+there is also a @xmath ). The first stage in the solution of @xmath is
+the solution for @xmath of @xmath by:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+To solve this block system, it can be written as:
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+The third equation is a (dense) order @xmath system. If @xmath is small,
+it can be solved at no great expense, using simple Gaussian elimination.
+This solution depends on the prior solution of the two earlier systems
+for @xmath and @xmath . These are sparse, linear, lower triangular
+systems of size roughly @xmath , and are cheap to solve using forward
+substitution.
+
+The second stage is the (trivial) solution of @xmath , using @xmath and
+@xmath ; which is @xmath , as @xmath is a diagonal matrix. The third
+stage is similar to the first stage, and provides a solution of @xmath ,
+which is the solution to the whole problem @xmath :
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Similarly to the first stage, we solve first for @xmath the order @xmath
+dense system @xmath , then substitute this into:
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+to obtain @xmath and @xmath cheaply, by backward substitution.
+
+An alternative to the @xmath factorisation is the direct solution of
+@xmath . This method involves recursively partitioning the large sparse
+matrix @xmath , and is called “Nested Dissection” [ 8 ] . We write out
+the equations in block form:
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+“Solving” the first @xmath equations for @xmath and @xmath , then
+substituting the results into the third yields an order @xmath dense
+system, which gives @xmath as the solution to:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Explicitly:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Note that whilst the graph Laplacian is singular, the original @xmath
+matrix is generally non-singular, so there is no problem writing this
+explicitly. After the solution for @xmath , we have @xmath and @xmath as
+the solution to the following order @xmath and @xmath sparse systems,
+explicitly written as:
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+If @xmath , and @xmath is small, the computational expense is minimised.
+This situation is amenable to implementation on parallel processing
+machines, since the @xmath linear systems are decoupled. If these are
+too large to solve simply, the decomposition of @xmath can be repeated
+on @xmath and @xmath . The factorisation process can be recursively
+continued until units of a desired “atomic” size are obtained – perhaps
+somewhere between @xmath and @xmath . A more thorough analysis could be
+performed to decide the optimal choice, such that overall computational
+expense is minimised. This decomposition has been performed for several
+example graphs in § 4 .
+
+In this report, the graphs considered are sparse (the average degree of
+the vertices is low), and large (at current computational capabilities,
+@xmath is @xmath to @xmath ). [ 14 , 21 ] illustrate graphs with @xmath
+up to @xmath (for a @xmath 5-point grid, average degree 4). An example
+of a 5-point grid graph is provided in § 6.5 . (9-point grid graphs are
+similar, except that each vertex is connected to its nearest 8
+neighbours, rather than its nearest 4.) Larger scale applications are
+available in the Boeing-Harwell sparse matrix test problem library [ 3 ]
+, which quotes examples of size up to @xmath .
+
+### 1.3 Broad Outline of the Report
+
+The algorithm for partitioning graphs is dependent on analysis of some
+of the properties of “M-Matrices”, of which the graph Laplacian is an
+instance. § 2.1 describes these entities and some of their properties.
+The graph Laplacian is introduced, and shown to be an M-Matrix in § 2.2
+.
+
+An amazing result (of Fiedler, 1975 [ 6 ] ), presented in Algorithm 2.1
+on page 2.1 , relates the discrete mathematics of the interconnections
+of the graph to the continuous mathematics of the eigendecomposition of
+its “graph Laplacian” (defined in § 2.2 in terms of the incidence matrix
+of the graph). This result takes the components of the second
+eigenvector of the graph Laplacian matrix, and uses them in a valuation
+of the vertices of the graph. An edge separator set of the graph is then
+computed, such that the vertices are partitioned by this set into @xmath
+connected banks of very similar size. Using this edge separator set, a
+combinatorial algorithm creates the @xmath vertex sets described in §
+1.2 . This algorithm is fairly efficient, and has a number of immediate
+applications. Many large tasks can be simplified by using this algorithm
+in a “divide-and-conquer” approach, which can greatly improve
+computational efficiency. The Lanczos algorithm (to determine
+eigenvalues of large, sparse matrices) is implemented as a part of the
+overall algorithm, and is discussed in § 2.6 .
+
+This report firstly details experiments performed in synthesising the
+results of [ 21 ] , who used the above strategy in computing separator
+sets of sparse graphs of order @xmath to @xmath vertices. Secondly, it
+demonstrates the recursive decomposition of a graph down to atomic-unit
+sized subgraphs. This appears to be a new (but probably obvious)
+implementation.
+
+### 1.4 Contents of the Report
+
+§ 2 is the largest part of this report, and contains seven subsections.
+It describes the theory behind the entire graph partitioning process. §
+3 describes the implementation in C of the algorithms in § 2 , and
+references the source code in Appendix 7 . § 4 mentions the success of
+the code in dealing with a number of test examples. Results are
+compared, where possible to literature and touchstone cases (in
+particular, partitioning 5-point grid graphs). § 4 also describes
+problems encountered in programming and implementation. § 5 outlines the
+directions in which the work could be continued, to make the code more
+useful. The decomposition of a small example graph (Moshe) is presented
+in Appendix 6.2 .
+
+## 2 Theory
+
+This section has seven subsections:
+
+1.  M-Matrices, their origins, applications, definitions, and some
+    interesting theorems.
+
+2.  Graph Laplacian, its definition, and properties.
+
+3.  Graph Partitioning, using the second eigenvalue of the graph
+    Laplacian [ 6 ] .
+
+4.  Spectral Partitioning Algorithm, developed from the graph
+    partitioning result [ 21 ] .
+
+5.  Minimum Cover – algorithms involved in finding the minimum vertex
+    cover of a bipartite graph.
+
+6.  Lanczos Algorithm [ 9 ] – required for the implementation of the
+    spectral partitioning algorithm on sparse matrices.
+
+7.  Recursive Decomposition – recursive implementation of the
+    partitioning process.
+
+In this report, @xmath refers to a graph, where @xmath is the set of
+vertices. @xmath always refers to a real, square matrix of size @xmath .
+This is a sufficient, but not necessary requirement for some of the
+definitions and theorems in § 2.1 . In later sections, specific theorems
+that also depend on @xmath being symmetric are quoted.
+
+### 2.1 M-Matrices
+
+M-Matrices are a subclass of real matrices that are closely related to
+non-negative matrices [ 15 ] , and have a number of interesting
+properties (for instance, see Theorem 2.5 ). They arise in several
+specific fields, e.g.:
+
+1.  The discretisation of boundary-value partial differential equations
+    (both symmetric and non-symmetric) generates matrices which are the
+    negative of M-Matrices. Several examples of the discretisation of
+    Poisson’s Equation (viz @xmath ) on rectangular 5-point grids are
+    explicitly demonstrated in § 4 of this report. See also § 2.2 .
+
+2.  Continuous-Time Markov Processes. The differential equations for
+    probabilities are usually (singular) M-Matrices.
+
+3.  Economics.
+
+M-Matrices were introduced in 1937 in [ 17 ] , and their properties have
+been investigated by a number of researchers. Material presented in this
+section is abstracted from several sources [ 2 , 6 , 15 , 19 ] .
+M-Matrices have a multiplicity of possible definitions (e.g. [ 2 ] lists
+@xmath definitions for nonsingular M-Matrices). This allows great
+flexibility in proving results which involve them. The following
+definition of an M-Matrix is quoted from [ 15 ] .
+
+###### Definition 2.1
+
+@xmath is an M-Matrix if there is a non-negative matrix @xmath with
+maximal eigenvalue @xmath , and @xmath such that @xmath .
+
+The main diagonal entries of an M-Matrix are non-negative and all of its
+other entries are non-positive. Fiedler [ 6 ] calls an M-Matrix a matrix
+of class @xmath , and a nonsingular M-Matrix a matrix of class @xmath .
+
+###### Definition 2.2
+
+@xmath .
+
+That is, @xmath is the set of real matrices whose off-diagonal elements
+are non-positive. The following results are some necessary and
+sufficient conditions for an element of @xmath to be an M-Matrix, and
+are provided mainly as an introduction to some of the properties of
+M-Matrices. The first is a sufficient condition:
+
+###### Theorem 2.1
+
+@xmath is an M-Matrix iff all its eigenvalues have a non-negative real
+part.
+
+The second is a necessary condition:
+
+###### Theorem 2.2
+
+@xmath is an M-Matrix iff every real eigenvalue of @xmath is
+non-negative.
+
+###### Definition 2.3
+
+Given @xmath as a non-empty subset of @xmath , define the principal
+submatrix of @xmath corresponding to @xmath as @xmath .
+
+###### Theorem 2.3
+
+A principal submatrix of an M-Matrix is an M-Matrix.
+
+###### Theorem 2.4
+
+@xmath is an M-Matrix iff all its principal minors are non-negative.
+
+The next result is important, and is mentioned in [ 6 ] .
+
+###### Theorem 2.5
+
+@xmath is a nonsingular M-Matrix iff @xmath is non-negative.
+
+Another definition of @xmath -matrices is:
+
+###### Definition 2.4
+
+@xmath is an M-Matrix iff all its off-diagonal entries are @xmath , and
+all its principal minors are non-negative. It is a nonsingular M-Matrix
+if its principal minors are positive.
+
+Theorems 2.6 and 2.7 are proven in [ 7 ] and [ 24 ] .
+
+###### Theorem 2.6
+
+A nonsingular M-Matrix has @xmath non-negative, and if it is
+irreducible, @xmath is positive (that is, none of its entries are zero).
+
+###### Theorem 2.7
+
+If @xmath is an irreducible, singular M-Matrix, then:
+
+1.  @xmath is a simple eigenvalue of @xmath .
+
+2.   There is, up to a scale factor, a unique non-zero eigenvector
+    @xmath with eigenvalue zero, and all the components of @xmath are
+    non-positive or non-negative.
+
+Theorem 2.8 applies to symmetric matrices, and follows from Definition
+2.4 and the properties of positive definite (or semidefinite) matrices.
+
+###### Theorem 2.8
+
+A symmetric matrix is an M-Matrix if all its off-diagonal entries are
+non-positive and all its eigenvalues non-negative. If its eigenvalues
+are positive, then it is a non-singular M-Matrix.
+
+### 2.2 Graph Laplacian
+
+This section introduces the graph Laplacian, and defines it in a number
+of ways.
+
+###### Definition 2.5
+
+Given a graph @xmath , define the degree of vertex @xmath as @xmath ,
+the number of edges in @xmath with one end being vertex @xmath .
+
+###### Definition 2.6
+
+Given a graph @xmath , the graph Laplacian [ 1 , 6 ] is the matrix
+@xmath (here @xmath is the incidence matrix of the graph) of the
+quadratic form:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Thus @xmath , where @xmath
+
+The structure of the graph Laplacian is easier to see in another way.
+Define @xmath as the adjacency matrix of @xmath , and @xmath . The graph
+Laplacian is then @xmath . This definition means that @xmath is
+immediately seen as being a matrix with @xmath replacing @xmath in
+@xmath , and a diagonal whose @xmath th element is the number of
+non-zero off-diagonal elements in row or column @xmath of @xmath . This
+is illustrated by Figures 2 and 3 , and is the form used in
+implementation.
+
+As the row and column sums of the graph Laplacian are zero, @xmath is an
+eigenvector corresponding to the eigenvalue 0. As it has a zero
+eigenvalue, the graph Laplacian is singular. As it satisfies the
+requirements of Theorem 2.8 , it is an M-Matrix. Hence, the graph
+Laplacian is a singular M-Matrix, and is able to be used in some of the
+theorems in § 2.3 .
+
+Experimental graphs considered in this report include several 5-point
+grid graphs associated with the discretisation of elliptic
+Boundary-Value PDEs on rectangular regions. If the rectangle is reduced
+to an @xmath grid, the graph Laplacian is an @xmath sparse matrix, of
+very definite structure. Consider Poisson’s Equation in two dimensions,
+with boundary conditions for @xmath on a rectangle:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+(It is Laplace’s Equation if @xmath .) Discretisation on a regular
+@xmath grid, using the notation @xmath , and @xmath gives:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+This generates an @xmath linear system @xmath on a 5-point grid graph
+@xmath . The graph Laplacian @xmath is an @xmath block-tridiagonal
+matrix, where each block is a symmetric @xmath matrix.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The structure of @xmath is closely related to this. A specific example
+is presented in Appendix 6.5 . For 9-point grids or non-elliptic PDEs,
+the structures are different, but the solution techniques are
+essentially the same.
+
+### 2.3 Graph Partitioning
+
+This section outlines the work of [ 6 ] , and theorems listed are taken
+directly from it.
+
+###### Definition 2.7
+
+Given an undirected, unvaluated graph on @xmath vertices, @xmath , a
+vertex separator set is a subset @xmath of @xmath , such that removal of
+the vertices in @xmath from @xmath , together with all edges in @xmath
+containing them, will disconnect the graph.
+
+For the purposes of this report, consider only graphs that are
+connected. We are interested in vertex separator sets that disconnect
+the graph into @xmath subgraphs with approximately equal numbers of
+vertices. We are particularly concerned with sparse graphs and small
+separator sets; but we want algorithms that will automatically perform
+adequate partitioning of any graph.
+
+Ideally, a partitioning algorithm should find a separator set @xmath of
+absolute minimal cardinality, but this appears to be a combinatorially
+explosive problem (probably NP-complete), and is regarded as infeasible.
+Instead, we attempt to find an @xmath that is “reasonably” small, at
+least such that @xmath , and partitions @xmath into two sets of about
+the same size.
+
+It is difficult to quantify good separators [ 14 ] . The ideal choice is
+determined by the particular problem, and it is always possible that a
+“small” separator set does not exist The extreme example is the
+completely connected graph, where a separator set is of order of the
+same size as the original set. For planar graphs, the minimum size of a
+separator set is always @xmath , and the resulting partition has @xmath
+sides each with no more than @xmath of the total number of vertices [ 14
+] . This fact may be of some interest, as many of the large practical
+problems are either planar, or very nearly so (see [ 3 , 14 , 21 ] ).
+Liu, 1989 [ 14 ] describes the notion of “good” separator sets in some
+detail, and Pothen et al. [ 21 ] provide several numerical bounds on the
+minimum possible sizes of separator sets for a given graph. Many of the
+bounds may be grossly overestimated, and, as they involve calculation of
+several of the eigenvalues of the graph Laplacian (an expensive and
+error-prone procedure), are not particularly useful.
+
+Methods presented in the literature can be found in the references to [
+3 , 11 , 13 , 14 , 21 ] , and are not reiterated here. This section
+deals with a new process, attributed to [ 21 ] . The formal construction
+of this process depends on theory attributed to [ 6 ] , which begins
+with a number of relevant definitions.
+
+###### Definition 2.8
+
+@xmath .
+
+That is, the diameter of a graph @xmath is the maximum value of the
+minimum length path between any two vertices.
+
+###### Definition 2.9
+
+A decomposition of a graph @xmath is a disjoint vertex cover @xmath ,
+such that @xmath and @xmath .
+
+###### Definition 2.10
+
+@xmath is called irreducible if, for no decomposition of @xmath .
+
+This corresponds to connectedness of graphs. Using Definition 2.10 for
+symmetric @xmath , define:
+
+###### Definition 2.11
+
+@xmath is of degree of reducibility @xmath if there exists a
+decomposition of @xmath into @xmath non-empty disjoint subsets @xmath
+such that:
+
+1.  @xmath are irreducible, @xmath .
+
+2.  @xmath .
+
+An irreducible symmetric matrix has @xmath . Thus, a graph has @xmath if
+it is connected.
+
+###### Definition 2.12
+
+The @xmath eigenvalues of @xmath (some are possibly multiple) are
+ordered in increasing size: @xmath .
+
+Similarly, the corresponding eigenvectors are ordered – that is, the
+@xmath th eigenvector of @xmath is the eigenvector corresponding to the
+@xmath th smallest eigenvalue. For the purposes of the Graph
+Partitioning theorem, it will turn out that all eigenvalues are
+non-negative. The smallest will always be 0, of multiplicity equal to
+the number of connected components of the graph (or degree of
+reducibility). For 5-point grid graphs, the largest eigenvalue, by
+Theorem 2.9 [ 9 , p341] , will always be @xmath .
+
+###### Theorem 2.9 (Gershgorin Circle Theorem)
+
+Given a matrix @xmath , such that @xmath , where @xmath has zero
+diagonal entries, then:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+That is, the eigenvalues of a complex matrix lie within the union of a
+set of @xmath closed circles in the complex plane. The centre of each
+circle is at the point corresponding to a diagonal element, and its
+radius is the sum of the absolute values of the non-diagonal elements of
+that row. Note that it is usual to use @xmath . As applied to @xmath ,
+the real graph Laplacian of a grid graph, where:
+
+1.  The sums of the absolute values of the non-diagonal entries are
+    exactly equal to the diagonal elements.
+
+2.  The diagonal elements of @xmath are all of value either @xmath ,
+    @xmath or @xmath .
+
+3.  All the eigenvalues of @xmath are real (as @xmath is real and
+    symmetric).
+
+we obtain @xmath . More generally, if @xmath is a graph Laplacian,
+@xmath , where @xmath .
+
+From Theorems 2.7 and 2.8 :
+
+###### Theorem 2.10
+
+If @xmath is symmetric, irreducible, has non-negative off-diagonal
+entries, and @xmath for some real @xmath -vector @xmath , which is
+neither zero, positive nor negative; then @xmath is not positive
+semidefinite.
+
+Theorem 2.11 is a corollary to a more general result in [ 6 ] .
+
+###### Theorem 2.11
+
+If @xmath is non-negative, irreducible and symmetric, and @xmath is the
+@xmath th eigenvector of @xmath , @xmath ; then @xmath is non-null and
+the degree of reducibility of @xmath .
+
+This means that, choosing @xmath and @xmath as the second eigenvector of
+@xmath ; the degree of reducibility of @xmath , which means that it is
+@xmath . Using the second eigenvector of @xmath as @xmath thus yields an
+irreducible (connected) component.
+
+Fiedler’s paper [ 6 ] goes beyond the needs of this report in defining
+the graph Laplacian and associated results for the case of valuated (but
+not directed) graphs. The following graph-theoretic results are a
+simplification of those presented in Section 3 of [ 6 ] .
+
+###### Definition 2.13
+
+A cut @xmath of a graph @xmath is a set of edges to which a
+decomposition @xmath , where @xmath , exists, such that @xmath consists
+exactly of all edges in @xmath with one vertex in each set of the
+decomposition. The subgraphs of @xmath induced by the subsets @xmath and
+@xmath are called banks .
+
+###### Theorem 2.12 (Unique Decomposition of Connected Banks)
+
+If there is a decomposition @xmath of a graph @xmath , corresponding to
+a cut @xmath , such that both corresponding banks are connected, then
+the decomposition of @xmath corresponding to @xmath is unique.
+
+###### Definition 2.14
+
+The algebraic connectivity [ 5 ] of @xmath is defined as the smallest
+non-zero eigenvalue of @xmath . Corresponding to this is the
+characteristic valuation , which is an assignment of the elements of the
+eigenvector corresponding to the this eigenvalue of @xmath .
+
+As mentioned in § 2.2 , the smallest eigenvalue is always @xmath , of
+multiplicity equal to the number of components (connected units) of
+@xmath . For connected graphs, the algebraic connectivity and
+characteristic valuation are equal to the second eigenvalue @xmath and
+eigenvector @xmath , respectively.
+
+###### Theorem 2.13
+
+For any real @xmath , define @xmath . The subgraph @xmath induced by
+@xmath on @xmath is connected.
+
+Theorem 2.14 is the fundamental result required by the graph
+partitioning algorithm.
+
+###### Theorem 2.14 (Main Graph-Partitioning Theorem)
+
+If there exists a real @xmath such that @xmath and @xmath , then the set
+of edges @xmath of @xmath for which @xmath forms a cut @xmath of @xmath
+. If @xmath and @xmath , then @xmath is a decomposition of @xmath
+corresponding to @xmath , and the bank @xmath is connected.
+
+Theorem 2.12 shows that the decomposition and the banks are uniquely
+determined. Define @xmath and @xmath , then @xmath is the decomposition
+corresponding to @xmath . Theorem 2.15 , shows that all cuts with
+connected banks in a connected graph are able to be obtained (via the
+second eigenvector of the graph Laplacian).
+
+###### Theorem 2.15
+
+If @xmath is a connected graph with a cut @xmath such that both banks of
+@xmath are connected then there is a positive valuation of the edges of
+@xmath such that the corresponding characteristic valuation @xmath is
+unique (up to a factor), and @xmath , and @xmath is formed exactly by
+alternating edges of the valuation @xmath .
+
+In summary, the essential results in [ 6 ] are contained in Algorithm
+2.1 (that I have composed), which is directly referred to in the
+beginning of § 2.4 .
+
+###### Algorithm 2.1 (Edge Separator Algorithm)
+
+Given an graph @xmath , calculate a edge separator set (cut) @xmath such
+that the @xmath resulting banks are connected and have approximately
+equal numbers of vertices.
+
+1.   Calculate the graph Laplacian @xmath of @xmath , and the smallest
+    non-zero eigenvalue of @xmath (the algebraic connectivity). If
+    @xmath is connected, the eigenvalue @xmath will be of multiplicity
+    @xmath , in which case, the algebraic connectivity is equal to
+    @xmath , the second eigenvalue of @xmath .
+
+2.   Calculate the corresponding (second) eigenvector (the
+    characteristic valuation).
+
+3.   Assign to the vertices of @xmath the @xmath elements of the
+    characteristic valuation.
+
+4.   Find the set of edges @xmath , whose characteristic valuations
+    cross the median value of the components of the second eigenvector.
+
+5.  @xmath is the cut required edge separator set. Choice of @xmath from
+    edges whose vertices cross some point between two other components
+    of the characteristic valuation will also yield @xmath connected
+    banks, but their sizes will not be nearly equal.
+
+### 2.4 Spectral Partitioning Algorithm
+
+The idea of using the results contained in Algorithm 2.1 in an algorithm
+to partition graphs into vertex sets appears in Pothen et al., 1990 [ 21
+] . They describe their algorithm as a “Spectral Partitioning
+Algorithm”, and this convention is followed here. They compare the
+performance of this algorithm with several other algorithms:
+
+1.  Kernighan-Lin Algorithm – a modified level structure algorithm that
+    is implemented in sparspak ¹ ¹ 1 sparspak is a package of sparse
+    matrix routines, available through the netlib electronic software
+    library .
+
+2.  Fiduccia-Mattheyes Algorithm, implemented by Leiserson and Lewis [
+    13 ] .
+
+3.  Separator Algorithm of Liu [ 14 ] , based on the Multiple Minimum
+    Degree Algorithm.
+
+This report is an emulation of their algorithm, formally described in
+Algorithm 2.2 , largely taken from [ 21 ] . This procedure partitions
+the set of vertices of a (sparse) graph, in the form specified in § 1 .
+Firstly, it applies the results in Algorithm 2.1 to the graph concerned,
+to yield @xmath , an appropriate edge separator set, and @xmath and
+@xmath , sets of vertices on either side of this set. Secondly, a
+combinatorial procedure chooses from the vertices adjacent to this edge
+separator set, a vertex-separator set @xmath , and defines the
+corresponding vertex sets of the banks @xmath and @xmath .
+
+Before listing the actual algorithm, the definition of a minimum cover
+is required.
+
+###### Definition 2.15
+
+Given a graph @xmath , a (vertex) cover is a set of vertices @xmath ,
+such that every edge in @xmath has at least one of its endpoints in
+@xmath .
+
+###### Definition 2.16
+
+A minimum cover is a cover of minimum cardinality.
+
+Associated with the notion of minimum cover is that of a maximum
+matching, which requires another definition.
+
+###### Definition 2.17
+
+A matching is a subset of @xmath , such that no two endpoints in this
+subset have the same vertex.
+
+###### Definition 2.18
+
+A maximum matching is a matching of maximal cardinality.
+
+Maximum matchings and minimum covers are dual concepts, and this is
+further discussed in § 2.5 .
+
+Several notes arise in regard to this algorithm:
+
+1.  It must be recognised that the ideal aim is to find an @xmath of
+    absolute minimal cardinality, however this algorithm only finds
+    @xmath as small as possible in the context of the given edge
+    separator set @xmath . In general, the problem of finding the
+    smallest possible @xmath appears to be a combinatorially-explosive
+    one that is not achievable by any algorithm efficient enough to be
+    worth considering. In consolation, [ 21 ] demonstrate that the
+    Spectral Partitioning algorithm generally finds a smaller @xmath
+    than its competitors.
+
+2.  The problem of finding a minimum cover is non-trivial, and much
+    research into it has been performed. Pothen et al. [ 21 ] use a
+    “maximum matching” technique (see § 2.5 ), that is guaranteed to
+    give the minimum cover for the given edge separator set. The actual
+    implementation in this report uses a heuristic procedure to
+    calculate an approximate minimum cover, described in Algorithm 2.3
+    in § 2.5 . This procedure is not guaranteed to give a minimum cover.
+
+3.  Algorithm 2.2 requires the use of a function to determine the median
+    of a list of numbers. An algorithm to do this efficiently is a
+    special case of an algorithm to select the @xmath th smallest
+    component of a list of numbers. Page 129 of [ 22 ] describes an
+    algorithm to do this in @xmath time, by recursively partitioning the
+    list.
+
+4.  The problem of calculating the second eigenvector of the graph
+    Laplacian is also non-trivial, and generally computationally
+    expensive. It depends on the prior calculation of the second
+    eigenvalue. The most efficient algorithm to find extremal (largest
+    and smallest) eigenvalues of sparse matrices is the Lanczos
+    algorithm. Unfortunately, the procedure is subject to severe
+    numerical problems that make implementation complex, but in practice
+    it is the only real choice. Implementation of the Lanczos algorithm
+    is discussed in more detail in § 2.6 .
+
+### 2.5 Minimum Cover
+
+This section deals with the problem of finding a minimum cover (see
+Definition 2.16 ) of a bipartite graph. This problem occurs as a
+necessary component of the Spectral Partitioning algorithm (Algorithm
+2.2 ) – it is desired to find a minimum cover of @xmath . One method of
+doing this is mentioned in [ 21 ] , but this has not been implemented
+due to time constraints, and instead a heuristic procedure is followed.
+§ 2.5.1 discusses references in which are found minimum cover algorithms
+(for both bipartite and general graphs), and § 2.5.2 describes the
+heuristic procedure (for bipartite graphs only) actually implemented by
+me.
+
+#### 2.5.1 True Solution
+
+The minimum cover problem has been solved in a number of ways. The
+earliest algorithms for the minimum cover of a bipartite graph are based
+on the “Dulmage-Mendelsohn decomposition” [ 4 , 10 ] , but these
+references are not particularly readable. A more general result, for the
+minimum cover of any graph is found in [ 16 ] , but for the purposes of
+this partitioning, it is better to only consider algorithms for
+bipartite graphs, to maximise efficiency. For the rest of this section,
+consider the term graph to mean the bipartite graph @xmath . Also define
+@xmath , @xmath , @xmath and @xmath .
+
+As mentioned in § 2.4 , the minimum cover of a bipartite graph is the
+dual of the maximum matching, although the details of this relationship
+are not explicitly supplied. Pothen et al. [ 21 ] cite a further paper [
+20 ] that details an algorithm for a maximum matching. A simplified
+description of this algorithm is found in [ 18 , pp221–227] , and is
+reported to solve the matching problem in @xmath time.
+
+An alternative approach is presented in pages 495–499 of [ 22 ] , and
+deals with the matching problem in terms of a problem in “flow
+maximisation”. The algorithm described is quoted as requiring @xmath
+time (or @xmath time, for dense graphs). It is expected that @xmath is
+in general sparse, but this algorithm does not appear to be as efficient
+as that used in [ 21 ] .
+
+Implementation of a true minimum cover algorithm is left as a future
+exercise, see § 5 .
+
+#### 2.5.2 Heuristic Solution
+
+The heuristic procedure which I have used is formally described in
+Algorithm 2.3 .
+
+Input data is an edge separator set @xmath , generated by the vertices
+whose eigenvaluation crosses the median eigenvalue. Construct @xmath , a
+listing of the degrees of the vertices in @xmath , and then, whilst any
+element in @xmath is positive, perform the following procedure: Find the
+current vertex of maximum degree in @xmath , add it to @xmath , and
+remove it and the edges adjacent to it (in @xmath ), from @xmath .
+Repeat until no edges of degree @xmath remain in @xmath . Setting @xmath
+to @xmath ensures that the vertex will not be considered again.
+Implementation is improved by the very cheap process of comparing the
+size of the resultant @xmath with the sizes of @xmath and @xmath and if
+@xmath is larger than the smaller of these, @xmath is replaced by the
+smaller one. Since no elements are removed from @xmath , it can be
+implemented as a simple list or array.
+
+###### Algorithm 2.3 (Approximate Minimum Cover Algorithm)
+
+Given @xmath , the
+edge separator set of edges of a bipartite graph on vertex sets @xmath
+and @xmath , find a vertex (separator) set @xmath such that each edge in
+@xmath is incident to a vertex in @xmath , with @xmath “small”. @xmath
+@xmath @xmath @xmath @xmath @xmath @xmath @xmath @xmath @xmath @xmath
+@xmath @xmath
+
+This strategy will work to varying degrees with different examples. In
+practice, it would be possible to create a (possibly pathological)
+example for which this algorithm would create an unreasonably large
+@xmath . For sparse graphs of large diameter, it is expected that @xmath
+and @xmath , so the process for finding @xmath should yield the desired
+set @xmath . It is guaranteed only that @xmath .
+
+### 2.6 Lanczos Algorithm
+
+The Lanczos algorithm (originally attributable to [ 12 ] ) is an
+efficient method of finding the extremal eigenvalues of a sparse matrix.
+As the Spectral Partitioning algorithm is to be applied to sparse
+matrices, the Lanczos algorithm is required in its implementation. It is
+listed formally in Algorithm 2.4 , copied almost verbatim from Chapter 9
+of [ 9 ] .
+
+Practical implementation of the Lanczos algorithm almost always requires
+some reorthogonalisation. For the purposes of the Spectral Partitioning
+algorithm, we need only reorthogonalise against @xmath (the @xmath
+-vector of ones), as the subspace required must be orthogonal to this.
+Rounding error can be avoided by the following strategy: When computing
+@xmath , instead of simply returning @xmath , we will return @xmath
+orthogonalised against @xmath :
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+That is, return @xmath instead of @xmath , as well as starting with
+@xmath . The latter requirement is satisfied by the choice of @xmath , a
+choice recommended in [ 21 ] .
+
+### 2.7 Recursive Decomposition
+
+It is possible, and may be necessary for many applications, to be able
+to repeat the decomposition process on the subcomponents @xmath and
+@xmath of @xmath . Once the Spectral Partitioning algorithm is
+implemented, it can be recursively called, until the subgraphs @xmath
+and @xmath are of a certain manageable “atomic” size (about @xmath –
+@xmath vertices), yielding a complete permutation of the vertices in
+@xmath , via the procedure described in Algorithm 2.5 .
+
+###### Algorithm 2.5 (Recursive Decomposition Algorithm)
+
+Given a graph @xmath , on the set of vertices @xmath , decompose @xmath
+into a permutation of itself, such that the smallest size units in the
+permutation are no larger than @xmath , the “atomic” size. @xmath Apply
+the Spectral Partitioning Algorithm to partition @xmath into @xmath
+@xmath @xmath @xmath @xmath @xmath
+
+## 3 Implementation
+
+The algorithms presented in § 2 are implemented as a small collection of
+functions and programs in ANSI-standard C that are interfaced with a C
+software library ( meschach [ 23 ] ). They were written within a unix
+(BSD4.3) environment. Appendix 7 provides a listing of the source code,
+although the functions and data-structures in meschach that are
+referenced are not explicitly listed, and the reader is referred to [ 23
+] .
+
+Sections 3.1 to 3.5 describe the operation and application of each of
+the programs/functions listed in Appendix 7 . Currently, there is no
+documentation on these codes apart from this section and comments in the
+relevant source code. § 4 discusses the results of applying these
+functions to the sample graphs described in Appendix 6 .
+
+### 3.1 The Function decomp
+
+The function decomp is the primary partitioning (and recursive
+decomposition) routine written. Input/output parameters are:
+
+1.   sp_mat *L : Pointer to the sparse matrix of the graph Laplacian of
+    the graph @xmath that we wish to partition, of size @xmath .
+    Unchanged on exit.
+
+2.   PERM *P : On entry, a pointer to a permutation (list) of length
+    @xmath of the actual numbers of the vertices in the set being
+    partitioned. @xmath is returned as the permutation of itself
+    corresponding to the partition.
+
+3.   PERM *A, PERM *B, PERM *S : The components of the partition.
+    Currently not actually relevant, but will be used in future
+    developments, where the structure of a recursive decomposition will
+    also be returned. These are pointers to permutations of size @xmath
+    on entry, containing dummy data. Returned as correctly-sized and
+    filled permutations.
+
+4.   int rec_lvl : decomp is designed perform one of two types of tasks:
+
+    1.  Partition a sparse graph once.
+
+    2.  Recursively repeat this until the units involved are of size
+        less than a nominated (currently hard-wired into decomp as 3)
+        “atomic” size. @xmath is returned as the permutation which will
+        be most useful for subsequent factorisation. This is not
+        directly useful, at present, as there is no record of the
+        structure of @xmath – again, this is left as future work, and is
+        discussed in § 5 .
+
+    rec_lvl is used to tell decomp which of these 2 tasks to perform. If
+    rec_lvl is set to -1 by a driver program, decomp will only partition
+    the graph once, any other choice allowing it to recursively
+    partition the set until satisfied. The parameter is used as a record
+    of the depth of recursion by decomp , so a driver program will
+    typically only ever set rec_lvl to @xmath or @xmath .
+
+Currently, decomp is called by the driver program testdc (see § 3.5 ),
+and the parameter rec_lvl is set by testdc according to one of its input
+( argv ) arguments.
+
+### 3.2 The Function mk_sp_graph
+
+A function to generate random sparse graphs. It is not usually used for
+testing decomp , as the graphs generated are possibly not connected, and
+are not of small diameter, which means that we cannot expect small
+separator sets from them. Future versions of this function should
+generate essentially planar graphs of large diameter, which we could
+expect to partition into sets with small @xmath . Input parameters are:
+
+1.   unsigned int n : The order of the graph desired.
+
+2.   unsigned int p : The average degree of the vertices.
+
+The function returns a pointer to a sp_mat , and is called by testdc , a
+driver program for decomp .
+
+### 3.3 The Function select
+
+This function selects the k th smallest element of a series of (real)
+numbers, stored in a VEC * , (a pointer to a VEC ). It is an
+implementation of an efficient algorithm in [ 22 , page 128] . In
+particular, it can be used to determine the median element of a series
+of numbers.
+
+Input parameters are:
+
+1.   VEC *y : The vector involved.
+
+2.   int k : select returns the value (not the position) of the k th
+    smallest element of y .
+
+select returns a double . decomp calls it to find the second smallest
+element in the vector of “eigenvalues” returned by trieig . The function
+is also called by decomp to determine the second smallest eigenvalue in
+a list (see Algorithm 2.2 ).
+
+### 3.4 The Program gr_lap
+
+This program generates sparse matrices of graphs associated with solving
+Laplace’s Equation on a rectangular 5-point grid. The graphs, not the
+graph Laplacians are generated. gr_lap automatically creates a file of
+the appropriate name, which can be changed for later use. For example
+(in a unix environment), typing the command:
+
+gr_lap 13 23
+creates a file called “ Lap.13.23 ” in the current directory, which
+contains (in standard format for meschach to read), the sparse graph
+related to solving Laplace’s Equation on a @xmath grid.
+
+### 3.5 The Program testdc
+
+This program is the main driver written for decomp , and is called with
+a series of ( argv ) input parameters. For example (in a unix
+environment), typing the command:
+
+testdc 157 7 13 -1
+calls testdc , and tells it that we wish to use a graph on @xmath
+vertices, with an average vertex degree of @xmath , and to only print
+out intermediate results of data-structures of size @xmath or less.
+testdc will then prompt the user to select either one of a range of
+graphs stored in the current directory, or generate a random sparse
+graph, for partitioning. If the user chooses to input a graph that does
+not have the correct dimension, testdc will abort. This stupid-seeming
+system is also intended to allow the user to instruct testdc to generate
+random sparse graphs (using mk_sp_graph ), with parameters n @xmath ,
+and p @xmath . Thus, the user is expected to have some knowledge of the
+database of sparse graphs before using testdc . The system will be
+improved in subsequent versions of testdc and decomp .
+
+The final parameter is the value of rec_lvl (see § 3.1 ) that we wish to
+initially pass to decomp . If set to -1, decomp is instructed to only
+partition the graph once. Any other value, or omission of it instructs
+decomp to recursively decompose the graph into atomic subunits. The
+atom-size is currently hard-wired into decomp (as 3), but could become
+an input parameter in future versions. testdc currently calls select and
+decomp , as well as numerous subroutines from meschach .
+
+## 4 Results and Problems
+
+This section details some results obtained by
+
+1.  Partitioning of all the graphs listed in Table 2 (page 2 in Appendix
+    6 ).
+
+2.  Full recursive decomposition of the @xmath smallest ones.
+
+It refers to the example graphs listed in Appendix 6 . These graphs were
+used in the development of the programs, and have been used to
+illustrate of the progress of the algorithms. There is only one picture
+of a grid graph – for Ishmail, on @xmath vertices. The other grid graphs
+are too large to depict. The successful partitioning of these graphs is
+mentioned in § 4.1 , recursive decomposition in § 4.2 , and problems
+encountered are discussed in § 4.3 .
+
+Direct comparison with other published results (in particular [ 21 ] )
+is not possible, as the computers involved are of very different speeds.
+The test problems that have been used are largely from the
+Boeing-Harwell sparse matrix test problem library [ 3 ] . Access paths
+to this database were discovered too late for it to be used. Other
+implementational problems, such as the Boeing-Harwell database being
+stored as a column-oriented data-structure, made the application of the
+partitioning algorithm to this suite currently infeasible. ( meschach
+deals primarily in terms of row-oriented data-structures.)
+
+### 4.1 Partitioning
+
+decomp , driven by testdc , has been used to correctly partition all of
+the graphs listed in Table 2 . The times (in CPU seconds) taken to do
+this on the University of Queensland’s Mathematics Department Pyramid
+9810 computer (operating under unix BSD4.3) are listed in Table 1 . The
+Pyramid 9810 is benchmarked by a linpack ² ² 2 linpack is available
+through the netlib electronic software library routine at approximately
+@xmath Mflop s @xmath . The computer used by Pothen et al. [ 21 ] is a
+cray y-mp , ³ ³ 3 Trademark of cray Research and is expected to be
+benchmarked about @xmath orders of magnitude faster than the Pyramid
+9810. Results are roughly comparable with those in [ 21 ] , by
+incorporating a scaling factor of about @xmath .
+
+All but one of the separator sets listed in Table 1 are of the minimum
+possible size. The separator set of size @xmath for Schlomo could have
+been improved (to size 61), by changing tolerances used in decomp , but
+this would have required prohibitive amounts of memory.
+
+### 4.2 Full Recursive Decomposition
+
+The full recursive decomposition was successfully completed for the
+graphs Idit, Moshe, Itzchak, Shimuel, Ishmail, and Yacov, finding
+permutations of the vertices that were traced to be exactly what would
+be expected for the first four cases. decomp was allowed to run on
+Ishmail and Yacov until it had completed a full recursive decomposition
+– this ran to @xmath levels of recursion for Yacov. Results appeared
+correct, although were not manually checked explicitly! The full
+recursion on the other (very large) problems was not attempted.
+
+Caveat: the above comments refer to a previous version of decomp , not
+the one supplied in Appendix 7 , which has some minor implementational
+problems. Currently, decomp crashes at some point during recursive
+calls.
+
+### 4.3 Problems
+
+This section describes the most significant problem encountered in
+implementing the Spectral Partitioning algorithm (Algorithm 2.2 on page
+2.2 ). This problem is in the choice of @xmath , the order of the
+tridiagonal matrix @xmath returned by the Lanczos algorithm.
+
+The first impression is that any choice of @xmath will do, the larger
+the better, in estimating @xmath accurately. The constraint is that the
+computational expense is dependent on @xmath (amongst other things), and
+@xmath cannot be increased without limit. At the very least, @xmath
+would appear to be an obvious, if exaggerated bound. There is then, an
+optimal choice of @xmath , such that:
+
+1.  @xmath is found accurately.
+
+2.  Minimal computational expense is involved.
+
+In fact, empirical observation demonstrates that there is typically a
+range of suitable @xmath , this range varying in position and bandwidth
+with the problem encountered. It is not possible to accurately predict
+this range in advance, although typically it is located in the vicinity
+of @xmath . ( @xmath is the number of vertices in the graph.)
+
+To make matters more difficult, if @xmath is chosen from outside this
+range, the computed value of @xmath will be wrong . It appears that if
+@xmath is too small, @xmath will be too large, sometimes not even
+corresponding to larger eigenvalues of the graph Laplacian. If @xmath is
+too large, the calculated @xmath cannot possibly be an eigenvalue (as it
+is supposed to be the second smallest one!), and with increasing @xmath
+the returned values of @xmath typically reduce, suddenly hitting 0, and
+remaining there. This phenomenon is called the “Ghost Eigenvalue”
+problem [ 9 ] , and has been studied but apparently not yet conquered.
+
+Thus, a strategy is needed to choose an optimal @xmath . Empirical
+observations suggest that if @xmath is increased from below the optimal
+position, when the resulting computed values of @xmath converge, they
+converge to the correct value. This is not necessarily true when
+decreasing @xmath from above the optimum, but it may be so.
+
+Several approaches are possible in developing a strategy for choosing
+@xmath :
+
+1.  Begin with a value of @xmath much larger than is expected to be
+    adequate for the given problem. For example, if @xmath is guessed to
+    be optimum, try @xmath . Using this value, run the Lanczos algorithm
+    and investigate the resulting @xmath . As the Lanczos algorithm has
+    returned us @xmath , by decrementing @xmath and considering @xmath ,
+    it is possible to calculate @xmath using @xmath . This procedure is
+    repeated until the computed @xmath converge. It is not expensive, as
+    no new calculations of @xmath have to be made. The problems with
+    this method are that:
+
+    1.  It is not certain that convergence from above generates the
+        correct @xmath .
+
+    2.  Calculation of @xmath for an overly large @xmath is expensive.
+
+    3.  The choice of the initial @xmath is problem-dependent. If this
+        choice cannot be automated, there is no hope of an automatic
+        sparse matrix factorisation technique being derived. The only
+        obvious way to automate this choice would be to use @xmath , and
+        this would be so expensive as to make the whole technique
+        infeasible.
+
+    This strategy has been considered, but was not implemented due to
+    these concerns. Its prime advantage is in its ease of programming.
+
+2.  The second method is to begin with a small @xmath , say @xmath , and
+    always maintain @xmath at least this size. Run the Lanczos algorithm
+    using this value of @xmath , and return. First calculate the
+    resulting @xmath , and then the value that @xmath would have been if
+    @xmath were one less. If these two values are the same, accept
+    @xmath and @xmath , else increment @xmath by @xmath and re-run the
+    Lanczos algorithm. This technique is suited to calling the Lanczos
+    algorithm as an external function, but suffers from being wasteful
+    in its computational requirements, as the @xmath calculations have
+    to be repeated each time @xmath is incremented. In practice, this
+    technique has been experimented with, and works, but has since been
+    superseded by the next technique, which is much cheaper to
+    implement, although more difficult to program.
+
+3.  Follow a similar strategy to the above, but maintain all the
+    information on the Lanczos algorithm as it progresses. In order to
+    do this, a modified Lanczos algorithm is incorporated into the part
+    of the code that examines the convergence of the computed second
+    eigenvalue, so that the need for external function calls is removed.
+    This technique is incorporated into the current version of decomp ,
+    that appears in Appendix 7 .
+
+If the problem being considered is on @xmath vertices, with average
+degree @xmath , and @xmath is the actual size of the computed @xmath
+matrix, then the computational cost of the second and third methods can
+be compared by the following analysis. [ 9 ] describes the cost of one
+Lanczos iteration (without reorthogonalisation) as @xmath flops.
+
+For the second method, returning @xmath requires @xmath flops. If this
+cost is repeated for @xmath , then the total cost is:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+For example, for the @xmath @xmath -point grid graph Aaron, where @xmath
+and observation suggests that @xmath is a good choice, this represents
+@xmath flops.
+
+Compare this with the cost for the third method, which is simply the
+cost of the last Lanczos algorithm call of the second (plus some small
+overhead). This is approximately @xmath flops, an improvement of order
+@xmath . This means, for example, using the Pyramid 9810 computer,
+running at @xmath flops s @xmath , calculating the second eigenvector
+takes @xmath rather than @xmath CPU seconds.
+
+In summary, none of the methods described are guaranteed to work, as
+they are all based on the observation that when the computed second
+eigenvalues converge, they converge to the correct value of @xmath .
+Thus their philosophy is heuristic, and needs refinement, but it appears
+to work for the examples tested. This is an outstanding problem for
+further work.
+
+## 5 Further Work
+
+This section is a listing of directions for further work, and includes
+some commentary of the work of [ 21 ] :
+
+The incorporation of the Spectral Partitioning algorithm into a complete
+function to factorise and solve large sparse linear systems using nested
+dissection is a primary research target, and would depend on a number of
+subsidiary goals, which are described below.
+
+1.  Problems in dealing with the choice of @xmath in the Lanczos
+    algorithm have been discussed in § 4.3 . Research is required to
+    establish a more rigorous solution to this problem.
+
+2.   decomp should be augmented to become a function that also returns
+    the structure of the permutation @xmath . This might be made
+    possible by using a ternary code associated with each element of
+    @xmath , to describe the level of recursion required to obtain it.
+    This would facilitate a factorisation routine that recursively
+    decomposed the large sparse matrix into manageable atomic-sized
+    units. Implementation would be coupled with an analysis of the
+    performance of this technique relative to other methods, such as
+    Gauss-Seidel and Successive Over Relaxation.
+
+3.  Currently, there is currently very little error-checking in any of
+    the functions and programs that I have written, but this facility is
+    readily implemented in the context of the interface with meschach .
+    Input parameters are not carefully checked for existence and
+    correctness of dimension, and there is not much checking through the
+    codes for other problems, especially numerical problems. In part,
+    the latter is due to time constraints, but it is also due to the
+    total complexity of the algorithm. Further work is needed to make
+    the routines more robust.
+
+4.  More efficient data-structures would improve programming and
+    execution speed. In particular, the edge listing @xmath , is
+    currently represented as an @xmath array of double s ( MAT *H ).
+    (The same is true for the degree listing @xmath .) As they are
+    intended to be integers, this means that input, output and
+    comparison operations on their elements require repeated casts. This
+    is poor programming, and consumes more CPU time than required. A
+    replacement system could involve simple integer arrays, or more
+    powerfully, it could be a C structure containing an array, each
+    element of which points to @xmath integers representing adjacent
+    edges, modelled after other meschach structures. A possible
+    data-structure and referencing description of this system is
+    provided in Figure 1 .
+
+    In conjunction with this we could develop a graph-input routine,
+    together with a suite of error-checking routines. Currently, the
+    graph is input as an adjacency matrix. This could be exchanged for
+    an incidence matrix input. decomp could internally convert this to
+    the appropriate adjacency matrix. This would improve the ability of
+    the user to input a graph accurately. The driver program could be
+    extended to handle a series of different input formats.
+
+    Other possibilities include storing the adjacency matrix of the
+    graph as a dense bit array, rather than a sparse integer C
+    structure. This would however, make implementation far more
+    difficult, and is not considered to be practical for the internal
+    workings of decomp . The programs gr_lap and testdc , which involve
+    input and output of graphs (as their adjacency matrices), could be
+    made considerably more efficient by this practice.
+
+5.  The nested dissection algorithm lends itself to implementation on
+    parallel processing machines, and a long-term goal could be to
+    implement it in such an environment.
+
+6.  Pothen et al. [ 21 ] discuss various estimates for the size of an
+    adequate separator set, calculable in terms of various eigenvalues
+    of the graph Laplacian and other parameters of the graph. It might
+    be valuable to investigate the use of these estimates for some
+    internal consistency checks within the decomposition algorithm.
+
+7.  The implementation of a true minimum cover algorithm, as described
+    in § 2.5.1 , would ensure that @xmath is as small as possible. The
+    algorithm presented in [ 18 , pp221–227] appears to be the most
+    efficient and accessible choice. It could be expected that the
+    increase in computational expense in using this minimum cover
+    algorithm would be compensated for by the reduction in computational
+    expense (due to the smaller @xmath ) in a full factorisation
+    routine.
+
+## 6 Listing of Graphic Examples
+
+This appendix is a listing and discussion of some of the graphic
+examples used in developing the code and algorithms. Names and
+descriptions of the experimental graphs are presented in Table 2 .
+Should these names appear unfamiliar, the reader is informed that they
+are loosely transliterated Hebrew names of various people in the Hebrew
+Bible. There is no particular significance in this choice of names.
+
+The large grid graphs Schlomo ( @xmath ) and Shimshon ( @xmath ) are
+used for comparison with the results of [ 21 ] .
+
+### 6.1 Idit
+
+Idit is the smallest graph examined ( @xmath vertices, @xmath edges),
+and is depicted in Figure 2 . Its graph Laplacian is presented in Figure
+3 . Figures 4 and 5 are plots of the eigenvalue spectrum and the second
+eigenvector (respectively) of the graph Laplacian of Idit, as generated
+by matlab . ⁴ ⁴ 4 matlab is an (interpreted) matrix computation package,
+and is a trademark of The Mathworks, Inc.
+
+### 6.2 Moshe
+
+Moshe is a hand-drawn graph made for illustration of the progress of the
+Spectral Partitioning algorithm. It is a planar graph ( @xmath vertices,
+@xmath edges, diameter @xmath ), and is depicted in Figure 6 . The
+operation of the Spectral Partitioning algorithm (Algorithm 2.2 ) is
+described for Moshe in the following paragraphs.
+
+The initial graph partitioning process partitions @xmath , into @xmath
+almost equal halves, @xmath and @xmath , with an edge separator set of
+size 3: @xmath . @xmath is the set of vertices in @xmath that are
+adjacent to vertices in @xmath , and vice-versa. Inspection shows that
+the relevant bipartite graph on @xmath consists of @xmath and @xmath .
+
+Using only @xmath , @xmath and @xmath , we seek to calculate a vertex
+separator set @xmath , as a subset of the vertices in @xmath and @xmath
+, such that all edges in @xmath and @xmath are incident upon at least
+one vertex in @xmath . We would like @xmath to be of minimum
+cardinality. Whilst this may in general be a non-trivial problem, in
+this case inspection shows that @xmath are minimum covers, the first
+case corresponding to Algorithm 2.3 accepting the initial choice of
+@xmath , the others corresponding to the use of @xmath or @xmath as the
+cover.
+
+Lastly, find @xmath and @xmath . Use of @xmath gives @xmath and @xmath .
+This choice is depicted in Figure 7 . The resultant set of cut edges are
+drawn with dashed lines.
+
+Figures 8 and 9 are plots of the eigenvalue spectrum and the second
+eigenvector (respectively) of the graph Laplacian of Moshe, as generated
+by matlab .
+
+### 6.3 Itzchak
+
+The graph Itzchak is presented in Figure 11 . Its adjacency matrix is
+quite illustrative, and is presented in Figure 10 . Figures 13 and 14
+are plots of the eigenvalue spectrum and the second eigenvector
+(respectively) of the graph Laplacian of Itzchak, as generated by matlab
+.
+
+### 6.4 Shimuel
+
+Shimuel (Figure 12 ) is another example on a small number of vertices,
+also used for development purposes. It is set up to find the separator
+set @xmath . Figures 15 and 16 are plots of the eigenvalue spectrum and
+the second eigenvector (respectively) of the graph Laplacian of Shimuel,
+as generated by matlab .
+
+### 6.5 Ishmail
+
+Ishmail is the only (5-point) grid graph represented in this appendix,
+and is depicted in Figure 17 . It is a @xmath grid ( @xmath vertices).
+The adjacency matrix of Ishmail illustrates that referred to in § 2.2 ,
+and its form is:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Figures 18 and 19 are plots of the eigenvalue spectrum and the second
+eigenvector (respectively) of the graph Laplacian of Ishmail, as
+generated by matlab .
+
+Section 4 (titled “Graph Products”) of [ 21 ] , discusses the expected
+repetition of the second eigenvector of an @xmath 5-point grid graph,
+showing that it can be found as the Kronecker (tensor, outer) product of
+the length- @xmath path graph and an @xmath -vector of size @xmath .
+Examination of Figure 19 (and Figure 21 ) clearly demonstrates this
+result. Clever exploitation of this property may reduce the overall
+computational expense required for the Spectral Partitioning algorithm,
+but not significantly, as the expense is dominated by the computations
+that yield @xmath (see § 4.3 ). As this property is only true for grid
+graphs, implementation would require decomp to have an extra input flag.
+
+### 6.6 Yacov
+
+Yacov is a @xmath 5-point grid graph on @xmath vertices, and is not
+depicted here. Figures 20 and 21 are plots of the eigenvalue spectrum
+and the second eigenvector (respectively) of the graph Laplacian of
+Yacov, as generated by matlab .
+
+## 7 Code Listing
+
+As mentioned in § 3 , the algorithms presented in this report are
+implemented in ANSI-standard C , and interface with meschach , the C
+software library for numerical analysis written by David Stewart [ 23 ]
+. The contents of this appendix are listings of the source code that I
+have written for this work. Without access to [ 23 ] , references to
+data structures and functions called from meschach will be meaningless.
+Listings of the data-structures and functions are not provided here as
+they are quite long. § 4.3 mentions that the code written is not
+necessarily bug-free, and currently has very little error-handling
+capacity.
+
+### 7.1 Listing of decomp
+
+    /*                            decomp                                  */
+
+
+    /* *********************************************************************
+
+
+    Contents  : This file is called "decomp.c", and contains the function
+    ΨΨ"decomp".
+
+         Aim  : (Recursively) decompose the vertex set of a (sparse) graph,
+    Ψ    represented by a graph Laplacian L, into separator sets.
+    Ψ    This function returns a pointer to a permutation, which,
+    Ψ    when applied to L, will decompose it for efficient
+    Ψ    recursive LDL^T factorisation.
+
+     Language : ANSI Standard C
+
+      Author  : David  De Wit (and David Stewart)  March 5  -  June 19  1991
+
+
+    ********************************************************************* */
+
+
+    #include <math.h>
+    #include <stdio.h>
+    #include "matrix.h"
+    #include "matrix2.h"
+    #include "sparse.h"
+    #include "sparse2.h"
+
+
+    extern double   select(VEC *, u_int);
+    extern int      icmp(u_int *, u_int *);
+
+
+    u_int           prt_tol, p;
+
+
+    /* ************************************************************************** */
+
+
+    #define show_perm(PP) ((PP->size < prt_tol) ? out_perm(PP) :\
+                          printf("Permutation: size: %d\n", PP->size))
+    #define show_vec(VV) ((VV->dim < prt_tol) ? out_vec(VV) :\
+                         printf("Vector: dim: %d\n", VV->dim))
+    #define show_mat(MM) ((MM->m < prt_tol) ? out_mat(MM) :\
+                         printf("Matrix: m: %d by 2\n", MM->m))
+
+
+
+
+
+
+    PERM *decomp(sp_mat *L, PERM *P, PERM *A, PERM *B, PERM *S, int rec_lvl)
+    {
+            int             i, j, k, l, n = L->m, tempA, tempB, tempH,
+                            inA, inB, inA1, inB1, inD, inS, inAdash, inBdash,
+                            N_nonzero_v, max_degree, vmax, imax, ev_good_enough;
+            double          medval, L2old, L2new, L2tol = 1e-04, Rtol = 1e-01,
+                            yi, yj, sum, alpha, beta;
+            PERM            *Adash, *Bdash, *A1, *B1, *AA, *AB, *AS, *BA, *BB, *BS,
+                            *pivot;
+            VEC             *a, *b, *c, *d, *x0, *w, *y, *z, *resid, *V, *W, *TMP;
+            MAT             *C, *I, *Q, *T, *D, *H;
+            row_elt         *elt_list;
+            sp_mat          *AL, *BL;
+
+
+            if (!L || !A || !B || !S || !P)
+                    error(E_NULL, "decomp");
+            if (L->m != L->n || P->size != n)
+                    error(E_SIZES, "decomp");
+
+            printf("At top of decomp. rec_lvl: %d\n", rec_lvl);
+
+    /* 0. Set up all the required matrix and vector elements. Firstly, initialise
+    all those with dimensions fixed, depending on "n".*/
+
+            Adash = get_perm(n);                            Bdash = get_perm(n);
+            A1 = get_perm(n);                               B1 = get_perm(n);
+            y = get_vec(n);                                 x0 = get_vec(n);
+            resid = get_vec(n);                             TMP = get_vec(n);
+            V = get_vec(n);                                 W = get_vec(n);
+            D = get_mat(n*p, 2);                            H = get_mat(n*p, 2);
+
+    /* Initialise size of variable-size data-structures 1. They are soon resized. */
+
+            a = get_vec(1);                                 b = get_vec(1);
+            c = get_vec(1);                                 d = get_vec(1);
+            I = get_mat(1, 1);                              T = get_mat(1, 1);
+            C = get_mat(1, 1);                              Q = get_mat(1, 1);
+            w = get_vec(1);                                 z = get_vec(1);
+            pivot = get_perm(1);
+
+
+    /* 1. Use the Lanczos method and a tridiagonal eigendecomposition routine to
+    calculate the 2nd eigenvalue and corresponding eigenvector of L. Pothen, et al.
+    suggest the choice for the initial x0, and we begin with W = normalised(x0) and
+    V = LW. */
+            for (i = 0; i < n; x0->ve[i] = i - (n - 1)/2, i++);
+            L2old = 0;                                      ev_good_enough = 0;
+            while (!ev_good_enough)
+            {
+                    j = 0;
+                    sv_mlt(1.0/n2(x0), x0, W);
+                    sp_mv_mlt(L, W, V);
+                    L2new = L2old + 2*L2tol;                beta = 1;
+                    while (j < 2 || fabs((L2old - L2new)/L2new) > L2tol)
+                    {
+                            j++;
+                            if (j*n > 250000)
+                            {
+                                    printf("j.n = %d.%d = %d ", j, n, j*n);
+                                    printf("Using too much memory, cutting out!\n");
+                                    exit(0);
+                            }
+                            a = v_resize(a, j);             b = v_resize(b, j-1);
+                            if (j > 1)
+                                    b->ve[j-2] = beta;
+                            Q = m_resize(Q, n, j);          set_col(Q, j-1, W);
+    /* Store W in Q. */
+                            a->ve[j-1] = alpha = in_prod(W, V);
+                            v_mltadd(V, W, -alpha, V);
+
+
+    /* Orthogonalise V relative to e. */
+                            for (i = sum = 0; i < n; sum += V->ve[i], i++);
+                            for (i = 0, sum = sum/n; i < n; V->ve[i] -= sum, i++);
+
+                            beta = n2(V);                   cp_vec(W, TMP);
+                            sv_mlt(1/beta, V, W);           sv_mlt(-beta, TMP, V);
+                            sp_mv_mlt(L, W, TMP);           v_add(V, TMP, V);
+
+                            c = v_resize(c, j);             d = v_resize(d, j-1);
+                            c = cp_vec(a, c);               d = cp_vec(b, d);
+    /* trieig(c, d, M) takes a tridiagonal matrix with diagonal entries c and
+    off-diagonal entries d, finds the eigenvalues, and stores then in c. */
+                            trieig(c, d, MNULL);
+                            L2old = L2new;                  L2new = select(c, 1);
+                    }
+                    if (L2new < 0)
+                    {
+                            printf("Negative ev!\n");       exit(0);
+                    }
+
+    /* Set up the T and I matrices, and the w vector. */
+                    T = m_resize(T, j, j);                  zero_mat(T);
+                    for (i = 0; i < j - 1; i++)
+                    {
+                            T->me[i][i] = a->ve[i];
+                            T->me[i + 1][i] = T->me[i][i + 1] = b->ve[i];
+                    }
+                    T->me[j - 1][j - 1] = a->ve[j - 1];
+                    I = m_resize(I, j, j);                  I = id_mat(I);
+                    pivot = px_resize(pivot, j);            pivot = px_id(pivot);
+                    w = v_resize(w, j);                     rand_vec(w);
+                    z = v_resize(z, j);                     C = m_resize(C, j, j);
+
+                    printf("\nFinding y: j = %d\n\tlambda2\t\tn2(resid)\n", j);
+
+                    C = sm_mlt(-L2new, I, C);               C = m_add(T, C, C);
+                    for (i = 0; i < C->m; i++)
+                            if (C->me[i][i] == 0)
+                                    C->me[i][i] = MACHEPS;
+                    C = LUfactor(C, pivot);
+                    z = LUsolve(C, pivot, w, z);
+                    w = sv_mlt(1.0/n2(z), z, w);
+                    L2old = L2new;
+                    L2new = in_prod(w, mv_mlt(T, w, z));
+
+    /* If the residual of eigenvector/value pair || L.y - L2.y ||_2 / || y ||_2 is
+    too large, run again ... */
+                    y = mv_mlt(Q, w, y);
+                    resid = sp_mv_mlt(L, y, resid);
+                    resid = v_mltadd(resid, y, -L2new, resid);
+                    printf("\t%25.20g\t\t%25.20g\n", L2new, n2(resid));
+                    ev_good_enough = (n2(resid) < Rtol*n2(y));
+                    if (!ev_good_enough)
+                            x0 = cp_vec(y, x0);
+            }
+
+            printf("Using lambda2 = %20.15g\n", L2new);
+            printf("y\, the 2nd eigenvector of L: "); show_vec(y);
+
+    /* Most of the continuous mathematics data structures are no longer needed. */
+            freevec(a);     freevec(b);     freevec(c);     freevec(d);
+            freevec(x0);    freevec(w);     freevec(z);     freeperm(pivot);
+            freevec(V);     freevec(W);     freevec(TMP);
+            freemat(C);     freemat(I);     freemat(Q);     freemat(T);
+
+
+
+
+
+
+
+
+    /* 2. Calculate Adash, Bdash and H. Adash and Bdash are the vertex sets
+    generated by the partitioning of the vertices of G by H. H is an edge separator
+    set of G, found using Fiedler’s method. y is the 2nd eigenvector of the
+    Laplacian matrix of G, with median value medval. */
+
+    /* 2.1. Calculate the median of the elements of the 2nd eigenvector. */
+            medval = select(y, (u_int) ((n + 1)/2));
+
+    /* 2.2.1.  Set up Adash and Bdash. */
+
+            for (i = Adash->size = Bdash->size = 0; i < y->dim; i++)
+                    if (y->ve[i] <= medval)
+                            Adash->pe[Adash->size++] = i;
+                    else
+                            Bdash->pe[Bdash->size++] = i;
+
+            printf("First Pass Adash and Bdash made\n");
+            show_perm(Adash);                               show_perm(Bdash);
+
+    /* 2.2. Set up H. Search through the upper half triangle of L, and, for
+    each edge encountered, insert it into H only if the eigenvaluation of
+    the vertices crosses the median. */
+
+            for (i = H->m = 0; i < L->m; i++)
+            {
+                    elt_list = (L->row[i]).elt;
+                    yi = y->ve[i];
+                    for (k = 0; k < (L->row[i]).len; k++)
+                            if ((j = elt_list[k].col) < i)
+                            {
+                                    yj = y->ve[j];
+                                    if (yi <= medval && yj > medval)
+                                    {
+                                            H->me[H->m][0] = i;
+                                            H->me[H->m++][1] = j;
+                                    }
+                                    else if (yj <= medval && yi > medval)
+                                    {
+                                            H->me[H->m][0] = j;
+                                            H->me[H->m++][1] = i;
+                                    }
+                            }
+            }
+             printf("First Pass H made\n");                 show_mat(H);
+
+    /* 2.2.2. If |Adash| - |Bdash| > 1, move enough vertices with components equal
+    to medval from Adash to Bdash. Not easy! Also must correct H. */
+
+            for (i = 0; i < Adash->size && Adash->size - Bdash->size > 1; i++)
+                    if (y->ve[i] == medval)
+                    {
+                            for (j = 0; Adash->pe[j] != i; j++);
+                            Adash->pe[j] = Adash->pe[--Adash->size];
+                            Bdash->pe[Bdash->size++] = i;
+                            for (k = 0; k < H->m; k++)
+                                    for (l = 0; H->me[k][0] == i && l < 2; l++)
+                                            H->me[k--][l] = H->me[H->m--][l];
+                    }
+            freevec(y);
+
+    /* Sort Adash and Bdash. */
+            qsort(Adash->pe, Adash->size, sizeof(u_int), icmp);
+            qsort(Bdash->pe, Bdash->size, sizeof(u_int), icmp);
+
+            printf("2nd Pass Adash: ");                     show_perm(Adash);
+            printf("\n2nd Pass Bdash: ");                   show_perm(Bdash);
+            printf("\n2nd Pass H: ");                       show_mat(H);
+
+
+
+
+
+    /* 3. Calculate S, a vertex separator set of G. A reminder that H is an edge
+    separator set, and Adash and Bdash are a disjoint cover of the vertex set of G.
+    A1 and B1 are the respective subsets of Adash and Bdash that consist of only
+    vertices that adjoin edges in H. The two vertex sets A and B are found, such
+    that A = Adash \ S, B = Bdash \ S). Respective edges are not relevant to the
+    further progress of "decomp", and so are not found. S is optimally as small as
+    possible, and one is found that is hopefully relatively small, by the better of
+    2 algorithms that seem like a quick and good way:
+            1. Collect vertices of reducing degree from A1 U B1 until H is covered.
+            2. Use all the vertices of the smaller of the two sets, A1 and B1. */
+
+    /* 3.1.1. Set up D, a listing of the degrees of vertices in H. */
+
+            for (i = D->m = 0; i < H->m; i++)
+                    for (j = 0; j < 2; j++)
+                    {
+                            tempH = (u_int) H->me[i][j];
+                            for (k = inD = 0; k < D->m; k++)
+                                    if ((u_int) D->me[k][0] == tempH)
+                                            D->me[k][inD = 1]++;
+                            if (!inD)
+                            {
+                                    D->me[D->m][0] = tempH;
+                                    D->me[D->m++][1]++;
+                            }
+                    }
+
+            printf("\nD: ");                                show_mat(D);
+
+    /* 3.1.2. Set up A1 and B1, respective sides of H. */
+
+            for (i = A1->size = B1->size = 0; i < H->m; i++)
+            {
+                    tempH = H->me[i][0];
+                    for (k = inA1 = 0; k < A1->size; k++)
+                            inA1 = inA1 || A1->pe[k] == tempH;
+                    if (!inA1)
+                            A1->pe[A1->size++] = tempH;
+                    tempH = H->me[i][1];
+                    for (k = inB1 = 0; k < B1->size; k++)
+                            inB1 = inB1 || B1->pe[k] == tempH;
+                    if (!inB1)
+                            B1->pe[B1->size++] = tempH;
+            }
+    /* Sort A1 and B1. Not currently useful, but good for the future. */
+            qsort(A1->pe, A1->size, sizeof(u_int), icmp);
+            qsort(B1->pe, B1->size, sizeof(u_int), icmp);
+
+            printf("2nd Pass A1: ");                        show_perm(A1);
+            printf("\n2nd Pass B1: ");                      show_perm(B1);
+
+    /* 3.2. Establish the permutation of the vertex separator set S, via a grungy
+    but apparently working piece of code. The algorithm used:
+
+            1. Find the vertex of highest degree in D, such that:
+                    D->me[imax][0] = vmax; D->me[imax][1] = max_degree;
+            2. Set the degree of this vertex to zero, decrement the number of
+            non-zero vertices, and add this vertex to S.
+                    D->me[imax][1] = 0; N_non_zero_v--; S->pe[S->size++] = vmax;
+            3. Search out the edges in H containing this vertex, and decrement the
+            vertices adjacent to it in D.
+            4. Repeat until no non-zero degree vertices remain. */
+
+            N_nonzero_v = D->m;                             S->size = 0;
+            while (N_nonzero_v > 0)
+            {
+                    for (i = max_degree = 0; i < D->m; i++)
+                            if (D->me[i][1] > max_degree)
+                                    max_degree = (u_int) D->me[imax = i][1];
+
+                    D->me[imax][1] = 0;                     N_nonzero_v--;
+                    S->pe[S->size++] = vmax = (u_int) D->me[imax][0];
+
+                    for (i = 0; i < H->m && N_nonzero_v > 0 && max_degree > 0; i++)
+                            for (j = 0; j < 2 && N_nonzero_v > 0 && max_degree > 0; j++)
+                                    if ((u_int) H->me[i][j] == vmax)
+                                    {
+                                            k = (u_int) H->me[i][!j];
+                                            for (l = 0; l < D->m && (u_int) D->me[l][0] != k; l++);
+                                            if (D->me[l][1] > 0)
+                                            {
+                                                    D->me[l][1]--;
+                                                    max_degree--;
+                                                    if ((u_int) D->me[l][1] == 0)
+                                                            N_nonzero_v--;
+                                            }
+                                    }
+            }
+    /* Sort S. */
+            qsort(S->pe, S->size, sizeof(u_int), icmp);
+
+            printf("\nFirst pass S: ");                     show_perm(S);
+
+    /* 3.3. Test to see if the S that has been created is larger than the
+    smaller of A1 and B1. If it is, replace S with this smaller set. */
+
+            if (S->size > A1->size)
+            {
+                    S = cp_perm(A1, S);                     S->size = A1->size;
+            }
+            if (S->size > B1->size)
+            {
+                    S = cp_perm(B1, S);                     S->size = B1->size;
+            }
+            printf("\nSecond pass S: ");                    show_perm(S);
+
+    /* 3.4. Create A, B, such that A, B and S are a disjoint cover of N. */
+            for (i = A->size = 0; i < Adash->size; i++)
+            {
+                    k = Adash->pe[i];
+                    for (j = inS = 0; j < S->size; j++)
+                            inS = inS || S->pe[j] == k;
+                    if (!inS)
+                            A->pe[A->size++] = k;
+            }
+            for (i = B->size = 0; i < Bdash->size; i++)
+            {
+                    k = Bdash->pe[i];
+                    for (j = inS = 0; j < S->size; j++)
+                            inS = inS || S->pe[j] == k;
+                    if (!inS)
+                            B->pe[B->size++] = k;
+            }
+    /* Sort A and B. */
+            qsort(A->pe, A->size, sizeof(u_int), icmp);
+            qsort(B->pe, B->size, sizeof(u_int), icmp);
+
+
+    /* Print out the vital statistics of the whole process. */
+            printf("\nSizes of various elements:\n\n");
+            printf("\t# Adash, Bdash:   %d\t%d\n", Adash->size, Bdash->size);
+            printf("\tLambda2:          %f\n", L2new);
+            printf("\t# D:              %d\n", D->m);
+            printf("\t# H:              %d\n", H->m);
+            printf("\t# A1 and B1:      %d\t%d\n", A1->size, B1->size);
+            printf("A: ");                                  show_perm(A);
+            printf("B: ");                                  show_perm(B);
+            printf("S: ");                                  show_perm(S);
+            printf("*******************************************\n\n");
+
+    /* Dump unneeded data-structures here! */
+            freeperm(A1);           freeperm(Adash);        freemat(D);
+            freeperm(B1);           freeperm(Bdash);        freemat(H);
+
+
+    /* 4. Recursively partition the sets A and B by calling "decomp" on them. */
+
+    /* 4.1. Decompose A and B if their sizes are > 3. For example, for A, a sparse
+    matrix AL is created (found by extracting the parts of L with indices in A),
+    then decomp is called with AL as L, A as P, and dummies AA, AB, AS as the other
+    parameters. In fact, the routine does not actually need these other parameters,
+    but they are used, as they may be required for further programming to also
+    return the structure of the final permutation. Required structures are created
+    in situ. */
+            if (A->size > 3 && rec_lvl != -1)
+            {
+                    AA = get_perm(A->size);
+                    AB = get_perm(A->size);
+                    AS = get_perm(A->size);
+                    AL = sp_get_mat(A->size, A->size, 3*p);
+
+    /* The following 9 lines of _slow_ code (to set the entries of AL) are a waste
+    of time, but I haven’t yet figured out what else to do. Ditto for BL. In fact,
+    it appears that this is the slowest part of the whole algorithm! */
+
+                    for (i = 0; i < A->size; i++)
+                            for (j = 0; j < A->size; j++)
+                            {
+                                    k = (u_int) sp_get_val(L, A->pe[i], A->pe[j]);
+                                    if (k != 0)
+                                            sp_set_val(AL, i, j, k);
+                            }
+                    for (i = 0; i < A->size; i++)
+                            sp_set_val(AL, i, i, (AL->row[i]).len - 1);
+
+    /* *****************************************************************************
+    The alternative version uses the elements of A as sorted into increasing order.
+    Now we can scan through the rows of L that corresponded to entries in A, and
+    know that we only have to check the entries in the row of L up until the column
+    number becomes >= row number. It looks something like:
+
+                    for (i = 0; i < A->size; i++)
+                    {
+                            k = A->pe[i];
+                            elt_list = (L->row[k]).elt;
+                            for (j = 0; j < (L->row[k]).len; j++)
+                            {
+                                    for (l = inA = 0; l < A->size; l++)
+                                            inA = inA || A->pe[l] == (elt_list[j]).val;
+                                    if (inA)
+                                            sp_set_val(AL, i, j, -1);
+                            }
+                    }
+                    for (i = 0; i < A->size; i++)
+                            sp_set_val(AL, i, i, (AL->row[i]).len);
+    ***************************************************************************** */
+
+
+                    if (!ck_symm(AL))
+                    {
+                            printf("Quitting as AL not symmetric!\n");
+                            exit(0);
+                    }
+                    if (!ck_sums(AL))
+                    {
+                            printf("Quitting as AL has invalid row sums!\n");
+                            exit(0);
+                    }
+                    decomp(AL, A, AA, AB, AS, ++rec_lvl);           rec_lvl--;
+                    freeperm(AA);   freeperm(AB);   freeperm(AS);   sp_free_mat(AL);
+            }
+
+
+
+
+
+            if (B->size > 3 && rec_lvl != -1)
+            {
+                    BA = get_perm(B->size);
+                    BB = get_perm(B->size);
+                    BS = get_perm(B->size);
+                    BL = sp_get_mat(B->size, B->size, 3*p);
+
+                    for (i = 0; i < B->size; i++)
+                            for (j = 0; j < B->size; j++)
+                            {
+                                    k = (u_int) sp_get_val(L, B->pe[i], B->pe[j]);
+                                    if (k != 0)
+                                            sp_set_val(BL, i, j, k);
+                            }
+                    for (i = 0; i < B->size; i++)
+                            sp_set_val(BL, i, i, (BL->row[i]).len - 1);
+
+                    if (!ck_symm(BL))
+                    {
+                            printf("Quitting as BL not symmetric!\n");
+                            exit(0);
+                    }
+                    if (!ck_sums(BL))
+                    {
+                            printf("Quitting as BL has invalid row sums!\n");
+                            exit(0);
+                    }
+                    decomp(BL, B, BA, BB, BS, ++rec_lvl);           rec_lvl--;
+                    freeperm(BA);   freeperm(BB);   freeperm(BS);   sp_free_mat(BL);
+            }
+
+    /* 4.2. Map the apparent A, B, S to the actual A, B, S, using P, the permutation
+    of their actual names. */
+            for (i = 0; i < A->size; i++)
+                    A->pe[i] = P->pe[A->pe[i]];
+            for (i = 0; i < B->size; i++)
+                    B->pe[i] = P->pe[B->pe[i]];
+            for (i = 0; i < S->size; i++)
+                    S->pe[i] = P->pe[S->pe[i]];
+
+            for (i = 0; i < A->size; i++)
+                    P->pe[i] = A->pe[i];
+            j = i;
+            for (i = 0; i < B->size; i++)
+                    P->pe[i + j] = B->pe[i];
+            j += i;
+            for (i = 0; i < S->size; i++)
+                    P->pe[i + j] = S->pe[i];
+
+            return P;
+    }
+
+
+    /* ************************************************************************** */
+
+
+    int icmp(u_int *p1, u_int *p2)
+    {
+            return *p1 - *p2;
+    }
+
+### 7.2 Listing of mk_sp_graph
+
+    /*                            mk_sp_graph                             */
+
+
+    /* *********************************************************************
+
+
+    Contents  : This file is called "mk_sp_graph.c", and contains the
+    Ψ    function "mk_sp_graph".
+
+         Aim  : Generate a random G, the sparse matrix of a (sparse)
+    Ψ    undirected, unvaluated graph on n vertices with an average
+    Ψ    degree of p (number of edges/vertex). Further, the graph is
+    Ψ    almost planar, and this is achieved by using only a narrow
+    Ψ    bandwidth (q) in the original matrix, followed by a
+    Ψ    scrambling of its indices.
+
+     Language : ANSI Standard C
+
+      Author  : David  De Wit    March 5  -  May 27  1991
+
+
+    ********************************************************************* */
+
+
+    #include <stdio.h>
+    #include "matrix.h"
+    #include "sparse.h"
+
+
+    sp_mat *mk_sp_graph(sp_mat *G, u_int p, u_int q)
+    {
+            u_int           i, j, n = G->m;
+            double          temp, limit;
+
+
+            srand(4);
+            limit = ((double) p)*2147483648/((double) n);
+            for (i = 0; i < n; i++)
+                    for (j = i + 1; (j < n) && (j < i + q); j++)
+                            if (rand() < limit)
+                            {
+                                     temp = sp_set_val(G, i, j, 1.0);
+                                    temp = sp_set_val(G, j, i, 1.0);
+                            }
+
+            return G;
+    }
+
+### 7.3 Listing of select
+
+    /*                            select                                  */
+
+
+    /* *********************************************************************
+
+
+    Contents  : This file is called "select.c", and contains the function
+    "select".
+
+         Aim  : Select the kth smallest entry in vector a. On exit, the
+    Ψ    desired element is in its correct place. In particular,
+    Ψ    calling select(a, int((a->dim + 1)/2)) finds the median.
+
+                See "Algorithms", Sedgewick (1983), p128. QA76.6.S435
+
+     Language : ANSI Standard C
+
+      Author  : David  De Wit    March 4  -  May 27  1991
+
+
+    ********************************************************************* */
+
+
+    #include <stdio.h>
+    #include "matrix.h"
+
+
+    double select(VEC *a, u_int k)
+    {
+            int             i, j, l, r;
+            double          t, v;
+            VEC             *b;
+
+
+            b = get_vec(a->dim);            b = cp_vec(a, b);
+            l = 0;                          r = b->dim - 1;
+            while (r > l)
+            {
+                    v = b->ve[r];           i = l - 1;      j = r;
+                    do
+                    {
+                            for (i++; b->ve[i] < v; i++);
+                            for (j--; b->ve[j] > v; j--);
+                            t = b->ve[i];
+                            b->ve[i] = b->ve[j];
+                            b->ve[j] = t;
+                    } while (j > i);
+                    b->ve[j] = b->ve[i];
+                    b->ve[i] = b->ve[r];
+                    b->ve[r] = t;
+                    if (i >= k)
+                            r = i - 1;
+                    if (i <= k)
+                            l = i + 1;
+            }
+            return (b->ve[k - 1]);
+    }
+
+### 7.4 Listing of gr_lap
+
+    /*                            gr_lap                                  */
+
+
+    /* *********************************************************************
+
+
+    Contents  : This file is called "gr_lap.c", and contains the program of
+    Ψ    the same name.
+
+         Aim  : Make the graph for solving Laplace’s Equation on an M x N
+    Ψ     grid.
+
+     Language : ANSI Standard C
+
+      Author  : David  De Wit (and David Stewart)  May 8  -  May 27  1991
+
+
+    ********************************************************************* */
+
+
+    #include <stdio.h>
+    #include <strings.h>
+    #include "matrix.h"
+    #include "sparse.h"
+
+
+    #define index(i,j) (N*((i)-1)+(j)-1)
+
+
+    main(int argc, char *argv[])
+    {
+            u_int           i, j, M = atoi(argv[1]), N = atoi(argv[2]);
+            char            *outname;
+            sp_mat          *A;
+
+
+            A = sp_get_mat(M*N, M*N, 5);
+            for (i = 1; i <= M; i++)
+                    for (j = 1; j <= N; j++)
+                    {
+                            if (i < M)
+                                    sp_set_val(A, index(i,j), index(i+1,j), 1);
+                            if (i > 1)
+                                    sp_set_val(A, index(i,j), index(i-1,j), 1);
+                            if (j < N)
+                                    sp_set_val(A, index(i,j), index(i,j+1), 1);
+                            if (j > 1)
+                                    sp_set_val(A, index(i,j), index(i,j-1), 1);
+                    }
+            outname = strcat(strcat(strcat("Lap.", argv[1]), "."), argv[2]);
+            sp_fout_mat(fopen(outname, "w"), A);
+    }
+
+### 7.5 Listing of testdc
+
+    /*                            testdc                                  */
+
+
+    /* *********************************************************************
+
+
+    Contents  : This file is called "testdc.c", and contains the program of
+    Ψ    the same name. It calls the function "decomp".
+
+         Aim  : Test the function "decomp" by setting-up and solving a
+    Ψ     problem.
+
+     Language : ANSI Standard C
+
+      Author  : David  De Wit    March 5  -  June 19  1991
+
+
+    ********************************************************************* */
+
+
+    #include <stdio.h>
+    #include "matrix.h"
+    #include "matrix2.h"
+    #include "sparse.h"
+
+
+    extern u_int    prt_tol, p, q;
+    extern PERM     *decomp(sp_mat *, PERM *, PERM *, PERM *, PERM *, int);
+    extern sp_mat   *mk_sp_graph(sp_mat *, u_int, u_int);
+    extern int      ck_symm(sp_mat *), ck_sums(sp_mat *);
+
+
+    main(int argc, char *argv[])
+    {
+            u_int           i, j, k, n = atoi(argv[1]), q = 6, nfiles = 11;
+            int             j_idx, rec_lvl = atoi(argv[4]);
+            PERM            *A, *B, *S, *P;
+            FILE            *fp;
+            row_elt         *e;
+            sp_row          *r;
+            sp_mat          *G;
+            char            *fname[] = {"Idit", "Moshe", "Itzchak", "Shimuel",
+                                        "Ishmail", "Yacov", "Yair", "Arieh",
+                                        "Aaron", "Schlomo", "Shimshon"};
+
+
+    /*. 0. Initialise some structures and constants for the problem. */
+            prt_tol = atoi(argv[3]);                p = atoi(argv[2]);
+            A = get_perm(n);                        B = get_perm(n);
+            S = get_perm(n);                        P = get_perm(n);
+            P = px_id(P);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /* 1. Set up problem by randomly generating or reading in a sparse matrix. */
+            printf("\nEnter a choice for the initial graph:\n\n");
+            printf("\t0: Make a random sparse graph\n");
+            for (i = 0; i < nfiles; i++)
+                    printf("\t%1d: Read file \"%s\"\n", i + 1, fname[i]);
+            printf("\nYour Choice:\n");             scanf("%d", &i);
+            if (i)
+            {
+                    printf("\nReading a sparse graph from \"%s\"\n", fname[i - 1]);
+                    fp = fopen(fname[i - 1], "r");
+                    G = sp_fin_mat(fp);
+            }
+            else
+            {
+                    printf("\nMaking a sparse graph on %d vertices\, ", n);
+                    printf("at an average %d edges\/vertex.\n", p);
+                    G = sp_get_mat(n, n, 3*p);
+                    G = mk_sp_graph(G, p, q);
+            }
+
+            if (G->m != n)
+                    error(E_SIZES, "testdc");
+
+
+    /* 2. Calculate the sparse matrix of the graph Laplacian (L) of the graph
+    represented by the sparse matrix G. Defining d[i] as the degree of vertex i in
+    G; then L = diag(d) - G. All row and column sums in L = 0. G overwrites L. */
+
+    /* Ensure diagonal entries are in rows. */
+            for (i = 0; i < G->m; sp_set_val(G, i, i, 1.0), i++);
+
+    /* Set the values of the entries. */
+            for (i = 0; i < G->m; i++)
+            {
+                    r = &(G->row[i]);
+                    /* scan entries of row r */
+                    for (j_idx = 0, e = r->elt; j_idx < r->len; j_idx++, e++)
+                        if (e->col == i)
+                            e->val = r->len - 1;        /* diagonal entry */
+                        else
+                            e->val = -1.0;              /* off-diagonal entry */
+            }
+
+            if (!ck_symm(G))
+            {
+                    printf("Quitting as graph Laplacian not symmetric!\n");
+                    exit(0);
+            }
+            if (!ck_sums(G))
+            {
+                    printf("Quitting as graph Laplacian has invalid row sums!\n");
+                    exit(0);
+            }
+
+
+    /* 3. Call the function to do the partitioning. */
+            printf("\nCalling decomp from testdc ...\n\n");
+            P = decomp(G, P, A, B, S, rec_lvl);
+            printf("\nBack in Kansas ... P:\n");
+            if (P->size < prt_tol)
+                    out_perm(P);
+            else
+                    printf("Permutation, size: %d\n", P->size);
+    }
+
+
+
+
+
+
+
+
+    /* ************************************************************************** */
+
+
+    int ck_symm(sp_mat *L)
+    {
+            int             i;
+            static VEC      *x=VNULL, *y1=VNULL, *y2=VNULL;
+
+
+            if (!L)
+                    error(E_NULL,"ck_symm");
+            if (L->m != L->n)
+                    return FALSE;
+
+            x  = v_resize(x, L->m);                 y1 = v_resize(y1, L->m);
+            y2 = v_resize(y2, L->m);
+
+            for (i = 0; i < 3; i++)
+            {
+                    rand_vec(x);                    y1 = sp_mv_mlt(L, x, y1);
+                    y2 = sp_vm_mlt(L, x, y2);       y1 = v_sub(y1, y2, y1);
+                    if (n2(y1) > L->m*MACHEPS)
+                            return FALSE;
+            }
+
+            return TRUE;
+    }
+
+
+    /* ************************************************************************** */
+
+
+    int ck_sums(sp_mat *L)
+    {
+            int             i, j;
+            double          sum;
+            sp_row          *r;
+
+
+            if (!L)
+                    error(E_NULL,"ck_sums");
+            for (i = 0; i < L->m; i++)
+            {
+                    r = &(L->row[i]);
+                    for (j = sum = 0; j < r->len; j++)
+                            sum += r->elt[j].val;
+                    if (fabs(sum) > L->m*MACHEPS)
+                            return FALSE;
+            }
+
+            return TRUE;
+    }

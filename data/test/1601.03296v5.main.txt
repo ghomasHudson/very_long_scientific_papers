@@ -1,0 +1,2952 @@
+## Acknowledgements
+
+I acknowledge with great thanks and gratitude the help and support of
+Professor Carl P. Dettmann, Dr Orestis Georgiou of Toshiba Research
+Europe, and Professor Justin P. Coon of the Oxford University
+Communications Research Group, all of whom have provided the supervision
+of this thesis. Also, thanks to everyone at the CDT, including Bagots,
+Brett, Dave, Leo, Suzanne, Mark, Simon, and everyone else, and finally,
+thanks to all those at 26 Cadogan Square.
+
+@xmath
+
+### Author’s Declaration
+
+I declare that the work in this dissertation was carried out in
+accordance with the requirements of the University’s Regulations and
+Code of Practice for Taught Programmes and that it has not been
+submitted for any other academic award. Except where indicated by
+specific reference in the text, this work is my own work. Work done in
+collaboration with, or with the assistance of others, is indicated as
+such. I have identified all material in this dissertation which is not
+my own work through appropriate referencing and acknowledgement. Where I
+have quoted or otherwise incorporated material which is the work of
+others, I have included the source in the references. Any views
+expressed in the dissertation, other than referenced material, are those
+of the author.
+
+Alexander Paul Kartun-Giles
+4th of March 2017
+
+@xmath
+
+###### Contents
+
+-    1 Introduction
+    -    1.1 Current state of the art
+    -    1.2 What is done in this thesis
+    -    1.3 Contribution to the field
+    -    1.4 Thesis structure
+-    2 Concepts
+    -    2.1 Connectivity
+        -    2.1.1 Isolated vertices
+        -    2.1.2 The connection probability
+        -    2.1.3 Boundary effects and non-convex domains
+    -    2.2 Betweenness centrality
+        -    2.2.1 Computation
+        -    2.2.2 Shortest paths
+    -    2.3 Extended Concepts
+        -    2.3.1 Binomial point processes
+        -    2.3.2 Markov point processes
+        -    2.3.3 Geometric preferential attachment
+        -    2.3.4 Hyperbolic random geometric graphs
+        -    2.3.5 Current flow betweenness
+-    3 Connectivity
+    -    3.1 Introduction
+    -    3.2 Rayleigh fading
+    -    3.3 The annulus domain @xmath
+        -    3.3.1 No obstacles
+        -    3.3.2 Small obstacles
+        -    3.3.3 Large obstacles
+    -    3.4 The spherical shell @xmath
+        -    3.4.1 Small spherical obstacles
+        -    3.4.2 Large spherical obstacles
+    -    3.5 Discussion
+        -    3.5.1 Numerical simulation
+        -    3.5.2 Multiple obstacles
+        -    3.5.3 Surfaces without boundary
+        -    3.5.4 Quasi-one-dimensional regime
+        -    3.5.5 Betweenness centrality near obstacles
+-    4 Betweenness centrality
+    -    4.1 Introduction
+    -    4.2 The model
+    -    4.3 The @xmath function
+    -    4.4 Discussion
+        -    4.4.1 Numerical simulation
+        -    4.4.2 Applications
+        -    4.4.3 The advantages of betweenness
+        -    4.4.4 Convergence
+-    5 Geodesic Paths
+    -    5.1 Introduction
+    -    5.2 A recursive formula for @xmath
+    -    5.3 Geodesics in @xmath -dimensions
+    -    5.4 Numerical simulation
+-    6 Discussion
+    -    6.1 Applications in communication networks
+        -    6.1.1 Understanding skeletons
+        -    6.1.2 Topology-based geolocalisation
+        -    6.1.3 Future vehicular ad hoc networks
+    -    6.2 Mathematical directions
+        -    6.2.1 The distribution of the number of geodesics
+        -    6.2.2 Non-optimal geodesics
+    -    6.3 Final words
+-    A Percolation
+-    B Proof of the isolated vertices theorem
+
+###### List of Figures
+
+-    1.1 An example random geometric graph. These combinatorial objects
+    can be used to model networks of millimeter wave-connected 5G base
+    stations in ultra-dense urban deployment [ 1 ] . It has been formed
+    from a Poisson point process by adding an edge between vertices
+    whenever they fall within a Euclidean distance of 0.25 of each
+    other. All six shortest paths from vertex 1 to 10 have been
+    highlighted in red as a structure of intersecting paths.
+-    2.1 Betweenness centrality in a unit disk graph of 30 vertices
+    drawn inside the unit square, with @xmath . The size of the vertices
+    is proportional to their betweenness.
+-    2.2 Two vertices at center separation 2.5 in a unit disk graph,
+    taking @xmath . The connection ranges, and an extra range (large
+    disks), are drawn. The degrees of the three coloured vertices are
+    dependent random variables. In this example, the green vertex has
+    degree zero, the blue vertex has degree two and the yellow vertex
+    also has degree two. This spatial dependence of vertex degrees in
+    random geometric graphs such as the unit disk graph depicted here is
+    ignored in various independence assumptions, as discussed in the
+    text.
+-    2.3 The Strauss process. A binomial point process of @xmath
+    vertices (taking @xmath and @xmath ) is updated in a step by step
+    fashion by the Metropolis-Hastings algorithm. It creates a pattern
+    of repelling points. From Irons et al 2011, referenced in the text.
+-    2.4 A current of 1 @xmath flows into the left most vertex of a
+    network of unit resistors. It is then extracted from the right most
+    vertex. Two different current conserving flows are shown on the same
+    simple network. The values on the edges are the currents flowing
+    along those edges. Flow @xmath minimises the total dissipated
+    energy, and so satisfies the Kirchhoff laws.
+-    3.1 A soft random geometric graph, first defined at the beginning
+    of Chapter 1 , inside the annulus (large obstacle case), and inside
+    a square with two circular obstacles. Vertices with low degree are
+    highlighted in purple. We derive the graph connection probability in
+    these simple obstructed domains.
+-    3.2 A depiction of the integration regions used for the annulus
+    domain @xmath with small obstruction (middle panel) and large
+    obstruction (right panel), with the integration regions highlighted.
+    The small, cone-like region in the middle domain @xmath is
+    highlighted in purple.
+-    3.3 A depiction of the integration regions used for the disk domain
+    @xmath . The small, cone-like region in the middle domain @xmath is
+    highlighted in purple.
+-    3.4 We numerically estimate the connection probability of soft
+    random geometric graphs drawn inside the annuli @xmath and spherical
+    shell @xmath . Every curve is compared with our analytic predictions
+    given by Eqs. 3.3.6 , 3.3.8 , 3.3.11 and 3.4.8 , where indicated.
+    The discrepancy at low density is expected due to the fact we
+    calculate only the probability of a single isolated vertex, and use
+    its complement as an approximation to the connection probability in
+    a typical dense network scenario.
+-    3.5 A soft random geometric graph inside a Sinai domain, and in a
+    domain with multiple obstructions. The betweenness centrality is
+    plotted in light tones (low) to darker tones eventually becoming red
+    (high), showing the skeleton form around the obstacles.
+-    4.1 Four realisations of soft random geometric graphs and their
+    betweenness centrality bounded within various domains, including the
+    disk @xmath , square, right-angled triangle and square domain
+    containing two circular obstacles: in both the left and upper right
+    figures the darker colour represents low centrality, whereas the
+    lighter colour high centrality, whereas in the obstructed square
+    domain (lower right) the least central nodes are faded to grey and
+    the most central are highlighted in red. Note that the boundaries of
+    the domains are locations where betweenness is at a minimum. The
+    link colours are based on the average betweenness of the two
+    connected nodes.
+-    4.2 The disk domain @xmath , and the three vertices @xmath , @xmath
+    and @xmath . We are trying to obtain a dense network approximation
+    to the betweenness centrality of a vertex placed at @xmath . The
+    scalar @xmath represents the smallest Euclidean distance from @xmath
+    to any point on the straight line joining @xmath and @xmath . The
+    axis are centred on @xmath , while the circle is centred at @xmath .
+    The angles @xmath and @xmath and the distances @xmath and @xmath are
+    also shown.
+-    4.3 Numerical evaluation of our continuum approximation Eq. 4.3.6 .
+    Increasing the density of the point process, we ensure it contains a
+    point @xmath at distance @xmath from the centre of @xmath . A soft
+    random geometric graph with a Rayleigh fading connection function of
+    vanishing range @xmath , as in Chapter 3 , is then formed, and the
+    betweenness centrality of @xmath is calculated numerically. The
+    thicker line at the top is Eq. 4.3.6 . The finite density
+    simulations never converge to this approximation, but the error is
+    small.
+-    5.1 Vertices 4 and 8 are separated by Euclidean distance @xmath in
+    a unit disk graph, with the connection range @xmath . They are
+    joined by ten geodesic paths, each of four hops. We evaluate the
+    expectation of this quantity in terms of the mutual Euclidean
+    separation of vertices.
+-    5.2 Points @xmath and @xmath separated by @xmath create an area
+    highlighted in blue, which is @xmath . Vertices falling within this
+    blue region lie on one of potentially many (what will necessarily
+    be) shortest paths which run between these two vertices, each of two
+    hops.
+-    5.3 Some node (red) lying a distance @xmath from @xmath (green)
+    will connect directly to all nodes within @xmath of its position
+    (the red circle). All of those vertices which simultaneously lie
+    within a distance @xmath of @xmath , denoted by the yellow area,
+    will form two hop paths, and thus each three hop paths @xmath .
+-    5.4 The smooth decaying blue lines are Monte Carlo data for optimal
+    geodesic cardinality , with our approximation Eq. 5.3.20 with @xmath
+    . The green stars are the actual shortest path counts. The blue
+    pluses and green stars are numerical results, while the smooth
+    curves are our analytic results.
+-    5.5 The expected number of two-hop paths and our approximation Eq.
+    5.3.20 , for @xmath and @xmath .
+-    6.1 A one-dimensional unit disk graph. The colours are used to help
+    distinguish paths. The geodesic length between the end points is
+    three hops. This can be used to model an ad hoc communication
+    network of vehicles queing in traffic.
+-    6.2 Top: The small boxes are Monte Carlo approximations to the
+    probability @xmath with @xmath . In this distance interval the
+    distribution of geodesic paths is Poisson, an described by the green
+    line Eq. 6.2.2 . Bottom: The blue line is the curve @xmath , and the
+    boxes Monte Carlo data for this larger displacement. The number of
+    geodesic paths is therefore not Poisson.
+-    6.3 The graph shows @xmath geodesics, each of @xmath -hops, from
+    vertex 63 to vertex 70. Since the Euclidean distance between the
+    endpoints is 9.8, these geodesics are not optimal. As @xmath
+    increases, the probability there existing at least one ’optimal’
+    alignment of vertices, which is an alignment of points of @xmath
+    that induces a path of @xmath hops from @xmath to @xmath , vanishes.
+    The chain of links is more likely to break as it grows longer. This
+    explains the rising and falling effect in Fig. 5.6 .
+-    A.1 @xmath bond percolation with @xmath increasing from 0.3 to 0.8
+    in steps of 0.1. Criticality occurs at @xmath . The largest
+    connected component is highlighted in sky blue throughout.
+-    B.1 The component @xmath is bounded by its convex hull @xmath ,
+    itself encased in the upright rectangle @xmath . In this case, the
+    exclusion area is non-empty, and the vertex combination fails to
+    satisfy the conditions of the component @xmath in Lemma B.0.4 .
+
+###### List of Tables
+
+-    5.1 The minimum number of hops required for two vertices to
+    communicate in a unit disk graph, which is always the ceiling of the
+    Euclidean distance separating the vertices.
+-    5.2 Solutions to the recursion relation 5.2.10 .
+-    5.3 Solutions to the recursion relation 5.2.10 with @xmath .
+-    5.4 Solutions to the recursion relation 5.2.10 for general
+    dimension @xmath .
+
+@xmath
+
+## Chapter 1 Introduction
+
+Ultra-dense spatial deployment of cellular base stations is among the
+most promising ways in which the data capacity of large scale wireless
+networks is to be enhanced [ 1 ] . The density of this deployment is
+highly anticipated, as of 2016, to be around 40-50 base stations per km
+² . New technology introduced into these units will result in their
+communication range falling by an order of magnitude compared to the 4G
+base stations which are currently deployed in an ad hoc fashion around
+our cities. This is partly due to the appearance of multiple-input
+multiple-output (MIMO) antennas, which offer faster data rates (Gbit/s),
+but utilise over a hundred antennas simultaneously, each at reduced
+power [ 2 ] . Compounding this, the anticipated high-frequency
+millimeter wave technologies in the 30-300 Ghz range will attenuate very
+quickly, allowing only short range communication between devices [ 3 ] .
+Therefore, in order to increase the range of special gateway-enabled
+cells, networks will have to employ a form of multi-hop, cell-to-cell
+communication. According to this much anticipated theory, 5G is
+therefore likely to consist, at least in part, of densely deployed,
+millimeter wave connected ‘small’ cells routing data from mobile devices
+between themselves in a sort of daisy chain toward gateway cells, and
+then finally into the backhaul network, enabling much higher throughput
+networks [ 4 ] .
+
+Now, these small cells will form a spatially embedded network.
+Combinatorial analysis of this sort of system has long since been a
+topic of great research interest. In this thesis, we contribute to this
+growing field by analysing a combinatorial object called a random
+geometric graph , an example of which is shown in Fig. 1.1 , in order to
+perform statistical network analysis developing future intra-cell
+communications. We will focus on two models:
+
+-    Soft random geometric graph , also known as the Random Connection
+    Model when embedded in the entire real plane rather than a bounding
+    geometry such as a disk, is a type of random network formed by
+    distributing vertices in a region @xmath according to a Poisson
+    point process @xmath of density @xmath , and then adding an edge
+    between points @xmath with probability @xmath , where @xmath is the
+    connection function, and @xmath is the distance between vertices
+    given by some metric [ 5 ] . We often use the Rayleigh fading
+    connection function @xmath defined in Section 3.2 . This is
+    parametrised by @xmath , and we then write @xmath to denote the
+    typical distances over which vertices connect, when the context is
+    clear.
+
+-   The Unit disk model is the limit of this model where the connection
+    function @xmath , with @xmath the critical range over which vertices
+    connect [ 6 ] .
+
+These random graphs have been used to model the following two types of
+wireless network:
+
+-    Ad hoc wireless networks , where devices communicate, as discussed,
+    between themselves without utilising separate, pre-established
+    infrastructure. This is achieved by routing data in a ‘multi-hop ¹ ¹
+    1 A hop is an edge in a graph. One hops between vertices, hence the
+    commonly used term. ’ fashion between users. Apart from in future 5G
+    urban networks, they are seen in deployed in disaster zones since
+    they can offer a larger range than simple point-to-point radio
+    communication. There are whole journals related to this topic, but
+    see e.g. [ 7 ] for a good discussion.
+
+-    Wireless sensor networks , which are densely deployed networks of
+    low-power sensors. They are used for many different sensing tasks.
+    Wirelessly communicating with each other, sensors with limited
+    battery resources and limited computational performance collect data
+    from an environment and route it in a multi-hop fashion toward an
+    elected sink sensor. The sink then sends the collected information
+    toward a cloud or distant base station. For for further discussion,
+    see e.g. [ 8 ] .
+
+The major result which has lead to such great interest in random
+networks around the world was published surrounding a 1957 conference on
+Monte Carlo techniques in the UK. Broadbent and Hammersley showed that a
+non-trivial, first order phase transition of ‘sudden connectivity’
+occurred when an array of vertices is adorned at random with links
+between neighbouring pairs with a critically high probability @xmath [ 9
+] . This is called percolation ² ² 2 We introduce this model with
+greater detail in Appendix A . . Interestingly, with an infinite array
+of vertices, the phase transition is ‘sharp’ [ 10 ] . Mathematical study
+of this simple model has lead to many important results in modern
+science, with Fields medals awarded recently for proving certain results
+concerning a conformal invariance property of extremely fine lattices
+exactly at the moment of percolation, called criticality [ 11 ] .
+Similarly, both the unit disk and random connection model mentioned
+above display a percolation phenomenon ³ ³ 3 More formally, taking
+@xmath , in a unit disk graph of expected @xmath vertices distributed
+over a square of side @xmath there exist supercritical connection ranges
+@xmath for which a giant cluster exists asymptotically almost surely
+(i.e. with probability @xmath in the limit @xmath ). There exists a
+similar asymptotic connection rule in the random connection model [ 6 ,
+12 ] . .
+
+Now, these graphs are excellent models of randomly constructed wireless
+networks of radio transmitters dispersed over a large geographic region
+[ 13 ] . One can therefore investigate analogous results to percolation,
+but in a wireless network setting [ 14 ] . Indeed, this is the most
+common application of the theory today. Results, generally, concern
+theoretical methods for the optimal use of what are now very expensive
+communication resources.
+
+The field is broad:
+
+1.  “(There) is a sense of missing unification and a lack of general
+    methods that apply to large families of different models.” [ 7 , 15
+    ] .
+
+2.  The task of then applying mathematical results such as performance
+    bounds to actual networks and the way they run is not
+    straightforward, nor is it commonly performed in industry. This has
+    lead to a lack of focus.
+
+3.  The probabilistic analysis of spatial communication networks,
+    sometimes involving dynamical processes, is often very difficult.
+    Well developed techniques from random graph theory can rarely be
+    applied effectively [ 16 ] .
+
+Despite these difficulties, there are well cited results over the last
+two decades which constitute a research frontier, either concerning
+mathematical features of commonly applied random graph models, or the
+specific use of random graphs in communication problems.
+
+### 1.1 Current state of the art
+
+As a broad introduction to a rich field, we first introduce some of the
+recent trends in the developing theory of random networks. Then, in
+Chapter 2 , we focus on topics which provide the background to the
+contribution of this thesis, focusing on the areas of connectivity and
+centrality in communication networks.
+
+1.   Mobility models: Networks with moving vertices are used as models
+    for mobile ad hoc networks (MANETs). For example, consider the
+    random walk model : vertices are distributed uniformly at random on
+    the surface of a flat torus, but move, at each time step, to a new
+    location a distance @xmath (a parameter of the model) and angle
+    @xmath (selected uniformly at random for each time step) away from
+    where they currently are [ 17 ] . One can then ask certain questions
+    related to the communication theory of mobile networks, such as to
+    what extent a static graph can be used as an approximate model of a
+    mobile systems, amongst related topics.
+
+    Mobility studies, for example, is particularly important in the case
+    of delay tolerant networking [ 18 ] . Here, mobile users offload and
+    collect their data from a network of intermediate (and also mobile)
+    devices, which store, cary and forward data as the relay opportunity
+    arises. The specific mobility model on which the dynamic network is
+    based will significantly alter the analysis of performance. State of
+    the art research concerns the more realistic models of human
+    mobility, such as the Levy Walk model (LW) [ 19 ] , and Self-Similar
+    Least Action Human Walk (SLAW) [ 20 ] , both of which capture, for
+    example, the self-similarity of human walks, and the distribution of
+    inter-meeting times within which message relays can occur.
+
+    Also, the use of betweenness centrality [ 21 ] , is already
+    established within this field. Numerical calculation of these
+    network centrality indices can assist certain delay tolerant
+    networking protocols by encouraging mobile vertices to relay data
+    toward exceptionally central mobile vertices whenever possible [ 18
+    ] .
+
+2.   Symmetric motifs: A symmetric motif is a potentially disconnected
+    subset of vertices with the property that any permutation of indices
+    preserves adjacency [ 22 ] . They can be identified in the graph
+    Laplacian by identifying the integer eigenvalues and reading off the
+    non-zero components of corresponding eigenvectors. The induced
+    subgraph ⁴ ⁴ 4 The graph consisting of those vertices, and edges
+    whose end points form a subset of those vertices. of these
+    components is the corresponding symmetric motif [ 23 ] .
+
+    They occur more frequently in spatial networks due to the geometric
+    factor. Their characteristic nature, mixed with a simple connection
+    to the graph’s Laplacian spectrum, make them a fascinating and much
+    undervalued research approach to processes running on dense
+    communication networks.
+
+3.   The Rado graph: Infinite random geometric graphs concern networks
+    which have an infinite number of vertices, rather than specifically
+    taking the thermodynamic or high-density continuum limit . As an
+    example, the unit disk graph has a version of this, taking the
+    vertex set @xmath to be a countably infinite subset of the Euclidean
+    metric space, and @xmath . Graphs formed this way are not
+    necessarily isomorphic, contrasting a similar theory concerning
+    non-spatial random graphs (the Erdős-Rényi or random graph [ 11 ] )
+    presented in one of the earliest works on the subject, by Erdős and
+    Rényi [ 24 ] , where all infinite random graphs are of a unique
+    isomorphism type denoted the Rado graph . For the geometric case,
+    this infinite limit can help reveal large-scale structure and long
+    term behaviour [ 25 ] .
+
+4.   Non-Homogeneous point processes: The simple Poisson point process
+    model can be extended to address more realistic situations where the
+    distribution of points is not uniform in space. The most common
+    variant is the Strauss process , which is a point process defined by
+    a Markov chain Monte Carlo algorithm involving repelling points;
+    densely deployed stations are randomly dispersed, but never right
+    next to each other, which is the main lack of realism encountered in
+    the Poisson point process model. See Sec 2.3.1 , 2.3.2 and 2.3.3 .
+
+5.   Measures of centrality: This involves introducing centrality
+    analysis into communication networks [ 26 ] . Example applications
+    include boundary detection, and as part of routing protocols which
+    assign centrality indices to vertices in order to asses a sort of
+    ‘routing potential’. Also, techniques which networks can employ to
+    determine the centrality of their constituent vertices are of
+    current interest [ 27 ] .
+
+6.   Aerial networks: One may consider employing aerial base stations,
+    such as drones. This can provide spontaneously adaptive coverage.
+    Exactly whether or not this solution can outperform ground
+    station-reliant networks can be assessed using analysis of random
+    geometric networks [ 28 ] .
+
+7.   Localisation: Wireless devices often demand essential location
+    information. Indoor localisation cannot use GPS, given a
+    line-of-sight requirement with multiple satellites. Underground,
+    aerial and secret military localisation techniques are currently
+    being developed. In a random network, one can multilaterate by first
+    measuring hop-counts to location-aware anchor vertices (such as
+    access points), and then converting hop-counts to Euclidean
+    distances via a conditional distribution parameterised by Euclidean
+    distance. [ 29 ] .
+
+8.   Secure communication: The use of random secrecy graphs, which
+    consist of a superimposed point process of eavesdroppers and users
+    on which a geometric graph is formed, can provide useful limits on
+    the ability of wireless networks to communicate in secure
+    environments [ 30 ] .
+
+### 1.2 What is done in this thesis
+
+In this thesis, we focus on two key, developing areas:
+
+1.   Connectivity in non-convex domains : Since many real world domains
+    are not convex subsets of @xmath , we extend the analysis of
+    high-density random network connectivity into the more realistic
+    scenario of a domain containing randomly arranged circular
+    obstacles. As with other work concerning non-convexity [ 31 , 32 ] ,
+    the obstructions in the domain introduce specific features to the
+    enclosed graph. Specifically, obstacles act like internal
+    perimeters, encouraging isolated vertices. We describe this effect
+    in detail in chapter 3 , showing how small obstacles ⁵ ⁵ 5 Small and
+    large here mean on a length scale significantly lesser or greater
+    than the typical distance @xmath over which vertices connect.
+    encourage isolated vertices according to a factor proportional to
+    their area @xmath , while large obstacles attract isolated vertices
+    according to a factor proportional to their perimeter @xmath . This
+    implies small obstacles have a negligible effect on connectivity,
+    since one sees a power of the ratio @xmath , and hence the
+    contribution vanishes for small obstacles @xmath . Also, we show the
+    compound effect of obstacles is a linear combination of separate
+    contributions, given they are not too close.
+
+    We then observe that vertex isolation near an inner boundary can be
+    more likely than other parts of the domain, and more likely than the
+    outer boundary when the obstacles are numerous. This is because
+    vertices on the inner perimeter have an exceptionally high
+    betweenness centrality, acting as popular bridging vertices between
+    distant parts of the domain. [ 21 ] .
+
+Noticing the importance of this sort of structural concept to
+communication processes running on dense urban networks, we begin to
+analyse it directly.
+
+1.  In Chapter 4 , we consider analytically quantifying betweenness
+    centrality in a random geometric graph. In a limiting density
+    scenario, which we describe as a continuum limit , shortest paths
+    between vertices are approximated by the convex hulls of their
+    endpoints i.e. by straight line segments. Based on the assumption
+    that only a single geodesic path will join any two vertices, by
+    simply counting the number of convex hulls which 1) can be formed by
+    any pair of points in @xmath and 2) run through @xmath we can then
+    count the number of geodesic paths which intersect @xmath .
+
+    Using delta functions, we then show how the (expected ⁶ ⁶ 6 Note in
+    our continuum limit, betweenness and expected betweenness are equal.
+    , normalised) betweenness centrality @xmath of some polar point
+    @xmath in a disk domain metric space is, in fact, a known integral:
+
+      -- -------- -- ---------
+         @xmath      (1.2.1)
+      -- -------- -- ---------
+
+    i.e. the elliptic integral of the second kind scaled by a quadratic
+    function of displacement from the disk’s center. We then discuss
+    numerical convergence of expected betweenness to this integral as
+    the point process density goes to infinity, showing how centrality
+    is well approximated, but never exactly equal to, our convex hull
+    based continuum approximation.
+
+Given the importance of centrality, we then develop the analysis at
+lower densities:
+
+1.  In Chapter 5 , in light of the above, we evaluate the expected
+    number of geodesic paths @xmath which run between two vertices at
+    displacement @xmath in a unit disk graph. These are the pair
+    dependencies which are summed in the evaluation of betweenness, see
+    section 2.2.1 . Taking the point process density @xmath in a domain
+    of arbitrary dimension @xmath , this is approximately equal to a
+    polynomial in @xmath of order @xmath
+
+      -- -- -- ---------
+               (1.2.2)
+      -- -- -- ---------
+
+    We highlight the difficulties in providing a better approximation.
+    We also numerically corroborate our formulas, and discuss some
+    interesting features which appear when non-geodesic paths are
+    incorporated.
+
+1.  Finally, in Chapter 6 , we discuss potential applications of this
+    research, and make the relationship between theory and practice
+    clearer.
+
+### 1.3 Contribution to the field
+
+The statistical analysis of centrality metrics on random communication
+networks can provide useful insights into performance. What is already
+known is how betweenness can be algorithmically determined, either by a
+central computer, or by the constituent vertices in a centralised way.
+What is advanced is how this can ultimately be done analytically. This
+avoids an infamously expensive computation (see Section 2.2.1 ).
+
+We now list our key contributions:
+
+1.  In ultra-dense networks, we show how non-convex features of bounded
+    domains can be highlighted by centrality indices.
+
+2.  @xmath -dimensional subgraphs meandering around urban obstructions
+    can become critical to optimal performance.
+
+3.  Isolated vertices do not determine connection in
+    quasi-one-dimensional random geometric graphs.
+
+4.  A simple approximation to network-theoretic betweenness centrality
+    can be used by various high-layer wireless network routing protocols
+    in order to omit the expensive and often impossible computation
+    which would normally occur during operation. We also discuss
+    interesting applications of analytic formulas.
+
+5.  An approximation to the expected number of geodesic paths joining
+    two distant vertices will lead to a more complete understanding of
+    the value of these sorts of statistics in straightforward
+    interference management techniques applied to 5G small cell
+    deployments. Also, the expected number of geodesics can be used by
+    ad hoc vertices as part of estimating the distance to an underground
+    point, where GPS is unavailable. This may develop into overground
+    localisation where appropriate.
+
+We finally highlight the need to develop the field of spatial
+probabilistic combinatorics with a greater focus on applications, in,
+for example, communication theory, particularly concerning issues such
+as the spatial dependence of network observables.
+
+### 1.4 Thesis structure
+
+The rest of this thesis is structured as follows:
+
+1.   In Chapter Two we introduce a number of concepts in communication
+    theory and random geometric graphs which are relevant to the
+    arguments in this thesis.
+
+2.   In Chapter Three we study the effect of non-convexity on the random
+    connection model.
+
+3.   In Chapter Four we introduce betweenness centrality in
+    asymptotically dense random geometric graphs.
+
+4.   In Chapter Five the continuum limit is relaxed, and we approach
+    betweenness centrality at finite density, finding the expected
+    number of geodesic paths between two vertices in a unit disk graph
+    (of general dimension @xmath ).
+
+5.   In Chapter Six we discuss the applications of this research to
+    dense networks, and conclude.
+
+Also, Appendix A reviews the basic results of percolation, and Appendix
+B details a proof related to the isolated vertices theorem discussed in
+Section 2.1 .
+
+## Chapter 2 Concepts
+
+In this chapter, we introduce a number of concepts that will prove
+important for the work that follows in this thesis. In particular, we
+introduce the rich field of random networks and their current relation
+to communication theory. This provides a background and historical
+context for the our contribution. We first discuss connectivity,
+isolated vertices and non-convexity in random geometric graphs, and then
+discuss more recent developments in communication networks which have
+emerged in network science, specifically centrality indices, which for
+example measure the structural importance of networked communication
+nodes. We then briefly discuss current trends in the area.
+
+### 2.1 Connectivity
+
+One of the early graph-theoretic communication problems was a derivation
+of the probability that a random geometric graph was connected in the
+thermodynamic limit , where both the number of vertices and the domain
+volume @xmath in such a way that the vertex density is constant [ 33 ] .
+The result goes as follows: take a simple Poisson point process @xmath
+of expected @xmath vertices inside a square of side @xmath , and form a
+graph by linking pairs of this process whenever they are within
+Euclidean distance @xmath of each other. Call this graph @xmath .
+According to Penrose [ 34 ] , and later Gupta and Kumar [ 33 ] , the
+asymptotic connection probability of the model with logarithmic growth
+of the connection disks, i.e. @xmath , is given by
+
+  -- -------- -- ---------
+     @xmath      (2.1.1)
+  -- -------- -- ---------
+
+as @xmath . Therefore, if @xmath goes to infinity with @xmath , the
+graph will connect asymptotically almost surely.
+
+To see this, consider a disk of area @xmath centred at some vertex
+@xmath : this contains no other points of @xmath with probability @xmath
+. For large @xmath , these empty disks, which are isolated vertices,
+occur independently in the limit. Therefore the number of isolated
+vertices @xmath is distributed as a binomial random variable @xmath . A
+simple Poisson process @xmath of isolated vertices will therefore be
+observed in the limit. This process is empty with probability:
+
+  -- -------- -------- -------- -------- ---------
+     @xmath   @xmath   @xmath            (2.1.2)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- ---------
+
+The question is, does this lack of isolated vertices imply the graph is
+connected?
+
+#### 2.1.1 Isolated vertices
+
+Consider the following two lemmas [ 34 ] :
+
+###### Lemma 2.1.1 (No two components are large).
+
+Assuming @xmath , there exists a @xmath such that asymptotically almost
+surely the random graph @xmath does not consist of two or more connected
+components each with Euclidean diameter ¹ ¹ 1 This is the largest
+Euclidean distance which can be found between any two vertices in a
+component. at least @xmath .
+
+This means that two large enough components will merge asymptotically
+almost surely (a.a.s.). But how large?
+
+###### Lemma 2.1.2 (All small components consist of a single vertex.).
+
+The graph @xmath contains no components @xmath of more than one vertex
+and Euclidean diameter strictly less than @xmath .
+
+These two lemmas imply that there exists a specific phase of the
+sub-logarithmic growth of @xmath where a single giant component forms
+surrounded by isolated vertices ² ² 2 Though we provide a summary of the
+proof in this section, we provide its detail in Appendix B . . We have
+just shown that these isolated vertices form a Poisson point process of
+their own. This means that one can effectively approximate the
+connection probability @xmath as
+
+  -- -------- -- ---------
+     @xmath      (2.1.3)
+  -- -------- -- ---------
+
+To see the first of these lemmas, tile the square domain with tiles of
+side @xmath . This ensures that any two vertices found in any two
+adjacent squares are no more than @xmath apart. Then argue that
+
+1.  A component @xmath of Euclidean diameter at least @xmath covers many
+    tiles as @xmath .
+
+2.  Since the tiles have side @xmath , all tiles adjacent to @xmath must
+    be empty while the component exists.
+
+3.  There are many empty boundary tiles, given the size of @xmath .
+
+4.  As @xmath , they cannot all be empty.
+
+Thus any component of diameter at least @xmath will merge with another
+component, leaving only small components. We do not explicitly prove
+parts @xmath - @xmath , but refer directly to Walter’s review [ 35 ] ;
+it essentially suffices to count the tiles.
+
+Now, the second part is based on the same sort of argument: that an
+empty area must be maintained around a small component in order to keep
+it small, and that this area is, asymptotically, filled, unless it is a
+single vertex. Thus all large components join together, all small
+components are isolated vertices, and @xmath .
+
+#### 2.1.2 The connection probability
+
+Given this relation between isolated vertices and connectivity, it
+suffices to evaluate the probability that a single isolated vertex
+exists in the random connection model, then suggest that as the density
+@xmath ,
+
+  -- -------- -- ---------
+     @xmath      (2.1.4)
+  -- -------- -- ---------
+
+We now evaluate this. Consider a vertex at some fixed @xmath . Its
+degree @xmath can be determined by looking at a marked Poisson point
+process @xmath , where the marks are @xmath random variables
+
+  -- -------- -- ---------
+     @xmath      (2.1.5)
+  -- -------- -- ---------
+
+which is of intensity @xmath on @xmath , and @xmath is Lesbegue measure
+on @xmath . The degree is given by a sum over this marked point process:
+
+  -- -------- -- ---------
+     @xmath      (2.1.6)
+  -- -------- -- ---------
+
+According to Campbell’s theorem, one of the elementary theorems about
+point processes [ 36 ] , we have that @xmath is Poisson with expectation
+
+  -- -------- -- ---------
+     @xmath      (2.1.7)
+  -- -------- -- ---------
+
+and therefore
+
+  -- -------- -- ---------
+     @xmath      (2.1.8)
+  -- -------- -- ---------
+
+which gives the probability that a vertex find itself isolated.
+
+Now, given the conjecture discussed in 2.1 (that isolated vertices occur
+as a simple Poisson point process), it is natural in light of Eq. 2.1.8
+to conjecture that as @xmath , the total number of isolated vertices is
+well approximated by a Poisson distribution with mean
+
+  -- -------- -- ---------
+     @xmath      (2.1.9)
+  -- -------- -- ---------
+
+In this limit, as discussed, the obstacle to connectivity is the
+presence of isolated vertices, and so, as @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which is approximately
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for large @xmath . One can therefore evaluate the connection probability
+of the random connection model with an integral.
+
+#### 2.1.3 Boundary effects and non-convex domains
+
+We now discuss the introduction of non-convexity. This occurs when at
+least one straight line segment with endpoints in the domain intersects
+the domain’s complement. We use this function in order to highlight
+this:
+
+  -- -------- -- ----------
+     @xmath      (2.1.10)
+  -- -------- -- ----------
+
+The perimeter itself, which may be the outside of a building, arena or
+city, plays a significant role in connectivity. In [ 14 ] , the
+connectivity of the random connection model was shown to be influenced
+by the meandering boundary’s ability to block the viewing angle
+vertices, decreasing it from the usual @xmath radians. In fact, pressed
+right up on the boundary of a disk, vertices see less than @xmath
+radians. The extent to which this results in vertices becoming isolated
+is quantified by the expected degree of a point @xmath , which is
+
+  -- -------- -- ----------
+     @xmath      (2.1.11)
+  -- -------- -- ----------
+
+where @xmath is the region of the domain visible to @xmath , itself a
+domain ³ ³ 3 This is often centred at @xmath , to make the integral more
+tractable. . This is often called the connectivity mass of a point
+@xmath .
+
+Thought of as a functional, Eq. 2.1.11 is minimised in the domain’s
+sharpest corner [ 14 , 31 ] . In non-convex domains, the internal
+perimeter, part of which may be the boundary of an obstacle, provides
+another point where the connectivity mass is lower than the bulk. We
+investigate this in chapter 3 .
+
+### 2.2 Betweenness centrality
+
+Shortest path betweenness counts all shortest paths between all pairs of
+vertices in a graph. Taking @xmath as the set of all paths between two
+vertices @xmath (at Euclidean displacement @xmath ), and @xmath as that
+proportion of paths of length, in hops, shorter than or equal to any
+other path in @xmath , then
+
+  -- -------- -- ---------
+     @xmath      (2.2.1)
+  -- -------- -- ---------
+
+where the norm here means the cardinality of the set. In analogy with
+differential geometry, we call these paths geodesic .
+
+Some of these geodesics will potentially run through some specific
+vertex @xmath . This is counted as @xmath . For example, if all geodesic
+paths from @xmath to @xmath pass through @xmath , then the ratio @xmath
+will equal unity. Otherwise, it will be a real number between zero and
+one. To quantify the extent to which a vertex lies on many geodesic
+paths, this ratio is summed over all vertex pairs in @xmath to produce
+the shortest path node betweenness centrality of @xmath
+
+  -- -------- -- ---------
+     @xmath      (2.2.2)
+  -- -------- -- ---------
+
+The terms in this sum are called pair dependencies [ 37 ] .
+
+#### 2.2.1 Computation
+
+In order to exploit the sparsity of geodesics, a traversal algorithm is
+used to evaluate betweenness, due to Brandes [ 37 ] . Two steps are
+required. The first, just discussed, is:
+
+-   Calculate @xmath for all @xmath .
+
+The second involves the evaluation of the pair dependencies in Eq. 2.2.2
+:
+
+-   Calculate @xmath for all @xmath , and sum to find @xmath .
+
+For a single pair, the first step is at worst @xmath . A modified
+version of the Floyd-Warshall algorithm is used. Brandes incorporates
+the second step into the first by recursively updating the pair
+dependencies during the various evaluations of @xmath . A vector of
+betweenness can then be obtained in at worst @xmath .
+
+As networks become large, this computation is notoriously intensive. It
+also relies on co-operation between all networked devices, which may
+prove impossible in practice. Though, interesting random sampling
+methods are known to speed up computation, see e.g. [ 38 ] .
+
+#### 2.2.2 Shortest paths
+
+Part of the problem of analytically evaluating betweenness centrality
+involves the difficulty of enumerating the number of geodesic paths
+which run between two vertices in a random geometric graph. In the
+Erdős-Rényi case ⁴ ⁴ 4 Take @xmath vertices and link them independently
+with probability @xmath . [ 24 ] , where the connection probability is
+just some constant function, this is relatively simple: one recursively
+calculates the probability that some vertex is one hop to its
+destination, which is @xmath , two hops, which is the probability two
+vertices form a link to the same vertex and don’t connect directly,
+which is @xmath , and so on. When the connection function is not
+constant, however, nearby vertices have positively correlated vertex
+degrees. This complex spatial dependence is characteristic of
+combinatorial problems with a geometric element.
+
+Now, in order to avoid this, one can make the so called independence
+assumption [ 39 , 40 ] . This has been used to produce approximations to
+the distribution of the length of paths between vertices in the unit
+disk model [ 41 ] , the random connection model [ 39 ] , and the
+log-normal fading model [ 42 ] . The issue is depicted in Fig. 2.2 .
+
+The number of geodesics is an alternative statistic, related, as
+discussed, to betweenness centrality. This random number of geodesics is
+currently used by two important delay tolerant networking algorithms,
+BubbleRap and COAR, which algorithmically count geodesics in order to
+assess possible routing strategies [ 18 ] .
+
+### 2.3 Extended Concepts
+
+We now discuss some extended topics related to point processes,
+alternative metrics, and centrality variants.
+
+#### 2.3.1 Binomial point processes
+
+If we simply fix the number of vertices in a Poisson point process, we
+have a binomial point process. This can be a more realistic model of
+wireless networks, since the device numbers cannot vary so much over
+time (in fact, they don’t vary at all).
+
+However, the Poisson point process is used with good reason: with
+exactly @xmath vertices, the modelling can become intractable, since the
+distance between points in a (BPP) formed within a domain @xmath is
+given by the beta distribution, which is only expressible in terms of a
+special function. Even worse, sequences of inter-point distances are no
+longer independent.
+
+In [ 43 ] , potential use of the binomial point process as a model of
+device distribution in wireless networks is discussed in detail.
+
+#### 2.3.2 Markov point processes
+
+Consider a Markov chain @xmath on the space of unit disk graphs.
+
+A simple example is the Strauss process. Pairs of points @xmath
+‘interact’ with a geometric potential @xmath , given by their Euclidean
+separation
+
+  -- -------- -- ---------
+     @xmath      (2.3.1)
+  -- -------- -- ---------
+
+The probability of a configuration, @xmath , is then given by a sum over
+the set @xmath of all @xmath -vertex cliques in the respective unit disk
+graph formed on the configuration
+
+  -- -------- -- ---------
+     @xmath      (2.3.2)
+  -- -------- -- ---------
+
+which is associated with a state of @xmath .
+
+One can generate these configurations with the Metropolis-Hastings
+algorithm [ 44 ] . The algorithm goes as follows:
+
+1.  Distribute @xmath points over a domain @xmath .
+
+2.  Pick a vertex (call its position @xmath ), and, picking an angle
+    uniformly, randomly displace it a distance given by the Beta
+    distribution ⁵ ⁵ 5 Which gives the distance between points of a
+    binomial point process [ 43 ] . , rejecting moves which put the
+    vertex outside the square. Call this new location @xmath .
+
+3.  Calculate two quantities, first
+
+      -- -------- -- ---------
+         @xmath      (2.3.3)
+      -- -------- -- ---------
+
+    with @xmath a parameter of the process with units of distance, and
+    then
+
+      -- -------- -- ---------
+         @xmath      (2.3.4)
+      -- -------- -- ---------
+
+    The move is then accepted with probability @xmath , where @xmath is
+    some parameter of the model quantifying the amount of inter-point
+    repulsion.
+
+The fact that the potential of the whole configuration can be written as
+a product of all two vertex cliques in the graph implies that the
+density @xmath is a Gibbs ensemble:
+
+  -- -------- -- ---------
+     @xmath      (2.3.5)
+  -- -------- -- ---------
+
+which is a factorisation over cliques.
+
+This sort of repelling points model helps combat the most unrealistic
+assumption of the Poisson process model, that there will sometimes be
+nearby base stations. Determinantal point processes, which are processes
+whose spatial distributions are related to the determinant of a matrix,
+are an interesting avenue of further research.
+
+#### 2.3.3 Geometric preferential attachment
+
+Considers a binomial point process @xmath of @xmath points @xmath on the
+surface of a torus @xmath . Allowing multiple edges, each point is
+selected in turn such that, at time @xmath , vertex @xmath forms @xmath
+randomly selected connections to those vertices within Euclidean
+distance @xmath ; for each @xmath , the probability vertex @xmath is
+selected is
+
+  -- -------- -- ---------
+     @xmath      (2.3.6)
+  -- -------- -- ---------
+
+with
+
+  -- -------- -- ---------
+     @xmath      (2.3.7)
+  -- -------- -- ---------
+
+The factor @xmath tunes the probability of loop formation (i.e. self
+connection). This propensity for loop formation increases with time, the
+number of edges @xmath we intend to add, and the connection radius
+@xmath .
+
+This model is an extension of the online nearest neighbour graph (see
+e.g. [ 45 ] , or the earlier ⁶ ⁶ 6 This was published in 2007, a year
+before [ 45 ] . paper of Berger, Bollobás, Borgs, Chayes and Riordan [
+46 ] ), which is a simple growing spatial network: vertices are placed
+one by one in some domain, and each time joined to their nearest
+neighbour [ 6 ] .
+
+#### 2.3.4 Hyperbolic random geometric graphs
+
+Apart from altering the nature of the point process as in subsection 2.3
+, one can transform the underlying metric space in which the graphs are
+embedded. An interesting example of this is the hyperbolic random
+geometric graph [ 47 ] , where a simple Poisson point process is formed
+on the hyperbolic plane with points retained inside a bounded region.
+Pairs of points are then joined according to the unit disk rule, but now
+considering the distance @xmath between two points @xmath and @xmath to
+be
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where the Cartesian axis are embedded in the hyperbolic plane, and the
+two arguments of @xmath read off accordingly.
+
+As a current application area, these non-standard RGG’s are used to
+study theories concerning complex systems [ 48 , 49 ] .
+
+#### 2.3.5 Current flow betweenness
+
+Two alternative forms of betweenness, the first introduced by Freeman [
+50 ] called flow betweenness , and the second by Newman [ 51 ] called
+current flow betweenness , aim to quantify the effect of non-geodesic
+paths on the centrality of vertices:
+
+1.  Flow betweenness considers a function @xmath quantifying the current
+    passing through some vertex @xmath while the flow through the
+    network is maximal. The capacity of all edges must be defined, and
+    one sums of all possible source-destination pairs.
+
+2.  Current flow betweenness considers the unique ‘unit flow’, which is
+    a current of 1 @xmath (one Ampere), passing through the network
+    while satisfying the Kirchhoff laws. Note there is only one flow
+    which minimises the dissipated energy, and hence only one flow which
+    satisfies Kirchhoff’s laws [ 11 ] . Again, one sums this over all
+    source-destination pairs.
+
+Note, dissipated energy is the product of current and voltage.
+Equivalently
+
+  -- -------- -- ---------
+     @xmath      (2.3.8)
+  -- -------- -- ---------
+
+where @xmath is the current flowing over edge @xmath , and @xmath is the
+resistance of edge @xmath . Minimising this using Lagrange multipliers
+with the Kirchhoff current law as a constraint [ 52 ] , see for example
+Fig. 2.4 , provides currents flowing through each vertex with respect to
+two other vertices @xmath , the sum of which, over all @xmath , or
+‘source sets’, is the current flow betweenness.
+
+For example, in Fig. 2.4 , the dissipated energy for flow @xmath is
+@xmath , while for flow @xmath , it is @xmath . Therefore, given we
+consider a unit flow, flow @xmath is the unique solution to the
+Kirchhoff laws. This would contribute to the vector of current flow
+betweenness centralities as one of the many source-sink pair
+contributions.
+
+Also, note that current flow betweenness is equivalent to random walk
+betweenness [ 51 ] . Where data is flooded through a network of small
+cells, or through a vehicle network, this current flow betweenness can
+be useful in estimating the routing load on set of vertices when
+betweenness is shown to be uncharacteristic i.e. when data is often
+diverted from shortest paths. It is difficult to analyse analytically,
+and may be more appropriately obtained algorithmically in realistic
+settings [ 27 ] .
+
+## Chapter 3 Connectivity
+
+### 3.1 Introduction
+
+Soft random geometric graphs consist of a set of vertices placed
+according to a point process in some domain @xmath which are coupled
+with a probability dependent on their Euclidean separation. The more
+common deterministic connection is generalised to probabilistic
+connection [ 5 , 14 , 12 ] in order, in our case, to model signal
+fading. Commonly known as the random connection model , we now have a
+connection function @xmath giving the probability that links will form
+between nodes @xmath of a certain Euclidean displacement @xmath . In a
+band-limited world of wireless communications continuously pressed for
+the theoretical advances that can enable 5G cellular performance, this
+is an important new flexibility in the model.
+
+Connectivity has been shown the initial interest [ 14 , 31 , 12 ] . For
+example, in [ 14 ] , using a cluster expansion technique from
+statistical physics, at high vertex density @xmath the connection
+probability of a soft random geometric graph formed within a bounded
+domain @xmath is approximated as (the complement of) the probability
+that exactly one isolated vertex appears in an otherwise connected
+graph. This is justified by a conjecture of Penrose [ 5 ] , asserting
+that the number of isolated vertices follows a Poisson distribution
+whose mean quickly decays as @xmath , thus highlighting the impact of
+the domain’s enclosing boundary [ 14 , 12 , 26 ] where isolation is most
+common.
+
+Internal boundaries, such as obstacles, cause similar problems. In this
+chapter, we focus our efforts on how this particular aspect of the
+domain effects the graph behaviour. We therefore extend recent work on
+connectivity within non-convex domains, such as those incorporating
+internal walls [ 31 ] or a complex, fractal boundary [ 53 ] , deriving
+analytic formulas for the connection probability @xmath of soft random
+geometric graphs formed within the annulus and spherical shell
+geometries, quantifying how simple convex obstacles affect connectivity.
+Specifically, we consider the situation where nodes connect with a
+probability decaying exponentially with their mutual Euclidean
+separation. This models the Rayleigh fading commonly observed in mobile
+communications. ¹ ¹ 1 Most of this chapter has been accepted with minor
+revisions for publication at The Journal of Statistical Physics [ 54 ] .
+The work in this chapter remains solely that of the author of this
+thesis unless otherwise indicated, given collaboration with supervisors
+in the appropriate fashion. .
+
+The advantage of soft graphs is this ability to incorporate a fading
+model. In built up urban environments where signals scatter repeatedly
+off walls, and offering no direct line of sight between transmitter and
+receiver, the relevant fading statistics are, as mentioned, those of the
+Rayleigh distribution, implying the connection function
+
+  -- -------- -- ---------
+     @xmath      (3.1.1)
+  -- -------- -- ---------
+
+is to be implemented. We now discuss how this comes about.
+
+### 3.2 Rayleigh fading
+
+In Rayliegh fading, the channel impulse response [ 55 ] is modelled as a
+complex Gaussian process @xmath , a sequence of complex-valued random
+variables
+
+  -- -------- -- ---------
+     @xmath      (3.2.1)
+  -- -------- -- ---------
+
+with @xmath and @xmath Gaussian for all @xmath , independent of both
+each other, and the remaining elements of @xmath , for all @xmath . One
+can think of this as a sequence of vectors, each real component of which
+is the randomly attenuated amplitude of the quadrature and in-phase
+components of a frequency modulated radio signal.
+
+The amplitudes of the impulse response are therefore given by a
+Pythagorean relation between these Gaussianly distributed quadrature and
+in-phase amplitudes:
+
+  -- -------- -- ---------
+     @xmath      (3.2.2)
+  -- -------- -- ---------
+
+i.e. the radial component of the sum of two independent Gaussian
+variables. The amplitudes @xmath are thus Rayleigh distributed . To see
+this, integrate the joint density of @xmath and @xmath along the
+perimeter of a disk of radius @xmath
+
+  -- -------- -------- -------- -------- ---------
+     @xmath   @xmath   @xmath            (3.2.3)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- ---------
+
+which is the density of the Rayleigh distribution.
+
+Now, conisder the so called outage probability @xmath , which is the
+proportion of time the information-theoretic decoding error at the
+receiver falls below a critical rate @xmath :
+
+  -- -------- -------- -------- -- ---------
+     @xmath   @xmath   @xmath      (3.2.4)
+  -- -------- -------- -------- -- ---------
+
+We are thus interested in the random channel gain @xmath , and the
+signal power @xmath . These power gains are proportional to the square
+of the impulse response’s Rayleigh distributed amplitudes, so are
+exponentially distributed:
+
+  -- -------- -------- -------- -- ---------
+     @xmath   @xmath   @xmath      (3.2.5)
+  -- -------- -------- -------- -- ---------
+
+Also, the signal suffers from a propagation decay. Writing the signal
+power as @xmath , and the noise power as @xmath , the signal-to-noise
+ratio decays as a power @xmath of the transmitter-receiver propagation
+distance @xmath
+
+  -- -------- -- ---------
+     @xmath      (3.2.6)
+  -- -------- -- ---------
+
+This is the path loss exponent, with @xmath related to free-space
+propagation. Rearranging 3.2.4 gives the source-destination connection
+probability as the complement of the outage probability
+
+  -- -------- -------- -------- -- ---------
+     @xmath   @xmath   @xmath      (3.2.7)
+  -- -------- -------- -------- -- ---------
+
+Finally, extracting the constant @xmath :
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+This implies the Rayleigh fading connection function is given by
+
+  -- -------- -------- -------- -------- ---------
+     @xmath   @xmath   @xmath            (3.2.8)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- ---------
+
+since @xmath is exponentially distributed, as discussed.
+
+To clarify notation, we sometimes refer to the constant
+
+  -- -------- -- ---------
+     @xmath      (3.2.9)
+  -- -------- -- ---------
+
+to signify the length scale over which nodes typically connect, since
+the exponent @xmath whenever @xmath , and so the connection probability
+is low.
+
+### 3.3 The annulus domain @xmath
+
+Take our domain to be the annulus @xmath of inner radius @xmath and
+outer radius @xmath , two examples of which are depicted in Fig. 3.2 .
+Consider the outer radius of this annulus to be large compared to the
+typical connection range. We are interested in evaluating
+
+  -- -------- -- ---------
+     @xmath      (3.3.1)
+  -- -------- -- ---------
+
+as discussed in Section 2.1.2 . There, we defined the connectivity mass
+at a point @xmath , and its analogue over the region visible to @xmath
+
+  -- -------- -------- -------- -- ---------
+     @xmath   @xmath   @xmath      (3.3.2)
+  -- -------- -------- -------- -- ---------
+
+This mass is approximated within two obstacle-size regimes, the first
+where @xmath , and the second where @xmath . In each regime we can make
+some assumptions about the geometry of the region @xmath visible to
+@xmath , which yields tractable formulas for the connectivity mass in
+terms of powers of the distance @xmath from the obstacle’s perimeter. We
+then have @xmath in the annulus @xmath . This complements the result of
+the disk domain, presented first in [ 14 ] .
+
+#### 3.3.1 No obstacles
+
+We first take the case where @xmath depicted in Fig 3.2 . This is the
+disk @xmath . We first derive an approximation to @xmath in this
+limiting domain.
+
+Firstly, the connectivity mass a distance @xmath from the disk’s centre
+is
+
+  -- -------- -------- -------- -------- ---------
+     @xmath   @xmath   @xmath            (3.3.3)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- ---------
+
+since the integral over @xmath cancels. Now, consider two regimes for
+the distance @xmath : in the first, where @xmath (close to the
+boundary), we can make the approximation @xmath , since the distances
+@xmath from the horizontal to the lower semi-circle in Fig. 3.3 will be
+small, so we can approximate the integral in Eq. 3.3.3
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+such that
+
+  -- -------- -- ---------
+     @xmath      (3.3.4)
+  -- -------- -- ---------
+
+after Taylor expanding Eq. 3.3.1 for @xmath , since the mass is smallest
+on the boundary, dominating Eq. 3.3.1
+
+For the other regime where @xmath :
+
+  -- -------- -------- -------- -------- ---------
+     @xmath   @xmath   @xmath            (3.3.5)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- ---------
+
+due to the exponential decay of the connectivity function, and so we
+have the probability of connection @xmath in the disk domain:
+
+  -- -------- -------- -------- -------- ---------
+     @xmath   @xmath   @xmath            (3.3.6)
+                       @xmath   @xmath   
+                                @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- ---------
+
+where @xmath is the point where the two mass approximations equate. This
+approaches equation Eq. 38 of reference [ 14 ] as @xmath . The
+correction @xmath in the exponential is a curvature correction to the
+previous result, since before the boundary mass is expanded in a Taylor
+series truncated to its first term, equivalent to ignoring the curvature
+of the boundary.
+
+Monte-Carlo simulations, where graphs are drawn algorithmically and
+enumerated if they connect, are presented in Fig. 3.4 alongside our
+approximation in Eq. 3.3.6 , corroborating our approximation. The
+simulations show an improvement on previous result in [ 14 ] . The
+discrepancy at low density is expected since we only consider the
+probability of a single isolated vertex. We also highlight the
+interesting composition 3.3.6 . There is a bulk term (whose coefficient
+is proportional to the area of @xmath ) and a boundary term
+(proportional to the circumference of @xmath ). This is discussed in
+greater detail in e.g. [ 14 ] , though we again emphasise the dominance
+of the boundary term as @xmath .
+
+#### 3.3.2 Small obstacles
+
+Consider the case where @xmath . We make the approximation that the
+small cone-like domain @xmath making up a portion of the region visible
+to @xmath , denoted @xmath , and shown in the middle panel of Fig. 3.2 ,
+is only significantly contributing to the connectivity mass at small
+displacements @xmath from the obstacle, since at larger displacements it
+thins and the wedge-like region @xmath dominates. Practically, it is
+@xmath that presents the main integration difficulties, so we
+approximate @xmath over this region where the radial coordinate @xmath ,
+using @xmath
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+and then expand, giving
+
+  -- -------- -- ---------
+     @xmath      (3.3.7)
+  -- -------- -- ---------
+
+leaving us to integrate over the annulus
+
+  -- -------- -------- -------- -------- ---------
+     @xmath   @xmath   @xmath            (3.3.8)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                                @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- ---------
+
+where @xmath is the point where the connectivity mass in the bulk meets
+our approximation @xmath near the obstacle. We numerically corroborate
+Eq. 3.3.8 in Fig. 3.4 using Monte Carlo simulations.
+
+Note that this obstacle term is extremely small compared to the other
+contributions in Eq. 3.3.8 , given its coefficient decays linearly with
+@xmath and the factor of @xmath . We conclude that a small internal
+perimeter of radius @xmath in any convex domain @xmath results in a
+negligible effect on connectivity.
+
+#### 3.3.3 Large obstacles
+
+For the large obstacle case @xmath , the relevant mass is
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+yielding a power series in @xmath
+
+  -- -------- -------- -------- -------- ----------
+     @xmath   @xmath   @xmath            (3.3.10)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- ----------
+
+This implies the connectivity mass is scaling in the same way as for the
+outer boundary, but where the curvature correction is of opposite sign.
+We therefore have
+
+  -- -------- -- ----------
+     @xmath      (3.3.11)
+  -- -------- -- ----------
+
+which is corroborated numerically in Fig. 3.4 .
+
+This implies that large obstacles behave like separate, internal
+perimeters. In the large-domain limit (where the node numbers go to
+infinity and the connection range is tiny compared to the large domain
+geometry), we can thus use
+
+  -- -------- -- ----------
+     @xmath      (3.3.12)
+  -- -------- -- ----------
+
+### 3.4 The spherical shell @xmath
+
+Consider now the spherical shell domain @xmath of inner radius @xmath
+and outer radius @xmath , which is the three-dimensional analogue of the
+annulus.
+
+#### 3.4.1 Small spherical obstacles
+
+The region visible to the node at @xmath is again decomposed into two
+parts, the three-dimensional version of @xmath , called @xmath , and the
+rest of the region visible to @xmath , denoted @xmath . As in the
+annulus with the small obstacle, we approximate @xmath over this region
+where the radial coordinate @xmath , remembering the axis of integration
+is centered at @xmath :
+
+  -- -------- -------- -------- -------- ---------
+     @xmath   @xmath   @xmath            (3.4.1)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- ---------
+
+Eq. 3.4.1 is then evaluated by breaking up @xmath into the area of a
+cone of radius @xmath , height @xmath and apex angle @xmath
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Note that the apex is at a distance @xmath from the obstacle. The volume
+of the cone like region is given by
+
+  -- -------- -------- -------- -------- ---------
+     @xmath   @xmath                     (3.4.2)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- ---------
+
+Adding the mass over @xmath , we use the fact that the full solid angle
+available to a bulk node is @xmath , and that the angle @xmath available
+to the node at @xmath is
+
+  -- -------- -------- -------- -------- ---------
+     @xmath   @xmath   @xmath            (3.4.3)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- ---------
+
+such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We then have @xmath
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+which implies that small spherical obstacles reduce the connection
+probability within the unobstructed sphere domain @xmath to give a
+connection probability of
+
+  -- -------- -------- -------- -------- ---------
+     @xmath   @xmath   @xmath            (3.4.4)
+                       @xmath   @xmath   
+                                @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- ---------
+
+#### 3.4.2 Large spherical obstacles
+
+For large obstacles ( @xmath ), we extend Eq. 3.3.3 into the third
+dimension. @xmath thus becomes
+
+  -- -------- -- ---------
+     @xmath      
+                 (3.4.5)
+  -- -------- -- ---------
+
+where @xmath , yielding
+
+  -- -------- -------- -------- -------- ---------
+     @xmath   @xmath   @xmath            (3.4.6)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- ---------
+
+implying the connection probability is
+
+  -- -------- -------- -------- -------- ---------
+     @xmath   @xmath                     (3.4.7)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- ---------
+
+where @xmath is the point where our mass approximation in Eq. 3.4.6 is
+equal to the mass in the bulk of the sphere @xmath .
+
+We now have the connection probability in the spherical shell @xmath
+
+  -- -------- -- ---------
+     @xmath      (3.4.8)
+  -- -------- -- ---------
+
+which is corroborated in Fig. 3.4 for the large obstacle case. Just as
+with the annulus, small spherical obstacles have little impact on
+connectivity, and large spherical obstacles behave like separate
+perimeters. This behaviour is likely the same for all dimensions @xmath
+, where the geometry is a hypersphere containing a convex @xmath
+-dimensional obstacle.
+
+### 3.5 Discussion
+
+We have derived analytic formulas for the connection probability of soft
+random geometric graphs drawn inside various annuli and shells given the
+link formation probability between two vertices is an exponentially
+decaying function of their Euclidean separation. This models the
+Rayleigh fading of radio signal propagation within a wireless ad hoc
+network.
+
+#### 3.5.1 Numerical simulation
+
+Monte Carlo corroboration of Eqs. 3.3.6 , 3.3.8 , 3.3.11 and 3.4.8 are
+presented in Fig. 3.4 . We numerically construct random graphs and count
+how many connect. This provides a numerical estimate of the actual
+connection probability.
+
+#### 3.5.2 Multiple obstacles
+
+We have thus extended the soft connection model into simple non-convex
+spaces based on circular or spherical obstacles (rather than fractal
+boundaries [ 53 ] , internal walls [ 31 ] or fixed obstacles on a grid [
+32 ] ). We highlight situations where obstacles are (and are not)
+important influences on connectivity:
+
+1.  Small obstacles have little impact on connectivity.
+
+2.  Large obstacles have a similar impact on connectivity as the
+    enclosing perimeter, but their effects are dominated by the boundary
+    as @xmath .
+
+One may therefore be think that obstacles have little impact on dense
+network connectivity. This is not true when they occur in great numbers:
+given that obstacles are not too close, their effects add up in a linear
+fashion, potentially outweighing the effect of the boundary. To
+demonstrate this, take the Sinai-like domain in the right hand panel of
+Fig. 3.1 . Without obstacles, we have
+
+  -- -------- -- ---------
+     @xmath      (3.5.1)
+  -- -------- -- ---------
+
+taken from [ 14 ] . This is composed of a bulk term, a boundary term and
+a corner term. As we have seen, introducing @xmath circular obstacles of
+various radii @xmath will reduce this connection probability to:
+
+  -- -- --
+        
+  -- -- --
+
+which holds whenever the obstacles are separated from each other and the
+boundary by at least @xmath .
+
+#### 3.5.3 Surfaces without boundary
+
+Boundary effects can be removed by working on surfaces without an
+enclosing perimeter. Examples include the flat torus, popular in
+rigorous studies but difficult to realise in wireless networks, and the
+sphere. Thus as @xmath the obstacle effects are the dominant
+contribution to @xmath . This may be of interest to pure mathematicians
+studying random graphs for purposes outside communication theory [ 6 ] .
+Fractal obstacles may be of particular interest [ 53 ] .
+
+#### 3.5.4 Quasi-one-dimensional regime
+
+Note that as the width of the annulus goes to zero, the approximation
+that connectivity is the same as no isolated vertices breaks down. The
+graph now disconnects by forming two clusters separated from each other
+by two unpopulated strips of width usually greater than @xmath .
+Studying the asymptotic connectivity of these quasi-1D random geometric
+graphs will be topic of further study.
+
+#### 3.5.5 Betweenness centrality near obstacles
+
+Vertex isolation near obstacles will have a significant effect on
+network functionality. This is because vertices near obsatcles have
+exceptionally high betweenness centrality, depicted in Fig. 3.5 .
+Routing in obstructed domains must take this effect into account, or
+vertices will become overloaded near obstacles as they take on an
+excessive number of routing tasks. Studying the connectivity properties
+of this ring of vertices meandering around obstacles is another topic of
+further study.
+
+## Chapter 4 Betweenness centrality
+
+### 4.1 Introduction
+
+Betweenness centrality is a graph theoretic measure of how often a
+vertex @xmath is on a shortest path of links between any other pair of
+vertices in a graph [ 21 ] . It is defined according to this sum:
+
+  -- -------- -- ---------
+     @xmath      (4.1.1)
+  -- -------- -- ---------
+
+@xmath is the total number of shortest paths that join @xmath and @xmath
+, and @xmath gives the number of those geodesics that pass through
+@xmath . Intuitively, nodes with high betweenness can be thought of as
+decisive for the functionality of decentralized communication networks,
+since they typically route more data packets, based on the assumption
+that traffic tries to follow only the shortest available multi-hop
+paths. Though the relation at this point between structural measures
+like betweenness, and related measures of actual network performance
+which follow from the underlying structure, is not clear, the existence
+of an important relationship is not in doubt. We seek to clarify this as
+part of our contribution.
+
+This notion of importance is in sharp contrast to methods which simply
+enumerate node degrees, since a bridging node which connects two large
+clusters is, for example, of crucial importance to the whole network,
+even though it may only have two neighbours. This sort of information is
+brought out by betweenness centrality, but usually goes undetected.
+
+In router-based communication networks, the router itself has a
+normalised betweenness of unity, since all nodes connect to it directly,
+while all other nodes have a centrality of zero. In ad hoc networks, and
+in sensor networks, betweenness is distributed randomly at each vertex
+according to a distribution which depends on the geometric location of
+vertices, implying a diverse betweenness profile. Now, in wireless
+networks, this diversity can be harnessed in at least three separate
+ways: in 2005 Gupta et al. [ 56 ] used betweenness as a criteria for
+electing cluster heads which communicate to base stations on behalf of
+all the cooperating machines. Later, in 2010, Ercsey-Ravasz et al. [ 57
+] demonstrated how betweenness can be used to delineate the network’s
+skeleton or vulnerability backbone , see also the more recent paper [ 58
+] , which is a percolating cluster of the most structurally important
+vertices. Finally, in 2006, Wang et al. [ 59 ] researched the use of
+betweenness for boundary detection, since at high vertex density the
+betweenness of devices exhibits a bi-modal behaviour near the domain
+boundary, and can therefore elucidate its location.
+
+Given the insights from the last chapter concerning the structural
+importance of vertices near non-convex features of domains such as
+connectivity obstacles, in this chapter we develop an understanding of
+how the expected betweenness of a vertex at some domain location changes
+with the parameters of the model to which it takes part, evaluating
+analytic formulas for betweenness as a function of domain position.
+
+We start our derivation with the disk domain @xmath of radius @xmath
+(Fig. 4.1 ). We will consider a ‘continuum’ density of vertices, with
+vanishing connection range. This is for two reasons:
+
+1.  For the sake of tractability.
+
+2.  To model a dense network.
+
+We then argue that betweenness, a computationally intensive operation
+with possibly high communication overheads, can be well approximated by
+our analytical closed form predictions, and can therefore prove useful
+in practice.
+
+This chapter is structured as follows: in Section 4.2 we present our
+basic network model and state our main assumptions. In Section 4.3 we
+introduce an analytic formula for @xmath in the continuum limit (where
+the node density @xmath ), which is our main result. In Section 4.4.1 we
+present Monte Carlo simulations which corroborate our predictions, in
+Section 4.4 we discuss amongst other issues the applicability of the
+derived betweenness centrality formula within multi-hop wireless
+networks.
+
+### 4.2 The model
+
+Consider a soft random geometric graph formed by distributing vertices
+in a bounded region @xmath according to a Poisson point process @xmath
+of density @xmath , and then adding an edge between points @xmath with
+probability @xmath , where @xmath is the connection function taken to be
+@xmath , as in the previous chapter, and @xmath is the Euclidean
+distance between vertices.
+
+We consider only the continuum limit , which is a sort of double limit
+where @xmath and the typical connection range goes to zero in such a way
+that the graph remains connected . In this limit we make the assumption
+that all vertices on any straight line between any two other vertices
+lie on the shortest path, measured in hops, that links those two
+endpoint vertices. We seek the continuum analogue of Eq. 4.1.1 .
+
+Consider the domain @xmath to have volume @xmath according to the
+Lebesgue measure. The probability that some vertex is placed at position
+@xmath in @xmath is @xmath . Thus, the probability that any vertex pair
+will simultaneously be placed at @xmath and construct between itself a
+shortest path which passes through @xmath is @xmath , where the
+characteristic function @xmath equates to unity whenever @xmath lies on
+the path @xmath given by the straight line segment @xmath that joins
+@xmath and @xmath , and is zero otherwise. Summing this over all
+possible @xmath pair locations gives a continuum approximation to the
+expected betweenness centrality of @xmath :
+
+  -- -------- -- ---------
+     @xmath      (4.2.1)
+  -- -------- -- ---------
+
+We take @xmath to be the disk doman @xmath of radius @xmath , so @xmath
+. Note also that due to the symmetry of the disk we can describe the
+position of the node @xmath by its Euclidean distance @xmath from the
+disk’s centre.
+
+Consider Fig. 4.2 . We define the scalar @xmath as the distance of
+@xmath from the straight line @xmath . Defining the delta function
+@xmath , we then write the following:
+
+  -- -------- -- ---------
+     @xmath      (4.2.2)
+  -- -------- -- ---------
+
+The delta function will only contribute to the integral of Eq. 4.2.2
+when its argument @xmath is a zero of @xmath . As such, if we then
+describe @xmath such that it has a unique zero whenever @xmath lies on
+the path @xmath , integrating @xmath over the space of all node pairs
+@xmath should return @xmath as required.
+
+### 4.3 The @xmath function
+
+Fig. 4.2 shows @xmath located a distance @xmath from the centre of
+@xmath , with the coordinate system centred on @xmath and orientated
+such that the disk centre is at @xmath . Considering nodes @xmath and
+@xmath at distances @xmath and @xmath from @xmath respectively, we have
+that the internal angles @xmath , @xmath and @xmath sum to @xmath . The
+perpendicular distance @xmath from @xmath to the line @xmath then
+satisfies both
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Adding the above and taking small angle approximations (since we are
+interested in the case where @xmath ) we have that
+
+  -- -------- -- ---------
+     @xmath      (4.3.1)
+  -- -------- -- ---------
+
+whenever @xmath . This approximation presents a unique zero of @xmath
+whenever @xmath , allowing
+
+  -- -------- -------- -------- -------- ---------
+     @xmath   @xmath   @xmath            (4.3.2)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- ---------
+
+due to the trivial scaling laws of the delta function. Eq. 4.2.2 , a
+double volume integral, becomes a quadruple integral
+
+  -- -------- -------- -------- -------- ---------
+     @xmath   @xmath   @xmath            (4.3.3)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- ---------
+
+Taking @xmath , the polar equation of the circle bounding @xmath , Eq.
+4.3.3 becomes
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+then we integrate the delta function:
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+leaving
+
+  -- -------- -- ---------
+     @xmath      (4.3.4)
+  -- -------- -- ---------
+
+where
+
+  -- -------- -- ---------
+     @xmath      (4.3.5)
+  -- -------- -- ---------
+
+is the complete elliptic integral of the second kind (which is related
+to the perimeter of an ellipse [ 60 ] ). We normalise this to @xmath by
+dividing Eq. 4.3.4 by its maximum value (which is at @xmath ), to obtain
+our main result
+
+  -- -------- -- ---------
+     @xmath      (4.3.6)
+  -- -------- -- ---------
+
+with @xmath in units of @xmath (and with betweenness now an element of
+the unit interval).
+
+Elliptic integrals cannot be easily visualised, so for clarification we
+can expand Eq. 4.3.6 near the origin (i.e. when @xmath ) to obtain
+
+  -- -------- -- ---------
+     @xmath      (4.3.7)
+  -- -------- -- ---------
+
+while near the boundary (i.e. when @xmath )
+
+  -- -------- -- ---------
+     @xmath      (4.3.8)
+  -- -------- -- ---------
+
+which implies a quadratic scaling of betweenness near the centre, and a
+linear scaling near the periphery.
+
+### 4.4 Discussion
+
+In this section we discuss numerical corroboration, and potential
+applications of this centrality analysis.
+
+#### 4.4.1 Numerical simulation
+
+Fig. 4.3 shows that the betweenness @xmath of nodes situated in the bulk
+of @xmath is typically high. Binning the centrality in small increments
+of displacement from the domain centre and averaging over many network
+realizations, we can plot this computationally acquired sample mean of
+betweenness against location, and thus demonstrate how at finite
+densities this betweenness approaches the continuum prediction of Eq.
+4.3.6 , which we do in this figure. We take @xmath to be the largest
+value required for full network connectivity, and increase @xmath from
+@xmath to @xmath , each time evaluating betweenness numerically using
+the algorithm defined in the Mathematica 10 language.
+
+The limit is never reached, only approached. At high density the
+discrepancy is small. We propose this is simply due to the geodesic path
+not approaching a straight line with density. There are also many
+geodesic paths in the limit. So it appears this evident discrepancy will
+not go away by simply increasing the density. Nevertheless, the
+betweenness does indeed appear to be proportional to this mass of convex
+hulls which intersect @xmath and lie within @xmath , and so this simple
+approximation may prove useful in practice.
+
+#### 4.4.2 Applications
+
+We now discuss some possible applications of Eq. 4.3.6 . Betweenness
+centrality has been used for electing cluster heads (CH) [ 56 ] ). These
+are special vertices which take on the task of routing collected data,
+often sensor data, to some distant point on behalf of the network. In
+sensor networks, they are often called sinks . A number of routing
+protocols are usually implemented. For example, the basic LEACH (Low
+Energy Adaptive Clustering Hierarchy [ 61 ] ) protocol uses a random
+selection of cluster heads at each round (i.e. time-step), the vertices
+each taking turns in bearing the burden of cluster head status, or,
+alternatively, EECS (Energy Efficient Clustering Scheme [ 62 ] ), which
+requires vertices to broadcast their remaining power to first-degree
+neighbours, asking machines that find themselves with the most battery
+power to then elect themselves to cluster head status.
+
+However, in large networks using a vanishing transmitter range these
+protocols don’t work: far too many cluster heads get elected due to the
+huge vertex numbers and the efficiency problem that this technique is
+trying to mitigate re-arises. Potentially increasing transmitter range
+could resolve the problem (since the usual techniques are based on
+one-hop access to the head vertex), though this introduces interference
+problems, so one searches for another solution.
+
+Betweenness is a possible alternative election criteria, since it is
+proportional to power consumption, and to routing load, unlike most
+other centrality measures. This allows idle boundary vertices to act as
+cluster heads whenever power minimisation is preferred, or busy
+domain-center vertices whenever optimisation of vertex-to-vertex
+communication overheads is tasked. Knowledge of betweenness as a
+function of position helps in the selection of positions which, when
+occupied by vertices, results in CH election.
+
+Note also that, based on the intuition that central vertices are easier
+to reach, communication-based resource consumption is minimised whenever
+high-betweenness vertices are, in general, used as cluster heads.
+
+Boundary detection is another application. This is an important field,
+with various applications [ 59 , 63 , 64 ] . One potential use of
+betweenness as a boundary detector is for mitigating the so called
+boundary effect phenomenon [ 14 ] , where high-density network
+connectivity is hampered through vertices becoming isolated near the
+domain boundaries. One potential mitigation technique is to increase the
+device transmit power at the domain boundary e.g. we can harness some
+spare power in the relatively idle boundary vertices, increasing machine
+transmit power appropriately with betweenness. This does not require the
+sharing of routing tables or other connectivity information, since
+betweenness is directly proportional to the devices current routing
+load. Finding the optimal function of the betweenness (or perhaps other
+centrality measures) is beyond the scope of this thesis, but we
+highlight that this is an interesting and important open problem.
+
+Skeleton extraction is a third application of betweenness analysis in
+wireless networks. The skeleton [ 58 ] consists of the most central
+vertices, given by a rather arbitrary percentage (the top @xmath , for
+example). Note the bottom right panel of Fig. 4.1 , where betweenness is
+plotted over a square domain containing two circular obstacles (which
+restrict line-of-sight connections between vertices, e.g. [ 31 ] ). The
+skeleton [ 58 ] forms around the circular obstacles. We discuss this
+further in Section 6.1.1 .
+
+#### 4.4.3 The advantages of betweenness
+
+The betweenness centrality of vertices stands alongside a variety of
+popular centrality variants, many of which originated in sociology. See
+e.g. [ 18 ] for a detailed discussion of those related to betweenness
+itself in the scope of delay tolerant communication, defined in section
+1.1 . We now discuss the possible alternatives, though note that there
+are hundreds of existing variants that could be studied, e.g.
+analytically, with those briefly discussed in this section
+characteristic of the main themes. These themes include considering
+edges or nodes, flows, or analysis of matrices such as the Laplacian see
+e.g. [ 51 ] .
+
+1.   Edge betweenness centrality: the number of shortest paths which
+    involve a particular edge are considered [ 65 ] .
+
+2.   Flow betweenness centrality: a flow of material through the network
+    elucidates the importance of vertices [ 50 ] .
+
+3.   Node closeness centrality: the sum of all geodesic distances to the
+    remaining @xmath vertices determines centrality, see e.g. [ 66 ] .
+
+4.   Node eigenvector centrality: a sophisticated extension of degree
+    centrality, a form of which is implemented in PageRank. Vertices are
+    given centrality scores based on their proximity to other central
+    vertices, which admits analysis using matrices [ 67 ] .
+
+5.   Node degree centrality: vertices are ranked simply by the number of
+    neighbours they have [ 68 ] .
+
+Edge betweenness highlights communication channels which may become over
+subscribed. This would be a good alternative investigation: it is just
+as difficult to compute on a sparse graph [ 65 ] , and just as desirable
+in a closed, analytic form, for example near an obstacle. It can then be
+used as a complement to an algorithmic determination of edge betweenness
+centrality (for various reasons related to the prediction of e.g.
+channel characteristics). But as part of the current scope of centrality
+in wireless networks, it is perhaps less relevant. It cannot be used for
+boundary detection, for example, and it is sensitive to an exact
+specification of link efficiency, which is a difficult to characterise
+element of wireless performance.
+
+Current flow betweenness is perhaps the better candidate for wireless
+network-theoretic development than edge betweenness, see e.g. [ 27 ] .
+It characterises the intuitive reason vertices, or edges, are central:
+they can’t help but be put under pressure during the operation of a
+flow. It is, however, too mathematically involved for an analysis of
+this sort. It may be more appropriate to algorithmically determine, as
+which is discussed in the aforementioned reference.
+
+Closeness is also available as a topic of study in communication
+networks [ 69 ] . This is for the simple reason that short geodesic hop
+counts to all vertices characterise multi-hop routing in a
+straightforward way. But it does not capture the ‘bridging vertex’
+issues picked up by betweenness.
+
+Degree centrality, and sophisticated extensions such as PageRank [ 67 ]
+, potentially suffer from the same sort of tractability issues as
+current flow betweenness if we intended to go beyond calculating
+expectations, and instead look for a distribution of a vector of
+degrees, since spatial dependence between nearby vertex degrees is
+difficult to deal with. Though the expected degree of a vertex is easier
+to calculate. The trade off between the characterisation of flows which
+betweenness can provide, the overall tractability of its first moment,
+and its established use in ad hoc networks, provides the motivation for
+an analytic study.
+
+#### 4.4.4 Convergence
+
+Despite the disparity between betweenness centrality and our continuum
+approximation Eq. 4.3.6 , Fig. 4.3 shows a remarkably good
+approximation, given we must take into account:
+
+1.  That there are many geodesic paths which join two vertices as @xmath
+    .
+
+2.  That the paths are not straight, but appear to form geometric
+    functions (see e.g. the discussion of Schramm–Loewner Evolutions in
+    [ 11 ] .
+
+Thus, the small discrepancy is a fair price to pay given the difficulty
+that a more accurate, finite density approximation appears to present.
+
+Also, we have pointed out the quadratic scaling of betweenness as
+vertices moves away from the central region of the disk domain in Eq.
+4.3.7 . It is interesting to ask how sensitive this first order term is
+to details of the boundary.
+
+## Chapter 5 Geodesic Paths
+
+### 5.1 Introduction
+
+Minimising the total number of sequential transmissions required for two
+vertices to communicate is a common concern in multi-hop communication.
+This is due to:
+
+1.  The distortion caused by excessive amplify-and-forward activity,
+
+2.  The loss of SINR (signal-to-interference-plus noise ratio) caused by
+    an overly intense spatio-temporal point process of relay
+    transmissions.
+
+Probabilistic modelling of the network’s route statistics can prove
+important for the management of these issues, as well as surrounding
+concerns in multi-hop communication [ 41 , 40 , 39 ] . This motivates a
+number of problems concerning the statistics of paths, most prominently
+that of finding a function @xmath relating the minimum number of hops
+between two vertices @xmath in a random geometric graph to a probability
+distribution on the set of Euclidean distances which could separate them
+in the metric space.
+
+The origins of this problem go back to Chandler’s letter in the 1980’s [
+70 ] . As an example application, this relationship can be used to
+provide location estimates to vertices possessing hop-counts to ‘anchor’
+devices distributed around the domain. This is a particularly useful
+skill in wireless sensor networks where GPS is often unavailable, see
+e.g. [ 29 ] .
+
+The number of geodesics is also potentially of interest. An example set
+of geodesics is depicted in Fig. 5.1 . This is the more general
+statistic, since no @xmath hops paths suggest paths are at least @xmath
+hops. A distribution on the number of @xmath hop paths can provide these
+probabilities. Therefore, let @xmath be a bounded region of volume
+@xmath associated with both the Lebesgue measure @xmath and the
+Euclidean metric @xmath for any @xmath . Construct a unit disk graph
+@xmath in @xmath by deterministically linking pairs of a Poisson point
+process @xmath of density @xmath whenever @xmath .
+
+Set @xmath . Consider two nodes @xmath and @xmath in @xmath , and call
+these terminal nodes. In any graph realisation, these terminal nodes are
+either disconnected such that no path exists between them, or they are
+linked by a variety of different paths of various lengths. Consider now
+only the geodesic paths. Write @xmath for the number of paths of this
+geodesic length joining @xmath and @xmath , and separated by Euclidean
+distance @xmath . We name @xmath the geodesic cardinality of the
+distance @xmath , since it gives the cardinality or ‘number of elements’
+@xmath in the set of geodesic paths joining @xmath and @xmath . Vertices
+lying mutually displaced by @xmath are expected to be linked by @xmath
+geodesic paths. This is expected geodesic cardinality .
+
+How long are these paths? They can be of potentially any number of hops
+larger than @xmath (which is the smallest integer larger than or equal
+to @xmath known as its ‘ceiling’). To clarify this, we relate in Table
+5.1 a range of Euclidean distances and the minimum number of hops
+required to join two vertices of that displacement @xmath .
+
+We now look for an analytic expression @xmath in terms of displacement
+@xmath , and density @xmath . We only consider a density regime such
+that all vertices display at least one path to every other vertex in the
+graph which is of the shortest possible length @xmath hops. This ensures
+the work is relevant to the ultra-dense 5G small cell scenario, and the
+associated communications problems, such as interference minimisation,
+discussed in the introduction.
+
+### 5.2 A recursive formula for @xmath
+
+We now work through the calculation for the expected number of @xmath
+-hop paths in dimension @xmath , which is asymptotic to the number of
+geodesic paths as @xmath . Firstly,
+
+  -- -------- -- ---------
+     @xmath      (5.2.1)
+  -- -------- -- ---------
+
+since nodes connect directly. For @xmath , notice that all nodes lying
+within the intersection of the two connection loci @xmath and @xmath ,
+called ‘lenses’, will necessarily lie on a geodesic two-hop path. This
+is depicted in Fig 5.2 . Therefore,
+
+  -- -------- -------- -------- -------- ---------
+     @xmath   @xmath   @xmath            (5.2.2)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- ---------
+
+where @xmath is the area of intersection of two unit circles at center
+separation @xmath .
+
+For @xmath , things are significantly more involved. Fig. 5.3 shows the
+setup, which involves two lens, and we want the expected number of
+bridging links between them. In order to evaluate this expectation,
+construct a new area @xmath in the right-hand lens. Within this
+sub-region, vertices are Poissonly distributed with mean @xmath , and
+so:
+
+  -- -------- -------- -------- -- ---------
+     @xmath   @xmath   @xmath      (5.2.3)
+  -- -------- -------- -------- -- ---------
+
+where
+
+  -- -------- -- ---------
+     @xmath      (5.2.4)
+  -- -------- -- ---------
+
+is a contour in the first lens at a distance @xmath from @xmath , and
+
+  -- -------- -- ---------
+     @xmath      (5.2.5)
+  -- -------- -- ---------
+
+The expected number of three-hop paths is therefore given by an integral
+over all positions in the left lens:
+
+  -- -------- -- ---------
+     @xmath      (5.2.6)
+  -- -------- -- ---------
+
+Now, this integral has no closed form. Performing asymptotic analysis,
+Taylor expand @xmath at @xmath and @xmath at @xmath . After dropping all
+but the first term, we should be able to extract the leading order
+behaviour
+
+  -- -------- -- ---------
+     @xmath      (5.2.7)
+  -- -------- -- ---------
+
+which evaluates to
+
+  -- -------- -- ---------
+     @xmath      (5.2.8)
+  -- -------- -- ---------
+
+after finally expanding about @xmath and taking the first term. We can
+iterate this procedure to obtain an expression for @xmath
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where
+
+  -- -------- --
+     @xmath   
+     @xmath   
+  -- -------- --
+
+After expanding @xmath about @xmath and @xmath about @xmath (as before),
+we have
+
+  -- -------- -------- -------- -- ---------
+     @xmath   @xmath   @xmath      (5.2.9)
+  -- -------- -------- -------- -- ---------
+
+after Taylor expanding Eq. 5.2 about @xmath and taking the leading term.
+Clearly we can go on and produce a recursive formula
+
+  -- -------- -- ----------
+     @xmath      (5.2.10)
+  -- -------- -- ----------
+
+We have already performed a few of these integrals. Table 5.2 lists them
+up to @xmath .
+
+A pattern is apparent in the coefficients. With @xmath , the pattern
+leads us directly to a general term:
+
+  -- -- -- ----------
+           (5.2.11)
+  -- -- -- ----------
+
+The coefficient gives detailed information about how the number of paths
+scales over a unit interval.
+
+### 5.3 Geodesics in @xmath-dimensions
+
+When the vertices are not constrained to lie in @xmath , which is
+realistic since base stations are often also vertically dispersed around
+urban areas, we need a high dimensional analysis. The procedure above is
+therefore repeated for the three-dimensional case.
+
+Starting again with @xmath , we immediately have
+
+  -- -------- -- ---------
+     @xmath      (5.3.1)
+  -- -------- -- ---------
+
+For the next interval, in place of @xmath in Eq. 5.2.2 , put the volume
+of intersection @xmath of two unit spheres separated by a distance
+@xmath
+
+  -- -------- -- ---------
+     @xmath      (5.3.2)
+  -- -------- -- ---------
+
+leaving
+
+  -- -------- -------- -------- -- ---------
+     @xmath   @xmath   @xmath      (5.3.3)
+  -- -------- -------- -------- -- ---------
+
+in a similar manner to the case @xmath . Increasing the distance again,
+in place of @xmath in Eq. 5.2.3 put @xmath , and in place of @xmath we
+put the surface area @xmath of the spherical cap of a sphere-segment,
+which, omitting details, is
+
+  -- -------- -------- -------- -- ---------
+     @xmath   @xmath   @xmath      (5.3.4)
+  -- -------- -------- -------- -- ---------
+
+The necessary integral is therefore
+
+  -- -------- -- ---------
+     @xmath      (5.3.5)
+  -- -------- -- ---------
+
+and this is exact, since the volume of intersection of two unit spheres
+is a polynomial in an integer power of the separation of their centres,
+and so can be integrated without the need for any expansions. The next
+term goes according to
+
+  -- -------- -------- -------- -- ---------
+     @xmath   @xmath   @xmath      (5.3.6)
+  -- -------- -------- -------- -- ---------
+
+which is
+
+  -- -------- -- ---------
+     @xmath      (5.3.7)
+  -- -------- -- ---------
+
+We then perform the same expansions as before. These expansions are
+listed in Table 5.3 .
+
+In fact, at this point, we can evaluate the @xmath -dimensional term
+directly. The necessary replacements of the lens area @xmath and arc
+length @xmath in @xmath -dimensional hyperspace cannot be expressed in
+terms of elementary functions. We use the regularised incomplete beta
+function @xmath
+
+  -- -------- -- ---------
+     @xmath      (5.3.8)
+  -- -------- -- ---------
+
+which is the ratio of the incomplete beta function and the complete beta
+function [ 71 ] .
+
+So, the @xmath dimensional surface area of the hyperspherical cap of
+vertex angle @xmath and radius @xmath is
+
+  -- -------- -- ---------
+     @xmath      (5.3.9)
+  -- -------- -- ---------
+
+where
+
+  -- -------- -- ----------
+     @xmath      (5.3.10)
+  -- -------- -- ----------
+
+is the colatitude at which the @xmath -sphere is cut to produce the
+hyperspherical segment; cutting the hypersphere at @xmath would produce
+a hemisphere, for example, when @xmath . @xmath reduces to an arc length
+in Eq. 5.2.4 when @xmath , and the two-dimensional surface area of a
+spherical cap (Eq. 5.3.4 ) when @xmath [ 71 ] .
+
+The volume of intersection of two unit hypersphere separated by @xmath
+is twice the volume of this hyperspherical cap (each are glued to the
+plane which cuts through the sphere-sphere intersection). Thus
+
+  -- -------- -- ----------
+     @xmath      (5.3.11)
+  -- -------- -- ----------
+
+which reduces to the area of the lens when @xmath (Eq. 5.2.5 ), and the
+volume of the sphere-sphere intersection when @xmath (Eq. 5.3.13 ). As
+before, we have
+
+  -- -------- -------- -------- -- ----------
+     @xmath   @xmath   @xmath      (5.3.12)
+  -- -------- -------- -------- -- ----------
+
+which is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which is intractable, but we can extract the leading order term.
+
+So, in place of @xmath in Eq. 5.2.2 , put the volume of intersection
+@xmath of two unit hyperspheres separated by a distance @xmath
+
+  -- -------- -- ----------
+     @xmath      (5.3.13)
+  -- -------- -- ----------
+
+leaving
+
+  -- -------- -------- -------- -------- ----------
+     @xmath   @xmath   @xmath            (5.3.14)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- ----------
+
+in a similar manner to before. Increase the distance again, and in place
+of @xmath in Eq. 5.2.3 , put @xmath
+
+  -- -------- -- ----------
+     @xmath      (5.3.15)
+  -- -------- -- ----------
+
+and in place of @xmath put the surface area of the hyperspherical cap
+@xmath with
+
+  -- -------- -- ----------
+     @xmath      (5.3.16)
+  -- -------- -- ----------
+
+as before. For reference this is
+
+  -- -------- -- ----------
+     @xmath      (5.3.17)
+  -- -------- -- ----------
+
+so since (as before) we have
+
+  -- -------- -------- -------- -- ----------
+     @xmath   @xmath   @xmath      (5.3.18)
+  -- -------- -------- -------- -- ----------
+
+then we need
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which was given explicitly in Eq. 5.3.18 . Before (when this was
+intractable) we expanded @xmath at @xmath and @xmath (which is the
+previous term in the sequence) at @xmath (and then replace @xmath with
+@xmath ). Given
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+the integral in Eq. 5.3.18 evaluates to
+
+  -- -------- -- ----------
+     @xmath      (5.3.19)
+  -- -------- -- ----------
+
+after expanding as usual. The rest of these integrals are displayed in
+Table 5.4 .
+
+and, finally, by inspecting a pattern in the coefficients, we have the
+expected number of @xmath paths in @xmath -dimensions.
+
+  -- -- -- ----------
+           (5.3.20)
+  -- -- -- ----------
+
+with error @xmath .
+
+### 5.4 Numerical simulation
+
+Fig. 5.6 gives an idea of the error introduced by the Taylor expansions
+we perform. Performing these integrals exactly is topic of current
+research. Notice also Fig. 5.6 , which shows how Eq. 5.3.20 demonstrates
+a rising-and-falling behaviour as @xmath increases. This occurs because
+there are two competing forces which ‘create and destroy’ geodesic
+cardinality. The creation force involves increasing @xmath , which
+allows more space for geodesics to form. This force dominates for small
+@xmath with respect to the parameters in Fig. 5.6 . The destructive
+force is caused by the increasingly difficult but necessary alignment of
+vertices in the various lens’ which must be achieved for optimal
+geodesics to form. This force is dominating for @xmath , since more than
+eight lenses must accommodate aligning vertices for optimal paths to
+form.
+
+Fig. 5.4 shows how the number of geodesic paths is asymptotic to the
+number of @xmath hop paths as @xmath . This approximation breaks down as
+@xmath , because the lens areas are expected to contain fewer and fewer
+vertices, and so the geodesic can become longer than @xmath hops.
+
+## Chapter 6 Discussion
+
+In this chapter, we discuss the relationship between our mathematical
+results, and communications practice. We also discuss possible future
+developments of this research, and how it may have a lasting impact on
+future multi-hop communication.
+
+### 6.1 Applications in communication networks
+
+We focus in this section on detailing the nature of our contributions to
+the field of wireless networks.
+
+#### 6.1.1 Understanding skeletons
+
+In Fig 3.5 , two example skeletons have been extracted from random
+geometric graphs bound inside obstructed domains [ 58 ] . In Chapter 4 ,
+we defined a skeleton from its use in e.g. Ercsey-Ravasz et al. [ 57 ] ,
+who demonstrated how betweenness centrality can be used to describe and
+analyse a network’s skeleton or vulnerability backbone . This is a
+percolating cluster of the most structurally important vertices. See
+also [ 58 ] for more recent work. These appear to be
+quasi-one-dimensional sub-systems, which are subgraphs embedded in a
+@xmath -dimensional space which extend in only a single dimension such
+as around the perimeter of a disk or along a corridor region. They may
+have a restricted extension into the remaining @xmath dimensions, hence
+the use of the phrase quasi . Thin systems, such as thin films, have
+been important in physics more generally [ 72 ] . In our case, these
+systems appear to have control over the high performance functionality
+of the network when contained within bounding geometries with non-convex
+features. Questions therefore emerge, such as:
+
+1.  How does the connectivity of this sub-graph effect the overall
+    network performance?
+
+2.  How can this extra connectivity be balanced with minimisation of
+    inter-skeleton interference?
+
+3.  Do multiple small obstructions create multiple one-dimensional
+    sub-systems which all need to be managed?
+
+4.  Overall, what is the best way skeleton vertices can be used to
+    optimise communication?
+
+#### 6.1.2 Topology-based geolocalisation
+
+There is greater sensitivity in the number of paths than in the length
+of paths to small changes in location in random spatial networks. As an
+enhancement of topological-based localisation, where hop counts to
+location-aware anchor vertices are converted, preferably analytically,
+into likely Euclidean distances, the number of paths can be used as an
+accuracy enabler [ 39 , 40 , 29 ] .
+
+This is particularly useful in dense networks, since here the number of
+hops from @xmath to @xmath is determined by the ceiling of Euclidean
+separation, and so does not change over potentially an entire connection
+interval. The number of paths, however, does scale, and moreover, with
+an increasing resolution at high density. A combination of path length,
+and path counts, could provide a key solution to localisation in dense
+networks beyond GPS. See e.g. the landmark paper on DV-hop [ 73 ] ,
+which approximates distances via the average distance of a hop
+multiplied by the number of hops between a pair of nodes.
+
+#### 6.1.3 Future vehicular ad hoc networks
+
+Betweenness centrality can be more easily evaluated if the domain is a
+one dimensional strip, such as the interval @xmath . The combinatorial
+enumeration of paths, and evaluation of the lengths of paths, is
+significantly less involved. Yet the applications are perhaps more
+direct, as ad hoc vehicle networks are among the most promising
+applications of multi-hop routing, and key development area of future
+wireless networks [ 74 ] .
+
+Possible future research topics include:
+
+1.  Can current flow betweenness centrality be expressed as a
+    one-dimensional field of random variables, which is a random field [
+    75 ] , in a one-dimensional random geometric graph on a finite
+    interval of the real line?
+
+2.  What is the distribution of geodesic paths between two arbitrarily
+    separated vertices in a one-dimensional random geometric graph? Can
+    this be used to evalaute expected location-specific betweenness in
+    closed form in one dimension?
+
+Distributed algorithms run on a network in such a way that the resources
+required for their operation are shared equally between all cooperating
+devices. This distribution of resource consumption can prove important
+for battery limited sensor networks, even if they have access to the
+resources of a central server such as a sink or cluster head [ 76 ] .
+
+Analysis of expected centrality as a scalar field (defined on the @xmath
+-dimensional domain positions), as discussed in this thesis, works
+towards understanding the best way to distribute the necessary
+computational load of such algorithms. Continued work on this topic,
+such as working to see how centrality scales near obstacles in the
+domain, will also highlight the effect that non-convex features can have
+on the long term performance of these distributed network processes,
+such as in sensing scenarios.
+
+### 6.2 Mathematical directions
+
+Below we highlight some research directions which are more directly
+related to mathematical directions in random networks.
+
+#### 6.2.1 The distribution of the number of geodesics
+
+What is the distribution of shortest paths between two vertices, now
+considering @xmath ? The first moment of @xmath is expected number of
+@xmath -hop paths. It is interesting to ask if we can get the other
+moments. Note that if the distribution of paths is Poisson, the second
+moment is related to the first in a trivial way
+
+  -- -------- -- ---------
+     @xmath      (6.2.1)
+  -- -------- -- ---------
+
+and @xmath is distributed as
+
+  -- -------- -- ---------
+     @xmath      (6.2.2)
+  -- -------- -- ---------
+
+This actually does hold when @xmath , as demonstrated in the top panel
+of Fig. 6.2 , but not for larger displacements, as demonstrated in the
+bottom panel of Fig 6.2 . For these larger displacements, the variance
+
+  -- -------- -- ---------
+     @xmath      (6.2.3)
+  -- -------- -- ---------
+
+exceeds the mean by an amount proportional to both density @xmath and
+displacement @xmath , and so @xmath is no longer Poisson, but
+conjectured negative binomial .
+
+###### Conjecture 6.2.1 (Distribution of the number of geodesic paths).
+
+Given two vertices displaced by @xmath in the unit disk graph @xmath ,
+the random variable @xmath is distributed as
+
+  -- -------- -- ---------
+     @xmath      (6.2.4)
+  -- -------- -- ---------
+
+with @xmath the solution to the simultaneous equations
+
+  -- -------- -------- -------- -- ---------
+     @xmath   @xmath   @xmath      (6.2.5)
+     @xmath   @xmath   @xmath      (6.2.6)
+  -- -------- -------- -------- -- ---------
+
+.
+
+An analytic expression for @xmath would allow one to numerically verify
+this. The basis of the conjecture is mainly the similarity in form of
+the probability mass functions, and also the apparent over-dispersion
+(i.e. the variance of @xmath is larger than its mean). One would need to
+investigate this further as it is not understood.
+
+#### 6.2.2 Non-optimal geodesics
+
+Some paths are geodesics of length @xmath hops. These occur when there
+are no paths of the optimal length. The shortest path is then found to
+be one hop longer. We call geodesics of length @xmath hops @xmath
+-optimal paths, and those of length @xmath hops @xmath -optimal , and so
+on.
+
+The expected number of geodesics with @xmath is therefore an
+approximation to
+
+  -- -------- -- ---------
+     @xmath      (6.2.7)
+  -- -------- -- ---------
+
+with the number of @xmath -optimal paths a second order correction.
+Investigating this decomposition of geodesic paths into contributions
+from paths of all lengths is a topic of further research.
+
+In particular,
+
+1.  If each edge in a path is likened to a sequence of unit resistors in
+    series (in an electronic circuit), and all paths of the same length
+    in hops are considered to be like strings of resistors running in
+    parallel, what is the resistance of the single resistor which can
+    replace the set of paths which join @xmath and @xmath ? There will
+    be a distribution on the possible resistances, but interestingly,
+    this will be determined in the limit of high density by only the
+    distribution of geodesics.
+
+2.  How successful is the modelling of data flows as a flow of current?
+    What are the key differences?
+
+We hope to develop the first of these goals as part of a project on
+random geometric electrical networks .
+
+### 6.3 Final words
+
+The potential ultra-dense base station deployments of 5G have been
+investigated from the point of view of random geometric graphs, and
+specifically betweenness centrality, as well as part of the theory of ad
+hoc wireless networks in general. It has been shown how spatial
+probabilistic combinatorics can play a key role in effective, common
+sense wireless interference management techniques, as well as various
+optimisation methods, such as dynamically tuning the betweenness of
+vertices, and bounding the length of geodesic paths. This enables delay
+tolerant networking, involving sociological ideas such as betweenness
+centrality, and current flow betweenness centrality. The future
+tractability of intelligent vehicles is also supported by the greater
+ease of analysis in one-dimensional and quasi-one dimensional random
+geometric graphs, compared with their higher-dimensional counterparts.
+
+In the future, the issue of spatial dependence needs to be addressed in
+order to provide a greater depth to the applied mathematics of these
+fascinating graphs. The potential limiting performance of ad hoc
+communication networks is not yet understood, but with this sort of
+graph theoretic analysis, it may yet be harnessed.
+
+## Appendix A Percolation
+
+Percolation will now be more rigorously defined. Take the hypercubic
+lattice @xmath . Look at all the edges of the lattice, and designate
+them either open or closed with probability @xmath . This is called bond
+percolation ¹ ¹ 1 Site percolation, as an alternative, turns the lattice
+squares themselves on or off with probability @xmath . . The question
+is, what proportion of the lattices display a path of open links from
+the origin @xmath to the boundary of the lattice @xmath , or to infinity
+if we consider an infinite lattice? There is a very well studied
+singularity at @xmath in both
+
+  -- -------- -- ---------
+     @xmath      (A.0.1)
+  -- -------- -- ---------
+
+where @xmath is the set of all vertices connected to the origin via open
+paths, and @xmath is the mean cluster size. This singularity is due to
+either an undefined derivative at @xmath , or an undefined magnitude at
+@xmath , and is due to conjectured fractional power-law behaviour.
+
+###### Theorem A.0.1 (There exists a non-trivial critical point for
+@xmath).
+
+We have that
+
+  -- -------- -- ---------
+     @xmath      (A.0.2)
+  -- -------- -- ---------
+
+Notice that @xmath , since there are no links. Also @xmath , since all
+vertices are linked. This theorem is the existence of a non-trivial
+critical parameter @xmath , and immediately introduces the idea of a
+self-avoiding random walk (SAW).
+
+SAW is necessarily a sequence of adjacent vertices which does not repeat
+² ² 2 Though this is not the exact definition, it is suitable here. . It
+is thus a path through the lattice, of length @xmath . Call @xmath the
+number of SAWs of length @xmath which leave from the origin (or,
+equivalently, finish at the origin). Let @xmath be the number of these
+walks which only consist of open links. This is related to the
+percolation probability
+
+  -- -------- -- ---------
+     @xmath      (A.0.3)
+  -- -------- -- ---------
+
+Considering first @xmath , we have that (at worst)
+
+  -- -------- -- ---------
+     @xmath      (A.0.4)
+  -- -------- -- ---------
+
+given a symmetric random walk [ 11 ] from the origin which takes no
+steps back along its current path. Also
+
+  -- -------- -- ---------
+     @xmath      (A.0.5)
+  -- -------- -- ---------
+
+where we note that the expected number of SAWs along open links is not a
+trivial object, but can be written in terms of the total number of SAWs
+of length @xmath . Thus
+
+  -- -------- -- ---------
+     @xmath      (A.0.6)
+  -- -------- -- ---------
+
+implying @xmath can only be non-zero when
+
+  -- -------- -- ---------
+     @xmath      (A.0.7)
+  -- -------- -- ---------
+
+demonstrating the lower bound for @xmath , since @xmath is
+non-decreasing in @xmath , and equals unity when @xmath .
+
+For the upper bound, the idea is to create a dual lattice identical to
+the main lattice (in both geometry and open edge configuration), but
+spatially translated half a link-length south, and half a link-length to
+the east. Any finite cluster of open links will induce the dual lattice
+to display a finite loop of closed links which encloses this open
+cluster.
+
+Event @xmath is a completed loop of length @xmath . We have
+
+  -- -------- -- ---------
+     @xmath      (A.0.8)
+  -- -------- -- ---------
+
+after considering the usual power series representation of the
+expectation. Also
+
+  -- -------- -- ---------
+     @xmath      (A.0.9)
+  -- -------- -- ---------
+
+after bounding the number of complete loops of length @xmath , each of
+which is completely closed with probability @xmath . This implies that
+
+  -- -------- -- ----------
+     @xmath      (A.0.10)
+  -- -------- -- ----------
+
+with the sum on the r.h.s strictly smaller than unity for some non-zero
+@xmath in @xmath . Whatever this value of @xmath , we have @xmath , and
+thus @xmath given @xmath . Also, since we can embed a lower dimensional
+space in a higher one
+
+  -- -------- -- ----------
+     @xmath      (A.0.11)
+  -- -------- -- ----------
+
+so @xmath for @xmath as required.
+
+## Appendix B Proof of the isolated vertices theorem
+
+In this appendix we prove the following important theorem from Section
+2.1 :
+
+###### Theorem B.0.1 (Connectivity is the same as isolated vertices).
+
+For almost all sets @xmath
+
+  -- -------- -- ---------
+     @xmath      (B.0.1)
+  -- -------- -- ---------
+
+This was first proved by Penrose [ 34 ] . We follow some parts of [ 35 ]
+. We first show that no two components in the graph are ‘large’.
+
+###### Lemma B.0.2 (No two components in the graph are large).
+
+Assuming @xmath , there exists a @xmath such that w.h.p the random graph
+@xmath does not consist of two or more connected components each with
+Euclidean diameter ¹ ¹ 1 This is the largest Euclidean distance which
+can be found between any two vertices in a connected component. at least
+@xmath .
+
+First, tile @xmath with tiles (i.e. like on a household wall) of side
+@xmath , which insists that any two vertices in @xmath found in any two
+adjacent squares are no more than @xmath apart. Then argue that
+
+1.  A component @xmath of Euclidean diameter at least @xmath covers many
+    tiles as @xmath .
+
+2.  Since the tiles have side @xmath , all tiles adjacent to @xmath are
+    empty.
+
+3.  There are many empty boundary tiles, given the size of @xmath .
+
+4.  They cannot all be empty, and so any two large components will merge
+    asymptotically.
+
+We do not explicitly prove parts @xmath - @xmath , but refer directly to
+Walter’s review [ 35 ] (or Penrose’s 1997 paper [ 34 ] ). Hopefully
+these arguments are clear. The crux is to prove that boundary tiles in
+the limit are so numerous that at least one of them houses at least one
+vertex (almost surely).
+
+How many boundary tiles surround @xmath ? At least as many as the square
+root of the number of tiles underlying @xmath . Say @xmath tiles underly
+@xmath . The edge isoperimetric inequality for the grid states ² ² 2
+This is according to Bollobás and Leader [ 77 ] . that the number of
+boundary tiles @xmath is given by
+
+  -- -------- -- ---------
+     @xmath      (B.0.2)
+  -- -------- -- ---------
+
+where @xmath is the complement of the set of tiles underlying the
+component @xmath . Since each component is of a diameter greater than
+@xmath , it meets at least ³ ³ 3 It could be a diagonal strip-like
+component over @xmath , which is as small as its Euclidean diameter
+allows. @xmath tiles, so
+
+  -- -------- -- ---------
+     @xmath      (B.0.3)
+  -- -------- -- ---------
+
+Now we know the size @xmath of the boundary, we show that at least one
+of its tiles is non-empty. Notice lemma 2.14 in [ 35 ] :
+
+###### Lemma B.0.3.
+
+Suppose that @xmath is a graph with maximum degree @xmath , and that
+@xmath is some vertex in @xmath . The number of connected subgraphs of
+@xmath with @xmath vertices that contain @xmath is at most @xmath .
+
+This is not particularly difficult to demonstrate, and we refer to [ 78
+] for an in depth proof (Problem 45 “Connected Subgraphs” in the book of
+problems by Bollobás).
+
+To highlight the main concern, consider the rooted ⁴ ⁴ 4 A rooted graph
+is a graph with one marked vertex, called the root. If the graph @xmath
+has a root vertex we denote it @xmath . graph @xmath , and the number
+@xmath of subtrees of that graph consisting of @xmath vertices as well
+as the root vertex. Then
+
+  -- -------- -- ---------
+     @xmath      (B.0.4)
+  -- -------- -- ---------
+
+which requires some work which we exclude. Given
+
+  -- -------- -------- -------- -------- ---------
+     @xmath   @xmath   @xmath            (B.0.5)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- ---------
+
+our bound in B.0.3 follows. The probability that almost all of set of
+@xmath tiles is empty is
+
+  -- -------- -- ---------
+     @xmath      (B.0.6)
+  -- -------- -- ---------
+
+and (given @xmath for the lattice over @xmath taking @xmath ), we have
+
+  -- -------- -- ---------
+     @xmath      (B.0.7)
+  -- -------- -- ---------
+
+after enumerating all possible boundary tile combinations. We consider
+the graph @xmath , so @xmath and thus if @xmath satisfies
+
+  -- -------- -- ---------
+     @xmath      (B.0.8)
+  -- -------- -- ---------
+
+then any two components of Euclidean diameter at least @xmath merge
+asymptotically. This occurs when
+
+  -- -------- -- ---------
+     @xmath      (B.0.9)
+  -- -------- -- ---------
+
+and we have an idea of how large a component can get before it merges.
+
+Now, all disconnected components must have a Euclidean diameter strictly
+less than @xmath . Notice that if all of these small disconnected
+components are a single vertex, then only isolated vertices can
+disconnect the graph @xmath as @xmath .
+
+###### Lemma B.0.4 (All small components consist of a single vertex.).
+
+Suppose @xmath is as in B.0.2 , and take the case @xmath . Then the
+graph @xmath contains no components @xmath of 1) more than one vertex
+and 2) Euclidean diameter strictly less than @xmath .
+
+The component @xmath has small Euclidean diameter, and no more than one
+vertex. Is this diameter smaller than @xmath ? Centre a ball of radius
+@xmath at some point @xmath in @xmath . Call this ball @xmath . Consider
+another ball @xmath with similar center. Then if @xmath is empty then
+there is at least one more point in @xmath , and @xmath is empty. The
+probability of this dies away with @xmath , since
+
+  -- -------- -- ----------
+     @xmath      (B.0.10)
+  -- -------- -- ----------
+
+which is bounded by the growth of @xmath , so even with a chance at
+every vertex @xmath asymptotically with @xmath .
+
+Is @xmath ? Start by drawing the convex hull ⁵ ⁵ 5 This is the smallest
+convex set which encloses all points in @xmath . @xmath of @xmath .
+Encase @xmath in an upright rectangle @xmath . The diagonal length of
+@xmath must be at least @xmath . Fig. B.1 indicates in grey an area
+around @xmath . @xmath cannot contain less than four points, given it is
+a rectangle (though @xmath could potentially contain fewer points). So
+the best situation has points on the north-east and south-west corners
+defining an area @xmath at least
+
+  -- -------- -- ----------
+     @xmath      (B.0.11)
+  -- -------- -- ----------
+
+with @xmath the length of the longest side (which must be at least
+@xmath , at which point @xmath is a square). Our green rectangle in the
+right panel of Fig. B.1 is slightly larger than required, hence the
+@xmath term. Since we have
+
+  -- -------- -- ----------
+     @xmath      (B.0.12)
+  -- -------- -- ----------
+
+and thus
+
+  -- -------- -------- -------- -- ----------
+     @xmath   @xmath   @xmath      (B.0.13)
+  -- -------- -------- -------- -- ----------
+
+Given there are @xmath vertices available for isolation in @xmath , the
+number of four-vertex combinations embedded in @xmath which satisfy the
+geometric constriction imposed ⁶ ⁶ 6 Note that we can pick any of the
+@xmath vertices in @xmath to be surrounded by @xmath , but the other
+three must be located strictly within a distance @xmath . There are
+@xmath choices per vertex, so there are @xmath combinations to try. by
+@xmath is order @xmath . Thus the number of combinations cannot grow
+fast enough for the decaying exclusion probability (Eq. B.0.13 ), and
+therefore no such rectangle @xmath exists w.h.p.
+
+Finally, notice the disk scaling is @xmath , so the graph disconnects
+w.h.p.
+
+  -- -------- -- ----------
+     @xmath      (B.0.14)
+  -- -------- -- ----------
+
+and theorem B.0.1 follows.
+
+@xmath

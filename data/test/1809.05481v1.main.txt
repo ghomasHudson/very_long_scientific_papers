@@ -1,0 +1,2802 @@
+##### Contents
+
+-    1 Related Work
+-    2 Contributions
+-    3 Overview
+-    4 Graph
+-    5 Tree
+-    6 Automaton
+-    7 Metric
+-    8 Road graph
+-    9 Transit graph
+-    10 Link graph
+-    11 Timetable
+-    12 Cover tree
+-    13 Time-independent
+    -    13.1 Dijkstra
+    -    13.2 A @xmath and ALT
+-    14 Time-dependent
+    -    14.1 Connection scan
+-    15 Multi-modal
+    -    15.1 Modified Dijkstra
+    -    15.2 Access nodes
+-    16 Input data
+    -    16.1 OSM
+    -    16.2 GTFS
+-    17 Experiments
+    -    17.1 Nearest neighbor computation
+    -    17.2 Uni-modal routing
+    -    17.3 Multi-modal routing
+-    18 Future Work
+-    19 Summary
+
+## Section \thechapter Introduction
+
+Route planning refers to the problem of finding an optimal route between
+given locations in a network. With the ongoing expansion of road and
+public transit networks all over the world route planner gain more and
+more importance. This led to a rapid increase in research [ 19 , 31 , 47
+] of relevant topics and development of route planner software [ 37 , 35
+, 60 ] .
+However, a common problem of most such services is that they are limited
+to one transportation mode only. That is a route can only be taken by a
+car or train, but not with both at the same time. This is known as
+routing. In contrast to that routing allows the alternation of
+transportation modes. For example a route that first uses a car to drive
+to a train station, then a train which travels to a another train
+station and finally using a bicycle from there to reach the destination.
+
+The difficulty with routing lies in most algorithms being fitted to
+networks with specific properties. Unfortunately, road networks differ a
+lot from public transit networks. As such, a route planning algorithm
+fitted to a certain type of network will likely yield undesired results,
+have an impractical running time or not even be able to be used at all
+on different networks. We will explore this later in Section Multi-Modal
+Route Planning in Road and Transit Networks .
+
+### 1 Related Work
+
+Research on route planning began roughly in the @xmath s with the
+development of Dijkstra [ 27 ] and the Bellman-Ford algorithm [ 27 ] .
+Ten years later Dijkstra was improved using certain heuristics,
+introducing A @xmath [ 40 ] . While these algorithms are all able to
+compute the shortest path in a road network, they are too slow on real
+world networks of realistic size, such as the scale of a country or even
+a state.
+
+Thus, starting from @xmath , research focused on developing speedup
+techniques for Dijkstra . Basic techniques include bi-directional
+search, goal-directed search and contraction. In @xmath A @xmath was
+further improved by introducing a heuristic based on landmarks ,
+exploiting properties of the triangle inequality, called ALT [ 40 ] .
+Around the same time, techniques based on edge labels were developed. A
+prominent refinement of this approach is called Arc-Flags [ 46 ] . In
+@xmath , contraction hierarchies ( CH ) [ 38 ] was presented as a very
+efficient algorithm based on contraction. Also, transit node routing (
+TNR ) [ 20 ] , a technique based on access nodes , was developed. A year
+later, it was shown that approaches can efficiently be combined,
+yielding very fast solutions. Resulting in Chase [ 21 ] , which combines
+CH with Arc-Flags , and a combination of TNR and Arc-Flags , that yield
+query times of around @xmath milliseconds on road networks of country
+size (compare to Figure 20 in Section Multi-Modal Route Planning in Road
+and Transit Networks ).
+For public transportation networks, research was first focused on
+adapting existing solutions for road networks. From @xmath to @xmath
+most of the mentioned algorithms were successfully extended to compute
+shortest paths in public transportation networks [ 31 , 55 , 47 , 14 ,
+19 ] . Unfortunately, most do not perform well on transit networks, as
+such networks have a completely different structure from which previous
+speedup techniques do not benefit much.
+
+Because of that, techniques designed especially for transit networks
+have been developed. Efficient algorithms include Transfer Patterns [ 18
+] from @xmath , Raptor [ 30 ] from @xmath and CSA [ 33 ] from @xmath .
+A similar approach was done for routing, where most algorithms have been
+adapted to also run in combined networks, accounting for transportation
+mode restrictions [ 17 , 40 , 58 ] . However, the topic is still
+relatively new and promising approaches, as well as extensive research,
+appear only since around @xmath . Theoretical background was provided by
+[ 17 , 16 ] . Nowadays, research is focused on ANR [ 29 , 19 ] , a
+general approach for combining multiple networks using access nodes, as
+well as on improving techniques for solving related subproblems, such as
+efficient access node selection and solving the LCSPP [ 17 ] with less
+restrictions.
+Meanwhile, related, more practice-oriented problems are studied, such as
+penalizing turns [ 25 , 39 ] or general multi criteria routing [ 48 , 51
+, 19 ] .
+
+### 2 Contributions
+
+Our main contribution to this research field is the development of
+Cobweb [ 57 ] , which is an open-source framework for route planning
+developed in the context of this thesis. Further, in Section Multi-Modal
+Route Planning in Road and Transit Networks we give a detailed
+evaluation of experiments demonstrating the effectiveness of our
+implementations for all algorithms explained in this thesis.
+Additionally, we give an overview over route planning and relevant
+approaches, as well as a thorough explanation for all used algorithms
+including examples illustrating them.
+Cobweb is able to parse networks given in the OSM and GTFS format, which
+we will explore later in Section 16 , as well as in compressed formats,
+such as BZIP2 [ 1 ] , GZIP [ 32 ] , ZIP [ 44 ] and XZ [ 10 ] . Networks
+are then represented in one of the models presented in Section
+Multi-Modal Route Planning in Road and Transit Networks . Metadata, like
+names of roads, are saved in an external database and retrieved again
+later.
+The back end offers three REST-API s [ 52 ] using a client-server-based
+structure communicating over the HTTP [ 36 ] which are written primarily
+in Java . One API is for planning journeys, one for searching nodes by
+their name and one for retrieving the nearest node to a given location.
+
+The routing API answers journey planning requests from a given source to
+a destination. The answer contains multiple viable journeys. A request
+consists of
+
+-   , the departure time to start journeys at;
+
+-   , transportation modes allowed for the journey. Applicable are , ,
+    and ;
+
+-   , the source node to depart from;
+
+-   , the destination node to travel to.
+
+The server then computes journeys using the algorithms presented in
+Section Multi-Modal Route Planning in Road and Transit Networks and
+responds with a list of viable journeys. A journey mainly consists of
+geographical coordinates describing the path to travel along and
+metadata, such as which transportation mode to use for which segment,
+names of roads and time information for each segment.
+
+The name search API finds OSM nodes by their name. Therefore, we
+developed LexiSearch [ 56 ] , an API for retrieving information from
+given datasets. It maintains the names of OSM nodes in an inverted
+@xmath -gram index [ 26 , 28 ] . This makes it possible to efficiently
+retrieve nodes by an approximate name which is allowed to have errors,
+such as spelling mistakes. This is known as fuzzy search, or approximate
+string matching, see [ 49 ] for details. Further, nodes can be retrieved
+by prefixes, yielding search results as-you-type . For example, a
+request with the approximate prefix name Freirb would yield nodes with
+the name Freiburg and Freiburg im Breisgau .
+
+The third API offers retrieval of the OSM node nearest to a given
+geographical coordinate. Making it possible for a client to plan a route
+from an arbitrary location to an arbitrary destination, for example by
+clicking on a map. Cobweb retrieves the nearest node by using a Cover
+Tree and solving the Nearest Neighbor Problem , as explained in Section
+Multi-Modal Route Planning in Road and Transit Networks .
+
+Cobweb comes with a light web-based front end (see Figure 1 for an
+image). Its interface is very similar to other route planning
+applications, providing input fields for a source and a destination, as
+well as a departure time and transportation mode restrictions. The front
+end is primarily written in JavaScript and communicates with the back
+end’s REST-API s using asynchronous method invocations. The resulting
+journeys are displayed on a map and highlighted according to metadata,
+such as the used transportation mode.
+The source code of Cobweb , a release candidate, as well as a detailed
+description of the project, its API s, an installation guide, the
+structure and its control flow, can be found at [ 57 ] .
+
+### 3 Overview
+
+In this thesis, we explore a technique with which we can combine an
+algorithm fitted for road networks with an algorithm for public transit
+networks, effectively obtaining a generic algorithm that is able to
+compute routes on combined networks. The basic idea is simple, given a
+source and destination, both in the road network, we select access nodes
+for both. These are nodes where we will switch from the road into the
+public transit network. A route can then be computed by using the road
+algorithm for the source to its access nodes, the transit algorithm for
+the access nodes of the source to the access nodes of the destination
+and finally the road algorithm again for the destinations access nodes
+to the destination. Note that this technique might not yield the
+shortest possible path anymore. Also, it does not allow an arbitrary
+alternation of transportation modes. However, we accept those
+limitations since the resulting algorithm is very generic and able to
+compute routes faster than without limitations. We will cover this
+technique in detail in Section 15.2 .
+Our final technique uses a modified version of ALT [ 40 ] as road
+algorithm and CSA [ 33 ] for the transportation network. The algorithms
+are presented in Section 13.2 and Section 14.1 respectively. We also
+develop a variant of Dijkstra [ 27 ] , which is able to compute the
+shortest route in a combined network with the possibility of changing
+transportation modes arbitrarily. It is presented in Section 15.1 and
+acts as a baseline to our final technique based on access nodes.
+
+We compute access nodes by solving the Nearest Neighbor Problem . For a
+given node in the road network its access nodes are then all nodes in
+the transit network, which are in the vicinity of the road node. We
+explore a solution to this problem in Section Multi-Modal Route Planning
+in Road and Transit Networks .
+Section Multi-Modal Route Planning in Road and Transit Networks starts
+by defining types of networks. We represent road networks by graphs
+only. For transit networks, we provide a graph representation too. Both
+graphs can then be combined into a linked graph. The advantage of graph
+based models is that they are well studied and therefore we are able to
+use our variant of Dijkstra to compute routes on them. However, we also
+propose a non-graph based representation for transit networks, a
+timetable. The timetable is used by CSA , an efficient algorithm for
+route planning on public transit networks. With that, our road and
+transit networks get incompatible and can not easily be combined.
+Therefore, we use the previously mentioned generic approach based on
+access nodes for this type of network.
+Further, we implemented the presented algorithms in the Cobweb [ 57 ]
+project, which is an open-source route planner. In Section Multi-Modal
+Route Planning in Road and Transit Networks we show our experimental
+results and compare the techniques with each other.
+
+## Section \thechapter Preliminaries
+
+Before we define our specific data models and problems we will introduce
+and formalize commonly reoccurring terms.
+
+### 4 Graph
+
+###### Definition 1.
+
+A graph @xmath is a tuple @xmath with a set of nodes @xmath and a set of
+edges @xmath . An edge @xmath is an ordered tuple @xmath with a source
+node @xmath , a non-negative weight @xmath and a destination node @xmath
+.
+
+Note that Definition 1 actually defines a directed graph, as opposed to
+an undirected graph where an edge like @xmath would be considered equal
+to the edge of opposite direction @xmath (compare to [ 34 ] ). However,
+for transportation networks an undirected graph often is not applicable,
+for example, due to one way streets or time dependent connections like
+trains which depart at different times for different directions.
+
+In the context of route planning we refer to the weight @xmath of an
+edge @xmath as cost . It can be used to encode the length of the
+represented connection. Or to represent the time it takes to travel the
+distance in a given transportation mode.
+
+As an example, consider the graph @xmath with
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+which is illustrated in Figure 2 .
+
+###### Definition 2.
+
+Given a graph @xmath the function @xmath gets the source of an edge.
+Analogously @xmath retrieves the destination .
+
+###### Definition 3.
+
+A path in a graph @xmath is a sequence @xmath of edges @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We write @xmath if an edge @xmath appears at least once in the path
+@xmath . The length of a path is the amount of edges it contains, i.e.
+the length of the sequence. The weight or cost is the sum of its edges
+weights.
+
+Let @xmath be the length of a path @xmath , then we define:
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Given two paths @xmath and @xmath where @xmath , the concatenation of
+both paths is a path
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+with length @xmath , also denoted by @xmath .
+
+An example of a path in the graph @xmath would be
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Its length is @xmath and it has a weight of @xmath .
+
+### 5 Tree
+
+###### Definition 4.
+
+A tree is a graph @xmath with the following properties:
+
+-    There is exactly one node @xmath with no ingoing edges, called the
+    root , i.e.
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+-    All other nodes @xmath have exactly one ingoing edge. The source
+    @xmath of this edge is called parent of @xmath and @xmath is called
+    child of @xmath :
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+###### Definition 5.
+
+The subtree of a tree @xmath rooted at a node @xmath is a tree @xmath .
+@xmath is the set of nodes that can be reached from @xmath . That is,
+all nodes that are part of possible paths starting at @xmath . Likewise,
+@xmath is the set of edges restricted to the vertices in @xmath . The
+root of @xmath is @xmath .
+
+###### Definition 6.
+
+The depth of a node @xmath in a tree @xmath , denoted by @xmath , is
+defined as the amount of edges between @xmath and the root @xmath . It
+is the length of the unique path @xmath starting at @xmath and ending at
+@xmath .
+
+The height of a tree is its greatest depth, i.e.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+And
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Trees are hierarchical data-structures. Every node, except the root, has
+one parent. A node itself can have multiple children. Note that it is
+not possible to form a loop in a tree, i.e. a path that visits a node
+more than once. A node without children is called a leaf .
+
+Figure 3 shows a tree with @xmath nodes. The node @xmath is the root;
+@xmath and @xmath are the leaves. The tree has a height of @xmath , the
+depth of @xmath is @xmath . The subtree rooted at @xmath only consists
+of the nodes @xmath and @xmath .
+
+### 6 Automaton
+
+Automata are labeled graphs. They are used to represent states and the
+correlation between them.
+
+###### Definition 7.
+
+A deterministic finite automaton ( DFA ) @xmath is a tuple @xmath with
+
+-    a set of states @xmath ,
+
+-    a set of labels @xmath , called alphabet ,
+
+-    a transition relation @xmath ,
+
+-    an initial state @xmath and
+
+-    a set of accepting states @xmath .
+
+###### Definition 8.
+
+A word @xmath is a finite sequence of letters
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+with @xmath and some @xmath . The empty word is denoted by @xmath .
+
+A word is called accepted iff
+
+-   -- -------- --
+         @xmath   
+      -- -------- --
+
+    for some @xmath ,
+
+-   @xmath is the initial state of the automaton and
+
+-    the last state is accepting, i.e. @xmath .
+
+We say, the automaton @xmath accepts the word @xmath .
+
+###### Definition 9.
+
+The language @xmath of an automaton @xmath is defined as the set of
+accepted words:
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+For an example, refer to Figure 4 which accepts the language
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+denoting words with a finite sequence of @xmath , then one @xmath and
+one @xmath . Such as:
+
+  -- -------- --
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+  -- -------- --
+
+### 7 Metric
+
+###### Definition 10.
+
+A function @xmath on a set @xmath is called a metric iff for all @xmath
+
+  -- -------- -------- -- --
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+  -- -------- -------- -- --
+
+holds.
+
+###### Definition 11.
+
+A metric space is a pair @xmath where @xmath is a set and @xmath a
+metric on @xmath .
+
+###### Definition 12.
+
+Given a metric @xmath on a set @xmath , the distance of a point @xmath
+to a subset @xmath is defined as the distance from @xmath to its nearest
+point in @xmath :
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+A metric is used to measure the distance between given locations.
+Section Multi-Modal Route Planning in Road and Transit Networks and
+Section Multi-Modal Route Planning in Road and Transit Networks , in
+particular Section 13.2 , will make heavy use of this term.
+
+There, we measure the distance between geographical locations given as
+pair of latitude and longitude coordinates. Latitude and longitude,
+often denoted by @xmath and @xmath , are real numbers in the ranges
+@xmath and @xmath respectively, measured in degrees. However, for
+convenience, we represent them in radians. Both representations are
+equivalent to each other and can easily be converted using the ratio
+@xmath .
+A commonly used measure is the as-the-crow-flies metric, which is
+equivalent to the Euclidean distance in the Euclidean space. Definition
+13 defines an approximation of this distance on locations given by
+latitude and longitude coordinates. The approximation is commonly known
+as equirectangular projection of the earth [ 50 ] . Note that there are
+more accurate methods for computing the great-circle distance for
+geographical locations, like the haversine formula [ 53 ] . However,
+they come with a significant computational overhead.
+
+###### Definition 13.
+
+Given a set of coordinates @xmath , we define @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The value @xmath refers to the approximate mean of the earth radius
+@xmath in meters.
+
+## Section \thechapter Models
+
+This section defines the models we use for the different network types.
+We define a graph based representation for road and transit networks.
+Then both graphs are combined into a linked graph, making it possible to
+have one graph for the whole network. Afterwards an alternative
+representation for transit networks is shown.
+
+### 8 Road graph
+
+A road network typically is time-independent. It consists of
+geographical locations and roads connecting them with each other. We
+assume that a road can be taken at any time, with no time dependent
+constraints (see Section 2 of [ 31 ] ).
+
+Modeling the network as a graph is straightforward, Definition 14 goes
+into detail.
+
+###### Definition 14.
+
+A road graph is a graph @xmath with a set of geographical coordinates
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for example road junctions. There is an edge @xmath iff there is a road
+connecting the location @xmath with the location @xmath , which can be
+taken in that direction. The weight @xmath of the edge is the average
+time needed to take the road from @xmath to @xmath using a car, measured
+in seconds.
+
+Figure 5 shows a contrived example road network with the corresponding
+road graph. Note that two way streets result in two edges, one edge for
+every direction the road can be taken.
+Since edge weights are represented as the average time needed to take
+the road, it is possible to encode different road types. For example the
+average speed on a motorway is much higher than on a residential street.
+As such, the weight of an edge representing a motorway is much smaller
+than the weight of an edge representing a residential street.
+
+While the example has exactly one node per road junction this must not
+always be the case. Typical real world data often consist of multiple
+nodes per road segment. However, Definition 14 is still valid for such
+data as long as there are edges between the nodes if and only if there
+is a road connecting the locations.
+
+### 9 Transit graph
+
+Transit networks can be modeled similar to road graphs. The key
+difference is that transit networks are time-dependent while road
+networks typically are not. For example an edge connecting Freiburg main
+station to Karlsruhe main station can not be taken at any time since
+trains and other transit vehicles only depart at certain times. The
+schedule might even change at different days.
+The difficulty lies in modeling time dependence in a static graph. There
+are two common approaches to that problem (see [ 31 , 47 , 19 ] ).
+The first approach is called time-dependent . There, edge weights are
+not static numbers, but piecewise continuous functions that take a date
+with time and compute the cost it needs to take the edge when starting
+at the given time. This includes waiting time. As an example, assume an
+edge @xmath with the cost function @xmath . The edge represents a train
+connection and the travel time is @xmath minutes. However, the train
+departs at @xmath : @xmath am , while the starting time is @xmath :
+@xmath am . Thus, the cost function computes a waiting time of @xmath
+minutes plus the travel time of @xmath minutes. Resulting in an edge
+weight of @xmath minutes.
+
+The main problem with this model is that it makes precomputations for
+route planning very difficult as the starting time is not known in
+advance.
+The second approach, originally from [ 55 ] , is called time-expanded .
+There, the idea is to remove any time dependence from the graph by
+creating additional nodes for every event at a station. Then, a node
+also has a time information next to its geographical location.
+
+###### Definition 15.
+
+A time expanded transit graph is a graph @xmath with a set of events at
+geographical coordinates
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for example a train arriving or departing at a train station at a
+certain time.
+
+For a node @xmath , @xmath and @xmath denote its location and @xmath its
+time.
+There is an edge @xmath iff
+
+-    there is a vehicle departing from @xmath at time @xmath which
+    arrives at @xmath at time @xmath without stops in between, or
+
+-   @xmath is the node at the same coordinates than @xmath with the
+    smallest time @xmath that is still greater than @xmath . This edge
+    represents exiting a vehicle and waiting for another connection.
+    That is
+
+      -- -------- -------- --
+         @xmath   @xmath   
+                  @xmath   
+      -- -------- -------- --
+
+The weight @xmath of an edge @xmath is the difference between both nodes
+times, that is
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Note that weights are still positive since @xmath always holds due to
+construction.
+
+Definition 15 defines such a time expanded transit graph and Figure 6
+shows an example. For simplicity, it is assumed that the trains have no
+stops other than shown in the schedule. The schedule lists four trains:
+
+-   The , which travels from to via ,
+
+-   the , connecting with ,
+
+-   the , driving from to and
+
+-   the , which travels in the opposite direction, connecting with
+    without intermediate stops.
+
+As seen in the example, the resulting graph has no time dependency
+anymore and is static, as well as all edge weights. The downside is that
+the graph size dramatically increases as a new node is introduced for
+every single event. In order to limit the growth, we assume that a
+schedule is the same every day and does not change. In fact, most
+schedules are stable and often change only slightly, for example on
+weekends or on holidays. In practice hybrid models can be used for those
+exceptions.
+However, the model still lacks an important feature. It does not
+represent transfer buffers [ 47 , 19 ] yet. It takes some minimal amount
+of time to exit a vehicle and enter a different vehicle, possibly even
+at a different platform.
+
+We model that by further distinguishing the nodes by arrival and
+departure events. In between we can then add transfer nodes, which model
+the transfer duration. Therefore, the previous definition is adjusted
+and Definition 16 is received.
+
+###### Definition 16.
+
+A realistic time expanded transit graph is a graph @xmath with a set of
+events at geographical coordinates
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for example a train arriving at a train station at a certain time.
+
+A node @xmath is an arrival node if @xmath , analogously it is a
+departure node for @xmath and a transfer node for @xmath . For a node
+@xmath , @xmath and @xmath denote its location, @xmath its time and
+@xmath its event type.
+For every arrival node @xmath there must exist a transfer node @xmath at
+the same coordinates such that @xmath with @xmath being the average
+transfer duration at the corresponding stop.
+There is an edge @xmath iff
+
+-   @xmath such that there is a vehicle departing from @xmath at time
+    @xmath which arrives at @xmath at time @xmath without stops in
+    between; or
+
+-   @xmath such that @xmath and @xmath belong to the same connection.
+    For example a train arriving at a station and then departing again;
+    or
+
+-   @xmath such that @xmath is the first transfer node at the same
+    coordinates whose time @xmath comes after @xmath . That is
+
+      -- -------- -------- --
+         @xmath   @xmath   
+                  @xmath   
+      -- -------- -------- --
+
+    Such an edge represents exiting the vehicle and getting ready to
+    enter a different vehicle; or
+
+-   @xmath such that @xmath is the first transfer node at the same
+    coordinates whose time @xmath comes after @xmath , representing
+    waiting at a stop; or
+
+-   @xmath such that @xmath is the last transfer node at the same
+    coordinates whose time @xmath comes before @xmath , i.e.
+
+      -- -------- -------- --
+         @xmath   @xmath   
+                  @xmath   
+      -- -------- -------- --
+
+    An edge like this represents entering a different vehicle from a
+    stop after transferring or waiting at the stop.
+
+The weight @xmath of an edge @xmath is the difference between both nodes
+times, that is
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Figure 7 shows how the transit graph of Figure 6 changes with transfer
+buffers.
+
+The weight of edges connecting arrival nodes to transfer nodes is equal
+to the transfer duration, @xmath minutes in the example. The transfer
+duration can be different for each edge. A transfer is now possible if
+the departure of the desired vehicle is after the arrival of the current
+vehicle plus the duration time. As seen in the example, edges connecting
+transfer nodes with departure nodes are present exactly in this case. A
+transfer from to in is indicated by taking the edge to the first
+transfer node in and then following the edge with cost @xmath to the
+departure node of the train.
+
+### 10 Link graph
+
+In this section we examine how a road and a transit graph can be
+combined into a single graph such that all connections of the real
+network are preserved.
+The approach is simple, selected nodes in the road network are connected
+to nodes of a certain stop in the transit network and vice versa. Since
+starting time is not known in advance, the graph must connect a road
+node to all arrival nodes of a stop (compare to [ 29 ] ).
+
+In order to not miss a connection, the transit graph must ensure that
+every connection starts with an arrival node. In Figure 7 this is not
+the case and all four trains start at a departure node. However, this is
+easily fixed by adding an additional arrival node to the beginning of
+every connection not starting with an arrival node already. The arrival
+nodes time is the same as the time of the departure node and both are
+connected by an edge with a weight of @xmath . Definition 17 formalized
+the model.
+
+###### Definition 17.
+
+Assume a road graph @xmath , a realistic time expanded transit graph
+@xmath where every connection in @xmath starts by an arrival node and a
+partial function @xmath where @xmath contains subsets @xmath . For every
+element @xmath with an arbitrary element @xmath the following properties
+must hold:
+
+-    All contained elements must be arrival nodes and have the same
+    location than @xmath , i.e.
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+-    The set must contain all arrival nodes at the location of @xmath ,
+    i.e.
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+Then, a link graph is a graph @xmath with an additional set of link
+edges @xmath .
+There is an edge @xmath iff @xmath is defined and @xmath .
+
+The function @xmath can be obtained in different ways. For example, by
+creating a mapping from a road node @xmath to a stop @xmath if @xmath is
+in the vicinity of @xmath according to the @xmath metric.
+
+Another straightforward possibility is to always connect a stop to the
+road node nearest to it. We will explore this problem in Section
+Multi-Modal Route Planning in Road and Transit Networks . An obvious
+downside of this approach is that the nearest road node might not always
+have a good connectivity in the road network. A solution consists in
+creating a road node at the coordinates of the stop as representative.
+The node can then be connected with all road nodes in the vicinity.
+
+### 11 Timetable
+
+Timetables [ 19 ] are non-graph based representations for transit
+networks. They consist of stops, trips, connections and footpaths.
+
+###### Definition 18.
+
+A timetable is a tuple @xmath with stops @xmath , trips @xmath ,
+connections @xmath and footpaths @xmath .
+
+A stop is a position where passengers can enter or exit a vehicle, for
+example a train station or bus stop. It is represented as geographical
+coordinate @xmath with @xmath .
+
+A trip is a scheduled vehicle, like the in the example schedule of
+Figure 6 or a bus.
+In contrast to a trip, a connection is only a segment of a trip without
+stops in between. For example, the connection of the from at @xmath :
+@xmath pm to with arrival at @xmath : @xmath pm . It is defined as a
+tuple @xmath with @xmath representing the departure and arrival stop of
+the connection respectively. Analogously @xmath is the time the vehicle
+departs at @xmath and @xmath when it arrives at @xmath . And @xmath is
+the trip the connection belongs to.
+Footpaths represent transfer possibilities between stops and are
+formalized as ordered tuple @xmath with @xmath being the stops the
+footpath connects. The duration it needs to take the path by foot is
+represented by @xmath , measured in seconds. Together with the set of
+stops @xmath the footpaths build a graph @xmath , representing directed
+edges between stops.
+
+We require the following for the footpaths:
+
+-   Footpaths must be transitively closed, that is
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    for arbitrary durations @xmath .
+
+-   The triangle inequality must hold for all footpaths:
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+-   Every stop must have a self-loop footpath, i.e.
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    The duration @xmath models the transfer time at this stop, as
+    already introduced in Section 9 .
+
+The first property can easily make the set of footpaths huge. However,
+it is necessary for our algorithms that the amount of footpaths stays
+relatively small. In practice, we therefore connect each stop only to
+stops in its vicinity and then compute the transitive closure to ensure
+that the model is transitively closed.
+To familiarize more with the model, we take a look at the schedule from
+Figure 6 again. The corresponding timetable consists of:
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+where @xmath represent , and respectively;
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+representing the four trains , , and ; the connections
+
+  -- -------- --
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+  -- -------- --
+
+and at least the footpaths
+
+  -- -------- --
+     @xmath   
+     @xmath   
+     @xmath   
+  -- -------- --
+
+for transferring at the same stop with a duration of @xmath seconds (
+@xmath minutes).
+
+If we would decide that is reachable from by foot, and analogously from
+, we would also need to add a footpath connecting directly with . Else
+the footpaths would not be transitively closed anymore.
+
+## Section \thechapter Nearest neighbor problem
+
+In this section we introduce the Nearest Neighbor Problem , also known
+as nearest neighbor search ( NNS ). First, we define the problem. Then a
+short overview of related research is given, after which we elaborate on
+a solution called Cover Tree [ 23 ] .
+
+###### Definition 19.
+
+Given a metric space @xmath (see Definition 11 ) with @xmath and a point
+@xmath , the nearest neighbor problem asks for finding a point @xmath
+such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The point @xmath is called nearest neighbor of @xmath .
+
+For following examples the toy data set shown in Figure 8 is introduced.
+It consists of the points
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+All points are elements of the Cartesian plane @xmath . The Euclidean
+distance @xmath is chosen as metric on this set. For two dimensions, it
+can be defined as:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Informally, @xmath computes the ordinary straight-line distance between
+two points.
+The nearest neighbor of @xmath is @xmath , as
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+is smaller than all other distances to @xmath , like
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+On the other hand, @xmath has four smallest neighbors:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Any of them is a valid solution to the nearest neighbor problem for
+@xmath .
+The search for a nearest neighbor is a well understood problem [ 12 , 11
+] and has many applications. Without restrictions, solving the problem
+on general metrics is proven to require @xmath time [ 12 ] , where
+@xmath is the amount of points.
+
+Typical approaches divide the space into regions, exploiting properties
+of the metric space. Common examples include k-d tree s [ 22 ] , VP tree
+s [ 59 ] , BK-tree s [ 24 ] and Cover Tree s [ 23 ] .
+The problem also has a lot of variants. We elaborate on two of them:
+
+###### Definition 20.
+
+The k-nearest neighbors of a point @xmath are the @xmath closest points
+@xmath to @xmath . That is
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+              @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+###### Definition 21.
+
+The k-neighborhood of a point @xmath is the set
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+### 12 Cover tree
+
+###### Definition 22.
+
+A cover tree @xmath on a metric space @xmath is a leveled tree @xmath .
+
+The root is placed at the greatest level, denoted by @xmath . The level
+of a node @xmath is
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+The lowest level is denoted by @xmath . Every node @xmath is associated
+with a point @xmath . We write @xmath . Nodes of a certain level form a
+cover of points in @xmath . A cover for a level @xmath is defined as
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+The following properties must hold:
+
+-    For a level @xmath , there must not exist nodes, which are
+    associated with the same point @xmath :
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    So each point can at most appear once per level.
+
+-   @xmath . This ensures that, once a point was associated with a node
+    in a level, it appears in all lower levels too.
+
+-    Points are covered by their parents:
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    and the node @xmath with @xmath is the parent of the node @xmath
+    with @xmath .
+
+-    Points in a cover @xmath have a separation of at least @xmath ,
+    i.e.
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+A cover tree [ 23 ] has interesting distance properties on its nodes,
+which allows for efficient retrieval of nearest neighbors. The general
+approach is straightforward. Given a node @xmath in the tree placed at
+level @xmath , we know that all nodes of the subtree rooted at @xmath
+are associated with points inside a distance of at most @xmath . This
+means that, if we search for a nearest neighbor, and traverse to a node
+@xmath in the tree, all nodes underneath @xmath are relatively close to
+@xmath . So, if we already have a candidate for a nearest neighbor, with
+a distance of @xmath and @xmath is already further away than @xmath ;
+@xmath and all nodes in its subtree can not improve the distance.
+
+Figure 9 shows a valid cover tree for the toy example illustrated in
+Figure 8 . The covers are
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Clearly the first property holds, there is no level where a @xmath is
+associated with a node more than once. The second property holds too, it
+is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+For the last two properties we take a look at Figure 10 . It illustrates
+the fourth property. The property states that all points in a cover
+@xmath must have a distance of at least @xmath to each other. For level
+@xmath this is trivial, since the set only contains @xmath . For level
+@xmath it must hold that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which is true. If this would not be the case, the figure would show the
+nodes included inside the circle around the other node. Analogously all
+nodes in @xmath and @xmath are separated enough from each other.
+The third property can easily be confirmed using the figure too. It
+states that a node in level @xmath must be closer than @xmath to its
+parent. Obviously this holds for @xmath and @xmath in level @xmath , as
+a radius of @xmath around their parent @xmath covers all nodes. Likewise
+are @xmath and @xmath included in the circle around their parent @xmath
+with radius @xmath .
+
+Note that it is not necessary that a node covers its whole subtree in
+its level. As an example, we refer to @xmath in level @xmath which does
+not cover @xmath , as @xmath , though it is part of the subtree rooted
+at @xmath . The third property only demands that a parent covers all its
+direct children, not grandchildren or similar.
+
+input : point @xmath , candidate cover set @xmath , level @xmath
+
+output : if @xmath was inserted at level @xmath , otherwise
+
+1 @xmath ;
+
+2 if @xmath then
+
+return ;
+
+// Check separation
+
+3
+
+4 else
+
+@xmath ;
+
+// Covering candidates
+
+5 if @xmath then
+
+6 pick any @xmath ;
+
+7 append @xmath as child to @xmath ;
+
+8 return ;
+
+9
+
+10 else
+
+11 return ;
+
+12
+
+13
+
+Algorithm 1 Inserting a point into a cover tree operating on a metric
+space @xmath .
+
+The cover tree is constructed using Algorithm 1 with the maximal level
+@xmath and the cover set @xmath which only consists of the root. The
+algorithm is stated recursively, but can easily be implemented without
+recursion by descending the levels and only following relevant
+candidates.
+
+A point @xmath can be appended in level @xmath to a parent @xmath in
+level @xmath if the point has enough separation to all other nodes in
+this level, meaning more than @xmath , and is covered by the parent,
+that is a distance of less than @xmath . The algorithm searches such a
+point by descending the levels, computing the separation and appending
+it to a node if it also covers the point.
+
+input : point @xmath
+
+output : a nearest neighbor to @xmath in @xmath
+
+1 @xmath ;
+
+2 for @xmath from @xmath to @xmath do
+
+3 @xmath ;
+
+4 @xmath ;
+
+5
+
+6 @xmath ;
+
+Algorithm 2 Searching a nearest neighbor in a cover tree operating on a
+metric space @xmath .
+
+A search for a nearest neighbor follows a similar approach. Algorithm 2
+starts at the root and traverses the tree by following the children. The
+candidate set is refined by only following children which are closer
+than
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+There, the distance to the set represents the distance of the current
+best candidate. Nodes in the subtree rooted at a child can maximally be
+@xmath closer than the child itself. Therefore, take a look at Figure 10
+where @xmath is maximally @xmath closer to @xmath than @xmath , else it
+would not be covered by its parent @xmath . Because of that the
+algorithm only follows children which can have nodes in their subtree
+that improve over the current best candidate. Other children are
+rejected.
+
+Note that the algorithm must track down all levels, as another node
+could show up in the lowest level because of the separation property.
+
+input : point @xmath , amount @xmath
+
+output : @xmath -nearest neighbors to @xmath in @xmath
+
+1 @xmath ;
+
+2 for @xmath from @xmath to @xmath do
+
+3 @xmath ;
+
+4 perform a @xmath -partial sort of @xmath , ascending in @xmath ;
+
+5 let @xmath be the @xmath -th element of @xmath ;
+
+6 @xmath ;
+
+7
+
+8 perform a @xmath -partial sort of @xmath , ascending in @xmath ;
+
+9 return first @xmath elements of @xmath ;
+
+Algorithm 3 Searching the @xmath -nearest neighbors in a cover tree
+operating on a metric space @xmath .
+
+input : point @xmath , radius @xmath
+
+output : @xmath -neighborhood of @xmath in @xmath
+
+1 @xmath ;
+
+2 for @xmath from @xmath to @xmath do
+
+3 @xmath ;
+
+4 @xmath ;
+
+5
+
+6 @xmath ;
+
+Algorithm 4 Computing the @xmath -neighborhood by using a cover tree
+which operates on a metric space @xmath .
+
+The cover tree can also be used to efficiently compute the @xmath
+-nearest neighbors or the @xmath -neighborhood. In order to compute the
+@xmath -nearest neighbors, Algorithm 3 extends the range bound from the
+current best candidate to the @xmath -th best candidate. Likewise does
+Algorithm 4 extend the bound to the given range @xmath instead of
+involving candidate distances.
+For other operations and a detailed analysis of the cover tree, as well
+as its complexity and a comparison against other techniques, refer to [
+23 ] .
+
+## Section \thechapter Shortest path problem
+
+For route planning, routes through a network must be optimized with
+respect to one or even many criteria. A common criterion is travel time
+. Others include cost, number of transfers or restrictions in
+transportation types.
+
+In this chapter, we will first give an informal description of the
+Earliest Arrival Problem . Followed by the Shortest Path Problem , which
+is equivalent to the Earliest Arrival Problem for our graph based
+network representations.
+
+Then, we introduce algorithms for solving the problem. First, for
+time-independent networks, then for time-dependent. Afterwards, we
+explain two solutions for combined networks, using multiple
+transportation modes. There, the problem description slightly changes by
+adding transportation mode restrictions.
+
+###### Definition 23.
+
+The earliest arrival problem asks for finding a route in a network with
+the following properties.
+
+-    The route must start at @xmath and end at @xmath .
+
+-    The departure time at @xmath is @xmath .
+
+-    All other applicable routes must have a greater travel time, i.e.
+    arrive later at @xmath .
+
+Points @xmath and @xmath are given source and target points in the
+network, respectively. @xmath is the desired departure time, it may be
+ignored for a time-independent network.
+
+###### Definition 24.
+
+Given a graph @xmath , source and target nodes @xmath and a desired
+departure time @xmath , the shortest path problem asks for a path @xmath
+(see Definition 3 ) which
+
+-    begins at @xmath and ends at @xmath ,
+
+-    has the smallest weight of all applicable paths.
+
+The arrival time at @xmath is @xmath plus the weight of @xmath . In a
+time-dependent graph @xmath must be used to ensure correct edge weights.
+The path @xmath is called shortest path .
+
+Additionally, we consider a special variant of the shortest path
+problem:
+
+###### Definition 25.
+
+The many-to-one shortest path problem is a variation of the shortest
+path problem where the source consists of a set of source nodes @xmath .
+
+The problem asks for the path @xmath that starts at the source @xmath
+which minimizes the path weight.
+
+### 13 Time-independent
+
+Route planning in time-independent networks is a well understood
+problem. Many efficient solutions to the shortest path problem exists.
+We introduce a very basic algorithm, Dijkstra and a simple improvement
+based on heuristics, A @xmath .
+
+The network shown in Figure 11 acts as toy example for this section.
+
+#### 13.1 Dijkstra
+
+Dijkstra [ 27 ] is a simple approach to solving the shortest path
+problem. It can be viewed as the logical extension of breadth-first
+search ( BFS ) [ 27 ] in weighted graphs. The algorithm revolves around
+a priority queue where it stores neighboring nodes, sorted by their
+shortest path cost. In each round, the node with the smallest shortest
+path cost is relaxed . That is, all its neighboring, not already
+relaxed, nodes are added to the queue. The algorithm terminates as soon
+as the target node has been relaxed. Algorithm 5 gives a formal
+description.
+
+input : graph @xmath , source @xmath , target @xmath
+
+output : shortest path from @xmath to @xmath
+
+// Initialization
+
+1 for @xmath do
+
+2 @xmath ;
+
+3 @xmath ;
+
+4
+
+5 @xmath ;
+
+6 @xmath ;
+
+// Compute shortest paths
+
+7 while @xmath is not empty do
+
+8 @xmath ;
+
+9 @xmath ;
+
+10 if @xmath then
+
+11 break ;
+
+12
+
+// Relax @xmath
+
+13 for outgoing edge @xmath do
+
+14 @xmath ;
+
+15 if @xmath then
+
+// Improve distance by using this edge
+
+16 @xmath ;
+
+17 @xmath ;
+
+18 @xmath ;
+
+19
+
+20
+
+21
+
+// Extract path by backtracking
+
+22 @xmath empty path;
+
+23 @xmath ;
+
+24 while @xmath do
+
+25 @xmath ;
+
+26 prepend @xmath to @xmath ;
+
+27 @xmath ;
+
+28
+
+29 prepend @xmath to @xmath ;
+
+30 return @xmath ;
+
+Algorithm 5 Dijkstra’s algorithm for computing shortest paths in
+time-independent graphs.
+
+To familiarize with the algorithm, we step through the execution for the
+graph shown in Figure 11 , with @xmath as source and @xmath as target
+node.
+
+The function, often implemented as array, stores the tentative shortest
+path weight to the given node. is used for path extraction at the end,
+it stores the parent nodes used for the shortest paths represented by .
+The algorithm starts by initializing both collections with default
+values. Initially, the distance to all nodes, except the source, is
+unknown. Thus, @xmath is used for them. @xmath represents the list of
+nodes that need to be processed, usually implemented as a priority
+queue. Initially, it only holds the source node @xmath .
+
+In the example @xmath starts as @xmath . The algorithm then relaxes
+@xmath and stores distances to its neighbors:
+
+  -------- --------
+  @xmath   @xmath
+  @xmath   @xmath
+  -------- --------
+
+Additionally, the queue @xmath is updated, it is
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+The next iteration of the loop starts and the node with the smallest
+distance is chosen, i.e. @xmath . The node is relaxed and we receive
+
+  -------- --------
+  @xmath   @xmath
+  @xmath   
+  -------- --------
+
+The next node is @xmath , yielding
+
+  -------- --------
+  @xmath   @xmath
+  @xmath   @xmath
+  @xmath   
+  -------- --------
+
+Note that @xmath improves the distance to @xmath . The previous values
+for @xmath are overwritten and the tentative shortest path to @xmath
+uses @xmath and not @xmath anymore. In the next round @xmath is relaxed,
+which improves the distance to @xmath :
+
+  -------- --------
+  @xmath   @xmath
+  @xmath   
+  -------- --------
+
+The only node left is the target node @xmath now. It is relaxed and the
+loop terminates. The algorithm backtracks the parent pointers
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+and constructs the shortest path
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+which is the path shown by the last example in the figure.
+
+#### 13.2 A@xmath and Alt
+
+An important observation of Dijkstra is that, if it settles the shortest
+path distance to a node, then, all nodes which are closer to the source,
+were already settled in a previous round.
+
+Moreover, the algorithm explores the graph in all directions equally. It
+has no sense of goal direction .
+The A @xmath algorithm [ 40 ] is a simple extension of Dijkstra , which
+improves its efficiency by steering the exploration more towards the
+target. Figure 12 illustrates this by comparing the search space of both
+algorithms. The search space of A @xmath is smaller and much more
+directed to the target node @xmath .
+
+Unfortunately, computing the exact goal direction is as hard as
+computing the shortest path to the target. Therefore, a heuristic is
+used to approximate the direction. The choice of the heuristic heavily
+depends on the underlying network. In the worst case, a heuristic may
+not improve over Dijkstra and the same search space is received. In the
+best case, the algorithm explores only the nodes on the shortest path.
+
+Such a heuristic must fulfill two properties, formulated by Definition
+26 .
+
+###### Definition 26.
+
+Given a graph @xmath , a metric on @xmath (see Definition 10 ), a
+heuristic is a function @xmath which approximates . The heuristic @xmath
+must be
+
+-   admissable , i.e. never overestimate:
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+-   monotone , i.e. satisfy the triangle inequality:
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+Given such a heuristic @xmath , the A @xmath algorithm is received by
+adjusting line 7 of Algorithm 5 to
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+This will prefer nodes that are estimated to be closer to the target
+before others. By that, the algorithms search space first expands into a
+direction that minimizes the distance according to the heuristic @xmath
+.
+A common choice for a simple heuristic is the as-the-crow-flies metric
+(see Definition 13 ). The properties are easily verified. A
+theoretically shortest path has the shortest possible distance and uses
+the fastest available transportation mode. This is exactly the path
+represented by the straight-line distance, computed by the
+as-the-crow-flies metric. It can thus never overestimate. It is also
+trivially monotone since it is a metric, i.e. the triangle inequality
+holds for all elements.
+
+A heuristic is a good choice if it approximates the actual shortest path
+distance well. As such, the as-the-crow-flies heuristic works well on
+networks with a high connectivity in all directions. For example a
+residential area of a city without one way streets. Unfortunately, in
+road networks, the common case is to first drive into the opposite
+direction in order to reach a fast highway. This even gets worse on
+networks where the importance of nodes heavily differs, such as public
+transit networks. For train networks, the typical case is that one first
+needs to travel to a main station. This is obviously due to a main
+station having a much better connectivity and faster trains available.
+Because of that, the effectiveness of as-the-crow-flies is very limited
+on such networks.
+The landmark heuristic partially solves the issue. An A @xmath algorithm
+using the landmark heuristic is called ALT [ 40 ] , which stands for
+landmarks and triangle inequality .
+
+The heuristic provides a more generic approach by approximating the
+distance between nodes @xmath and @xmath by using precomputed distances
+with predetermined nodes @xmath , called landmarks .
+
+###### Definition 27.
+
+Given a set of landmarks @xmath , the heuristic @xmath is defined by
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Obviously, the heuristic improves if the set of landmarks is increased.
+However, actual shortest path distances from all landmarks to all other
+nodes in the graph must be precomputed. With an increasing amount of
+landmarks the precomputation might not be feasible anymore because it
+takes too long or consumes too much space. Note that if @xmath , the
+heuristic becomes the actual shortest path distance function, i.e.
+@xmath .
+
+In practice, an amount between @xmath and @xmath randomly chosen nodes
+seems to be a good compromise. Refer to [ 40 ] for a detailed analysis.
+The computation of the actual shortest path distances, to and from the
+landmarks, can be done by using Dijkstra . But, instead of running the
+algorithm for all pairs of nodes, the distances can be obtained with two
+runs only. Therefore, the algorithm is slightly modified by dropping
+lines 9 and 10 , such that the algorithm relaxes the whole network. By
+that, a single run of Dijkstra with a landmark @xmath as the source,
+computes the distances @xmath to all nodes @xmath in the network. By
+reversing the graph, i.e. edges @xmath become @xmath , the distances to
+the landmarks can be obtained analogously with @xmath as source again.
+Depending on the graph implementation, reversal can be done in @xmath by
+only implicitly reversing the edges.
+
+### 14 Time-dependent
+
+Approaches designed for time-independent networks, such as ALT , have an
+important drawback. Optimization is always done on assuming that edge
+costs are constant. However, in a time-dependent network, this is not
+the case. The weight of an edge is dependent on the departure time,
+which is not known in advance.
+Dijkstra and its variants A @xmath and ALT can easily be adapted to also
+work with time-dependent networks by taking the departure time into
+consideration when computing the weight of an edge. However, their
+effectiveness is very limited. Nonetheless, they were used for a long
+time for time-dependent networks too. With increasing research on route
+planning in time-dependent networks, more effective algorithms, such as
+Transfer Patterns [ 18 ] and CSA [ 33 ] , were developed. Many of them
+do not use graphs and prefer data-structures that are designed for
+time-dependent data, such as timetables (see Section 11 ).
+
+#### 14.1 Connection scan
+
+Connection scan ( CSA ) [ 33 ] is an algorithm for route planning
+specially designed for time-dependent networks, such as public transit
+networks. It processes the network represented as timetable, as defined
+by Definition 18 .
+The algorithm is very simple. All connections of the timetable are
+sorted by their departure time. Given a query, connections are explored
+increasing in their departure time. The algorithm is fast primarily due
+to the fact that connections can be maintained in a simple array. In
+contrast to Dijkstra , it does not need to maintain a priority queue or
+other more complex data-structures. Arrays are heavily optimized and
+benefit from a lot of effects, like cache locality [ 41 ] .
+
+input : timetable @xmath , source @xmath , target @xmath , departure
+time @xmath
+
+output : shortest path from @xmath to @xmath
+
+// Initialization
+
+1 for @xmath do @xmath ;
+
+2 for @xmath do @xmath ;
+
+3 for @xmath do @xmath ;
+
+4 for @xmath do
+
+5 @xmath ;
+
+6 @xmath ;
+
+7
+
+// Explore connections increasing in departure time
+
+8 @xmath ;
+
+9 for @xmath increasing by @xmath , starting from @xmath do
+
+10 if @xmath then
+
+11 break ;
+
+12
+
+13 if @xmath then
+
+14 if @xmath then
+
+15 @xmath ;
+
+16
+
+17 if @xmath then
+
+18 for @xmath do
+
+19 if @xmath then
+
+20 @xmath ;
+
+21 @xmath ;
+
+22
+
+23
+
+24
+
+25
+
+26
+
+// Extract path by backtracking
+
+27 @xmath empty path;
+
+28 @xmath ;
+
+29 while @xmath do
+
+30 prepend @xmath to @xmath ;
+
+31 prepend the part of the trip between @xmath and @xmath to @xmath ;
+
+32 @xmath ;
+
+33
+
+34 prepend @xmath to @xmath ;
+
+35 return @xmath ;
+
+Algorithm 6 Connection scan algorithm for computing shortest paths in
+time-dependent networks, represented by timetables.
+
+Algorithm 6 shows the full connection scan algorithm. The array @xmath
+stores for each stop the currently best arrival time. @xmath associates
+for each trip the first connection, it is taken with. @xmath is used for
+path extraction and memorizes for each stop a segment of a trip,
+consisting of enter and exit connections @xmath and @xmath respectively,
+and a footpath @xmath :
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+It represents a path which takes the segment of the trip starting at
+@xmath , ending at @xmath and then taking the footpath @xmath from the
+arrival stop of @xmath . Such an entry is associated with the arrival
+stop of the footpath @xmath , always representing the parent path that
+results in the current best arrival time for the corresponding stop.
+The algorithm starts by initializing the arrays with default values and
+relaxing all initial footpaths. Connections are then explored increasing
+in their departure time, starting from the first connection @xmath that
+starts after the departure time @xmath . Line 7 is typically implemented
+as a binary search [ 45 ] on a sorted array of connections @xmath .
+
+Line 9 is the stopping criterion, which lets the algorithm terminate
+once a connection departs after the current best arrival time at the
+target @xmath . Since connections are explored increasing in time, it is
+impossible that a connection can improve on the arrival time anymore.
+
+Line 11 will only explore a connection if a previous connection of the
+same trip was already used, indicating traveling without a transfer; or
+if it was already possible to arrive at the stop earlier with a previous
+connection, indicating a transfer at this stop.
+
+A connection is then only relaxed if it improves the arrival time at its
+arrival stop, represented by line 14 . If so, all outgoing footpaths are
+explored. A footpath represents exiting the vehicle, walking to the
+arrival stop of the footpath ready for entering another vehicle. Note
+that self-loop footpaths must be contained in timetables (compare to
+Definition 18 ), making it possible to transfer at one stop.
+
+Line 16 only considers footpaths that improve the arrival time at the
+corresponding stop. Line 18 stores the path represented by taking this
+connection and the footpath.
+For an example, we refer to the schedule of Figure 6 again. The
+corresponding timetable is explained in Section 11 , we use the same
+notion again. It consists of five connections, denoted by @xmath and
+@xmath , sorted by departure time. We assume only the three self-loop
+footpaths on the stops @xmath , @xmath and @xmath .
+
+Assume a query from , represented by stop @xmath , to , represented by
+@xmath , with a departure time of @xmath . The initial configuration
+after line 3 is
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Then the footpath @xmath departing at is relaxed, resulting in
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Connections are now explored increasing in departure time, starting with
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+The connection is considered since we already arrived at before @xmath :
+@xmath pm . The trip is set and the footpath at is relaxed, yielding
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+The next connection is
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+However, it induces no changes, as the previous connection already
+arrived in earlier. The algorithm continues by exploring
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+The connection is considered because the trip @xmath was used before
+already, indicating that the trip can be taken without transferring.
+Else it would not be applicable, since the current best arrival time at
+, including the transfer duration of @xmath minutes, is @xmath : @xmath
+pm , which is after the departure time of @xmath . The changes are
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+In the next iteration
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+is considered, again inducing no changes. The algorithm then terminates
+exploration since the last connection
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+departs after the current best arrival time at , which is @xmath .
+
+Path construction is straightforward, it is
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+which yields the path which takes
+
+-   the footpath from to ,
+
+-   @xmath starting with @xmath to @xmath , which is using the from to ,
+
+-   and a final footpath from to .
+
+The earliest arrival time at is @xmath .
+
+### 15 Multi-modal
+
+So far, all presented route planning algorithms are limited to networks
+only consisting of routes of one transportation mode, for example a
+train network. We only distinguished between time-independent and
+time-dependent networks. However, in practice, we want to plan routes
+involving multiple transportation modes. For example, using a bicycle to
+drive to the next train main station, using the road network, and then
+entering a train.
+To represent transportation mode possibilities in the networks, we
+slightly modify our models. All edges in graph based models get
+transportation mode labels, formalized by Definition 28 .
+
+###### Definition 28.
+
+Given a set of transportation mode labels @xmath , a graph @xmath is a
+graph with a label function
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+that assigns to each vertex a set of available transportation modes.
+
+In our implementation in Cobweb we use the modes
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+The timetable model is adjusted by assigning all connections the mode
+and all footpaths .
+Another difficulty of routing is that, in practice, it is usually not
+applicable to change transportation modes arbitrarily. User have
+different requirements and preferences regarding the change of modes.
+For example, it might not be possible to use a car right after traveling
+with a tram and then leaving it at a train station before continuing the
+journey using a train. If the model does not account for this, the
+algorithm should not be allowed to pick such a route.
+
+Applicable transportation mode sequences are typically represented as
+languages of automata (see Section 6 ) [ 17 ] . Figure 13 shows an
+example. The automaton accepts words consisting of routes that
+
+-   are empty,
+
+-   only use ,
+
+-   use the after walking to a stop,
+
+-   use the after walking to a stop and using the , and
+
+-   use the directly after walking.
+
+A route that takes the after using a is not accepted by the automaton
+and thus, not applicable.
+The search of shortest paths, restricted to such transportation mode
+automata, is called the Label-Constrained Shortest Path Problem [ 17 ] (
+LCSPP ). Common algorithms, like Dijkstra , A @xmath and ALT , were
+adapted and analyzed with respect to the LCSPP [ 17 , 40 , 58 ] .
+However, we will study two algorithms that are restricted to fixed
+languages, not accepting arbitrary automata. First, we show a simple
+extension of Dijkstra and its variants that adapts the algorithm for
+route planning. Afterwards, we present a generic approach to combine any
+algorithms for limited route planning.
+
+#### 15.1 Modified Dijkstra
+
+In order to adapt Dijkstra and its variants A @xmath and ALT for graphs
+(see Definition 28 ), the algorithm needs to account for the labels at
+edges.
+Given a graph, a source @xmath and a target @xmath , and a set of
+available transportation modes
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+the modified Dijkstra computes a shortest path @xmath from @xmath to
+@xmath which does only use edges labeled with available modes, i.e.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Therefore, we adjust line 11 of Algorithm 5 to only consider outgoing
+edges such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+When multiple transportation modes are available, such as @xmath , the
+edge weight is not static anymore, as a can travel the distance faster
+than a . To break the ties, we always choose the fastest transportation
+mode, referring to the order
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The edge weight @xmath in line 11 is then computed as if the fastest, on
+this edge available, transportation mode is used:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The modified Dijkstra accepts the transportation mode model shown in
+Figure 14 .
+While this modification works perfectly fine for Dijkstra , it does
+impair the effectiveness of A @xmath and ALT . The problem is that the
+heuristic of A @xmath can not know the transportation mode restrictions
+@xmath beforehand. Because of that, a heuristic must always assume that
+the fastest possible transportation mode is chosen. Else, it might be
+possible that the actual shortest path uses a faster mode than the
+heuristic assumed, in which case the heuristic would overestimate the
+travel time and violate Definition 26 .
+
+For @xmath this means that it must assume that the straight-line
+distance is traveled using a , or more general:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+For ALT all precomputation must be done under the assumption that, at
+query time, there are no transportation mode restrictions, i.e.
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+The actual impact on the effectiveness heavily depends on the type of
+network. It has no effect at all if all edges on the shortest path for
+@xmath can also be taken with the actual restricted version of @xmath .
+It gets worse if some edges are not available anymore, for example a
+highway that can not be taken for @xmath , although the heuristic
+assumed it can be taken using a .
+
+In a typical road network most edges support all road-type
+transportation modes, i.e. @xmath . The most common exceptions are
+highways, pedestrian zones and bikeways. However, the latter two do
+typically not cover big distances and a regular road connecting the same
+locations is often available too. Because of that A @xmath and ALT
+typically perform worse only on long-distance routes, which make heavy
+usage of highways, if the transportation modes are restricted to modes
+not available on highways. A similar observation can be done for
+combined networks, like a link graph (see Section 10 ).
+For ALT this problem can be tackled by precomputing the distances to the
+landmarks for every possible transportation mode restriction @xmath
+individually. However, this results in
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+combinations, which is usually not feasible.
+
+#### 15.2 Access nodes
+
+Often, combining multiple networks of different types into one
+representation, such as a graph, is not appropriate. We have seen that
+graph representations for public transit networks dramatically scale in
+size, due to representing time information. A timetable is more suited
+for such a network type and algorithms optimized to a specific network
+type, such as CSA , perform much better than a generic approach like
+Dijkstra .
+In this section, we elaborate on a generic technique that allows to
+combine any networks with corresponding algorithms for a restricted
+variant of the Shortest Path Problem . We describe the algorithm by
+combining a road with a public transit network, using the variant of ALT
+and CSA respectively. The general technique is known as Access-Node
+Routing ( ANR ) [ 29 , 19 ] .
+Given a source and a destination node in the road network, we first
+compute access nodes . Those are nodes where we will switch from the
+road into the public transit network. Therefore, the access nodes are
+computed as the k-nearest neighbors (see Definition 20 ) for both, the
+source and the destination node, in the public transit network. The
+amount @xmath should be kept small in order to keep query time low, we
+use @xmath in our implementation.
+
+In the best case, the access nodes are important , i.e. they maximize
+the amount of shortest paths, from the source to the destination, of
+which they are part of. Because of that, typically they are precomputed,
+using a ranking among the nodes. For example, a train main station is
+preferred over a small tram stop. The computation can be optimized
+further by using heuristics and techniques like ALT were some paths are
+already precomputed. See [ 29 ] for details on how to obtain good access
+nodes.
+
+Given the access nodes for source and destination, a path is computed
+piecewise, by computing shortest paths from
+
+-   the source to all its access nodes,
+
+-   the access nodes of the source to all access nodes of the
+    destination, and
+
+-   the access nodes of the destination to the destination.
+
+We denote the corresponding sets of paths by @xmath , @xmath and @xmath
+respectively. The resulting path is chosen as the concatenation of paths
+from those sets, such that the cost is minimized. That is, we receive a
+path
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+with @xmath and @xmath such that
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Of all paths satisfying these constraints, @xmath is chosen as the path
+with the smallest cost. Additionally, we consider the shortest path
+@xmath between the source and destination that only uses the road
+network. The final path is again the one with the smallest cost. Figure
+15 illustrates the scheme of this approach.
+
+The accepted transportation mode model is shown in Figure 16 .
+
+Note that the resulting path is not necessarily a valid solution to the
+Shortest Path Problem anymore. A correct solution may not even contain
+any of the used access nodes. However, if access nodes are chosen well,
+the resulting path is likely to be appropriate and a good approximation
+to the actual solution.
+
+## Section \thechapter Evaluation
+
+In this section we report on our experimental results for the presented
+algorithms on three data sets of increasing size. Therefore, we first
+give insights on the data sets and how the network models are obtained.
+Afterwards we evaluate Cover Tree s, Dijkstra , A @xmath (with @xmath ),
+ALT , CSA and methods such as the adopted Dijkstra and our simplified
+version of ANR on the given data sets.
+When evaluating shortest path queries on randomly chosen source and
+target nodes, the resulting paths tend to be long-range. However, in
+practice, most queries are only local and algorithms like Dijkstra do
+not scale well with increasing range. To overcome this measurement
+problem, we introduce the notion of a Dijkstra rank [ 54 ] .
+
+###### Definition 29.
+
+Given a graph @xmath , the Dijkstra rank of a node @xmath is the number
+of the iteration in which, when running Dijkstra on the graph, it is
+polled from the priority queue (see line 7 of Algorithm 5 ).
+
+That is the position @xmath for @xmath in the order of vertices when
+sorted ascending by their distance to the source, i.e.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with @xmath for all @xmath .
+
+Instead of choosing queries randomly, we only choose source nodes
+randomly and then select targets by their Dijkstra rank to the source.
+Queries can then be sorted by the Dijkstra rank and, by that, evaluated
+in terms of increasing range.
+
+### 16 Input data
+
+We consider three data sets, consisting of road and public transit data.
+The road network is extracted from OSM [ 43 ] formatted data and transit
+data is given in the GTFS [ 13 ] format.
+Our data sets represent the region around the German cities and . Their
+road network is of similar size, while our transit data for only include
+tram data, whereas the data for also include train and bus connections.
+The size of our transit network for is about ten times the size of the
+network for .
+
+Furthermore, we include a road and transit network for the country . The
+transit data consists of train, tram and bus connections. Both networks
+are about three times the size of s.
+We obtain our road networks from [ 4 , 6 , 8 ] and our transit networks
+from [ 3 , 7 ] . The transit data used for is under restricted public
+access (refer to [ 9 ] ).
+
+#### 16.1 Osm
+
+OSM [ 43 ] (OpenStreetMap) data is represented in a XML structure
+describing
+
+-    nodes , with an unique identifier and a coordinate given as pair of
+    latitude and longitude;
+
+-    ways , also with an unique identifier, consisting of multiple nodes
+    referenced by their identifier;
+
+-    relations , consisting of nodes, ways and other relations,
+    representing relationships between the referenced data;
+
+-    tags as key-value pairs, storing metadata about the other items.
+
+⬇
+
+1 <? xml version = ’1.0’ encoding = ’UTF-8’ ?>
+
+2 < osm version = "0.6" >
+
+3 < bounds minlon = "7.253190" minlat = "47.299090" maxlon = "9.246965"
+maxlat = "48.751520" />
+
+4 < node id = "29764598" lat = "47.8512831" lon = "7.9230269" />
+
+5 < node id = "669209525" lat = "47.8513215" lon = "7.9231227" />
+
+6 < node id = "3993821274" lat = "47.8513342" lon = "7.923183" />
+
+7 < node id = "832450227" lat = "47.8157938" lon = "8.8487527" >
+
+8 < tag k = "highway" v = "motorway_junction" />
+
+9 < tag k = "name" v = "Kreuz Hegau" />
+
+10 </ node >
+
+11 < node id = "100036455" lat = "47.5728421" lon = "8.0365409" >
+
+12 < tag k = "name" v = "Niederhof" />
+
+13 < tag k = "traffic_sign" v = "city_limit" />
+
+14 </ node >
+
+15 < way id = "29764598" >
+
+16 < nd ref = "669209525" />
+
+17 < nd ref = "3993821274" />
+
+18 < tag k = "highway" v = "motorway" />
+
+19 < tag k = "oneway" v = "yes" />
+
+20 </ way >
+
+21 < relation id = "56688" >
+
+22 < member type = "node" ref = "29764598" role = "" />
+
+23 < member type = "node" ref = "669209525" role = "" />
+
+24 < member type = "way" ref = "29764598" role = "" />
+
+25 < tag k = "name" v = "Bus line 1" />
+
+26 < tag k = "network" v = "VVW" />
+
+27 < tag k = "ref" v = "1" />
+
+28 < tag k = "route" v = "bus" />
+
+29 < tag k = "type" v = "route" />
+
+30 </ relation >
+
+31 </ osm >
+
+Listing 1: OSM example data set, derived from [ 5 ] .
+
+A small OSM example data set is shown in Listing 1 . Ways are used to
+represent roads consisting of nodes. Tags are used to describe metadata
+like speed limits for a road or whether it is a one way street or not.
+However, the format also contains a lot of data not directly relevant
+for route planning, like shapes of buildings and outlines of public
+parks. Therefore, we filter OSM data and only keep relevant information.
+
+⬇
+
+1 -- KEEP
+
+2
+
+3 #highways
+
+4 highway = motorway
+
+5 highway = trunk
+
+6 highway = primary
+
+7 highway = secondary
+
+8 highway = tertiary
+
+9 highway = residential
+
+10 highway = living_street
+
+11 highway = unclassified
+
+12 highway = cycleway
+
+13
+
+14 #highwaylinks
+
+15 highway = motorway_link
+
+16 highway = trunk_link
+
+17 highway = primary_link
+
+18 highway = secondary_link
+
+19 highway = tertiary_link
+
+20 highway = residential_link
+
+21
+
+22 #non-standard
+
+23 way = primary
+
+24 way = seconday
+
+25
+
+26 -- DROP
+
+27
+
+28 area = yes
+
+29 train = yes
+
+30 access = no
+
+31 type = multipolygon
+
+32 railway = platform
+
+33 railway = station
+
+34 highway = proposed
+
+35 highway = construction
+
+36 building = yes
+
+37 building = train_station
+
+Listing 2: Tag filter for OSM ways.
+
+As we are only interested in the road network itself, we start by
+reading the ways. We filter them based on the tags described by Listing
+2 . Ways having at least one of the key-value pairs described under
+@xmath KEEP and none of the pairs under @xmath DROP are kept, as they
+represent roads of the network. All other ways are rejected, as well as
+all relations. After that, we read the nodes and only keep nodes that
+occurred at least once in any of the ways that passed the filter. Our
+road network is then built using the remaining nodes as graph nodes,
+translating the ways into edges between the nodes.
+
+Ways with a positive oneway tag are translated into edges only going
+into the given direction, else we generate edges for both directions.
+The cost of an edge is computed as the time it takes to travel the
+direct distance between the source and destination coordinates (see
+Definition 13 ) at a certain speed. The speed is determined either by a
+given maxspeed tag or the average speed for the road type defined by the
+highway tag. Therefore, we use the average speed references shown in
+Table 1 .
+
+The size of the resulting road graphs (see Section 8 ) for all three
+data sets is reported in Table 2 . As seen, filtering the OSM data sets
+beforehand reduces the size of data that is to be processed by @xmath to
+@xmath . The road graphs have approximately two edges per node. This is
+due to most streets being a two way street, thus generating two edges
+per connection between two nodes. Obviously, road junctions are,
+compared to the amount of nodes, rare and thus, multiple edges do only
+rarely share the same node. The in- and outdegree of nodes is extremely
+low, mostly @xmath ( @xmath ), as seen in Table 3 .
+
+#### 16.2 Gtfs
+
+GTFS [ 13 ] is short for General Transit Feed Specification, it defines
+a common format for public transit schedules. It comes compressed as ZIP
+archive, consisting of multiple text files formatted as CSV tables. The
+mandatory tables are
+
+-    agency.txt , defining metadata about the transit agency;
+
+-    routes.txt , containing information about complete routes, like all
+    trips belonging to a bus line;
+
+-    trips.txt , consisting of single trips, belonging to a route;
+
+-    stop_times.txt , having departure and arrival times at the stops
+    for all connections in the network;
+
+-    stops.txt , providing metadata and coordinates of all stops;
+
+-    calendar.txt defining the service pattern on which routes are
+    available.
+
+Furthermore, there are a couple of optional tables, of which we are only
+interested in
+
+-    transfers.txt , provides transfer possibilities between stops and
+    their duration.
+
+⬇
+
+1 // agency.txt
+
+2 agency_id , agency_name , agency_url , agency_timezone , agency_phone
+, agency_lang
+
+3 FunBus , The Fun Bus , , (310) 555-0222, en
+
+4
+
+5 // routes.txt
+
+6 route_id , route_short_name , route_long_name , route_desc ,
+route_type
+
+7 A , 17, Mission , From lower Mission to Downtown ., 3
+
+8
+
+9 // trips.txt
+
+10 route_id , service_id , trip_id , trip_headsign , block_id
+
+11 A , WE , AWE1 , Downtown , 1
+
+12 A , WE , AWE2 , Downtown , 2
+
+13
+
+14 // stop_times.txt
+
+15 trip_id , arrival_time , departure_time , stop_id , stop_sequence ,
+pickup_type , drop_off_type
+
+16 AWE1 , 0:06:10, 0:06:10, S1 , 1, 0, 0
+
+17 AWE1 , 0:06:20, 0:06:30, S3 , 3, 0, 0
+
+18 AWE1 , 0:06:45, 0:06:45, S6 , 5, 0, 0
+
+19 AWD1 , 0:06:10, 0:06:10, S1 , 1, 0, 0
+
+20 AWD1 , 0:06:20, 0:06:20, S3 , 3, 0, 0
+
+21 AWD1 , 0:06:45, 0:06:45, S6 , 6, 0, 0
+
+22
+
+23 // stops.txt
+
+24 stop_id , stop_name , stop_desc , stop_lat , stop_lon , stop_url ,
+location_type , parent_station
+
+25 S1 , Mission St . & Silver Ave ., , 37.728631, -122.431282, , ,
+
+26 S3 , Mission St . & 24 th St ., , 37.75223, -122.418581, , ,
+
+27 S6 , Mission St . & 15 th St ., , 37.766629, -122.419782, , ,
+
+28
+
+29 // calendar.txt
+
+30 service_id , monday , tuesday , wednesday , thursday , friday ,
+saturday , sunday , start_date , end_date
+
+31 WE , 0, 0, 0, 0, 0, 1, 1, 20060701, 20060731
+
+32 WD , 1, 1, 1, 1, 1, 0, 0, 20060701, 20060731
+
+33
+
+34 // transfers.txt
+
+35 from_stop_id , to_stop_id , transfer_type , min_transfer_time
+
+36 S3 , S6 , 2, 300
+
+37 S6 , S3 3, 180
+
+Listing 3: GTFS example data set, inspired by [ 2 ] .
+
+An example feed can be seen in Listing 3 . The format is similar to our
+definition of timetables (see Section 11 ), with the difference that
+connections are not directly given as edges departing from one stop to
+another, but as pair of arrival and departure time at stops. Also, it
+contains a lot of metadata which we do not process.
+Construction of a realistic time expanded transit graph (see Definition
+16 ) is straightforward and mainly revolves around parsing
+stop_times.txt . We build two nodes for every entry, one representing
+the arrival event at the stop and another for the departure.
+Furthermore, we create a transfer node for every arrival node,
+indicating a transfer at the given stop. Each arrival node is then
+connected by an edge with its corresponding departure and transfer node.
+
+After parsing all data, we connect departure nodes with the arrival
+nodes at the next stop in a trip. Therefore, we process each trip and
+follow the stop_times.txt entries belonging to that trip in the order
+defined by the stop_sequence field.
+
+As a next step, waiting edges are created by sorting transfer nodes of a
+stop ascending in time and then creating edges connecting them in that
+order. Finally, every departure node is connected to its previous
+transfer node. We find the transfer node by using a binary search [ 45 ]
+on the sorted list of transfer nodes for this stop.
+Timetables (see Definition 18 ) are received similarly. But simpler, as
+transfer nodes are not present. We process all stops and trips defined
+in stops.txt and trips.txt and obtain the sets @xmath and @xmath
+respectively. Connections are created by again processing entries in
+stop_times.txt , belonging to one trip, in the sequence defined by
+stop_sequence . We create one connection for every departure node with
+the corresponding next arrival node.
+
+For the footpaths, we initially take the transfers given in
+transfers.txt . In order to increase the quality of our footpath model,
+we also connect stops with footpaths if they are within @xmath meters of
+each other.
+
+However, our footpaths need to fulfill strong properties (see Section 11
+), which the given transfers usually not obey. Therefore, we have to add
+self-loop footpaths, if not present. And we need to compute the
+transitive closure of the given footpaths in order to ensure that they
+are transitively closed. Thus, it is crucial that the range, for which
+close stops are connected, is kept low. Else, the amount of footpaths
+dramatically increases due to the transitive closure.
+
+The triangle inequality property is ensured by rejecting given transfer
+durations and approximating all durations by using @xmath .
+Additionally, all footpath durations must not be lower than the transfer
+buffer used for the self-loop footpaths. We do so by taking the @xmath
+of the transfer buffer and the calculated duration.
+
+Table 4 reports the size of the feed and the resulting network. It can
+be clearly seen that a timetable has a much smaller amount of objects,
+compared to a realistic time expanded transit graph. In particular
+compared to the size of a road graph (see Table 2 ). This even becomes
+worse if we use it to construct a link graph, as seen in Section 10 , as
+we need to add an incoming and outgoing edge for each arrival node, in
+order to connect it with the road graph. Table 5 reports the exact
+amount of added link edges.
+
+### 17 Experiments
+
+This section shows our experimental results for the algorithms presented
+in Section Multi-Modal Route Planning in Road and Transit Networks and
+Section Multi-Modal Route Planning in Road and Transit Networks . The
+algorithms are implemented in the context of the Cobweb [ 57 ] project,
+which is an open-source route planner written in Java .
+Results are measured from a sequential execution on a @xmath -core Intel
+Xeon E5649 machine running at @xmath GHz. The maximal heap size of Java
+s virtual machine is restricted to @xmath GB.
+
+#### 17.1 Nearest neighbor computation
+
+For solving the Nearest Neighbor Problem we implemented a Cover Tree
+data-structure with corresponding retrieval methods, as explained in
+Section 22 . It operates on nodes of the road network obtained from the
+data sets , and , using @xmath as metric on the nodes.
+The experiment consists of continuous insertion of nodes, for each of
+the three networks respectively, and then measuring random nearest
+neighbor queries, i.e. the execution time of Algorithm 2 . Measurements
+are done for tree sizes of @xmath , @xmath and then in steps of @xmath .
+Each measurement is averaged over @xmath queries using randomly selected
+nodes.
+
+Figure 17 shows the results of the experiment. The method is comparably
+fast, even for large road networks like . The graph appears to be
+similar for all three data sets. This is obviously due to the fact that
+they all represent the same type of network, with a similar distribution
+of nodes.
+
+In a road network, nodes are typically close to each other and appear in
+local groups, representing cities and structured road segments. In
+particular, they are not uniformly distributed. A Cover Tree benefits
+from this, as a node can be the parent of many other, locally close
+nodes. And as such, the tree is balanced well, resulting in efficient
+queries that are able to quickly find the correct path in the tree that
+leads to the nearest neighbor.
+
+Due to the same reason, the running time scales approximately
+logarithmically with increasing size. Queries take longer if the depth
+of the tree increases. In a well balanced Cover Tree the depth is
+logarithmic in its size.
+
+#### 17.2 Uni-modal routing
+
+The first experiment for routing compares time-independent methods for
+solving the Shortest Path Problem . It measures an implementation of
+Dijkstra (see Algorithm 5 ), the A @xmath algorithm (see Section 13.2 )
+using @xmath as heuristic and ALT with the precomputed heuristic shown
+in Definition 27 .
+
+Queries are performed on the road graphs obtained by the data sets , and
+. We choose @xmath random source nodes and then determine the Dijkstra
+rank (see Definition 29 ) for the source nodes to all other nodes in the
+graph. Source nodes with a bad connectivity are rejected and exchanged
+against another random source node. This is determined by a source node
+having no node in the graph with a rank of at least @xmath which is only
+rarely the case for randomly chosen nodes. We then choose nodes as
+destinations that have a Dijkstra rank of
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the maximal rank all source nodes have in common. By
+that, the queries cover all types of ranges, highlighting how well the
+algorithms scale with queries of increasing ranges. By that, we receive
+for every rank @xmath in total @xmath different queries which we average
+the measured running time over.
+
+Figure 18 shows the results of the experiment. First of all, it can be
+seen that all three methods do not scale well with queries of increasing
+ranges. Long range queries, like for a rank of @xmath or @xmath , range
+from @xmath to @xmath seconds. In fact, the running time scales
+exponentially for increasing ranges. Further, A @xmath and ALT are
+slower than Dijkstra for short range queries. This is due to the
+increased overhead of the modified Dijkstra variants. Both need to
+additionally evaluate their corresponding heuristic on every relaxed
+edge. However, for mid and, in particular, for long range queries, A
+@xmath performs similar to Dijkstra and ALT even is about twice as fast.
+At this point the additional overhead is negligible and the benefit of a
+good heuristic pays off. It can also be seen that @xmath , which is used
+by A @xmath , is not a good heuristic for road networks and does not
+improve over the ordinary Dijkstra approach, as already explained in
+Section 13.2 .
+
+Furthermore, if ALT is implemented very carefully and optimized, it can
+outperform Dijkstra earlier. For a comparison, we include the results
+from [ 19 ] of similar measured experiments for highly optimized
+variants of Dijkstra and other techniques for time-independent route
+planning in Figure 19 . The results show that Dijkstra s performance can
+be increased by approximately a factor of @xmath , compared to our
+implementation, if heavily optimized. However, the running time for long
+range queries is still not feasible. Fortunately, there exist other
+approaches which tackle this problem, like seen in the figure. The
+presented algorithms are referenced and briefly explained in [ 19 ] .
+
+Additionally, they give a general overview of time-independent route
+planning techniques, comparing their average query time and their
+necessary preprocessing time. We include their overview in Figure 20 .
+
+The second experiment compares time-dependent solutions to the Shortest
+Path Problem . We measure the performance of an adopted Dijkstra variant
+(see Section 14 ) against CSA (using Algorithm 6 ) over the duration of
+one day, with changing time. The experiment is measured for the @xmath ,
+which is a Wednesday, representing an average day in the schedule of the
+transit network. Dijkstra runs on a realistic time expanded transit
+graph (see Definition 16 ) and CSA on a timetable (see Definition 18 ),
+both obtained from the public transit data of , and .
+
+Measurements are taken in steps of @xmath minutes over the whole day,
+averaged over @xmath randomly chosen queries. The only exception is
+Dijkstra for , which is done in steps of @xmath minutes, due to very
+long running times.
+
+The algorithms are compared in Figure 21 , with their single performance
+highlighted in Figure 22 .
+
+Both algorithms perform worse if the size of the time schedule
+increases, roughly increasing by a factor of @xmath for all three data
+sets. However, CSA runs on @xmath times faster than Dijkstra on the
+small schedule of , where CSA even performs better by a factor of @xmath
+. Clearly, CSA outperforms Dijkstra for time-dependent routing, making
+it a very viable choice. CSA can even successfully compete against other
+approaches designed especially for time-dependent route planning, as
+shown by [ 33 ] .
+
+It can also be seen that CSA is subject to the traffic congestion of the
+time schedule. Yielding better running times in the evening and night
+from @xmath : @xmath pm to @xmath : @xmath am , than in the morning,
+noon and afternoon from @xmath : @xmath am to @xmath : @xmath pm . This
+is due to the fact that CSA needs to iterate all connections from a
+given time, not only relevant connections. In a rush hour, the schedule
+has way more connections that need to be processed, leading to a worse
+performance.
+
+Dijkstra , on the other hand, only needs to scan connections available
+from the already processed routes. Thus, it is not affected by traffic
+congestion as much as CSA and is still more subject to the range of
+queries, which is not captured by this experiment.
+
+#### 17.3 Multi-modal routing
+
+For routing we compare a modified Dijkstra (see Section 15.1 ), running
+on a link graph (see Definition 17 ), with our simplified version of ANR
+(refer to Section 15.2 . ANR runs on a road graph and a timetable, using
+an ordinary Dijkstra for the road and CSA for the transit network. For a
+given query, it computes the three nearest neighbors to the source and
+destination as access nodes, using a Cover Tree , then it runs Dijkstra
+to compute the shortest paths from the source and destination to their
+access nodes. After that, CSA is used to compute the shortest paths
+between the sources and destinations access nodes. Additionally, one
+shortest path query from the source to the destination, limited to the
+road network, is run. In total this makes
+
+-   @xmath @xmath -nearest neighbor queries from source and destination,
+
+-   @xmath Dijkstra from the source and destination to access nodes,
+
+-   @xmath CSA between access nodes,
+
+-   @xmath Dijkstra from source to destination, limited to the road
+    graph.
+
+The measurement is done similar to the experiments for time-independent
+routing, as seen in Figure 18 , measuring for specific increasing
+Dijkstra rank s. Additionally, the measurement is fixed to the @xmath at
+@xmath : @xmath pm . The first experiment has no limitations on the
+transportation modes. All modes of the set
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+are available, while the second experiment limits the available modes to
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The results are given in Figure 23 and Figure 24 respectively.
+
+Transportation mode restrictions do not impair the running time of
+Dijkstra or ANR . Which is due to Dijkstra not using any optimizations
+relying on transportation modes. Computation is done on the fly, without
+using precomputed results. The same holds for the simplified ANR , which
+uses ordinary Dijkstra and CSA . Unfortunately, optimizations like ALT
+do not adapt well to route planning, since the precomputation must be
+done under the assumption of specific transportation mode restrictions,
+which might be different at query time.
+
+A key problem of Dijkstra on link graphs is that its running time is not
+applicable for long range queries and that a link graph scales very bad
+in space consumption. In our experiments, the link graph for consumes
+approximately @xmath GB, while ANR allocates only about @xmath GB for
+the road graph and the timetable.
+As expected, the simplified version of ANR does not beat the ordinary
+Dijkstra , as it still needs to compute long range routes on the road
+graph using Dijkstra . The key problem of our approach is that access
+nodes, which are chosen as nearest neighbors, might be far away or not
+even be reachable when using the road network. Geographical proximity
+does not necessarily imply short travel times. In this case, the @xmath
+short range Dijkstra computations are actually long range computations,
+for which Dijkstra scales bad.
+
+However, ANR has one major advantage over Dijkstra . It can use any
+algorithm that computes shortest paths on a road network. This stands in
+contrast to the link graph approach which needs an algorithm that is
+able to route on a combined network, containing road and transit data.
+Because of that, a well implemented ANR uses a fast algorithm for road
+networks (compare to Figure 20 ) and selects access nodes more
+sophisticated. Which leads to ANR easily beating the query time of
+Dijkstra on link graphs, making it a feasible approach for route
+planning (see [ 29 ] ).
+
+## Section \thechapter Conclusion
+
+Route planning is a problem that gained a lot of interest in the last
+decades. Problem settings like route planning are well researched,
+efficient solutions were developed. Corresponding research is now
+focused on routing and other difficult problems occurring in practice,
+such as turn penalties and multi criteria routing.
+
+### 18 Future Work
+
+Our goals for the future are focused on further extending and improving
+Cobweb . The most important step in order to make our ANR version viable
+is to implement a sophisticated routing algorithm for road networks.
+Such as techniques based on contraction , like contraction hierarchies (
+CH ) [ 38 ] and transit node routing ( TNR ) [ 20 , 15 ] . Combined with
+CSA this should yield promising acceptable low query times for shortest
+path computations.
+
+To improve the quality of our shortest paths, access node selection
+needs to be improved. It should not solely be based on vicinity. Stops
+should be ordered in a certain priority, measuring their importance for
+the network. Ideally, a stop is important if it is part of many shortest
+paths. A simple hierarchy can be obtained by counting the amount of
+connections available at a certain stop. The more connections, the more
+likely it is important. The hierarchy can be further fine tuned by
+injecting query logs of other applications or manually selecting big
+main stations before smaller stops.
+Another important aspect is to greatly expand the amount of metadata
+displayed next to a computed journey in the front end. An application
+that is to be used by clients must give extensive information on routes.
+Not only the name of a street and identification numbers of trains, but
+also include precise information on a road type, possible restrictions,
+access to the complete schedule of the trip of a transit vehicle, cost,
+and possibly even include forecasts for traffic congestion.
+
+Currently, Cobweb uses a database to store metadata which are not
+directly relevant to routing. The data are then later, after computing
+the shortest route, retrieved to annotate the journey. For efficient
+retrieval, in particular if the amount of stored metadata increases, the
+database structure needs to be improved. Also, parsing a new data-feed
+and inserting missing information into the database takes too long at
+the moment and should be improved.
+Long term goals consist of adding multi-criteria routing [ 48 ] , such
+as optimizing not only for the earliest arrival time, but also for
+factors like cost and amount of transfers. And adding support for
+real-time data ( RTD ) [ 42 ] , for example, incorporating traffic
+congestion, road outage and transit vehicle delays. Real-time data are
+already available for most networks, especially for transit networks.
+However, RTD is particularly hard to implement, because the underlying
+network changes, possibly invalidating precomputations. Fortunately,
+only small sections of a network are affected and need to be adjusted,
+leading to the identification of a changes impact and possible
+precomputations.
+
+### 19 Summary
+
+We have presented common and established models for road and transit
+networks. Graph based solutions are straightforward representations of
+the network, but cannot easily adapt to time dependent data, such as
+transit networks. Timetables are non-graph based alternatives for public
+transit networks, which fit their structure better than static graphs.
+Additionally, a link graph can be used to combine graph based models for
+multiple networks in a straightforward manner. While it might not
+necessarily be an effective approach, it makes route planning on
+combined networks for graph based algorithms possible.
+In order to explain more sophisticated route planning approaches, we
+presented the Nearest Neighbor Problem and thoroughly discussed an
+efficient solution to the problem and various variants, using Cover Tree
+s.
+We covered basic route planning algorithms, such as Dijkstra and common
+optimizations like A @xmath . The effectiveness of A @xmath heavily
+relies on the chosen heuristic, which depends on the underlying
+structure of the network. ALT was presented as a solution to this
+problem, providing a general applicable heuristic which is based on the
+actual shortest path distances to chosen landmarks. For an overview of
+more sophisticated time-independent algorithms, we refer to [ 19 ] .
+
+CSA was introduced as an efficient approach for time-dependent route
+planning on timetables. The approach is very simple, it just processes
+all connections available after the initial departure time. CSA is fast
+because it heavily exploits cache locality [ 41 ] and other low-level
+optimizations for arrays.
+
+For route planning we showed how Dijkstra can be adapted to run on a
+link graph, representing a combined network. Further, we presented the
+general concept of ANR and proposed a simplified variant of it,
+generalized to an arbitrary algorithm for road networks and another
+algorithm for transit networks. This makes it possible to combine a
+graph based solution like Dijkstra , or even more sophisticated
+approaches, for the road network, with a timetable based approach for
+transit networks, such as CSA .
+Further, we presented experimental results of implementations in the
+Cobweb project [ 57 ] and discussed them. For the experiments three data
+sets are used, , and . The setup, as well as the structure of the input
+data, was thoroughly explained. Cover Tree s and CSA turned out to be a
+very efficient solution to their corresponding problems. Dijkstra works
+well for short range queries, but scales bad for increasing ranges.
+Further, it lacks behind more sophisticated approaches as seen in Figure
+20 . A @xmath using @xmath does not perform well on networks used for
+route planning. While ALT , if carefully implemented, typically beats
+Dijkstra , especially for mid to long range queries. In practice, link
+graphs are often not feasible due to the extreme demands on space
+capacity. For routing Dijkstra performs similar to routing, being
+feasible for short range queries, but scaling bad for increasing ranges.
+ANR , if paired with efficient algorithms for both networks, is a
+promising approach to route planning, as seen in [ 29 ] .
+Route planning, in particular in practice, is a complex topic. A typical
+application needs to account for more than just finding a route with the
+shortest travel time. Turn penalties and multi-criteria routing, such as
+the cost of a trip, are important factors for a client and need to be
+considered. A similar observation is done for routing, where
+transportation mode restrictions, in practice, are not just a set of
+available modes, but rather a complex model with multiple states
+depending on previous states, as explained in Section 15 .
+
+Most algorithms do not adapt well to such restrictions, leading to the
+development of many very specialized solutions. Because of that,
+existing approaches, such as ANR , rather try to combine multiple
+algorithms, all suited well for their own specialized type of network.
+In particular for routing, including common restrictions occurring in
+practice, there does not yet exist a feasible solution for networks of a
+large scale, such as big countries or even continents. However, with
+increasing research in the last decade, many promising approaches were
+developed and a solution does not seem too far.

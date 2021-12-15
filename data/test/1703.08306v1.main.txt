@@ -1,0 +1,1929 @@
+##### Contents
+
+-    1 Introduction
+-    2 Preliminaries
+    -    2.1 Notation
+    -    2.2 Block Cipher
+    -    2.3 Feistel Network
+    -    2.4 Pseudo-Randomness
+    -    2.5 Pseudo-Random Permutation Generator
+-    3 Analysis of Unbalanced Feistel Networks
+    -    3.1 Definition and Category
+    -    3.2 Overview of the Pseudo-Random Proof
+    -    3.3 The Pseudo-Random Proof of @xmath : @xmath -UFN
+    -    3.4 The Pseudo-Random Proof of @xmath : @xmath -UFN
+-    4 Analysis of Modified Unbalanced Feistel Networks
+    -    4.1 Definition and Property
+    -    4.2 The Pseudo-Random Proof of @xmath : @xmath -UFN2
+-    5 Comparison of Unbalanced Feistel Networks
+    -    5.1 Using Memory and Pseudo-Random Bit Generator
+    -    5.2 Using the GGM Pseudo-Random Function
+-    6 Conclusion
+
+## Chapter 1 Introduction
+
+A block cipher is a symmetric key cryptosystem that encrypts a plaintext
+into a ciphertext block by block [ 20 ] . The block cipher should have
+the one-to-one correspondence between plaintexts and ciphertexts. The
+block cipher is the most important element in most cryptographic
+systems. In particular, it is the essential element used in the
+implementation of other cryptographic primitives such as pseudo-random
+number generators, stream ciphers, and hash functions [ 20 , 33 ] .
+Since the security of most cryptographic systems depends on the security
+of block ciphers, a secure block cipher must be implemented to build a
+secure cryptosystem. A secure block cipher is a block cipher where the
+output value of the block cipher becomes a random value. That is, when
+the output value of the block cipher is random, the block cipher becomes
+a secure one since it is very hard for an attacker to guess the
+plaintext or the secret key of the cipher from the ciphertext.
+Mathematically, a block cipher is a secure block cipher if it is a
+pseudo-random permutation (PRP) generator [ 16 ] .
+
+The biggest problem of implementing a block cipher is that it is
+difficult to implement a function that has the one-to-one correspondence
+property and the output randomness property at the same time. The way to
+solve this problem is to use a Feistel network structure. A Feistel
+network structure is a method that converts an arbitrary function into a
+one-to-one correspondence function. This structure was designed by H.
+Feistel in designing the Lucifer cipher [ 8 , 9 ] . That is, if a block
+cipher is implemented using a Feistel network, a secure block cipher can
+be easily implemented by simply implementing an arbitrary function whose
+output value is random. This is because if the output value of an
+arbitrary function is random, the Feistel network structure
+automatically converts it to a one-to-one correspondence function.
+
+Therefore, most block ciphers are constructed by using a Feistel network
+structure or a slightly modified structure of the Feistel network
+structure [ 23 , 38 , 33 , 29 ] . In addition, some research has been
+done on the security of block ciphers using the Feistel network
+structure [ 3 , 20 , 18 , 32 ] . In particular, there have been numerous
+studies on pseudo-random permutation generators after the work of Luby
+and Rackoff [ 16 , 36 , 40 , 28 , 31 , 32 , 26 , 25 , 1 , 7 , 27 ] .
+However, the problem of the previous (balanced) Feistel network is that
+it is difficult to construct a block cipher with a large input/output
+size. That is, when a block cipher that can process a large size of data
+at one time is implemented, the input size of a round function used in
+the Feistel network structure also increases as the input/output size of
+the block cipher increases. In practice, however, the cost of
+implementing a round function is proportional to the input size of the
+round function. Therefore, the previous (balanced) Feistel network
+structure is inappropriate when constructing a block cipher with large
+input/output size.
+
+One of the ways to solve this problem is to use an unbalanced Feistel
+network structure which is a modification of the previous balanced
+Feistel network. An unbalanced Feistel network is a Feistel network
+structure in which the size of a target-block combined with the output
+of a round function and the size of a source-block which is the input of
+the round function are different [ 2 , 17 , 35 ] . Therefore, the round
+function in an unbalanced Feistel network structure can be implemented
+at a lower cost than a balanced Feistel network since it is possible to
+control the input size of the round function in the unbalanced Feistel
+network structure. Especially, as the information processing capability
+of the computer increases, a block cipher with a large input-output size
+that is capable of processing a large amount of information will be
+needed. Therefore, much research is needed on unbalanced Feistel
+networks suitable for implementing block ciphers with large input-output
+size. However, there are not many studies on unbalanced Feistel
+networks.
+
+There are some studies to implement a pseudo-random permutation
+generator, which is a secure block cipher using an unbalanced Feistel
+network [ 14 , 21 ] . However, these studies failed to show the minimum
+number of rounds for a block cipher using an unbalanced Feistel network
+to become a secure and efficient block cipher. In fact, the minimum
+number of rounds is important when constructing a block cipher because
+the number of rounds greatly affects the speed and cost of the block
+cipher. That is, when constructing a block cipher, a small number of
+rounds must be used to implement a fast block cipher at low cost. It is
+therefore very important to determine the minimum number of rounds to be
+a secure block cipher.
+
+Therefore, in this thesis, we first find the minimum number of rounds
+for a pseudo-random permutation generator, which is a secure block
+cipher using a Feistel network. Next, we propose a scalable new
+unbalanced Feistel network structure and find the minimum number of
+rounds for this structure to become a secure block cipher. The advantage
+of a newly proposed structure is that it can easily construct a block
+cipher with a large input-output size using a previously designed secure
+block cipher with fixed input-output size. In other words, there is a
+lot of analysis and research on a new block cipher in order to newly
+design a block cipher with a large input-output size. However, by using
+this newly proposed structure, a new block cipher with a large
+input-output size can be implemented using the previously analyzed
+secure block cipher. So we do not have to do another analysis and
+research.
+
+The structure of this thesis is as follows. In Chapter 2, we first
+define a block cipher, a Feistel network, and a pseudo-random number
+generator. Then we summarize the existing studies on pseudo-random
+permutation generators. In Chapter 3, we investigate the condition of
+the number of rounds for a block cipher using an unbalanced Feistel
+network to be a pseudo-random permutation generator. In Chapter 4, we
+propose a scalable unbalanced Feistel network structure, and analyze the
+conditions for a secure block cipher using this new structure to be a
+pseudo-random permutation generator. In Chapter 5, we compare a balanced
+Feistel network structure, an unbalanced Feistel network structure, and
+the newly proposed structure. Finally, in Chapter 6, we conclude the
+thesis and present the direction of future research.
+
+## Chapter 2 Preliminaries
+
+In this chapter, we define the terms used in the thesis and summarize
+the studies related to a pseudo-random permutation generator. A block
+cipher is a secret-key cryptosystem that processes messages using the
+same key when encrypting and decrypting messages. A block cipher is the
+basis of cryptographic systems for message authentication, data
+integrity verification, and digital signature. Mathematically, a block
+cipher is a one-to-one function (permutation) since it must be able to
+encrypt and decrypt messages using a secret key. A Feistel network
+structure is most commonly used to build block ciphers because it has
+the advantage of converting arbitrary functions to permutations. In
+order for a block cipher to be a secure block cipher, the output value
+of the block cipher must be a random value. That is, when a block cipher
+becomes a pseudo-random permutation generator, it becomes a secure block
+cipher. In this case, the permutation generator @xmath is pseudo-random,
+meaning that any efficient algorithm can not distinguish between an
+ideal permutation generator and @xmath .
+
+This chapter is organized as follows. In Section 2.1, we first define
+symbols used in this paper. In Section 2.2, we define a block cipher,
+which is a secret-key cryptosystem, and investigate the characteristics
+of the block cipher and attack methods for block ciphers. In Section
+2.3, we define the most commonly used Feistel networks for building
+block ciphers and discuss the advantages and disadvantages of them. In
+Section 2.4, we define the pseudorandomness. In Section 2.5, we finally
+summarize existing studies on pseudo-random permutation generators
+
+### 2.1 Notation
+
+The symbols used in this paper are defined as follows.
+
+-   @xmath represents a set of all @xmath -bit strings. That is, @xmath
+    .
+
+-   @xmath is a set of all functions whose inputs are @xmath -bits and
+    whose outputs are @xmath -bits.
+
+-   @xmath is a set of functions whose input and output are both @xmath
+    -bits in size. That is, @xmath is @xmath .
+
+-   @xmath is a set of permutations (one-to-one functions) whose input
+    and output sizes are both @xmath -bits. That is, @xmath
+
+-   @xmath is the length of a bit string @xmath . That is, @xmath is
+    @xmath if the bit size of @xmath is @xmath -bits.
+
+-   @xmath is an exclusive OR (XOR) per bit unit when the bit size of
+    @xmath and @xmath is equal.
+
+-   @xmath is a concatenation of two bit strings @xmath and @xmath . In
+    this case, we have @xmath .
+
+-   @xmath is the composition of two functions @xmath and @xmath when
+    @xmath and @xmath are elements of the set @xmath . That is, @xmath .
+
+### 2.2 Block Cipher
+
+A block cipher can usually be a private-key cryptosystem or a public-key
+cryptosystem. However, in this paper, the secret-key cryptosystem is
+called a block cipher. The structure of a block cipher is given in
+Figure 2.1 .
+
+A block cipher is a function that sends an @xmath -bit plaintext to an
+@xmath -bit ciphertext [ 20 , 37 ] . The function of the block cipher is
+specified by an @xmath -bit secret key. If a plaintext is encrypted and
+decrypted again, the original plaintext must be obtained. Therefore, the
+block cipher must be a one-to-one function (bijection) for @xmath -bit
+plaintexts and @xmath -bit ciphertexts when a secret key is specified.
+That is, each secret key defines a different permutation. The definition
+of the block cipher is as follows.
+
+###### Definition 2.2.1 (Block Cipher).
+
+Let @xmath be the set of @xmath -bit secret keys. The @xmath -bit block
+cipher is defined as a function @xmath . We have that @xmath holds for
+an arbitrary plaintext @xmath and a random key @xmath ( @xmath ).
+
+A true random block cipher is a block cipher that generates all
+permutations between the domain and the range [ 20 ] . In the @xmath
+-bit block cipher, the domain corresponds to the set of plaintexts and
+the number of plaintexts is @xmath , so the size of the domain is @xmath
+. The range corresponds to the set of ciphertexts and the number of
+ciphertexts is @xmath , so the size of the range is also @xmath .
+Therefore, the number of all permutations is @xmath . In the @xmath -bit
+block cipher, one key specifies one permutation, so we need @xmath
+number of secret keys to enumerate all permutations. That is, the size
+of a secret key of the ideal block cipher must be @xmath bits.
+
+###### Definition 2.2.2 (Ideal Block Cipher).
+
+An ideal block cipher is a block cipher that implements all @xmath
+number of one-to-one functions that exist between @xmath number of
+elements. In this case, each secret key specifies each one-to-one
+function.
+
+It is impossible to actually build an ideal block cipher because it
+requires @xmath bits for a secret key. Thus, in order for a block cipher
+using an @xmath -bit secret key to be secure, the permutations that are
+specified by @xmath -bit secret keys must appear randomly chosen from
+all @xmath permutations.
+
+The security of a block cipher is measured by the security against the
+various attack methods of attackers. The attack on the block cipher is
+divided into four categories according to the information that the
+attacker can access:
+
+1.  Ciphertext-only attack: The attacker uses only ciphertexts to get
+    the secret key of the block cipher.
+
+2.  Known-plaintext attack: The attacker uses known plaintexts and
+    ciphertexts pairs to find the secret key of the block cipher.
+
+3.  Chosen-plaintext attack: The attacker finds the secret key of the
+    block cipher by using the pairs of plaintexts and corresponding
+    ciphertexts chosen by the attacker.
+
+4.  Chosen-ciphertext attack: The attacker finds the secret key using
+    the chosen ciphertexts and its corresponding plaintexts.
+
+Differential cryptanalysis and linear cryptanalysis are the most
+powerful methods of attacking block ciphers. Differential cryptanalysis
+is a chosen-plaintext attack developed by Biham and Shamir [ 3 ] . This
+attack method exploits the fact that the probability distribution of the
+difference between the input/output pair of a nonlinear function is not
+uniform. Linear cryptanalysis is a known-plaintext attack developed by
+Matsui [ 18 ] . This attack method extracts the information of a related
+key by using a linear approximation of a nonlinear function.
+
+### 2.3 Feistel Network
+
+A Feistel network is the most commonly used structure for designing a
+block cipher. This structure was first used when designing a Lucifer
+cipher by H. Feistel [ 8 , 9 ] . After that, this was used to design
+block ciphers such as DES, FEAL, Blowfish, and RC5 [ 23 , 38 , 33 , 29 ]
+.
+
+A Feistel network is a method that converts an arbitrary function to a
+permutation that is a one-to-one correspondence function. The definition
+of a Feistel network is as follows.
+
+###### Definition 2.3.1 (Feistel Network).
+
+For any function @xmath belonging to @xmath , one round Feistel network
+is defined as a function @xmath . Similarly, for the functions @xmath ,
+which belong to the set @xmath , an @xmath rounds Feistel network is
+defined as a function @xmath , where @xmath , @xmath , @xmath , and
+@xmath .
+
+The above Feistel network can be seen as a permutation. To show that a
+function is a one-to-one correspondence function (bijection), we should
+show that it is a one-to-one function and an onto function. However, we
+only need to show that it is a one-to-one function since the input and
+output bits of the Feistel network are the same.
+
+###### Theorem 2.3.1.
+
+The function @xmath is a one-to-one function.
+
+###### Proof.
+
+If the function @xmath is a one-to-one function, then @xmath for @xmath
+and @xmath such that @xmath . If @xmath and @xmath , then @xmath and
+@xmath . Because of @xmath , we consider two cases.
+
+-   Case @xmath : @xmath by the definition of @xmath .
+
+-   Case @xmath and @xmath : @xmath since @xmath .
+
+So the function is a one-to-one function. ∎
+
+A Feistel network is divided into a balanced Feistel network and an
+unbalanced Feistel network [ 35 ] . A balanced Feistel network is a
+Feistel network in Definition 2.3.1 with the same @xmath and @xmath
+sizes. In contrast, an unbalanced Feistel network is a Feistel network
+in Definition 2.3.1 with different @xmath and @xmath sizes ( @xmath ).
+The balanced Feistel network and unbalanced Feistel network structures
+are given in Figure 2.2 .
+
+The DES algorithm that uses a Feistel network was invented in 1970s and
+it has been used as the standard block cipher for 20 years [ 23 ] . Many
+researchers have studied the security of the DES algorithm [ 3 , 18 , 34
+] . In addition, many other block ciphers that were invented after DES
+were also affected by the DES cipher.
+
+###### Example 1 (Des).
+
+The DES algorithm is a 64-bit block cipher with a 56-bit secret key.
+This cipher has a 16 rounds balanced Feistel network structure. The
+@xmath th round is defined as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath , @xmath , @xmath is an expansion function, @xmath is a
+substitution function, and @xmath is a permutation function.
+
+An unbalanced Feistel network is divided into a source-heavy unbalanced
+Feistel network and a target-heavy unbalanced Feistel network [ 35 ] .
+The source-heavy unbalanced Feistel network is a Feistel network where
+the size of the block @xmath which is the input to the @xmath function,
+is greater than the size of the block @xmath which is combined with the
+output of the @xmath function ( @xmath ). Whereas the target-heavy
+Feistel network is a Feistel network where the size of the block @xmath
+is smaller than the size of the block @xmath ( @xmath ). The structures
+of source-heavy and target-heavy Feistel networks are given in Figure
+2.3 .
+
+The MARS algorithm is a block cipher proposed for the advanced
+encryption standard (AES) to replace the DES block cipher [ 6 ] . This
+cipher uses a target-heavy unbalanced Feistel network.
+
+###### Example 2 (Mars).
+
+The MARS algorithm is a 128-bit block cipher proposed for AES and it can
+have different size of secret keys. This cipher has a 32 rounds
+unbalanced Feistel network. The @xmath th round is defined as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the addition operator in mod @xmath .
+
+The main advantage of a block cipher using an unbalanced Feistel network
+is that it can select the input size of the @xmath function used in the
+Feistel network. In particular, as the amount of data that the computer
+has to process due to the development of the Internet, the amount of
+messages to be encrypted is also increasing. As the information
+throughput increases, an encryption scheme that can process large
+amounts of data becomes necessary. Therefore, a block cipher with a
+large input size is needed. The advanced encryption standard (AES)
+selected by National Institute of Standards and Technology (NIST) also
+requires a 128-bit block cipher to reflect this demand [ 22 ] .
+
+When implementing a block cipher with a large input value, it is
+difficult to implement the @xmath function of a Feistel network if a
+balanced Feistel network is used. This is because the cost of
+implementing the @xmath function is generally proportional to the size
+of the input value of the @xmath function. However, since the input size
+of the @xmath function can be selected in an unbalanced Feistel network,
+it is very effective to use an unbalanced Feistel network in
+implementing a large block cipher. In other words, a block cipher with a
+large input size using a target-heavy unbalanced Feistel network can be
+implemented at a lower cost than a cipher using other Feistel network
+structures.
+
+### 2.4 Pseudo-Randomness
+
+Before defining pseudo-randomness, we first review what two
+distributions are computationally equivalent. The computational
+equivalence of two distributions means that no effective algorithm can
+determine that two distributions are different. In other words,
+computational indistinguishability is a criterion for judging the
+equivalence of two distributions. Therefore, the pseudo-randomness
+distribution is a distribution that can not be distinguished from the
+truly random distribution by computation [ 11 ] .
+
+At this time, it is necessary to define an algorithm for determining
+whether two distributions are identical. The definition of an algorithm
+for determining identical distributions is defined by the following
+oracle machine.
+
+###### Definition 2.4.1 (Oracle Machine @xmath).
+
+An oracle machine @xmath is a Turing machine that has an oracle tape as
+an additional tape and has two special states called “oracle invocation”
+and “oracle appeared”. The oracle machine has an input value of @xmath
+and an output value of 1. The oracle machine that can access a function
+@xmath whose input value is @xmath bits in size is called @xmath and
+operates as follows: If the state of the oracle machine is not “oracle
+appeared”, then it operates as the same as a normal Turing machine. If
+the state of the oracle machine is “oracle origin”, then the oracle
+machine writes an oracle query @xmath which is @xmath bits string to the
+oracle tape. Then, the state of the oracle machine is changed to “oracle
+appeared”, and the content of the oracle tape is replaced by the oracle
+reply @xmath . This process repeats @xmath times. The 1-bit output of
+the oracle machine is calculated from the values @xmath .
+
+Because the oracle machine determines the equality of the two
+distributions, the pseudo-randomness is determined by the computational
+power of the oracle machine. An effective algorithm for determining the
+equality of two distributions is an oracle machine that calculates the
+output value within a probabilistic polynomial-time. Thus, the
+pseudo-random distribution refer to a distribution that can not be
+distinguished from the true random distribution using probabilistic
+polynomial-time oracle machines. At this time, the indistinguishability
+is defined as the following.
+
+###### Definition 2.4.2 (Polynomial-Time Indistinguishability).
+
+If two distributions @xmath and @xmath are indistinguishable in
+polynomial-time, then the following equation holds for all probabilistic
+polynomial-time algorithms @xmath , all polynomials @xmath , and
+sufficiently large @xmath values ​​
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where the output of algorithm @xmath is 1 bit.
+
+A cryptographically secure pseudo-random bit generator was first
+introduced by Blum and Micali [ 5 ] . After that, a number of
+pseudo-random bit generators have been proposed based on number
+theoretic problems [ 4 , 15 , 39 ] . Håstard et al. have shown that a
+pseudo-random bit generator can be constructed using an arbitrary
+one-way function [ 13 ] . A pseudo random bit generator is defined as
+follows. In this case, an ideal random bit generator @xmath has a
+uniform distribution of all possible output values.
+
+###### Definition 2.4.3 (Pseudo-Random Bit Generator).
+
+A pseudo-random bit generator is defined by a deterministic
+polynomial-time algorithm @xmath and satisfies the following two
+conditions:
+
+1.  Scalability: @xmath for all @xmath .
+
+2.  Pseudo-Randomness: The algorithm @xmath is indistinguishable from
+    the ideal random bit generator @xmath in polynomial time.
+
+Blum and Micali showed that it is possible to construct a pseudo-random
+bit generator using the difficulties of the discrete logarithm problem [
+5 ] . The pseudo-random bit generator of Blum and Micali is described in
+Example 3 .
+
+###### Example 3 (Blum-Micali Pseudo-Random Bit Generator).
+
+Let @xmath be a large prime, and @xmath be a generator of @xmath . The
+set @xmath is defined as @xmath . The function @xmath is defined as
+@xmath . The function @xmath is defined as @xmath for @xmath and @xmath
+for @xmath . The Blum-Micali pseudo-random bit generation algorithm is
+described as follows.
+generate a large prime @xmath and a generator @xmath of @xmath .
+select a random integer @xmath from @xmath .
+for @xmath do
+@xmath .
+@xmath .
+end for
+output @xmath .
+
+Blum, Blum, and Shub showed that it is possible to construct a
+pseudo-random bit generator using the difficulties of the quadratic
+residuacity problem [ 4 ] . The pseudo-random bit generator of Blum,
+Blum, and Shub is described in Example 4 .
+
+###### Example 4 (Blum-Blum-Shub Pseudo-Random Bit Generator).
+
+Let @xmath be a function that outputs the least significant bit of a
+binary string @xmath . The Blum-Blum-Shub pseudo-random bit generation
+algorithm is described as follows.
+generate a large prime @xmath such that @xmath .
+generate a large prime @xmath such that @xmath .
+@xmath .
+select a random integer @xmath such that @xmath .
+@xmath .
+for @xmath do
+@xmath .
+@xmath .
+end for
+output @xmath .
+
+A pseudo-random function generator is a function generator that is
+indistinguishable from an ideal random function generator @xmath that
+generates all possible functions with a uniform probability
+distribution. Goldreich, Goldwasser, and Micali showed that a
+pseudo-random bit generator can be used to create a pseudo-random
+function generator [ 12 ] . A pseudo-random function generator is
+defined as follows.
+
+###### Definition 2.4.4 (Pseudo-Random Function Generator).
+
+A pseudo-random function generator is defined as an algorithm @xmath
+that generates a set of functions. For all probabilistic polynomial-time
+oracle @xmath , all polynomials @xmath , and sufficiently large @xmath
+values, it satisfies
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is an ideal random function generator that generates all
+possible functions as a uniform probability distribution.
+
+Goldreich, Goldwasser and Micali proposed a pseudo-random function
+generator as follows.
+
+###### Example 5 (GGM Pseudo-Random Function Generator).
+
+Let @xmath be a pseudo random bit generator whose input is @xmath bits
+and whose output is @xmath bits. That is, @xmath for the initial value
+@xmath . Let @xmath be the first @xmath bit string of @xmath and @xmath
+be the remaining @xmath bit string of @xmath . That is, @xmath and
+@xmath . For a @xmath -bit binary string @xmath , @xmath is defined as
+@xmath . For a given @xmath , a pseudo-random function @xmath is defined
+as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath . For polynomials @xmath and @xmath and given @xmath , a
+pseudo-random function @xmath is defined as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath and @xmath is a pseudo-random bit generator with @xmath
+bits input and @xmath bits output.
+
+Let us look at the performance of the GGM pseudo-random function
+generator. A pseudo-random function generator @xmath must generate a
+pseudo-random string of approximately @xmath bits. Assuming that the
+size @xmath of the string @xmath is properly selected and that @xmath is
+not a value much larger than @xmath , then the size of pseudo-random
+bits that the pseudo-random function @xmath must generate is
+proportional to the input bit size @xmath . So the smaller the input bit
+size of the function, the faster the function can be generated.
+
+A pseudo-random permutation generator was introduced by Luby and Rackoff
+[ 16 ] . The definition of pseudo-random permutation generator is given
+as follows.
+
+###### Definition 2.4.5 (Pseudo-Random Permutation Generator).
+
+A pseudo-random permutation generator is defined as an algorithm @xmath
+which generates a set of permutations. For all probabilistic
+polynomial-time oracle @xmath , all polynomials @xmath , and
+sufficiently large @xmath values, it satisfies the following equation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is an ideal random permutation generator that produces all
+possible permutations with a uniform probability distribution.
+
+Luby and Rackoff showed that a pseudo-random permutation generator could
+be constructed by using a pseudo-random function and a three rounds
+balanced Feistel network structure.
+
+###### Example 6.
+
+A three rounds balanced Feistel network that uses pseudo-random
+functions @xmath is a pseudo-random permutation generator and is defined
+as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath and @xmath .
+
+A super pseudo-random permutation generator is a permutation generator,
+which can not be distinguished from an ideal random permutation
+generator when an oracle machine is able to access both a permutation
+and the inverse of the permutation. The definition is given as follows.
+
+###### Definition 2.4.6 (Super Pseudo-Random Permutation Generator).
+
+A super pseudo-random permutation generator is defined as an algorithm
+@xmath that generates the set of permutations. For all probabilistic
+polynomial-time oracle @xmath , all polynomials @xmath , and the large
+@xmath value, it satisfies the following equation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the inverse of the permutation @xmath , @xmath is an
+ideal random permutation generator that produces a permutation with a
+uniform probability distribution, and @xmath is the inverse of @xmath .
+
+Luby and Rackoff show that it is possible to build a super pseudo-random
+permutation generator by using a pseudo-random function and a four
+rounds balanced Feistel network structure.
+
+###### Example 7.
+
+A four rounds balanced Feistel network that uses pseudo-random functions
+@xmath is a super pseudo-random permutation generator and is defined as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath and @xmath .
+
+If a block cipher is a pseudo-random permutation generator, then it
+becomes a secure block cipher for a chosen-plaintext attack. If a block
+cipher is a super pseudo-random permutation generator, then it becomes a
+secure block cipher for a chosen-plaintext attack and a
+chosen-ciphertext attack.
+
+### 2.5 Pseudo-Random Permutation Generator
+
+The research on pseudo-random permutation generators has been started by
+Luby and Rackoff. They have proved that a three rounds balanced Feistel
+network that uses pseudo-random functions is a pseudo-random permutation
+generator [ 16 ] . The proof of pseudo-random permutation is largely
+divided into two parts. First, the proof show that a three rounds
+Feistel network that uses ideal random functions becomes a pseudo-random
+permutation generator. Next, the proof show that that a three rounds
+Feistel network that uses pseudo-random functions is pseudo-random by
+using contradiction. The proof that shows the pseudo-randomness of the
+three rounds Feistel network that uses ideal random functions looks like
+this. First, we define @xmath as an event that a machine can distinguish
+a balanced Feistel permutation generator @xmath from an ideal
+permutation generator @xmath . Next the proof show that @xmath is the
+same as @xmath if the @xmath event does not occur, and it also show that
+the probability of the @xmath event is very low. To prove that a three
+rounds Feistel network that uses pseudo-random functions is
+pseudo-random by using contradiction. In other words, if the three
+rounds Feistel network that uses ideal random functions is
+pseudo-random, but the three rounds Feistel network that uses
+pseudo-random functions is not pseudo-random, then it is possible to
+derive a contradiction on the assumption that pseudo-random functions
+are pseudo-random.
+
+There have been some studies to simply prove the pseudo-randomness of
+permutation generators since the work of Luby and Rackoff. Maurer used a
+local random function instead of a pseudo-random function to show that a
+three rounds Feistel network is a pseudo-random permutation generator [
+19 ] . Naor and Reingold have proved that a three rounds structure that
+uses a pairwise independent permutation and a two rounds Feistel network
+is pseudo-random [ 21 ] .
+
+After the work of Luby and Rackoff, much research focused to build
+pseudo-random permutation generators by using balanced Feistel networks
+and pseudo-random functions with small number of rounds. That is, if we
+use pseudo-random functions with small number of rounds, then the size
+of keys used in the permutation can be decreased since the size of keys
+for pseudo-random functions is large. Let @xmath be pseudo-random
+functions, and @xmath be the composition of the function @xmath with
+@xmath times. The results are summarized as follows.
+
+-   @xmath and @xmath are not pseudo-random permutations [ 30 ] .
+
+-   @xmath and @xmath are not pseudo-random permutations [ 24 , 41 ] .
+
+-   @xmath is not a super pseudo-random permutation [ 32 ] .
+
+-   For all @xmath , @xmath is not a pseudo-random permutation [ 40 ] .
+
+-   For all @xmath , @xmath is not a super pseudo-random permutation [
+    32 ] .
+
+-   @xmath is a pseudo-random permutation [ 28 ] .
+
+-   If @xmath is an identity function, @xmath is a super pseudo-random
+    permutation [ 32 ] .
+
+-   If @xmath is a simple function like a shift operation, @xmath is a
+    pseudo-random permutation and @xmath is a super pseudo-random
+    permutation [ 25 ] .
+
+Although many studies are concerned with the use of a small number of
+pseudo-random functions, reducing the size of the secret key using fewer
+pseudo-random functions is not a huge benefit. This is because it is
+possible to increase a small key to a large key using a pseudo random
+bit generator.
+
+Research to build pseudo-random permutation generators from unbalanced
+Feistel network structures has only recently begun [ 21 , 14 ] . Naor
+and Reingold showed that an unbalanced Feistel network with total @xmath
+number of rounds is a pseudo-random permutation generator if it uses a
+pairwise independent permutation in the first round, a source-heavy
+unbalanced Feistel network where the size of a source block is @xmath
+times larger than a target-block in the remaining rounds, and the @xmath
+function of the Feistel network is a pseudo-random function [ 21 ] . The
+pairwise independent permutation is defined as a permutation in which
+the distribution of the function output values ​​is uniform even if any
+two input values ​​are selected. The pseudo-random permutation generator
+of Naor and Reingold is given in Figure 2.4 where @xmath is two, @xmath
+is a pairwise independent of permutation, and @xmath , and @xmath are
+pseudo-random functions.
+
+Jutla showed that an unbalanced Feistel network with total @xmath number
+of rounds is a pseudo-random permutation generator if it uses a
+pseudo-random function for the @xmath -function of the Feistel network,
+and a target-heavy unbalanced Feistel network where a target-block size
+is larger than a source block by @xmath times [ 14 ] . At this time, the
+probability that an oracle machine that distinguishes between an ideal
+random permutation generator and a @xmath rounds target-heavy unbalanced
+Feistel network is less than @xmath . The pseudo-random permutation
+generator of Jutla is given in Figure 2.5 where @xmath is two and total
+rounds is six.
+
+## Chapter 3 Analysis of Unbalanced Feistel Networks
+
+In this chapter, we analyze the conditions for permutation generators
+based on Feistel networks to be pseudo-random. This chapter is
+summarized as follows. An unbalanced Feistel network is a Feistel
+network with different sizes of source and target blocks. The unbalanced
+Feistel network is largely divided into a source-heavy unbalanced
+Feistel network and a target-heavy unbalanced Feistel network. For a
+source-heavy unbalanced Feistel network ( @xmath : @xmath -UFN) where a
+source block is @xmath times larger than a target block, a @xmath rounds
+@xmath : @xmath -UFN using pseudo-random functions is a pseudo-random
+permutation generator. For a target-heavy unbalanced Feistel network (
+@xmath : @xmath -UFN) where a target-block is @xmath times larger than a
+source block, a @xmath rounds @xmath : @xmath -UFN using pseudo-random
+functions is a pseudo-random permutation generator. Therefore, the
+minimum number of rounds for a unbalanced Feistel network using
+pseudo-random functions to be pseudo-random is @xmath rounds.
+
+The structure of this chapter is as follows. In Section 3.1, we divide
+unbalanced Feistel networks into two categories. In Section 3.2, we
+overview the proof method to prove the pseudorandomness of an unbalanced
+Feistel network. In Section 3.3, we analyze the conditions for a
+source-heavy unbalanced Feistel network to be pseudo-random. In Section
+3.4, we analyze the conditions for a target-heavy unbalanced Feistel
+network to be pseudo-random.
+
+### 3.1 Definition and Category
+
+In a Feistel network, a block that is the input of a round function is
+called a source block, and a block that is combined with the output of a
+round function is called a target block. An unbalanced Feistel network
+is a Feistel network with different source and target block sizes. An
+unbalanced Feistel network with a source-block size of @xmath bits and a
+target block size of @xmath bits is denoted as @xmath : @xmath -UFN.
+
+An unbalanced Feistel network is largely classified as a source-heavy
+unbalanced Feistel network or a target-heavy unbalanced Feistel network.
+A source-heavy unbalanced Feistel network is an unbalanced Feistel
+network where the size of a source block is larger than that of a target
+block. The source-heavy unbalanced Feistel network is denoted by @xmath
+: @xmath -UFN and it is defined as follows. For instance, a 3 rounds
+@xmath : @xmath -UFN structure is described in Figure 3.1 .
+
+###### Definition 3.1.1 (@xmath:@xmath-Ufn).
+
+For any function @xmath belonging to the set of functions @xmath , one
+round @xmath : @xmath -UFN is defined by the following permutation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Similarly, for any functions @xmath belonging to the set of functions
+@xmath , an @xmath rounds @xmath : @xmath -UFN is defined by the
+following permutation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In this case, we have @xmath .
+
+A target-heavy unbalanced Feistel network is an unbalanced Feistel
+network where the size of a target block is larger than that of a source
+block. The target-heavy unbalanced Feistel network is denoted by @xmath
+: @xmath -UFN and it is defined as follows. For instance, a 3 rounds
+@xmath : @xmath -UFN structure is described in Figure 3.2 .
+
+###### Definition 3.1.2 (@xmath:@xmath-Ufn).
+
+For any function @xmath belonging to the set of functions @xmath , one
+round @xmath : @xmath -UFN is defined by the following permutation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In this case, the function @xmath satisfies @xmath . Similarly, for any
+functions @xmath belonging to the set of functions @xmath , an @xmath
+rounds @xmath : @xmath -UFN is defined by the following permutation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In this case, we have @xmath .
+
+### 3.2 Overview of the Pseudo-Random Proof
+
+We first overview the way to prove that an @xmath rounds unbalanced
+Feistel network using a pseudo-random function generator is a
+pseudo-random permutation generator. The overall method is similar to
+the method used by Luby and Rackoff [ 16 ] .
+
+First, we show that an @xmath rounds unbalanced Feistel network is not a
+pseudo-random permutation generator. For this, we show that there exists
+a linear relationship between the input and output values ​​of the
+@xmath rounds unbalanced Feistel network. Then we use this linear
+relationship to build an oracle machine that distinguishes between an
+ideal random permutation generator and the @xmath rounds unbalanced
+Feistel network permutation generator.
+
+Next, we show that if an @xmath rounds unbalanced Feistel network that
+uses ideal random functions is pseudo-random, then an @xmath rounds
+unbalanced Feistel network that uses pseudo-random functions is also
+pseudo-random. This is because if the @xmath rounds unbalanced Feistel
+network using ideal random functions is pseudo-random but the @xmath
+rounds unbalanced Feistel network using pseudo-random functions is not
+pseudo-random, then it is possible to show an contradiction that the
+pseudo-random function is pseudo-random.
+
+The following is a proof strategy to showing that an @xmath rounds
+unbalanced Feistel network using ideal random functions is
+pseudo-random. We first define the case where the @xmath rounds
+unbalanced Feistel network is not a pseudo-random permutation generator
+as a BAD event. For the BAD event, we prove the following two things.
+
+1.  If the BAD event does not occur, the output of the @xmath rounds
+    unbalanced Feistel network that uses ideal random functions is
+    uniform.
+
+2.  The probability of the BAD event is very low.
+
+By using these two things, we can prove that the @xmath rounds Feistel
+network using ideal random functions is a pseudo-random permutation
+generator.
+
+### 3.3 The Pseudo-Random Proof of @xmath:@xmath-Ufn
+
+The following theorem show that a @xmath : @xmath -UFN is not
+pseudo-random if the number of rounds is less than or equal to @xmath .
+
+###### Theorem 3.3.1.
+
+A @xmath rounds @xmath : @xmath -UFN is not pseudo-random.
+
+###### Proof.
+
+For the proof, we first show that there is a linear relationship between
+the input and output values ​​of the @xmath : @xmath -UFN, and that this
+linear relationship can be used to create an oracle machine that can
+distinguish between an ideal random permutation generator and the @xmath
+: @xmath -UFN. From the definition of a @xmath : @xmath -UFN, we first
+obtains the following equation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We select two oracle queries @xmath and @xmath where @xmath and @xmath
+are indexes of two oracle queries with @xmath . Then, we have @xmath and
+@xmath . Therefore, if we choose two oracle queries @xmath and @xmath in
+which @xmath and @xmath are only different, then we can derive the
+following relation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+since @xmath .
+
+This linear relation can be used to build an oracle machine @xmath that
+distinguishes between the @xmath : @xmath -UFN and an ideal random
+permutation generator. First, the oracle machine creates two oracle
+queries @xmath and @xmath that differ only in @xmath values and receives
+the responses @xmath . If the equation @xmath is satisfied from the
+responses of the queries, then the oracle machine outputs @xmath .
+Otherwise, the oracle machine outputs @xmath . Thus, if the @xmath and
+@xmath values ​​are generated by the @xmath : @xmath -UFN, then the
+output of the oracle machine is always @xmath . However, if the @xmath
+and @xmath values are generated by the ideal random permutation
+generator, then the probability that the equation is satisfied is @xmath
+. Therefore we have the following equation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the @xmath : @xmath -UFN and @xmath is the ideal random
+permutation generator. From this equation, the @xmath rounds @xmath :
+@xmath -UFN is not pseudo-random. ∎
+
+We now prove that a @xmath rounds @xmath : @xmath -UFN permutation
+generator using pseudo-random functions is pseudo-random. First, we
+define an event that can be used to distinguish a @xmath rounds @xmath :
+@xmath -UFN using ideal random functions from an ideal random
+permutation generator as the following BAD event.
+
+###### Definition 3.3.1.
+
+(The BAD event @xmath of a @xmath rounds @xmath : @xmath -UFN) A random
+variable @xmath is defined as an event in which @xmath and @xmath of two
+oracle queries with indexes @xmath and @xmath are equal where @xmath .
+The BAD event @xmath is a random variable defined as @xmath .
+
+If an oracle machine is able to distinguish between a @xmath rounds
+@xmath : @xmath -UFN and an ideal random permutation generator, then the
+BAD event must occur. This means that if the BAD event does not occur,
+then the @xmath rounds @xmath : @xmath -UFN is equal to the ideal random
+permutation generator. In the following lemma, we prove it.
+
+###### Lemma 3.3.2.
+
+A @xmath rounds @xmath : @xmath -UFN permutation generator using an
+ideal random function generator is equal to an ideal random permutation
+generator if the BAD event does not occur. That is, for all possible
+@xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the output of the @xmath rounds @xmath : @xmath -UFN
+permutation generator.
+
+###### Proof.
+
+From the definition of a @xmath rounds @xmath : @xmath -UFN using ideal
+random functions, the reply @xmath of the @xmath th oracle machine query
+@xmath is described as
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+where @xmath are functions generated by an ideal random function
+generator whose inputs are @xmath bits and whose outputs are @xmath
+bits, and the input values ​​of @xmath are @xmath . By the definition of
+the BAD event @xmath , we obtain the following equation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath and @xmath are the oracle indexes with @xmath .
+
+Thus the output value of @xmath becomes a value with uniform
+distribution since the input values ​​of @xmath are different for all
+oracle queries and @xmath is a function generated by the ideal random
+function generator. Therefore, the value of @xmath becomes a value with
+uniform distribution. ∎
+
+###### Lemma 3.3.3.
+
+The probability of the BAD event in a @xmath rounds @xmath : @xmath -UFN
+permutation generator is bounded by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+By the definition of the BAD event, we have @xmath . We first calculate
+the probability of each event @xmath . A random variable @xmath
+represents an event that @xmath and @xmath are equal for the indexes
+@xmath and @xmath of the oracle queries with @xmath . By the definition
+of a @xmath : @xmath -UFN structure, we obtain the following equation
+
+  -- -------- --
+     @xmath   
+     @xmath   
+  -- -------- --
+
+where each @xmath is a function generated by an ideal random function
+generator.
+
+Thus, the best choice for the event @xmath to occur is to select an
+oracle query with @xmath for @xmath . In this case, the probability of
+the event @xmath is @xmath . Therefore, we have @xmath . ∎
+
+In Theorem 3.3.4 , we prove that a @xmath rounds @xmath : @xmath -UFN
+that uses ideal random functions is pseudo-random from the above two
+lemmas, and we also prove that a @xmath rounds @xmath : @xmath -UFN that
+uses pseudo-random functions is also pseudo-random.
+
+###### Theorem 3.3.4.
+
+A @xmath rounds @xmath : @xmath -UFN permutation generator using
+pseudo-random functions is a pseudo-random permutation generator.
+
+###### Proof.
+
+From Lemma 3.3.2 and Lemma 3.3.3 , we can show that a @xmath : @xmath
+-UFN permutation generator @xmath using an ideal random function
+generator is a pseudo-random permutation generator. First, we have
+@xmath since @xmath is the same as an ideal random permutation generator
+@xmath when the BAD event @xmath does not occur by Lemma 3.3.2 . We also
+have @xmath since the absolute value of the probability difference is
+less than 1. Therefore, we have the following equation
+
+  -- -------- --
+     @xmath   
+              
+     @xmath   
+     @xmath   
+  -- -------- --
+
+We now show that a @xmath rounds @xmath : @xmath -UFN permutation
+generator @xmath using a pseudo-random function generator is a
+pseudo-random permutation generator. For this, we use the proof by
+contradiction. That is, if a @xmath rounds @xmath : @xmath -UFN using an
+ideal random function generator is pseudo-random but a @xmath rounds
+@xmath : @xmath -UFN using a pseudo-random function generator is not
+pseudo-random, then we can derive a contradiction to the
+pseudo-randomness of the pseudo-random function generator.
+
+Suppose that a @xmath : @xmath -UFN permutation generator @xmath using a
+pseudo-random function generator is not pseudo-random. Then there exists
+an oracle machine @xmath which distinguishes an ideal random permutation
+generator @xmath and @xmath with a probability greater than @xmath for a
+constant @xmath .
+
+First, we let @xmath be a permutation generator in which an ideal random
+function generator is used from the first round to the @xmath th round
+and a pseudo-random function generator is used from the @xmath th round
+to the @xmath th round in a @xmath : @xmath -UFN permutation generator
+for @xmath with @xmath . Let @xmath be the probability that an oracle
+machine that has access to this permutation generator will output @xmath
+. That is,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath are functions generated by a pseudo-random function
+generator and @xmath are functions generated by an ideal random function
+generator. Let @xmath be the probability that an oracle machine that has
+access to the ideal random permutation generator will output @xmath .
+Since we supposed that the @xmath rounds @xmath : @xmath -UFN using a
+pseudo-random function generator is not pseudo-random, we get the
+following equation
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+However, since the @xmath rounds @xmath : @xmath -UFN using an ideal
+random function generator has been shown to be a pseudo-random
+permutation generator, we have @xmath . Therefore, we have @xmath for
+some @xmath . By using this, an oracle machine @xmath that distinguishes
+an ideal random function generator and a pseudo-random function
+generator with a probability higher than @xmath can be constructed as
+follows.
+
+In the oracle machine @xmath , we first change the part of @xmath that
+calculates the oracle query reply to @xmath . In this case, @xmath is a
+function whose input is @xmath bits and whose output is @xmath bits. If
+@xmath in @xmath is a function generated by a pseudo-random function
+generator @xmath , then we have @xmath . On the other hand, if @xmath in
+@xmath is a function generated by an ideal random function generator
+@xmath , then we have @xmath . However, it is possible to distinguish
+the ideal random function generator and the pseudo-random function
+generator with a probability greater than @xmath since @xmath . But this
+contradicts that the pseudo-random function generator is pseudo-random.
+Therefore, the @xmath rounds @xmath : @xmath -UFN using a pseudo-random
+function generator is a pseudo-random permutation generator. ∎
+
+From Theorem 3.3.1 and Theorem 3.3.4 , the minimum number of rounds of
+the @xmath : @xmath -UFN permutation generator using a pseudo-random
+function generator to be pseudo-random is @xmath .
+
+### 3.4 The Pseudo-Random Proof of @xmath:@xmath-Ufn
+
+The following theorem show that a @xmath : @xmath -UFN permutation
+generator is not pseudo-random if the number of rounds is less than or
+equal to @xmath .
+
+###### Theorem 3.4.1.
+
+A @xmath rounds @xmath : @xmath -UFN permutation generator is not
+pseudo-random.
+
+###### Proof.
+
+From the definition of a @xmath : @xmath -UFN, we obtain the following
+equation
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+If we choose two oracle queries @xmath and @xmath in which @xmath and
+@xmath are only different, then we have @xmath for all @xmath with
+@xmath . Therefore, from the oracle responses @xmath , we can derive the
+following relation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+By using this linear relation, we can build an oracle machine @xmath
+that distinguishes between an @xmath : @xmath -UFN permutation generator
+and an ideal random permutation generator. First, the oracle machine
+creates two oracle queries @xmath and @xmath that differ only in @xmath
+values and receives oracle responses @xmath . If the equation @xmath is
+satisfied from the responses of the queries, then the oracle machine
+outputs @xmath . Otherwise, the oracle machine outputs @xmath . Thus, if
+the @xmath and @xmath values ​​are generated by the @xmath : @xmath
+-UFN, then the output of the oracle machine is always @xmath . However,
+if the @xmath and @xmath values are generated by the ideal random
+permutation generator, then the probability that the relation is
+satisfied is @xmath . Therefore we have the following equation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the @xmath : @xmath -UFN and @xmath is the ideal random
+permutation generator. Thus the @xmath rounds @xmath : @xmath -UFN
+permutation generator is not pseudo-random. ∎
+
+We now prove that a @xmath rounds @xmath : @xmath -UFN permutation
+generator using pseudo-random functions is pseudo-random. First, we
+define an event that can be used to distinguish a @xmath rounds @xmath :
+@xmath -UFN using ideal random functions from an ideal random
+permutation generator as the following BAD event.
+
+###### Definition 3.4.1.
+
+(The BAD event @xmath of a @xmath rounds @xmath : @xmath -UFN) A random
+variable @xmath is defined as an event in which @xmath and @xmath of two
+oracle queries with indexes @xmath and @xmath are equal where @xmath .
+The BAD event @xmath is a random variable defined as @xmath .
+
+###### Lemma 3.4.2.
+
+A @xmath rounds @xmath : @xmath -UFN permutation generator using an
+ideal random function generator is equal to an ideal random permutation
+generator if the BAD event does not occur. That is, for all possible
+@xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the output of the @xmath rounds @xmath : @xmath -UFN
+permutation generator.
+
+###### Proof.
+
+From the definition of a @xmath rounds @xmath : @xmath -UFN, the reply
+@xmath of the @xmath th oracle machine query @xmath is described as
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+where @xmath are functions generated by an ideal random function
+generator whose inputs are @xmath bits and whose outputs are @xmath
+bits.
+
+By the definition of the BAD event @xmath , we obtain the following
+equation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath and @xmath are the oracle indexes with @xmath . Thus the
+output values of @xmath become values with uniform distribution since
+the input values ​​of @xmath are different for all oracle queries and
+@xmath are functions generated by the ideal random function generator. ∎
+
+###### Lemma 3.4.3.
+
+The probability of the BAD event in a @xmath rounds @xmath : @xmath -UFN
+permutation generator is bounded by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+For the proof, we should show that @xmath and @xmath since @xmath by the
+definition of the BAD event @xmath .
+
+First, we show that @xmath . By the definition of @xmath , we have
+@xmath for the oracle query indexes @xmath and @xmath with @xmath . Thus
+we obtain the following equation
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Similarly, we can obtain the following equation
+
+  -- -------- --
+     @xmath   
+     @xmath   
+  -- -------- --
+
+Since each oracle query should be different, we have @xmath for oracle
+query indexes @xmath and @xmath with @xmath . Thus, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+By using similar approach, we have @xmath . Therefore, we obtain @xmath
+. ∎
+
+In Theorem 3.4.4 , we prove that a @xmath rounds @xmath : @xmath -UFN
+that uses ideal random functions is pseudo-random from the above two
+lemmas, and we also prove that a @xmath rounds @xmath : @xmath -UFN that
+uses pseudo-random functions is also pseudo-random.
+
+###### Theorem 3.4.4.
+
+A @xmath rounds @xmath : @xmath -UFN permutation generator using a
+pseudo-random function generator is a pseudo-random permutation
+generator.
+
+###### Proof.
+
+From Lemma 3.4.2 and Lemma 3.4.3 , we can show that an @xmath : @xmath
+-UFN permutation generator @xmath that uses an ideal random function
+generator is a pseudo-random permutation generator. First, we have
+@xmath since @xmath is the same as an ideal random permutation generator
+@xmath when the BAD event @xmath does not occur by Lemma 3.4.2 . We also
+have @xmath since the absolute value of the probability difference is
+less than 1. Therefore, we have the following equation
+
+  -- -------- --
+     @xmath   
+              
+     @xmath   
+     @xmath   
+  -- -------- --
+
+We now show that a @xmath rounds @xmath : @xmath -UFN permutation
+generator @xmath using a pseudo-random function generator is a
+pseudo-random permutation generator. For this, we use the proof by
+contradiction. That is, if a @xmath rounds @xmath : @xmath -UFN using an
+ideal random function generator is pseudo-random but a @xmath rounds
+@xmath : @xmath -UFN using a pseudo-random function generator is not
+pseudo-random, then we can derive a contradiction to the
+pseudo-randomness of the pseudo-random function generator.
+
+Suppose that an @xmath : @xmath -UFN permutation generator @xmath using
+a pseudo-random function generator is not pseudo-random. Then there
+exists an oracle machine @xmath which distinguishes an ideal random
+permutation generator @xmath and @xmath with a probability greater than
+@xmath for a constant @xmath .
+
+First, we let @xmath be a permutation generator in which an ideal random
+function generator is used from the first round to the @xmath th round
+and a pseudo-random function generator is used from the @xmath th round
+to the @xmath th round in the @xmath : @xmath -UFN permutation generator
+for @xmath with @xmath . Let @xmath be the probability that an oracle
+machine that has access to this permutation generator will output @xmath
+. That is,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath are functions generated by a pseudo-random function
+generator and @xmath are functions generated by an ideal random function
+generator. Let @xmath be the probability that an oracle machine that has
+access to the ideal random permutation generator will output @xmath .
+Since we supposed that the @xmath rounds @xmath : @xmath -UFN using a
+pseudo-random function generator is not pseudo-random, we get the
+following equation
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+However, since the @xmath rounds @xmath : @xmath -UFN using an ideal
+random function generator has been shown to be a pseudo-random
+permutation generator, we have @xmath . Therefore, we have @xmath for
+some @xmath . By using this, an oracle machine @xmath that distinguishes
+an ideal random function generator and a pseudo-random function
+generator with a probability higher than @xmath can be constructed as
+follows.
+
+In the oracle machine @xmath , we first change the part of @xmath that
+calculates the oracle query reply to @xmath . In this case, @xmath is a
+function whose input is @xmath bits and whose output is @xmath bits. If
+@xmath in @xmath is a function generated by a pseudo-random function
+generator @xmath , then we have @xmath . On the other hand, if @xmath in
+@xmath is a function generated by an ideal random function generator
+@xmath , then we have @xmath . However, it is possible to distinguish
+the ideal random function generator and the pseudo-random function
+generator with a probability greater than @xmath since @xmath . But this
+contradicts that the pseudo-random function generator is pseudo-random.
+Therefore, the @xmath rounds @xmath : @xmath -UFN using the
+pseudo-random function generator is a pseudo-random permutation
+generator. ∎
+
+From Theorem 3.4.1 and Theorem 3.4.4 , the minimum number of rounds of
+the @xmath : @xmath -UFN permutation generator using a pseudo-random
+function generator to be pseudo-random is @xmath .
+
+## Chapter 4 Analysis of Modified Unbalanced Feistel Networks
+
+In this section, we propose an unbalanced Feistel network structure that
+can extend an @xmath -bit block cipher to a @xmath -bit block cipher.
+Then we analyze the conditions for this modified Feistel structure to be
+pseudo-random. This chapter is summarized as follows.
+
+An @xmath : @xmath -UFN2 structure, which can extend an @xmath -bit
+block cipher to a @xmath -bit block cipher, is a target-heavy unbalanced
+Feistel network where both the input and output of round functions are
+@xmath bits. The main advantage of the @xmath : @xmath -UFN2 structure
+is that it allows to build a new block cipher with large input size by
+using an existing block cipher with proven security. In order for an
+@xmath : @xmath -UFN2 permutation generator that uses pseudo-random
+functions to be pseudo-random, the round number @xmath must be odd and
+the total number of rounds must be at least @xmath .
+
+The structure of this chapter is as follows. In Section 4.1, we define
+an @xmath : @xmath -UFN2 structure and examines the properties of this
+structure. In Section 4.2, we analyze the conditions for the @xmath :
+@xmath -UFN2 structure to be a pseudo-random permutation generator.
+
+### 4.1 Definition and Property
+
+As the information throughput increases, a block cipher with a large
+input is needed to process large amounts of data. In general, however,
+it is not easy to build a block cipher with a large input. It is also
+difficult to ensure the security of this new block cipher. However, if
+we can use a block cipher that is as secure as DES, we can trust the
+security of the new cipher. However, the DES cipher does not expand to a
+block cipher with a larger input because the input is fixed at 64 bits.
+Therefore, we propose an @xmath : @xmath -UFN2 permutation generator
+that can extend an @xmath -bit block cipher to a @xmath -bit block
+cipher. We also analyze the condition for this structure to be a
+pseudo-random permutation generator.
+
+An @xmath : @xmath -UFN2 structure is a target-heavy unbalanced Feistel
+network in which the input and output of round functions are @xmath
+bits. It is defined as follows. For instance, a 3 rounds @xmath : @xmath
+-UFN2 structure is described in Figure 4.1 .
+
+###### Definition 4.1.1 (@xmath:@xmath-Ufn2).
+
+For any function @xmath belonging to the set of functions @xmath , one
+round of @xmath : @xmath -UFN2 is defined by the following permutation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Similarly, for any functions @xmath belonging to the set of functions
+@xmath , an @xmath rounds @xmath : @xmath -UFN2 is defined by the
+following permutation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In this case, we have @xmath .
+
+### 4.2 The Pseudo-Random Proof of @xmath:@xmath-Ufn2
+
+In Theorem 4.2.1 , we show that an @xmath : @xmath -UFN2 permutation
+generator is not pseudo-random if @xmath is even. In Theorem 4.2.2 , we
+show that an @xmath : @xmath -UFN2 permutation generator is not
+pseudo-random if @xmath is odd and the number of rounds is less than or
+equal to @xmath .
+
+###### Theorem 4.2.1.
+
+If @xmath is even, then an @xmath : @xmath -UFN2 permutation generator
+is not pseudo-random.
+
+###### Proof.
+
+If @xmath is even, then we obtain the following equation
+
+  -- -------- --
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+  -- -------- --
+
+In this equation, @xmath is satisfied from the definition of an @xmath :
+@xmath -UFN2, @xmath is satisfied from the property of @xmath and the
+number of @xmath is even, and @xmath is satisfied from the recursive
+application of the above equation.
+
+We can build an oracle machine @xmath that distinguishes between an
+@xmath : @xmath -UFN2 permutation generator and an ideal random
+permutation generator. First, the oracle machine queries @xmath and
+receives a response @xmath . If the equation @xmath is satisfied, then
+the oracle machine outputs @xmath . Otherwise, it outputs @xmath . Thus,
+if the oracle response is generated by the @xmath : @xmath -UFN2, then
+the output of the oracle machine is always @xmath . However, if the
+oracle response is generated by the ideal random permutation generator,
+then the probability that the equation is satisfied is @xmath .
+Therefore the @xmath : @xmath -UFN2 permutation generator with even
+@xmath is not pseudo-random since the oracle machine @xmath exists. ∎
+
+###### Theorem 4.2.2.
+
+If @xmath is odd, then a @xmath rounds @xmath : @xmath -UFN2 permutation
+generator is not pseudo-random.
+
+###### Proof.
+
+To prove that a @xmath rounds @xmath : @xmath -UFN2 is not
+pseudo-random, we show that there is a relation between the input and
+output of oracle queries. Next, we build an oracle machine that can
+distinguish an @xmath : @xmath -UFN2 permutation generator and an ideal
+permutation generator by using this relation.
+
+From the definition of an @xmath : @xmath -UFN2, we obtain the following
+equation
+
+  -- -------- --
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+  -- -------- --
+
+In this case, @xmath is represented as
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+where @xmath is defined as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Thus, we obtain the following relation between the input and output of
+an @xmath : @xmath -UFN2 as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If we choose two oracle queries with different @xmath and @xmath blocks
+for the indexes @xmath and @xmath with @xmath , then we obtain the
+following equations
+
+  -- -------- --
+     @xmath   
+     @xmath   
+  -- -------- --
+
+By using these two equations, we have the following relation for two
+oracle queries and their responses as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+An oracle machine @xmath that distinguishes between an @xmath : @xmath
+-UFN2 permutation generator and an ideal random permutation generator
+can be built as follows. First, the oracle machine queries @xmath and
+@xmath and receives responses @xmath and @xmath . If the equation @xmath
+is satisfied, then the oracle machine outputs @xmath . Otherwise, it
+outputs @xmath . Thus, if the oracle response is generated by the @xmath
+: @xmath -UFN2, then the output of the oracle machine is always @xmath .
+However, if the oracle response is generated by the ideal random
+permutation generator, then the probability that the equation is
+satisfied is @xmath . Therefore the @xmath : @xmath -UFN2 permutation
+generator is not pseudo-random since the oracle machine @xmath can
+distinguish two permutation generators. ∎
+
+We now prove that a @xmath rounds @xmath : @xmath -UFN2 permutation
+generator using pseudo-random functions is pseudo-random. First, we
+define an event that can be used to distinguish a @xmath rounds @xmath :
+@xmath -UFN2 using ideal random functions from an ideal random
+permutation generator as the following BAD event.
+
+###### Definition 4.2.1.
+
+(The BAD event @xmath of @xmath rounds @xmath : @xmath -UFN2) A random
+variable @xmath is defined as an event in which @xmath and @xmath of two
+oracle query indexes @xmath and @xmath are equal where @xmath . The BAD
+event @xmath is a random variable defined as @xmath .
+
+If an oracle machine is able to distinguish between a @xmath rounds
+@xmath : @xmath -UFN2 and an ideal random permutation generator, then
+the BAD event must occur. This means that if the BAD event does not
+occur, then the @xmath rounds @xmath : @xmath -UFN2 is equal to an ideal
+random permutation generator. In the following lemma, we prove it.
+
+###### Lemma 4.2.3.
+
+A @xmath rounds @xmath : @xmath -UFN2 permutation generator using an
+ideal random function generator is equal to an ideal random permutation
+generator if @xmath is odd and the BAD event does not occur. That is,
+for all possible @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the output of the @xmath rounds @xmath : @xmath -UFN2
+permutation generator.
+
+###### Proof.
+
+If the response @xmath of the oracle query @xmath is generated by an
+@xmath : @xmath -UFN2 permutation generator, then the oracle response is
+calculated by the following algorithm. In this case, @xmath and @xmath .
+
+  -- -------- --
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+              
+     @xmath   
+  -- -------- --
+
+By using this algorithm, the oracle response @xmath can be represented
+by @xmath and the intermediate value @xmath that is used in the
+algorithm as follows.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let @xmath , @xmath , and @xmath be column vectors. Let @xmath be a
+@xmath matrix in which only the elements @xmath are @xmath and the other
+elements are @xmath . Then the above equation can be represented as a
+linear relation @xmath . If we let @xmath , then the linear relation can
+be represented as @xmath . This is equal to a function @xmath such that
+@xmath .
+
+Now, we show that the output @xmath of @xmath has a uniform probability
+distribution. The value @xmath ​​has a uniform probability distribution
+since the @xmath : @xmath -UFN2 permutation generator uses ideal random
+functions. That is, the probability that @xmath is chosen in @xmath is
+@xmath . Therefore, if the function @xmath is a one-to-one
+correspondence function, then the output @xmath value of the function
+@xmath also has a probability value @xmath equal to @xmath . If the
+function @xmath is a one-to-one function, then @xmath is a one-to-one
+correspondence function since the domain and region of @xmath are the
+same.
+
+If the function @xmath is a one-to-one correspondence, then the inverse
+of @xmath must exist. That is, the inverse matrix @xmath of the matrix
+@xmath must exist since @xmath . If the determinant of @xmath is not
+zero, then there exists an inverse matrix. So we should show that @xmath
+.
+
+In order to show that the determinant of the square matrix @xmath is not
+zero, we convert @xmath to an echelon form @xmath . At this time, only
+row addition and row interchange are used. If the echelon form @xmath
+contains a row of zero, then @xmath , otherwise @xmath [ 10 ] . Thus, we
+should show that @xmath does not contain a row of zero.
+
+First, we select an element in @xmath as the first pivot element and
+perform row addition. Then we have the following matrix. We also select
+an element in @xmath as @xmath th pivot element for @xmath .
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The above matrix contains pivot elements for all columns except the
+@xmath column. Therefore, the element at position @xmath should be
+selected as the @xmath th pivot. To do so, all values ​​except the
+@xmath th element of the @xmath th row vector must be set to zero. Let
+@xmath be the @xmath th row vector of the above matrix. The @xmath th
+pivotal element is obtained by performing row addition @xmath . By the
+property of the XOR operation, the result of row addition is @xmath ,
+where @xmath if @xmath is even and @xmath if @xmath is odd depending on
+the property of the XOR. An echelon form @xmath is obtained by
+performing row exchange so that each pivot is located diagonally in the
+matrix.
+
+Thus, when @xmath is an odd number, the echelon form matrix @xmath does
+not include a row of zero. Therefore, if @xmath is odd, the output of
+@xmath rounds @xmath : @xmath -UFN2 has a uniform probability
+distribution. ∎
+
+###### Lemma 4.2.4.
+
+The probability of the BAD event in a @xmath rounds @xmath : @xmath
+-UFN2 permutation generator is bounded by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+For the proof, we should show that @xmath since @xmath by the definition
+of the BAD event @xmath .
+
+By the definition of @xmath , we have @xmath for the oracle query
+indexes @xmath and @xmath with @xmath . Thus we obtain the following
+equation
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Similarly, we can obtain the following equation
+
+  -- -------- --
+     @xmath   
+     @xmath   
+  -- -------- --
+
+Since each oracle query should be different, we have @xmath for oracle
+query indexes @xmath and @xmath with @xmath . Thus, we have
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+Therefore, we have @xmath . ∎
+
+In Theorem 4.2.5 , we prove that a @xmath rounds @xmath : @xmath -UFN2
+that uses ideal random functions is pseudo-random from the above two
+lemmas, and we also prove that a @xmath rounds @xmath : @xmath -UFN2
+that uses pseudo-random functions is also pseudo-random.
+
+###### Theorem 4.2.5.
+
+A @xmath rounds @xmath : @xmath -UFN2 permutation generator using a
+pseudo-random function generator is a pseudo-random permutation
+generator.
+
+###### Proof.
+
+From Lemma 4.2.3 and Lemma 4.2.4 , we can show that an @xmath : @xmath
+-UFN2 permutation generator @xmath that uses an ideal random function
+generator is a pseudo-random permutation generator. First, we have
+@xmath since @xmath is the same as an ideal random permutation generator
+@xmath when the BAD event @xmath does not occur by Lemma 4.2.3 . We also
+have @xmath since the absolute value of the probability difference is
+less than 1. Therefore, we have the following equation
+
+  -- -------- --
+     @xmath   
+              
+     @xmath   
+     @xmath   
+  -- -------- --
+
+We now show that a @xmath rounds @xmath : @xmath -UFN2 permutation
+generator @xmath using a pseudo-random function generator is a
+pseudo-random permutation generator. For this, we use the proof by
+contradiction. That is, if a @xmath rounds @xmath : @xmath -UFN2 using
+an ideal random function generator is pseudo-random but a @xmath rounds
+@xmath : @xmath -UFN2 using a pseudo-random function generator is not
+pseudo-random, then we can derive a contradiction to the
+pseudo-randomness of the pseudo-random function generator.
+
+Suppose that an @xmath : @xmath -UFN2 permutation generator @xmath using
+a pseudo-random function generator is not pseudo-random. Then there
+exists an oracle machine @xmath which distinguishes an ideal random
+permutation generator @xmath and @xmath with a probability greater than
+@xmath for a constant @xmath .
+
+First, we let @xmath be a permutation generator in which an ideal random
+function generator is used from the first round to the @xmath th round
+and a pseudo-random function generator is used from the @xmath th round
+to the @xmath th round in an @xmath : @xmath -UFN2 permutation generator
+for @xmath with @xmath . Let @xmath be the probability that an oracle
+machine that has access to this permutation generator will output @xmath
+. That is,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath are functions generated by a pseudo-random function
+generator and @xmath are functions generated by an ideal random function
+generator. Let @xmath be the probability that an oracle machine that has
+access to the ideal random permutation generator will output @xmath .
+Since we supposed that the @xmath rounds @xmath : @xmath -UFN2 using a
+pseudo-random function generator is not pseudo-random, we get the
+following equation
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+However, since the @xmath rounds @xmath : @xmath -UFN2 using an ideal
+random function generator has been shown to be a pseudo-random
+permutation generator, we have @xmath . Therefore, we have @xmath for
+some @xmath . By using this, an oracle machine @xmath that distinguishes
+an ideal random function generator and a pseudo-random function
+generator with a probability higher than @xmath can be constructed as
+follows.
+
+In the oracle machine @xmath , we first change the part of @xmath that
+calculates the oracle query reply to @xmath . In this case, @xmath is a
+function whose input is @xmath bits and whose output is @xmath bits. If
+@xmath in @xmath is a function generated by a pseudo-random function
+generator @xmath , then we have @xmath . On the other hand, if @xmath in
+@xmath is a function generated by an ideal random function generator
+@xmath , then we have @xmath . However, it is possible to distinguish
+the ideal random function generator and the pseudo-random function
+generator with a probability greater than @xmath since @xmath . But this
+contradicts that the pseudo-random function generator is pseudo-random.
+Therefore, the @xmath rounds @xmath : @xmath -UFN2 using a pseudo-random
+function generator is a pseudo-random permutation generator. ∎
+
+## Chapter 5 Comparison of Unbalanced Feistel Networks
+
+In this chapter, we compare the amount of memory required for
+implementation and the time of a pseudo-random permutation generator
+when implementing the pseudo-random permutation generator using a
+balanced Feistel network, unbalanced Feistel networks, and the newly
+proposed Feistel network.
+
+To implement a pseudo-random permutation generator, we must implement a
+pseudo-random function used in a Feistel network. However, the
+implementation cost of the pseudo-random function and the speed of the
+pseudo-random function greatly affect the cost and speed of the Feistel
+network. Therefore, depending on how to implement the pseudo-random
+function, the comparison value can vary greatly. Therefore, in this
+chapter, we will compare the method that can most simply implement the
+pseudo-random function and the method that uses the GGM pseudo-random
+function generator. In other words, the cost and the execution speed of
+each pseudo-random permutation generator are investigated by using these
+two methods.
+
+### 5.1 Using Memory and Pseudo-Random Bit Generator
+
+The simplest way to implement a pseudo-random function is to use memory
+and a pseudo-random bit generator. That is, if the input value @xmath of
+a function is given, the output value @xmath is calculated by using a
+pseudo-random bit generator. At this time, the initial value of the
+pseudo-random bit generator uses an ideal random value such as coin
+tosses. However, a pseudo-random function must give the same output
+value for the same input value. Thus, the input value and the output
+value are stored in memory. That is, given the same input value as
+before, the output is obtained by referring to the memory instead of
+using the pseudo-random bit generator.
+
+Before describing this algorithm, we assume that the size of the key
+that specifies a pseudo-random function used in the @xmath th round of a
+Feistel network is @xmath bits. We also assume that the input of a
+pseudo-random bit generator @xmath is @xmath bits and the output is
+@xmath bit. That is, @xmath . An algorithm that implements a
+pseudo-random function @xmath whose input is @xmath bits and output is
+@xmath bits is as follows.
+
+1: @xmath and @xmath
+
+2: @xmath
+
+3: procedure
+
+4: if @xmath then
+
+5: @xmath .
+
+6: @xmath .
+
+7: @xmath .
+
+Algorithm 1 Calculate @xmath
+
+Since the input of the pseudo-random function is @xmath bits and the
+output is @xmath bits, the amount of memory required to implement a
+pseudo-random function is @xmath bits. Therefore, an @xmath rounds
+Feistel network using pseudo-random functions requires @xmath bits
+memory. The time to calculate the output value of a pseudo-random
+function is proportional to the time to calculate the output of a
+pseudo-random bit generator. Thus, the execution time of a pseudo-random
+function whose output is @xmath bits is proportional to the @xmath value
+of the output size. Therefore, the execution time of the @xmath rounds
+Feistel network is proportional to @xmath value.
+
+In case of implementing a pseudo-random function by using the algorithm
+1, the memory size required for each pseudo-random permutation generator
+and the execution time of each Feistel network are shown in Table 5.1 .
+In the total memory size, the pseudo-random permutation generator using
+a newly proposed structure ( @xmath : @xmath -UFN2) requires the least
+memory and the pseudo-random permutation generator using a source-heavy
+unbalanced Feistel network ( @xmath : @xmath -UFN) requires the most
+memory. In the execution time of the whole Feistel network, the
+pseudo-random permutation generator using a source-heavy unbalanced
+Feistel network ( @xmath : @xmath -UFN) is the fastest and the
+pseudo-random permutation generator using a target-heavy unbalanced
+Feistel network ( @xmath : @xmath -UFN) is the slowest.
+
+### 5.2 Using the GGM Pseudo-Random Function
+
+Another way to implement a pseudo-random function is to use the
+pseudo-random function generator of Goldreich, Goldwasser, and Micali. A
+major advantage of the GGM pseudo-random function generator is that it
+can implement a pseudo-random function without storing previously
+generated pseudo-random bits.
+
+Let @xmath be the size of the entire key of a pseudo-random permutation
+generator. Then the @xmath th pseudo-random function of the
+pseudo-random permutation generator from an @xmath rounds Feistel
+network will use @xmath bits of the key. We first prepare two
+pseudo-random bit generators @xmath and @xmath . Let @xmath be the first
+@xmath bits of @xmath , and @xmath be the next @xmath bits of @xmath . A
+pseudo-random function @xmath whose the key size is @xmath is defined by
+the following algorithm.
+
+1: @xmath , @xmath , and @xmath
+
+2: @xmath
+
+3: procedure
+
+4: for @xmath do
+
+5: if @xmath then
+
+6: @xmath .
+
+7: else
+
+8: @xmath .
+
+9: @xmath .
+
+Algorithm 2 Calculate @xmath
+
+Since the pseudo-random bits that are previously generated by the
+algorithm can not be stored, the amount of memory required is fixed. By
+analyzing the above algorithm, the number of pseudo-random bits that the
+algorithm must generate to compute one pseudo-random permutation is
+maximum @xmath bits. Therefore, the memory size and the time of each
+Feistel network are shown in Table 5.2 .
+
+It can be seen that the pseudo-random permutation generator using a
+target-heavy ( @xmath : @xmath -UFN) and the proposed structure ( @xmath
+: @xmath -UFN2) is the fastest in the execution time of the entire
+Feistel network. On the other hand, it can be seen that the
+pseudo-random permutation generator using a source-heavy ( @xmath :
+@xmath -UFN) is the slowest.
+
+## Chapter 6 Conclusion
+
+In this paper, we analyze the minimum number of rounds for a block
+cipher from unbalanced Feistel networks to be a pseudo-random
+permutation generator which is a safe and efficient block cipher. We
+also propose a new unbalanced Feistel network structure that can be
+extended and analyze the minimum number of rounds for this structure to
+be a pseudo-random permutation generator.
+
+The minimum number of rounds for a permutation generator from unbalanced
+Feistel networks to be a pseudo-random permutation generator is as
+follows.
+
+-   In case of a source-heavy unbalanced Feistel network where the
+    source block is @xmath bits and the target block is @xmath bits: If
+    pseudo-random functions are used in round functions and the total
+    number of rounds is @xmath or more, then a source-heavy unbalanced
+    Feistel network is a pseudo-random permutation generator.
+
+-   In case of a target-heavy unbalanced Feistel network where the
+    source-block is @xmath bits and the target block is @xmath bits: If
+    pseudo-random functions are used in round functions and the total
+    number of rounds is more than @xmath , then a target-heavy
+    unbalanced Feistel network is a pseudo-random permutation generator.
+
+A newly proposed architecture is an unbalanced Feistel network
+architecture that can extend an @xmath -bit block cipher to a @xmath
+-bit block cipher. The minimum number of rounds of a permutation
+generator from this structure to be pseudo-random is as follows.
+
+-   If @xmath is even, then a newly proposed structure is not a
+    pseudo-random permutation generator.
+
+-   If @xmath is odd, pseudo-random functions are used, and the total
+    number of rounds is @xmath or more, then a newly proposed structure
+    is a pseudo-random permutation generator.
+
+In all three structures, the probability that an arbitrary algorithm can
+distinguish between an ideal random permutation generator and a
+pseudo-random permutation generator is less than @xmath after obtaining
+@xmath plaintext and ciphertext pairs. Therefore, when a block cipher is
+implemented using an unbalanced Feistel network structure, it can be a
+safe and efficient block cipher only if the number of rounds shown in
+this paper is satisfied.
+
+In this paper, we examined only the condition of the number of rounds
+for an unbalanced Feistel network using pseudo-random functions to be
+pseudo-random. If a permutation generator from an unbalanced Feistel
+network is a super pseudo-random permutation, it becomes a secure block
+cipher for both chosen plaintext and chosen ciphertext attacks.
+Therefore, in the future, it is necessary to analyze the condition of
+the round number for a block cipher from an unbalanced Feistel network
+to be the super pseudo-random permutation generator.

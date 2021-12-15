@@ -1,0 +1,1704 @@
+## 1.3 Fluid Equations
+
+#### 1.3.1 Continuity equation
+
+The summation interpolant ( 1.5 ) takes a particularly simple form for
+the evaluation of density, ie.
+
+  -- -------- -- --------
+     @xmath      (1.42)
+  -- -------- -- --------
+
+Taking the (Lagrangian) time derivative, we obtain
+
+  -- -------- -- --------
+     @xmath      (1.43)
+  -- -------- -- --------
+
+which may be translated back to continuum form via the summation
+interpolant ( 1.5 ) to give
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (1.44)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+This reveals that ( 1.43 ) and therefore ( 1.42 ) are SPH expressions
+for the continuity equation. It is a remarkable fact that the entire SPH
+formalism can be self-consistently derived using only ( 1.42 ) in
+conjunction with the first law of thermodynamics via a Lagrangian
+variational principle. Such a derivation demonstrates that SPH has a
+robust Hamiltonian structure and ensures that the discrete equations
+reflect the symmetries inherent in the Lagrangian, leading to the exact
+conservation of momentum, angular momentum and energy.
+
+#### 1.3.2 Equations of motion
+
+The Lagrangian for Hydrodynamics is given by (Eckart, 1960 ; Salmon,
+1988 ; Morrison, 1998 )
+
+  -- -------- -- --------
+     @xmath      (1.45)
+  -- -------- -- --------
+
+where @xmath is the internal energy per unit mass. In SPH form this
+becomes
+
+  -- -------- -- --------
+     @xmath      (1.46)
+  -- -------- -- --------
+
+where as previously we have replaced the volume element @xmath with the
+mass per SPH particle @xmath . We regard the particle co-ordinates as
+the canonical variables. Being able to specify all of the terms in the
+Lagrangian directly in terms of these variables means that the
+conservation laws will be automatically satisfied, since the equations
+of motion then result from the Euler-Lagrange equations
+
+  -- -------- -- --------
+     @xmath      (1.47)
+  -- -------- -- --------
+
+The internal energy is regarded as a function of the particle’s density,
+which in turn is specified as a function of the co-ordinates by ( 1.42
+). The terms in ( 1.47 ) are therefore given by
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (1.48)
+     @xmath   @xmath   @xmath      (1.49)
+  -- -------- -------- -------- -- --------
+
+From the first law of thermodynamics in the absence of dissipation we
+have
+
+  -- -------- -- --------
+     @xmath      (1.50)
+  -- -------- -- --------
+
+and using ( 1.42 ) we have
+
+  -- -------- -- --------
+     @xmath      (1.51)
+  -- -------- -- --------
+
+such that
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (1.52)
+              @xmath   @xmath      (1.53)
+  -- -------- -------- -------- -- --------
+
+where we have used the fact that the gradient of the kernel is
+anti-symmetric (ie. @xmath ). The SPH equation of motion in the absence
+of dissipation is therefore given by
+
+  -- -------- -- --------
+     @xmath      (1.54)
+  -- -------- -- --------
+
+which can be seen to explicitly conserve momentum since the contribution
+of the summation to the momentum of particle @xmath is equal and
+opposite to that given to particle @xmath (given the antisymmetry of the
+kernel gradient). Taking the time derivative of the total angular
+momentum, we have
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      
+              @xmath   @xmath      
+              @xmath   @xmath      (1.56)
+  -- -------- -------- -------- -- --------
+
+where the kernel gradient has been written as @xmath This last
+expression is zero since the double summation is antisymmetric in @xmath
+and @xmath (this can be seen by swapping the summation indices @xmath
+and @xmath in the double sum and adding half of this expression to half
+of the original expression, giving zero). Angular momentum is therefore
+also explicitly conserved.
+
+#### 1.3.3 Energy equation
+
+The energy equation also follows naturally from the variational
+approach, where we may choose to integrate either the particle’s
+internal energy @xmath , its specific energy @xmath or even its specific
+entropy @xmath . Integrating the specific energy guarantees that the
+total energy is exactly conserved and it is common practice to use this
+quantity in finite difference schemes. However the usual argument
+against this (which applies equally to finite difference schemes) is
+that in some circumstances (where the kinetic energy is much greater
+than the thermal energy) the thermal energy can become negative by
+round-off error. Integration of the specific entropy has some advantages
+and has been argued for in both SPH (Springel and Hernquist, 2002 ) and
+finite difference schemes (e.g. Balsara and Spicer 1999 ).
+
+##### Internal energy
+
+The internal energy equation in the absence of dissipation follows from
+the use of the first law of thermodynamics ( 1.50 ), giving
+
+  -- -------- -- --------
+     @xmath      (1.57)
+  -- -------- -- --------
+
+Using ( 1.43 ) therefore gives
+
+  -- -------- -- --------
+     @xmath      (1.58)
+  -- -------- -- --------
+
+##### Total energy
+
+The conserved (total) energy is found from the Lagrangian via the
+Hamiltonian
+
+  -- -------- -- --------
+     @xmath      (1.59)
+  -- -------- -- --------
+
+where using ( 1.48 ) and ( 1.46 ) we have
+
+  -- -------- -- --------
+     @xmath      (1.60)
+  -- -------- -- --------
+
+which is simply the total energy of the SPH particles @xmath since the
+Lagrangian does not explicitly depend on the time. Taking the
+(Lagrangian) time derivative of ( 1.60 ), we have
+
+  -- -------- -- --------
+     @xmath      (1.61)
+  -- -------- -- --------
+
+Substituting ( 1.54 ) and ( 1.58 ) and rearranging we find
+
+  -- -------- -- --------
+     @xmath      (1.62)
+  -- -------- -- --------
+
+and thus the specific energy equation (in the absence of dissipation) is
+given by
+
+  -- -------- -- --------
+     @xmath      (1.63)
+  -- -------- -- --------
+
+Dissipative terms are discussed in § 1.5 .
+
+##### Entropy
+
+In the case of an ideal gas equation of state where
+
+  -- -------- -- --------
+     @xmath      (1.64)
+  -- -------- -- --------
+
+the function @xmath evolves according to
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (1.65)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+This has the advantage of placing strict controls on sources of entropy,
+since @xmath is constant in the absence of dissipative terms. The
+thermal energy is evaluated using
+
+  -- -------- -- --------
+     @xmath      (1.66)
+  -- -------- -- --------
+
+This formulation of the energy equation has been advocated in an SPH
+context by Springel and Hernquist ( 2002 ) .
+
+#### 1.3.4 Variable smoothing length terms
+
+The smoothing length @xmath determines the radius of interaction for
+each SPH particle. Early SPH simulations used a fixed smoothing length
+for all particles. However allowing each particle to have its own
+associated smoothing length which varies according to local conditions
+increases the spatial resolution substantially (Hernquist and Katz, 1989
+; Benz, 1990 ) . The usual rule is to take
+
+  -- -------- -- --------
+     @xmath      (1.67)
+  -- -------- -- --------
+
+where @xmath is the number of spatial dimensions, although others are
+possible (Monaghan, 2000 ) . Implementing this rule self-consistently is
+more complicated in SPH since the density @xmath is itself a function of
+the smoothing length @xmath via the relation ( 1.42 ). A simple approach
+is to use the time derivative of ( 1.67 ), (Benz, 1990 ) , ie.
+
+  -- -------- -- --------
+     @xmath      (1.68)
+  -- -------- -- --------
+
+which can then be evolved alongside the other particle quantities. This
+rule works well for most practical purposes, and maintains the relation
+( 1.67 ) particularly well when the density is updated using the
+continuity equation ( 1.43 ). However, it has been known for some time
+that, in order to be fully self-consistent, extra terms involving the
+derivative of @xmath should be included in the momentum and energy
+equations (e.g. Nelson 1994 ; Nelson and Papaloizou 1994 ; Serna et al.
+1996 ). Attempts to do this were, however, complicated to implement
+(Nelson and Papaloizou, 1994 ) and therefore not generally adopted by
+the SPH community. Recently Springel and Hernquist ( 2002 ) have shown
+that the so-called @xmath terms can be self-consistently included in the
+equations of motion and energy using a variational approach. Springel
+and Hernquist ( 2002 ) included the variation of the smoothing length in
+their variational principle by use of Lagrange multipliers, however, in
+the context of the discussion given in § 1.3.2 we note that by
+expressing the smoothing length as a function of @xmath we can therefore
+specify @xmath as a function of the particle co-ordinates (Monaghan,
+2002 ) . That is we have @xmath where @xmath is given by
+
+  -- -------- -- --------
+     @xmath      (1.69)
+  -- -------- -- --------
+
+Taking the time derivative, we obtain
+
+  -- -------- -- --------
+     @xmath      (1.70)
+  -- -------- -- --------
+
+where
+
+  -- -------- -- --------
+     @xmath      (1.71)
+  -- -------- -- --------
+
+A simple evaluation of @xmath for the kernel in the form ( 1.30 ) shows
+that this term differs from unity even in the case of an initially
+uniform density particle distribution (i.e. with constant smoothing
+length). The effects of this correction term even in this simple case
+are investigated in the sound wave tests described in § 1.7.2 .
+
+The equations of motion in the hydrodynamic case may then be found using
+the Euler-Lagrange equations ( 1.47 ) and will therefore automatically
+conserve linear and angular momentum. The resulting equations are given
+by (Springel and Hernquist, 2002 ; Monaghan, 2002 )
+
+  -- -------- -- --------
+     @xmath      (1.72)
+  -- -------- -- --------
+
+Calculation of the quantities @xmath involve a summation over the
+particles and can be computed alongside the density summation ( 1.69 ).
+To be fully self-consistent we solve ( 1.69 ) iteratively to determine
+both @xmath and @xmath self-consistently. We do this as follows: Using
+the predicted smoothing length from ( 1.68 ), the density is initially
+calculated by a summation over the particles. A new value of smoothing
+length @xmath is then computed from this density using ( 1.67 ).
+Convergence is determined according to the criterion
+
+  -- -------- -- --------
+     @xmath      (1.73)
+  -- -------- -- --------
+
+For particles which are not converged, the density of (only) those
+particles are recalculated (using @xmath ). This process is then
+repeated until all particles are converged. Note that a particle’s
+smoothing length is only set equal to @xmath if the density is to be
+recalculated (this is to ensure that the same smoothing length that was
+used to calculate the density is used to compute the terms in the other
+SPH equations). Also, the density only needs to be recalculated on those
+particles which have not converged, since each particle’s density is
+independent of the smoothing length of neighbouring particles. This
+requires a small adjustment to the density calculation routine (such
+that the density can be calculated only for a selected list of
+particles, rather than for all), but is relatively simple to implement
+and means that the additional computational cost involved is negligible
+(at least for the problems considered in this thesis). Note that in
+principle the calculated gradient terms ( 1.71 ) may also be used to
+implement an iteration scheme such as the Newton-Raphson method which
+converges faster than our simple fixed point iteration.
+
+Where the variable smoothing length terms are not explicitly calculated,
+we use a simple averaging of the kernels and kernel gradients to
+maintain the symmetry in the momentum and energy equations (Hernquist
+and Katz, 1989 ; Monaghan, 1992 ) , ie.
+
+  -- -------- -- --------
+     @xmath      (1.74)
+  -- -------- -- --------
+
+and correspondingly
+
+  -- -------- -- --------
+     @xmath      (1.75)
+  -- -------- -- --------
+
+Many of the test problems in this thesis are performed using this simple
+formulation. This is in order to show (particularly in the MHD case)
+that satisfactory results on the test problems are not dependent on the
+variable smoothing length formulation. In almost every case, however,
+self-consistent implementation of the variable smoothing length terms as
+described above leads to a substantial improvement in accuracy
+(demonstrated, for example, in § 1.7 and in the MHD case in §
+LABEL:sec:1Dtests ). Perhaps the only disadvantage to the full
+implementation of the variable smoothing length terms is that the
+iterations of @xmath with @xmath mean that small density fluctuations
+are resolved by the method rather than being smoothed out, which may be
+disadvantageous under some circumstances (e.g. where the fluctuations
+are unphysical). One possible remedy for this might be to use a slightly
+different relationship between @xmath and @xmath than is given by ( 1.67
+).
+
+### 1.4 Alternative formulations of SPH
+
+In § 1.3 the SPH equations of motion and energy were derived from a
+variational principle using only the density summation ( 1.42 ) and the
+first law of thermodynamics ( 1.50 ), leading to the equations of motion
+in the form ( 1.54 ) and the energy equation ( 1.58 ) or ( 1.63 ).
+However many alternative formulations of the SPH equations are possible
+and have been used in various contexts. In this section we demonstrate
+how such alternative formulations may also be derived self-consistently
+using a variational principle.
+
+For example, a general form of the momentum equation in SPH is given by
+(Monaghan, 1992 )
+
+  -- -------- -- --------
+     @xmath      (1.76)
+  -- -------- -- --------
+
+which is symmetric between particle pairs for all choices of the
+parameter @xmath and therefore explicitly conserves momentum. Ritchie
+and Thomas ( 2001 ) use this form of the momentum equation with @xmath
+in their SPH formalism, finding that it gives slightly better results
+for problems involving large density contrasts (they also use a slightly
+different procedure for evaluating the density). Marri and White ( 2003
+) , for similar reasons, use this equation with @xmath , citing a
+reduction in the relative error in the force calculation on particle
+@xmath due to the influence of particle @xmath which is desirable in the
+case of particles with large density differences. However, it is
+apparent from the derivation given in § 1.3.2 that forms of this
+equation other than the standard @xmath case cannot be derived
+consistently using the density summation ( 1.42 ) and correspondingly
+the continuity equation in the form ( 1.43 ). We are therefore led to
+the conclusion that a consistent formulation of the SPH equations using
+the general form of the momentum equation given above must involve
+modification of the continuity equation in some way. We show below that
+the general form of the continuity equation which is consistent with (
+1.76 ) is derived from the continuum equation
+
+  -- -------- -- --------
+     @xmath      (1.77)
+  -- -------- -- --------
+
+expressed in the form
+
+  -- -------- -- --------
+     @xmath      (1.78)
+  -- -------- -- --------
+
+with SPH equivalent
+
+  -- -------- -- --------
+     @xmath      (1.79)
+  -- -------- -- --------
+
+In order to demonstrate that this is so, we use this expression for the
+density to derive the equations of motion and energy via a variational
+principle.
+
+#### 1.4.1 Variational principle
+
+In the derivation given in § 1.3.2 , the variables in the Lagrangian
+were explicitly written as a function of the particle co-ordinates (via
+the identity 1.42 ), guaranteeing the exact conservation of linear and
+angular momentum in the equations of motion via the use of the
+Euler-Lagrange equations. Using a more general form of the continuity
+equation, however, means that the density can no longer be expressed
+directly as a function of the particle co-ordinates and therefore that
+the derivation given in the previous section cannot be applied in this
+case. However we may still use the Lagrangian to derive the equations of
+motion by introducing constraints on @xmath in a manner similar to that
+of Bonet and Lok ( 1999 ) . In this case conservation of momentum and
+energy can be shown to depend on the formulation of the velocity terms
+in the continuity equation (in particular that the term should be
+expressed as a velocity difference). Clearly the major disadvantage of
+using a continuity equation of any form rather than the SPH summation is
+that mass is no longer conserved exactly. It is shown in §
+LABEL:sec:spmhdmom that the kind of variational principle given below
+may also be used to derive the equations of motion and energy in the MHD
+case.
+
+For stationary action we require
+
+  -- -------- -- --------
+     @xmath      (1.80)
+  -- -------- -- --------
+
+where we consider variations with respect to a small change in the
+particle co-ordinates @xmath . We therefore have
+
+  -- -------- -- --------
+     @xmath      (1.81)
+  -- -------- -- --------
+
+The Lagrangian variation in density is given, from ( 1.79 ), by
+
+  -- -------- -- --------
+     @xmath      (1.82)
+  -- -------- -- --------
+
+Using ( 1.82 ) and the first law of thermodynamics ( 1.50 ) in ( 1.81 )
+and rearranging, we find
+
+  -- -------- -- --------
+     @xmath      (1.83)
+  -- -------- -- --------
+
+Putting this back into ( 1.80 ), integrating the velocity term by parts
+and simplifying (using @xmath ), we obtain
+
+  -- -------- -- --------
+     @xmath      (1.84)
+  -- -------- -- --------
+
+from which we obtain the momentum equation in the form ( 1.76 ). This
+equation is therefore consistent with the continuity equation in the
+form ( 1.79 ). In the particular case considered by Marri and White (
+2003 ) ( @xmath ) this would imply a discrete form of the continuity
+equation given by
+
+  -- -------- -- --------
+     @xmath      (1.85)
+  -- -------- -- --------
+
+Marri and White ( 2003 ) choose to retain the use of the usual SPH
+summation ( 1.42 ) to determine the density. In the case considered by
+Ritchie and Thomas ( 2001 ) ( @xmath ), the continuity equation becomes
+
+  -- -------- -- --------
+     @xmath      (1.86)
+  -- -------- -- --------
+
+which is again somewhat different to the density estimation used in
+their paper. The continuity equation ( 1.86 ), when used in conjunction
+with the appropriate formulation of the momentum equation, has some
+advantages in the case of fluids with large density differences (e.g. at
+a water/air interface) since the term inside the summation involves only
+the particle volumes @xmath rather than their mass, with the effect that
+large mass differences between individual particles have less influence
+on the calculation of the velocity divergence (Monaghan, private
+communication). An alternative is the formalism proposed by Ott and
+Schnetter ( 2003 ) , which we discuss in § 1.4.3 .
+
+The internal energy equation consistent with the general momentum
+equation ( 1.76 ) is given by
+
+  -- -------- -- --------
+     @xmath      (1.87)
+  -- -------- -- --------
+
+which is indeed the formalism used by Marri and White ( 2003 ) (with
+@xmath ) since it was found, unsurprisingly in this context, that
+integration of this equation resulted in much less numerical noise than
+using other formalisms of the internal energy equation (in conjunction
+with their use of ( 1.76 ) with @xmath as the momentum equation). The
+form of the total energy equation consistent with ( 1.76 ) and ( 1.79 )
+is given by
+
+  -- -------- -- --------
+     @xmath      (1.88)
+  -- -------- -- --------
+
+We note the energy equation used by Ritchie and Thomas ( 2001 ) is
+different to the formulation given above (with @xmath ) and therefore
+variationally inconsistent with their implementation of the momentum
+equation. Hernquist and Katz ( 1989 ) point out that inconsistencies
+between the forms of the energy and momentum equations result in errors
+of @xmath in the energy conservation. In this sense the difference
+between a consistent and inconsistent formalism is fairly minor,
+although a consistent formulation between the momentum and energy
+equations in general appears to lead to slightly improved results (as
+found by Marri and White ). In practise we find that using alternative
+formulations of the continuity equation generally gives slightly worse
+results than (even inconsistent) use of the density summation.
+
+#### 1.4.2 General alternative formulation
+
+The momentum equation ( 1.76 ) can be generalised still further by
+noting that the continuity equation ( 1.44 ) can be written as
+
+  -- -------- -- --------
+     @xmath      (1.89)
+  -- -------- -- --------
+
+with SPH equivalent
+
+  -- -------- -- --------
+     @xmath      (1.90)
+  -- -------- -- --------
+
+where @xmath is any scalar variable defined on the particles. Deriving
+the momentum equation consistent with this equation in the manner given
+above we find
+
+  -- -- -- --------
+           (1.91)
+  -- -- -- --------
+
+which conserves momentum for any choice of @xmath . In the case given in
+the previous section we would have @xmath . Choosing @xmath gives
+
+  -- -------- -- --------
+     @xmath      (1.92)
+  -- -------- -- --------
+
+which is the momentum equation used by Hernquist and Katz ( 1989 ) . The
+continuity equation consistent with this form is therefore
+
+  -- -------- -- --------
+     @xmath      (1.93)
+  -- -------- -- --------
+
+which at first sight appears somewhat bizarre, although it is certainly
+a valid expression of the continuity equation in SPH form. It is unclear
+whether using such alternative formulations of the continuity equation,
+in the name of consistency, has any advantages over the usual density
+summation. We leave it as an exercise for the reader to amuse themselves
+by exploring various other combinations of variables, noting that the
+forms of the internal and total energy equations consistent with ( 1.90
+) and ( 1.91 ) are given by
+
+  -- -------- -- --------
+     @xmath      (1.94)
+  -- -------- -- --------
+
+and
+
+  -- -------- -- --------
+     @xmath      (1.95)
+  -- -------- -- --------
+
+#### 1.4.3 Ott and Schnetter formulation
+
+Other formulations of the SPH equations have also been proposed to deal
+with the problem of large density gradients. For example Ott and
+Schnetter ( 2003 ) propose modifying the SPH summation to give
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (1.96)
+  -- -------- -------- -------- -- --------
+
+that is where the number density of particles @xmath is calculated by
+summation rather than the mass density @xmath . This is to improve the
+interpolation when particles of large mass differences interact. Taking
+the time derivative of ( 1.96 ), the continuity equation is given by (as
+in Ott and Schnetter 2003 )
+
+  -- -------- -- --------
+     @xmath      (1.97)
+  -- -------- -- --------
+
+For equal mass particles this formalism is exactly the same as the usual
+summation ( 1.42 ). The formulation ( 1.96 ) enables the density to be
+expressed as a function of the particle co-ordinates and thus the
+derivation of the equations of motion and energy can be done in a
+straightforward manner using the Euler-Lagrange equations, as in § 1.3.2
+. The resulting equation of motion is given by
+
+  -- -------- -- --------
+     @xmath      (1.98)
+  -- -------- -- --------
+
+which is somewhat different to the equation of motion used in Ott and
+Schnetter ( 2003 ) (they use the form 1.76 with @xmath ). The internal
+energy equation follows from the continuity equation ( 1.97 ) and the
+first law of thermodynamics ( 1.50 ). We find
+
+  -- -------- -- --------
+     @xmath      (1.99)
+  -- -------- -- --------
+
+Ott and Schnetter ( 2003 ) use a formulation of the internal energy
+equation where the pressure term is symmetrised, which is inconsistent
+with their use of ( 1.96 ). The total energy equation consistent with
+their formalism can also be derived using the Hamiltonian (§ 1.3.3 ) and
+is given by
+
+  -- -------- -- ---------
+     @xmath      (1.100)
+  -- -------- -- ---------
+
+In this case use of the self-consistent formalism presented above should
+lead to slightly improved results over the momentum and energy equations
+employed by Ott and Schnetter ( 2003 ) , since the density is still
+calculated via a direct summation over the particles.
+
+### 1.5 Shocks
+
+In any high-order numerical scheme, the simulation of shocks is
+accompanied by unphysical oscillations behind the shock front. This
+occurs because in discretising the continuum equations (in the SPH case
+using 1.5 ) we assume that the fluid quantities are smoothly varying on
+the smallest length scale (in SPH this is the smoothing length @xmath ).
+This means that discontinuities on such scales are not resolved by the
+numerical method. The simplest approach to this problem is to introduce
+a small amount of viscosity into the simulation which acts to spread out
+the shock front so that it can be sufficiently resolved (von Neumann and
+Richtmyer, 1950 ; Richtmyer and Morton, 1967 ) . This is similar to the
+way in which shock fronts are smoothed out by nature, although in the
+latter case the effect occurs at a much finer level. The disadvantage of
+using such an ‘artificial’ viscosity is that it can produce excess
+heating elsewhere in the simulation. As such the use of artificial
+viscosity is regarded by many numerical practitioners as outdated since
+most finite difference schemes now rely on methods which either restrict
+the magnitude of the numerical flux across a shock front in order to
+prevent unphysical oscillations (such as total variation diminishing
+(TVD) schemes) or by limiting the jump in the basic variables across the
+shock front using the exact solution to the Riemann problem
+(Godunov-type schemes). There remain, however, distinct advantages to
+the use of an artificial viscosity, primarily that, unlike the
+Godunov-type schemes, it is easily applied where new physics is
+introduced (such as a more complicated equation of state than the ideal
+gas law) and the complexity of the algorithm does not increase with the
+number of spatial dimensions. In the case of magnetohydrodynamics,
+artificial viscosity is commonly used even in standard finite-difference
+codes ³ ³ 3 for example in the widely used ZEUS code for astrophysical
+fluid dynamics (Stone and Norman, 1992 ) since the Riemann problem is
+difficult to solve and computationally expensive. Furthermore,
+dissipative terms are often still used even when a Riemann solver has
+been implemented (e.g. Balsara 1998 ). For these reasons artificial
+viscosity methods continue to find widespread usage, particularly in
+simulations using unstructured or Lagrangian meshes (Caramana et al.,
+1998 ) .
+
+In recent years it has been shown that Godunov-type schemes can in fact
+be used in conjunction with SPH by regarding interacting particle pairs
+as left and right states of the Riemann problem (Cha and Whitworth, 2003
+; Inutsuka, 2002 ; Parshikov and Medin, 2002 ; Monaghan, 1997 ) . In
+this manner the implementation of Godunov-type schemes to
+multidimensional problems is greatly simplified in SPH because the
+one-dimensional Riemann problem is solved between particle pairs,
+removing the need for complicated operator splitting procedures in
+higher dimensions. The formalism presented by Cha and Whitworth ( 2003 )
+is remarkably simple to incorporate into any standard SPH code. A
+Godunov-type scheme for MHD in SPH would be extremely useful (although
+not widely applicable), but it is well beyond the scope of this thesis.
+We therefore formulate artificial dissipation terms using the
+formulation of Monaghan ( 1997 ) which is generalised to the MHD case in
+§ LABEL:sec:mhdav . The problem of excess heating is addressed by the
+implementation of switches to turn off the dissipative terms away from
+shock fronts, described in § 1.5.2 .
+
+#### 1.5.1 Artificial viscosity and thermal conductivity
+
+A variety of different formulations of artificial viscosity in SPH have
+been used, however the most common implementation is that given by
+Monaghan ( 1992 ) , where the term in equation ( 1.54 ) is given by
+
+  -- -- -- ---------
+           (1.101)
+  -- -- -- ---------
+
+where @xmath (similarly for @xmath ), barred quantities refer to
+averages between particles @xmath and @xmath , and @xmath refers to the
+sound speed. This viscosity is applied only when the particles are in
+compression (ie. @xmath ), is Galilean invariant, conserves total linear
+and angular momentum and vanishes for rigid body rotation. The @xmath
+term (quadratic in @xmath ) represents a form of viscosity similar to
+the original formulation of von Neumann and Richtmyer ( 1950 ) and
+becomes dominant in the limit of large velocity differences (ie. in high
+Mach number shocks). The @xmath term is linear in @xmath and is dominant
+for small velocity differences ⁴ ⁴ 4 The introduction of such a term
+into artificial viscosity methods is generally attributed to Landshoff (
+1955 ) (see, e.g. Caramana et al. 1998 ) . Most astrophysical SPH
+implementations follow Monaghan ( 1992 ) in setting @xmath and @xmath
+which provides the necessary dissipation near a shock front.
+
+The term given by equation ( 1.101 ) was constructed to have the
+properties described above, however in the relativistic case it was
+unclear as to what form such an artificial viscosity should take. Chow
+and Monaghan ( 1997 ) thus formulated an artificial viscosity for
+ultra-relativistic shocks in SPH by analogy with Riemann solvers. This
+is outlined by Monaghan ( 1997 ) in a discussion of SPH and Riemann
+solvers. The essential idea is to regard the interacting particles as
+left and right Riemann states and to construct a dissipation which
+involves jumps in the physical variables. The dissipation term in the
+force (giving artificial viscosity) therefore involves a jump in the
+velocity variable and is similar to ( 1.101 ), taking the form (for
+@xmath )
+
+  -- -------- -- ---------
+     @xmath      (1.102)
+  -- -------- -- ---------
+
+where @xmath is a signal velocity and @xmath is a unit vector along the
+line joining the particles. Note that this formalism differs from (
+1.101 ) in that a factor of @xmath has been removed. Also the @xmath
+term has been removed from the denominator since for variable smoothing
+lengths it is unnecessary. The jump in velocity involves only the
+component along the line of sight since this is the only component
+expected to change at a shock front. In a similar manner, the
+dissipative term in the specific energy equation ( 1.63 ) is given by
+
+  -- -------- -- ---------
+     @xmath      (1.103)
+  -- -------- -- ---------
+
+where @xmath is the jump in specific energy. The specific energy used in
+this term is given by
+
+  -- -------- -- ---------
+     @xmath      (1.104)
+  -- -------- -- ---------
+
+that is, where the specific kinetic energy has been projected along the
+line joining the particles, since only the component of velocity
+parallel to this vector is expected to jump at a shock front. Note that
+in general we use a different parameter @xmath to control the thermal
+energy term and that this term is applied to particles in both
+compression and rarefaction.
+
+The signal velocity represents the maximum speed of signal propagation
+along the line of sight between the two particles. Whilst many
+formulations could be devised, it turns out that the results are not
+sensitive to the particular choice made. A simple estimate of the signal
+velocity is given by
+
+  -- -------- -- ---------
+     @xmath      (1.105)
+  -- -------- -- ---------
+
+where @xmath denotes the speed of sound of particle @xmath and @xmath ,
+such that @xmath is an estimate of the maximum speed for linear wave
+propagation between the particles. The @xmath term, which acts as a von
+Neumann and Richtmyer viscosity as in equation ( 1.101 ), arises
+naturally in this formulation. Practical experience suggests, however,
+that @xmath is a better choice. For a more general discussion of signal
+velocities we refer the reader to Monaghan ( 1997 ) and Chow and
+Monaghan ( 1997 ) .
+
+The contribution to the thermal energy from the dissipative terms is
+found using
+
+  -- -------- -- ---------
+     @xmath      (1.106)
+  -- -------- -- ---------
+
+In this case we obtain
+
+  -- -------- -- ---------
+     @xmath      (1.107)
+  -- -------- -- ---------
+
+which is added to the non-dissipative term ( 1.58 ). The first term is
+the positive definite contribution to the thermal energy from the
+artificial viscosity (since the kernel gradient is always negative). The
+second term (involving a jump in thermal energy) provides an artificial
+thermal conductivity. Physically this means that discontinuities in the
+thermal energy are also smoothed.
+
+The artificial dissipation given by ( 1.102 )-( 1.107 ) is used as a
+basis for constructing an appropriate dissipation for the MHD case in §
+LABEL:sec:mhdav .
+
+#### 1.5.2 Artificial dissipation switches
+
+##### Artificial viscosity
+
+In both ( 1.101 ) and ( 1.102 ) the artificial viscosity is applied
+universally across the particles despite only being needed when and
+where shocks actually occur. This results in SPH simulations being much
+more dissipative than is necessary and can cause problematic effects
+where this dissipation is unwanted (such as in the presence of shear
+flows). A switch to reduce the artificial viscosity away from shocks is
+given by Morris and Monaghan ( 1997 ) . Using this switch in
+multi-dimensional simulations substantially reduces the problematic
+effects of using an artificial viscosity in SPH.
+
+The key idea is to regard the dissipation parameter @xmath (c.f.
+equation 1.102 ) as a particle property. This can then be evolved along
+with the fluid equations according to
+
+  -- -------- -- ---------
+     @xmath      (1.108)
+  -- -------- -- ---------
+
+such that in the absence of sources @xmath , @xmath decays to a value
+@xmath over a timescale @xmath . The timescale @xmath is calculated
+according to
+
+  -- -------- -- ---------
+     @xmath      (1.109)
+  -- -------- -- ---------
+
+where @xmath is the particle’s smoothing length, @xmath is the maximum
+signal propagation speed at the particle location and @xmath is a
+dimensionless parameter with value @xmath . We conservatively use @xmath
+which means that the value of @xmath decays to @xmath over @xmath
+smoothing lengths.
+
+The source term @xmath is chosen such that the artificial dissipation
+grows as the particle approaches a shock front. We use (Rosswog et al.,
+2000 )
+
+  -- -------- -- ---------
+     @xmath      (1.110)
+  -- -------- -- ---------
+
+such that the dissipation grows in regions of strong compression.
+Following Morris and Monaghan ( 1997 ) where the ratio of specific heats
+@xmath differs from 5/3 (but not for the isothermal case), we multiply
+@xmath by a factor
+
+  -- -------- -- ---------
+     @xmath      (1.111)
+  -- -------- -- ---------
+
+The source term is multiplied by a factor @xmath as the standard source
+term given by Morris and Monaghan ( 1997 ) was found to produce
+insufficient damping at shock fronts when used in conjunction with the
+Monaghan ( 1997 ) viscosity. The source term ( 1.110 ) is found to
+provide sufficient damping on the Sod ( 1978 ) hydrodynamic shock tube
+problem and in the MHD shock tube tests we describe in chapter §
+LABEL:sec:1Dtests (ie. @xmath for these problems). In order to conserve
+momentum the average value @xmath is used in equations ( 1.102 ), (
+1.104 ) and ( 1.107 ). A lower limit of @xmath is used to preserve order
+away from shocks (note that this is an order of magnitude reduction from
+the usual value of @xmath everywhere).
+
+The numerical tests in § LABEL:sec:1Dtests demonstrate that use of this
+switch gives a significant reduction in dissipation away from shocks
+whilst preserving the shock-capturing ability of the code.
+
+##### Artificial thermal conductivity
+
+A similar switch to that used in the artificial viscosity may therefore
+be devised for the artificial thermal conductivity term, with the
+parameter @xmath evolved according to
+
+  -- -------- -- ---------
+     @xmath      (1.112)
+  -- -------- -- ---------
+
+where the decay timescale @xmath is the same as that used in ( 1.108 )
+and in this case we use @xmath . The corresponding source term is given
+by
+
+  -- -------- -- ---------
+     @xmath      (1.113)
+  -- -------- -- ---------
+
+which is constructed to have dimensions of inverse time. The gradient
+term is computed according to
+
+  -- -------- -- ---------
+     @xmath      (1.114)
+  -- -------- -- ---------
+
+where
+
+  -- -------- -- ---------
+     @xmath      (1.115)
+  -- -------- -- ---------
+
+Use of this switch ensures that artificial thermal conductivity is only
+applied at large gradients in the thermal energy. The need to do so in
+dissipation-based shock capturing schemes is often concealed by
+smoothing of the initial conditions in shock tube tests (§ 1.7.3 ). From
+the first law of thermodynamics ( 1.50 ) we infer that gradients in the
+thermal energy correspond to large gradients in the density. In a
+hydrodynamic shock these occur either at the shock front or at the
+contact discontinuity. Artificial viscosity is not required at the
+contact discontinuity because the pressure is constant across it. Using
+unsmoothed initial conditions and in the absence of artificial thermal
+conductivity, a significant overshoot in thermal energy occurs at the
+contact discontinuity (this phenomenon is known as ‘wall heating’ and is
+illustrated in Figure 1.9 ). The resulting glitch in the pressure is
+often ascribed to ‘starting errors’ due to the unsmoothed initial
+conditions. However, applying smoothing to the initial conditions of a
+shock-tube test means that gradients across the contact discontinuity
+remain smoothed throughout the evolution (see e.g. Figure 1.9 ),
+removing the need for artificial thermal conductivity which acts to
+spread gradients in the thermal energy. Whilst there is also a gradient
+in thermal energy at a shock front, this is smoothed out by the
+application of artificial viscosity there and so the need for artificial
+thermal conductivity can go unnoticed. In § 1.7.3 we present results of
+the standard Sod ( 1978 ) shock tube test, showing the effectiveness of
+the switch discussed above in applying the requisite amount of smoothing
+at the contact discontinuity.
+
+### 1.6 Timestepping
+
+#### 1.6.1 Predictor-corrector scheme
+
+We integrate the SPH equations in this thesis using a slight
+modification of the standard predictor-corrector (Modified Euler) method
+which is second order accuracy in time (Monaghan, 1989 ) . The predictor
+step is given by
+
+  -- -------- -------- -------- -- ---------
+     @xmath   @xmath   @xmath      (1.116)
+     @xmath   @xmath   @xmath      (1.117)
+     @xmath   @xmath   @xmath      (1.118)
+  -- -------- -------- -------- -- ---------
+
+where in practice we use @xmath and @xmath to give a one-step method.
+The rates of change of these quantities are then computed via the SPH
+summations using the predicted values at the half step, ie.
+
+  -- -------- -- ---------
+     @xmath      (1.119)
+  -- -------- -- ---------
+
+The corrector step is given by
+
+  -- -------- -------- -------- -- ---------
+     @xmath   @xmath   @xmath      (1.120)
+     @xmath   @xmath   @xmath      (1.121)
+     @xmath   @xmath   @xmath      (1.122)
+  -- -------- -------- -------- -- ---------
+
+and finally
+
+  -- -------- -------- -------- -- ---------
+     @xmath   @xmath   @xmath      (1.123)
+     @xmath   @xmath   @xmath      (1.124)
+     @xmath   @xmath   @xmath      (1.125)
+  -- -------- -------- -------- -- ---------
+
+Note that in this scheme the position updates in both the predictor and
+corrector steps use the updated value of velocity. This effectively
+means that the position is updated using both the first and second
+derivatives. From numerical experiments we find that this scheme gives
+much better stability properties. Where evolved, density, smoothing
+length, magnetic field and the dissipation parameters follow the energy
+evolution. The total energy @xmath is interchangeable for the thermal
+energy @xmath .
+
+#### 1.6.2 Reversible integrators
+
+The simple predictor-corrector method given above is adequate for all
+the problems considered in this thesis since the integration time is
+quite short. For large simulations over long timescales, however, the
+accuracy and stability of the integration method needs more careful
+attention. In the past decade or so a substantial research effort has
+been devoted to the development of high accuracy so-called ‘geometric’
+integrators for Hamiltonian systems (e.g. Hut et al., 1995 ; Stoffer,
+1995 ; Huang and Leimkuhler, 1997 ; Holder et al., 2001 ; Hairer et al.,
+2002 ) . Since SPH in the absence of dissipative terms can derived from
+a Hamiltonian variational principle, much of this work is applicable in
+the SPH context. The primary condition for the construction of a
+geometric integrator is time-reversibility (that is, particle quantities
+should return to their original values upon reversing the direction of
+time integration). It is fairly straightforward to construct a
+reversible integrator for the SPH equations in the case of a constant
+smoothing length, where the density summation is used and where the
+pressure is calculated directly from the density (such that the force
+evaluation uses only the particle co-ordinates). The standard leapfrog
+algorithm is one such example. In general, however, the construction of
+a reversible scheme is complicated by several factors. The first is the
+use of a variable timestep (which immediately destroys the time-symmetry
+in the leapfrog scheme, although see Holder et al. ( 2001 ) for recent
+progress on this). The second complicating factor is that the
+reversibility condition becomes more difficult when equations with rates
+of change involving the particle velocity are used (such as the thermal
+or total energy equation or the continuity equation for the density). In
+this case the construction of a reversible integrator for SPH
+necessarily involves the calculation of derivatives involving the
+velocity in separate step to the force evaluation, leading to additional
+computational expense. A third complicating factor is the use of
+individual particle timesteps in large SPH codes, although symplectic
+methods have also been constructed for this case (Hairer et al., 2002 )
+.
+
+#### 1.6.3 Courant condition
+
+The timestep is determined by the Courant condition
+
+  -- -------- -- ---------
+     @xmath      (1.126)
+  -- -------- -- ---------
+
+where @xmath and @xmath is the maximum signal velocity between particle
+pairs. This signal velocity is similar to that used in the artificial
+dissipation terms (§ 1.5 ), except that we use
+
+  -- -------- -- ---------
+     @xmath      (1.127)
+  -- -------- -- ---------
+
+with @xmath when @xmath (ie. where the dissipation terms are not
+applied). The minimum in ( 1.126 ) is taken over all particle
+interactions and typically we use @xmath .
+
+Although this condition is sufficient for all of the simulations
+described here, in general it is necessary to pose the additional
+constraint from the forces
+
+  -- -------- -- ---------
+     @xmath      (1.128)
+  -- -------- -- ---------
+
+where @xmath is the acceleration on particle @xmath and typically @xmath
+.
+
+### 1.7 Numerical tests
+
+#### 1.7.1 Implementation
+
+Unless otherwise indicated the simulations use the density summation (
+1.42 ), the momentum equation ( 1.54 ) and the energy equation in the
+form ( 1.63 ). The numerical tests presented throughout this thesis were
+implemented using a code written by the author as a testbed for MHD
+algorithms.
+
+##### Neighbour finding
+
+Since the code has been designed for flexibility rather than
+performance, we take a simplified approach to neighbour finding using
+linked lists. The particles are binned into grid cells of size @xmath
+where @xmath is the maximum value of smoothing length over the
+particles. Particles in a given cell then search only the adjoining
+cells for contributing neighbours. This approach becomes very
+inefficient for a large range in smoothing lengths such that for large
+simulations it is essential to use a more effective algorithm. A natural
+choice is to use the tree code used in the computation of the
+gravitational force (Hernquist and Katz, 1989 ; Benz et al., 1990 ) .
+
+##### Boundary conditions
+
+Boundary conditions are implemented using either ghost or fixed
+particles. For reflecting boundaries, ghost particles are created which
+mirror the SPH particles across the boundary. These particles are exact
+copies of the SPH particles in all respects except for the velocity,
+which is of opposite sign on the ghost particle, producing a repulsive
+force at the boundary. For periodic boundary conditions the ghosts are
+exact copies of the particles at the opposite boundary. In the MHD shock
+tube tests considered in § LABEL:sec:1Dtests involving non-zero
+velocities at the boundaries, boundary conditions are implemented in one
+dimension by simply fixing the properties of the 6 particles closest to
+each boundary. Where the initial velocities of these particles are
+non-zero their positions are evolved accordingly and a particle is
+removed from the domain once it has crossed the boundary. Where the
+distance between the closest particle and the boundary is more than the
+initial particle spacing a new particle is introduced to the domain.
+Hence for inflow or outflow boundary conditions the resolution changes
+throughout the simulation.
+
+#### 1.7.2 Propagation and steepening of sound waves
+
+We initially consider the propagation of linear sound waves in SPH. This
+test is particularly important in the MHD case (§ LABEL:sec:mwav ) since
+it highlights the instability in the momentum-conserving formalism of
+SPMHD. In this case we investigate the dependence of sound speed on
+smoothing length and the damping due to artificial viscosity.
+
+##### Particle setup
+
+The particles are initially setup at equal separations in the domain
+@xmath using ghost particles (§ 1.7.1 ) to create periodic boundary
+conditions. The linear solution for a travelling sound wave in the
+x-direction is given by
+
+  -- -------- -------- -------- -- ---------
+     @xmath   @xmath   @xmath      (1.129)
+     @xmath   @xmath   @xmath      (1.130)
+  -- -------- -------- -------- -- ---------
+
+where @xmath is the angular frequency, @xmath is the sound speed in the
+undisturbed medium and @xmath is the wavenumber. The initial conditions
+therefore correspond to @xmath in the above. The perturbation in density
+is applied by perturbing the particles from an initially uniform setup.
+We consider the one dimensional perturbation
+
+  -- -------- -- ---------
+     @xmath      (1.131)
+  -- -------- -- ---------
+
+where @xmath is the perturbation amplitude. The cumulative total mass in
+the x direction is given by
+
+  -- -------- -------- -------- -------- ---------
+     @xmath   @xmath   @xmath            (1.132)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- ---------
+
+such that the cumulative mass at any given point as a fraction of the
+total mass is given by
+
+  -- -------- -- ---------
+     @xmath      (1.133)
+  -- -------- -- ---------
+
+For equal mass particles distributed in @xmath the cumulative mass
+fraction at particle @xmath is given by @xmath such that the particle
+position may be calculated using
+
+  -- -------- -- ---------
+     @xmath      (1.134)
+  -- -------- -- ---------
+
+Substituting the expression for @xmath we have the following equation
+for the particle position
+
+  -- -------- -- ---------
+     @xmath      (1.135)
+  -- -------- -- ---------
+
+which we solve iteratively using a simple Newton-Raphson rootfinder.
+With the uniform particle distribution as the initial conditions this
+converges in one or two iterations.
+
+##### One dimensional tests
+
+Initially we consider one dimensional, isothermal simulations using a
+fixed smoothing length (for which the results of the stability analysis
+given in § 1.2.7 hold). The cubic spline kernel is used with @xmath
+where @xmath is the initial particle spacing. This value of smoothing
+length was chosen because in Figure 1.2 the cubic spline is seen to
+significantly underestimate the sound speed at this value of @xmath .
+The simulation is setup using 100 particles (corresponding to @xmath in
+Figure 1.2 ) and a wave amplitude of @xmath to ensure that the wave
+remains essentially linear throughout the simulation. No artificial
+viscosity is used. For isothermal simulations, the pressure is
+calculated directly from the density using @xmath . The sound speed
+given by the SPH simulations is estimated from the temporal spacing of
+minima in the total kinetic energy of the particles.
+
+A representative example of these simulations is given in the left hand
+side of Figure 1.4 after five crossings of the computational domain. The
+amplitude is well maintained by the SPH scheme, however the wave lags
+behind the exact solution, giving a significant phase error as expected
+from the stability analysis (Figure 1.2 ). The sound speed obtained from
+the numerical tests is plotted in Figure 1.5 for a range of smoothing
+length values (solid points). In this case the results show excellent
+agreement with the analytic results using the dispersion relation ( 1.41
+) given by the solid line (this line corresponds to @xmath in Figure 1.2
+). We observe that, depending on the value of @xmath the numerical sound
+wave can both lag and lead the exact solution (in Figure 1.5 this
+corresponds to sound speeds less than or greater than unity).
+
+In § 1.3.4 it was noted that the variable smoothing length terms
+normalise the kernel even in the case of a fixed smoothing length. The
+results of the fixed smoothing length simulation with this correction
+term are shown by the dashed line in Figure 1.5 , with a representative
+example given in the right hand side of Figure 1.4 . The numerical wave
+speed appears much closer to the theoretical value of unity.
+
+Results using a smoothing length which varies with density according to
+( 1.68 ) are given by the dot-dashed line in Figure 1.5 , with a
+representative example shown in Figure 1.4 . The phase error is slightly
+lower than either of the fixed smoothing length cases. Including the
+normalisation of the kernel gradient from the variable smoothing lengths
+(§ 1.3.4 ) gives numerical sound speeds very close to unity (dotted line
+in Figure 1.5 ). A representative example of these simulations is given
+in the right hand panel of Figure 1.4 after 5 periods. The results in
+this case show excellent agreement with the exact (linear) solution,
+with a small amount of steepening due to nonlinear effects.
+
+The results of this test indicate that, whilst alternative kernels can
+give slight improvements in accuracy over the standard cubic spline (§
+1.2.7 ), a substantial gain in accuracy can be gained firstly by the use
+of a variable smoothing length and secondly by self-consistently
+accounting for @xmath terms in the formulation of the SPH equations.
+These terms act as a normalisation of the kernel gradient which appear
+to effectively remove the dependence of the numerical sound speed on the
+smoothing length value.
+
+##### Effects of artificial viscosity
+
+In the absence of any switches, the artificial viscosity is specified
+according to ( 1.102 ) with @xmath , @xmath everywhere. The results of
+the sound wave propagation with artificial viscosity turned on are shown
+in the left panel of Figure 1.6 . After 5 crossings of the computational
+domain the wave is severely damped by the artificial viscosity term. The
+effect is to reduce the order of the numerical scheme since convergence
+to the exact solution is much slower. The results using the artificial
+viscosity switch discussed in § 1.5.2 are shown in the right panel of
+Figure 1.6 . The results show good agreement with the linear solution,
+demonstrating that use of the artificial viscosity switch very
+effectively restores the numerical schemes ability to propagate small
+perturbations without excessive damping.
+
+Finally, we demonstrate the usefulness of the artificial viscosity
+switch by considering the steepening of a nonlinear sound wave. In this
+case the initial amplitude is 0.05 and artificial viscosity is applied
+using the switch. The wave profile at @xmath is shown in Figure 1.7 and
+is significantly steepened compared to the initial conditions (solid
+line). The use of the switch enables the steepening to be resolved,
+however some oscillations are found to occur ahead of the steepened
+wave.
+
+#### 1.7.3 Sod shock tube
+
+The standard shock tube test for any compressible fluid dynamics code is
+that of Sod ( 1978 ) . The problem consists of dividing the domain into
+two halves, one consisting of high pressure, high density gas whilst the
+other is low pressure and low density. These two portions of gas are
+allowed to interact at @xmath , resulting in a shock and rarefaction
+wave which propagate through the gas. This test illustrates the shock
+capturing ability of the 1D code and thus provides a good test of the
+artificial viscosity formalism (§ 1.5 ). It is also the basis for the
+MHD shock tube considered in § LABEL:sec:briowu . We set up the problem
+using 450 SPH particles in the domain @xmath . The particles are setup
+with uniform masses such that the density jump is modelled by a jump in
+particle separation. Initial conditions in the fluid to the left of the
+origin are given by @xmath whilst conditions to the right are given by
+@xmath with @xmath . The particle separation to the left of the
+discontinuity is @xmath .
+
+Figure 1.9 shows the results of this problem at @xmath . The exact
+solution, calculated using the exact Riemann solver given in Toro ( 1992
+) is given by the solid line. In this case artificial viscosity has been
+applied uniformly to particles in compression (ie. using @xmath ),
+whilst no artificial thermal conductivity has been used (ie. @xmath ).
+The results are generally good although there is significant deviation
+in the slope of the rarefaction wave. This can be traced largely to the
+smoothing applied to the initial conditions. Following Monaghan ( 1997 )
+(although a similar procedure is applied in many published versions of
+this test), the initial discontinuities in density and pressure were
+smoothed over several particles according to the rule
+
+  -- -------- -- ---------
+     @xmath      (1.136)
+  -- -------- -- ---------
+
+where @xmath and @xmath are the uniform left and right states with
+respect to the origin and @xmath is taken as half of the largest initial
+particle separation at the interface (ie. the particle separation on the
+low density side). Where the initial density is smoothed the particles
+are spaced according to the rule
+
+  -- -------- -- ---------
+     @xmath      (1.137)
+  -- -------- -- ---------
+
+where @xmath is the particle spacing to the far right of the origin with
+density @xmath . Note that initial smoothing lengths are set according
+to the rule @xmath and are therefore also smoothed. Where the total
+energy @xmath is integrated we smooth the basic variable @xmath
+construct the total energy from the sum of the kinetic and internal
+energies.
+
+Such smoothing of the initial conditions can be avoided altogether if
+the density summation ( 1.42 ) is used, particularly if the smoothing
+length is updated self-consistently with the density. The results of
+this problem using unsmoothed initial conditions are shown in Figure 1.9
+. The artificial viscosity is applied uniformly whilst no artificial
+thermal conductivity has been used. In this case the rarefaction profile
+agrees extremely well with the exact solution (solid line). The
+unsmoothed initial conditions highlight the need for artificial thermal
+conductivity since the thermal energy overshoots at the contact
+discontinuity with a resulting glitch in the pressure profile. The
+gradient in thermal energy at the shock front does not show this effect
+due to the smoothing of the shock by the artificial viscosity term. The
+results of this test with a small amount of artificial thermal
+conductivity applied using the switch discussed in § 1.5.2 are shown in
+Figure 1.11 . The variable smoothing length terms have also been used in
+this case, although results are similar with a simple average of the
+kernel gradients in the force equation ( 1.54 ). The contact
+discontinuity is smoothed over several smoothing lengths by the thermal
+conductivity term, removing the overshoot in the thermal energy. The
+resulting profiles compare extremely well with the exact solution (solid
+line).
+
+Finally, the results of this test where both the artificial viscosity
+and conductivity are controlled using the switches described in § 1.5.2
+are shown in Figure 1.11 . The top row shows the velocity and thermal
+energy profiles compared with the exact solution (solid line), whilst
+the bottom row shows the time-varying co-efficients @xmath and @xmath of
+the viscosity and thermal conductivity respectively. With the unsmoothed
+initial conditions and the viscosity switch there is a slight
+oscillation in the velocity profile at the head of the rarefaction wave.
+The variable smoothing length terms have been used in this case
+involving the consistent update of the smoothing length with density (§
+1.3.4 ). If a simple average of the kernel gradients is used instead the
+oscillations in the rarefaction wave are still present but slightly less
+pronounced. In effect, the iterations of density and smoothing length
+make the scheme much more sensitive to small perturbations, since a
+small change in the smoothing length will be reflected in the density
+profile and vice-versa. This means that structures in the simulation are
+in general better resolved and is clearly advantageous. However alsos
+mean that small errors in the density evolution are amplified where they
+may otherwise have been smoothed out by the numerical scheme.
+
+#### 1.7.4 Blast wave
+
+In this test we consider a more extreme version of the shock tube test
+considered previously. In this problem the initial conditions in the
+fluid to the left of the origin are given by @xmath whilst conditions to
+the right are given by @xmath with @xmath . The @xmath pressure ratio
+across the initial discontinuity results in a strong blast wave which
+propagates into the fluid to the right of the origin. The velocity of
+the contact discontinuity is very close to that of the shock, producing
+a sharp density spike behind the shock front. This test therefore
+presents a demanding benchmark for any numerical code.
+
+The results of this test at @xmath are shown in Figure 1.12 . The
+agreement with the exact solution (solid line) is excellent. In this
+simulation the density summation and the average of the kernel gradients
+has been used and the artificial viscosity is applied using the
+viscosity switch. The SPH results may be compared with those given in
+Monaghan ( 1997 ) . Although we use the same formulation of the
+dissipative terms as in Monaghan ( 1997 ) , in that paper the artificial
+thermal conductivity is applied only for particles in compression,
+resulting in a need to smooth the initial discontinuity in the pressure.
+With the thermal conductivity term applied using the switch the contact
+discontinuity is spread sufficiently in order to be resolved accurately
+and smoothing of the initial conditions is therefore unnecessary. In the
+SPH solution given by Monaghan ( 1997 ) the spike in density is observed
+to overshoot the exact solution, which is not observed in this case.
+This is due to the use of the density summation ( 1.42 ) rather than
+evolving the continuity equation ( 1.43 ) as in Monaghan ( 1997 ) . Use
+of the continuity equation is more efficient since it does not require
+an extra pass over the particles in order to calculate the density.
+Using alternative formulations of the pressure term in the momentum
+equation (e.g. using equation ( 1.76 ) with @xmath ) gives similar
+results (although the Hernquist and Katz ( 1989 ) formulation ( 1.92 )
+appears to produce negative pressures on this problem). Using the
+consistent alternative formulations of the continuity equation, however,
+appears to worsen the overshoot observed in the density spike compared
+to the usual continuity equation (for example in the @xmath case, the
+density spike overshoots to @xmath when the continuity equation ( 1.86 )
+is used).
+
+#### 1.7.5 Cartesian shear flows
+
+In a recent paper Imaeda and Inutsuka ( 2002 ) (hereafter II02) have
+suggested that SPH gives particularly poor results on problems involving
+significant amounts of shear. The simplest test considered by II02 is a
+Cartesian shear flow. The setup is a two dimensional, uniform density
+@xmath box in the domain @xmath and @xmath with a shear velocity field
+@xmath and periodic boundary conditions in the @xmath and @xmath
+directions. In general such flows are known (at least in the
+incompressible case) to be unstable to Kelvin-Helmholtz instabilities at
+the inflection point in the velocity profile (e.g. Drazin and Reid, 1981
+) . However, a straightforward stability analysis of this flow
+demonstrates that it is indeed stable to small perturbations in the
+@xmath direction (note, however that the application of viscosity can
+significantly affect the stability properties for these types of
+problems).
+
+We setup the problem using 2500 (50 x 50) particles initially arranged
+on a cubic lattice. The smoothing length we use is set according to
+
+  -- -------- -- ---------
+     @xmath      (1.138)
+  -- -------- -- ---------
+
+where we use @xmath , resulting in an initially uniform value of @xmath
+. The smoothing length is allowed to change with density according to (
+1.68 ), although this has little effect since the density remains close
+uniform throughout the simulation. The equation of state is isothermal
+such that the pressure is given in terms of the density via @xmath . As
+in II02, we consider both the pressure-free case ( @xmath ) and also
+using @xmath , in both cases using no artificial viscosity. The results
+for the pressure-free case are shown in Figure 1.13 . After 50 dynamical
+times (defined as one crossing of the computational domain at the
+highest velocity, ie. in this case @xmath ) the density remains
+extremely close to uniform ( @xmath ) and the particle positions remain
+ordered. Results in II02 show large errors ( @xmath ) in the density in
+less than 1 dynamical time. Similar results are obtained in the @xmath
+case, shown after 20 dynamical times in Figure 1.14 . Again, the
+amplitude of the density error is very small ( @xmath ). Some disruption
+in the particle distribution is observed to occur at later times,
+however in the absence of any artificial viscosity small compressible
+modes are not damped in any way and in the absence of a high accuracy
+timestepping algorithm such disorder might reasonably be expected. Also
+it is well known that the particles initially arranged on a cubic
+lattice will eventually move off the lattice and settle to a more
+isotropic close packed distribution (e.g. Morris 1996 ).
+
+The question is, therefore: Why do the results obtained in II02 show so
+much error in the density evolution? The major factor appears to be the
+particle setup. The details of the particle setup are not given in II02,
+however by inspection of their figures it appears that the particles are
+arranged in a quasi-random fashion. The density errors observed in their
+paper may therefore be an amplification (by the shear flow) of initial
+perturbations in the density distribution due to the particle setup. A
+second contributing factor is that the value of smoothing length used by
+II02 is very low (they use @xmath in equation ( 1.138 ), whereas typical
+values for @xmath lie in the range @xmath in most multidimensional SPH
+implementations). However, even with their choice of smoothing length
+@xmath , we still find that the density remains essentially constant.
+
+#### 1.7.6 Toy stars
+
+A disadvantage of many of the test problems found in the astrophysical
+fluid dynamics literature is that, being designed for grid-based codes,
+they all involve some kind of boundary condition. For codes designed
+ultimately to simulate self-gravitating gas it is useful to have
+benchmarks based on a finite system. Secondly simple, exact, nonlinear
+solutions to the equations of hydrodynamics are few and far between, and
+this even more so in the case of magnetohydrodynamics. For this reason
+we investigate benchmarks based on a simple class of exact solutions
+which we call ‘Toy Stars’. The equations of hydrodynamics are modified
+by the addition of a linear force term which is proportional to the
+co-ordinates (which means that the particles move in a paraboloidal
+potential centred on the origin). The one dimensional equation of motion
+is given by
+
+  -- -------- -- ---------
+     @xmath      (1.139)
+  -- -------- -- ---------
+
+where @xmath is the angular frequency. In the following we rescale the
+equations in units such that @xmath . The toy star force has many
+interesting properties and was even considered by Newton as an example
+of the simplest many-body force. The toy star equations with @xmath are
+also identical in form to the shallow water equations.
+
+Assuming a polytropic equation of state (ie. @xmath ) with constant of
+proportionality @xmath and @xmath , the Toy Star static structure at
+equilibrium is easily derived from ( 1.139 ) as
+
+  -- -------- -- ---------
+     @xmath      (1.140)
+  -- -------- -- ---------
+
+In this thesis we will simply consider the most interesting toy star
+problem which is the calculation of the fundamental oscillatory mode
+since it turns out to be an exact, non-linear solution. However, a
+perturbation analysis can be used to derive linear solutions to the Toy
+Star equations which also present interesting benchmarks for numerical
+codes. An investigation of the linear modes using SPH, together with a
+detailed comparison of the oscillation frequencies with the linear
+solution is given in Monaghan and Price ( 2004 ) . The non-linear
+solution for arbitrary @xmath may be derived by considering velocity
+perturbations in the form
+
+  -- -------- -- ---------
+     @xmath      (1.141)
+  -- -------- -- ---------
+
+where the density is given by
+
+  -- -------- -- ---------
+     @xmath      (1.142)
+  -- -------- -- ---------
+
+The exact solution (Monaghan and Price, 2004 ) for the parameters A, H
+and C is given in terms of the ordinary differential equations
+
+  -- -------- -------- -------- -- ---------
+     @xmath   @xmath   @xmath      (1.143)
+     @xmath   @xmath   @xmath      (1.144)
+     @xmath   @xmath   @xmath      (1.145)
+  -- -------- -------- -------- -- ---------
+
+which can be solved numerically with ease. The relation
+
+  -- -------- -- ---------
+     @xmath      (1.146)
+  -- -------- -- ---------
+
+where @xmath is a constant which is determined from the initial values
+of @xmath and @xmath . The exact solution equations ( 1.143 )-( 1.145 )
+take particularly simple forms for the case @xmath .
+
+##### Static structure
+
+The simplest test with the toy star is to verify the static structure.
+We setup 200 SPH particles equally spaced along the x axis with @xmath
+with zero initial velocity and a total mass @xmath . The particles are
+then allowed to evolve under the influence of the linear force, with the
+velocities damped using the artificial viscosity. The particle
+distribution at equilibrium is shown in Figure 1.15 and shows extremely
+good agreement with the exact solution (eq. 1.140 ).
+
+##### Non linear test cases
+
+For the non-linear tests the one dimensional Toy star is initially set
+up using 200 equal mass particles distributed along the x axis. Although
+in principle we could use the particle distribution obtained in the
+previous test as the initial conditions, it is simpler just to space the
+particles according to the static density profile ( 1.140 ). The SPH
+equations are implemented using the summation over particles to
+calculate the density and the usual momentum equation with the linear
+force subtracted. The equation of state is specified by using @xmath ,
+where for the cases shown we set @xmath . The smoothing length is
+allowed to vary with the particle density, where we take simple averages
+of kernel quantities in the SPH equations in order to conserve momentum.
+
+The exact (non-linear) solution is obtained by numerical integration of
+equations ( 1.143 )-( 1.145 ) using a simple improved Euler method. We
+use the condition ( 1.146 ) as a check on the quality of this
+integration by evaluating the constant @xmath , which should remain
+close to its initial value.
+
+Results for the case where initially @xmath (and therefore @xmath ) are
+shown in figure 1.17 at @xmath (corresponding to approximately one
+oscillation period) alongside the exact solution shown by the solid
+lines. No artificial viscosity is applied in this case. The agreement
+with the exact solution is excellent. Note that the sound speed in this
+case is @xmath such that using the parameter @xmath results in
+supersonic velocities at the edges of the star (the solution is
+therefore highly non-linear).
+
+Figure 1.17 shows the SPH results for a simulation with @xmath and the
+same initial parameters as Figure 1.17 . Velocity and density profiles
+are shown at time @xmath corresponding to approximately three
+oscillation periods. No artificial viscosity is used. The agreement with
+the exact solution (solid lines) is again extremely good.
+
+Results of simulations with artificial viscosity turned on are similar,
+although with a small damping of the kinetic energy over time.
+
+### 1.8 Summary
+
+In this chapter we have thoroughly reviewed the SPH algorithm.
+Alternatives to the standard cubic spline kernel were investigated in §
+1.2.5 and § 1.2.6 , on the basis of their stability properties. Higher
+order spline kernels giving closer approximations to the Gaussian were
+found to give better stability properties although at the price of an
+increase in computational expense due to the greater number of
+contributing neighbours. The possibility of constructing kernels with
+better stability properties based on smoother splines but retaining
+compact support of size @xmath was investigated, with good results for
+smoothing lengths @xmath (in units of the average particle spacing).
+However, the gain in accuracy from the use of these alternative kernels
+is very minor compared to the substantial improvements in accuracy
+gained by the incorporation of the variable smoothing length terms (§
+1.3.4 )
+
+The discrete equations of SPH were formulated self-consistently from a
+variational principle in § 1.3 , leading naturally to equations which
+explicitly conserve momentum, angular momentum and energy. Artificial
+dissipation terms used to capture shocks were then discussed, where in §
+1.5.2 a new switch to control the application of artificial thermal
+conductivity was considered (the importance of which is highlighted in
+the numerical tests described in § 1.7 ). The consistent formulation of
+the SPH equations incorporating a variable smoothing length was
+discussed in § 1.3.4 , which are shown to lead to increased accuracy in
+a wide range of problems (including linear waves (§ 1.7.2 ), shock tubes
+(§ 1.7.3 ), Cartesian shear flows (§ 1.7.5 ) and toy stars (§ 1.7.6 )).
+It was shown in § 1.4 that consistent formulations of SPH when
+alternative formulations of the momentum equation are used can be
+derived from a variational principle by modifying the form of the
+continuity equation. Various timestepping algorithms were discussed in §
+1.6 , particularly the need to perform a separate pass over the
+particles to compute derivatives involving the velocity for a reversible
+integration of the SPH equations. Finally several numerical tests were
+presented.
+
+The linear sound wave tests ( 1.7.2 ) demonstrated a phase error in the
+SPH simulation of sound waves dependent on the value of the smoothing
+length and related to the use of kernels with compact support. This
+phase error was shown to be largely corrected for by allowing the
+smoothing length to vary with density and self-consistently accounting
+for the extra terms which arise in the SPH equations. Also the damping
+of small perturbations induced by the artificial viscosity term was
+found to be significantly reduced by use of the artificial viscosity
+switch described in § 1.5.2 . In the second test problem, the standard
+shock tube test of Sod ( 1978 ) , the importance of applying a small
+amount of artificial thermal conductivity was highlighted, which avoids
+the need to artificially smooth the initial conditions of such problems.
+The SPH algorithm was also shown to give good results on a more extreme
+version of this test (§ 1.7.4 ). Thirdly (§ 1.7.5 ), the Cartesian shear
+flow tests given by Imaeda and Inutsuka ( 2002 ) were examined,
+demonstrating that SPH gives good results on this problem for uniform
+particle setups and does not show the large errors encountered by these
+authors. Finally, the SPH algorithm was tested against several exact,
+non-linear solutions derived for systems of particles, known as ‘Toy
+Stars’ and was shown to give results in excellent agreement with theory.
+
+## Appendix A SPH stability analysis
+
+In this appendix we perform a stability analysis of the standard SPH
+formalism derived in § 1.3 . Since the SPH equations were derived
+directly from a variational principle, the linearised equations may be
+derived from a second order perturbation to the Lagrangian ( 1.46 ),
+given by
+
+  -- -------- -- -------
+     @xmath      (A.1)
+  -- -------- -- -------
+
+where the perturbation to @xmath is to second order in the second term
+and to first order in the third term. The density perturbation is given
+by a perturbation of the SPH summation ( 1.42 ), which to second order
+is given by ¹ ¹ 1 Note that the first order term may be decoded into
+continuum form to give the usual expression
+
+@xmath
+
+where @xmath refers to the unperturbed quantity.
+
+  -- -------- -- -------
+     @xmath      (A.2)
+  -- -------- -- -------
+
+The derivatives of the thermal energy with respect to density follow
+from the first law of thermodynamics, ie.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The Lagrangian perturbed to second order is therefore
+
+  -- -------- -- -------
+     @xmath      (A.3)
+  -- -------- -- -------
+
+The perturbed momentum equation is given by using the perturbed
+Euler-Lagrange equation,
+
+  -- -------- -- -------
+     @xmath      (A.4)
+  -- -------- -- -------
+
+where
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (A.5)
+     @xmath   @xmath   @xmath            (A.6)
+                                @xmath   
+  -- -------- -------- -------- -------- -------
+
+giving the SPH form of the linearised momentum equation
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (A.7)
+                                @xmath   
+  -- -------- -------- -------- -------- -------
+
+Equation ( A.7 ) may also be obtained by a direct perturbation of the
+SPH equations of motion derived in § 1.3.2 . For linear waves the
+perturbations are assumed to be of the form
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (A.8)
+     @xmath   @xmath   @xmath      (A.9)
+     @xmath   @xmath   @xmath      (A.10)
+  -- -------- -------- -------- -- --------
+
+where
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (A.11)
+     @xmath   @xmath   @xmath      (A.12)
+     @xmath   @xmath   @xmath      (A.13)
+  -- -------- -------- -------- -- --------
+
+Assuming equal mass particles, the momentum equation ( A.7 ) becomes
+
+  -- -------- -- --------
+     @xmath      (A.14)
+  -- -------- -- --------
+
+From the continuity equation ( 1.43 ) the amplitude @xmath of the
+density perturbation is given in terms of the particle co-ordinates by
+
+  -- -------- -- --------
+     @xmath      (A.15)
+  -- -------- -- --------
+
+Finally, plugging this into ( A.14 ) and taking the real component, the
+SPH dispersion relation (for any equation of state) is given by
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (A.16)
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+For an isothermal equation of state this can be simplified further by
+setting @xmath . An adiabatic equation of state corresponds to setting
+@xmath .

@@ -1,0 +1,2472 @@
+##### 1991 Mathematics Subject Classification: F.1.1, F.1.2, F.3.1
+
+\lsuper aBlass was partially supported by NSF grant DMS–0070723 and by a
+grant from Microsoft Research.
+
+\lsuper cRosenzweig was partially supported by the grant 0120048 from
+the Croatian Ministry of Science and Technology and by Microsoft
+Research.
+
+\lmcsheading
+
+3 (4:4) 2007 1–35 Jun. 11, 2007 Nov. 0 5, 2007
+
+## 1. Introduction
+
+Traditional models of computation, like the venerable Turing machine,
+are, despite the Church-Turing thesis, rather distant intuitively from
+many of the concerns of modern computing. Graphical user interfaces,
+parallel and distributed computing, communication and security
+protocols, and various other sorts of computation do not easily fit the
+traditional picture of computing from input strings to output strings.
+Abstract state machines (ASMs) were introduced for the purpose of
+modeling algorithms at their natural level of abstraction, as opposed to
+the far lower level of abstraction usually needed by a Turing machine
+model. That ASMs fulfill their purpose was at first an empirical fact,
+supported by numerous case studies, not only of algorithms in the usual
+sense but also of whole programming languages and of hardware; see [ 11
+] for many examples. The Abstract State Machine Thesis, first proposed
+in [ 7 ] and then elaborated in [ 8 , 9 ] , asserts that every algorithm
+is equivalent, on its natural level of abstraction, to an abstract state
+machine. Beginning in [ 10 ] and continuing in [ 1 ] , [ 2 ] , [ 3 ] ,
+and [ 4 ] , the thesis has been proved for various classes of
+algorithms. In each case, the class of algorithms under consideration
+was defined by postulates describing, in very general terms, the nature
+of the algorithms, and in each case the main theorem was that all
+algorithms of this class are equivalent, in a strong sense, to ASMs.
+
+The thesis was proved first, in [ 10 ] , for the class of algorithms
+that are sequential (i.e., proceed in discrete steps and do only a
+bounded amount of work per step) and do not interact with the external
+environment within steps. (The environment is allowed to intervene
+between steps to change the algorithm’s state.)
+
+Subsequent work extended the result in two directions. Parallel
+algorithms, in which a bound on work per step applies to each processor
+but not to the algorithm as a whole, were treated in [ 1 ] but still
+without intrastep interaction with the environment. In [ 2 , 3 , 4 ] ,
+intrastep interaction was added to sequential computation, subject to a
+restriction to “ordinary” interaction, and the ASM thesis was proved for
+the resulting class of algorithms. In both of these directions, the
+standard syntax of ASMs, as presented in [ 9 ] , was adequate, with only
+very minor modifications.
+
+In the present paper and its companion paper [ 5 ] , we continue this
+tradition, now removing the restriction to ordinary interaction. That
+is, we propose the postulates in [ 5 ] as a general description of
+sequential algorithms interacting with their environments, and we show
+in the present paper that all algorithms that satisfy the postulates are
+behaviorally equivalent, in a strong sense, to ASMs.
+
+There is, however, an important difference between this work and the
+earlier proofs of the ASM thesis. The traditional ASM syntax and
+semantics from [ 9 ] are no longer adequate. They require a significant
+extension, allowing an ASM program (1) to refer to the order in which
+the values of external functions are received from the environment and
+(2) to declare a step complete even if not all external function values
+have been determined. Neither of these two possibilities was permitted
+by the postulates defining “ordinary algorithm” in [ 2 ] .
+
+In [ 5 ] , we presented postulates that permit both of these
+possibilities, and we argued that these postulates capture the general
+concept of sequential, interactive algorithm. In the present paper, we
+extend the syntax and semantics of abstract state machines so that
+non-ordinary algorithms become expressible. The main contributions of
+this paper are
+
+-   syntax and semantics for ASMs incorporating interaction that need
+    not be ordinary,
+
+-   verification that ASMs satisfy the postulates of [ 5 ] , and
+
+-   proof that every algorithm satisfying the postulates is equivalent,
+    in a strong sense, to an ASM.
+
+Most design decisions about the syntax and semantics of general
+interactive ASMs were guided, and often forced, by the axiomatisation of
+appropriate algorithms in the companion paper [ 5 ] . Sections 2 and 3 ,
+defining the syntax and semantics of interactive ASMs are self-contained
+and could in principle be read independently of [ 5 ] , but we refer the
+reader to [ 5 ] , and sometimes also to [ 2 , 3 , 4 ] , for extensive
+discussion, motivation and justification of some of the choices made, as
+well as the relation to other work. Sections 4 and 5 , relating the ASMs
+of section 2 to algorithms as axiomatized in [ 5 ] , use the definitions
+and results of [ 5 ] . We presume that the reader has a copy of the
+companion paper [ 5 ] available, but, as an aid to intuition, we
+summarize briefly the main content of the postulates.
+
+The states of an algorithm are structures for a finite vocabulary @xmath
+, and certain states are designated as initial states . The algorithm’s
+interaction with the environment (during a step) is given by a history ,
+which consists of a function sending the algorithm’s queries to the
+environment’s answers, together with a linear pre-order telling in what
+order the answers were received. The algorithm tells what queries are to
+be issued, on the basis of the state and the past history. On the same
+basis, it also tells whether the current step is ended; if so, it tells
+whether the step has succeedd or failed, and in the case of success it
+tells how the state is to be updated. The updating changes the
+interpretations of some of the function symbols, but it does not affect
+the base set. All of the preceding aspects of the algorithm are required
+to be invariant under isomorphism of @xmath -structures. Finally, the
+“small-step” property of the algorithm is ensured by a postulate saying
+that the queries to be issued, the decisions about ending the step and
+about success, and the updates depend only on the history plus a
+specific finite part of the state. For the technical details of the
+formulation of the postulates, we refer to [ 5 , Section 3] .
+
+## 2. Interactive Small-Step ASMs: Syntax
+
+Ordinary interactive small-step ASMs are defined in [ 3 ] . In the
+companion paper [ 5 ] , we axiomatized general interactive small-step
+algorithms. In this and the next sections, we define general interactive
+small-step ASMs. This new ASM model is an extension of the ASM model in
+[ 3 ] . The extension incorporates capabilities for taking into account
+the order of the environment’s replies and for ending a step before all
+queries have been answered. We repeat here, for the sake of
+completeness, some definitions from [ 3 , 5 ] , but we do not repeat the
+detailed discussion and motivation for these definitions. We provide
+detailed discussion and motivation for those aspects of the present
+material that go beyond what was in [ 3 , 5 ] .
+
+In this section we describe the syntax of ASM programs, accompanied with
+some intuitive indications of their semantics. Precise semantics is
+given in the next section.
+
+### 2.1. Vocabularies
+
+An ASM has a finite vocabulary @xmath complying with the following
+convention, exactly as required for interactive small-step algorithms in
+[ 5 ] .
+
+###### Convention \thethm.
+
+-   A vocabulary @xmath consists of function symbols with specified
+    arities.
+
+-   Some of the symbols in @xmath may be marked as static , and some may
+    be marked as relational . Symbols not marked as static are called
+    dynamic .
+
+-   Among the symbols in @xmath are the logic names: nullary symbols
+    @xmath , @xmath , and @xmath ; unary @xmath ; binary equality; and
+    the usual propositional connectives. All of these are static and all
+    but @xmath are relational.
+
+-   An @xmath -structure consists of a nonempty base set and
+    interpretations of all the function symbols as functions on that
+    base set.
+
+-   In any @xmath -structure, the interpretations of @xmath , @xmath ,
+    and @xmath are distinct.
+
+-   In any @xmath -structure, the interpretations of relational symbols
+    are functions whose values lie in @xmath .
+
+-   In any @xmath -structure @xmath , the interpretation of @xmath maps
+    @xmath and @xmath to @xmath and everything else to @xmath .
+
+-   In any @xmath -structure @xmath , the interpretation of equality
+    maps pairs of equal elements to @xmath and all other pairs to @xmath
+    .
+
+-   In any @xmath -structure @xmath , the propositional connectives are
+    interpreted in the usual way when their arguments are in @xmath ,
+    and they take the value @xmath whenever any argument is not in
+    @xmath .
+
+-   We may use the same notation @xmath for a structure and its base
+    set.
+
+-   We may omit subscripts @xmath , for example from @xmath and @xmath ,
+    when there is no danger of confusion.∎
+
+In addition, the ASM has an external vocabulary @xmath , consisting of
+finitely many external function symbols ¹ ¹ 1 The symbol @xmath for the
+external vocabulary is the Greek capital epsilon, in analogy with the
+Greek capital upsilon @xmath for the algorithm’s vocabulary. . These
+symbols are used syntactically exactly like the symbols from @xmath ,
+but their semantics is quite different. If @xmath is an @xmath -ary
+external function symbol and @xmath is an @xmath -tuple of arguments
+from a state @xmath , then the value of @xmath at @xmath is not stored
+in the state but is obtained from the environment as the reply to a
+query.
+
+###### Remark \thethm.
+
+The ASM syntax of [ 3 ] included commands of the form @xmath where
+@xmath is a term and @xmath is a so-called output label. These commands
+produced an outgoing message, regarded as a query with an automatic
+reply “OK.” In the present paper, we shall include commands for issuing
+the queries associated with external function calls even when the reply
+might not be used in the evaluation of a term. These @xmath commands
+subsume the older @xmath commands, so we do not include the latter in
+our present syntax. This is why the preceding paragraph introduces only
+the external vocabulary and not an additional set of output labels. Note
+in this connection that the simulation of ordinary interactive
+small-step algorithms by ASMs in [ 4 ] did not use @xmath rules. ∎
+
+###### Convention \thethm.
+
+Note that by Convention 2.1 only function symbols in @xmath admit two
+sorts of markings. They can be either static or dynamic and they can be
+relational or not. No such markings are applied to the external function
+symbols. All symbols in @xmath are considered static and not relational.
+∎
+
+###### Remark \thethm.
+
+In this convention, “static” does not mean that the values of external
+functions cannot change; it means that the algorithm cannot change them,
+although the environment can. External functions cannot be the subject
+of updates in an ASM program, and in this respect they have the same
+syntax as static function symbols from @xmath .
+
+We do not declare any external function symbols to be relational because
+such a declaration would, depending on its semantical interpretation,
+lead to one of two difficulties.
+
+One possibility would be to demand that the queries resulting from
+relational external functions get replies that are appropriate values
+for such functions, namely only @xmath and @xmath . This imposes a
+burden on the environment, and a fairly complicated one, since it may
+not be evident, by inspection of a query, what external function symbol
+produced it (see the discussion of templates below). We prefer in this
+paper to keep the environment unconstrained.
+
+A second possibility for handling relational external functions is to
+allow the environment to give arbitrary, not necessarily Boolean,
+replies to the queries resulting from these symbols. Then we could have
+non-Boolean values for Boolean terms, and we would have to decide how to
+handle this pathological situation, for example when it occurs in the
+guard of a conditional rule. In [ 3 , Section 5] , this approach was
+used, with the convention that this sort of pathology would cause the
+conditional rule to fail. In our present situation, that convention no
+longer looks so natural, because the pathological value might be one
+that the algorithm didn’t really need. (Recall that in [ 2 , 3 , 4 ]
+algorithms needed replies to all of their queries.) One can probably
+find a reasonable convention for dealing with this pathology even for
+general interactive algorithms, but the convention would appear somewhat
+arbitrary, and it seems simpler to prohibit external function symbols
+from being relational.
+
+It might appear that this prohibition could cause a problem in
+programming. Suppose, for example, that we know somehow that the
+environment will provide a Boolean value for a certain nullary external
+function symbol @xmath . Then we might want to use @xmath as the guard
+in a conditional statement. But we can’t; since @xmath isn’t a
+relational symbol, it is not a Boolean term, and so (according to the
+definitions in the following subsections) it is ineligible to serve as a
+guard. Fortunately, this problem disappears when we observe that @xmath
+is a perfectly good guard (since equality is relational) and it has the
+same value as @xmath (since we allegedly know that @xmath gets a Boolean
+value). If, on the other hand, we’re not sure that the environment will
+provide a Boolean value, then a particular decision about how to handle
+a non-Boolean value can be built into the program. For example, the
+convention from [ 3 ] would be given by
+
+do in parallel if p = true then R1 endif if p = false then R2 endif if p
+@xmath true and p @xmath false then fail endif enddo.
+
+If one wanted to adopt a convention such as this, not only in a
+particular program but throughout some programming language, then one
+could adjoin external relational symbols to our syntax and treat them as
+syntactic sugar for pieces of code like that exhibited above.
+
+### 2.2. Terms
+
+###### Definition \thethm.
+
+The set of terms is the smallest set containing @xmath whenever it
+contains @xmath and @xmath is an @xmath -ary function symbol from @xmath
+. (The basis of this recusive definition is, of course, given by the
+0-ary function symbols.) ∎
+
+This definition formalizes the assertion above that the external
+function symbols in @xmath are treated syntactically like those of the
+state vocabulary @xmath .
+
+Notice that the terms of ASMs do not involve variables. In this respect
+they differ from those of [ 3 ] , those of first-order logic, and those
+used in the bounded exploration witnesses of [ 5 ] . It may be
+surprising that we can get by without variables while describing
+algorithms more general than those of [ 3 ] where we used variables.
+Recall, however, that the variables in the ASM programs of [ 3 ] are
+bound by the @xmath construct, and that this construct is eliminable
+according to [ 4 , Section 7] . In the present paper, we use @xmath only
+as syntactic sugar (see Subsection 2.6 below), and so we do not need
+variables in our basic formalism.
+
+###### Definition \thethm.
+
+A Boolean term is a term of the form @xmath where @xmath is a relational
+symbol. ∎
+
+###### Convention \thethm.
+
+By @xmath - terms , we mean terms built using the function symbols in
+@xmath and variables. These are terms in the usual sense of first-order
+logic for the vocabulary @xmath . Terms as defined above, using function
+symbols from @xmath but not using variables, will be called ASM-terms
+when we wish to emphasize the distinction from @xmath -terms. A term of
+the form @xmath where @xmath will be called a query-term or simply
+q-term .
+
+The evaluation of an @xmath -term (in a given state with given values
+for the variables) produces an element of the state, the value of the
+term. The same applies to q-terms, but there the situation is more
+involved. Consider a q-term @xmath and suppose that @xmath has been
+evaluated to @xmath . First the evaluation of @xmath produces a query,
+called the q-value of @xmath . If and when a reply to the query is
+received the evaluation of @xmath is complete and we get the actual
+value @xmath . See details in section 3 .
+
+### 2.3. Guards
+
+In [ 3 ] , the guards @xmath in conditional rules @xmath @xmath @xmath
+@xmath @xmath @xmath @xmath were simply Boolean terms. We shall need
+guards of a new sort to enable our ASMs to take into account the
+temporal order of the environment’s replies and to complete a step even
+when some queries have not yet been answered.
+
+We introduce timing explicitly into the formalism with the notation
+@xmath , which is intended to mean that the replies needed to evaluate
+the term @xmath arrived no later than those needed to evaluate @xmath .
+It may seem that we are thereby just introducing a new form of Boolean
+term, but in fact the situation is more complicated.
+
+In the presence of all the replies needed for both @xmath and @xmath ,
+the guard @xmath will have a truth value, determined by relative timing
+of replies. At the other extreme, if neither @xmath nor @xmath can be
+fully evaluated, then @xmath must, like @xmath and @xmath themselves,
+have no value. So far, @xmath behaves like a term.
+
+Between the two extremes, however, there are situations where the
+replies provided by the environment suffice for the evaluation of one
+but not both of @xmath and @xmath . If replies suffice for @xmath but
+not for @xmath , then @xmath is true; if replies suffice for @xmath but
+not for @xmath , then @xmath is false. Here, @xmath behaves quite
+differently from a term, in that it has a value even when one of its
+subterms does not.
+
+This behavior of @xmath also enables an ASM to complete its step while
+some of its queries remain unanswered. The execution of a conditional
+rule with @xmath as its guard can proceed to the appropriate branch as
+soon as it has received enough replies from the environment to evaluate
+at least one of @xmath and @xmath , without waiting for the replies
+needed to evaluate the other.
+
+We shall need similar behavior for more complicated guards, and for this
+purpose we shall use the propositional connectives of Kleene’s strong
+three-valued logic, which perfectly fits this sort of situation [ 12 ,
+§64] . We use the notations @xmath and @xmath for the conjunction and
+disjunction of this logic. They differ from the classical connectives
+@xmath and @xmath in that @xmath has the value false as soon as either
+of @xmath and @xmath does, even if the other has no value, and @xmath
+has the value true as soon as either of @xmath and @xmath does, even if
+the other has no value. In other words, if the truth value of one of the
+constituents @xmath and @xmath suffices to determine the truth value of
+the compound formula, regardless of what truth value the other
+constituent gets, then this determination takes effect without waiting
+for the other constituent to get any truth value at all. (It is
+customary, in discussions of these modified connectives, to treat
+“unknown” as a third truth value, but it will be convenient for us to
+regard it as the absence of a truth value. Such absences occur anyway,
+even for ordinary terms, when the existing replies do not suffice for a
+complete evaluation, and it seems superfluous to introduce another
+entity, “unknown,” to serve as a marker of this situation.)
+
+For detailed formal definition of the semantics of guards see section 3
+below.
+
+###### Definition \thethm.
+
+The set of guards is defined by the following recursion.
+
+-   Every Boolean term is a guard.
+
+-   If @xmath and @xmath are terms, then @xmath is a guard.
+
+-   If @xmath and @xmath are guards, then so are @xmath , @xmath , and
+    @xmath .
+
+∎
+
+Notice that the first clause of this definition allows, in particular,
+terms built by means of the ordinary, 2-valued connectives from other
+Boolean terms.
+
+### 2.4. Rules
+
+Most of the definition of ASM rules is as in [ 3 ] . The differences are
+in the use of @xmath rules in place of the less general @xmath rules of
+[ 3 ] and in the more general notion of guard introduced above.
+
+###### Definition \thethm.
+
+The set of ASM rules is defined by the following recursion.
+
+-   If @xmath is a dynamic @xmath -ary function symbol, if @xmath are
+    terms, and if @xmath is a term that is Boolean if @xmath is
+    relational, then
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    is a rule, called an update rule.
+
+-   If @xmath is an external @xmath -ary function symbol and if @xmath
+    are terms, then
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    is a rule, called an issue rule.
+
+-   @xmath is a rule.
+
+-   If @xmath is a guard and if @xmath and @xmath are rules, then
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    is a rule, called a conditional rule. @xmath and @xmath are its true
+    and false branches , respectively.
+
+-   If @xmath is a natural number (possibly zero) and if @xmath are
+    rules then
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    is a rule, called a parallel combination or block with the subrules
+    @xmath as its components .
+
+∎
+
+We may omit the end-markers @xmath and @xmath when they are not needed,
+for example in very short rules or in programs formatted so that
+indentation makes the grouping clear.
+
+###### Example \thethm.
+
+In [ 5 ] we have analyzed the algorithm of a broker who offers a block
+of @xmath shares of stock @xmath at price @xmath to clients @xmath by
+issuing queries @xmath , @xmath . The client whose reply reaches the
+broker first wins the sale. We consider here a variant of the example in
+which every reply from a client is considered to be positive, so that a
+client refuses the offer by not answering at all. If both replies reach
+the broker simultaneously then, for simplicity, client 0 is preferred.
+There is a further timeout query @xmath , so that if no client replies
+by timeout, the sale is canceled. Given that @xmath and @xmath are some
+@xmath -terms, an equivalent ASM program might be
+
+@xmath @xmath @xmath @xmath @xmath @xmath 0 @xmath 1
+
+where cancel and sell to @xmath stand for some updates recording
+respectively canceling the sale or selling to client @xmath in the
+state.
+
+### 2.5. Queries and templates
+
+We recall the query-reply model that is discussed at length in [ 2 , 3 ]
+and summarized in [ 5 ] . In addition to vocabulary @xmath and external
+vocabulary @xmath , an ASM has a set @xmath of labels .
+
+###### Definition \thethm.
+
+A potential query in @xmath -structure @xmath is a finite tuple of
+elements of @xmath . A potential reply in @xmath is an element of @xmath
+. ∎
+
+Here @xmath is the disjoint union of @xmath and @xmath . So if they are
+not disjoint, then they are to be replaced by disjoint isomorphic
+copies. We shall usually not mention these isomorphisms; that is, we
+write as though @xmath and @xmath were disjoint.
+
+The correspondence between external function calls on the one hand and
+queries on the other hand is mediated by a template assignment, defined
+as follows.
+
+###### Definition \thethm.
+
+For a fixed label set @xmath , a template for @xmath -ary function
+symbols is any tuple in which certain positions are filled with labels
+from @xmath while the rest are filled with the placeholders @xmath ,
+occurring once each. We assume that these placeholders are distinct from
+all the other symbols under discussion ( @xmath ). If @xmath is a
+template for @xmath -ary functions, then we write @xmath for the result
+of replacing each placeholder @xmath in @xmath by the corresponding
+@xmath . ∎
+
+Thus if the @xmath are elements of a state @xmath then @xmath is a
+potential query in @xmath .
+
+###### Definition \thethm.
+
+For a fixed label set and external vocabulary, a template assignment is
+a function assigning to each @xmath -ary external function symbol @xmath
+a template @xmath for @xmath -ary functions. ∎
+
+The intention, which will be formalized in the semantic definitions of
+the next section, is that when an ASM evaluates a term @xmath where
+@xmath , it first computes the values @xmath of the terms @xmath , then
+issues the query @xmath , and finally uses the answer to this query as
+the value of @xmath .
+
+Template assignments solve the problem whether two distinct syntactic
+occurrences of the same function symbol with the same arguments refer to
+the same query or denote distinct queries. Sometimes it is convenient to
+have it one way, and sometimes another. For extensive discussion of
+template assignments we refer the reader to [ 3 ] .
+
+### 2.6. Programs
+
+Now we are ready to define ASM programs.
+
+###### Definition \thethm.
+
+An interactive, small-step, ASM program @xmath consists of
+
+-   a finite vocabulary @xmath ,
+
+-   a finite set @xmath of labels,
+
+-   a finite external vocabulary @xmath ,
+
+-   a rule @xmath , using the vocabularies @xmath and @xmath , the
+    underlying rule of @xmath ,
+
+-   a template assignment with respect to @xmath and @xmath .
+
+This completes the definition of the syntax of ASMs. It will, however,
+be convenient notationally and suggestive conceptually to introduce
+abbreviations, syntactic sugar, for certain expressions. Specifically,
+we adopt the following conventions and notations.
+
+###### Convention \thethm.
+
+We use @xmath for the parallel combination with no components,
+officially written @xmath .
+
+###### Convention \thethm.
+
+The parallel combination with @xmath components @xmath can be written as
+@xmath .
+
+Semantically, @xmath is commutative and associative, that is, rules that
+differ only by the order and parenthesization of parallel combinations
+will have the same semantic behavior. Thus, in contexts where only the
+semantics matters, parentheses can be omitted in iterated @xmath s.
+
+###### Convention \thethm.
+
+We abbreviate @xmath @xmath @xmath @xmath @xmath as @xmath @xmath @xmath
+@xmath @xmath . ∎
+
+###### Convention \thethm.
+
+For any term @xmath , the Boolean term @xmath is denoted by @xmath ,
+read as “ @xmath bang.” ∎
+
+These bang terms may seem trivial, but they can be used to control
+timing in the execution of an ASM. If the term @xmath involves external
+function symbols, then the rule @xmath @xmath @xmath @xmath @xmath
+differs from @xmath in that it issues the queries needed for the
+evaluation of @xmath and waits for the replies before proceeding to
+execute @xmath .
+
+###### Convention \thethm.
+
+We use the following abbreviations:
+
+  -- -------- -- -------- --
+     @xmath      @xmath   
+     @xmath      @xmath   
+     @xmath      @xmath   
+     @xmath      @xmath   
+  -- -------- -- -------- --
+
+Parentheses may be omitted when no confusion results. ∎
+
+The final two items of syntactic sugar involve two ways of binding
+variables to terms by @xmath operators. Our syntax so far does not
+include variables, but it is easy to add them.
+
+###### Definition \thethm.
+
+Fix an infinite set of variables. ASM rules with variables are defined
+exactly like ASM rules, with variables playing the role of additional,
+nullary, static symbols. ∎
+
+###### Convention \thethm.
+
+If @xmath is a rule with distinct variables @xmath , and if @xmath are
+terms then the let-by-name notation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+means @xmath . ∎
+
+###### Convention \thethm.
+
+If @xmath is a rule with distinct variables @xmath , and if @xmath are
+terms then the let-by-value notation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+abbreviates
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+∎
+
+For both @xmath and @xmath rules, the @xmath are called the variables of
+the rule, the @xmath its bindings , and @xmath its body . Each of the
+variables @xmath is bound by this rule at its initial occurrence in the
+context @xmath and at any free occurrences in @xmath . (Occurrences of
+the variables @xmath in the terms @xmath are not bound by the @xmath or
+@xmath construction, regardless of whether @xmath or not.)
+
+The let-by-name notation simply uses variables @xmath as placeholders
+for the terms @xmath . The let-by-value notation, in contrast, first
+evaluates all the @xmath and only afterward proceeds to execute the rule
+@xmath . In this sense, the two forms of @xmath correspond to
+call-by-name and call-by-value in other situations.
+
+###### Example \thethm.
+
+Let @xmath be a term representing a query asking the environment for a
+fresh object, like constructors in object-oriented languages, so that
+distinct textual occurrences of @xmath in a program represent distinct
+queries with supposedly distinct replies. Let @xmath be a rule with
+several syntactic occurrences of @xmath . Then @xmath provides just an
+abbreviation for @xmath (if it is indeed shorter than @xmath ), while
+@xmath has a completely different meaning: first ask the environment for
+a fresh object, await the reply, and then use it repeatedly.
+
+## 3. Interactive Small-Step ASMs: Semantics
+
+Throughout this section, we refer to a fixed structure @xmath . We start
+by recalling the notion of history introduced and motivated in the
+companion paper [ 5 ] . Then we define the semantics of terms, guards,
+and rules in the structure @xmath , relative to histories @xmath . In
+each case, we tacitly presume a template assignment. (Unlike @xmath ,
+the history @xmath will not remain fixed, because the meaning of a guard
+under history @xmath can depend on the meanings of its subterms under
+initial segments of @xmath .) In each case, the semantics will specify a
+causality relation. In addition, for terms and guards the semantics may
+provide a value (Boolean in the case of guards); for rules, the
+semantics may declare the history final, successful, or failing, and may
+provide updates.
+
+### 3.1. Histories
+
+The notion of history as a formal model of intrastep interaction of an
+algorithm and its environment has been introduced and extensively
+discussed in [ 5 ] . We recall the relevant definitions.
+
+###### Definition \thethm.
+
+An answer function for a state @xmath is a partial map from potential
+queries to potential replies. A history for @xmath is a pair @xmath
+consisting of an answer function @xmath together with a linear pre-order
+@xmath of its domain. By the domain of a history @xmath , we mean the
+domain @xmath of its answer function component, which is also the field
+of its pre-order component. ∎
+
+Recall that a pre-order of a set @xmath is a reflexive, transitive,
+binary relation on @xmath , and that it is said to be linear if, for all
+@xmath , @xmath or @xmath . The equivalence relation defined by a
+pre-order is given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The equivalence classes are partially ordered by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and this partial order is linear if and only if the pre-order was.
+
+The length of a linear pre-order is defined to be the order type of the
+induced linear ordering of equivalence classes. (We shall use this
+notion of length only in the case where the number of equivalence
+classes is finite, in which case this number serves as the length.)
+
+We also write @xmath to mean @xmath and @xmath . (Because a pre-order
+need not be antisymmetric, @xmath is in general a stronger statement
+than the conjunction of @xmath and @xmath .) When, as in the definition
+above, a pre-order is written as @xmath , we write the corresponding
+equivalence relation and strict order as @xmath and @xmath . The same
+applies to other subscripts and superscripts.
+
+###### Definition \thethm.
+
+Let @xmath be a pre-order of a set @xmath . An initial segment of @xmath
+with respect to @xmath is a subset @xmath of @xmath such that whenever
+@xmath and @xmath then @xmath . An initial segment of @xmath is the
+restriction of @xmath to an initial segment of @xmath with respect to
+@xmath . An initial segment of a history @xmath is a history @xmath ,
+where @xmath is an initial segment of @xmath with respect to @xmath .
+(We use the standard notation @xmath for the restriction of a function
+or a relation to a set.) We write @xmath to mean that the history @xmath
+is an initial segment of the history @xmath . ∎
+
+### 3.2. Terms
+
+The semantics of terms presumes not only an @xmath -structure @xmath and
+a template assignment but also a history @xmath . The semantics is
+essentially the same as in [ 3 ] , except that we do not use variables
+here. In particular, the history @xmath is involved only via the answer
+function @xmath ; the pre-order is irrelevant.
+
+The semantics of terms specifies, by induction on terms @xmath , the
+queries that are caused by @xmath under the associated causality
+relation @xmath and sometimes also a value @xmath . In the case of
+query-terms, the semantics may specify also a query-value @xmath . An
+evaluation of a query-term @xmath is intended to produce first a query,
+called the q-value of @xmath and denoted @xmath ; the reply, if any, to
+the query is the actual value @xmath of @xmath .
+
+###### Definition \thethm.
+
+Let @xmath be the term @xmath .
+
+-   If @xmath is undefined for at least one @xmath , then @xmath is also
+    undefined, and @xmath if and only if @xmath for at least one @xmath
+    . If @xmath then @xmath is also undefined.
+
+-   If, for each @xmath , @xmath and if @xmath , then @xmath , and no
+    query @xmath is caused by @xmath .
+
+-   If, for each @xmath , @xmath , and if @xmath , then @xmath is the
+    query @xmath .
+
+    -   If @xmath , then @xmath , and no query is caused by @xmath .
+
+    -   If @xmath , then @xmath is undefined, and @xmath is the unique
+        query such that @xmath .
+
+∎
+
+We record for future reference three immediate consequences of this
+definition; the proofs are routine inductions on terms.
+
+###### Lemma \thethm.
+
+@xmath is defined if and only if there is no query @xmath such that
+@xmath .
+
+###### Lemma \thethm.
+
+If @xmath then @xmath .
+
+###### Lemma \thethm.
+
+If @xmath (or even if merely @xmath ) and if @xmath is defined, then
+@xmath is also defined and these values are equal. Similarly, if @xmath
+is a q-term such that @xmath exists, then @xmath .
+
+### 3.3. Guards
+
+The semantics of guards, unlike that of terms, depends not only on the
+answer function but also on the preorder in the history. Another
+difference from the term case is that the values of guards, when
+defined, are always Boolean values. Guards share with terms the property
+that they produce queries if and only if their values are undefined.
+
+###### Definition \thethm.
+
+Let @xmath be a guard and @xmath a history in an @xmath -structure
+@xmath .
+
+-   If @xmath is a Boolean term, then its value (if any) and causality
+    relation are already given by Definition 3.2 .
+
+-   If @xmath is @xmath and if both @xmath and @xmath have values with
+    respect to @xmath , then @xmath if, for every initial segment @xmath
+    such that @xmath is defined, @xmath is also defined. Otherwise,
+    @xmath . Also declare that @xmath for no @xmath .
+
+-   If @xmath is @xmath and if @xmath has a value with respect to @xmath
+    but @xmath does not, then define @xmath to be @xmath ; again declare
+    that @xmath for no @xmath .
+
+-   If @xmath is @xmath and if @xmath has a value with respect to @xmath
+    but @xmath does not, then define @xmath to be @xmath ; again declare
+    that @xmath for no @xmath .
+
+-   If @xmath is @xmath and if neither @xmath nor @xmath has a value
+    with respect to @xmath , then @xmath is undefined, and @xmath if and
+    only if @xmath or @xmath .
+
+-   If @xmath is @xmath and both @xmath have value @xmath , then @xmath
+    and no query is produced.
+
+-   If @xmath is @xmath and at least one @xmath has value @xmath , then
+    @xmath and no query is produced.
+
+-   If @xmath is @xmath and one @xmath has value @xmath while the other,
+    @xmath , has no value, then @xmath is undefined, and @xmath if and
+    only if @xmath .
+
+-   If @xmath is @xmath and neither @xmath has a value, then @xmath is
+    undefined, and @xmath if and only if @xmath for some @xmath .
+
+-   The preceding four clauses apply with @xmath in place of @xmath and
+    @xmath and @xmath interchanged.
+
+-   If @xmath is @xmath and @xmath has a value, then @xmath and no query
+    is produced.
+
+-   If @xmath is @xmath and @xmath has no value then @xmath is undefined
+    and @xmath if and only if @xmath .
+
+∎
+
+###### Remark \thethm.
+
+An alternative, and perhaps more intuitive, formulation of the
+definition of @xmath in the case where both @xmath and @xmath have
+values is to let @xmath (resp. @xmath ) be the shortest initial segment
+of @xmath with respect to which @xmath (resp. @xmath ) has a value, and
+to define @xmath to be @xmath if @xmath and @xmath otherwise. This is
+equivalent, in the light of Lemma 3.2 , to the definition given above,
+but it requires knowing that the shortest initial segments mentioned
+here, @xmath and @xmath , exist. That is clearly the case if the partial
+order associated to the preorder in @xmath is a well-ordering, in
+particular if it is finite. Once we establish that ASMs satisfy the
+Bounded Work Postulate, it will follow that we can confine our attention
+to finite histories and so use the alternative explanation of @xmath .
+The formulation adopted in the definition has the advantage of not
+presupposing that only finite histories matter. ∎
+
+###### Example \thethm.
+
+The truth value of a timing guard @xmath is defined in terms of the
+syntactic objects @xmath and @xmath , not in terms of their values. As a
+result, this truth value may not be preserved if @xmath and @xmath are
+replaced by other terms with the same values (in the given history
+@xmath ), not even if the replacement terms ultimately issue the same
+queries as the original ones. Here is an example of what can happen.
+Suppose @xmath , @xmath , and @xmath are external function symbols,
+@xmath being unary and the other two nullary. Suppose further that 0 is
+a static nullary @xmath -symbol. Consider a history @xmath with three
+queries in its domain, pre-ordered as @xmath , and with @xmath . Then
+the term @xmath has a value already for the initial segment of @xmath of
+length 1; @xmath gets a value later, namely for the initial segment of
+length 2; and @xmath gets a value only for the whole history @xmath , of
+length 3. Thus, the guards @xmath and @xmath are true, even though
+@xmath and @xmath have the same value and have, as the ultimate step in
+their evaluation, the answer to the query @xmath . ∎
+
+Just as for terms, the following lemmas follow immediately, by induction
+on guards, from the definition plus the corresponding lemmas for terms.
+
+###### Lemma \thethm.
+
+@xmath is defined if and only if there is no query @xmath such that
+@xmath .
+
+###### Lemma \thethm.
+
+If @xmath then @xmath .
+
+###### Lemma \thethm.
+
+If @xmath and if @xmath is defined, then @xmath is also defined and
+these values are equal.
+
+###### Remark \thethm.
+
+Given the semantics of guards, we can amplify the statement, in the
+Remark 3.10. of [ 5 ] , that guards express descriptions like “ @xmath
+has reply @xmath and @xmath has no reply.” In view of Lemma 3.3 , it is
+more accurate to say that a guard expresses that such a description
+either is correct now or was so at some earlier time. The lemma says
+that, once a guard is true, it remains true when the history is extended
+by adding new elements later in the preorder, whereas a property like “
+@xmath has no reply” need not remain true. Thus, what a guard can really
+express is something like this: it either is now true or was once true
+that “ @xmath has reply @xmath and @xmath has no reply yet.” This
+particular example would be expressed by the guard @xmath , where, for
+simplicity we have not introduced a separate notation for 0-ary symbols
+corresponding to the queries @xmath and @xmath and the element @xmath .
+
+### 3.4. Rules
+
+The semantics of a rule, for an @xmath -structure @xmath , an
+appropriate template assignment, and a history @xmath , consists of a
+causality relation , declarations of whether @xmath is final and whether
+it succeeds or fails , and a set of updates .
+
+###### Definition \thethm.
+
+Let @xmath be a rule and @xmath a history for the @xmath -structure
+@xmath . In the following clauses, whenever we say that a history
+succeeds or that it fails, we implicitly also declare it to be final;
+contrapositively, when we say that a history is not final, we implicitly
+also assert that it neither succeeds nor fails.
+
+-   If @xmath is an update rule @xmath and if all the @xmath have values
+    @xmath , then @xmath succeeds for @xmath , and it produces the
+    update set @xmath and no queries.
+
+-   If @xmath is an update rule @xmath and if some @xmath has no value,
+    then @xmath is not final for @xmath , it produces the empty update
+    set, and @xmath if and only if @xmath for some @xmath .
+
+-   If @xmath is @xmath and if all the @xmath have values @xmath , then
+    @xmath succeeds for @xmath , it produces the empty update set, and
+    @xmath for the single query @xmath provided @xmath ; if @xmath then
+    no query is produced.
+
+-   If @xmath is @xmath and if some @xmath has no value, then @xmath is
+    not final for @xmath , it produces the empty update set, and @xmath
+    if and only if @xmath for some @xmath .
+
+-   If @xmath is @xmath , then @xmath fails for @xmath ; it produces the
+    empty update set and no queries.
+
+-   If @xmath is a conditional rule @xmath and if @xmath has no value,
+    then @xmath is not final for @xmath , and it produces the empty
+    update set. @xmath if and only if @xmath .
+
+-   If @xmath is a conditional rule @xmath and if @xmath has value
+    @xmath (resp. @xmath ), then finality, success, failure, updates,
+    and queries are the same for @xmath as for @xmath (resp. @xmath ).
+
+-   If @xmath is a parallel combination @xmath then:
+
+    -   @xmath if and only if @xmath for some @xmath .
+
+    -   The update set for @xmath is the union of the update sets for
+        all the components @xmath . If this set contains two distinct
+        updates at the same location, then we say that a clash occurs
+        (for @xmath , @xmath , and @xmath ).
+
+    -   @xmath is final for @xmath if and only if it is final for all
+        the @xmath .
+
+    -   @xmath succeeds for @xmath if and only if it succeeds for all
+        the @xmath and no clash occurs.
+
+    -   @xmath fails for @xmath if and only if it is final for @xmath
+        and either it fails for some @xmath or a clash occurs.
+
+∎
+
+There is no analog for rules of Lemmas 3.2 and 3.3 . A rule may issue
+queries even though it is final (in the case of an @xmath rule) or
+produces updates (in the case of parallel combinations) or both. There
+are, however, analogs for the other two lemmas that we established for
+terms and guards; again the proofs are routine inductions.
+
+###### Lemma \thethm.
+
+If @xmath then @xmath .
+
+###### Lemma \thethm.
+
+Let @xmath .
+
+-    If @xmath is final for @xmath , then so is @xmath .
+
+-    If @xmath succeeds for @xmath , then so does @xmath .
+
+-    If @xmath fails for @xmath , then so does @xmath .
+
+-    The update set for @xmath under @xmath includes that under @xmath .
+
+The reader might find it useful at this point to work out the semantic
+details of the examples 2.4 and 2.6 , comparing the results with the
+intuitive explanations given in the examples.
+
+###### Remark \thethm.
+
+Issue rules are the only way an ASM can issue a query without
+necessarily waiting for an answer. More precisely, if a history causes a
+rule to issue a query and is also final for that rule, then that rule
+either is an issue rule or contains a subrule with the same property.
+Thus, we cannot eliminate @xmath from the syntax without reducing the
+power of ASMs.
+
+### 3.5. ASM definition
+
+If @xmath is a successful, final history for a rule @xmath over an
+@xmath -structure @xmath , then @xmath and @xmath produce a successor
+for @xmath . We need a preliminary lemma to ensure that this successor
+will be well-defined. Recall that, in the definition of the semantics of
+parallel rules, we defined “a clash occurs” (for a rule, template
+assignment, state, and history) to mean that the update set contains two
+different updates of the same location.
+
+###### Lemma \thethm.
+
+If an ASM rule with a template assignment is (final and) successful in a
+certain state with a certain history, then no clash occurs for this
+rule, template assignment, state, and history.
+
+###### Proof.
+
+Use induction on rules. In the case of a parallel composition, the
+semantics explicitly provided for failure if a clash occurs. All other
+cases are trivial thanks to the induction hypothesis. ∎
+
+###### Definition \thethm.
+
+Fix a rule @xmath endowed with a template assignment, and let @xmath be
+an @xmath -structure and @xmath be a history for @xmath . If @xmath is
+successful and final for @xmath over @xmath , and if @xmath is the
+update set produced by @xmath , @xmath , and @xmath , then the successor
+@xmath of @xmath with respect to @xmath and @xmath is the @xmath
+-structure @xmath such that
+
+-   @xmath has the same base set as @xmath ,
+
+-   @xmath if @xmath , and
+
+-   otherwise @xmath interprets function symbols exactly as @xmath
+    does.∎
+
+Lemma 3.5 ensures that the second clause of the definition does not
+attempt to give @xmath two different values.
+
+Now we are ready to give a complete definition of ASMs.
+
+###### Definition \thethm.
+
+An interactive, small-step, ASM consists of
+
+-   an ASM program @xmath in some vocabulary @xmath ,
+
+-   a nonempty set @xmath of @xmath -structures called states of the
+    ASM, and
+
+-   a nonempty set @xmath of initial states ,
+
+subject to the requirements that @xmath and @xmath are closed under
+isomorphism and that @xmath is closed under transitions in the following
+sense. If @xmath , if @xmath is a successful, final history for @xmath
+in @xmath , and if @xmath is the update set produced by @xmath , @xmath
+, and @xmath , then the successor @xmath of @xmath with respect to
+@xmath and @xmath is also in @xmath . The successor is the next state
+for @xmath with respect to @xmath , endowed with the given template
+assignment, and to @xmath . ∎
+
+## 4. ASMs are Algorithms
+
+This section is devoted to checking that ASMs, as just defined, are
+algorithms, as defined in [ 5 ] . In this section (and in the rest of
+the paper) we freely use the notions and results of [ 5 ] .
+
+### 4.1. Obvious postulates
+
+Much of this checking is trivial: Everything required by the States
+Postulate of [ 5 ] is in our definition of ASMs. The causality relation
+required by the Interaction Postulate of [ 5 ] is included in our
+semantics for ASMs. (Strictly speaking, the causality relation defined
+for ASMs should be restricted to finite histories, to comply with the
+statement of the Interaction Postulate.) The Isomorphism Postulate of [
+5 ] is also obvious, because everything involved in our ASM semantics is
+invariant under isomorphisms. So the only postulates requiring any real
+checking are the Step and Bounded Work Postulates.
+
+### 4.2. Step Postulate
+
+The ASM semantics provides notions of finality, success, failure, and
+updates. In addition to these, the Step Postulate of [ 5 ] requires (in
+Part C) a notion of next state and (in Part A) assurance that every
+complete, coherent history has a final initial segment ² ² 2 We
+implicitly use the notions of coherent history and complete history as
+defined for algorithms in general in [ 5 , Section 3] , with respect to
+the causality relation of the ASM program as defined in Section 3 above
+. The next state is given by Definition 3.5 , and it is well-defined
+because of Lemma 3.5 .
+
+To show that every complete, coherent history has a final initial
+segment, we actually show more, namely that every complete history is
+final. The main ingredient here is the following lemma.
+
+###### Lemma \thethm.
+
+If a history @xmath is not final for a rule @xmath in a state @xmath ,
+then @xmath for some query @xmath .
+
+###### Proof.
+
+We proceed by induction on the rule @xmath , according to the clauses in
+the definition of the semantics for rules. Since we are given that
+@xmath is not final, we can ignore those clauses that say @xmath is
+final, and there remain the following cases.
+
+If @xmath is either an update rule @xmath or an issue rule @xmath and
+some @xmath has no value, then by Lemma 3.2 there is a query @xmath such
+that @xmath , and therefore @xmath .
+
+If @xmath is a conditional rule whose guard has no value, then the same
+argument applies except that we invoke Lemma 3.3 in place of Lemma 3.2 .
+
+If @xmath is a conditional rule whose guard has a truth value, then the
+lemma for @xmath follows immediately from the lemma for the appropriate
+branch of @xmath .
+
+Finally, suppose @xmath is a parallel combination. Since @xmath is not
+final for @xmath in @xmath , there is a component @xmath for which
+@xmath is not final. By induction hypothesis, @xmath for some @xmath ,
+and then we also have @xmath . ∎
+
+To complete the verification of the Step Postulate, we observe that, in
+the situation of the lemma, @xmath and, by Lemma 3.4 , @xmath . Thus,
+@xmath , and so @xmath is not complete for @xmath and @xmath .
+
+###### Remark \thethm.
+
+Because we have promised to prove that every algorithm is equivalent to
+an ASM, one might think that every algorithm enjoys the property
+established for ASMs in the preceding proof, namely that all complete
+histories are final. This is, however, not the case, because this
+property is not preserved by equivalence of algorithms. For a simple
+example, consider an algorithm where, for every state, the empty history
+is the only final history, and it causes one query, while all other
+histories cause no queries. Since the empty history is an initial
+segment of every history, Part A of the Step Postulate is satisfied,
+even though the complete histories, those in which the one query is
+answered, are not final.
+
+Notice, however, that converting an arbitrary algorithm to an equivalent
+one in which all complete histories are final is much easier than
+converting it to an equivalent ASM. Simply adjoin all non-final,
+complete histories for any state to the set of final, failing histories
+for that state. None of the histories newly adjoined here can be
+attainable, so the modified algorithm is equivalent to the original. ∎
+
+### 4.3. Bounded Work Postulate
+
+We turn now to the Bounded Work Postulate of [ 5 ] . Its first
+assertion, about the lengths of queries, is easy to check. Since the
+postulate refers only to coherent histories (actually to attainable,
+final histories, but coherence suffices for the present purpose), any
+query in the domain of such a history is caused by some history. By
+inspection of the definition of ASM semantics, all queries that are ever
+caused are of the form @xmath and thus have the same length as the
+template @xmath assigned to some external function symbol. As there are
+only finitely many external function symbols, the lengths of the queries
+are bounded.
+
+The next assertion of the Bounded Work Postulate, bounding the number of
+queries issued by the algorithm, will be a consequence of the following
+lemma.
+
+###### Lemma \thethm.
+
+For any term @xmath , guard @xmath , or rule @xmath , there is a natural
+number @xmath , @xmath , or @xmath that bounds the number of queries
+caused in a state @xmath by initial segments of a history @xmath . The
+bound depends only on @xmath , @xmath , or @xmath , not on @xmath or
+@xmath .
+
+###### Proof.
+
+Go to the definition of the semantics of ASMs and inspect the clauses
+that say queries are caused. The result is that, first, we can define
+the desired @xmath for terms by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The sum here comes from the first clause in the definition of semantics
+of terms, and the additional 1 comes from the last clause. It is
+important here that, according to Lemma 3.2 , all the initial segments
+of any @xmath that produce values for a @xmath produce the same value
+@xmath . Thus, the last clause of the definition produces at most one
+query @xmath .
+
+Similarly, we obtain for guards @xmath (other than the Boolean terms
+already treated above) the estimates
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+For rules, we obtain
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+(In the bound for conditional rules, we could reduce @xmath to @xmath by
+using the fact that all the initial segments of any @xmath that produce
+values for @xmath produce the same value.) ∎
+
+Since @xmath is the set of queries caused in state @xmath , under rule
+@xmath , by initial segments of @xmath , the lemma tells us that @xmath
+, independently of @xmath and @xmath . This verifies the second
+assertion of the Bounded Work Postulate. (It actually verifies more,
+since the proof applies to all histories @xmath , not merely to
+attainable ones.)
+
+To complete the verification of the Bounded Work Postulate, it remains
+only to produce bounded exploration witnesses for all ASMs. We shall do
+this by an induction on rules, preceded by proofs of the analogous
+results for terms and for guards.
+
+###### Lemma \thethm.
+
+For every ASM-term @xmath (without variables) there exists a finite set
+@xmath of @xmath -terms (possibly with variables) such that, whenever
+@xmath and @xmath agree on @xmath , then:
+
+-    If @xmath then @xmath .
+
+-   @xmath .
+
+Recall that “agree on @xmath ” means that each term in @xmath has the
+same value in @xmath and in @xmath when the variables are given the same
+values in @xmath . Recall also that an equation between possibly
+undefined expressions like @xmath means that if either side is defined
+then so is the other and they are equal.
+
+###### Proof.
+
+By a shadow of an ASM-term @xmath , we mean a term @xmath obtained from
+@xmath by putting distinct variables in place of the outermost ³ ³ 3
+“Outermost” means “maximal” in the sense that the occurrence in question
+is not properly contained in another such occurrence. In terms of the
+parse tree of @xmath , it means that, on the path from the root of the
+whole tree to the root of the subtree given by the occurrence in
+question, there is no other occurrence of an external function symbol.
+occurrences of subterms that begin with external function symbols. Thus,
+@xmath is an @xmath -term, and @xmath can be recovered from @xmath by a
+suitable substitution of ASM-terms (that start with external function
+symbols) for all the variables.
+
+Notice that @xmath fails to be uniquely determined by @xmath only
+because we have not specified which variables are to replace the
+subterms.
+
+We define, by recursion on ASM-terms @xmath , the set @xmath of @xmath
+-terms as follows. If @xmath is @xmath then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is some shadow of @xmath . It follows immediately, by
+induction on @xmath , that @xmath is finite. The verification that this
+@xmath satisfies the conclusion of the lemma is also by induction on
+@xmath , following the clauses in the definition of the semantics of
+terms.
+
+Assume that @xmath and @xmath agree on @xmath . Notice that they also
+agree on each @xmath , because @xmath .
+
+Suppose first that @xmath is undefined for some @xmath . By induction
+hypothesis, @xmath is also undefined, so the same clause of the
+semantics of terms applies in @xmath and @xmath . That clause says that
+@xmath has no value in either state and it issues those queries that are
+issued by any of the @xmath . Those are the same queries in @xmath as in
+@xmath by the induction hypothesis.
+
+From now on, suppose that @xmath for each @xmath . By induction
+hypothesis, the same holds for @xmath , with the same @xmath ’s.
+
+So if @xmath then @xmath gets the value @xmath in @xmath and the value
+@xmath in @xmath , and we must check that these values are the same.
+Recall that @xmath is obtained from its shadow @xmath by replacing each
+variable @xmath in @xmath with a certain ASM-term @xmath . Thus, the
+value @xmath of @xmath in @xmath is also the value of @xmath in @xmath
+when each variable @xmath is assigned the value @xmath and similarly
+with @xmath in place of @xmath . By induction hypothesis, these values
+assigned to the variables are the same in @xmath and @xmath . (We use
+here that @xmath is a proper subterm of @xmath , which is correct
+because @xmath begins with a function symbol from @xmath .) Furthermore,
+since @xmath begins with an external function symbol, its value is in
+@xmath . Thus, the assumption that @xmath and @xmath agree on @xmath ,
+which contains @xmath , ensures that @xmath has the same value in both
+@xmath and @xmath . Therefore @xmath as required. Since no queries are
+issued in this situation, we have completed the proof in the case that
+@xmath .
+
+There remains the case that @xmath and, as before, the subterms @xmath
+have (the same) values @xmath in @xmath and @xmath . If @xmath then
+@xmath gets the same value @xmath in both @xmath and @xmath , no queries
+are issued in either state, and the lemma is established in this case.
+
+So assume that the query @xmath is not in @xmath . Then this query is
+the unique query produced by @xmath in either state, and @xmath has no
+value in either state, so again the conclusion of the lemma holds. ∎
+
+The preceding lemma easily implies the corresponding result for guards.
+
+###### Lemma \thethm.
+
+For every guard @xmath there exists a finite set @xmath of @xmath -terms
+such that, whenever @xmath and @xmath agree on @xmath , then:
+
+-    If @xmath then @xmath .
+
+-   @xmath .
+
+###### Proof.
+
+We define @xmath by induction on @xmath . If @xmath is a Boolean term,
+then the preceding lemma provides the required @xmath .
+
+If @xmath is @xmath then we define
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+To check that the conclusion of the lemma is satisfied, we apply the
+previous lemma to see that, not only for the history @xmath in question
+but also for any @xmath , if either of @xmath and @xmath is defined then
+so is the other, and similarly for @xmath . With this information and
+with the knowledge that @xmath and @xmath denote the same element in
+@xmath and @xmath (because of agreement on @xmath , which contains
+@xmath and @xmath ), one finds by inspection of the relevant clauses in
+the semantics of guards that the conclusion of the lemma holds.
+
+If @xmath is @xmath or @xmath , then we set
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Finally, we set
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Again, inspection of the relevant clauses in the semantics of guards
+shows that the conclusion of the lemma holds. ∎
+
+Finally, we prove the corresponding result for rules.
+
+###### Lemma \thethm.
+
+For every rule @xmath , there is a bounded exploration witness @xmath .
+
+###### Proof.
+
+We define @xmath by recursion on @xmath as follows.
+
+If @xmath is an update rule @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If @xmath is @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If @xmath is @xmath then @xmath is empty.
+
+If @xmath is a conditional rule @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If @xmath is a parallel combination @xmath then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+That @xmath serves as a bounded exploration witness for @xmath is proved
+by induction on @xmath . Every case of the inductive proof is trivial in
+view of the previous lemmas and the definition of the semantics of
+rules. ∎
+
+## 5. Algorithms are Equivalent to ASMs
+
+In this section, we shall prove the Abstract State Machine Thesis for
+interactive, small-step algorithms. That is, we shall prove that every
+algorithm (as defined in [ 5 , Section 3] ) is equivalent (as defined in
+[ 5 , Section 4] ) to an ASM (as in Definition 3.5 ).
+
+Throughout this section, we assume that we are given an interactive,
+small-step algorithm @xmath . By definition, it has a set @xmath of
+states, a set @xmath of initial states, a finite vocabulary @xmath , a
+finite set @xmath of labels, causality relations @xmath , sets @xmath of
+final histories, subsets @xmath and @xmath of successful and failing
+final histories, and update sets @xmath . Here and throughout this
+section, @xmath ranges over states and @xmath over histories for @xmath
+. Furthermore, @xmath has, by the Bounded Work Postulate of [ 5 ] and
+its corollaries, a bound @xmath for the number and lengths of the
+queries issued in any state under any attainable history, and it has a
+bounded exploration witness @xmath . Since @xmath retains the property
+of being a bounded exploration witness if more @xmath -terms are added
+to it, we may assume that @xmath is closed under subterms and contains
+@xmath , and some variable.
+
+To define an ASM equivalent to @xmath , we must specify, according to
+Definition 3.5 ,
+
+-   its vocabulary,
+
+-   its set of labels,
+
+-   its external vocabulary,
+
+-   its program,
+
+-   its template assignment,
+
+-   its set of states, and its set of initial states.
+
+### 5.1. Vocabulary, labels, states
+
+Some of these specifications are obvious, because the definition of
+equivalence requires that the vocabulary, the labels, the states, and
+the initial states be the same for our ASM as they are for the given
+algorithm @xmath . It remains to define the external vocabulary, the
+template assignment, and the program.
+
+Before proceeding, we note that Definition 3.5 requires @xmath and
+@xmath to be closed under isomorphisms and requires @xmath to be closed
+under the transitions of the ASM. The first of these requirements is
+satisfied by our choice of @xmath and @xmath because @xmath satisfies
+the Isomorphism Postulate. That the second requirement is also satisfied
+will be clear once we verify that the update sets and therefore the
+transition functions of @xmath and of our ASM agree (at least on
+successful final histories), for the Step Postulate ensures that @xmath
+is closed under the transitions of @xmath .
+
+### 5.2. External vocabulary and templates
+
+To define the external vocabulary @xmath and the template assignment for
+our ASM, we consider all templates, of length at most @xmath , for the
+given set @xmath of labels, in which the placeholders @xmath occur in
+order. (Recall that @xmath is an upper bound on the lengths of queries
+issued by algorithm @xmath in arbitrary states for arbitrary attainable
+histories.) These templates, which we call standard templates , can be
+equivalently described as the tuples obtained by taking any initial
+segment of the list @xmath of placeholders and inserting elements of
+@xmath into such a tuple, while keeping the total length of the tuple
+@xmath . We note that any potential query of length @xmath (over any
+state) is obtained from a unique standard template by substituting
+elements of the state for the placeholders. We define the external
+vocabulary @xmath and the template assignment simultaneously by putting
+into @xmath one function symbol @xmath for each standard template and
+writing @xmath for the standard template associated to @xmath . Define
+an external function symbol @xmath to be @xmath -ary if @xmath is a
+template for @xmath -ary functions.
+
+###### Remark \thethm.
+
+For many algorithms, the external vocabulary defined here is larger than
+necessary; many symbols in @xmath won’t occur in the program @xmath .
+One can, of course, discard such superfluous symbols once @xmath is
+defined. We chose the present definition of @xmath in order to make it
+independent of the more complicated considerations involved in defining
+@xmath . ∎
+
+###### Remark \thethm.
+
+We have not specified — nor is there any need to specify — exactly what
+entities should serve as the external function symbols @xmath associated
+to templates @xmath . The simplest choice mathematically would be to
+take the function symbols to be the standard templates themselves, but
+even with this choice, which would make @xmath , it would seem
+worthwhile to maintain the notational distinction between @xmath , to be
+thought of as a function symbol, and @xmath , to be thought of as a
+template. ∎
+
+### 5.3. Critical elements, critical terms, agreement
+
+The preceding discussion completes the easy part of the definition of
+our ASM; the hard part that remains is to define the program @xmath .
+Looking at the characterization in Lemma 4.3 of [ 5 ] , we find that we
+have (trivially) satisfied the first requirement for the equivalence of
+our ASM and the given @xmath (agreement as to states, initial states,
+vocabulary, and labels), and that we must construct @xmath so as to
+satisfy the remaining three requirements (agreement as to queries
+issued, finality, success, failure, and updates). Notice that these
+three requirements refer only to histories that are attainable for both
+algorithms. This means that, in constructing @xmath , we can safely
+ignore what @xmath does with unattainable histories.
+
+As in the proofs of the ASM thesis for other classes of algorithms in [
+10 , 1 , 4 ] , we use the bounded exploration witness to gain enough
+control over the behavior of the algorithm @xmath to match it with an
+ASM. The first step in this process is the following lemma, whose basic
+idea goes back to [ 10 ] .
+
+###### Definition \thethm.
+
+Let @xmath be a state and @xmath a history for it. An element @xmath is
+critical for @xmath and @xmath if there is a term @xmath and there are
+values in @xmath for the variables in @xmath such that the resulting
+value for @xmath is @xmath . ∎
+
+###### Lemma \thethm (Critical Elements).
+
+Let @xmath be a state, @xmath a coherent history for it, and @xmath an
+element of @xmath . Assume that one of the following holds.
+
+-    There is a query @xmath such that @xmath and @xmath is one of the
+    components of the tuple @xmath .
+
+-    There is an update @xmath such that @xmath is one of the @xmath ’s
+    or @xmath .
+
+Then @xmath is critical for @xmath and @xmath .
+
+###### Proof.
+
+The proof is very similar to the one in [ 2 , Propositions 5.23 and
+5.24] , so we shall be rather brief here. We may assume, as an induction
+hypothesis, that the lemma holds when @xmath is replaced with any proper
+initial segment of @xmath . (This is legitimate because initial segments
+inherit coherence from @xmath .) Because @xmath is coherent, every query
+in its domain is caused by some proper initial segment. So all
+components in @xmath of such a query are critical for that initial
+segment and therefore also critical for @xmath .
+
+Assume that @xmath is not critical for @xmath and @xmath ; we shall show
+that neither of the two hypotheses about @xmath can hold.
+
+Form a new state @xmath , isomorphic to @xmath , by replacing @xmath by
+a new element @xmath . Since @xmath is not critical, it is neither a
+component of a query in @xmath nor an element of @xmath . Thus @xmath is
+a history for @xmath as well as for @xmath . Using again the assumption
+that @xmath is not critical, one finds that @xmath and @xmath agree on
+@xmath . As @xmath is a bounded exploration witness for @xmath , and as
+@xmath is obviously neither a component of a query caused by @xmath over
+@xmath nor a component in an update in @xmath (because @xmath ), it
+follows that @xmath is neither a component of a query caused by @xmath
+over @xmath nor a component in an update in @xmath . ∎
+
+The construction of our ASM will be similar to that in [ 4 , Section 5]
+, but some additional work will be needed to take into account the
+timing information in histories and the possibility of incomplete but
+final histories.
+
+The role played by element tags (or e-tags) and query tags (or q-tags)
+in [ 4 ] will now be played by ASM-terms, i.e., variable-free terms over
+the vocabulary @xmath . Some of these terms, those with outermost
+function-symbol in @xmath , will, by Definition 3.2 , obtain two kinds
+of possible values: the ordinary value which is an element of the state,
+and also a query-value, which is a potential query.
+
+###### Definition \thethm (Critical Terms).
+
+Recall that an ASM-term is a closed term of the vocabulary @xmath .
+
+-   A critical term of level 0 is a closed term in the bounded
+    exploration witness @xmath .
+
+-   If @xmath are critical terms with maximal level @xmath and @xmath is
+    a @xmath -ary function symbol in @xmath , then @xmath is a critical
+    q-term of level @xmath .
+
+-   If @xmath contains exactly the variables @xmath and if @xmath are
+    critical q-terms with maximal level @xmath , then the result of
+    substituting @xmath for @xmath in @xmath , @xmath , is a critical
+    term of level @xmath .
+
+-   By a critical term we mean a critical term of some level.
+
+∎
+
+Because we arranged for @xmath to contain a variable, the third clause
+of the definition implies that every critical q-term is a critical term
+(of the same level), so our terminology is consistent.
+
+Since @xmath and the external vocabulary @xmath are finite, there are
+only finitely many critical terms of any one level.
+
+Notice that, although they are obtained from the @xmath -terms in @xmath
+, our critical terms are ASM-terms. That is, they contain no variables,
+but they can contain external function symbols.
+
+The values of ASM-terms, including in particular critical terms, for a
+given state @xmath and history @xmath , as well as the query-values of
+q-terms, were defined in Definition 3.2 .
+
+Recall also that, according to Lemma 3.2 , any term that has a value in
+state @xmath with respect to an initial segment of @xmath will have the
+same value with respect to @xmath itself, and that the same holds of
+query values. The next lemma records some related facts for future
+reference. Recall that two pairs @xmath of a state and history are said
+to agree on @xmath if the two histories are the same and every term in
+@xmath gets the same values (if any) in both states when the variables
+are given values in the range of the history.
+
+###### Lemma \thethm (Invariance of Values).
+
+-    If @xmath is an isomorphism, @xmath is a history for @xmath , and
+    @xmath is any ASM-term, then @xmath . If @xmath is a q-term, then
+    also @xmath .
+
+-    If @xmath and @xmath agree on @xmath , then @xmath for all critical
+    terms @xmath , and @xmath for all critical q-terms @xmath .
+
+###### Proof.
+
+The first assertion is proved by induction on terms, using the
+Isomorphism Postulate. The second is proved by induction on critical
+terms and critical q-terms, using the facts that all critical terms are,
+by definition, in the bounded exploration witness @xmath and that the
+same history @xmath is used on both sides of the claimed equations. ∎
+
+###### Remark \thethm.
+
+An approximation to the intuition behind critical terms is that critical
+terms of level @xmath represent (for a state @xmath and history @xmath )
+the elements of @xmath and the queries that can play a role in the
+computation of our algorithm @xmath during the first @xmath rounds or
+phases of its interaction with the environment. This is based on the
+intuition that the bounded exploration witness @xmath represents all the
+things the algorithm can do, with the environment’s replies, to focus
+its attention on elements of @xmath . At first, before receiving any
+information from the environment (indeed, before even issuing any
+queries), the algorithm can focus only on the values of closed terms
+from @xmath , i.e., the values of critical terms of level 0. Using
+these, it can formulate and issue queries; these will be query-values of
+q-terms of level 1. Once some replies are received to those queries, the
+algorithm can focus on the values of non-closed terms from @xmath with
+the replies as values for the variables. The replies are the values for
+the q-terms of level 1 that denote the issued queries, and so the
+elements to which the algorithm now pays attention are the values of
+critical terms of level @xmath . Using them, it assembles and issues
+queries, query-values of q-terms of level @xmath . The replies, used as
+values of the variables in terms from @xmath , give the new elements to
+which the algorithm can pay attention, and these are the values of
+critical terms of level @xmath . The process continues similarly for
+later rounds of the interaction with the environment and correspondingly
+higher level terms.
+
+One should, however, be careful not to assume too much about the
+connection between levels of critical terms and rounds of interaction.
+It is possible for a critical term @xmath of level 1 to acquire a value
+only after many rounds of interaction, if, for example, the history
+happens to answer many other queries, one after the other, before
+finally getting to one that is needed for evaluating @xmath . It is also
+possible for a critical term of high level to acquire a value earlier
+than its level would suggest. Consider, for example, a critical term of
+the form @xmath , where @xmath is an external function symbol and 0 is a
+constant symbol from @xmath . If the history @xmath contains just one
+reply, giving the query @xmath the value @xmath , then this suffices to
+give @xmath the value @xmath .
+
+The following lemma formalizes the part of this intuitive explanation
+that we shall need later. ∎
+
+###### Lemma \thethm (Critical Terms Suffice).
+
+Let @xmath be a state, @xmath an attainable history for it, and @xmath
+the length of @xmath .
+
+-    Every query in @xmath is the query-value (for @xmath and @xmath )
+    of some critical q-term of level @xmath .
+
+-    Every element of @xmath is the value (for @xmath and @xmath ) of
+    some critical q-term of level @xmath .
+
+-    Every critical element for @xmath and @xmath is the value (for
+    @xmath and @xmath ) of a critical term of level @xmath .
+
+-    Every query in @xmath is the query-value (for @xmath and @xmath )
+    of some critical q-term of level @xmath .
+
+###### Proof.
+
+We proceed by induction on the length @xmath of the history @xmath . As
+@xmath is coherent, any query in its domain is issued by a proper
+initial segment @xmath . So, by induction hypothesis (applied to the
+last clause), such a query is the query-value of a q-term of level
+@xmath . This proves the first assertion of the lemma.
+
+The second follows, because, if a query in @xmath is the query-value of
+a q-term of level @xmath , then the reply given by @xmath is the value
+of the same term.
+
+For the third assertion, consider any critical element, say the value of
+a term @xmath when the variables of @xmath are given certain values in
+@xmath . By the second assertion already proved, these values of the
+variables are also the values of certain critical q-terms of level
+@xmath . Substituting these terms for the variables in @xmath , we
+obtain a critical term of level @xmath whose value is the given critical
+element.
+
+For the final assertion, consider any query issued by @xmath . It has
+length at most @xmath (by our choice of @xmath ), so it is obtained by
+substituting elements of @xmath for the placeholders in some standard
+template. That is, it has the form @xmath for some external function
+symbol @xmath and some elements @xmath . By Lemma 5.3 , each @xmath is
+critical with respect to @xmath and @xmath . By the third assertion
+already proved, each @xmath is the value of some critical term @xmath of
+level @xmath . Then our query @xmath is the query-value of the critical
+q-term @xmath of level @xmath . ∎
+
+As indicated earlier, we can confine our attention to attainable
+histories. The lengths of these are bounded by @xmath , and so we may,
+by the lemma just proved, confine our attention to critical terms of
+level at most @xmath . In particular, only a finite set of critical
+terms will be under consideration.
+
+We have the following partial converse to the last statement of
+Invariance of Values Lemma 5.3 . We abbreviate the phrase “pair
+consisting of a state and an attainable history for it” as “attainable
+pair.”
+
+###### Lemma \thethm (Agreement).
+
+Let @xmath be attainable pairs with @xmath of length @xmath . If they
+agree as to the values of all critical terms of level @xmath , then they
+agree on @xmath .
+
+###### Proof.
+
+Note that in the assumption we didn’t mention agreement as to
+query-values. But @xmath and @xmath will agree as to query-values of
+critical q-terms of level @xmath as soon as they agree as to the values
+of critical terms of levels @xmath .
+
+Let @xmath . We need to prove that it takes the same value in @xmath and
+@xmath when all variables in @xmath are given values in @xmath . But
+values in @xmath are, by the Critical Terms Suffice Lemma 5.3 , the
+values of some critical q-terms of level @xmath . Substituting these
+terms for the variables in @xmath gives us, by definition, a critical
+term of level @xmath , where by assumption @xmath and @xmath agree. ∎
+
+### 5.4. Descriptions, similarity
+
+The following definitions are intended to capture all the information
+about a state and history that can be relevant to the execution of our
+algorithm @xmath . That they succeed will be the content of the
+subsequent discussion and lemmas.
+
+###### Definition \thethm.
+
+Let @xmath be an attainable pair. Let @xmath be the length of @xmath .
+(Recall that @xmath is finite and in fact @xmath .) Define the
+truncation @xmath of @xmath to be the initial segment of @xmath of
+length @xmath (undefined if @xmath ). The description @xmath of @xmath
+and @xmath is the Kleene conjunction of the following guards:
+
+-   all equations @xmath and negated equations @xmath that have value
+    @xmath in @xmath , where @xmath and @xmath are critical terms of
+    level @xmath , and
+
+-   all timing inequalities @xmath and @xmath that have value @xmath in
+    @xmath , where @xmath and @xmath are critical q-terms of level
+    @xmath , and where @xmath exists and is in @xmath .
+
+∎
+
+Some comments may help to clarify the last clause here, about timing
+inequalities. First, recall that the strict inequality @xmath is merely
+an abbreviation of @xmath .
+
+Second, although we explicitly require only @xmath to have a query-value
+in @xmath , the same requirement for @xmath is included in the
+requirement that @xmath or @xmath is true. Indeed, inspection of the
+definition of the semantics of timing guards (in Definition 3.3 ) shows
+that the q-term @xmath must have a value, and this is possible only if
+@xmath has a query-value in @xmath . Since @xmath is coherent, it
+follows that @xmath must be in @xmath .
+
+Third, if @xmath then @xmath is undefined, and as a result @xmath
+contains no timing inequalities.
+
+Our definition of the description of @xmath and @xmath is not complete
+on the syntactic level, for it does not specify the order or
+parenthesization of the conjuncts in the Kleene conjunction. That is, it
+is complete only up to associativity and commutativity of @xmath . The
+reader is invited to supply any desired syntactic precision; it will
+never be used. The choice of order and parenthesization of conjuncts
+makes no semantic difference; the Kleene conjunction and disjunction are
+commutative and associative as far as truth values and issued queries
+are concerned.
+
+We shall sometimes refer to descriptions of attainable pairs as
+attainable descriptions , even though “attainable” is redundant here
+because the descriptions have been defined only for attainable pairs.
+
+The following lemma and its corollary provide useful information about
+the q-terms occurring in a description.
+
+###### Lemma \thethm.
+
+Let @xmath be an attainable pair, @xmath the length of @xmath , and
+@xmath a q-term. The following are equivalent.
+
+1.  @xmath occurs in @xmath .
+
+2.  @xmath occurs as one side of a timing inequality in @xmath .
+
+3.  @xmath is a critical q-term of level @xmath and it has a query-value
+    @xmath that is in @xmath .
+
+###### Proof.
+
+Since the implication from (2) to (1) is trivial, we prove that (3)
+implies (2) and that (1) implies (3).
+
+Suppose first that (3) holds. Let @xmath be any query in the last
+equivalence class of the preorder in @xmath . As @xmath is attainable,
+@xmath . Also, by Lemma 5.3 , @xmath for some critical q-term @xmath of
+level @xmath . Because @xmath is in the last equivalence class with
+respect to @xmath , @xmath exists but @xmath does not. Now if @xmath ,
+which is also @xmath , is in @xmath , then @xmath exists and so @xmath
+contains the conjunct @xmath . Otherwise, @xmath does not exist, and so
+@xmath contains the conjunct @xmath . In either case, (2) holds.
+
+Finally, we assume (1) and deduce (3). Inspection of the definition of
+descriptions reveals that any q-term @xmath that occurs in @xmath must
+be a sub-q-term either of some critical term of level @xmath that has a
+value with respect to @xmath or of some critical q-term of level @xmath
+that either has a value with respect to @xmath or at least has a
+query-value that is issued with respect to @xmath . In any case it
+follows, thanks to the attainability (and in particular the coherence)
+of @xmath , that (3) holds. ∎
+
+###### Corollary \thethm.
+
+The q-terms that occur in the description of an attainable pair @xmath
+depend only on @xmath and @xmath , not on the last equivalence class in
+the preorder of @xmath .
+
+###### Proof.
+
+Immediate from the third of the equivalent statements in the lemma. ∎
+
+Clearly, @xmath is a guard, and @xmath . The next lemma shows that
+descriptions are invariant under two important equivalence relations on
+attainable pairs @xmath .
+
+###### Lemma \thethm (Invariance of Descriptions).
+
+Let @xmath be an attainable pair.
+
+-    If @xmath is an attainable pair (with the same @xmath ) agreeing
+    with @xmath on @xmath , then they have the same descriptions.
+
+-    If @xmath is an attainable pair isomorphic to @xmath , then they
+    have the same descriptions.
+
+###### Proof.
+
+To see that the first statement is true, use the second clause of
+Invariance of Values Lemma 5.3 to establish that the same critical terms
+occur in @xmath and @xmath in the same roles. To see that the second
+statement is true, use the first clause of the same lemma. ∎
+
+Thus, each of agreement and isomorphism is a sufficient condition for
+similarity in the sense of the following definition. We shall see later,
+in Corollary 5.4 , that the composition of agreement and isomorphism is
+not only sufficient but also necessary for similarity.
+
+###### Definition \thethm.
+
+Two attainable pairs are similar if they have the same descriptions. ∎
+
+The next lemma describes the other states and histories in which @xmath
+is true, and thus leads to a characterization of similar attainable
+pairs.
+
+###### Lemma \thethm.
+
+Let @xmath and @xmath be attainable pairs. Suppose @xmath has value
+@xmath in @xmath . Then
+
+-    the length of @xmath is at least the length of @xmath ;
+
+-    there is an attainable pair @xmath isomorphic to @xmath , such that
+    @xmath is an initial segment of @xmath and @xmath agrees with @xmath
+    on @xmath .
+
+In other words, any @xmath that satisfies the description of @xmath can
+be obtained from @xmath by the following three-step process. First,
+replace @xmath by an isomorphic copy @xmath . Second, leaving the
+history @xmath unchanged, replace @xmath by a new state @xmath but
+maintain agreement on the bounded exploration witness @xmath . Third,
+extend the history @xmath by adding new items strictly after the ones in
+@xmath , so that @xmath is an initial segment of the resulting @xmath .
+
+Notice that, by virtue of the isomorphism of @xmath and @xmath , we can
+describe @xmath more specifically as the initial segment of @xmath of
+the same length as @xmath .
+
+###### Proof.
+
+We proceed by induction on the length @xmath of the history @xmath .
+
+Length: @xmath is not shorter than @xmath . Choose one query from each
+of the @xmath equivalence classes in @xmath , say @xmath from the @xmath
+equivalence class. Letting @xmath denote the initial segment of @xmath
+of length @xmath , and applying Lemma 5.3 , we express each @xmath as
+the query-value, with respect to @xmath , of some critical q-term @xmath
+of level @xmath . Thus, @xmath has a value @xmath with respect to @xmath
+but not with respect to @xmath . Thus, @xmath includes the conjuncts
+@xmath for @xmath and also the conjunct @xmath . So these conjuncts must
+also be true in @xmath , which means that @xmath has length at least
+@xmath .
+
+Construction of @xmath . Our next step will be to define a certain
+isomorphic copy @xmath of @xmath . Afterward, we shall verify that
+@xmath has the other properties required.
+
+We may assume, by replacing @xmath with an isomorphic copy if necessary,
+that @xmath is disjoint from @xmath . Next, obtain an isomorphic copy
+@xmath of @xmath as follows. For each critical term @xmath of level
+@xmath , if @xmath exists, then remove this element from @xmath and put
+in its place the element @xmath of @xmath . To see that this makes
+sense, we must observe two things. First, the equation @xmath is one of
+the conjuncts in @xmath and is therefore true for @xmath and @xmath .
+Thus, the replacement element @xmath exists. Second, if the same element
+of @xmath is also @xmath for another critical term @xmath of level
+@xmath , then the equation @xmath is a conjunct in @xmath and is
+therefore true for @xmath and @xmath . Thus, @xmath = @xmath , which
+means that the replacement element is uniquely defined.
+
+Let @xmath be the obvious isomorphism from @xmath to @xmath , sending
+each of the replaced elements @xmath to its replacement @xmath and
+sending all the other elements of @xmath to themselves. Let @xmath ;
+this is the history for @xmath obtained by applying @xmath to all
+components from @xmath in the queries in @xmath and to all the replies
+in @xmath . Because of the isomorphism, it is clear that @xmath is, like
+@xmath , an attainable pair and that @xmath has the same length @xmath
+as @xmath .
+
+Values: @xmath is a subfunction of @xmath . Consider any query @xmath
+and its reply @xmath . Thus, @xmath , and @xmath . Furthermore, every
+element of @xmath is @xmath for some such @xmath . By Lemma 5.3 , all
+the @xmath are values in @xmath of certain critical terms @xmath of
+level @xmath , and so @xmath is the value of the critical term @xmath of
+level @xmath . In forming @xmath , we replaced the elements @xmath by
+the values @xmath of the @xmath ’s in @xmath , and we replaced @xmath by
+@xmath , the value in @xmath of @xmath . But this last value is, by
+definition, the result of applying @xmath to the query that is the
+query-value of @xmath , namely the query @xmath . That is, @xmath . This
+shows that, whenever @xmath maps a query @xmath to a reply @xmath , then
+so does @xmath ; in other words, @xmath is a subfunction of @xmath .
+
+Order: @xmath is a sub-preorder of @xmath . We next show that the
+preordering of @xmath agrees with that of @xmath . Consider an arbitrary
+@xmath , and suppose it is in the @xmath equivalence class with respect
+to the preorder given by @xmath . So, as @xmath is coherent, @xmath ,
+and so, by the last part of Lemma 5.3 , we have a critical q-term @xmath
+of level @xmath such that @xmath . Note that @xmath does not exist,
+because @xmath .
+
+We wish to apply the induction hypothesis to @xmath . To do so, we
+observe that @xmath is a subconjunction of @xmath and is therefore true
+in @xmath . So we can apply the induction hypothesis and find that
+@xmath is isomorphic to an attainable pair that agrees with @xmath . By
+Lemma 5.3 , @xmath has a query-value but no value in @xmath . Inspection
+of the definitions shows that its query-value is @xmath .
+
+If @xmath , i.e., if @xmath , then we can also apply the induction
+hypothesis to @xmath , in which @xmath has a value. We conclude that
+@xmath has a value in @xmath . Since it had a query-value but no value
+in @xmath , we conclude that its query-value, @xmath must be in exactly
+the @xmath equivalence class with respect to @xmath .
+
+If, on the other hand, @xmath , i.e., if @xmath is in the last
+equivalence class with respect to @xmath , then this last application of
+the induction hypothesis is not available. Nevertheless, since @xmath ,
+we know that @xmath has a value in @xmath , so @xmath contains the
+conjunct @xmath , so this conjunct is true also in @xmath , and so
+@xmath has a value in @xmath . This means that @xmath , the query-value
+of @xmath , is in @xmath . We saw earlier that it is not in @xmath ,
+where now @xmath . So @xmath is in the @xmath equivalence class or later
+with respect to @xmath .
+
+What we have proved so far suffices to establish that if @xmath then
+@xmath and that the same holds for non-strict inequalities except in the
+case that both @xmath and @xmath are in the last equivalence class with
+respect to @xmath . In this exceptional case, we know that @xmath is the
+query-value, already existing in @xmath , of @xmath (as above), yet
+@xmath has no value in @xmath . This means that the smallest @xmath for
+which @xmath exists is the @xmath such that @xmath is in the @xmath
+equivalence class with respect to @xmath . Repeating the argument with
+an analogously defined q-term @xmath for @xmath , and using the fact
+that @xmath contains the conjuncts @xmath and @xmath , which means that
+these conjuncts are also true in @xmath , we find that @xmath and @xmath
+are in the same equivalence class with respect to @xmath .
+
+This completes the proof that @xmath — including both the answer
+function and the pre-order — is the restriction of @xmath to some subset
+of its domain. In fact, we have shown more, namely that, for @xmath ,
+@xmath maps the @xmath equivalence class with respect to @xmath into the
+@xmath equivalence class with respect to @xmath , and that it maps the
+last ( @xmath ) equivalence class with respect to @xmath into a single
+equivalence class — possibly the @xmath and possibly later — with repect
+to @xmath .
+
+The next step is to show that @xmath is an initial segment of @xmath .
+This will imply that, in the preceding summary of what was already
+proved, both occurrences of “into” can be improved to “onto” and
+“possibly the @xmath and possibly later” can be improved to “the @xmath
+”.
+
+Initial segment: @xmath is an initial segment of @xmath . Suppose,
+toward a contradiction, that @xmath is not an initial segment of @xmath
+(with respect to @xmath ). So there exist some @xmath and some @xmath
+(and thus @xmath ) such that @xmath . Among all such pairs @xmath , fix
+one for which @xmath occurs as early as possible in the preorder @xmath
+. Since @xmath , we can fix a critical q-term @xmath of level @xmath
+with @xmath and thus, by definition of @xmath , @xmath . We record for
+future reference that, since @xmath , @xmath has a value with respect to
+@xmath .
+
+Consider the initial segment of @xmath up to but not including @xmath .
+By what we have already proved (and our choice of @xmath as the earliest
+possible), it is @xmath for some proper initial segment @xmath of @xmath
+— proper because it doesn’t contain @xmath . In particular, @xmath has
+length at most @xmath , and so we know, by induction hypothesis, that
+the lemma is true with @xmath in place of @xmath . (As before, the lemma
+can be applied because @xmath is a subconjunction of @xmath , which is
+true in @xmath .) So we conclude that @xmath is isomorphic to an
+attainable pair that agrees on @xmath with @xmath .
+
+Since @xmath is the initial segment of @xmath ending just before @xmath
+, and since @xmath is a coherent history, we know that @xmath . By the
+Critical Terms Suffice Lemma 5.3 , @xmath is the query-value in @xmath ,
+and therefore also in @xmath , of some critical q-term @xmath of level
+@xmath . Thanks to the isomorphism between @xmath and an attainable pair
+agreeing with @xmath , we have that @xmath also has a query-value, say
+@xmath , in @xmath and this value is in @xmath and, a fortiori, in
+@xmath . By definition of @xmath , @xmath . As @xmath was chosen outside
+@xmath , it follows that @xmath . From this and @xmath , we conclude
+that @xmath is one of the conjuncts in @xmath and is therefore true in
+@xmath . Since @xmath has a value in the initial segment of @xmath up to
+and including @xmath (one equivalence class beyond @xmath ), we infer
+that @xmath must have a value in @xmath . That means that the
+query-value of @xmath , namely @xmath must be in the domain of @xmath ,
+i.e., @xmath . This contradicts the original choice of @xmath and @xmath
+, and this contradiction completes the proof that @xmath is an initial
+segment of @xmath .
+
+Agreement: @xmath and @xmath agree on @xmath . It remains to prove that
+the attainable pairs @xmath and @xmath agree on @xmath . We prove this
+in three steps.
+
+First, we show that, if @xmath is any critical term of level @xmath ,
+then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+This is almost the definition of @xmath , which says that @xmath . Our
+task is to replace @xmath on the right side of this equation with @xmath
+. That is, we must show that, if @xmath exists (and therefore @xmath
+exists), then @xmath exists, because then we shall have @xmath by the
+monotonicity of values. We proceed by induction on the level of @xmath .
+The only non-trivial case, i.e., the only case where changing @xmath to
+@xmath could matter, is the case that @xmath is a q-term. The
+possibility that we must exclude is that @xmath (which is also @xmath as
+the induction hypothesis applies to the arguments of @xmath ) is in the
+domain of @xmath but not in the domain of @xmath . But @xmath exists and
+is in the domain of @xmath (because @xmath exists), and its image under
+@xmath is, by definition of @xmath , @xmath . So this image is in the
+domain of @xmath , as desired.
+
+Second, we observe that, since @xmath is an isomorphism from @xmath to
+@xmath and sends @xmath to @xmath , we have @xmath . Combining this with
+the result established in the preceding paragraph, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all critical terms @xmath of level @xmath .
+
+Finally, an application of the Agreement Lemma 5.3 completes the proof
+that @xmath and @xmath agree on @xmath . ∎
+
+###### Corollary \thethm (Factorization).
+
+Let @xmath and @xmath be similar attainable pairs. Then there is a state
+@xmath such that @xmath is an attainable history for @xmath , @xmath
+agrees with @xmath on @xmath , and @xmath is isomorphic to @xmath .
+
+###### Proof.
+
+We can apply Lemma 5.4 to @xmath and @xmath in either order, since each
+satisfies the other’s description. Thus @xmath and @xmath have the same
+length, and the @xmath of the lemma is simply @xmath . The rest of the
+corollary is contained in the lemma. ∎
+
+###### Corollary \thethm (Similarity Suffices).
+
+Let @xmath and @xmath be similar attainable pairs. Let @xmath be the
+length of @xmath (and of @xmath , by Corollary 5.4 ). Then
+
+-    If @xmath is a q-term of level @xmath and @xmath then @xmath .
+
+-    If @xmath is in @xmath or @xmath , then @xmath is in @xmath or
+    @xmath , respectively.
+
+-    If @xmath contains an update @xmath where each @xmath is @xmath for
+    a critical term @xmath of level @xmath , then @xmath contains the
+    update @xmath where each @xmath is @xmath .
+
+###### Proof.
+
+Apply the preceding corollary to get @xmath such that @xmath agrees with
+@xmath on @xmath and is isomorphic to @xmath . Because of the agreement
+on the bounded exploration witness @xmath , we have all the desired
+conclusions with @xmath in place of @xmath . To complete the proof, we
+can replace @xmath with @xmath , thanks to the Isomorphism Postulate and
+the fact that isomorphisms respect evaluation of terms. ∎
+
+We shall also need the notion of a successor of an attainable
+description. This corresponds to adjoining one new equivalence class at
+the end of a history, while leaving the state unchanged. That is, @xmath
+is a successor of @xmath , and @xmath is the predecessor of @xmath .
+
+###### Remark \thethm.
+
+To avoid possible confusion, we emphasize that a successor of @xmath
+need not be of the form @xmath with @xmath . It could instead be of the
+form @xmath for some other pair @xmath such that @xmath is similar to
+@xmath , and there might be no way to extend @xmath so as to obtain
+similarity with @xmath . For a simple example, suppose the bounded
+exploration witness @xmath contains only @xmath , @xmath , @xmath , and
+a variable. Let @xmath be a structure containing only the three elements
+that are the values of @xmath , @xmath , and @xmath , and let @xmath be
+like @xmath but with one additional element @xmath . Suppose further
+that the algorithm is such that a single query @xmath , say @xmath , is
+caused by the empty history @xmath in every state. Then @xmath and
+@xmath agree on @xmath , and @xmath admits an attainable history @xmath
+with @xmath and with @xmath . Then, since @xmath , we have that @xmath
+is a successor of @xmath . But there is no history @xmath for @xmath
+such that @xmath ; such a @xmath would have to map @xmath to a value
+distinct from @xmath , @xmath , and @xmath , and @xmath has no such
+element. ∎
+
+The use of the definite article in “the predecessor” is justified by the
+following observation, showing that @xmath is completely determined by
+@xmath . Thus, “predecessor” is a well-defined operation on attainable
+descriptions of non-zero length. Of course the situation is quite
+different for successors; one description can have many successors
+because there are in general many ways to extend an attainable history
+by appending one more equivalence class.
+
+###### Corollary \thethm.
+
+Let @xmath and @xmath be similar attainable pairs, and assume the
+(common) length of @xmath and @xmath is not zero. Then @xmath .
+
+###### Proof.
+
+By Corollary 5.4 , we have an isomorphism @xmath such that @xmath agrees
+with @xmath on @xmath . Since the isomorphism @xmath must, in
+particular, respect the pre-orderings, it follows immediately that
+@xmath is also an isomorphism from @xmath to @xmath . From the
+definition of agreement, it follows immediately that @xmath and @xmath
+agree on @xmath . Thus, by Lemma 5.4 , @xmath and @xmath are similar. ∎
+
+The following information about successors will be useful when we verify
+that the ASM that we produce is equivalent to the given algorithm @xmath
+.
+
+###### Lemma \thethm.
+
+Suppose @xmath is an attainable pair and @xmath is an attainable
+description that is a successor of @xmath . Then @xmath for some
+attainable pair @xmath such that
+
+-   @xmath ,
+
+-   @xmath and @xmath agree on @xmath .
+
+###### Proof.
+
+By definition of successor, we have an attainable pair @xmath such that
+@xmath and @xmath . This last equality implies, by Corollary 5.4 , that
+@xmath and @xmath agree on @xmath for some attainable pair @xmath
+isomorphic to @xmath . Use the isomorphism to transport @xmath to an
+attainable history @xmath for @xmath . Then @xmath because of the
+isomorphism, and @xmath is the image, under the isomorphism, of @xmath ,
+i.e., @xmath . ∎
+
+### 5.5. The ASM program
+
+We are now ready to describe the ASM program that will simulate our
+given algorithm @xmath . Its structure will be a nested alternation of
+conditionals and parallel combinations, with updates, issue rules, and
+@xmath as the innermost constituents. The guards of the conditional
+subrules will be attainable descriptions. Recall that the critical terms
+involved in attainable descriptions all have levels @xmath , and there
+are only finitely many such terms and therefore only finitely many
+attainable descriptions. An attainable description @xmath will be said
+to have depth equal to the length of @xmath . Lemma 5.4 ensures that
+this depth depends only on the description @xmath , not on the
+particular attainable pair @xmath from which it is obtained. Notice that
+the definition of descriptions immediately implies that any critical
+term occurring in a description has level @xmath the depth of the
+description.
+
+We construct the program @xmath for an ASM equivalent to the given
+algorithm @xmath as follows. @xmath is a parallel combination, with one
+component for each attainable description @xmath of depth zero. We
+describe the component associated to @xmath under the assumption that
+@xmath is not final, by which we mean that, in the attainable pairs
+@xmath with description @xmath , the history @xmath is not final; we
+shall return later to the final case. (Recall that, by Corollary 5.4 ,
+whether @xmath is final in @xmath depends only on the description @xmath
+, so our case distinction here is unambiguous.)
+
+The component associated to a non-final @xmath is a conditional rule of
+the form @xmath , i.e., a conditional whose guard is @xmath itself. The
+body @xmath is a parallel combination, with one component for each
+successor @xmath of @xmath .
+
+When @xmath is not final, the associated component is a conditional rule
+@xmath . The body @xmath here is a parallel combination, with one
+component for each successor @xmath of @xmath .
+
+Continue in this manner until a final description @xmath is reached.
+Since the depth increases by one when we pass from a description to a
+successor, and since all attainable histories have length (i.e., the
+depth of their descriptions) at most @xmath , we will have reached final
+descriptions after at most @xmath iterations of the procedure. The
+component associated to a final description @xmath is @xmath , where
+@xmath is the parallel combination of the following:
+
+-   @xmath if @xmath ,
+
+-   @xmath if @xmath is a q-term of level at most one more than the
+    length of @xmath (that is, the depth of @xmath ) and @xmath , and
+
+-   @xmath if the @xmath are critical terms of level at most the length
+    of @xmath and they have values @xmath such that @xmath .
+
+It is important to note that, although the attainable pair @xmath was
+used in the specification of these components, they actually depend only
+on the description @xmath , by Corollary 5.4 . This completes the
+definition of the program @xmath .
+
+###### Remark \thethm.
+
+As in previous work on the ASM thesis, this program @xmath is designed
+specifically for the proof of the thesis. That is, it works in complete
+generality and it admits a fairly simple, uniform construction. For
+practical programming of specific algorithms, there will normally be ASM
+programs far simpler than the one produced by our general method.
+
+### 5.6. Equivalence
+
+It remains to show that the ASM defined by @xmath is equivalent to the
+given algorithm @xmath . For brevity, we sometimes refer to this ASM as
+simply @xmath .
+
+{thm}
+
+The ASM defined by @xmath together with @xmath , @xmath , @xmath ,
+@xmath , @xmath , and the template assignment of subsection 5.2 is
+equivalent to algorithm @xmath .
+
+###### Proof.
+
+Referring to Lemma 4.3 of [ 5 ] , we see that it suffices to show the
+following, for every pair @xmath that is attainable for both the
+algorithm @xmath and our ASM.
+
+1.  @xmath is the same for our ASM as for @xmath .
+
+2.  If @xmath is in @xmath or @xmath with respect to one of @xmath and
+    our ASM, then the same is true with respect to the other.
+
+3.  If @xmath , then @xmath is the same with respect to our ASM and with
+    respect to @xmath .
+
+Consider, therefore, an attainable pair @xmath (with respect to @xmath )
+and the behavior of our ASM in this pair.
+
+Let @xmath be the length of @xmath , and for each @xmath let @xmath be
+the initial segment of @xmath of length @xmath . According to Lemma 5.4
+, the only attainable descriptions satisfied by @xmath are those of the
+form @xmath , one of each depth @xmath .
+
+Issuing Queries.
+
+We begin by analyzing the queries issued by our ASM in state @xmath with
+history @xmath . (Parts of this analysis will be useful again later,
+when we analyze finality, success, failure, and updates.) For
+readability, our analysis will be phrased in terms of the ASM performing
+various actions, such as issuing queries or passing control to a branch
+of a conditional rule. Of course, this could be rewritten more formally
+in terms of the detailed semantics of ASMs, but the formalization seems
+to entail more costs, both for the reader and for the authors, than
+benefits.
+
+The ASM acting in state @xmath with history @xmath begins, since @xmath
+is a parallel combination, by executing all the components associated
+with attainable descriptions of depth 0. Recall that these components
+are conditional rules whose guards are the descriptions themselves.
+These descriptions contain only critical terms of depth 0, so there are
+no external function symbols here. Therefore, no queries result from the
+evaluation of the guards. By Lemma 5.4 the ASM finds exactly one of the
+guards to be true, namely @xmath , and it proceeds to execute the body
+@xmath of this conditional rule.
+
+Let us suppose, temporarily, that @xmath , so, as @xmath is attainable,
+@xmath is not final. (We shall return to the other case later.) So
+@xmath is a parallel combination, and our ASM proceeds to execute its
+components. These are conditionals, whose guards @xmath are the
+successors of @xmath . So these guards are @xmath for attainable pairs
+@xmath as in Lemma 5.4 . In particular, @xmath has length 1 and @xmath .
+(This last equation is redundant as both sides are histories of length
+0, but we include it to match what will occur in later parts of our
+analysis.) Inspection of the definition of descriptions shows that every
+query issued during the evaluation of such a guard is also issued by the
+algorithm @xmath operating in the attainable pair @xmath . Since @xmath
+agrees with @xmath on @xmath , these are queries issued by @xmath in
+@xmath .
+
+The converse also holds. If a query @xmath is issued by @xmath in @xmath
+, then there is an attainable history @xmath for @xmath in which @xmath
+is in the first and only equivalence class of @xmath ; simply define
+@xmath to give @xmath an arbitrary reply and to do nothing more. By
+Lemma 5.3 , @xmath is the query-value of some q-term @xmath of level 1,
+and therefore @xmath contains the conjunct @xmath . Thus, in evaluating
+the guard @xmath , our ASM will issue @xmath .
+
+Having evaluated the guards of depth 1, our ASM finds, according to
+Lemma 5.4 , that exactly one of them is true, namely @xmath , so it
+proceeds to evaluate the corresponding body @xmath . Let us suppose,
+temporarily, that @xmath , so, as @xmath is attainable, @xmath is not
+final. So @xmath is a parallel combination, and our ASM proceeds to
+execute its components. These are conditionals, whose guards @xmath are
+the successors of @xmath . So these guards are @xmath for attainable
+pairs @xmath as in Lemma 5.4 . In particular, @xmath has length 2 and
+@xmath . Inspection of the definition of descriptions shows that every
+query issued during the evaluation of such a guard is also issued by the
+algorithm @xmath operating in the attainable pair @xmath . Since @xmath
+agrees with @xmath on @xmath , these are queries issued by @xmath in
+@xmath .
+
+The converse also holds. If a query @xmath is issued by @xmath in @xmath
+, but not already in @xmath , then there is an attainable history @xmath
+for @xmath , which has @xmath as an initial segment, and in which @xmath
+is in the second and last equivalence class of @xmath ; simply define
+@xmath by extending @xmath to give @xmath an arbitrary reply, in a new,
+second equivalence class, and to do nothing more. By Lemma 5.3 , @xmath
+is the query-value of some critical term @xmath of level 2, and
+therefore @xmath contains the conjunct @xmath . Thus, in evaluating the
+guard @xmath , our ASM will issue @xmath .
+
+The reader should, at this point, experience déjà vu, since the argument
+we have just given concerning the behavior of our ASM while executing
+@xmath is exactly parallel to the previous argument concerning @xmath .
+The same pattern continues as long as the depths of the guards are
+@xmath so that we have not arrived at a final history.
+
+Consider now what happens when the ASM evaluates @xmath . If the history
+@xmath is not final, then the same argument as before shows that the ASM
+will issue, while evaluating the guards of the components of @xmath ,
+the same queries as the original algorithm @xmath . Furthermore, the ASM
+will find none of the guards here to be true, for these guards are
+descriptions of depth @xmath and can, by Lemma 5.4 , be satisfied only
+with histories of length at least @xmath . So the execution of the ASM
+produces no additional queries beyond those that we have already shown
+to agree with those produced by @xmath .
+
+There remains the situation that @xmath is final for @xmath and @xmath .
+In this case, the components of @xmath are no longer conditional rules,
+the evaluation of whose guards causes the appropriate queries to be
+issued by the ASM. Rather, the components are issue rules, updates, or
+@xmath . Only the issue rules here will result in new queries; the
+queries involved in evaluating the terms in update rules and in the
+issue rules have already been issued during the evaluation of guards.
+And the issue rules are chosen precisely to issue the queries that
+@xmath would issue in @xmath .
+
+This completes the proof that our ASM and @xmath agree as to issuing
+queries. They therefore agree as to which histories are coherent.
+
+Finality, Success, and Failure. We next consider which histories are
+declared final by our ASM. Suppose first that @xmath is final for @xmath
+in @xmath . Then, as the preceding analysis of the ASM’s behavior shows,
+the ASM will, after evaluating a lot of guards, find itself executing
+@xmath , which is a parallel combination of issue rules, update rules,
+or @xmath . The subterms of any update rules here will already have been
+evaluated during the evaluation of the guards, so @xmath is final for
+these update rules. The same goes for the issue rules; their subterms
+have already been evaluated, and so @xmath is final. Any history is
+final for @xmath . Thus @xmath is final for all the components of @xmath
+and is therefore final for @xmath itself. From the definition of the
+semantics of parallel combinations and conditional rules, it follows
+that @xmath is also final for @xmath , as required.
+
+Now suppose that @xmath is (attainable but) not final for @xmath in
+state @xmath . There will be some queries that have been issued by
+@xmath but not answered, i.e., that are in @xmath , for otherwise @xmath
+would be complete and attainable and therefore, by the Step Postulate,
+final. So our ASM will issue some queries whose answers are needed for
+the evaluation of the guards of some components of @xmath , but whose
+answers are not in @xmath . Therefore, @xmath is not a final history for
+the ASM in state @xmath . This completes the proof that our ASM agrees
+with @xmath as to finality of histories.
+
+We check next that a final history @xmath succeeds or fails for our ASM
+according to whether it succeeds or fails for @xmath . It fails for our
+ASM if and only if, after evaluating all the guards and while executing
+@xmath , it encounters either @xmath or clashing updates (see the
+definition of failure for parallel combinations). By definition of our
+ASM, it encounters @xmath if and only if @xmath fails in @xmath .
+Furthermore, it will not encounter clashing updates unless @xmath fails,
+because, as we shall see below, it encounters exactly the updates
+produced by @xmath , and these cannot, by the Step Postulate, clash
+unless @xmath fails.
+
+Updates. To complete the proof, we have to check what updates our ASM
+encounters. Our construction of @xmath is such that update rules are
+encountered only in the subrules @xmath for final histories @xmath .
+Furthermore, these update subrules are chosen to match the updates
+performed by @xmath . So our ASM and @xmath produce the same updates in
+any final history.
+
+This completes the verification that our ASM is equivalent to the given
+algorithm @xmath . ∎
+
+## 6. Concluding Remarks
+
+Theorem 5.6 establishes the ASM thesis for small-step, interactive
+algorithms, as defined by the postulates of [ 5 ] . This completes the
+program of proving the ASM thesis in the small-step case. The case of
+parallel algorithms, without intrastep interaction, was treated in [ 1 ]
+, but the task of combining intrastep interaction with parallelism
+remains for future work. Beyond that, there is the task of treating
+distributed algorithms.
+
+The ASM syntax and semantics presented in Sections 2 and 3 serve to
+describe just what has to be added to the traditional ASM syntax and
+semantics of [ 9 ] in order to accommodate non-ordinary interaction.
+Essentially, one needs timing guards and the Kleene connectives. It
+remains to be seen whether these additions will also suffice to model
+all interactive parallel algorithms.

@@ -1,0 +1,1205 @@
+# Danksagung
+
+Ich möchte mich an dieser Stelle bei den Personen bedanken, die mir bei
+der Erarbeitung dieser Diplomarbeit geholfen haben.
+
+Mein Dank gilt Herrn Prof. Dr. Joachim von zur Gathen für die Betreuung
+dieser Diplomarbeit. Besonders zu schätzen weiß ich seine kritischen
+Anmerkungen und die anregenden Gespräche mit ihm. Außerdem bedanke ich
+mich bei Herrn Konstantin Ziegler für seine Betreuung und für die
+zahlreichen fachlichen Diskussionen, Ratschläge und Hilfestellungen. Bei
+Herrn Prof. Dr. Nitin Saxena bedanke ich mich für die Übernahme der
+Zweitkorrektur.
+
+Für die sprachliche Durchsicht bedanke ich mich bei David Steimle und
+Jens Humrich.
+
+Nicht zuletzt möchte ich mich bei meiner Familie bedanken. Bei meinen
+Eltern und Großeltern bedanke ich mich für die Unterstützung während des
+Studiums. Ganz besonders bedanke ich mich bei meiner Freundin Ellen für
+ihre Geduld und ihren Beistand.
+
+###### Contents
+
+-    1 Introduction
+    -    1.1 Deutsche Einleitung
+    -    1.2 English introduction
+-    2 Decompositions
+-    3 Finding minimal decompositions
+    -    3.1 Blocks of imprimitivity
+    -    3.2 Finding minimal blocks
+    -    3.3 The algorithm
+    -    3.4 An upper bound
+-    4 A taxonomy
+    -    4.1 Preliminaries
+    -    4.2 Decompositions of polynomials of degree @xmath
+    -    4.3 Parametrization
+
+## 1 Introduction
+
+### 1.1 Deutsche Einleitung
+
+Die Komposition zweier Polynome ist ebenfalls ein Polynom. Umgekehrt
+kann man sich fragen, unter welchen Umständen ein Polynom die
+Komposition zweier anderer Polynome ist – oder in anderen Worten: Wann
+ist ein Polynom funktional zerlegbar? [ Ritt(1922) ] beschäftigte sich
+mit dieser Frage, wobei er als Grundkörper @xmath voraussetzte. Im
+Gegensatz zur multiplikativen Zerlegung ist die funktionale Zerlegung
+nicht eindeutig. Ritts erstes Theorem besagt, dass die Grade der
+Komponenten zweier verschiedener vollständigen Zerlegungen (das heißt
+die Komponenten sind unzerlegbar) modulo einer Permutation gleich sind.
+Ritts zweites Theorem gibt eine Klassifikation der Lösungen von @xmath
+mit @xmath an. Diese beiden Theoreme konnten auf Körper der
+Charakteristik Null verallgemeinert werden (siehe [ Dorey &
+Whaples(1974) ] ). Allerdings gibt es Gegenbeispiele für beide Theoreme
+über Körper mit positiver Charakteristik. In solchen Körpern treten so
+genannte gleichgradige Kollisionen auf. Diese Kollisionen machen es
+schwer, die Anzahl der zerlegbaren Polynome über einem endlichen Körper
+anzugeben oder auch nur zu schätzen, siehe [ von zur Gathen(2009) ] .
+Auch algorithmisch ist das Problem im Falle positiver Charakteristik
+schwieriger, siehe [ von zur Gathen(1990a) ] und [ von zur Gathen(1990b)
+] .
+
+Zuerst werden in Kapitel \bare 2 grundlegende Konzepte eingeführt. In
+Kapitel \bare 3 wird dann ein Algorithmus von [ Zippel(1991) ]
+besprochen. Der von Zippel vorgestellte Algorithmus berechnet
+Zerlegungen von rationalen Funktionen in polynomieller Zeit. Dabei
+zitiert Zippel einige Resultate aus [ Landau & Miller(1985) ] , auf
+denen sein Algorithmus basiert. Diese Resultate wurden allerdings dort
+nur für den Grundkörper @xmath bewiesen und nicht wie benötigt über
+einem Funktionenkörper @xmath von beliebiger Charakteristik. Eine
+komplette Beschreibung dieses Algorithmus für die Zerlegung von
+Polynomen und ein Beweis seiner Korrektheit wird in dieser Arbeit
+gegeben. Dabei wird zunächst eine Beziehung zwischen der funktionalen
+Zerlegung eines Polynoms und den Blöcken einer bestimmten
+Permutationsgruppe hergestellt. Dann wird gezeigt wie minimale Blöcke
+effizient berechnet werden können und wie man daraus die entsprechende
+Zerlegung gewinnt. Am Ende von Kapitel \bare 3 wird eine obere Schranke
+für die Anzahl von minimalen Zerlegungen eines Polynoms hergeleitet.
+
+Danach widmet sich Kapitel \bare 4 der Klassifikation von Polynomen vom
+Grad @xmath mit mindestens zwei verschiedenen Zerlegungen über einem
+Körper der Charakteristik @xmath . Diese Klassifikation wurde in [ * ]
+gatgie10 vorgeschlagen und soll nun in dieser Arbeit bewiesen werden.
+Der Beweis orientiert sich an den Beweisen von Ritts zweitem Theorem in
+den Arbeiten von [ Dorey & Whaples(1974) ] und [ Zannier(1993) ] .
+
+### 1.2 English introduction
+
+The functional composition of two polynomials is a polynomial itself.
+Conversely one could ask, when is a given polynomial the composition of
+two others polynomials – or in other words: When is a polynomial
+functionally decomposable?
+
+At first in 2 basic notions and concepts will be introduced. An
+algorithm for computing decompositions, which was originally proposed in
+[ Zippel(1991) ] ¹ ¹ 1 There is a related (unpublished) paper by Zippel
+from 1996, which was not known to the author until the submission of the
+thesis. A subsequent publication of the author’s work will refer to it.
+, will be discussed in 3 . The proof relies on a generalization of
+results of [ Landau & Miller(1985) ] . But this generalization lacked a
+proper foundation. A proof of correctness and a runtime estimation is
+provided (20 years later) in this paper. In the end of 3 an upper bound
+for the number of minimal decompositions of a polynomial will be
+deduced.
+
+In [ * ] gatgie10 a classification for decomposable polynomials of
+degree @xmath over a field of characteristic @xmath was proposed. This
+conjecture will be stated and proven in 4 .
+
+## 2 Decompositions
+
+Let @xmath be an arbitrary field. In the runtime considerations of the
+algorithm in 3 we restrict @xmath to a field in which one can compute
+efficiently and in 4 we restrict @xmath to a field of positive
+characteristic. One can think of @xmath being a finite field, which is
+the most interesting case.
+
+{definition}
+
+A polynomial @xmath in @xmath is decomposable if there are @xmath and
+@xmath in @xmath , both of degrees at least two, such that @xmath . The
+pair @xmath is called a decomposition of @xmath . A polynomial is
+indecomposable if it is not decomposable.
+
+We call a polynomial original if its graph passes though the origin, or,
+equivalently, it has a root at zero. A polynomial is normal if it is
+monic and original. We call a decomposition @xmath normal if @xmath and
+@xmath are normal and we call it minimal if @xmath is normal and
+indecomposable.
+
+In a decomposition @xmath , @xmath is uniquely determined by @xmath and
+@xmath , since the ring homomorphism @xmath with @xmath is injective.
+Furthermore, @xmath is easy to compute by the generalized Taylor
+expansion, see [ von zur Gathen & Gerhard(1999) ] .
+
+{definition}
+
+A linear left composition (linear right composition, linear composition)
+of @xmath is the polynomial @xmath ( @xmath , @xmath , respectively) for
+some linear polynomials @xmath and @xmath .
+
+The conjugate of a normal polynomial @xmath by a linear polynomial
+@xmath is the normal polynomial @xmath .
+
+Each non-constant polynomial has a unique linear left composition which
+is normal. Namely, if @xmath is the leading coefficient of @xmath and
+@xmath is its constant term, then @xmath is normal. The functional
+inverse of a linear polynomial @xmath is @xmath . If a normal polynomial
+@xmath has a decomposition @xmath and @xmath is a linear polynomial such
+that @xmath is normal, then @xmath is normal. This is because the
+leading coefficient and constant term of @xmath equal the leading
+coefficient and the constant term, respectively, of @xmath .
+
+Functional decomposition is related to intermediate fields of certain
+field extensions in the following way. Let @xmath be the function field
+in @xmath over @xmath . Then for a given non-constant polynomial @xmath
+let @xmath be the polynomial @xmath in @xmath . Then @xmath is
+irreducible by the Eisenstein criterion.
+
+If we assume that the derivative @xmath of @xmath is not zero then the
+derivative of @xmath with respect to @xmath is not zero and thus @xmath
+is separable. In this case, for a root @xmath of @xmath , @xmath is a
+separable field extension of @xmath .
+
+In characteristic @xmath we have @xmath . If the characteristic of
+@xmath is @xmath and @xmath then there exists @xmath such that @xmath
+and @xmath . If @xmath is finite or is the algebraic closure of a finite
+field then the Frobenius endomorphism @xmath is an automorphism of
+@xmath . In this case, by knowing all decompositions of @xmath one knows
+all decompositions of @xmath . In general the Frobenius endomorphism is
+not an automorphism (for example on function fields), but we will anyway
+assume that @xmath . This assumption excludes some cases in general, but
+we lose no generality if @xmath is a finite field.
+
+Now the following theorem states a correspondence between decompositions
+of @xmath and intermediate fields of @xmath . A proof of it can be found
+in [ Fried & MacRae(1969) ] .
+
+{theorem}
+
+Let @xmath be a polynomial over @xmath with @xmath and let @xmath be a
+root of @xmath . Let @xmath and let @xmath be the set of intermediate
+fields between @xmath and @xmath . Then the map @xmath with @xmath is
+bijective.
+
+The minimal polynomial of @xmath over @xmath is @xmath . Thus we have
+@xmath .
+
+The set @xmath is a lattice with the inclusion as order (the
+intersection and the composition of fields are the meet and the join).
+It is clear that if @xmath , then @xmath . Thus, if we take @xmath to
+mean that @xmath for some @xmath , then the bijection in 2 is an
+order-reversing bijection of partially ordered sets. Thus @xmath is a
+lattice, which we call the lattice of decompositions of @xmath .
+
+{lemma}
+
+Let @xmath with @xmath and @xmath , @xmath be linear. Let @xmath be a
+root of @xmath and @xmath a root of @xmath . Then the field extensions
+@xmath and @xmath are isomorphic. {proof} Let @xmath with @xmath be the
+evaluation homomorphism. Since @xmath is transcendental over @xmath this
+homomorphism is injective and extends to a field homomorphism @xmath .
+From @xmath follows that @xmath is mapped to @xmath under @xmath . The
+degrees of the extensions are equal, hence @xmath is surjective.
+
+{corollary}
+
+If @xmath is a linear composition of @xmath , then the lattice of
+decompositions of @xmath is isomorphic to the lattice of decompositions
+of @xmath . {proof} Let @xmath and @xmath be roots of @xmath and @xmath
+, respectively. Then the lattice of decompositions of @xmath is
+isomorphic to the lattice of intermediate fields between @xmath and
+@xmath . By the previous lemma, this lattice is isomorphic to the
+lattice of intermediate fields between @xmath and @xmath , which is in
+turn isomorphic to the lattice of decompositions of @xmath .
+
+Thus, one needs only to consider normal polynomials and normal
+decompositions. Furthermore the lattice of decompositions of a normal
+polynomial is invariant under conjugation.
+
+## 3 Finding minimal decompositions
+
+An algorithm that computes functional decompositions of rational
+functions was proposed in [ Zippel(1991) ] . In this paper Zippel cites
+results of [ Landau & Miller(1985) ] , on which the algorithm relies.
+But these results were only proven for the ground field @xmath – instead
+of @xmath , which would be needed. In the 20 years since then, nobody
+seems to have undertaken the somewhat ungrateful task of verifying
+whether Zippel’s claims are actually true. A complete description of the
+algorithm for polynomial decomposition and a proof of its correctness
+will be given in this section.
+
+The main idea for the algorithm is to relate decompositions of @xmath to
+certain partitions of the set of roots of @xmath and to find an
+efficient way to compute these partitions. To specify this idea, let
+@xmath be a decomposition of @xmath . For each root @xmath of @xmath the
+roots of @xmath form a subset of the roots of @xmath . Furthermore two
+different roots of @xmath yield two disjoint subsets. In this way one
+can partition the set of roots of @xmath with respect to a decomposition
+of @xmath . For getting a better understanding of the nature of these
+partitions we consider the notion of blocks.
+
+### 3.1 Blocks of imprimitivity
+
+We introduce the notion of blocks of imprimitivity and its relation to
+decompositions. For this propose consider a finite permutation group
+@xmath on a finite set @xmath (that is a subgroup @xmath , where @xmath
+is the symmetric group on @xmath ). The following facts are mainly taken
+from [ Wielandt(1964) ] .
+
+{definition}
+
+A subset @xmath of @xmath is a block of @xmath if for all @xmath in
+@xmath , the set @xmath is empty or equals @xmath .
+
+Equivalently, @xmath is a block of @xmath if for all @xmath in @xmath
+the sets @xmath and @xmath are disjoint or equal. If @xmath is a block,
+then any @xmath is a block. If @xmath is transitive and @xmath then
+@xmath is a partition of @xmath and is called a complete block system .
+
+{definition}
+
+For a subgroup @xmath and @xmath the orbit of @xmath under @xmath is the
+subset @xmath . For a subset @xmath the stabilizer of @xmath is the
+subgroup @xmath . We write @xmath for @xmath . A permutation group
+@xmath on @xmath is called regular if @xmath is trivial for all @xmath
+in @xmath .
+
+For @xmath we have @xmath . In particular, if @xmath is transitive, all
+stabilizers have the same cardinality, and @xmath is regular if and only
+if @xmath is trivial for some @xmath .
+
+{lemma}
+
+If @xmath and @xmath are blocks then @xmath is a block. {proof} Let
+@xmath be in @xmath . Then @xmath and this is empty if and only if
+@xmath or @xmath is empty. If both are nonempty we get @xmath , since
+@xmath and @xmath are blocks.
+
+{definition}
+
+The blocks @xmath , @xmath , and @xmath , for @xmath , are called
+trivial blocks . A nontrivial block is called block of imprimitivity . A
+permutation group @xmath on @xmath is called primitive if there are only
+trivial blocks. It is called imprimitive otherwise.
+
+{example}
+
+The alternating group @xmath on @xmath is primitive: Let without lose of
+generality @xmath and assume @xmath is a block with at least two
+distinct elements, say @xmath . Let @xmath be an arbitrary element in
+@xmath distinct from @xmath and @xmath . Then for @xmath we have @xmath
+. Therefore @xmath , and since @xmath we get @xmath . This proves @xmath
+.
+
+The same holds for @xmath .
+
+{example}
+
+Let the dihedral group @xmath act on @xmath by @xmath and @xmath . Then
+@xmath is imprimitive, for example, @xmath and @xmath are nontrivial
+blocks.
+
+The following theorem is essential for the link between the
+decomposition of polynomials and the theory of blocks. {theorem} Let
+@xmath be a finite transitive permutation group on a finite set @xmath
+and let @xmath . Then the lattice of subgroups between @xmath and @xmath
+is isomorphic to the lattice of blocks containing @xmath . {proof} For a
+block @xmath with @xmath define @xmath and for a subgroup @xmath define
+@xmath . To prove that both maps are well defined we first show that
+@xmath contains @xmath . Let @xmath be in @xmath . Then @xmath . Thus
+@xmath and therefore @xmath .
+
+To prove that @xmath is a block, let @xmath and assume @xmath is in
+@xmath . Then there are @xmath and @xmath in @xmath such that @xmath .
+Thus @xmath and therefore @xmath . This implies that @xmath is in @xmath
+and we have @xmath .
+
+Clearly @xmath . For the reverse inclusion consider @xmath such that
+@xmath . Thus there is @xmath such that @xmath . Then @xmath and
+therefore @xmath . Thus we have proven that @xmath . For the other
+direction, one finds that @xmath . Let @xmath . Since @xmath acts
+transitively there is @xmath such that @xmath . Then @xmath and thus
+@xmath . Therefore @xmath . Thus @xmath and we have proven that @xmath
+and @xmath are bijective. It is now sufficient to show that @xmath is
+order preserving. Let @xmath and @xmath . Then @xmath and thus @xmath is
+nonempty. Hence @xmath is in @xmath .
+
+We fix the following notation. Let @xmath be a polynomial in @xmath of
+degree @xmath with @xmath . As before define @xmath and let @xmath be a
+root of @xmath . Furthermore let @xmath be the splitting field of @xmath
+over @xmath and let @xmath be its Galois group. Then @xmath acts
+transitively on the set @xmath of roots of @xmath . We consider @xmath
+as permutation group on @xmath .
+
+{corollary}
+
+1.  The lattice of decompositions of @xmath and the lattice of blocks of
+    @xmath containing @xmath are isomorphic.
+
+2.  Let @xmath be the right component of a normal decomposition of
+    @xmath and let @xmath be the block corresponding to @xmath . Then
+    @xmath .
+
+{proof}
+
+The lattice of decompositions of @xmath is isomorphic to the lattice of
+intermediate fields of @xmath . This in turn is by Galois theory
+isomorphic to the lattice of subgroups between @xmath and @xmath . Thus,
+by the previous theorem one achieves an isomorphism between the lattice
+of decompositions of @xmath and the lattice of blocks containing @xmath
+.
+
+Let @xmath be the subgroup corresponding to @xmath and @xmath be the
+corresponding block (that is, @xmath and @xmath ). Then @xmath . On the
+other hand, we have @xmath . Thus @xmath .
+
+### 3.2 Finding minimal blocks
+
+In this and in the next section we will discuss an algorithm that
+computes minimal blocks of the Galois group @xmath . This algorithm and
+all intermediate results were introduced in [ Landau & Miller(1985) ]
+for the ground field @xmath . In our case we have the ground field
+@xmath , but the proofs are essentially based on [ Landau & Miller(1985)
+] .
+
+From now on we consider only blocks containing @xmath . We call a
+nontrivial block @xmath minimal if all blocks @xmath are either trivial
+or equal to @xmath . If @xmath is minimal, then the corresponding
+decomposition is minimal. {lemma} The set @xmath is a block of @xmath .
+{proof} Let @xmath . Then each @xmath fixes @xmath , hence @xmath .
+Since @xmath is transitive we have @xmath and thus @xmath .
+
+Now let @xmath be in @xmath and assume @xmath is not empty. Then there
+are @xmath , @xmath such that @xmath . We have @xmath . Let @xmath .
+Then @xmath . Thus for all @xmath we have @xmath . Hence @xmath .
+
+Now factor @xmath over @xmath into irreducible factors @xmath such that
+
+  -- -------- -- -----
+     @xmath      (1)
+  -- -------- -- -----
+
+with @xmath , @xmath , and @xmath for @xmath , and @xmath for @xmath .
+Since @xmath for @xmath there are rational functions @xmath such that
+@xmath . Since @xmath is transcendental over @xmath , from the equation
+@xmath follows that @xmath must be a linear polynomial. Clearly @xmath
+is in @xmath for all @xmath . Let @xmath . Then @xmath . Thus @xmath for
+some linear polynomial @xmath . We have proven that @xmath . {claim}
+@xmath is a group. The neutral element in @xmath is @xmath . Since
+@xmath is transcendental over @xmath , the equation @xmath implies
+@xmath . Then from @xmath follows that @xmath is a root of @xmath in
+@xmath . Thus there exists @xmath such that @xmath . In the same way by
+@xmath we conclude the existence of the inverse of @xmath in @xmath .
+
+The following lemma presents us with the opportunity to lay hands on the
+Galois group from a computational point of view.
+
+{lemma}
+
+The mapping @xmath for @xmath , is a surjective homomorphism with kernel
+@xmath . {proof} Let @xmath , @xmath with @xmath and @xmath . Then
+@xmath . Thus @xmath . Each @xmath defines an @xmath -automorphism on
+@xmath , extends to @xmath and maps @xmath to @xmath . Thus @xmath is
+surjective. Finally, @xmath is in the kernel if and only if @xmath .
+This is if and only if @xmath is in @xmath .
+
+Now let @xmath . Then we have @xmath and @xmath . Thus @xmath and @xmath
+. In this case @xmath is an isomorphism between @xmath and @xmath and we
+can compute all minimal blocks by the algorithm of [ Atkinson(1975) ] in
+polynomial time. Before we consider the other cases we will see how to
+compute the appropriate @xmath from a block @xmath . Instead of
+following [ Zippel(1991) ] , we use the following new result.
+
+{lemma}
+
+Let @xmath be a block and @xmath be the right component of a
+decomposition of @xmath corresponding to @xmath . Then @xmath . {proof}
+The block @xmath corresponds to the intermediate field @xmath and by 2
+there is a decomposition of @xmath with right component @xmath such that
+@xmath . Set @xmath . Then the minimal polynomial of @xmath over @xmath
+is @xmath . Since @xmath is in @xmath and both polynomials have the same
+degree, it is sufficient to show that @xmath is in @xmath . Let @xmath
+be in @xmath . Then @xmath and therefore @xmath . Since @xmath this
+proves that @xmath is in @xmath .
+
+Note that @xmath is the constant term of @xmath . Since @xmath is
+normal, we get @xmath , as explicit formula.
+
+{example}
+
+Let @xmath be an odd prime and @xmath be a finite field of
+characteristic @xmath . Let @xmath , @xmath be an element of the prime
+field @xmath of @xmath and @xmath be either @xmath or @xmath . Then
+@xmath . Thus, for a root @xmath of @xmath also @xmath is a root of
+@xmath . Thus we have @xmath roots of @xmath in @xmath and therefore
+@xmath is Galois. Its Galois group is isomorphic to @xmath . The
+dihedral group @xmath has one subgroup of order @xmath and @xmath
+subgroups of order two. Hence @xmath has @xmath decompositions. A block
+with two elements is of the form @xmath . Then @xmath and we have found
+the right component of a decomposition of @xmath , namely @xmath .
+
+Let @xmath . Then the induced action of @xmath on @xmath is determined
+by the action of @xmath on @xmath , since @xmath acts trivial on @xmath
+. If there are minimal blocks of @xmath containing @xmath , one can find
+all of them in polynomial time (by the above mentioned algorithm of
+Atkinson).
+
+{lemma}
+
+If @xmath is a minimal block of @xmath , then @xmath is a minimal block
+of @xmath . {proof} Assume @xmath for some @xmath . Since @xmath and
+@xmath , we get @xmath . Thus @xmath , which means that @xmath is in
+@xmath . Since @xmath is a block of @xmath , we have @xmath . If @xmath
+is a nontrivial block of @xmath , then @xmath is a block of @xmath and
+thus @xmath .
+
+Thus, we can easily compute all minimal blocks that are contained in
+@xmath . Note that if there is no nontrivial Block of @xmath , then
+@xmath is a minimal block of @xmath .
+
+{example}
+
+Let @xmath and @xmath over @xmath . Let @xmath be a root of @xmath . One
+checks that
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+                       @xmath   
+                       @xmath   
+  -- -------- -------- -------- --
+
+is the factorization of @xmath into irreducible polynomials over @xmath
+. As shown above @xmath forms a block. Thus for @xmath we have that
+@xmath is the right component of a decomposition of @xmath . One
+calculates that the corresponding left component is @xmath .
+
+If @xmath then @xmath is trivial. Thus the method above does not apply.
+But also if @xmath , there could be minimal blocks @xmath with @xmath .
+Thus, let @xmath . Then @xmath is not Galois and we have @xmath . Hence
+@xmath is not regular and the following theorem applies. {theorem} Let
+@xmath be a finite permutation group on @xmath , which is transitive and
+not regular. Then @xmath is primitive if and only if for all distinct
+@xmath and @xmath in @xmath we have @xmath . {proof} Let @xmath be
+imprimitive and @xmath be a nontrivial block with @xmath , @xmath and
+@xmath . Then @xmath , @xmath . Thus by 3.1 , we get @xmath , since
+@xmath .
+
+Now let @xmath for some @xmath . Then @xmath is a block @xmath as shown
+in the proof of 3.1 . If @xmath is nontrivial, then we are done. Thus
+assume @xmath . Then we have @xmath for all @xmath . Thus @xmath . Since
+@xmath we have @xmath . But then @xmath , @xmath and @xmath is trivial
+only if @xmath . Since @xmath is not regular there is @xmath and @xmath
+such that @xmath . Thus @xmath . Hence @xmath , which is thus a
+nontrivial block.
+
+{proposition}
+
+Let @xmath be a minimal block of @xmath with @xmath and @xmath . Then
+for all @xmath distinct from @xmath the orbit @xmath equals @xmath .
+{proof} Let @xmath be in @xmath . Clearly @xmath . Now if @xmath then
+@xmath would be fixed by @xmath and thus @xmath , which is a
+contradiction to the assumption. Thus we have @xmath and therefore
+@xmath . Thus @xmath is a nontrivial block contained in @xmath , which
+implies equality by the minimality of @xmath .
+
+{lemma}
+
+Let @xmath be a factorization of @xmath into irreducible factors @xmath
+over @xmath . Let @xmath and @xmath be such that @xmath . Then @xmath .
+{proof} If @xmath then @xmath is in @xmath and is thus fixed by @xmath .
+Hence the claim holds. Thus let @xmath . Each @xmath acts trivial on
+@xmath . Thus @xmath and @xmath . Hence @xmath .
+
+For the other direction let @xmath be such that @xmath . Let @xmath be
+the splitting field of @xmath over @xmath . Then there is @xmath in
+@xmath such that @xmath . Since @xmath we have that @xmath extends to an
+automorphism in @xmath . Thus @xmath is in @xmath .
+
+Fix @xmath and @xmath such that @xmath is a root of @xmath . Note that
+@xmath and thus @xmath is a block, which is minimal if there is a
+minimal block containing @xmath and @xmath . Let @xmath be in @xmath
+such that @xmath and set @xmath for all @xmath . Then the polynomials
+@xmath are the polynomials @xmath with @xmath substituted for @xmath and
+the irreducible factors of @xmath over @xmath are precisely the
+polynomials @xmath . Note that if @xmath is a root of @xmath we have
+@xmath by the previous lemma.
+
+{proposition}
+
+Consider the bipartite graph @xmath with the set of vertices consisting
+of @xmath and @xmath for @xmath and with an undirected edge between
+@xmath and @xmath if @xmath . Let @xmath be the the set of roots of
+those @xmath that are connected to @xmath . Then @xmath . {proof} Each
+element @xmath of @xmath is of the form @xmath with @xmath in @xmath or
+in @xmath . We prove by induction on @xmath that @xmath is in @xmath .
+The induction basis is the fact that @xmath . For the induction step let
+@xmath be in @xmath . Then there is some @xmath such that @xmath and
+@xmath is connected to @xmath . We distinguish two cases: First we have
+@xmath . Since @xmath , we have @xmath . Thus also @xmath . In the
+second case we have @xmath . Let @xmath such that @xmath . Then there is
+an edge between @xmath and @xmath and thus @xmath is connected to @xmath
+. Since @xmath we have that also @xmath is a roots of @xmath . Hence if
+@xmath is a root of @xmath we have @xmath and thus @xmath .
+
+For the other direction, let @xmath be in @xmath and @xmath such that
+@xmath . Then there is a path @xmath form @xmath to @xmath , say @xmath
+. By an induction argument one can assume that the roots of @xmath are
+already in @xmath . Since @xmath there is @xmath such that @xmath and
+@xmath . Thus, by 3.2 we get @xmath and @xmath where @xmath is a common
+root of @xmath and @xmath . Then @xmath and @xmath for @xmath and @xmath
+. Hence @xmath is in @xmath .
+
+Now let @xmath be a minimal block containing @xmath and @xmath . In case
+@xmath we saw that one can calculate @xmath directly and therefore
+calculate @xmath by 3.2 . Otherwise by 3.2 we have @xmath . Then as seen
+in 3.2 one can calculate @xmath by @xmath , where the last product is
+taken over all @xmath that are connected to @xmath in @xmath .
+
+{contexample}
+
+ex:addpoly3 Let us continue to find decompositions of @xmath . Let
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Then as before we have @xmath . Now let @xmath be a root of @xmath in
+@xmath and note that we have then
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Let @xmath . Then we have that @xmath with @xmath substituted for @xmath
+is @xmath and thus @xmath is a minimal block. We get @xmath and thus the
+corresponding decomposition has right component @xmath . Then the
+corresponding left component is @xmath .
+
+Now for @xmath we get @xmath . Thus @xmath . In the same way @xmath does
+not yield any further block. Therefore all in all @xmath has exactly two
+decompositions over @xmath .
+
+Note that going to the extension @xmath of @xmath unveils more
+structure. Actually, @xmath has four decompositions over @xmath as we
+will see in 3.4 .
+
+### 3.3 The algorithm
+
+[ Zippel(1991) ] describes loosely an algorithm that computes
+decompositions of rational functions. The following is a concrete
+description of an algorithm that computes all minimal decompositions of
+a polynomial, whose derivative does not vanish. It is mainly based on [
+Zippel(1991) ] and on [ Landau & Miller(1985) ] . The runtime estimation
+in 3.3 is new.
+
+LABEL:minDec calls a subroutine Atkinson ( @xmath , @xmath , @xmath )
+which returns a list of all minimal blocks of the permutation group
+@xmath on @xmath that are containing @xmath . If @xmath is primitive
+this list consists of @xmath only.
+
+{theorem}
+
+LABEL:minDec correctly computes all minimal decompositions of @xmath .
+{proof} Let @xmath be a minimal decomposition and let @xmath be the
+corresponding block. Then either @xmath or @xmath . In the first case
+@xmath is computed in Step \short LABEL:minDec-atkinson , by 3.2 . Then
+@xmath is recovered from @xmath in Step \short LABEL:minDec-h1 , by 3.2
+. In the second case let @xmath and @xmath such that @xmath . By 3.2 we
+have @xmath , where @xmath is computed in Step \short LABEL:minDec-inu .
+Then in Step \short LABEL:minDec-h2 we have @xmath , from which we can
+recover @xmath .
+
+Note that @xmath is a block even if there is no minimal block containing
+@xmath and @xmath . Then either @xmath is minimal and @xmath or @xmath
+is not minimal and contains minimal blocks. An algorithm that computes
+only minimal decompositions (and outputs each decomposition only once)
+should keep track of this.
+
+For the runtime consideration let @xmath be a field over which one can
+factor bivariate polynomials in polynomial time (these include, for
+example, finite fields). The gcd computation in Step \short
+LABEL:minDec-gcd can be done by computing the resultant, which can be
+done in polynomial time. Thus the algorithm can be implemented with a
+polynomial runtime. This was already remarked by [ Zippel(1991) ] . The
+following runtime estimation for finite fields is new.
+
+{theorem}
+
+Let @xmath be a finite field, @xmath be a natural number and @xmath be
+the degree of the input polynomial @xmath . Denote the complexity of
+multiplying two polynomials over @xmath of degree at most @xmath by
+@xmath and let @xmath be the size of @xmath . Then there is an
+implementation of LABEL:minDec that takes an expected number of @xmath
+operations in @xmath with an error probability of at most @xmath .
+{proof} The factorization in Step \short LABEL:minDec-factor can be done
+in @xmath , where @xmath is the matrix multiplication exponent, see [
+Bostan et al. (2004)Bostan, Lecerf, Salvy, Schost & Wiebelt ] and [
+Lecerf(2008) ] . Atkinson’s algorithm runs in @xmath , see [
+Atkinson(1975) ] . [ Butler(1992) ] improved the runtime of Atkinson’s
+algorithm to @xmath . In Step \short LABEL:minDec-g1 and \short
+LABEL:minDec-g2 for each right component @xmath the appropriate left
+component @xmath can be computed in @xmath by the generalized Taylor
+expansion, see [ von zur Gathen & Gerhard(1999) ] . Since there are at
+most @xmath minimal blocks computed by the algorithm of Atkinson, Step
+\short LABEL:minDec-g1 is called at most @xmath times. Step \short
+LABEL:minDec-g2 is called at most @xmath times. Thus we get @xmath for
+this part.
+
+To compute the graph in Step \short LABEL:minDec-gcd we need at most
+@xmath gcd computations. We have to compute @xmath such graphs. Thus in
+total we have at most @xmath such gcd computations. Since the field
+arithmetic of @xmath is quite costly, one should use a modular algorithm
+that checks if two polynomials in @xmath are coprime. For example one
+could use LABEL:algo:gcd below. We will prove that it has expected
+runtime @xmath and an error probability of at most @xmath . If we repeat
+this coprimality check @xmath times we get for all @xmath computations
+an expected runtime of @xmath , which dominates the runtime of the other
+computations, and an error probability of at most @xmath , by the
+Bernoulli inequality. This finishes the proof of 3.3 .
+
+{lemma}
+
+Let @xmath be a finite field of size @xmath . If the total degree of all
+input polynomials is bounded by @xmath , then LABEL:algo:gcd takes an
+expected number of @xmath operations in @xmath . It returns @xmath only
+if @xmath and @xmath are coprime. If @xmath and @xmath are coprime the
+algorithm returns @xmath with probability at most @xmath . {proof} First
+note that for @xmath with @xmath the maximal ideal @xmath in @xmath
+gives rise to a place @xmath in @xmath . Substituting @xmath and @xmath
+for @xmath and @xmath , respectively, is the same as reducing modulo
+@xmath . Thus the degree of @xmath is one. If on the other hand @xmath
+is a place in @xmath of degree one such that it is neither a pole of
+@xmath nor of @xmath , then there exists @xmath , @xmath such that
+@xmath and @xmath . Then we have @xmath . Denote such a places by @xmath
+.
+
+Since the leading coefficient of @xmath in @xmath is one, and therefore
+not zero modulo @xmath , we have @xmath if and only if @xmath (see Lemma
+6.25 in [ von zur Gathen & Gerhard(1999) ] ). Assume @xmath is not zero.
+Let @xmath and @xmath . Then the probability of @xmath being zero modulo
+@xmath is @xmath .
+
+We have @xmath , where @xmath is a representative of @xmath in @xmath of
+degree less then @xmath . If @xmath would divide @xmath , then @xmath
+would be zero. Since @xmath is irreducible we get @xmath and thus by
+Bézout’s Theorem we have @xmath .
+
+Since @xmath and @xmath can have at most @xmath poles we have @xmath ,
+where @xmath is the number of places in @xmath of degree one. By the
+Hasse–Weil Bound (see Theorem V.2.3 in [ Stichtenoth(1993) ] ) we get
+@xmath , where @xmath is the size of @xmath and @xmath is the genus of
+@xmath . By the degree assumption on @xmath we have that @xmath . By the
+Riemann Inequality (see Corollary III.10.4 in [ Stichtenoth(1993) ] )
+the genus is bounded by @xmath . Thus we have @xmath . Hence @xmath ,
+which gives us the claimed error bound.
+
+The resultant computation takes @xmath operations in @xmath (see
+Corollary 11.16 in [ von zur Gathen & Gerhard(1999) ] ). Finding a root
+of @xmath in @xmath takes an expected number of @xmath operations in
+@xmath , where @xmath is the size of @xmath (see Corollary 14.16 in [
+von zur Gathen & Gerhard(1999) ] ). We have @xmath . Unfortunately the
+degree of @xmath over @xmath can only be bounded by @xmath . Thus @xmath
+is in @xmath and finding a root takes @xmath operations in @xmath .
+Arithmetic in @xmath costs us @xmath operations in @xmath . Hence with
+omitting the log factor the expected runtime is in @xmath .
+
+### 3.4 An upper bound
+
+Now we will deduce two sharp upper bounds on the number of minimal
+decompositions of a polynomial. These bounds coincide partly with
+results in [ von zur Gathen et al. (2010)von zur Gathen, Giesbrecht &
+Ziegler ] .
+
+Let @xmath and @xmath be minimal blocks. By 3.1 their intersection is a
+block and therefore trivial. Hence, the minimal blocks minus @xmath are
+distinct sets in @xmath . Therefore the sum of the cardinality of all
+minimal blocks minus @xmath is less than @xmath . Since the cardinality
+of a block equals the degree of the right component of the corresponding
+normal decomposition, we get the following results.
+
+{corollary}
+
+Let @xmath be a decomposable polynomial of degree @xmath with @xmath .
+
+1.  Let @xmath divide @xmath . Then there are at most @xmath minimal
+    decompositions @xmath of @xmath with @xmath .
+
+2.  Let @xmath be the smallest prime divisor of @xmath . Then there are
+    at most @xmath minimal decompositions of @xmath .
+
+{example}
+
+Let @xmath be the characteristic of @xmath and let @xmath be a separable
+additive polynomial of degree @xmath with @xmath , that is @xmath is of
+the form @xmath with @xmath . Furthermore assume that @xmath splits
+completely over @xmath . Then the roots of @xmath form a group @xmath
+which is isomorphic to @xmath . If @xmath is a root of @xmath then so is
+@xmath for all roots @xmath of @xmath . Thus @xmath is Galois and its
+Galois group is isomorphic to @xmath . But @xmath has exactly @xmath
+subgroups of order @xmath . Thus @xmath has exactly @xmath minimal
+decompositions. This shows that both bounds are sharp.
+
+Another class of examples, which also shows that these bounds are sharp,
+is discussed in the next section.
+
+## 4 A taxonomy
+
+[ Zannier(1993) ] proved Ritt’s second Theorem over arbitrary fields
+with the assumption that the derivatives of the right components are
+nonzero and that their degrees are relatively prime. Unfortunately this
+result is not applicable when the degrees are equal – these are so
+called equal-degree collisions. A classification for a special case of
+equal-degree collision was proposed in [ von zur Gathen et al.
+(2010)von zur Gathen, Giesbrecht & Ziegler ] , Conjecture 6.7. The main
+result of this section ( 4.2 ) is a proof of this conjecture. The idea
+is to adapt the proofs of Ritt’s second Theorem from [ Dorey &
+Whaples(1974) ] and [ Zannier(1993) ] . In both papers the
+classification is obtained from studying ramification in a rational
+function field.
+
+### 4.1 Preliminaries
+
+First we will state some facts from the ramification theory of function
+fields. For more details see, for example, [ Stichtenoth(1993) ] . Let
+@xmath be a field of characteristic @xmath and @xmath be its algebraic
+closure. Let @xmath be a normal polynomial over @xmath of degree @xmath
+such that @xmath and @xmath . As in 2 let @xmath be transcendental over
+@xmath . Then @xmath is irreducible and separable over @xmath . Let
+@xmath be a root of @xmath . Then @xmath is an extension of @xmath of
+degree @xmath . Both function fields are rational (that is, of genus 0).
+Thus, each finite place @xmath in @xmath corresponds to a monic and
+irreducible polynomial in @xmath (see Section I.2 in [ Stichtenoth(1993)
+] ). This polynomial is linear, since @xmath is algebraically closed,
+say of the form @xmath with @xmath . In @xmath we have @xmath , where
+@xmath is a factorization of @xmath into irreducible factors @xmath .
+The @xmath are linear and correspond to places @xmath in @xmath . Then
+@xmath divides @xmath . Since @xmath we obtain a decomposition @xmath .
+Thus the multiplicities of @xmath correspond to the ramification indices
+of @xmath , that is @xmath .
+
+Later in this section we wish to have certain multiple roots at the
+right "place". One can achieve this by conjugation of @xmath (see 2 ).
+If @xmath has multiplicity @xmath in @xmath then the conjugate @xmath
+has a root at @xmath with multiplicity @xmath .
+
+We will make use of the notion of the different exponent @xmath of a
+place @xmath . Mainly we need the following facts about the different
+exponent (for a definition and further facts see Section III.4 in [
+Stichtenoth(1993) ] ): A place @xmath is unramified over @xmath if and
+only if @xmath . If @xmath is tamely ramified over @xmath , then @xmath
+. Since @xmath is algebraically closed, the relative degree of @xmath
+equals one. Thus, if @xmath is tamely ramified, we get @xmath , where
+@xmath is the number of places in @xmath lying over @xmath .
+
+The following results tell us more about the ramification in rational
+function fields over @xmath . (These results are true for arbitrary
+fields, but they are needed here only for the algebraic closure of
+@xmath .) {proposition} The place at infinity in @xmath is totally
+ramified in @xmath . {proof} See Proposition 3.2. in [ Fried &
+MacRae(1969) ] .
+
+{proposition}
+
+Let @xmath be a finite separable extension. Let @xmath be a place in
+@xmath and @xmath be a place in @xmath which is totally ramified over
+@xmath . Let @xmath be a prime element of @xmath and @xmath its minimal
+polynomial over @xmath . Then @xmath , where @xmath is the valuation at
+@xmath . {proof} See Proposition III.5.12 in [ Stichtenoth(1993) ] .
+
+{lemma}
+
+Let @xmath be the infinite place of @xmath and @xmath be the place in
+@xmath over @xmath . Then @xmath and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+{proof}
+
+Since @xmath is totally ramified we can apply 4.1 . We have that @xmath
+is a primitive element of @xmath . Let @xmath be the minimal polynomial
+of @xmath . We have @xmath , with @xmath being the reversal of @xmath .
+Since @xmath is original we have @xmath . Then @xmath is a monic
+polynomial, and since @xmath , we get @xmath . Thus we have @xmath and
+4.1 yields @xmath . Since @xmath is a primitive element of @xmath we
+have @xmath . Let @xmath be the coefficients of @xmath . Then by the
+strong triangle inequality we get @xmath and equality since we have
+@xmath for all @xmath . The @xmath -th coefficient of @xmath is nonzero
+if @xmath and @xmath . But since @xmath this is the case if and only if
+@xmath and the @xmath -th coefficient of @xmath is nonzero. Thus, the
+last nonzero coefficient in @xmath is the first nonzero coefficient in
+@xmath . Hence @xmath and therefore @xmath .
+
+By the Hurwitz Genus Formula we have @xmath , where @xmath and @xmath is
+the genus of @xmath and @xmath , respectively (see Theorem III.4.12 in [
+Stichtenoth(1993) ] ). In our case we have @xmath and thus obtain @xmath
+. By subtracting @xmath we get @xmath .
+
+There is also an elementary proof for the last equation of 4.1 if there
+is no finite wildly ramified place; see the second proof of Lemma 2 in [
+Dorey & Whaples(1974) ] .
+
+{lemma}
+
+Let @xmath and @xmath be two intermediate fields of @xmath such that
+@xmath and let @xmath and @xmath be finite places in @xmath and @xmath ,
+respectively, over a place @xmath in @xmath . Let the ramification
+indices @xmath and @xmath be not divisible by the characteristic of
+@xmath . Then there are @xmath places @xmath in @xmath which lie over
+@xmath and over @xmath . Moreover for such a place we have @xmath .
+
+This lemma is proven in [ Dorey & Whaples(1974) ] with the assumption
+that the characteristic of @xmath is zero. The following proof is only
+slightly different, but does not use this assumption. {proof} At first
+we apply Abhyankar’s Lemma (see Proposition III.8.9 in [
+Stichtenoth(1993) ] ) and find that for a place @xmath in @xmath , which
+lies over @xmath and over @xmath , the ramification index @xmath equals
+@xmath .
+
+Then we proceed as in [ Dorey & Whaples(1974) ] . Let @xmath , @xmath ,
+and @xmath be the completions of @xmath , @xmath , and @xmath with
+respect to @xmath , @xmath , and @xmath , respectively. For readability
+set @xmath and @xmath . Note that @xmath is the direct product of the
+completions of @xmath with respect to the places over @xmath in @xmath
+(see Proposition II.8.3 in [ Neukirch(2007) ] ). Since @xmath we get
+@xmath . Thus @xmath is the direct product of the completions of @xmath
+with respect to the places that lie over @xmath and @xmath . These
+fields are of degree @xmath and the @xmath -dimension of @xmath is
+@xmath . Thus there are @xmath places over @xmath and @xmath .
+
+### 4.2 Decompositions of polynomials of degree @xmath
+
+We have already seen an example of decomposable polynomials of degree
+@xmath : additive polynomials of degree @xmath have @xmath
+decompositions over a sufficiently large field (see 3.4 ). A
+classification of the polynomials of degree @xmath with at least two
+normal decompositions is given in the next theorem.
+
+{theorem}
+
+Let @xmath be a field of characteristic @xmath . Let @xmath be a normal
+polynomial in @xmath of degree @xmath with @xmath and at least two
+normal decompositions. Then exactly one of the following statements
+holds:
+
+1.  There is @xmath and a divisor @xmath of @xmath such that for each
+    normal decomposition @xmath of @xmath there are @xmath and @xmath in
+    @xmath such that @xmath and @xmath with @xmath .
+
+2.  There is @xmath and an integer @xmath such that for each normal
+    decomposition @xmath of @xmath there is @xmath , and @xmath such
+    that @xmath , @xmath , and @xmath , where @xmath and @xmath are
+    squarefree polynomials of degree @xmath and @xmath , respectively.
+
+We note that @xmath depends only on @xmath . Since @xmath is a root of
+@xmath , the polynomial @xmath is a conjugate of @xmath . We will see
+that @xmath is unique in Case 1 and there are two alternative values for
+@xmath in Case 2 . Additive polynomials fall into Case 1 with @xmath .
+The proof of this theorem will take the rest of this section.
+
+Let @xmath and @xmath be two normal decompositions of @xmath . Then
+there are two intermediate fields @xmath and @xmath of @xmath that
+correspond to @xmath and @xmath , respectively. Throughout this section
+let @xmath , @xmath , and @xmath denote places in @xmath , @xmath , and
+@xmath , respectively. We have that @xmath and @xmath is the minimal
+polynomial of @xmath over @xmath . Thus @xmath , by 4.1 . Since @xmath
+is the minimal polynomial of @xmath over @xmath we have @xmath . The
+analog holds for @xmath . 1 illustrates the relation between this
+fields.
+
+First we will show that we are in the situation in which we can apply
+4.1 . Then 4.2 , 4.2 (which are similar to results in [ Dorey &
+Whaples(1974) ] ) and 4.2 (which is due to [ Zannier(1993) ] ) will tell
+us more about the ramification indices in @xmath and @xmath . From this
+we can make a case distinction, whether there is an unramified place in
+@xmath over a certain place in @xmath or not. This will lead to the two
+cases in the theorem.
+
+{claim}
+
+@xmath . Clearly @xmath . If @xmath then @xmath , which can not be since
+@xmath . But since @xmath we have @xmath . {claim} There is no finite
+place in @xmath that is wildly ramified in @xmath . Assume for
+contradiction that @xmath is wildly ramified, that is @xmath for @xmath
+. But then @xmath or @xmath . Therefore we have @xmath or @xmath , which
+is a contradiction to the assumption @xmath .
+
+Now we can apply 4.1 . As in [ Dorey & Whaples(1974) ] we need the
+notion of extra places.
+
+{definition}
+
+Define
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Call @xmath extra in @xmath if @xmath .
+
+By Proposition 6.7 in [ von zur Gathen et al. (2010)von zur Gathen,
+Giesbrecht & Ziegler ] we have @xmath , where @xmath denotes the second
+degree (that is @xmath for a polynomial @xmath with leading coefficient
+@xmath ). Since the degree of @xmath and @xmath is @xmath we have that
+the second degree is the degree of the derivative plus one and thus
+@xmath . Then we get @xmath , which proves that @xmath cannot be extra
+in @xmath .
+
+Let @xmath be a finite place in @xmath and let @xmath and @xmath be
+places over @xmath in @xmath and in @xmath , respectively. Set @xmath
+and @xmath . For a place @xmath over @xmath and @xmath we have @xmath
+and @xmath . Thus @xmath . We define
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and note that @xmath .
+
+{lemma}
+
+Let @xmath be a finite place in @xmath . Then @xmath for all places
+@xmath over @xmath . {proof} Let @xmath in @xmath . For @xmath we have
+@xmath . If @xmath then we would have @xmath and @xmath would be wildly
+ramified in @xmath , which cannot be. Thus @xmath .
+
+Let @xmath be a place over @xmath with ramification index @xmath . Then
+as above we have @xmath . If @xmath we have @xmath . Thus assume @xmath
+. Then @xmath cannot divide @xmath for all @xmath , since their gcd is
+one. We distinguish two cases:
+
+Case 1: @xmath divides all but one places @xmath over @xmath in @xmath .
+Then let @xmath be the place such that @xmath . The gcd of @xmath and
+@xmath divides @xmath and thus divides all ramification indies of places
+over @xmath in @xmath . But their gcd is one. Thus the gcd of @xmath and
+@xmath is one and we have @xmath .
+
+Case 2: There are at least two places, say @xmath and @xmath , over
+@xmath in @xmath such that @xmath for @xmath . Then we have @xmath since
+else we would have @xmath , which is a contradiction. Thus @xmath .
+Hence @xmath and thus @xmath , as claimed.
+
+{corollary}
+
+There is no finite place in @xmath which is extra in @xmath . {proof}
+Let @xmath be a finite place. By 4.2 we have @xmath for all @xmath . But
+then @xmath which shows that @xmath is not extra in @xmath .
+
+As seen in 4.1 we have by the Hurwitz Genus Formula
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+But since there are no extra places in @xmath we get @xmath for all
+places @xmath .
+
+{lemma}
+
+Let @xmath be a finite place in @xmath . Then the following statements
+hold:
+
+1.  For each ramified place @xmath over @xmath in @xmath the
+    ramification index @xmath divides @xmath for all but one place
+    @xmath over @xmath in @xmath .
+
+2.  For each ramified place @xmath over @xmath in @xmath the
+    ramification index @xmath divides @xmath for all but one place
+    @xmath over @xmath in @xmath .
+
+3.  @xmath is ramified in @xmath if and only if it is ramified in @xmath
+    .
+
+{proof}
+
+To prove (i), we claim that the second case in the proof of 4.2 does not
+occur. For @xmath falling into Case 2 we had seen that @xmath . Set
+@xmath if @xmath falls into this case and @xmath else. Then we have in
+any case @xmath . Hence we get @xmath . But since @xmath we have @xmath
+. This proves the claim.
+
+The second statement can be proven analogously to the first one, by
+interchanging the role of @xmath and @xmath in the previous results.
+
+Finally, if @xmath is ramified in @xmath then by (i) there is a place
+@xmath with @xmath for some place @xmath in @xmath . Thus @xmath is
+ramified in @xmath . The other direction follows in the same way from
+(ii).
+
+{lemma}
+
+There is at most one finite place in @xmath that is ramified in @xmath .
+Moreover if there is a place that is ramified in @xmath then it has at
+most one unramified factor. {proof} Let @xmath be a finite place in
+@xmath , which is ramified in @xmath . Assume there is a place @xmath
+such that @xmath . Then @xmath . If there are two unramified places
+@xmath and @xmath then @xmath . But since @xmath this can only be if
+@xmath . Hence @xmath is unramified in @xmath and by 4.2 unramified in
+@xmath , in contradiction to our assumption. Thus there can be at most
+one unramified place over @xmath . If @xmath denotes the number of
+places in @xmath over @xmath we have @xmath and thus @xmath . Therefore
+@xmath . But since @xmath there can be at most one such a place in
+@xmath .
+
+Setting @xmath , we have @xmath for @xmath (see Proposition 6.7 in [
+von zur Gathen et al. (2010)von zur Gathen, Giesbrecht & Ziegler ] ). We
+have a special case when @xmath . Then @xmath and thus there are no
+ramified places. But since the second degree of the decompositions
+equals one, we have in this case that @xmath and @xmath are of the form
+@xmath and @xmath , respectively. Thus @xmath is an additive polynomial
+and we are in the Case ( \bare 1 ) of 4.2 .
+
+We assume @xmath . Then we have @xmath and thus there is a finite place
+@xmath which is ramified in @xmath . By 4.2 we have @xmath is the only
+finite place which is ramified in @xmath and thus @xmath . By 4.2 and by
+interchanging @xmath and @xmath in 4.2 we get that @xmath is the only
+place that is ramified in @xmath . Then we have @xmath , where @xmath
+and @xmath are the numbers of places over @xmath in @xmath and @xmath ,
+respectively. Thus @xmath with @xmath .
+
+By the correspondence between ramification and multiplicities we get
+that there is exactly one @xmath in @xmath such that @xmath has multiple
+roots. Then for each automorphism @xmath of @xmath that fixes @xmath we
+have @xmath has multiple roots and thus @xmath . This proves that @xmath
+is in @xmath . We will later see that there is also a root @xmath of
+@xmath , that is @xmath . Thus the conjugate @xmath lies in @xmath and
+has multiple roots.
+
+Now assume that there is an unramified place @xmath over @xmath in
+@xmath . We will prove that @xmath falls into Case ( \bare 1 ) of 4.2 .
+
+Let @xmath be the ramified places over @xmath in @xmath with
+ramification indices @xmath , for @xmath . Then let @xmath denote the
+ramification index in @xmath that is not divided by @xmath . If @xmath
+then @xmath cannot divide @xmath and thus it must divide @xmath . But
+this would imply that @xmath divides all ramification indices in @xmath
+, which cannot be. Thus we get @xmath . Then @xmath divides all
+ramification indices in @xmath that are greater than 1, and the other
+way round. Thus all of this ramification indices equal, say we have
+@xmath for all @xmath .
+
+Then we get that @xmath is of the form @xmath , where @xmath is in
+@xmath and @xmath is a squarefree polynomial of degree @xmath . We have
+that @xmath is a polynomial over @xmath and the irreducible factors of
+@xmath over @xmath have only simple roots. Thus @xmath is defined over
+@xmath and @xmath is in @xmath .
+
+Since @xmath or @xmath we get @xmath if and only if @xmath and @xmath .
+Thus only @xmath is ramified in @xmath and has the same ramification
+like @xmath in @xmath . Thus as above @xmath is of the form @xmath ,
+where @xmath and @xmath is a squarefree polynomial of degree @xmath .
+Now we conjugate as follows: @xmath , with @xmath and @xmath .
+
+To see that we are in Case ( \bare 1 ) of 4.2 we have to prove that
+@xmath and @xmath are of the appropriate form. For a polynomial @xmath
+the derivative of @xmath is @xmath . If @xmath are the coefficients of
+@xmath then we have @xmath . Let @xmath be the degree of @xmath . Then
+@xmath and thus @xmath . But this means that we have @xmath for all
+@xmath . For @xmath this is the case only if @xmath . Thus we get @xmath
+and @xmath is of the form as claimed.
+
+Now we consider the other case, where there is no unramified place over
+@xmath in @xmath . Then there is neither one in @xmath . To prove that
+we are actually in Case ( \bare 2 ), we first prove that @xmath . For
+this propose we translate 4.2 into the language of graphs. Let @xmath be
+the set of vertices, where @xmath and @xmath . Let the set of edges
+@xmath consist of @xmath if @xmath and of @xmath if @xmath . Then this
+yields a directed bipartite graph with outdegree @xmath for each @xmath
+. Note that if there is a vertex in @xmath which is connected to all
+other vertices in @xmath then we get that the gcd of all @xmath is
+greater then one, which is a contradiction.
+
+{lemma}
+
+Let @xmath be a directed bipartite graph, with bipartition @xmath .
+Assume @xmath and @xmath have the same cardinality @xmath and the
+outdegree of each vertex equals @xmath . Then there is @xmath such that
+@xmath is connected to all vertices in @xmath or there is @xmath such
+that @xmath is connected to all vertices in @xmath . {proof} Assume that
+there are @xmath and @xmath in @xmath such that there is no @xmath -
+@xmath path (if such @xmath and @xmath would not exist we would be
+done). Since the outdegree of @xmath is @xmath there is @xmath in @xmath
+such that @xmath . Then for all @xmath in @xmath there is a edge @xmath
+and thus no edge @xmath . If now @xmath is in @xmath then @xmath is
+connected to all @xmath in @xmath via @xmath and we would be done. Thus
+we assume that @xmath is not in @xmath .
+
+We claim that @xmath is a complete bipartite graph. We have already seen
+that for each @xmath the edge @xmath is not in @xmath . Thus @xmath has
+outdegree @xmath in @xmath . Let @xmath be in @xmath . Then @xmath has
+outdegree @xmath in @xmath and it would have less outdegree in @xmath
+only if there would be @xmath in @xmath . Then for @xmath in @xmath we
+get that @xmath is a @xmath - @xmath path, which is a contradiction to
+our assumption. Thus @xmath is complete.
+
+Since the outdegree of @xmath is @xmath there is a @xmath in @xmath such
+that @xmath is in @xmath . Let @xmath be any vertex in @xmath . Since
+@xmath is complete there is a @xmath - @xmath path @xmath . But then
+@xmath is a @xmath - @xmath path and thus @xmath is connected to all
+vertices in @xmath .
+
+By the previous discussion we know that @xmath and therefore @xmath
+splits exactly into two ramified places in both fields, @xmath and
+@xmath , say @xmath in @xmath and @xmath in @xmath , with @xmath . But
+this means that @xmath is of the form @xmath , for suitable @xmath .
+
+Now there are @xmath places @xmath over @xmath and @xmath . For such a
+place we have @xmath . Furthermore there is one place @xmath over @xmath
+and @xmath with @xmath . Thus @xmath is of the form @xmath , where
+@xmath is a squarefree polynomial of degree @xmath . Similarly we get
+@xmath . It is left to prove that @xmath , @xmath , @xmath , and @xmath
+are in @xmath . Assume @xmath and @xmath would not be in @xmath . Then
+@xmath must be an irreducible factor of @xmath . But then @xmath which
+is a contradiction (note that for @xmath there is anyway no such @xmath
+). Similarly we get that @xmath and @xmath are in @xmath . By
+conjugating @xmath with @xmath for @xmath , we achieve the desired form.
+
+Finally we note that the case, in which the polynomial falls, depends on
+whether there is an unramified place over @xmath or not. Thus the two
+cases are distinct. This finishes the proof of 4.2 .
+
+### 4.3 Parametrization
+
+The polynomials examined in Section 6 in [ von zur Gathen et al.
+(2010)von zur Gathen, Giesbrecht & Ziegler ] fall into Case ( \bare 1 )
+of 4.2 . {theorem} For parameters @xmath , @xmath , @xmath and @xmath a
+positive divisor of @xmath let @xmath be the polynomial
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with @xmath . Then @xmath has for each root @xmath of @xmath in @xmath a
+decomposition @xmath with @xmath and @xmath . These decompositions are
+pairwise distinct and there are no other possible decompositions of
+@xmath . {proof} See Theorem 6.2 in [ von zur Gathen et al.
+(2010)von zur Gathen, Giesbrecht & Ziegler ] .
+
+{corollary}
+
+All polynomials which fall into Case ( \bare 1 ) of 4.2 can be
+parametrized as in 4.3 . {proof} We have @xmath and @xmath for suitable
+@xmath and @xmath in @xmath . Then we get @xmath . Now define @xmath if
+@xmath else define @xmath . In case @xmath we set @xmath , @xmath , and
+@xmath . If @xmath we set @xmath , @xmath , and @xmath . In both cases
+we have that @xmath , @xmath , and @xmath are in @xmath and the
+equations @xmath , @xmath , and @xmath hold as claimed.
+
+Note that if the field @xmath is large enough, the polynomial @xmath has
+@xmath roots and thus @xmath has @xmath (minimal) decompositions. This
+is another example, that shows that the bounds in 3.4 are sharp. Still
+open is a closer examination of the polynomials falling into Case (
+\bare 2 ).

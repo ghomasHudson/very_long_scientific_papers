@@ -1,0 +1,3884 @@
+##### Contents
+
+-    Abstract
+-    List of Abbreviations
+-    1 Introduction
+    -    1.1 Overview
+    -    1.2 Complexity Theory
+        -    1.2.1 Nondeterminism
+        -    1.2.2 Interaction
+        -    1.2.3 Competitive Interaction
+        -    1.2.4 Reasonable Error
+        -    1.2.5 Known Results
+    -    1.3 Quantum Information and Computation
+        -    1.3.1 Linear Algebra
+        -    1.3.2 Qubits
+        -    1.3.3 Quantum Circuits
+        -    1.3.4 Measurement
+        -    1.3.5 Quantum Algorithms
+-    2 Preliminaries
+    -    2.1 Formalizations of Quantum Interaction
+        -    2.1.1 Quantum Interactive Proof Systems
+        -    2.1.2 Quantum Refereed Games
+        -    2.1.3 Short Quantum Games
+    -    2.2 Remarks and Contributions
+        -    2.2.1 Known Results
+        -    2.2.2 Contributions of this Thesis
+-    3 A Lower Bound for Short Quantum Games
+    -    3.1 The Close-Images Problem
+        -    3.1.1 Mixed-State Quantum Circuits
+        -    3.1.2 Distance Measures for Quantum States
+        -    3.1.3 Statement of the Problem
+    -    3.2 Distinguishing Convex Sets of States
+        -    3.2.1 Motivation and Preamble
+        -    3.2.2 A Generalized Distinguishability Result
+    -    3.3 A Short Quantum Game for Close-Images
+    -    3.4 Error Reduction for Short Quantum Games
+        -    3.4.1 Parallel Repetition and Transformations
+        -    3.4.2 A Partial Robustness Result
+-    4 An Upper Bound for Short Quantum Games
+    -    4.1 The Opt Problem
+        -    4.1.1 Optimization, Transcripts, and Consistency
+        -    4.1.2 Semidefinite Programming
+        -    4.1.3 A Semidefinite Program for Opt
+    -    4.2 Some Upper Bounds
+        -    4.2.1 Roundoff Error
+        -    4.2.2 An Extension of @xmath
+        -    4.2.3 Bounding the Number of Prover Qubits
+        -    4.2.4 An Extension of @xmath
+    -    4.3 The Ellipsoid Method and Short Quantum Games
+        -    4.3.1 The Set of Winning Yes-Provers
+        -    4.3.2 Double Quantum Interactive Proof Systems
+        -    4.3.3 The Ellipsoid Method
+        -    4.3.4 The Set of Winning Yes-Provers Revisited
+        -    4.3.5 A Separation Oracle
+        -    4.3.6 At Long Last
+-    5 Conclusion
+    -    5.1 Open Problems
+        -    5.1.1 Parallelization
+        -    5.1.2 Parallel Repetition
+        -    5.1.3 Insight into @xmath and @xmath
+        -    5.1.4 Do Quantum Refereed Games Characterize @xmath ?
+
+###### List of Figures
+
+-    1.1 Relationships among fundamental complexity classes
+-    2.1 Quantum circuit for a two-round quantum interactive proof
+-    2.2 Quantum circuit for a two-round quantum refereed game
+-    2.3 Quantum circuit for a short quantum game
+-    3.1 Simulation of the physical process @xmath via a quantum circuit
+    @xmath .
+-    3.2 Definition of close-images
+-    3.3 Verifier’s protocol for Theorem 3.5
+-    4.1 Transcript of a two-round quantum interactive proof
+-    4.2 Selected states in a two-round quantum interactive proof
+-    4.3 Definition of opt
+-    4.4 Definition of sdp
+-    4.5 An exponential-time algorithm for @xmath
+-    4.6 Transcript of a two-round quantum refereed game
+-    4.7 Transcript of a short quantum game
+-    4.8 Definition of @xmath
+-    4.9 A polynomial-time algorithm for @xmath
+-    4.10 An exponential-time algorithm for @xmath
+-    5.1 Relationships among complexity classes discussed in this thesis
+
+## List of Abbreviations
+
+What follows is a list of the complexity classes discussed in this
+thesis. Each entry in the list consists of the name of a complexity
+class, the page in which the class is first used or defined, and an
+informal definition of that class.
+
+ @xmath  , page  1.2  .  
+
+    The class of languages decidable by a deterministic polynomial-time
+    Turing machine.
+
+ @xmath  , page  1.2.1  .  
+
+    The class of languages decidable by a deterministic polynomial-time
+    Turing machine with the help of polynomial-size “proof” strings.
+
+ @xmath  , page  1.2  .  
+
+    The class of languages whose complements are in @xmath .
+
+ @xmath  , page  1.2  .  
+
+    The class of languages decidable by a deterministic polynomial-space
+    Turing machine. A polynomial-space Turing machine visits at most a
+    polynomial number of cells on its tape before halting.
+
+ @xmath  , page  1.2  .  
+
+    The class of languages decidable by a deterministic exponential-time
+    Turing machine.
+
+ @xmath  , page  1.2  .  
+
+    Same as @xmath except that the “proof” strings may have exponential
+    size.
+
+ @xmath  , page  1.2  .  
+
+    The class of languages whose complements are in @xmath .
+
+ @xmath  , page  1.2.2  .  
+
+    The class of languages that have interactive proof systems with
+    completeness error @xmath and soundness error @xmath .
+
+ @xmath  , page  1.2.3  .  
+
+    The class of languages that have refereed games with completeness
+    error @xmath and soundness error @xmath .
+
+ @xmath  , page  1.2.3  .  
+
+    The class of languages that have one-round refereed games with
+    completeness error @xmath and soundness error @xmath . A round
+    consists of a message from the verifier to each of the provers in
+    parallel followed by their responses.
+
+ @xmath  , page  1.3.5  .  
+
+    The class of languages decidable by a polynomial-time uniform family
+    of quantum circuits. Widely considered to be the quantum analogue of
+    @xmath .
+
+ @xmath  , page  2.1.1  .  
+
+    The class of languages that have quantum interactive proof systems
+    with completeness error @xmath and soundness error @xmath .
+
+ @xmath  , page  2.1.2  .  
+
+    The class of languages that have quantum refereed games with
+    completeness error @xmath and soundness error @xmath .
+
+ @xmath  , page  2.1.3  .  
+
+    The class of languages that have short quantum games with
+    completeness error @xmath and soundness error @xmath . A short
+    quantum game is a one-round quantum refereed game in which the
+    verifier may process the yes-prover’s response before sending a
+    message to the no-prover.
+
+ @xmath  , page  2.1.3  .  
+
+    Same as @xmath except that the verifier cannot send a message to the
+    yes-prover.
+
+ @xmath  , page  4.3.2  .  
+
+    The class of languages that have double quantum interactive proof
+    systems with completeness error @xmath and soundness error @xmath .
+    A double quantum interactive proof system is a quantum refereed game
+    in which the verifier exchanges several messages with only the
+    yes-prover and then several messages with only the no-prover.
+
+## Chapter 1 Introduction
+
+In this thesis we define a new model of computation that incorporates
+existing models based upon the notions of competitive interaction and
+quantum information. We focus on a variant of this new model with a
+restricted protocol for interaction and we prove lower and upper bounds
+on the power of this restricted model. In the process of proving these
+bounds, we develop new computational and information-theoretic tools
+that may prove useful in other fields in computer science and physics.
+
+This introductory chapter starts with an informal overview of our
+results in Section 1.1 . We offer a survey of relevant topics from
+complexity theory in Section 1.2 and a review of quantum information in
+Section 1.3 . Chapter 2 formalizes the fundamental concepts discussed in
+this thesis—the interested reader can find a more precise statement of
+the contributions of this thesis in Section 2.2.2 on page 2.2.2 .
+Chapters 3 and 4 are devoted to proving the results stated in that
+section. We conclude with Chapter 5 , which mentions some open questions
+and possible directions for future research.
+
+### 1.1 Overview
+
+It is intended that this first section provide the reader with a bird’s
+eye view of the direction in which this thesis is headed. For the sake
+of clarity, citations, technical detail, and an adequate history are
+absent. These gaps will be addressed in subsequent sections and in
+Chapter 2 as we cover the necessary background material in greater
+detail. On that note, we begin.
+
+Given a new model of computation, an effective way to quantify the
+expressive power of that model is to compare it to other more
+fundamental models. These comparisons derive meaning from the fact that
+fundamental models of computation often capture important notions such
+as efficient computation in the physical world or the difficulty of
+solving certain computational problems. For example, it is widely
+believed that any problem that can be solved efficiently by a device
+built based upon Newtonian physics (such as a desktop computer) can also
+be solved by a randomized polynomial-time Turing machine and vice versa.
+
+An interactive proof system is a more exotic model of computation in
+which a randomized polynomial-time Turing machine (a verifier ) is
+endowed with the ability to interact with an entity who is
+computationally unbounded but not necessarily trustworthy (a prover ).
+Given an input string @xmath , the prover uses his unlimited
+computational power to attempt to convince the verifier to accept @xmath
+, while the verifier tries to determine the validity of the prover’s
+argument. At the end of the interaction, the verifier accepts @xmath if
+he believes the prover and rejects @xmath if he does not.
+
+A given set @xmath of strings (a language ) is said to have an
+interactive proof system if there exists a verifier @xmath satisfying
+the following standard completeness and soundness conditions:
+
+  Completeness.  
+
+    There exists a prover @xmath that can convince @xmath to accept any
+    string @xmath with high probability.
+
+  Soundness.  
+
+    No prover can convince @xmath to accept any string @xmath except
+    with small probability.
+
+A refereed game is another model of computation that generalizes
+interactive proof systems in that the verifier interacts with not just
+one, but two provers. In this model, the provers use their unlimited
+computational power to compete with each other: one prover (the
+yes-prover ) attempts to convince the verifier to accept @xmath , while
+the other prover (the no-prover ) attempts to convince the verifier to
+reject @xmath . At the end of the interaction, the verifier decides
+whether to accept or reject the input @xmath , effectively deciding
+which of the provers wins the game.
+
+Similar to interactive proof systems, a language @xmath is said to have
+a refereed game if there exists a verifier @xmath satisfying the
+following slightly modified completeness and soundness conditions:
+
+  Completeness.  
+
+    There exists a yes-prover @xmath that can convince @xmath to accept
+    any string @xmath with high probability, regardless of the
+    no-prover.
+
+  Soundness.  
+
+    There exists a no-prover @xmath that can convince @xmath to reject
+    any string @xmath with high probability, regardless of the
+    yes-prover.
+
+At a glance, these two models of computation may seem obscure and
+uninteresting. However, it can be shown that they characterize two very
+fundamental models of computation in the following sense:
+
+-   A language has an interactive proof system if and only if it can be
+    decided by a polynomial-space Turing machine.
+
+-   A language has a refereed game if and only if it can be decided by a
+    deterministic exponential-time Turing machine.
+
+These surprising characterizations bring to light a very deep connection
+between exotic interaction-based models and space- and time-bounded
+Turing machines.
+
+Given the recent proliferation of the theory of quantum computation, it
+is natural to consider the possible effects of quantum computers on
+models such as interactive proof systems and refereed games. How does
+the power of these models change if the verifier and provers are
+permitted to perform quantum computations and exchange quantum messages?
+
+Perhaps the most striking contrast between the quantum and nonquantum (
+classical ) cases is that any quantum interactive proof system can be
+simulated by another quantum interactive proof system in which the
+verifier and prover exchange only three messages. With classical
+interactive proof systems, all evidence suggests that such a simulation
+does not exist, be it with three or any other fixed number of messages.
+What is it about quantum information that permits this strange
+shortening of interactions?
+
+In this thesis, we turn our attention to quantum refereed games, which
+have not been previously studied. We focus on a restricted variant of
+the quantum refereed game model that we call short quantum games and we
+prove both a lower bound and an upper bound on the expressive power of
+these games.
+
+For the lower bound, we prove that any language having a quantum
+interactive proof system also has a quantum refereed game with the
+following protocol: the yes-prover sends a quantum state to the
+verifier, who then processes this state and forwards it to the
+no-prover. The no prover performs a quantum measurement on this state
+and sends a single classical bit of information (either a 0 or a 1) back
+to the verifier, who finally accepts or rejects based upon this bit. In
+order to prove the correctness of our short quantum game, we establish
+the existence of a quantum measurement that reliably distinguishes
+between quantum states chosen from two disjoint convex sets.
+
+For the upper bound, we consider a slightly looser restriction of the
+quantum refereed game model in which the verifier exchanges several
+quantum messages with only the yes-prover and then exchanges several
+more quantum messages with only the no-prover before deciding whether to
+accept or reject. We show that any language having a quantum refereed
+game obeying this protocol can be decided by a deterministic
+exponential-time Turing machine. Our proof uses the ellipsoid method,
+which is a polynomial-time algorithm that determines the emptiness of a
+convex set given implicitly by a separation oracle.
+
+### 1.2 Complexity Theory
+
+In this section we review in greater detail certain concepts from
+complexity theory that lead to the notion of competitive interaction as
+a model of computation and we survey known results pertaining to that
+model. We assume at the onset that the reader is familiar with
+fundamental notions such as languages, Turing machines, polynomial-time
+computability, completeness, and the following fundamental complexity
+classes:
+
+-   The polynomial-time classes @xmath , @xmath , and @xmath ;
+
+-   The exponential-time classes @xmath , @xmath , and @xmath ; and
+
+-   The polynomial-space class @xmath .
+
+Figure 1.1 depicts the known relationships among these complexity
+classes.
+
+In that figure, class @xmath contains class @xmath if @xmath can be
+reached from @xmath by following a path of only upwardly sloped edges.
+
+We now establish some relevant notation that will be used throughout
+this thesis. We let @xmath denote the set of polynomial-time computable
+functions @xmath for which there exists a polynomial @xmath such that
+@xmath for all @xmath . The sets @xmath and @xmath are derived from
+@xmath as follows. A polynomial-time computable function @xmath is in
+@xmath if there exists @xmath such that @xmath for all @xmath .
+Similarly, @xmath is in @xmath if there exists @xmath such that @xmath
+for all @xmath .
+
+All strings are over the binary alphabet @xmath . We let @xmath denote
+the set of strings of length @xmath and we let @xmath denote the set of
+all finite strings. For any @xmath , @xmath denotes the length of @xmath
+.
+
+#### 1.2.1 Nondeterminism
+
+The notion of nondeterminism and the discovery in the 1970’s of @xmath
+-complete problems [ 11 , 25 , 34 ] drew unprecedented attention to the
+field of computational complexity theory. Since then, several
+characterizations of @xmath have been found [ 12 , 4 , 3 ] and several
+generalizations of nondeterminism have been explored [ 44 , 9 , 5 , 18 ]
+. One of the simpler characterizations views nondeterministic
+computation as deterministic verification of a short proof.
+Specifically, a language @xmath is in @xmath if and only if there exists
+@xmath and a deterministic polynomial-time Turing machine @xmath such
+that, for all input strings @xmath :
+
+-   If @xmath then there exists @xmath such that @xmath accepts the pair
+    @xmath .
+
+-   If @xmath then @xmath rejects the pair @xmath for all @xmath .
+
+The Turing machine @xmath in this characterization can be viewed as a
+verifier . The string @xmath submitted to @xmath can be viewed as a
+proof of the claim, “ @xmath is in @xmath .” Informally, the conditions
+of this characterization tell us that every @xmath has a proof @xmath
+that can be used by the verifier to verify this claim in deterministic
+polynomial-time. Moreover, if @xmath then no proof could possibly
+convince the verifier otherwise.
+
+#### 1.2.2 Interaction
+
+The notion of interaction was introduced in 1985 by Babai [ 5 ] and by
+Goldwasser, Micali, and Rackoff [ 18 ] as a generalization of
+nondeterminism that extends the verifier-proof analogy by allowing a
+two-way dialogue between the verifier and the mysterious
+supplier-of-proofs. Specifically, a prover is an entity with unlimited
+computational power whose goal is always to convince the verifier to
+accept the input string @xmath . The verifier may ask questions of the
+prover, perform randomized polynomial-time computations, and ask
+additional questions of the prover based upon these computations and
+upon answers to previous questions. At some point the verifier must end
+the interaction and decide whether or not to accept @xmath .
+
+Such an interaction is called an interactive proof system . It follows
+from the fact that the verifier is restricted to polynomial-time
+computation that the amount and size of the messages exchanged between
+the verifier and prover must be polynomial in @xmath . Because the
+verifier may also invoke randomization, it is plausible that his
+decision to accept or reject @xmath could differ between independent
+executions of the same interaction. Hence, an allowance is made for
+unlucky coin tosses that cause the verifier to erroneously accept or
+reject @xmath with some small probability.
+
+In this thesis we pay considerable attention to the error probability
+associated with different forms of interaction. In particular, we are
+interested in any possible differences between the probability of a
+false negative ( completeness ) and of a false positive ( soundness ).
+We also consider a more general case in which these probabilities might
+even vary as a function of the input length @xmath . However, in order
+to prevent the polynomial-time verifier from accessing hard-to-compute
+values encoded in the error probability, we restrict our attention to
+error probabilities that are polynomial-time computable.
+
+All these ideas are formalized in the following definition. For any
+polynomial-time computable functions @xmath , a language @xmath is said
+to have an interactive proof system if there exists a randomized
+polynomial-time verifier @xmath that satisfies the following
+completeness and soundness conditions for all input strings @xmath :
+
+  Completeness.  
+
+    If @xmath then there exists a prover @xmath that convinces @xmath to
+    accept @xmath with probability at least @xmath .
+
+  Soundness.  
+
+    If @xmath then no prover can convince @xmath to accept @xmath with
+    probability greater than @xmath .
+
+The functions @xmath and @xmath are called the completeness error and
+soundness error respectively. Finally, we let @xmath denote the
+complexity class of languages that have interactive proof systems with
+completeness error @xmath and soundness error @xmath .
+
+#### 1.2.3 Competitive Interaction
+
+Many different models resembling competitive interaction have been
+studied in the context of game theory since the 1950’s, but competitive
+interaction was not considered as a generalization of interactive proof
+systems until 1990 [ 15 ] . In this generalization, the verifier
+interacts with not one, but two provers with unlimited computational
+power. As mentioned in Section 1.1 , these two provers use their power
+to compete with each other: one prover, called the yes-prover , attempts
+to convince the verifier to accept the input string @xmath , while the
+other prover, called the no-prover , attempts to convince the verifier
+to reject @xmath .
+
+As before, the verifier may perform randomized polynomial-time
+computations. He may also ask questions of each of the provers and base
+future questions upon randomized computations and answers to previous
+questions. At the end of the interaction, the verifier decides whether
+or not to accept @xmath . Such an interaction is called a refereed game
+because it can be viewed as a game between the two provers in which the
+verifier acts as a referee by ensuring that the provers obey the rules
+of the game and by announcing a winner at the end.
+
+More formally, for any polynomial-time computable functions @xmath , a
+language @xmath is said to have a refereed game if there exists a
+randomized polynomial-time verifier @xmath that satisfies the following
+completeness and soundness conditions for all input strings @xmath :
+
+  Completeness.  
+
+    If @xmath then there exists a yes-prover @xmath that convinces
+    @xmath to accept @xmath with probability at least @xmath ,
+    regardless of the no-prover’s strategy.
+
+  Soundness.  
+
+    If @xmath then there exists a no-prover @xmath that convinces @xmath
+    to reject @xmath with probability at least @xmath , regardless of
+    the yes-prover’s strategy.
+
+As with interactive proof systems, the functions @xmath and @xmath are
+the completeness error and soundness error respectively. Finally, we let
+@xmath denote the complexity class of languages that have refereed games
+with completeness error @xmath and soundness error @xmath .
+
+It is also of interest to consider refereed games in which the verifier
+exchanges just one round of messages with the provers. In particular,
+these one-round refereed games obey the following protocol: a message
+from the verifier to each of the provers, followed by their responses to
+the referee, followed by the referee’s decision. We let @xmath denote
+the complexity class of languages that have one-round refereed games
+with completeness error @xmath and soundness error @xmath .
+
+#### 1.2.4 Reasonable Error
+
+In Section 1.2.2 we prevented the verifier from accessing
+hard-to-compute error probabilities by requiring that they be
+polynomial-time computable. But even interactions with polynomial-time
+computable error probabilities can still have undesirable properties.
+
+Suppose, for example, that the probability of correctly accepting or
+rejecting an input @xmath is exponentially close to @xmath in @xmath .
+It is clear that such an interaction can be simulated with exponential
+accuracy by a verifier who ignores all provers and accepts or rejects
+based solely upon the result of a coin flip. Of course, an interaction
+with this property is not very interesting.
+
+With this example in mind, we say that polynomial-time computable
+functions @xmath are reasonable if there exists @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all @xmath . As @xmath and @xmath are polynomial-time computable,
+the verifier can compute them and bias his final decision so that the
+completeness and soundness error of his biased decision are both bounded
+below @xmath by at least an inverse polynomial as desired.
+
+Many (but not all) results concerning interaction are known to hold only
+when the functions @xmath and @xmath are reasonable. We mention the
+reasonability condition explicitly whenever it is required.
+
+#### 1.2.5 Known Results
+
+Several inclusions follow immediately from the definitions of @xmath and
+@xmath . For example, because an interactive proof system is just a
+refereed game without a no-prover, it is clear that @xmath .
+
+Also, these classes are easily seen to be robust with respect to error
+in the sense that any interaction with reasonable error can be simulated
+by another interaction with exponentially small error. More formally,
+for every @xmath and every reasonable @xmath we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+To prove these containments it suffices to note that any interaction can
+be repeated independently many times in succession. If the verifier for
+such a repeated interaction bases his decision upon a majority vote of
+the outcomes of each of the repetitions then it follows from Chernoff
+bounds that the error of the repeated interaction decreases
+exponentially in the number of repetitions.
+
+Of course, sequential repetition necessarily increases the number of
+rounds in an interaction and so this simple error reduction technique
+does not apply to bounded-round interactions such as one-round refereed
+games. Fortunately, as we shall soon see, @xmath can still be shown to
+be robust with respect to error.
+
+An even stronger robustness result is known to hold for @xmath . In
+particular, an interactive proof system with reasonable error can be
+simulated by another interactive proof system with zero completeness
+error [ 41 , 6 ] . It follows that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath and every reasonable @xmath . By contrast, it is not
+known whether zero error (completeness or soundness) can be achieved for
+refereed games. In light of these robustness results, we define the
+following shorthand notations:
+
+-   @xmath is the complexity class of all languages @xmath such that
+    @xmath for every @xmath .
+
+-   @xmath is the complexity class of all languages @xmath such that
+    @xmath for every @xmath .
+
+-   @xmath is the complexity class of all languages @xmath such that
+    @xmath for every @xmath .
+
+The interactive proof system model has a rich history. However, a
+comprehensive survey of that history is tangential to the scope of this
+thesis and so we summarize only the results most relevant to our
+purpose.
+
+Because interaction is a generalization of nondeterminism, it is clear
+that @xmath . The full extent of the power of interaction was not fully
+known until 1990 when Lund, Fortnow, Karloff, and Nisan developed the
+arithmetization technique [ 35 ] that was used in Reference [ 42 ] to
+show
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+(see also Reference [ 43 ] ). This surprising characterization of
+polynomial-space computation has prompted further study of models of
+computation based upon interaction, one example of which is refereed
+games.
+
+The refereed game model and several variations thereof were studied in
+References [ 38 , 15 , 14 , 33 , 16 ] among others. Many results
+concerning refereed games can be gleaned from results in game theory.
+For example, in game theoretic terms, refereed games correspond to
+two-person games of incomplete information because messages exchanged
+between one prover and the verifier are kept secret from the other
+prover. In 1992, Koller and Megiddo [ 33 ] gave a deterministic
+algorithm that solves two-player games of incomplete information in time
+polynomial in the size of an induced structure known as a game tree .
+The game tree induced by a refereed game on input @xmath is easily shown
+to have size at most exponential in @xmath , from which it follows that
+@xmath .
+
+Feige and Kilian [ 13 ] used a variant of arithmetization to prove the
+reverse inclusion, implying
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+They also proved the inclusions @xmath and @xmath for every @xmath and
+every reasonable @xmath . These inclusions imply the aforementioned
+robustness of one-round refereed games as well as the characterization
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+### 1.3 Quantum Information and Computation
+
+In this section we describe the framework of quantum information. Our
+description is not intended to be comprehensive, but merely to refresh
+the reader with the aspects of quantum information that are relevant to
+this thesis and to establish notation.
+
+We assume familiarity with fundamental concepts from linear algebra such
+as complex numbers, vectors, vector spaces, matrices, and basic
+matrix-related concepts such as matrix multiplication and the trace of a
+matrix. Of course, familiarity with quantum information and quantum
+circuits is an asset.
+
+#### 1.3.1 Linear Algebra
+
+For any positive integer @xmath , elements of the vector space @xmath
+are identified with @xmath -dimensional column vectors in the usual way
+and are denoted by lowercase Roman letters such as @xmath , etc. For any
+vector @xmath , the conjugate-transpose of @xmath is denoted @xmath ,
+which is an @xmath -dimensional row vector. For any vectors @xmath , the
+standard inner product between @xmath and @xmath , denoted @xmath , is
+given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The norm induced on @xmath by the standard inner product is the
+Euclidean norm . For @xmath , this norm is denoted @xmath and given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The vector space @xmath endowed with the standard inner product is a
+Hilbert space . Moreover, every Hilbert space in this thesis is assumed
+to take this form for some positive integer @xmath . Hilbert spaces are
+denoted by uppercase script letters such as @xmath , etc.
+
+We note at this point that it is a common practice in quantum
+information to use Dirac notation to describe column and row vectors.
+For example, the vector @xmath would be denoted @xmath , the
+corresponding row vector @xmath would be denoted @xmath , and the inner
+product @xmath would be denoted @xmath using this notation. However,
+Dirac notation is found to be cumbersome for our purposes and so we
+break from convention by restricting its use in the following manner:
+Dirac notation is used in this thesis only to describe the vector @xmath
+, which always denotes the first element in the standard orthonormal
+basis for @xmath . In other words, the vector @xmath always denotes the
+vector with a 1 in the first entry an all other entries equal to zero.
+We sometimes write @xmath when the Hilbert space @xmath is clear from
+the context.
+
+For any Hilbert spaces @xmath and @xmath of dimensions @xmath and @xmath
+respectively, we let @xmath denote the set of linear mappings from
+@xmath to @xmath . Elements of @xmath are identified with @xmath
+matrices in the usual way (with respect to the standard bases for @xmath
+and @xmath ) and are denoted by uppercase Roman letters such as @xmath ,
+etc. For any matrix @xmath we let @xmath denote the @xmath entry of
+@xmath . The spectral norm of @xmath , denoted @xmath , is given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+As with vectors, the conjugate-transpose of @xmath is denoted @xmath ,
+which is an element of @xmath . As a natural extension of the standard
+inner product for vectors, the Hilbert-Schmidt inner product between any
+pair of matrices @xmath , denoted @xmath , is given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Two Hilbert spaces @xmath of dimensions @xmath can be combined via the
+Kronecker product to form a larger Hilbert space @xmath of dimension
+@xmath . The Kronecker product is also defined on vectors and matrices
+so that for @xmath we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and for @xmath we have
+
+  -- -- --
+        
+  -- -- --
+
+The Kronecker product satisfies many convenient and intuitive properties
+that we do not list here.
+
+We write @xmath as a shorthand notation for @xmath and we say that a
+matrix @xmath acts on @xmath . We let @xmath denote the identity matrix
+acting on @xmath , which we often abbreviate to @xmath when the Hilbert
+space @xmath is clear from the context. Often in this thesis we multiply
+matrices acting on a certain Hilbert space with matrices or vectors from
+a larger Hilbert space. In these cases we implicitly assume that the
+smaller matrix is extended to the larger Hilbert space by taking the
+Kronecker product with the identity. For example, if @xmath , @xmath ,
+and @xmath then @xmath and @xmath always mean @xmath and @xmath
+respectively.
+
+The partial trace is a linear mapping
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+defined for all @xmath as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and extending to all of @xmath by linearity. The partial trace is in
+some sense complimentary to the Kronecker product in that the Kronecker
+product combines two matrices acting on separate Hilbert spaces to form
+one matrix acting on one larger Hilbert space. In contrast, the partial
+trace takes as input a matrix acting on a larger Hilbert space and
+produces a matrix that acts on a smaller Hilbert space.
+
+A matrix @xmath is unitary if @xmath , Hermitian if @xmath , and
+positive semidefinite if @xmath is a nonnegative real number for every
+@xmath . We define the following subsets of @xmath :
+
+-   The set @xmath contains all unitary matrices in @xmath .
+
+-   The set @xmath contains all Hermitian matrices in @xmath .
+
+-   The set @xmath contains all positive semidefinite matrices in @xmath
+    .
+
+-   The set @xmath contains all positive semidefinite matrices @xmath
+    with @xmath .
+
+Elements of @xmath are called density matrices and are typically denoted
+by lowercase Greek letters such as @xmath , etc.
+
+#### 1.3.2 Qubits
+
+A qubit is a fundamental unit of quantum information described as
+follows. Any collection of @xmath qubits has a corresponding Hilbert
+space @xmath of dimension @xmath . Any density matrix @xmath completely
+describes some state of those @xmath qubits. Furthermore, any physically
+realizable state of those @xmath qubits is uniquely described by some
+density matrix, so it makes sense to refer to any such @xmath as a
+“state” of those @xmath qubits.
+
+If @xmath is given by @xmath for some vector @xmath then @xmath is
+called a pure state . It must be the case that @xmath (that is, @xmath
+is a unit vector ) and @xmath is completely described by @xmath , so it
+makes sense to refer to any unit vector @xmath as a “pure state” of
+those @xmath qubits. Note that the unit vector @xmath describing a pure
+state @xmath is not unique because the vector @xmath satisfies @xmath
+for any @xmath with @xmath .
+
+Let @xmath be a Hilbert space of dimension @xmath corresponding to a
+collection of @xmath qubits. Then the Hilbert space corresponding to the
+combined collection of @xmath qubits is @xmath and has dimension @xmath
+. If @xmath is any state of those @xmath qubits then @xmath always
+describes the state of the first @xmath qubits and @xmath always
+describes the state of the remaining @xmath qubits. Although it is the
+case that @xmath whenever @xmath or @xmath is a pure state, this
+equality does not hold for every @xmath .
+
+#### 1.3.3 Quantum Circuits
+
+The model of quantum computation that provides a foundation for quantum
+interaction is the quantum circuit model . All quantum circuits in this
+thesis are assumed to be composed of a finite number of quantum gates ,
+each of which is chosen from some finite universal set of quantum gates.
+We do not discuss the details of quantum gates or universality, as those
+details are not required to understand the material presented in this
+thesis. In lieu of such a discussion, we refer the interested reader to
+References [ 2 , 7 , 27 , 46 ] .
+
+For any quantum circuit @xmath acting on @xmath qubits with
+corresponding Hilbert space @xmath , there is a unitary matrix @xmath
+associated with @xmath . This matrix models the action of @xmath upon
+its @xmath input qubits in the state @xmath so that the state of those
+@xmath qubits after @xmath is applied becomes @xmath . This formalism
+extends without complication to any positive semidefinite matrix @xmath
+. If @xmath for some pure state @xmath then the resulting state is the
+pure state @xmath and this formalism extends without complication to any
+nonzero vector @xmath .
+
+Two additional facts concerning quantum circuits warrant attention.
+First, it is important to note that we lose no generality by allowing
+only unitary quantum circuits because any physically realizable quantum
+process can be simulated by unitary circuits as described in Reference [
+2 ] . We elaborate on this simulation in Section 3.1.1 .
+
+Second, the universality condition placed on our set of admissible
+quantum gates implies the following fact: for any unitary matrix @xmath
+and any real @xmath , there is a quantum circuit with associated unitary
+matrix @xmath that satisfies
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Although the spectral norm of the difference between @xmath and @xmath
+is not always a convenient measure of the “distance” between two
+matrices, in this case it allows us a simple way to infer that any
+desired unitary matrix @xmath can be approximated as closely as desired
+by quantum circuits considered in this thesis.
+
+#### 1.3.4 Measurement
+
+So far, we have discussed qubits and quantum circuits that act on
+qubits. It is now time to discuss measurements , which allow us to
+extract classical information from qubits and enable us to solve
+real-world problems using quantum information.
+
+Quantum measurements have several formalizations, each differing in
+their simplicity and generality. Although knowledge of only the most
+basic notion of measurement is required throughout most of this thesis,
+the results of Chapter 3 make use of the extended generality offered by
+more complex formalizations. Hence, we introduce in this subsection the
+most general form of quantum measurement, since the added complication
+of this form is insignificant anyway.
+
+Let @xmath be a Hilbert space corresponding to some collection of qubits
+and let @xmath be a finite set of outcomes . A quantum measurement of
+those qubits with outcomes in @xmath is defined by a set of matrices
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+satisfying
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+When such a measurement is performed on qubits in some state @xmath ,
+the outcome of the measurement is @xmath with probability @xmath for
+each @xmath . Conditioned on the outcome @xmath , the state of the
+qubits becomes
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+once the measurement is complete. If @xmath for some pure state @xmath
+then the outcome of the measurement is @xmath with probability @xmath
+and the resulting state is the pure state
+
+  -- -- --
+        
+  -- -- --
+
+Often, we do not care about the state of the qubits once the measurement
+is complete. Because the probability of outcome @xmath is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for pure states and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for general states, it follows that the quantum measurement is
+completely specified in this case by the set
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+of positive semidefinite matrices defined by @xmath for each @xmath and
+hence satisfying
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Any measurement expressed in this way is called a positive
+operator-valued measurement (POVM) for historical reasons.
+
+It is often convenient to specify only a POVM with the understanding
+that we do not care about the state of the qubits once the measurement
+is complete—this is the formalism of quantum measurements used in
+Chapter 3 . In all other chapters, the quantum measurements we discuss
+have outcomes in @xmath and take the following form. For any Hilbert
+space @xmath corresponding to @xmath qubits, one of those qubits is
+designated as the output qubit . Let @xmath where @xmath is a
+two-dimensional Hilbert space corresponding to the output qubit and
+@xmath corresponds to the remaining @xmath qubits. We fix the binary
+POVM
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+so that
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+This measurement is called the standard measurement of the output qubit
+of @xmath .
+
+#### 1.3.5 Quantum Algorithms
+
+We now describe how qubits, quantum circuits, and quantum measurements
+combine to form the quantum circuit model of computation. Let @xmath be
+a quantum state and let @xmath be a quantum circuit with associated
+unitary matrix @xmath . If desired, the input state @xmath may be chosen
+so that it uniquely encodes an input string @xmath to some computational
+problem. The circuit @xmath is applied to @xmath and the output qubit of
+the resulting state @xmath is measured according to the standard
+measurement, which indicates acceptance or rejection of @xmath and hence
+of the input string @xmath .
+
+By definition, quantum circuits act on a fixed number of qubits. In
+order to use quantum circuits to decide a language @xmath of arbitrarily
+large strings, it is typical to specify a family of quantum circuits. In
+this thesis, a family is a set
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+of quantum circuits indexed by input strings. Because the quantum gates
+in @xmath can depend upon @xmath , there is no need to encode @xmath in
+the input state @xmath . Instead, we may fix once and for all a
+convenient pure state @xmath upon which all quantum circuits in the
+family can be assumed to act.
+
+Families of quantum circuits do not yet form a realistic model of
+computation because we have not restricted the amount of computation
+that is used to construct the circuits in a family. In order to make the
+model realistic, we must introduce a uniformity constraint . In
+particular, a family of quantum circuits is said to be polynomial-time
+uniformly generated if there exists a deterministic polynomial-time
+Turing machine that, given input @xmath , outputs a description of the
+quantum circuit @xmath .
+
+For any language @xmath , it is widely agreed that the informal
+statement “ @xmath has an efficient solution on a quantum computer” is
+adequately formalized by the condition that there exist a
+polynomial-time uniformly generated family @xmath of quantum circuits
+with associated unitary matrices
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+such that, for every @xmath , @xmath correctly accepts or rejects @xmath
+according to whether or not @xmath with high probability. More
+specifically,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+The class of languages with this property is denoted @xmath and is
+considered to be the quantum analogue of the complexity class @xmath .
+
+## Chapter 2 Preliminaries
+
+In this chapter we provide formal definitions of the quantum interactive
+proof system and quantum refereed game models of computation as well as
+several collections of complexity classes based upon these models. We
+then summarize what is currently known of these models and state the
+contributions of this thesis.
+
+### 2.1 Formalizations of Quantum Interaction
+
+Quantum interactive proof systems were introduced by Watrous in 1999 [
+45 ] and it is that formalization of the model that we reproduce here.
+Although quantum refereed games had not yet been considered prior to the
+work of the present thesis, the formalization of that model is a
+straightforward extension of the quantum interactive proof system model.
+
+Quantum interactions consist of a verifier and one or more provers . For
+any function @xmath , an @xmath -round prover @xmath is a mapping on
+input strings @xmath where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is an @xmath -tuple of quantum circuits, each of which acts upon the
+same number of qubits. No restrictions are placed on the complexity of
+the prover’s circuits, which captures the notion that the prover has
+unlimited computational power—each of the prover’s circuits can be
+viewed as an arbitrary unitary operation on its input qubits.
+
+Similarly, an @xmath -round verifier @xmath is a mapping on input
+strings @xmath where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is an @xmath -tuple of quantum circuits, each of which acts upon the
+same number of qubits. Unlike a prover, however, we require that the
+verifier’s circuits be generated by a polynomial-time Turing machine on
+input @xmath . This uniformity constraint captures the notion that the
+verifier’s computational power is limited and implicitly restricts the
+quantity @xmath so that @xmath as one might expect. We often abbreviate
+@xmath to @xmath for easier readability.
+
+#### 2.1.1 Quantum Interactive Proof Systems
+
+A quantum interactive proof system has a verifier @xmath and a prover
+@xmath . The qubits upon which each of the circuits in the prover’s
+@xmath -tuple acts are partitioned into two sets: one set of qubits is
+private to the prover and the other is shared with the verifier. These
+shared qubits act as a quantum channel between the verifier and the
+prover. The Hilbert spaces corresponding to the private and shared
+qubits of the prover are denoted @xmath and @xmath respectively.
+
+Similarly, the qubits upon which each of the circuits in the verifier’s
+@xmath - tuple acts are partitioned into two sets: one set of qubits is
+private to the verifier and the other is shared with the prover. The
+Hilbert spaces corresponding to the private and shared qubits of the
+verifier are denoted @xmath and @xmath respectively.
+
+For any input string @xmath we create a composite circuit @xmath by
+concatenating the circuits
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+in sequence, each circuit acting only upon the sets of qubits stipulated
+previously. Such a circuit is illustrated in Figure 2.1 for the case
+@xmath .
+
+The Hilbert space upon which @xmath acts is denoted
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The quantum interactive proof system is implemented by applying the
+circuit @xmath to the initial pure state @xmath . Hence, the pure state
+of the system after @xmath is applied is precisely
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Acceptance is dictated by a standard measurement of the output qubit of
+@xmath , which is assumed to belong to the verifier. In particular,
+@xmath accepts @xmath with probability
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and rejects @xmath with probability
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath are as defined in Section 1.3.4 .
+
+We now define a collection of complexity classes based upon quantum
+interactive proof systems. For any polynomial-time computable functions
+@xmath , the class @xmath consists of all languages @xmath for which
+there exists an @xmath -round verifier @xmath that satisfies the
+following completeness and soundness conditions:
+
+  Completeness.  
+
+    There exists an @xmath -round prover @xmath such that, for all
+    @xmath , @xmath rejects @xmath with probability at most @xmath . In
+    other words, there exist unitary matrices @xmath such that
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+  Soundness.  
+
+    For all @xmath -round provers @xmath and all @xmath , @xmath accepts
+    @xmath with probability at most @xmath . In other words, for all
+    unitary matrices @xmath , we have
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+As with classical interactive proof systems, the functions @xmath and
+@xmath are called the completeness error and soundness error
+respectively. We often abbreviate @xmath to @xmath and @xmath to @xmath
+for easier readability.
+
+#### 2.1.2 Quantum Refereed Games
+
+A quantum refereed game has a verifier @xmath and two provers @xmath and
+@xmath . As with quantum interactive proof systems, the qubits upon
+which each of the circuits in the provers’ @xmath -tuples acts are
+partitioned into two sets: one set of qubits is private to that prover
+and the other is shared with the verifier. These shared qubits act as a
+quantum channel between the verifier and that prover.
+
+For clarity, @xmath is called a yes-prover and @xmath is called a
+no-prover . This distinction is purely a notational convenience: the
+Hilbert spaces corresponding to the private and shared qubits of a
+yes-prover are denoted @xmath and @xmath respectively, whereas the
+Hilbert spaces corresponding to the private and shared qubits of a
+no-prover are denoted @xmath and @xmath respectively.
+
+In a quantum refereed game, the qubits upon which each of the circuits
+in the verifier’s @xmath -tuple acts are partitioned into three sets:
+one set of qubits, with corresponding Hilbert space @xmath , is private
+to the verifier and the two remaining sets have corresponding Hilbert
+spaces @xmath and @xmath and are shared with the yes- and no-provers
+respectively.
+
+For any input string @xmath we create a composite circuit @xmath by
+concatenating the circuits
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+in sequence, each circuit acting only upon the sets of qubits stipulated
+previously. Such a circuit is illustrated in Figure 2.2 for the case
+@xmath .
+
+The Hilbert space upon which @xmath acts is denoted
+
+  -- -- --
+        
+  -- -- --
+
+Although @xmath also denotes the Hilbert space for quantum interactive
+proof systems, any ambiguity is always resolved by context. The quantum
+refereed game is implemented by applying the circuit @xmath to the
+initial pure state @xmath . Hence, the pure state of the system after
+@xmath is applied is precisely
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+As with quantum interactive proof systems, acceptance is dictated by a
+standard measurement of the output qubit of @xmath , which is assumed to
+belong to the verifier. In particular, @xmath accepts @xmath with
+probability
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and rejects @xmath with probability
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We now define a collection of complexity classes based upon quantum
+refereed games. For any polynomial-time computable functions @xmath ,
+the class @xmath consists of all languages @xmath for which there exists
+an @xmath -round verifier @xmath that satisfies the following
+completeness and soundness conditions:
+
+  Completeness.  
+
+    There exists an @xmath -round yes-prover @xmath such that, for all
+    @xmath -round no-provers @xmath and all @xmath , @xmath rejects
+    @xmath with probability at most @xmath . In other words, there exist
+    unitary matrices @xmath such that
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    for all unitary matrices @xmath .
+
+  Soundness.  
+
+    There exists an @xmath -round no-prover @xmath such that, for all
+    @xmath -round yes-provers @xmath and all @xmath , @xmath accepts
+    @xmath with probability at most @xmath . In other words, there exist
+    unitary matrices @xmath such that
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    for all unitary matrices @xmath .
+
+As with quantum interactive proof systems, the functions @xmath and
+@xmath are the completeness error and soundness error respectively.
+
+#### 2.1.3 Short Quantum Games
+
+For most of this thesis we restrict our attention to a specific class of
+quantum refereed games that we call short quantum games . A short
+quantum game has a two-round verifier @xmath , a one-round yes-prover
+@xmath , and a one-round no-prover @xmath . In these games, the
+composite circuit @xmath is created by concatenating the circuits
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+in sequence. In other words, short quantum games are one-round quantum
+games in which the verifier is permitted to process the yes-prover’s
+response before sending a message to the no-prover. Figure 2.3
+illustrates the quantum circuit for a short quantum game.
+
+For polynomial-time computable @xmath , we define the collection @xmath
+of complexity classes by restricting the definition of @xmath to short
+quantum games. We also define the collection @xmath of complexity
+classes by further restricting the definition of @xmath to short quantum
+games in which the verifier cannot send a message to the yes-prover (in
+other words, the verifier’s first circuit is empty, so that @xmath ).
+
+### 2.2 Remarks and Contributions
+
+This section contains a summary of what is currently known of quantum
+interactive proof systems and quantum refereed games. The contributions
+of this thesis are stated in Section 2.2.2 .
+
+#### 2.2.1 Known Results
+
+Several inclusions follow immediately from the definitions in Section
+2.1 . For example, because a quantum interactive proof system is just a
+quantum refereed game without a no-prover, it is clear that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Furthermore, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+as any shorter quantum refereed game can be simulated by a longer
+quantum refereed game.
+
+Also, it is clear that any classical interaction can be simulated by a
+quantum interaction in which the verifier simply measures every message
+he receives from any prover (thus collapsing each message to a
+completely classical state) and otherwise behaves in a classical manner.
+In other words, we have @xmath , @xmath , and @xmath . It is instructive
+to note that the relation @xmath is not immediately seen to hold, as
+@xmath does not permit games in which the verifier sends a message to
+the yes-prover.
+
+The method of sequential repetition used in Section 1.2.5 to demonstrate
+the robustness of classical interaction can be applied without
+complication in the quantum setting. That is, for every @xmath and every
+reasonable @xmath we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Similar to the classical case, quantum interactive proof systems with
+reasonable error can be assumed to have zero completeness error [ 31 ] ,
+yielding the inclusion
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In light of this robustness, we define the following shorthand
+notations:
+
+-   @xmath is the complexity class of all languages @xmath such that
+    @xmath for every @xmath .
+
+-   @xmath is the complexity class of all languages @xmath such that
+    @xmath for every @xmath .
+
+-   @xmath is the complexity class of all languages @xmath such that
+    @xmath for every @xmath .
+
+-   @xmath is the complexity class of all languages @xmath such that
+    @xmath for every @xmath .
+
+The well-known characterization @xmath mentioned in Section 1.2.5
+implies
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Watrous gave a three-message quantum interactive proof system
+demonstrating this containment [ 45 ] . The existence of a three-message
+quantum interactive proof system for @xmath contrasts with the classical
+case, wherein it is widely believed that the verifier and prover must
+exchange a nonconstant number of messages in order to decide @xmath (see
+Section 5.1.1 ).
+
+This result was later extended to show that any quantum interactive
+proof system can be simulated by a three-message quantum interactive
+proof system and that these simulations are robust with respect to error
+[ 31 ] . This extension gives rise to a natural complete promise problem
+for @xmath known as close-images , which can in turn be reduced to an
+exponential-size instance of the semidefinite programming problem [ 31 ]
+. As semidefinite programs can be solved in deterministic polynomial
+time, it follows from the @xmath -completeness of close-images that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In a later talk on quantum coin-flipping, Kitaev gave a semidefinite
+program that directly simulates many-message quantum interactive proof
+systems [ 28 ] , thus yielding a more direct proof of the containment of
+@xmath in @xmath .
+
+Although quantum refereed games were not considered prior to this work,
+it is nonetheless appropriate to mention several facts in this
+subsection. First, it is clear that the characterizations @xmath and
+@xmath imply
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Also, Kitaev’s variant [ 28 ] of the semidefinite program found in
+Reference [ 31 ] is easily extended to yield @xmath [ 22 ] . Due to the
+symmetric nature of quantum refereed games, it is clear that @xmath is
+closed under complement, from which it follows that @xmath is also
+contained in @xmath . In other words, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In Section 5.1.4 we we discuss possible implications of the curious fact
+that @xmath contains @xmath and is in turn contained in @xmath . Chapter
+5 also offers a diagram of relationships among the complexity classes
+considered in this thesis.
+
+#### 2.2.2 Contributions of this Thesis
+
+We prove in this thesis the following two relationships among the
+complexity classes defined in Section 2.1 :
+
+-   @xmath (Chapter 3 )
+
+-   @xmath (Chapter 4 )
+
+The first result is proven in Reference [ 23 ] , while the second is
+proven in Reference [ 22 ] . It is those proofs that we reproduce in
+Chapters 3 and 4 .
+
+Two of the intermediate results that are proven in order to obtain the
+containment @xmath might be of independent interest and so we also list
+them here:
+
+-   For any two disjoint closed convex sets @xmath of quantum states,
+    there exists a binary POVM such that, for any state @xmath , the
+    POVM will correctly determine whether @xmath or @xmath with
+    probability proportional to the minimal trace distance between
+    @xmath and @xmath .
+
+-   @xmath for any @xmath and any @xmath . A similar containment holds
+    with @xmath in place of @xmath .
+
+The first of these intermediate results is a generalization of the
+well-known fact that two quantum states can be distinguished with
+probability proportional to their trace distance. It can also be viewed
+as a quantitative version of the well-known separation theorems in
+convex analysis.
+
+The second result indicates a partial robustness of short quantum games
+with respect to error. In particular, it states that the completeness
+(soundness) error can be made exponentially small at the possible cost
+of soundness (completeness). Error reduction results seem to be more
+elusive in quantum interaction than in classical interaction and this
+result represents a first step toward that end for short quantum games.
+
+The containment @xmath builds upon the semidefinite program for @xmath [
+31 , 28 ] . Hence, we offer a rigorous analysis of that semidefinite
+program in this thesis as a precursor to our result. This precursor
+leads to several extensions of the containment @xmath . For example, we
+show that semidefinite programming can be used to simulate a quantum
+interactive proof system in deterministic exponential time even if the
+verifier’s circuits are generated uniformly in exponential time, so long
+as they still act on only a polynomial number of qubits. In particular,
+the verifier can exchange an exponential number of messages with the
+prover and can use an exponential number of gates in his quantum
+circuits without raising the power of the model beyond @xmath .
+
+The containment @xmath is obtained by nondeterministically guessing a
+yes-prover and solving the induced quantum interactive proof system
+using the aforementioned semidefinite program [ 22 ] . Most of the
+extensions of that semidefinite program also apply to this containment
+concerning quantum refereed games. The only exception is that we still
+require that the verifier exchange only a polynomial number of rounds of
+messages with the provers. This strange restriction is brought on by the
+fact that a polynomial bound on the number of qubits required by the
+provers in a quantum refereed game is known to hold only if a polynomial
+number of messages are exchanged (see Section 4.2.3 ).
+
+We prove @xmath by a repeated use of semidefinite programming in concert
+with the ellipsoid method for convex feasibility. Once again, many of
+the aforementioned extensions also apply to this containment. For
+example, our method can simulate a short quantum game in deterministic
+exponential time even if the verifier is permitted to exchange an
+exponential number of messages with the yes-prover, followed by an
+exponential number of messages with the no-prover.
+
+## Chapter 3 A Lower Bound for Short Quantum Games
+
+In this chapter we prove that @xmath , which is the main result of
+Reference [ 23 ] . In order to prove this containment we exhibit a short
+quantum game that solves the @xmath -complete problem close-images with
+completeness error @xmath and exponentially small soundness error. To
+show the correctness of our game, we prove an information-theoretic
+assertion that there exists a quantum measurement that reliably
+distinguishes between quantum states chosen from two disjoint convex
+sets. We then prove a general error reduction technique for short
+quantum games that allows us to produce a game for close-images in which
+both the completeness error and soundness error are exponentially small.
+
+We start by defining the close-images problem in Section 3.1 . We prove
+the quantum measurement result in Section 3.2 and use that result in
+Section 3.3 to yield a short quantum game for close-images . We finish
+the chapter with our error reduction result in Section 3.4 .
+
+### 3.1 The Close-Images Problem
+
+Before we can define close-images , we must expand our repertoire of
+quantum formalism. In particular, we discuss the simulation of any
+physically realizable quantum process by means of a unitary quantum
+circuit in Section 3.1.1 . In Section 3.1.2 we consider several
+different distance measures for quantum states and we settle on the
+trace norm as the distance measure of choice for this thesis. A formal
+statement of the close-images problem appears in Section 3.1.3 along
+with some comments concerning that problem.
+
+#### 3.1.1 Mixed-State Quantum Circuits
+
+In Section 1.3.3 we described a standard model of quantum circuits in
+which every @xmath -qubit input state is unitarily mapped to an @xmath
+-qubit output state. We also mentioned in that section that any
+physically realizable quantum process can be simulated by a unitary
+quantum circuit.
+
+In particular, suppose @xmath and @xmath are Hilbert spaces
+corresponding to the @xmath input qubits and @xmath output qubits of
+some physical process
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then there exists a unitary matrix @xmath satisfying
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath where @xmath is a new Hilbert space with @xmath . In
+consideration with the discussion in Section 1.3.3 , it follows that the
+matrix @xmath can be approximated as closely as desired by a quantum
+circuit @xmath acting on @xmath qubits. In this construction, the vector
+@xmath describes the initial pure state of the remaining @xmath input
+qubits of @xmath .
+
+Figure 3.1 illustrates such a circuit.
+
+This circuit is sometimes called the Stinespring Dilation of @xmath —
+its existence is typically attributed to Choi [ 10 ] and a proof may be
+found in Kitaev, Shen, and Vyali [ 29 ] . The quantum circuits described
+in this subsection are called mixed-state quantum circuits in order to
+differentiate them from the unitary quantum circuits of Section 1.3.3 .
+
+Because quantum circuits are composed of a finite number of gates chosen
+from a finite set of universal gates, it is clear that mixed-state
+quantum circuits, like unitary circuits, can be encoded into a finite
+binary string @xmath . It therefore makes sense, for example, to define
+languages over @xmath in terms of mixed-state quantum circuits.
+
+#### 3.1.2 Distance Measures for Quantum States
+
+Given two quantum states @xmath , how “close” are they to each other? In
+particular, with what reliability can these two states be distinguished
+by a measurement? A natural way to address the first of these questions
+is in the context of some norm defined on @xmath . It turns out, as we
+shall soon see, that the second question can be answered if we consider
+the right norm.
+
+It is standard to define the distance between two matrices @xmath and
+@xmath as the norm of the difference @xmath . But different norms induce
+different distance measures, some of which are more physically
+meaningful than others. For example, we used the spectral norm in
+Section 1.3.3 to formalize the notion that any unitary matrix can be
+approximated arbitrarily closely by a quantum circuit. Although the
+spectral norm was sufficient for that purpose, the quantity @xmath is
+not known to have much physical meaning. Hence, all that can be said for
+certain is that if @xmath is small then @xmath and @xmath must be
+“close” and that the two are equal if this quantity is zero.
+
+A norm that is much more useful for quantifying the distinguishability
+of quantum states is the trace norm , defined for all @xmath as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+To make sense of this definition, we point out that @xmath is positive
+semidefinite for every @xmath and that, for every @xmath , there is a
+unique @xmath satisfying @xmath . This matrix @xmath is called the
+square root of @xmath and is denoted @xmath . Thus, the trace norm of an
+arbitrary matrix @xmath is the trace of the unique positive semidefinite
+matrix @xmath . If @xmath is Hermitian then @xmath is just the sum of
+the absolute values of the eigenvalues of @xmath . In comparison, the
+spectral norm @xmath of a Hermitian matrix @xmath is the maximum of the
+absolute values of the eigenvalues of @xmath . The trace norm and the
+spectral norm are dual to each other with respect to the Hilbert-Schmidt
+inner product, meaning that the following fact holds (see Bhatia [ 8 ]
+):
+
+###### Fact 3.1 (Duality of the Spectral and Trace Norms).
+
+For every @xmath we have
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+For every @xmath , the quantity @xmath lies in the interval @xmath . The
+trace norm characterizes the distinguishability of @xmath and @xmath in
+the following sense: there exists a binary-valued POVM such that if
+@xmath is chosen uniformly at random then the POVM correctly determines
+which of @xmath or @xmath was chosen with probability
+
+  -- -- --
+        
+  -- -- --
+
+Furthermore, such a POVM is optimal in the sense that no other quantum
+measurement could possibly distinguish between @xmath and @xmath with a
+higher rate of success. It is because of this property that the trace
+norm is often a very convenient and satisfactory distance measure for
+quantum states. The quantity @xmath is sometimes called the trace
+distance between @xmath and @xmath .
+
+Incidentally, even if @xmath were chosen from @xmath according to some
+arbitrary and unknown distribution, it can still be shown that the same
+POVM will correctly distinguish between @xmath and @xmath with
+probability at least @xmath .
+
+Besides the trace norm, several other distance measures exist for
+quantum states. One example of such a measure is the fidelity , which is
+a function
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+defined by the expression
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath . If @xmath and @xmath are density matrices then @xmath
+always lies in the interval @xmath . Furthermore, @xmath if and only if
+@xmath and @xmath if and only if @xmath and @xmath describe perfectly
+distinguishable quantum states. The fidelity and the trace norm are
+related by the following inequalities, which hold for every @xmath (see
+Fuchs and van de Graaf [ 17 ] ):
+
+  -- -------- -- -------
+     @xmath      (3.1)
+  -- -------- -- -------
+
+Although the fidelity satisfies many useful properties, we need not
+consider it any further because most expressions involving the fidelity
+can be converted into expressions involving the trace norm via ( 3.1 )
+and because the trace norm adequately meets our needs in this thesis.
+
+#### 3.1.3 Statement of the Problem
+
+For any mixed-state quantum circuit @xmath , the image of @xmath is the
+set
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Given mixed-state quantum circuits @xmath and @xmath , the definition of
+close-images promises that the images of @xmath and @xmath either
+intersect or are disjoint.
+
+More formally, the close-images problem—parameterized by any desired
+function @xmath —is defined as in Figure 3.2 .
+
+This problem was implicitly shown to be @xmath -complete in Reference [
+31 ] . The statement presented in Figure 3.2 is based upon the
+formulation found in Reference [ 40 ] . In that paper, condition 2 in
+the promise is stated using the fidelity instead of the trace norm.
+However, it is more convenient for our purposes to rephrase the problem
+in terms of the trace norm. That this rephrased version is equivalent to
+the original follows from ( 3.1 ).
+
+### 3.2 Distinguishing Convex Sets of States
+
+In Section 3.1.2 we pointed out that the trace norm is a distance
+measure for quantum states that characterizes the distinguishability of
+two states @xmath . In this section we generalize that notion from
+single states @xmath to sets of states @xmath . We motivate discussion
+of this generalization in Section 3.2.1 before we state and prove our
+result in Section 3.2.2 .
+
+#### 3.2.1 Motivation and Preamble
+
+Let @xmath be any vector space over @xmath or @xmath (for example, a
+Hilbert space @xmath and the set @xmath are vector spaces over @xmath ).
+A set @xmath is convex if for every @xmath and @xmath we have @xmath .
+It follows from the fact that density matrices have unit trace that
+@xmath is a convex subset of @xmath . Because mixed-state quantum
+circuits act linearly on their input qubits, it follows that the image
+of any mixed-state quantum circuit is convex. Hence, many results
+pertaining to convexity can be applied to the images of mixed-state
+quantum circuits.
+
+In particular, the separation theorems of convex analysis tell us that
+between any two disjoint convex sets there exists a hyperplane that
+separates them. Typically, the separation results are stated in terms of
+the vector space @xmath . At first, the restriction to real numbers
+might seem like a problem. But fortunately, the set @xmath of complex
+Hermitian matrices acting on a Hilbert space @xmath of dimension @xmath
+is readily shown to be isomorphic to @xmath and can therefore be
+regarded as a vector space over @xmath . Because density matrices are
+always positive semidefinite and hence Hermitian, it follows that the
+separation results apply without complication to convex sets of density
+matrices such as the image of a quantum circuit. The separation result
+of most use to us, recast in terms of @xmath , is stated as follows (see
+Rockafellar [ 39 ] ):
+
+###### Fact 3.2 (Separation Theorem).
+
+Let @xmath be disjoint convex sets with @xmath compact and @xmath open.
+There exists @xmath and @xmath such that @xmath for every @xmath and
+@xmath .
+
+By choosing suitable convex sets upon which to apply the Separation
+Theorem (Fact 3.2 ), we can use the the corresponding hyperplane to
+define a quantum measurement that distinguishes between disjoint images
+of two mixed-state quantum circuits. As one might expect, such a
+measurement is useful for solving problems such as close-images , in
+which disjoint images must be distinguished from overlapping images.
+
+#### 3.2.2 A Generalized Distinguishability Result
+
+Our goal in this subsection is to solve the following generalization of
+the distinguishability problem. We are given @xmath chosen according to
+some arbitrary and unknown distribution from the set @xmath . All we
+know about @xmath and @xmath is that @xmath and @xmath where @xmath are
+convex sets of density matrices. Our task is to determine which of
+@xmath or @xmath was chosen. With what probability can we correctly make
+this distinction?
+
+The answer to this question depends on the minimal trace distance
+between @xmath and @xmath in much the same way as the distinguishability
+of @xmath depends upon the trace distance between @xmath and @xmath .
+Our formalization of this answer begins with the following theorem.
+
+###### Theorem 3.3 (Distinguishability of Sets of States).
+
+Let @xmath be closed convex sets of density matrices and let @xmath
+denote the minimum of @xmath over all @xmath and all @xmath . There
+exists a binary-valued POVM such that, for every pair @xmath and @xmath
+, if @xmath is chosen uniformly at random from @xmath then the POVM will
+correctly determine which of @xmath or @xmath was chosen with
+probability at least @xmath .
+
+###### Proof.
+
+We preface this proof with some comments regarding the quantum
+measurement that we are to construct. The POVM that we apply to @xmath
+will have outcomes in @xmath where outcome @xmath indicates that @xmath
+was chosen and outcome @xmath indicates that @xmath was chosen. In
+accordance with Section 1.3.4 , the POVM with outcomes in @xmath will be
+given by the set @xmath of positive semidefinite matrices satisfying
+@xmath .
+
+Let @xmath denote the event that our POVM yields the correct outcome.
+That is, the event @xmath is said to occur if @xmath and we obtain
+outcome @xmath or if @xmath and we obtain outcome @xmath . According to
+Section 1.3.4 , we have
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+As @xmath is chosen uniformly at random, we can combine the previous two
+conditional probabilities to obtain
+
+  -- -- --
+        
+  -- -- --
+
+By similar reasoning it follows that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and hence
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+This expression will be of use later in this proof.
+
+We are now ready to begin the proof in earnest. If the minimum @xmath
+then it suffices that our POVM be as good as a random coin flip. By
+choosing @xmath we obtain
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which holds for every @xmath as desired. Hence, for the remainder of
+this proof we assume that @xmath .
+
+We define
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The set @xmath is a closed convex set of Hermitian matrices such that
+@xmath for every @xmath . Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+denote the open ball of radius @xmath with respect to the trace norm.
+The sets @xmath and @xmath satisfy the conditions of the Separation
+Theorem (Fact 3.2 ), and therefore there exists a hyperplane that
+separates them. That is, there exists a Hermitian matrix @xmath and a
+real number @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath and @xmath . Note that because the ball @xmath is
+centred at the origin, we have @xmath if and only if @xmath and hence
+@xmath and @xmath from which it follows that @xmath and in particular
+@xmath .
+
+We now use the Hermitian matrix @xmath and the positive reals @xmath and
+@xmath to construct our POVM @xmath . Let @xmath . Then @xmath for every
+@xmath and @xmath for every @xmath . As @xmath ranges over all Hermitian
+matrices with trace norm smaller than 1, it follows from the Duality of
+the Spectral and Trace Norms (Fact 3.1 ) that @xmath .
+
+Now let @xmath be the Jordan decomposition of @xmath , meaning that
+@xmath and @xmath and @xmath act on orthogonal subspaces of @xmath . It
+follows that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and hence @xmath is positive semidefinite.
+
+The matrices @xmath and @xmath composing our binary-valued POVM are
+given by
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Of course, @xmath and @xmath are positive semidefinite and satisfy
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+We now compute the probability with which the POVM yields the correct
+outcome.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with the inequality following from the fact that @xmath and @xmath for
+every @xmath and @xmath . From here, it is straightforward to solve the
+system
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+and obtain @xmath as desired. ∎
+
+We now use the Distinguishability of Sets of States (Theorem 3.3 ) to
+obtain a result that holds even when @xmath is chosen nonuniformly from
+@xmath .
+
+###### Corollary 3.4.
+
+Let @xmath , @xmath , and @xmath be defined as in the statement of
+Theorem 3.3 . The binary-valued POVM @xmath from the proof of Theorem
+3.3 satisfies the following property. For every pair @xmath and @xmath ,
+if @xmath is chosen from @xmath according to some arbitrary and unknown
+distribution then @xmath will correctly determine which of @xmath or
+@xmath was chosen with probability at least @xmath .
+
+###### Proof.
+
+As in the proof of Theorem 3.3 , let @xmath denote the event that @xmath
+yields the correct outcome. We start by pointing out that any binary
+probability distribution over @xmath can be expressed as a composition
+of the uniform distribution and a zero-entropy distribution. It will
+then suffice to show that @xmath under these two distributions.
+
+Assume for now that @xmath is the more likely choice—the case in which
+@xmath is the more likely choice will follow by symmetry. In other
+words, we assume @xmath is chosen from @xmath so that @xmath with
+probability @xmath for some @xmath .
+
+Consider the following composite distribution. With probability @xmath
+we choose @xmath uniformly at random from @xmath and with probability
+@xmath we choose @xmath with certainty. It follows that, under this
+composite distribution, @xmath is chosen with probability @xmath as
+desired.
+
+Under the uniform distribution ( @xmath ), Theorem 3.3 tells us that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Hence, it suffices to show that @xmath under the zero-entropy
+distribution ( @xmath ). We achieve this bound using the following facts
+from the proof of Theorem 3.3 :
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Since @xmath with certainty, it follows from the first two expressions
+that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The third expression implies that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+It follows from the fourth expression and from the Duality of the
+Spectral and Trace Norms (Fact 3.1 ) that
+
+  -- -- --
+        
+  -- -- --
+
+and hence @xmath . Combining all these inequalities, we obtain
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+from which it follows that @xmath as desired. ∎
+
+The most important lesson to take away from the Distinguishability of
+Sets of States (Theorem 3.3 ) and Corollary 3.4 is that the POVM @xmath
+depends only upon @xmath and @xmath and not on any particular pair of
+density matrices in those sets. In other words, the very same quantum
+measurement can be used to distinguish between every pair of density
+matrices chosen from those sets. This independence is critical to the
+correctness of our solution to close-images .
+
+### 3.3 A Short Quantum Game for Close-Images
+
+In this section, we prove that any language with a quantum interactive
+proof system also has a short quantum game by solving the @xmath
+-complete problem close-images from Section 3.1.3 . In order to prove
+membership in @xmath , we must exhibit a verifier for a short quantum
+game who satisfies the completeness and soundness conditions stated in
+Section 2.1 . Such a verifier receives one message from the yes-prover
+and then exchanges a round of messages with the no-prover before
+deciding whether to accept the input.
+
+Informally, the verifier we seek obeys the following protocol: given
+descriptions of two mixed-state quantum circuits @xmath and @xmath , the
+verifier receives states @xmath and @xmath from the yes-prover, randomly
+chooses @xmath , applies @xmath to @xmath , and forwards the result to
+the no-prover. The no-prover is then challenged to identify which of
+@xmath and @xmath was sent to him. If he succeeds then the verifier
+assumes that the no-prover can reliably distinguish between @xmath and
+@xmath and hence the images of @xmath and @xmath are far apart. If he
+fails then the verifier assumes that the no-prover cannot reliably
+distinguish between @xmath and @xmath because they are equal and hence
+the images of @xmath and @xmath intersect. This argument is formalized
+in the following theorem.
+
+###### Theorem 3.5.
+
+@xmath for every @xmath .
+
+###### Proof.
+
+Given any @xmath , it suffices to show that @xmath is in @xmath . Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+be any given mixed-state quantum circuits acting on @xmath qubits and
+let @xmath denote the image of @xmath for @xmath . The sets @xmath are
+closed convex sets of density operators.
+
+Consider the verifier for a short quantum game described in Figure 3.3 .
+
+If @xmath is a “yes” instance of @xmath then there exist @xmath such
+that @xmath . The strategy for the yes-prover is to prepare the
+registers @xmath and @xmath in the states @xmath and @xmath respectively
+and to send them to the verifier in step 1 of the verifier’s protocol.
+Because @xmath , the state contained in the register @xmath is
+independent of @xmath , so the no-prover can do no better than a random
+guess in step 3. The verifier will therefore accept with probability at
+most @xmath in this case.
+
+Let @xmath be the minimum of @xmath over all choices of @xmath and
+@xmath . If @xmath is a “no” instance of @xmath then we are promised
+that @xmath . Regardless of the state of the registers @xmath and @xmath
+sent to the verifier by the yes-prover, we must have that the state
+@xmath of the register @xmath sent to the no-prover is in either @xmath
+or @xmath . Furthermore, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Hence, by the Distinguishability of Sets of States (Theorem 3.3 ) there
+exists a binary-valued POVM that correctly determines whether @xmath or
+@xmath with probability at least
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The strategy for the no-prover is to perform the quantum measurement
+from Theorem 3.3 and send the result to the verifier in step 3, which
+causes the verifier to reject with probability greater than @xmath . ∎
+
+### 3.4 Error Reduction for Short Quantum Games
+
+In this section we prove that short quantum games are at least partially
+robust with respect to error in the sense that the completeness error
+can be made exponentially small at the possible cost of an increase in
+the soundness error and vice versa. Fortunately, because the short
+quantum game for close-images in Section 3.3 has exponentially small
+soundness error, any increase in that quantity can be absorbed into the
+arbitrarily small factor, yielding a short quantum game for close-images
+with exponentially small completeness and soundness error.
+
+The error reduction technique we present in this section relies heavily
+upon previous results in error reduction for quantum interaction. We
+summarize the necessary material in Section 3.4.1 before proving our new
+result in Section 3.4.2 .
+
+#### 3.4.1 Parallel Repetition and Transformations
+
+In Section 2.2.1 we mentioned that any quantum refereed game with
+reasonable error can be simulated by another quantum refereed game with
+exponentially small error that repeats the initial game many times in
+succession and then accepts based upon the outcomes of each of the
+repetitions. However, we pointed out in Section 1.2.5 that sequential
+repetition of this form necessarily increases the number of rounds in an
+interaction and so this technique does not apply to bounded-round
+interactions such as short quantum games. In the classical case, this
+problem was circumvented by identifying one-round refereed games with
+@xmath . Unfortunately, no analogous result is known to hold for short
+quantum games.
+
+A natural approach to the task of error reduction for bounded-round
+interactions is to run many copies of the interaction in parallel and
+act as though the repetitions were sequential, basing the decision to
+accept accordingly. This technique, known as parallel repetition , is
+purely classical and has been successfully applied to classical single-
+and multi-prover interactive proof systems (see Raz [ 37 ] and the
+references therein). A potential problem with this technique is that the
+provers need not treat each repetition independently—they might try to
+correlate the parallel repetitions (or entangle them in the quantum
+case) in some devious way such that the completeness or soundness error
+does not decrease as desired.
+
+In the quantum setting, the general case of this problem has not been
+completely solved. But for three-message single-prover quantum
+interactive proof systems with zero completeness error, Reference [ 31 ]
+proves that parallel repetition followed by a unanimous vote does indeed
+achieve the exponential reduction in soundness error that one might
+expect, regardless of any possible entanglement by the prover among the
+parallel copies.
+
+Because we will incorporate parts of the proof of this result into our
+reduction, it is necessary to summarize some of the additional formalism
+upon which it draws. Toward that end, recall that @xmath and @xmath
+denote the sets of linear mappings acting on @xmath and @xmath
+respectively. As @xmath and @xmath are themselves vector spaces, it
+makes sense to consider the set @xmath of linear mappings from @xmath to
+@xmath , also known as transformations . As one might expect, the
+Kronecker product extends naturally to transformations.
+
+Recall also that the spectral norm on @xmath is induced by the Euclidean
+norm on @xmath by the relation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath . We can extend the trace norm to @xmath in a similar
+way: for any @xmath we have
+
+  -- -- --
+        
+  -- -- --
+
+However, this extension of the trace norm does not induce an overly
+desirable metric on @xmath in part because its value can change upon
+taking the Kronecker product of a transformation with the identity
+transformation. That is, there exist Hilbert spaces @xmath and
+transformations @xmath with
+
+  -- -- --
+        
+  -- -- --
+
+where @xmath is the identity transformation on @xmath .
+
+With this fact in mind, the diamond norm of a transformation @xmath is
+defined as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath . The diamond norm satisfies several convenient properties.
+For one, it is robust with respect to taking the Kronecker product with
+the identity. Another nice property of the diamond norm is that it is
+multiplicative with respect to the Kronecker product. In other words,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for any choice of transformations @xmath and @xmath . Proofs of these
+and other properties of the diamond norm can be found in Kitaev, Shen,
+and Vyali [ 29 ] .
+
+Now that we have introduced the diamond norm for transformations, we are
+ready to discuss its relevance to quantum interaction. In what follows,
+the projection @xmath is defined as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the initial pure state of any quantum interaction. The
+fact upon which we base our error reduction result is stated as follows
+(see Reference [ 31 , Lemma 7] ):
+
+###### Fact 3.6.
+
+Let @xmath be a verifier for a one-round quantum interactive proof
+system on input @xmath (such an interaction consists of a message from
+the verifier to the prover followed by the prover’s response). Let
+@xmath be a transformation defined as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath . The maximum probability with which any prover could
+convince @xmath to accept @xmath is precisely @xmath .
+
+As we shall soon see, if we consider the Kronecker product of @xmath
+with itself many times then the multiplicative property of the diamond
+norm in concert with Fact 3.6 yields an exponentially small upper bound
+on the soundness error of repeated one-round quantum interactions.
+
+#### 3.4.2 A Partial Robustness Result
+
+In this subsection we prove that parallel repetition followed by a
+unanimous vote can be used to improve the error bounds for short quantum
+games by reducing the problem to error reduction for single-prover
+quantum interactive proof systems with three or fewer messages. The
+reduction is achieved by fixing a yes- or no-prover @xmath that is
+guaranteed to win with a certain probability. By viewing the
+verifier-prover pair @xmath as a new composite verifier, we are left
+with what is now effectively a two-message quantum interactive proof
+system in which the opposing prover is the lone prover. We define a
+verifier-prover pair @xmath that runs many copies of @xmath in parallel
+and accepts based upon a unanimous vote. We can then employ Fact 3.6 to
+prove that the error of the new game decreases exponentially in the
+number of repetitions.
+
+We are now prepared to give the main result of this section, whose proof
+is based upon the proof of Theorem 6 in Reference [ 31 ] :
+
+###### Theorem 3.7 (Partial Robustness of Short Quantum Games).
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for any choice of @xmath and @xmath .
+
+###### Proof.
+
+For brevity we write @xmath , @xmath , and @xmath where @xmath . For any
+matrix @xmath and any positive integer @xmath , we write @xmath as
+shorthand for the @xmath -fold Kronecker product of @xmath with itself.
+
+We first prove that @xmath . Let @xmath and let @xmath be a verifier
+witnessing this fact. Let @xmath be a verifier that runs @xmath copies
+of the protocol of @xmath in parallel and accepts if and only if every
+one of the @xmath copies accepts. We must show that @xmath has
+completeness error at most @xmath and soundness error at most @xmath .
+
+First consider the case @xmath . Let @xmath be a yes-prover that
+convinces @xmath to accept @xmath with probability at least @xmath . Let
+@xmath be a yes-prover that runs @xmath independent copies of the
+protocol of @xmath in parallel. Then no no-prover can win any one of the
+@xmath copies with probability greater than @xmath and so by the union
+bound we know that the completeness error of the repeated game is at
+most @xmath .
+
+Next consider the case @xmath . Let @xmath be a no-prover that convinces
+@xmath to reject @xmath with probability at least @xmath and let @xmath
+be as defined in Section 3.4.1 . As earlier intimated, we may view
+@xmath as a new one-round composite verifier and the yes-prover as the
+lone prover for some two-message quantum interactive proof system.
+Define the transformation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+By Fact 3.6 we know that the maximum probability with which any prover
+could convince @xmath to accept @xmath is @xmath . As @xmath has
+soundness error at most @xmath , we have @xmath .
+
+Now let @xmath be a no-prover that runs @xmath independent copies of the
+protocol of @xmath in parallel. We now show that no yes-prover can win
+against @xmath using verifier @xmath with probability greater than
+@xmath . Let @xmath and @xmath be the projections corresponding to the
+initial and accepting states of the repeated game. Define the
+transformation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+It is clear that @xmath . By Fact 3.6 and the multiplicativity of the
+diamond norm it follows that the maximum probability with which any
+prover could convince @xmath to accept @xmath is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which establishes the desired result.
+
+Due to the symmetric nature of quantum refereed games, we can modify the
+above proof to show that @xmath . In particular, define the verifier
+@xmath so that he rejects if and only if all @xmath copies reject. For
+the case @xmath , the proof that @xmath has soundness error @xmath is
+completely symmetric to the proof that @xmath has completeness error
+@xmath .
+
+For the case @xmath , we let @xmath be a yes-prover that convinces
+@xmath to accept with probability at least @xmath . Let @xmath be a new
+one-round composite verifier for a two-message quantum interactive proof
+system in which the no-prover is the lone prover. The two differences
+here are that the prover’s goal is now to convince @xmath to reject
+@xmath instead of to accept @xmath and that the transformation @xmath is
+now replaced with the transformation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Fortunately, Fact 3.6 still applies and so the maximum probability with
+which any prover could convince @xmath to reject @xmath is precisely
+@xmath . That @xmath has completeness error @xmath follows as before. ∎
+
+Of course, the Partial Robustness of Short Quantum Games (Theorem 3.7 )
+holds in the special case where the verifier @xmath and so we obtain
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+as an easy corollary. A more important corollary that follows from
+Theorems 3.5 and 3.7 is the main result of this chapter:
+
+###### Corollary 3.8.
+
+@xmath .
+
+###### Proof.
+
+Given a desired error bound @xmath where @xmath , choose @xmath so that
+@xmath for all @xmath . We have @xmath . ∎
+
+## Chapter 4 An Upper Bound for Short Quantum Games
+
+Given that @xmath is contained in both @xmath [ 31 ] and @xmath (Chapter
+3 ), it is natural to wonder how complexity classes based upon short
+quantum games relate to @xmath . In this chapter we prove that @xmath ,
+which is the main contribution of Reference [ 22 ] .
+
+In order to prove this containment, we build upon previously known
+techniques for simulating quantum interaction with classical
+computation. In particular, Kitaev sketched an alternate proof [ 28 ] of
+the containment @xmath [ 31 ] . We provide the first complete
+formalization of that proof and offer several extensions, one of which
+is that @xmath .
+
+Finally, we show that @xmath by employing the accumulated results in a
+separation oracle for use with the ellipsoid method for convex
+feasibility. In fact, the containment @xmath is a special case of a
+stronger result proven in this chapter.
+
+### 4.1 The Opt Problem
+
+In this section we define the computational problem opt based upon some
+observations regarding quantum interactive proof systems. We show that
+opt can be reduced to a semidefinite program and hence admits a
+deterministic polynomial-time solution.
+
+#### 4.1.1 Optimization, Transcripts, and Consistency
+
+Let @xmath , let @xmath , let @xmath be an @xmath -round verifier
+witnessing this fact, and consider the following optimization problem
+
+  -- -- -------- -- -------
+        @xmath      (4.1)
+        @xmath      
+  -- -- -------- -- -------
+
+By definition, if @xmath then the optimal value of this problem is at
+least @xmath , whereas if @xmath then the optimal value of this problem
+is at most @xmath . Hence, if @xmath and @xmath are reasonable then
+@xmath can be decided by solving this problem.
+
+However, the problem ( 4.1 ) in its stated form is incompatible with
+standard optimization algorithms. In this subsection, we define the
+notion of a “transcript” of a quantum interactive proof system and we
+identify every prover with such a transcript. In so doing, we reduce the
+optimization problem ( 4.1 ) to a much more manageable problem that can
+be solved using algorithms for semidefinite programming.
+
+Let @xmath be any @xmath -round prover and consider the quantum circuit
+@xmath for some input string @xmath . For each @xmath , let @xmath
+denote the state of the verifier’s qubits immediately before @xmath is
+applied. The state @xmath can be viewed as a “snapshot” of the
+verifier’s qubits at the beginning of the @xmath th round of
+interaction. In this sense, the states @xmath indicate a complete
+transcript of the quantum interactive proof system. Such a transcript is
+illustrated in Figure 4.1 for the case @xmath .
+
+What can be said about transcripts? Two observations follow immediately
+from the definition of a quantum interactive proof system. First, it
+must be the case that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+as the initial pure state of the entire system is always @xmath .
+Second, the probability with which @xmath accepts @xmath is given by
+
+  -- -- --
+        
+  -- -- --
+
+in accordance with the rules for quantum measurement discussed in
+Section 1.3.4 .
+
+As a third observation, consider for each @xmath the states @xmath of
+the verifier’s private qubits immediately before and after the prover’s
+circuit @xmath is applied. These states are illustrated in Figure 4.2
+for the case @xmath .
+
+It is clear from Figures 4.1 and 4.2 that @xmath is obtained from @xmath
+by discarding the message qubits. That is,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Similarly, @xmath is obtained from @xmath by applying @xmath and
+discarding the message qubits. In other words,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Finally, since the prover circuit @xmath cannot act on the verifier’s
+private qubits, it follows that @xmath (this fact is also made
+intuitively evident in Figure 4.2 ). Hence, we claim that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+As a generalization of these observations, let @xmath and @xmath be
+Hilbert spaces, let @xmath be positive semidefinite matrices, and let
+@xmath be arbitrary matrices. We say that the list @xmath is @xmath
+-consistent with @xmath if
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath . Our goal then is to prove that a list of density matrices
+@xmath indicates a valid transcript for a quantum interactive proof
+system with verifier @xmath if and only if it is @xmath -consistent with
+@xmath .
+
+We require some additional formalism in order to accomplish this goal.
+For any positive semidefinite matrix @xmath and any vector @xmath ,
+@xmath is called a purification of @xmath if
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The purifications of @xmath are related to one another as indicated by
+the following fact (see Hughston, Jozsa, and Wootters [ 24 ] ):
+
+###### Fact 4.1 (Unitary Equivalence of Purifications).
+
+A purification @xmath of @xmath exists if and only if @xmath . Moreover,
+purifications of @xmath are unitarily equivalent in the sense that if
+@xmath are both purifications of @xmath then there exists a unitary
+matrix @xmath such that @xmath
+
+Intuitively, we make use of the Unitary Equivalence of Purifications
+(Fact 4.1 ) in the following manner. For any @xmath , let @xmath be
+purifications of the states @xmath in Figure 4.2 . The vectors @xmath
+and @xmath can be thought of as the pure states of the entire system
+corresponding to the snapshots @xmath and @xmath . As @xmath , it
+follows that @xmath and @xmath are purifications of the same state and
+hence by the Unitary Equivalence of Purifications (Fact 4.1 ) there
+exists a unitary matrix @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The unitary matrix @xmath indicates precisely the actions that the
+prover must take during the @xmath th round of the interaction in order
+to take the pure state of the entire system from @xmath to @xmath .
+Given any transcript @xmath , we can construct in this manner unitary
+matrices @xmath corresponding to a prover @xmath who gives rise to that
+transcript.
+
+We now formalize this intuition. Because our result will be applied in
+different contexts later in this chapter, we state it in its full
+generality and then follow its proof with a corollary that relates it to
+quantum interactive proof systems.
+
+###### Lemma 4.2 (Consistency Characterization).
+
+Let @xmath . For every Hilbert space @xmath and every @xmath there exist
+@xmath that are @xmath -consistent with @xmath such that
+
+  -- -------- -- -------
+     @xmath      (4.2)
+  -- -------- -- -------
+
+Conversely, if @xmath then for every @xmath @xmath -consistent with
+@xmath there exist @xmath such that ( 4.2 ) holds.
+
+###### Proof.
+
+We start by proving the first statement. Define @xmath and @xmath as
+follows: for every @xmath , let @xmath with @xmath and let @xmath . Then
+for any @xmath we have
+
+  -- -- --
+        
+  -- -- --
+
+It remains only to show the @xmath -consistency of @xmath with @xmath .
+For every @xmath we have
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+                       
+              @xmath   
+  -- -------- -------- --
+
+To prove the converse, let @xmath be a Hilbert space with @xmath and let
+@xmath be @xmath -consistent with @xmath . Let @xmath be purifications
+of @xmath with @xmath . These purifications are guaranteed to exist by
+the Unitary Equivalence of Purifications (Fact 4.1 ) because
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for any @xmath . For every @xmath , it follows that @xmath is a
+purification of @xmath . As @xmath , the Unitary Equivalence of
+Purifications (Fact 4.1 ) implies that there exists some unitary matrix
+@xmath such that @xmath . Again, we have
+
+  -- -- --
+        
+  -- -- --
+
+for any @xmath . ∎
+
+The Consistency Characterization (Lemma 4.2 ) provides us with the
+ability to convert from a prover @xmath to a transcript @xmath and vice
+versa. We use that ability in the following corollary to reformulate the
+optimization problem ( 4.1 ).
+
+###### Corollary 4.3.
+
+Let @xmath , let @xmath , and let @xmath be a verifier witnessing this
+fact. Consider the following optimization problem
+
+  -- -- -------- -- -------
+        @xmath      (4.3)
+        @xmath      
+        @xmath      
+  -- -- -------- -- -------
+
+If @xmath then the optimal value of this problem is at least @xmath and
+if @xmath then the optimal value of this problem is at most @xmath .
+
+###### Proof.
+
+If @xmath then by definition there exist @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+By the Consistency Characterization (Lemma 4.2 ) there exists a
+transcript @xmath that is @xmath -consistent with @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+from which the first claim of the corollary follows.
+
+Now suppose @xmath and let @xmath be any transcript that is @xmath
+-consistent with @xmath . By the Consistency Characterization (Lemma 4.2
+) there exists a prover @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+By definition, the quantity on the right is at most @xmath . ∎
+
+As Corollary 4.3 suggests, any language in @xmath can be decided by
+solving the optimization problem ( 4.3 ). Indeed, this entire section is
+dedicated to solving that problem efficiently.
+
+Like the Consistency Characterization (Lemma 4.2 ), our solution to (
+4.3 ) will be used in several different contexts later in this chapter.
+Hence, we name the problem opt and restate it in full generality in
+Figure 4.3 .
+
+It is assumed that the real and imaginary parts of all input numbers to
+opt are represented in binary notation.
+
+As a final note, we observe that the optimization problem ( 4.3 )
+appearing in the statement of Corollary 4.3 can be phrased as an
+instance of opt with input matrices @xmath and a suitably small accuracy
+parameter @xmath that depends only on the completeness error @xmath and
+soundness error @xmath .
+
+#### 4.1.2 Semidefinite Programming
+
+Our proof that opt admits a deterministic polynomial-time solution will
+rely upon existing polynomial-time algorithms for semidefinite
+programming. Hence, we offer a brief summary of semidefinite programming
+in this subsection.
+
+Semidefinite programming is derived from linear programming , which is
+the name given to the problem of maximizing a linear function subject to
+a finite number of linear constraints. Given a Hilbert space @xmath , a
+Hermitian matrix @xmath , matrices @xmath , and scalars @xmath , a
+semidefinite program over @xmath has the form
+
+  -- -- -------- --
+        @xmath   
+        @xmath   
+        @xmath   
+  -- -- -------- --
+
+The feasible set @xmath is defined by
+
+  -- -- --
+        
+  -- -- --
+
+The goal is to find a matrix @xmath such that @xmath is maximized over
+all @xmath . Because both @xmath and @xmath are Hermitian, it follows
+that @xmath is always real and so it makes sense to consider its maximal
+value.
+
+The semidefinite programming problem that we use is stated in Figure 4.4
+.
+
+As with opt , it is assumed in this problem that the real and imaginary
+parts of all input numbers are represented in binary notation. The sdp
+problem can be solved in time polynomial in the bit length of the input
+data using interior point methods (see, for example, Nesterov and
+Nemirovskii [ 36 ] ).
+
+#### 4.1.3 A Semidefinite Program for Opt
+
+Our goal in this subsection is to prove that opt can be reduced to sdp
+and therefore has a deterministic polynomial-time solution. We
+accomplish this goal by formalizing the reduction that appears
+implicitly in Reference [ 28 ] . The main idea is to “stack” the
+positive semidefinite matrices @xmath into one large block-diagonal
+matrix. This stacked matrix will serve as the variable over which sdp is
+to optimize.
+
+Given matrices @xmath , we construct linear equality constraints on the
+stacked matrix variable that characterize @xmath -consistency with
+@xmath . Since the equality conditions describing the @xmath
+-consistency of @xmath are already linear in those matrices, this
+construction is largely a technical exercise that expresses those
+conditions in a way that is compatible with the stacked matrix variable.
+
+Toward that end, we introduce some new notation. For any Hilbert space
+@xmath we let @xmath denote the matrix with all entries equal to zero
+except for a 1 in the @xmath entry. It follows that @xmath for any
+@xmath .
+
+For any positive integer @xmath we let @xmath denote the Hilbert space
+with dimension @xmath . For any matrices @xmath we let @xmath denote the
+block-diagonal matrix
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Letting @xmath , we start by describing linear equality constraints that
+ensure every feasible solution @xmath is a block-diagonal matrix of the
+form @xmath for some @xmath . For this task, the “brute force” method of
+simply forcing every off-block-diagonal entry to zero works just fine.
+In other words, we require that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all suitably chosen @xmath and @xmath . Using this same brute force
+technique, we set every entry of @xmath to indicate the matrix @xmath .
+
+We require additional notation before we can proceed to the @xmath
+-consistency constraints. Define
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all @xmath so that, given @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+That is, @xmath is embedded into the all-zero matrix so that if @xmath
+is block-diagonal then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We also define
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all @xmath so that, given @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We now prove the following lemma.
+
+###### Lemma 4.4 (@xmath-Consistency Constraints).
+
+Let @xmath be a block-diagonal matrix with @xmath . Then the list @xmath
+is @xmath -consistent with @xmath if and only if @xmath satisfies
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all @xmath and all @xmath .
+
+###### Proof.
+
+We have
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+Of course, @xmath if and only if their entrywise difference is zero,
+from which the lemma follows. ∎
+
+The @xmath -Consistency Constraints (Lemma 4.4 ) are based upon similar
+constraints found in Reference [ 30 ] . We have thus established a
+polynomial number of linear equality constraints that characterize
+@xmath -consistency. Our next task is to bound the feasible set @xmath
+of matrices that satisfy these constraints.
+
+###### Lemma 4.5 (@xmath-Consistency Constraint Bound).
+
+Let @xmath be a block-diagonal matrix with @xmath such that the list
+@xmath is @xmath -consistent with @xmath . Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+It is clear that @xmath and that @xmath is just the maximum of @xmath
+over all @xmath . Hence, it remains only to bound @xmath for @xmath .
+Let @xmath be a Hilbert space with @xmath . By the Consistency
+Characterization (Lemma 4.2 ), there exist @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In particular,
+
+  -- -- --
+        
+  -- -- --
+
+where the final inequality follows from the fact that @xmath is positive
+semidefinite. That
+
+  -- -- --
+        
+  -- -- --
+
+follows from the fact that @xmath are unitary. ∎
+
+We have now developed the tools needed to prove the following theorem.
+
+###### Theorem 4.6.
+
+opt can be solved in time polynomial in the bit length of the input
+data.
+
+###### Proof.
+
+The proof is by reduction to sdp . Given inputs @xmath and @xmath to opt
+, we construct inputs to sdp as follows:
+
+-   The error parameter @xmath is passed unchanged from opt to sdp .
+
+-   The objective matrix @xmath is the block-diagonal matrix @xmath .
+
+-   The linear equality constraints are the @xmath -Consistency
+    Constraints (Lemma 4.4 ).
+
+-   The bound @xmath for all feasible solutions is given by the @xmath
+    -Consistency Constraint Bound (Lemma 4.5 ). Note that if @xmath are
+    unitary then we have @xmath .
+
+-   The initial feasible solution @xmath can be taken to be the
+    block-diagonal matrix @xmath where @xmath for every @xmath with
+    @xmath . This feasible solution corresponds to a prover who always
+    acts trivially upon his qubits.
+
+∎
+
+### 4.2 Some Upper Bounds
+
+In this section we use our polynomial-time solution to opt (Theorem 4.6
+) to prove the upper bounds @xmath and @xmath . Indeed, these
+containments are special cases of stronger results proven in this
+section.
+
+Several details must be considered before we can formalize these
+containments. For example, it is prudent to discuss numerical error
+introduced by finite-precision approximations of continuous quantities.
+In the case of quantum refereed games, we also require a tractable bound
+on the number of qubits used by the provers.
+
+#### 4.2.1 Roundoff Error
+
+Let @xmath and let @xmath be a verifier witnessing this fact. In Section
+4.1.1 we pointed out that @xmath can be decided by solving opt with
+input matrices @xmath and a small enough accuracy parameter @xmath .
+However, it is often the case that the unitary matrices @xmath
+associated with the verifier’s quantum circuits contain entries that are
+complicated algebraic expressions involving irrational numbers. Because
+opt was defined to accept input matrices whose entries are expressed in
+binary notation, it follows that the best we can do is approximate
+@xmath with finite-precision matrices @xmath .
+
+Our intuition tells us that, by choosing a suitable level of precision
+with which to express @xmath , the induced verifier @xmath will always
+have reasonable completeness error and soundness error. Moreover, we
+expect that matrices @xmath with the required level of precision can be
+computed efficiently, so that @xmath can still be decided in exponential
+time. Indeed, these intuitions are correct. This subsection is dedicated
+to arguing that accurate enough approximations can be computed
+efficiently. For simplicity, we restrict our discussion to quantum
+interactive proof systems, but much of the discussion in this subsection
+transfers to quantum refereed games without complication.
+
+In Section 1.3.3 we stipulated that all quantum circuits in this thesis
+are composed of quantum gates chosen from some finite universal set. We
+take it as given that the unitary matrices associated with the quantum
+gates in this universal set can all be computed so that each entry is
+accurate to @xmath bits of precision in time polynomial in the bit
+length of @xmath . Of course, the unitary matrix associated with any
+single quantum gate is readily extended to a larger Hilbert space by
+taking the Kronecker product with the identity matrix as usual.
+
+Since the verifier’s quantum circuits are generated uniformly in
+polynomial time, it follows that each of the @xmath circuits is composed
+of at most @xmath quantum gates for some @xmath . For each @xmath and
+@xmath let @xmath be the unitary matrix associated with the @xmath th
+gate in the verifier’s @xmath th quantum circuit, extending to @xmath so
+that @xmath .
+
+Next, suppose that @xmath is an approximation of @xmath such that each
+entry of @xmath is accurate to @xmath bits of precision and let @xmath .
+Finally, let @xmath be any prover. The probability @xmath with which
+@xmath accepts @xmath is precisely
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and the probability @xmath with which @xmath accepts @xmath is precisely
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Our goal is to prove an upper bound on the difference @xmath in terms of
+@xmath .
+
+Toward that end, let @xmath and let @xmath be any matrices whose
+entrywise difference is at most @xmath . In other words,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath . It is not difficult to show that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The following lemma allows us to deduce the accuracy required of our
+approximations.
+
+###### Lemma 4.7.
+
+Let @xmath and let @xmath be any matrices such that the product @xmath
+is defined and, for all @xmath , @xmath has the same dimensions as
+@xmath , @xmath , and @xmath . Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -- --
+        
+  -- -- --
+
+###### Proof.
+
+We have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+By repeated application of the triangle inequality, this quantity is at
+most
+
+  -- -------- --
+     @xmath   
+     @xmath   
+              
+              
+  -- -------- --
+
+The lemma follows from the fact that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+whenever @xmath and @xmath are real numbers in the interval @xmath . ∎
+
+Since the verifier’s quantum circuits are generated uniformly in
+polynomial time, it follows that they each act on at most @xmath qubits
+for some @xmath , so that @xmath . As each entry of @xmath is accurate
+to @xmath bits of precision, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath and hence
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+It follows from Lemma 4.7 that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Hence, we can compute an exponentially close approximation @xmath of
+@xmath by choosing a suitable @xmath and approximating each matrix
+@xmath to @xmath bits of precision. In fact, this result holds even if
+@xmath and @xmath grow exponentially in @xmath .
+
+#### 4.2.2 An Extension of @xmath
+
+We are now ready to prove the upper bound @xmath . Indeed, we prove that
+the containment holds under the following relaxations of the definition
+of @xmath :
+
+-   The verifier may exchange an exponential number of messages with the
+    prover.
+
+-   The verifier’s quantum circuits may contain an exponential number of
+    gates, so long as they still act upon at most a polynomial number of
+    qubits.
+
+-   The completeness error and soundness error may be exponentially
+    close to @xmath in @xmath .
+
+We define a strong verifier to be a verifier whose quantum circuits are
+generated by an exponential-time Turing machine on input @xmath , but
+they act on at most a polynomial number of qubits.
+
+###### Theorem 4.8 (An Extension of @xmath).
+
+Let @xmath be any polynomial-time computable functions satisfying @xmath
+for all @xmath . Any language @xmath that can be decided by a quantum
+interactive proof system with a strong verifier having completeness
+error @xmath and soundness error @xmath is in @xmath .
+
+###### Proof.
+
+We assume without loss of generality that @xmath for all @xmath , as any
+verifier who can compute @xmath and @xmath can also bias his final
+decision to satisfy this condition. Let @xmath . It follows from the
+fact that @xmath and @xmath are polynomial-time computable that @xmath .
+
+Figure 4.5 describes a deterministic exponential-time algorithm that
+decides @xmath .
+
+To see that this algorithm is correct, let @xmath (respectively @xmath )
+denote the maximum probability with which @xmath (respectively @xmath )
+can be made to accept @xmath . By our choice of accuracy parameter for
+opt we have @xmath and by Lemma 4.7 we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+from which it follows that @xmath . By definition, if @xmath then @xmath
+and hence @xmath . Conversely, if @xmath then @xmath and hence @xmath .
+
+It remains only to verify that this algorithm runs in exponential time.
+According to Section 4.2.1 , the approximation @xmath in step 2 can be
+computed in exponential time by choosing a suitable @xmath and
+approximating the unitary matrices associated with each of the
+verifier’s quantum gates to @xmath bits of precision. As the input
+matrices to opt in step 3 can be computed in exponential time and have
+at most exponential dimension, the desired result follows from the fact
+that opt admits a polynomial-time solution (Theorem 4.6 ). ∎
+
+#### 4.2.3 Bounding the Number of Prover Qubits
+
+In this subsection we look at extending the proof of @xmath (Theorem 4.8
+) to provide an upper bound for @xmath .
+
+We begin by applying the Consistency Characterization (Lemma 4.2 ) to
+quantum refereed games in much the same way as it was applied to quantum
+interactive proof systems in Corollary 4.3 in Section 4.1.1 . In
+particular, if the yes-prover @xmath is fixed then the combination of
+@xmath and @xmath can be viewed as a new verifier @xmath for an ordinary
+quantum interactive proof system in which the no-prover is the only
+prover. In this case, the actions of the no-prover can be described by a
+transcript, just as with quantum interactive proof systems. Such a
+transcript is illustrated in Figure 4.6 .
+
+In this case, we use the Consistency Characterization (Lemma 4.2 ) to
+convert from a no-prover @xmath to a transcript @xmath and vice versa.
+
+###### Corollary 4.9.
+
+Let @xmath , let @xmath , let @xmath be a verifier witnessing this fact,
+and let @xmath be a yes-prover. Consider the following optimization
+problem
+
+  -- -- -------- -- -------
+        @xmath      (4.4)
+        @xmath      
+        @xmath      
+  -- -- -------- -- -------
+
+If @xmath then there exists a yes-prover @xmath such that the optimal
+value of this problem is at most @xmath and if @xmath then for every
+yes-prover @xmath the optimal value of this problem is at least @xmath .
+
+###### Proof.
+
+If @xmath then by definition there exist @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath . By the Consistency Characterization (Lemma 4.2 )
+there exists a transcript @xmath that is @xmath -consistent with @xmath
+such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+from which the second claim of the corollary follows.
+
+Now suppose @xmath , let @xmath witness this fact, and let @xmath be any
+transcript that is @xmath -consistent with @xmath . By the Consistency
+Characterization (Lemma 4.2 ) there exists a no-prover @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+By definition, the quantity on the right is at most @xmath . ∎
+
+Corollary 4.9 suggests that any language in @xmath can be decided by
+nondeterministically “guessing” the yes-prover @xmath and solving the
+optimization problem ( 4.4 ). Given a verifier @xmath and a yes-prover
+@xmath , this problem can be phrased as an instance of opt with input
+matrices
+
+  -- -------- -- -------
+     @xmath      (4.5)
+  -- -------- -- -------
+
+and a suitably small accuracy parameter @xmath that depends only on the
+completeness error @xmath and soundness error @xmath . As opt admits a
+deterministic polynomial-time solution (Theorem 4.6 ), it is tempting to
+conclude that any language in @xmath can also be decided in
+nondeterministic exponential time.
+
+However, we must take care to ensure that the size of the induced
+instance of opt is in fact bounded by an exponential in @xmath . The
+input matrices ( 4.5 ) act upon the Hilbert space @xmath : as the
+quantum circuits belonging to any prover are unbounded, it is
+conceivable that the yes-prover uses a superpolynomial number of private
+qubits. In this case, the dimension of @xmath and hence of the input
+matrices ( 4.5 ) to opt may be superexponential in @xmath . In order to
+achieve the desired upper bound for quantum refereed games, we require a
+polynomial bound on the number of qubits used by the yes-prover.
+
+As far as quantum interactive proof systems are concerned, it follows
+from the Consistency Characterization (Lemma 4.2 ) that the prover’s
+Hilbert space @xmath need only satisfy @xmath . In other words, any
+quantum interactive proof system can be simulated by another quantum
+interactive proof system in which the prover uses no more qubits than
+the verifier. Unfortunately, this convenient bound is not known to
+extend to quantum interactions with multiple provers.
+
+Fortunately, there is a looser polynomial bound that does hold for
+quantum interactions with multiple provers. In particular, the following
+fact holds (see Kobayashi and Matsumoto [ 32 ] ):
+
+###### Fact 4.10.
+
+In any quantum interaction, the number of qubits required by each of the
+provers is polynomial in the number of message qubits shared with the
+verifier and the number of rounds in the interaction.
+
+Hence, if both the number of message qubits and the number of rounds in
+the interaction are polynomial then any prover in a quantum refereed
+game can be assumed to use a polynomial number of qubits. In particular,
+the Hilbert space @xmath corresponding to the yes-prover’s private
+qubits has dimension at most exponential in @xmath as desired.
+
+#### 4.2.4 An Extension of @xmath
+
+In this subsection we prove the upper bound @xmath . Indeed, we prove
+that the containment holds under the following relaxations of the
+definition of @xmath :
+
+-   The verifier’s quantum circuits may contain an exponential number of
+    gates, so long as they still act upon at most a polynomial number of
+    qubits.
+
+-   The completeness error and soundness error may be exponentially
+    close to @xmath in @xmath .
+
+It is interesting to note that the containment @xmath is not known to
+hold for quantum refereed games with a superpolynomial number of rounds.
+By contrast, we showed in Theorem 4.8 that the containment @xmath holds
+even when the number of rounds is exponential. As explained in Section
+4.2.3 , this strange discrepancy is brought on by the conditions of Fact
+4.10 .
+
+###### Theorem 4.11 (An extension of @xmath).
+
+Let @xmath be any polynomial-time computable functions satisfying @xmath
+for all @xmath and let @xmath . Any language @xmath that can be decided
+by a quantum refereed game with a strong @xmath -round verifier having
+completeness error @xmath and soundness error @xmath is in @xmath .
+
+###### Proof.
+
+As in the proof of Theorem 4.8 , we assume without loss of generality
+that @xmath and we let @xmath be defined by @xmath .
+
+The nondeterministic step of our solution is to guess the unitary
+matrices @xmath belonging to the yes-prover and compute and
+approximation @xmath of @xmath satisfying
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath . This step can be accomplished in many different ways.
+For example, any unitary matrix @xmath is given by @xmath for some
+Hermitian matrix @xmath . To guess the entries of @xmath accurate to
+@xmath bits of precision, we first choose a suitable @xmath , guess the
+entries of @xmath to @xmath bits of precision, and run any stable
+algorithm that computes the matrix exponential (see, for instance, Golub
+and Van Loan [ 20 ] ).
+
+The deterministic step of our solution is to run the algorithm of Figure
+4.5 in Theorem 4.8 with the following changes:
+
+-   The approximation @xmath in step 2 must satisfy
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    for every @xmath .
+
+-   In step 3 we solve opt with input matrices @xmath and we reject
+    @xmath if @xmath , otherwise we accept @xmath .
+
+To see that this algorithm is correct, let @xmath denote the maximum
+probability with which @xmath can be made to reject @xmath given
+yes-prover @xmath . That @xmath follows just as in Theorem 4.8 . By
+definition, if @xmath then there exists a yes-prover @xmath such that
+@xmath and hence @xmath . Conversely, if @xmath then for all yes-provers
+we have @xmath and hence @xmath .
+
+That this nondeterministic algorithm runs in exponential time follows as
+in the proof of Theorem 4.8 . ∎
+
+### 4.3 The Ellipsoid Method and Short Quantum Games
+
+In this section we prove @xmath . Indeed, this containment is a special
+case of a stronger result proven in this section.
+
+Given a verifier for a short quantum game, we construct a convex set of
+matrices that is nonempty if and only if there exists a winning
+yes-prover for that game. The desired result is achieved by providing an
+algorithm that determines in exponential time whether or not this set is
+empty.
+
+#### 4.3.1 The Set of Winning Yes-Provers
+
+The key fact that we exploit in order to put @xmath inside @xmath is
+that the no-prover does not become involved in any short quantum game
+until the verifier has finished exchanging messages with the yes-prover.
+Because of this fact, the actions of the yes-prover prior to the
+no-prover’s involvement can be completely described by a transcript,
+just as with quantum interactive proof systems. As the verifier
+exchanges only one message with the yes-prover, the transcript under
+consideration consists only of the state @xmath illustrated in Figure
+4.7 .
+
+We begin by applying the Consistency Characterization (Lemma 4.2 ) to
+short quantum games in a way that identifies the set of winning
+yes-provers @xmath with a set of winning transcripts @xmath .
+
+###### Corollary 4.12.
+
+Let @xmath satisfy @xmath for all @xmath , let @xmath , and let @xmath
+be a verifier witnessing this fact. Define @xmath to be the set of all
+@xmath such that @xmath is @xmath -consistent with @xmath and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then @xmath is nonempty if and only if @xmath .
+
+###### Proof.
+
+If @xmath then by definition there exists @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath . By the Consistency Characterization (Lemma 4.2 )
+there exists a transcript @xmath that is @xmath -consistent with @xmath
+such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+from which it follows that @xmath .
+
+If @xmath then let @xmath witness this fact and let @xmath be any
+transcript that is @xmath -consistent with @xmath . By the Consistency
+Characterization (Lemma 4.2 ) there exists a yes-prover @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+By definition, the quantity on the right is at least @xmath , from which
+it follows that @xmath ∎
+
+As Corollary 4.12 suggests, any language @xmath can be decided by an
+algorithm that decides the emptiness of the set @xmath . But how can the
+emptiness of this set be decided efficiently?
+
+In order to answer that question, we point out that once a yes-prover
+has been fixed the short quantum game essentially becomes a two-message
+quantum interactive proof system in which the no-prover is the only
+prover. As demonstrated in Section 4.1 , such an interaction can be
+decided by solving opt . Therefore, if we are given a candidate
+transcript @xmath for some yes-prover @xmath then we can use our
+solution to opt to decide whether there exists a no-prover that wins
+against @xmath . If we find that no such no-prover exists then we can
+safely conclude that @xmath and hence @xmath .
+
+Unfortunately, if we find that there does exist a no-prover that wins
+against @xmath then we cannot immediately conclude that @xmath because
+it might also be the case that @xmath but @xmath is a bad yes-prover who
+does not properly witness this fact.
+
+However, all is not lost: using our solution to opt it is easy to
+recover the unitary matrix @xmath belonging to a no-prover who wins
+against @xmath . This unitary matrix satisfies
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+but by the definition of @xmath we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and hence @xmath is in some sense a witness to the fact that @xmath . In
+particular, it follows from these inequalities that the matrix @xmath
+and the scalar @xmath define a hyperplane that separates @xmath from
+@xmath .
+
+To summarize the ideas presented thus far, we have that if a given
+density matrix @xmath is an element of @xmath then this fact can be
+verified efficiently by solving opt . Otherwise, if @xmath then we can
+use our solution to opt to construct a hyperplane separating @xmath from
+@xmath . Later we will see that these two abilities can be used to
+efficiently decide the emptiness of @xmath via convex feasibility
+methods such as the ellipsoid method.
+
+#### 4.3.2 Double Quantum Interactive Proof Systems
+
+Before we formalize the ideas presented in Section 4.3.1 , it is
+instructive to note that those ideas apply to a slightly larger subclass
+of quantum refereed games. Suppose, for example, that @xmath is the
+state of the verifier’s qubits after exchanging not just one, but
+several messages with the yes-prover. Presumably, the same method can
+still be used to determine whether @xmath indicates a winning
+yes-prover. The only complication is that it must be possible for the
+yes-prover to somehow get the verifier’s qubits into the state @xmath .
+Fortunately, the Consistency Characterization (Lemma 4.2 ) tells us
+precisely when this task is possible.
+
+Of course, once @xmath is given and the yes-prover is fixed there is no
+reason to restrict the induced quantum interactive proof system to only
+two messages—our solution to opt will easily handle the case in which
+the verifier exchanges many messages with the no-prover. The only
+complication here is how to generate a separating hyperplane using the
+output of opt .
+
+With that extension in mind, consider a short quantum game in which the
+verifier exchanges not just one message with each prover, but @xmath
+messages with the yes-prover followed by @xmath messages with the
+no-prover before making his decision. One can think of a quantum
+refereed game of this strange form as two consecutive quantum
+interactive proof systems—one with the yes-prover, then one with the
+no-prover. Hence, we give the name double quantum interactive proof
+system to quantum refereed games that obey this protocol and we let
+@xmath denote the complexity class of languages that have double quantum
+interactive proof systems with completeness error @xmath and soundness
+error @xmath .
+
+Like short quantum games, it is still the case with double quantum
+interactive proof systems that the no-prover does not become involved
+until the verifier has finished exchanging messages with the yes-prover.
+Hence, it is still the case that actions of the yes-prover can be
+completely described by a transcript. This time, however, the transcript
+consists of several states @xmath instead of just a single state.
+
+We apply the Consistency Characterization (Lemma 4.2 ) to double quantum
+interactive proof systems in much the same way as it was applied to
+short quantum games in Corollary 4.12 . That is, we identify a set of
+winning yes-provers @xmath with a set of winning transcripts @xmath .
+
+###### Corollary 4.13.
+
+Let @xmath satisfy @xmath for all @xmath , let @xmath , and let @xmath
+be a @xmath -round verifier witnessing this fact. Define @xmath to be
+the set of all transcripts @xmath such that @xmath is @xmath -consistent
+with @xmath and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all @xmath of the form
+
+  -- -------- -- -------
+     @xmath      (4.6)
+  -- -------- -- -------
+
+for some unitary matrices @xmath . Then @xmath is nonempty if and only
+if @xmath .
+
+###### Proof.
+
+If @xmath then by definition there exists @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath of the form ( 4.6 ). By the Consistency
+Characterization (Lemma 4.2 ) there exists a transcript @xmath that is
+@xmath -consistent with @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+from which it follows that the transcript @xmath is an element of @xmath
+.
+
+If @xmath then let @xmath witness this fact, let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and let @xmath be any transcript that is @xmath -consistent with @xmath
+. By the Consistency Characterization (Lemma 4.2 ) there exists a
+yes-prover @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+It follows from our choice of @xmath that the quantity on the right is
+at least @xmath and hence the transcript @xmath is not an element of
+@xmath . ∎
+
+Just like Corollary 4.12 , Corollary 4.13 suggests that any language
+with a double quantum interactive proof system can be decided by
+ascertaining the emptiness of @xmath . Our intention is to solve this
+problem by extending the ideas of Section 4.3.1 to double quantum
+interactive proof systems. That is, given a transcript @xmath for some
+yes-prover @xmath , we check to see if there exists a no-prover who wins
+against @xmath by solving a certain instance of opt . If such a
+no-prover exists then we use our solution to opt to construct a
+hyperplane separating the transcript @xmath from the set @xmath of
+winning transcripts. Given the ability to construct separating
+hyperplanes, we will see that the emptiness of @xmath can be determined
+via the ellipsoid method.
+
+#### 4.3.3 The Ellipsoid Method
+
+The problem of ascertaining the emptiness of a convex set is sometimes
+called convex feasibility . This problem is a special case of the convex
+programming problem, wherein the task is to maximize a given convex
+function over some convex set of feasible solutions. Convex programming
+is a generalization of both the linear and semidefinite programming
+problems mentioned in Section 4.1.2 . In the case of convex feasibility,
+no function is given and the goal is only to determine whether or not
+the set of feasible solutions is empty.
+
+The ellipsoid method is an iterative procedure that can often be used to
+solve the convex feasibility problem in polynomial time. Most of our
+discussion concerning this method is based upon material found in the
+book by Grötschel, Lovász, and Schrijver [ 21 ] . The ellipsoid method
+has a rich history that we do not survey here. The interested reader is
+referred to the aforementioned book for a concise account of this
+history up until 1988.
+
+The method can be described informally as follows. Given a set @xmath
+such that
+
+-   @xmath is bounded and convex; and
+
+-   if @xmath is nonempty then @xmath is a full-dimensional subset of
+    @xmath ,
+
+we wish to decide whether @xmath is empty. One iteration of the
+ellipsoid method consists of the generation of a candidate element
+@xmath . If @xmath is found to belong to @xmath then the algorithm
+terminates, having found a certification that @xmath is nonempty.
+Otherwise, the convexity of @xmath implies that there exists a
+hyperplane that separates @xmath from @xmath [ 39 ] . This hyperplane is
+used by the ellipsoid method to generate a refined candidate @xmath
+during the next iteration. If an appropriate number of iterations pass
+without finding a vector in @xmath then the ellipsoid method terminates
+with the conclusion that @xmath must be empty.
+
+The ellipsoid method is an oracle algorithm in the sense that it does
+not produce the separating hyperplanes used to refine candidates. Often,
+producing such a hyperplane is a complicated task that depends heavily
+upon the definition of @xmath . An algorithm that computes a separating
+hyperplane for a given candidate in this manner is called a separation
+oracle . The ellipsoid method guarantees that, given a polynomial-time
+separation oracle for @xmath , the emptiness of @xmath can be deduced in
+polynomial time.
+
+The details of the ellipsoid method are many and a proper discussion of
+those details would be tedious. In lieu of such a discussion, we cite an
+amusing analogy found in Reference [ 21 , page 73] that effectively
+conveys an intuition of how the ellipsoid method works:
+
+  Recall the well-known method of catching a lion in the Sahara. It
+  works as follows. Fence in the Sahara, and split it into two parts;
+  check which part does not contain the lion, fence the other part in,
+  and continue. After a finite number of steps we will have caught the
+  lion (if there was any) because the fenced-in zone will be so small
+  that the lion cannot move anymore. Or we realize that the fenced-in
+  zone is so small that it cannot contain any lion.
+
+In this analogy, the Sahara is the vector space @xmath and the lion is
+the bounded, convex, and full-dimensional set @xmath . The ellipsoid
+method specifies how to “fence in” some subset of @xmath and the
+separation oracle serves to split the fenced-in area and check which
+side contains the lion.
+
+Based on this analogy, the necessity of the requirement that @xmath be
+bounded and full-dimensional becomes clear. If the lion were unbounded
+then it would be impossible to fence him in. On the other hand, if the
+lion were not full-dimensional then he would have zero length along one
+axis. We could conceivably continue fencing him in along that axis ad
+infinitum and he would still have room to move within the fenced-in
+area.
+
+Fortunately, the requirement that @xmath be full-dimensional can often
+be dropped. For example, the case in which @xmath is a full-dimensional
+subset of some “simple polyhedron” @xmath can also be handled by the
+ellipsoid method as described in Reference [ 21 , Chapter 6] . Moreover,
+any separation oracle for @xmath may assume without loss of generality
+that the input vector @xmath is also an element of the polyhedron @xmath
+.
+
+#### 4.3.4 The Set of Winning Yes-Provers Revisited
+
+As of now, the set @xmath is defined only loosely as a set of winning
+transcripts for a double quantum interactive proof system. In this
+subsection, we provide a more precise definition of this set and show
+that it meets the criteria set out by the ellipsoid method.
+
+Before we proceed, we remind the reader of some of the notation used in
+Section 4.1.3 . In particular, @xmath denotes the Hilbert space with
+dimension @xmath and @xmath denotes the block-diagonal matrix whose
+blocks are the matrices @xmath .
+
+Let @xmath be a language that has a double quantum interactive proof
+system with completeness error @xmath and let @xmath be a @xmath -round
+verifier witnessing this fact. We define
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+to be the set of all block-diagonal positive semidefinite matrices
+@xmath such that @xmath and the list @xmath is @xmath -consistent with
+@xmath and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all @xmath of the form ( 4.6 ) in Corollary 4.13 .
+
+An advantage of defining @xmath in this manner is that we can leverage
+the results of Section 4.1 to show that @xmath is a proper candidate for
+use with the ellipsoid method. For example, the following lemma is a
+straightforward consequence of the work in that section.
+
+###### Lemma 4.14.
+
+@xmath is bounded and convex.
+
+###### Proof.
+
+Let @xmath and let @xmath with @xmath and @xmath . That @xmath is
+block-diagonal with first block equal to @xmath follows immediately.
+Moreover, we know that @xmath and @xmath satisfy the @xmath -Consistency
+Constraints (Lemma 4.4 ). Letting @xmath be any one of these
+constraints, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+from which it follows that @xmath also satisfies the @xmath -Consistency
+Constraints (Lemma 4.4 ). By similar reasoning, any matrix @xmath for
+which @xmath and @xmath also satisfies
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+completing the proof that @xmath is convex.
+
+That @xmath is bounded follows from the @xmath -Consistency Constraint
+Bound (Lemma 4.5 ), which tells us that any element of @xmath has
+spectral norm at most @xmath . ∎
+
+According to the discussion in Section 4.3.3 , if we are to use the
+ellipsoid method to decide the emptiness of @xmath then it is necessary
+that the set be polynomial-time isomorphic to a full-dimensional subset
+of some “simple polyhedron” in @xmath . We now argue that such an
+isomorphism exists.
+
+For our purposes, a simple polyhedron in @xmath is any set @xmath
+defined explicitly as an intersection of at most @xmath halfspaces for
+some fixed @xmath . For example, the @xmath -Consistency Constraints
+define a simple polyhedron @xmath in the vector space of @xmath
+Hermitian matrices, which is readily identified with @xmath as mentioned
+in Section 3.2.1 . Hence, it is suffices to prove the following lemma.
+
+###### Lemma 4.15.
+
+For every @xmath , @xmath is a full-dimensional subset of @xmath if it
+is nonempty.
+
+###### Proof.
+
+By definition, every element @xmath :
+
+-   is block-diagonal with first block equal to @xmath ;
+
+-   satisfies the @xmath -Consistency Constraints;
+
+-   is positive semidefinite; and
+
+-   satisfies @xmath for all appropriately chosen @xmath .
+
+The first two restrictions are precisely the definition of the simple
+polyhedron @xmath , from which it follows that @xmath . As the positive
+semidefinite matrices are a full-dimensional subset of the Hermitian
+matrices, it follows that the third restriction does not decrease the
+dimension of @xmath .
+
+For the final restriction, a simple continuity argument shows that if
+@xmath satisfies @xmath for some @xmath then so must all @xmath in some
+neighbourhood of @xmath . Hence, this final restriction also does not
+decrease the dimension of @xmath . ∎
+
+Lemma 4.15 tells us that if the verifier @xmath has completeness error
+strictly smaller than @xmath then @xmath is a full-dimensional subset of
+the simple polyhedron @xmath . As @xmath is also bounded and convex, it
+follows that the ellipsoid method can decide its emptiness if provided
+with an efficient separation oracle.
+
+#### 4.3.5 A Separation Oracle
+
+We have seen that the set @xmath qualifies for use with the ellipsoid
+method provided that the verifier @xmath has completeness error strictly
+smaller than @xmath , but it remains to show that there exists an
+efficient separation oracle for that set. Recall from Section 4.3.3 that
+a separation oracle for @xmath is a computational problem that takes as
+input a candidate Hermitian matrix @xmath and outputs either (i) an
+assertion that @xmath ; or (ii) a hyperplane separating @xmath from
+@xmath . In this subsection we formalize the statement of that problem
+and we provide a polynomial-time solution.
+
+The separation oracle we seek for @xmath solves the problem @xmath
+defined in Figure 4.8 (compare with Reference [ 21 , Theorem 3.2.1] ).
+
+As with sdp and opt , we assume that the real and imaginary parts of all
+input numbers (including @xmath and the matrices belonging to @xmath )
+are represented in binary notation.
+
+As per the discussion in Sections 4.3.3 and 4.3.4 , we assume without
+loss of generality that the input matrix @xmath to our separation oracle
+already satisfies the @xmath -Consistency Constraints (Lemma 4.4 ), as
+these constraints define a simple polyhedron @xmath of which @xmath is a
+full-dimensional subset.
+
+It is instructive to note that @xmath implements a weak separation
+oracle in the following sense. Output case 1 in Figure 4.8 allows us to
+reject a “good” yes-prover if it is close to a “bad” yes prover.
+Conversely, output case 2 implies that we may accept a “bad” yes-prover
+so long as it is close to a “good” yes prover. We will soon see that
+leeway afforded to us by the bounded-error requirement for quantum
+refereed games permits this convenient relaxation. This bounded-error
+requirement will also permit us the necessary assumption that the
+verifier’s completeness error be strictly less than @xmath .
+
+The remainder of this subsection is devoted to proving the following
+theorem.
+
+###### Theorem 4.16.
+
+@xmath can be solved in time polynomial in the bit lengths of @xmath and
+the input data.
+
+###### Proof.
+
+Figure 4.9 describes a polynomial-time algorithm for @xmath .
+
+We now verify the correctness of that algorithm.
+
+If step 2 is reached then @xmath must be positive semidefinite where the
+list @xmath is @xmath -consistent with @xmath . Existence of the unitary
+matrices @xmath then follows from the Consistency Characterization
+(Lemma 4.2 ). The matrices @xmath represent a transcript for the
+yes-prover defined by @xmath .
+
+Suppose first that the halting condition is reached in step 3. We prove
+that every no-prover loses to @xmath . Let @xmath be any no-prover and
+let @xmath (respectively @xmath ) denote the probability with which
+@xmath convinces @xmath to reject @xmath given @xmath (respectively
+@xmath ) so that
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+By our choice of accuracy parameter for opt we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and by Lemma 4.7 with @xmath we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+from which it follows that @xmath . As @xmath was chosen arbitrarily, it
+follows that the transcript @xmath is at least “close” to @xmath as
+required by output case 2 in the definition of sep @xmath .
+
+Next, suppose that the algorithm proceeds to step 4. We prove that the
+returned matrix @xmath indicates an “almost” separating hyperplane as
+required by output case 1 in the definition of @xmath .
+
+We start by showing that @xmath is large. Existence of the unitary
+matrices @xmath in step 4 follows from the Consistency Characterization
+(Lemma 4.2 ). By Lemma 4.7 with @xmath and @xmath we have
+
+  -- -------- -- -------
+     @xmath      (4.7)
+  -- -------- -- -------
+
+Choose any transcript @xmath and write @xmath . We now show that @xmath
+is small. Let @xmath be a yes-prover giving rise to the transcript
+@xmath and let @xmath . We have
+
+  -- -------- -- -------
+     @xmath      (4.8)
+  -- -------- -- -------
+
+Combining ( 4.7 ) and ( 4.8 ) we obtain
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+as required by output case 1 in the definition of sep @xmath . The
+algorithm is therefore correct.
+
+It remains only to verify that this algorithm runs in polynomial time.
+Using any established method for computing a unitary matrix witnessing
+the Unitary Equivalence of Purifications (Fact 4.1 ), we can approximate
+the matrices @xmath in step 2 and @xmath in step 4 to @xmath bits of
+precision in time polynomial in @xmath and the dimensions of those
+matrices. The desired approximations @xmath and @xmath can then be
+computed in polynomial time by choosing an appropriate @xmath according
+to Section 4.2.1 . As the input matrices to opt in step 3 can be
+computed in polynomial time and have at most polynomial dimension, the
+desired result follows from the fact that opt admits a polynomial-time
+solution (Theorem 4.6 ). ∎
+
+#### 4.3.6 At Long Last
+
+Now that @xmath has been shown to admit a polynomial-time solution
+(Theorem 4.16 ), we are finally ready to prove the upper bound @xmath .
+Indeed, we prove that the containment holds under the following
+relaxations of the definition of @xmath :
+
+-   The verifier may exchange an exponential number of messages with the
+    yes-prover followed by an exponential number of messages with the
+    no-prover.
+
+-   The verifier’s quantum circuits may contain an exponential number of
+    gates, so long as they still act upon at most a polynomial number of
+    qubits.
+
+-   The completeness error and soundness error may be exponentially
+    close to @xmath in @xmath .
+
+Recall the definitions of a strong verifier (Section 4.2.2 ) and a
+double quantum interactive proof system (Section 4.3.2 ). We prove the
+following theorem.
+
+###### Theorem 4.17 (An extension of @xmath).
+
+Let @xmath be any polynomial-time computable functions satisfying @xmath
+for all @xmath . Any language @xmath that can be decided by a double
+quantum interactive proof system with a strong verifier having
+completeness error @xmath and soundness error @xmath is in @xmath .
+
+###### Proof.
+
+Let @xmath . It follows from the fact that @xmath and @xmath are
+polynomial-time computable that @xmath .
+
+Figure 4.10 describes a deterministic exponential-time algorithm that
+decides @xmath .
+
+To see that this algorithm is correct, let @xmath and @xmath denote the
+completeness error and soundness error respectively of @xmath . It
+follows from Lemma 4.7 with the approximations of step 2 that @xmath and
+@xmath . As
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+it follows from Corollary 4.12 that @xmath is nonempty if and only if
+@xmath . As @xmath has completeness error strictly smaller than @xmath ,
+it follows from the remarks in Section 4.3.4 that the set @xmath
+qualifies for use with the ellipsoid method.
+
+It remains only to verify our choice of accuracy parameter to sep @xmath
+. Suppose that the ellipsoid method found that @xmath is nonempty. Then
+there must exist a transcript @xmath for which the maximum probability
+with which @xmath rejects @xmath is smaller than
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+As this transcript violates the soundness condition, it must be the case
+that @xmath .
+
+Conversely, suppose the ellipsoid method found that @xmath is empty.
+Then for every transcript @xmath the maximum probability with which
+@xmath rejects @xmath is larger than
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+As every transcript violates the completeness condition, it must be the
+case that @xmath .
+
+That our algorithm runs in exponential time follows from the fact that
+sep @xmath admits a polynomial-time solution (Theorem 4.16 ) and from
+the polynomiality of the ellipsoid method. ∎
+
+## Chapter 5 Conclusion
+
+The work of this thesis initiates the study of quantum refereed games.
+We chose to focus on short quantum games, proving the containments
+@xmath in Chapter 3 and @xmath in Chapter 4 .
+
+Figure 5.1 summarizes some known relationships among the complexity
+classes considered in this thesis. In that figure, @xmath denotes the
+class of languages with double quantum interactive proof systems as
+defined in Section 4.3.2 and @xmath its complement. As with Figure 1.1 ,
+a class @xmath contains class @xmath if @xmath can be reached from
+@xmath by following a path of only upwardly sloped edges.
+
+### 5.1 Open Problems
+
+We now discuss several open questions relating to the material covered
+in this thesis.
+
+#### 5.1.1 Parallelization
+
+It is known that any @xmath -message classical interactive proof system
+can be simulated by a two-message interactive proof system for any
+constant @xmath [ 5 , 19 ] . The complexity class corresponding to
+two-message interactive proof systems is known as @xmath and is
+contained in @xmath , the second level of the polynomial-time hierarchy.
+
+As @xmath , it is widely believed that interactive proof systems with a
+polynomial number of messages are strictly more powerful than @xmath
+-message interactive proof systems. In contrast, we mentioned in Section
+2.2.1 that any quantum interactive proof system can be simulated by a
+three-message quantum interactive proof system [ 31 ] .
+
+One can also ask whether a similar parallelization result holds for
+refereed games. In the classical case, we mentioned in Section 1.2.5
+that one-round refereed games characterize @xmath and that many-round
+refereed games characterize @xmath [ 13 ] . However, little is known
+about the power of refereed games intermediate between these two
+extremes. For example, games with a constant number of rounds may
+correspond to @xmath , @xmath , or some complexity class between the
+two.
+
+Even less is known in the quantum case. For example, it is unclear how
+to solve close-images with a short quantum game if the verifier is not
+permitted to process the yes-prover’s message before sending a message
+to the no-prover (Section 3.3 ). Does this ability separate one-round
+quantum refereed games from short quantum games?
+
+#### 5.1.2 Parallel Repetition
+
+Suppose we wish to reduce the error of a given interactive protocol
+without increasing the number of messages in that protocol. In Section
+3.4.1 we described an approach to this problem called parallel
+repetition . Essentially, the idea is to run many copies of the
+interaction in parallel and accept or reject based upon a vote of the
+outcomes of the individual repetitions. The hope is that Chernoff bounds
+can be used to prove that the error of the repeated game decreases
+exponentially in the number of repetitions. Of course, we must take into
+account the fact that the provers need not cooperate with the verifier
+by treating each repetition independently, and therein lies the rub.
+
+Although parallel repetition has been successfully applied to single-
+and multi-prover classical interactive proof systems (see, for instance,
+Raz [ 37 ] ), this problem has not been completely solved in the quantum
+setting. It is known that parallel repetition followed by a unanimous
+vote of the outcomes works to reduce the soundness error for
+three-message quantum interactive proof systems with zero completeness
+error [ 31 ] . We extended that result in this thesis to obtain a
+partial robustness result for short quantum games (Theorem 3.7 ).
+
+However, several questions remain unanswered. Does parallel repetition
+work in the quantum setting if it is followed by a majority vote of the
+outcomes instead of a unanimous vote? Is it even possible to improve the
+error of @xmath -round quantum refereed games for @xmath without
+increasing the number of rounds?
+
+#### 5.1.3 Insight into @xmath and @xmath
+
+The cumulative results of this thesis can be viewed as wedging several
+complexity classes between @xmath and @xmath —in particular,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In a sense, it seems as though @xmath is buried deeply inside @xmath .
+Can we prove @xmath ?
+
+It is clear that @xmath contains both @xmath and @xmath . Does @xmath
+also contain @xmath ? Are either of @xmath or @xmath closed under
+complement?
+
+#### 5.1.4 Do Quantum Refereed Games Characterize @xmath?
+
+In this thesis we proved that @xmath (Theorem 4.11 ). It follows
+immediately from the fact that @xmath is closed under complement that
+@xmath . Combined with the fact that @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In the realm of polynomial-time computation, problems known to be in
+@xmath yet not known to be in @xmath are rare and often the subject of
+intense study. In many cases, a problem with this property is later
+discovered to lay in @xmath and the accompanying proof of this fact can
+sometimes offer new insights in complexity theory. Popular examples of
+this trend include the linear programming problem [ 26 ] and the
+primality testing problem [ 1 ] . Based upon this historical precedent
+and upon recent unpublished work by the author, we make the following
+conjecture:
+
+###### Conjecture 5.1.
+
+@xmath .
+
+Aside from offering a rare quantum characterization of a classical
+complexity class, such a collapse would also imply that classical
+refereed games are polynomially equivalent in power to quantum refereed
+games. If true, this equivalence would be a powerful negative example of
+a case in which the use of quantum information offers no advantage over
+the use of classical information.

@@ -1,0 +1,3525 @@
+##### Acknowledgements. It gives me great pleasure in expressing my
+gratitude to all those people who have supported me and had their
+contributions in making this thesis possible and an unforgettable
+experience as well as big adventure. Foremost, I would like to express
+my gratitude to my advisors Jean-Francois Glicenstein and Rafał Moderski
+for the continuous support of my Ph.D study and research. I thank
+Jean-Francois for his patience, motivation, enthusiasm and immense
+knowledge and Rafał for his valuable comments and many discussions.
+Besides my advisors, I would like to thank the rest of my thesis
+committee: Tomasz Bulik, Włodek Bednarek, Stefan Wagner and Reza Ansari
+for their encouragement, insightful comments, and hard questions. I
+would especially like to thank Tomek Bulik who during my internship at
+CAMK showed me that being a scientist is cool, and Bronek Rudak for his
+endless and priceless support. I thank all the Ph.D students at Nicolaus
+Copernicus Astronomical Center, in particular Karolina, Mateusz,
+Krzysztof, Tomek, Weronika and Torun team. I am thankful to my
+colleagues Pierre, Anais, Emmanuel, Aion, Bernard, for the hospitality
+and support during my stay in France. Finally, I take this opportunity
+to express the profound gratitude to my parents, my siblings and Jacek
+for their continuous support. This work was supported by the Polish
+Ministry of Science and Higher Education under Grants No.
+DEC-2011/01/N/ST9/06007 and in part supported by HECOLS.
+
+## Part I Level 2 trigger system for H.E.S.S. II telescope
+
+### 1.1 Introduction
+
+The High Energy Stereoscopic System (H.E.S.S.) is an observatory of very
+high energy gamma rays ( @xmath 100 GeV). It is located on Khomas
+Highland in Namibia and became operational in 2004. The H.E.S.S. array
+consists of four imaging atmospheric Cherenkov telescopes (IACTs)
+working as a stereoscopic system (Hinton, 2004 ) . The stereoscopic
+technique is used to achieve a better background rejection power,
+especially to reject events triggered by single muons and night sky
+background photons (NSB), and also it is used to improve image
+reconstruction. These single muons come from hadronic showers and became
+a dominant source of spurious triggers for a single telescope (Funk
+et al. , 2005 ) .
+
+Recently, the H.E.S.S. observatory has been completed with a 28 meter
+diameter telescope. The large Cherenkov telescope (LCT) saw its first
+light on 26 of July 2012. In the low energy range (below 50 GeV), the
+LCT shall work detached from the rest of the array, in the so-called
+”mono mode”. Therefore, the LCT camera is equipped with a Level 2
+trigger board (Moudden, Barnacka, Glicenstein et al. , 2011a , b ) to
+improve the rejection of accidental NSB and single muon triggers. Such
+Level 2 trigger systems have been used also by other Cherenkov
+instruments, as well. For example, the MAGIC collaboration (Bastieri
+et al. , 2001 ) is using a Level 2 trigger to perform a rough analysis
+of data and apply topological cuts to the obtained images.
+
+In the first part of this thesis, I introduce the phase I and II of the
+H.E.S.S. project (sections 1.2 and 1.3 ). Then, in section 1.4 , I
+describe the principle of the Cherenkov technique. Section 1.5 contains
+a discussion about the energy threshold of the array, which I obtained
+using Monte Carlo simulations. Next, in section 1.6 , I present the
+trigger system, and then in sections 1.7 and 1.8 , the results of my
+work on the algorithm for the Level 2 trigger. Section 1.9 describes the
+hardware solution of the Level 2 trigger developed at IRFU/CEA. The
+results are summarize in section 1.10 .
+
+### 1.2 The H.E.S.S. I phase
+
+Originally the H.E.S.S. observatory was design to observe high energy
+photons with energy in the 100 GeV to 100 TeV range. The instrument
+consisted of four Cherenkov telescopes, located at the vertices of a
+square with side 120 m. This configuration was selected to provide
+multiple stereoscopic views of air showers. The telescopes are made of
+steel, with altitude/azimuth mounts. The dishes have a Davis-Cotton
+design with an hexagonal arrangement, composed of 382 round mirrors,
+each 60 cm in diameter (Bernlöhr et al. , 2003 ) .
+
+Each of the present small Cherenkov telescopes (SCTs) has a 12 m
+diameter mirror and is equipped with a camera consisting of 960 Photonis
+XP2960 photo-multiplier tubes (PMTs). Each tube corresponds to an area
+of 0.16 @xmath in diameter on the sky, and is equipped with a Winston
+cone. The Winston cones capture the light which would fall in between
+the PMTs, and simultaneously reduce the background light. The camera
+design groups the PMTs in 60 drawers of 16 tubes each (Vincent et al. ,
+2003 ) . Each drawer contains the trigger and readout electronics for
+the tubes, as well as the high voltage supply, control and monitoring
+electronics. The field of view (FoV) of the detector is 5 @xmath in
+diameter. The camera is placed at the focus of the dish, 15 m above the
+mirrors. The H.E.S.S. system of four telescopes is presented in figure
+1.1 .
+
+### 1.3 H.E.S.S. II phase
+
+Recently (July 2012), a fifth telescope has been added to the array,
+what greatly enlarges the observatory capabilities. The 28 meter
+diameter telescope uses a parabolic-shaped mirror to minimize time
+dispersion. The dish is composed of 875 hexagonal faces of 90 cm size,
+with a focal length 36 m. The overall picture of the LCT is shown on
+figure 1.2 .
+
+The LCT camera follows the design of the H.E.S.S. I cameras, but is much
+larger. It is equipped with 2048 PMTs in 128 drawers. The physical pixel
+size is 42 mm, which is equivalent to a 0.067 @xmath pixel FoV. The LCT
+pixels have the same physical size as of the SCT, but, due to the larger
+focal length, shower images are much better resolved.
+
+The LCT is sensitive to photons down to 10 GeV. In the normal
+operations, any of the SCTs will be triggered only in case of a
+coincidence with another telescope (LCT or SCTs). Low energy photons
+will not trigger the SCTs. To increase the acceptance of low energy
+photons, standalone LCT triggers will have to be accepted.
+
+### 1.4 The principle of the Cherenkov technique
+
+#### 1.4.1 Cherenkov light emission
+
+The Cherenkov light is emitted by a charged particle passing a
+dielectric medium with a velocity @xmath greater than the phase velocity
+of light in that medium. The particle threshold velocity for the
+Cherenkov light production is:
+
+  -- -------- -- -------
+     @xmath      (1.1)
+  -- -------- -- -------
+
+where @xmath is a refraction index of the medium.
+
+This can be translated into an energy threshold, @xmath , for the
+particle:
+
+  -- -------- -- -------
+     @xmath      (1.2)
+  -- -------- -- -------
+
+where @xmath is a particle rest mass.
+
+Cherenkov photons are emitted with a fixed angle @xmath to the particle
+trajectory. The angle can be calculated using the relation between the
+distance traveled by the particle and by the emitted radiation @xmath
+(see figure 1.3 ).
+
+  -- -------- -- -------
+     @xmath      (1.3)
+  -- -------- -- -------
+
+In the case of IACTs, the relativistic particle o interest comes from
+the cascades initiated by cosmic rays (CR) particles in the Earth’s
+atmosphere.
+
+#### 1.4.2 Cosmic rays
+
+Cosmic rays (CRs) are charged particles and atomic nuclei arriving at
+the Earth location from the all directions. They were discovered by the
+Austrian physicist Viktor Hess in a series of balloon experiments in the
+first decade of the XX @xmath century. Viktor Hess was awarded the Nobel
+prize in 1936 for this discovery. The CR spectrum is shown on figure 1.4
+. The spectrum, measured at the top of the Earth’s atmosphere, has the
+following composition: 98% of the particle are protons and nuclei, the
+remaining 2% are electrons. The protons and nuclei part is composed of
+87% protons, 12% helium nuclei and 1% heavier nuclei.
+
+#### 1.4.3 The atmospheric air showers
+
+When the high energy CRs enter the Earth’s atmosphere, they collide with
+O @xmath and N @xmath molecules and produce new energetic particles. The
+generation of secondary particles starts at the height of about 20 km
+above the sea level, and continues until the depletion of the energy of
+the primary particle. The set of generated particles is called an
+atmospheric air shower. The showers initiated by hadronic or leptonic
+primary particles or photons have different compositions due to the
+nature of the physical processes involved.
+
+Atmospheric showers caused by electrons or @xmath -ray photons develop
+as a pure electromagnetic cascades through electron positron pair
+production and bremsstrahlung radiation. When gamma rays interact with
+nuclei they produce @xmath pairs. In the next step, the electrons and
+positrons regenerate gamma rays by bremsstrahlung radiation.
+
+The growth of hadronic cascade involves more types of possible
+interactions, thus results in the production of a greater variety of
+secondary particles like pions, kaons, nuclei, etc. The vast majority of
+the secondary particles produced after the first interaction are pions (
+@xmath ). The charged pions decay into muons @xmath and neutrinos @xmath
+:
+
+  -- -------- -- -------
+     @xmath      (1.4)
+  -- -------- -- -------
+
+The muons have a life-time of @xmath with @xmath s and Lorentz factor
+@xmath , which implies @xmath = 1 @xmath km. Therefore, they can travel
+through the atmosphere and reach the Earth’s surface. The Cherenkov
+light of such muons can trigger the cameras of IACT if muons reach the
+distance of a few hundred meters above the telescope. In such a case,
+typical arc shaped images or ring images are observed.
+
+The neutral pions decay with 99% probability into photons @xmath :
+
+  -- -------- -- -------
+     @xmath      (1.5)
+  -- -------- -- -------
+
+and initiate a pure electromagnetic sub-shower.
+
+In the case of electromagnetic showers, the vast majority of generated
+electrons is well collimated with the shower axis. This make the images
+of gamma showers very compact and regular. Hadronic showers are much
+less regular and less compact, because the nature of secondary particle
+is hadronic as well as leptonic, and the secondary particles are less
+collimated with respect to the shower axis. Figures 1.6 and 1.5 show two
+examples of the atmospheric air showers generated by the photon and
+proton, respectively.
+
+#### 1.4.4 Air shower development in the atmosphere
+
+In the electromagnetic cascade the number of secondary particles is
+nearly proportional to the energy, @xmath , of the primary particle.
+After each radiation length @xmath , the number of secondary particles
+increase by a factor of 2. After @xmath radiation lengths, the number of
+secondary particles is @xmath , where X is the slant depth along the
+shower axis (Gaisser, 1991 ) .
+
+The showers stop to develop when energy losses of secondary particles
+due to the pair production and bremsstrahlung emission are smaller than
+their losses by ionization. After this happens, secondary particles are
+absorbed by the atmosphere. The ionization energy loss, @xmath , is
+about 2.2 MeV @xmath . The critical energy @xmath , below which the
+shower stops expanding is @xmath = 81 MeV, where radiation length @xmath
+in air is equal to 37 @xmath .
+
+The maximum number of particles in the shower, is reduced at the shower
+maximum @xmath :
+
+  -- -------- -- -------
+     @xmath      (1.6)
+  -- -------- -- -------
+
+The atmospheric depth, given in units of [ @xmath ], corresponds to an
+atmospheric heigh, @xmath , in km:
+
+  -- -------- -- -------
+     @xmath      (1.7)
+  -- -------- -- -------
+
+where @xmath and @xmath km. Figure 1.7 shows the shower maximum height
+as a function of energy, assuming that the maximum of Cherenkov emission
+corresponds to the shower maximum @xmath .
+
+#### 1.4.5 Cherenkov light distribution
+
+The number of Cherenkov photons per unit of track length of the particle
+and per unit of wavelength is given by the Frank-Tamm formula:
+
+  -- -------- -- -------
+     @xmath      (1.8)
+  -- -------- -- -------
+
+where @xmath is the fine structure constant, and @xmath is the charge of
+the particle in units of the elementary charge. For atmospheric air
+showers the maximum intensity of the Cherenkov light emission
+corresponds to UV and blue light (300-700 nm). For shorter wavelengths
+it is cut off by the decrease of @xmath . The cut off appears before
+X-rays because @xmath X-rays @xmath in all materials. In addition, the
+Cherenkov light is strongly absorbed in the atmosphere before reaching
+the ground. The atmospheric absorption is more efficient toward the
+short wavelengths. This effect modifies significantly the observed
+spectrum. Figure 1.8 shows the spectrum of Cherenkov light emitted by a
+particle at 0 @xmath zenith angle. The spectrum includes atmospheric
+absorption and for the comparison it is shown together with the quantum
+efficiency of PMT used by IACTs.
+
+The electromagnetic cascades of atmospherical showers are initiated at
+@xmath km above the see level. Then, depending on the primary particle
+energy, the shower reaches its maximum between 15 km and 5 km. The
+charged secondary particles traversing the atmosphere emit Cherenkov
+photons with the cone angle @xmath . Cherenkov photons emitted at 10 km
+produce a ring of radiation at the ground level with a radius of @xmath
+120 m, centered on the particle trajectory. The shape of the ring
+depends also on the shower axis angle. The Cherenkov light distribution
+become more diffuse if the initial particle had a larger zenith angle.
+
+The majority of Cherenkov photons, emitted between the first interaction
+and shower maximum, will arrive approximately within 120 m of the shower
+core. However, Cherenkov photons may have a significant flux many
+hundreds of meters from the shower axis. This is a consequence of the
+angular distribution of particles and the scattering of Cherenkov light.
+
+Two examples of the Cherenkov light density distributions as a function
+of distance from the shower axis (impact parameter) are presented in
+figures 1.9 and 1.10 , for @xmath -ray initiated showers and proton
+initiated showers, respectively. The distributions have been obtained
+using the CORSIKA package (Capdevielee et al. , 1993 ) . The light
+density of Cherenkov photons in the wavelength range 250-700 nm were
+simulated for gamma and proton showers. The magnetic field has been set
+in simulations for the H.E.S.S. site, and zenith angles @xmath , azimuth
+angle @xmath , and an altitude of 2000 m.
+
+The Cherenkov light distribution of gamma showers shows a very regular
+structure with a characteristic bump at 120 m. The average photon
+density of proton showers is 3 times smaller than for the gamma showers
+of the same energy, since, on average only third part of energy of
+hadronic shower goes to electromagnetic sub-showers.
+
+#### 1.4.6 Shower geometry
+
+The Cherenkov light emitted by the atmospheric shower is observed in the
+focal plane of ground based instruments. The image of gamma showers in
+the camera has an elliptical shape which can be characterized by Hillas
+parameters (Hillas, 1985 ) . The Hillas parameters are obtained by
+calculating moments of the photo-electron (phe) distribution in the
+camera. The most comonly used parameters in the image analysis are Size
+, Length , Width , Alpha and Dist . These parameters are shown on figure
+1.12 .
+
+The Size parameter is the total number of photo-electrons in the image
+and is roughly proportional to the energy of the primary particle, it is
+also called the Amplitude . The second moment of the phe distribution
+with substracted COG (the image center of gravity) along the major image
+axis is the Length , and along the minor axis is the Width . The Alpha
+is the angle between the direction of the major axis and the line
+joining the image centroid with the source position.
+
+The Dist is the distance between the image centroid and the source
+position in the camera plane. The Dist parameter is correlated with the
+distance of the shower to the telescope axis (impact parameter). The
+correlation between Dist and impact parameter (IP) is presented in
+figure 1.13 . The correlation is energy dependent because the image
+maximum for different energies of primary particle appears at different
+heights (see figure 1.13 ). The relation between the energy and shower
+maximum height has been calculated from equations ( 1.6 ) and ( 1.7 ).
+
+### 1.5 Analytical estimation of the energy threshold of the H.E.S.S.
+LCT
+
+The theoretical energy threshold of the H.E.S.S. telescope can be
+calculated using the Cherenkov light distribution and the overall
+performance parameters of the telescope. The minimum photon density,
+@xmath , required to obtain the signal of at least @xmath is defined as:
+
+  -- -------- -- -------
+     @xmath      (1.9)
+  -- -------- -- -------
+
+where @xmath is a mirror effective area, @xmath is the camera and masts
+shadowing, @xmath is system reflectivity, @xmath is integrated detector
+efficiency weighted by the Cherenkov light spectrum.
+
+Typically 50 – 100 phe are necessary to perform an image reconstruction.
+Using equation ( 1.9 ) and the telescope specifications listed in table
+1.1 , one can derive the photon density required to detect certain
+number of photo-electrons. For the H.E.S.S. I telescopes, a density of
+@xmath 5.5–11 @xmath is required to detect 50 – 100 photo-electrons.
+This density corresponds to an energy of 60 – 100 GeV, according to
+figure 1.9 . This is the energy threshold of the H.E.S.S. I detector.
+
+The H.E.S.S. II telescope has a reflection area more than 5 times larger
+than the H.E.S.S. I telescopes. This allows to collect enough photons
+from a much smaller signal. In the case of the H.E.S.S. II, a minimum
+photon density of @xmath 1–2 @xmath is required to detect
+50 – 100 photo-electrons. This photon density correspond to gamma shower
+energies of 10 – 20 GeV.
+
+The numbers quoted above refers to the trigger threshold, and are
+estimated for observations at zenith angle @xmath . The numbers give a
+rough estimate of the system performances. The LCT will work alone in
+the energy range from 10 GeV to 60 GeV. The telescopes should work
+efficiently together in stereoscopic mode for energies above 60 GeV. In
+the case of observations at larger zenith angle, the energy threshold
+for the stereoscopic trigger is larger.
+
+### 1.6 Trigger system of the H.E.S.S. II telescope
+
+The trigger system of the H.E.S.S. II will operate at three levels: the
+Level 1 trigger (camera level), the Level 2 trigger (LCT level) and the
+stereoscopy (array level). In addition to time coincidences between SCT
+Level 1 triggers, the central trigger system will check for time
+coincidences of LCT and SCTs triggers. The result of the latter
+coincidence test (monoscopic or stereoscopic event) will be sent back to
+the LCT trigger management. As in H.E.S.S. I, stereoscopic events will
+always be accepted.
+
+#### 1.6.1 Level 1 trigger
+
+The LCT has a Level 1 trigger similar to the Level 1 trigger of the four
+small telescopes. It is a local camera trigger described in details by
+Funk et al. ( 2005 ) . A camera Level 1 trigger occurs if the signals in
+M pixels (pixel multiplicity) of a camera sector, exceed a threshold of
+N photoelectrons (pixel threshold). Each sector consists of 64 pixels.
+The LCT camera was divided to 96 overlapping sectors to ensure trigger
+homogeneity. The effective time window for coincidence is 1.3 ns.
+
+#### 1.6.2 Level 2 trigger
+
+The small Cherenkov telescopes are not equipped with a Level 2 trigger,
+since they do not operate in mono mode. The LCT was build to lower the
+energy threshold of triggered gamma events. Normally, the background
+rejection is achieved in the stereoscopic mode when more than one small
+telescope is triggered at the same time as the large telescope. The
+stereoscopy with the large telescope will allow to lower the energy
+threshold down to 50 – 60 GeV (as was discussed in section 1.5 ). The
+LCT has to work in mono mode below this energy range. The mono mode does
+suffer from high trigger rates caused by single muons. The solution with
+Level 2 trigger has been proposed for LCT to reduce the trigger rate.
+
+#### 1.6.3 Stereoscopy
+
+The step after the camera trigger level (Level 1 trigger) is the
+so-called central trigger. The central trigger system looks for
+coincidences of telescope triggers inside a 40 ns time window. A
+coincidence of at least 2 telescopes is required in the central trigger
+time window. LCT monoscopic events are accepted or rejected depending on
+the result of Level 2 system evaluation. The possible configurations of
+stereoscopy are shown on figures 1.15 and 1.16 .
+
+### 1.7 Algorithms for the Level 2 trigger
+
+#### 1.7.1 Requirements for the Level 2 trigger
+
+The input rate to the Level 2 trigger is limited to less than roughly
+100 kHz by the dead-time of the front-end readout board. In turn, the
+output rate is limited to a few kHz by the capacity of the ethernet
+connection to the acquisition system.
+
+Table 1.2 shows the trigger rates caused by the NSB for different pixel
+multiplicities and thresholds. The input rate gives a strong constraint
+on possible Level 1 trigger conditions: pixel multiplicity and pixel
+threshold. The total particle and NSB rate is at the level of a few kHz.
+A further reduction of this rate by a factor of 2 or 3 allows to fulfill
+the output rate condition even in very noisy environments.
+
+#### 1.7.2 Principle of the Level 2 trigger
+
+The idea of the Level 2 trigger is to have the whole trigger information
+at the pixel level, instead of the sector level as in the Level 1
+trigger. A reduced, 3-level image of the camera, so-called “combined
+map”, is sent to the Level 2 trigger system whenever the LCT has an
+confirmation of Level 1 trigger.
+
+The combined map consists of two black and white images of the camera,
+with 3 possible pixel intensities, which are 0 (when a pixel is below
+the threshold), the Level 1 pixel threshold and another higher pixel
+threshold. The black and white image obtained by taking only the Level 1
+threshold information (resp. the Level 2 threshold information) is
+called “Level 1 map” (resp. “Level 2 map”).
+
+The background rejection is performed by a dedicated algorithm,
+described in detail in subsections 1.7.4 or 1.7.5 . Since stereoscopic
+events should always be accepted, the Level 2 trigger operates
+differently on stereoscopic and monoscopic events. When the Level 1
+trigger of the LCT occurs, the central trigger checks, if another
+telescope was triggered. If this is the case, then the event is accepted
+by the Level 2 system. If on the contrary the event is monoscopic, the
+decision depends on the Level 2 trigger algorithm.
+
+#### 1.7.3 Approach to the algorithm
+
+For monoscopic events the trigger rate can be reduced with a two step
+procedure. The first step rejects NSB events, which have been accepted
+by Level 1 system in the procedure called clustering/denoising. The
+second step lowers the rate caused by the particle background events
+(protons, muons, electrons), through the topological algorithms. The
+crucial requirement is to keep as many gamma events as possible during
+each of the above steps.
+
+#### 1.7.4 Clustering/denoising
+
+The NSB consist of photons from stars and a diffuse light. Therefore, no
+correlation is expected between the pixels illuminated by NSB. These
+events can be rejected requiring pixels with signals above the pixel
+threshold from a cluster of neighboring pixels, the so-called
+”clustering” condition. Most of the pixels fired by NSB photons are
+isolated, and they can be removed by a step called ”denoising”.
+
+The denoising algorithm removes all the isolated pixels from the Level 1
+map. If the resultant map is empty then the event is rejected. There are
+several possible clustering algorithms. One variant simply demands a
+group of 2 or 3 neighboring pixels above a trigger threshold. The effect
+of the denoising/clustering on the trigger rate cased by NSB for a
+cluster of at least 2 pixels above the threshold is illustrated in table
+1.2 . The NSB trigger rates decrease by large factors, in some cases by
+several order of magnitude (see e.g. the trigger rates in table 1.2 for
+a pixel threshold of 3 photoelectrons and multiplicity of 3 pixels). The
+efficiency of the clustering/denoising algorithm allows to decrease the
+Level 1 trigger threshold and thus to reach a smaller photon energy
+threshold.
+
+Protons, electrons, and total particle rates as a function of trigger
+condition are displayed on figures 1.19 , 1.21 and 1.22 , respectively.
+These rates are little affected by the clustering cut. The electron rate
+is dominated by low energy events, so that most electron events will
+trigger only the LCT.
+
+#### 1.7.5 Topological algorithms
+
+The topological algorithms rely on the fact that the images of showers
+observed in the camera plane have a characteristic shape. The images of
+gamma-like events are well defined by the Hillas parameters described in
+section 1.4.6 . The images created by hadrons have much less regular
+shape, and thus Hillas parameters can be used to separate the
+electromagnetic from hadron-like showers. The single muons created in
+the hadronic cascade produce a very characteristic ring or arc shapes.
+
+Therefore, it is worth investigating, which of the Hillas parameters can
+be used in the trigger to reject hadron like events, without losing too
+many gamma events. The time duration of the shower depends on the
+primary particle energy and the impact parameter. The shower event on
+the ground can lasts from a few to dozen of ns in the case of very
+energetic events. The maps processed by the Level 2 trigger contain the
+signal integrated in @xmath 1 ns, so it contains only a fraction of the
+shower image.
+
+Figures 1.17 and 1.18 show shower parameters ( Width, Length, Amplitude,
+COG, Length/Size, Width/Length ) computed for the signal integrated over
+16 ns compared to the one calculated from 1 ns Level 2 combined maps.
+The comparison is presented for 30 GeV and 100 GeV simulated gamma
+showers. The figures show barely any correlation for the Width and
+Length parameters, but there are strong correlations for the COG and the
+Amplitude parameters. Therefore, the COG or the Amplitude cuts can be
+used to further reduce the hadron rate.
+
+#### 1.7.6 The center of gravity cut
+
+The algorithm that can be used to reject a part of the background
+particles is based on the center of gravity ( COG ) cut. The COG
+parameter was chosen, because for low energy gamma showers, the COG
+shows a clear correlation between the one calculated from instantaneous
+Level 2 maps and that calculated from the whole image integrated over
+16 ns.
+
+The other reason for using the COG parameter comes from the shower
+geometry. The LCT is design to detect low energy gamma events. The
+showers initiated in the atmosphere by low energy @xmath -ray photons
+have their maximum higher in the atmosphere (see. figure 1.7 ). The
+Cherenkov light distribution at low energy (figure 1.14 ) shows that low
+energy gammas have a photon density large enough to be detected up to
+@xmath 200 m. The lateral distribution reaches its maximum at @xmath 120
+m, and then decreases rapidly. Figure 1.13 shows the DIST parameter as a
+function of the impact parameter calculated for different energy of
+primary gammas. From figure 1.13 its clear that at low energies ( @xmath
+GeV) the majority of showers will have their COG positions within 1
+@xmath radius from the source position. We thus demand that the COG of
+accepted showers be located at less than @xmath from the expected
+position of the source.
+
+The higher energy @xmath -rays produce air showers with enough Cherenkov
+photons to trigger more than one telescope. Thus they will be accepted
+by the stereoscopic trigger. This algorithm is valid for point sources
+or weakly extended sources of photons.
+
+The direction of the charged primary particle is changed by the Galactic
+and the Earth magnetic field. The observed distribution of the
+background events is then isotropic. The COG of such particles are
+uniformly distributed in the focal plane of the telescope. The fraction
+of the background events rejected with the COG cut is proportional to
+the excluded area. The COG cut set at 1 @xmath should reject 1 – COG
+@xmath 70% of the background events.
+
+### 1.8 Trigger simulations
+
+The trigger simulations have been performed using KASKADE and SMASH
+tools. KASCADE (Kertzman & Sembroski, 1994 ) package is a computer
+software that simulates in three dimensions the Cherenkov photons
+produced by VHE gamma-rays and hadronic air showers.
+
+SMASH is a package dedicated to the H.E.S.S. detector simulation. The
+package is used to simulate the response of the detector to the Monte
+Carlo photon data produced with KASCADE .
+
+SMASH reproduces the camera, dish and telescope structure geometry. The
+package simulates the whole electronics as well as the background and
+noise contributions. The different Level 2 schemes have been implemented
+by the author to the SMASH software. The electronic channel outputs were
+simulated with realistic photon signal shapes and a realistic
+electronics readout. The results of the simulations have been used to
+estimate the various trigger rates with the method described by Guy (
+2003 ) .
+
+#### 1.8.1 Background rates
+
+The largest contributions to the trigger rate of a single telescope in
+@xmath -ray astronomy are background events. The largest fraction of the
+events triggering the camera are photons from the NSB. The other major
+source of background are cosmic ray showers. These showers have either
+hadron (proton, helium, etc.) or electron/positron primaries. The
+typical proton flux is larger than 100 particles m @xmath sr @xmath s
+@xmath taking into account protons with energies above 10 GeV. The
+expected muon flux is about @xmath 10 particles m @xmath sr @xmath s
+@xmath , while the electron flux above 7 GeV is @xmath 3 particles m
+@xmath sr @xmath s @xmath . The background rates are calculated
+according to the formula:
+
+  -- -------- -- --------
+     @xmath      (1.10)
+  -- -------- -- --------
+
+where @xmath is the solid angle of the viewcone in steradians, @xmath is
+the area with radius which corresponds to the maximum impact parameter
+@xmath , of simulated events. @xmath is a number of triggered events and
+@xmath is a number of simulated events. The particle flux, @xmath , is
+known from observations of many instruments and differ for each particle
+type.
+
+#### 1.8.2 Proton rate
+
+Protons were simulated in the energy range from 0.005 TeV to 500 TeV,
+with the maximum impact parameter of 550 m and the viewcone of 5 @xmath
+. The proton trigger rates were calculated using the particle flux given
+by Guy ( 2003 ) [Chapter 13, p.135] and using equation ( 1.10 ):
+
+  -- -------- -- --------
+     @xmath      (1.11)
+  -- -------- -- --------
+
+The proton trigger rate is shown on figure 1.19 as a function of the
+pixel threshold in photoelectrons.
+
+#### 1.8.3 Muon rate
+
+Isolated muons from distant hadronic showers can trigger Cherenkov
+telescopes. These muon triggers dominate the single telescope triggers
+(Funk et al. , 2005 ) and can be rejected by demanding a multi-telescope
+trigger (stereoscopy). The muons flux were calculated using:
+
+  -- -------- -- --------
+     @xmath      (1.12)
+  -- -------- -- --------
+
+The energy range of simulated muons was 10 – 100 GeV. The trigger rate
+contributed by single muons is shown on figure 1.20 .
+
+#### 1.8.4 Electron rate
+
+Cosmic ray electrons give a Cherenkov signal very similar to the signal
+of high energy gamma rays. It is thus not possible to eliminate
+electrons from the analysis. However, the electron background, which is
+a diffuse source, can be reduced in point source studies. The trigger
+rates were calculated using the particle flux:
+
+  -- -------- -- --------
+     @xmath      (1.13)
+  -- -------- -- --------
+
+The minimum energy of electron entering the atmosphere depends on the
+rigidity cut-off (Cortina & González, 2001 ) . The geomagnetic field
+bends the cosmic ray trajectories preventing low rigidity particles from
+reaching the Earth’s surface. The rigidity of a particle is defined as
+@xmath , where @xmath is the speed of light, @xmath is the particle
+momentum and @xmath is the charge of the particle. The minimum allowed
+rigidity is known as rigidity cut-off, @xmath . The electron rigidity
+cut-off can by estimated from
+
+  -- -------- -- --------
+     @xmath      (1.14)
+  -- -------- -- --------
+
+where:
+@xmath - is the zenith angle ( @xmath
+@xmath - is the azimuth angle ( @xmath
+r - is the distance from the dipole center
+@xmath - is the magnetic altitude
+A simple manipulation of the rigidity definition gives an expression for
+the minimum energy of the particle which are able to penetrate into the
+Earth’s atmosphere:
+
+  -- -------- -- --------
+     @xmath      (1.15)
+  -- -------- -- --------
+
+For the H.E.S.S. site, the geographic longitude is 18 @xmath E, the
+geographic latitude 22 @xmath S, and the corrected magnetic latitude is
+33 @xmath . The rigidity cut-off for H.E.S.S. site is then @xmath =7 GV.
+The cut-off energy for the electrons is thus @xmath GeV.
+
+Monte Carlo samples of cosmic electrons were simulated using the
+following parameters: energy range from 0.007 TeV to 300 TeV, viewcone 5
+@xmath . The electron trigger rate is typically a few hundred Hz, and is
+plotted on figure 1.21 .
+
+#### 1.8.5 Total particle trigger rate
+
+The particle trigger rate is shown as a function of the pixel threshold
+on figure 1.22 . The particle trigger rate is the sum of the proton, the
+helium and the electron rate. The helium rate is taken into account by
+multiplying the proton rate by 1.2 (Guy, 2003 ) . The total particle
+trigger rate is of the order of 1 kHz.
+
+#### 1.8.6 Night Sky Background rate
+
+The NSB comes from diffuse sources, such as the zodiacal light and the
+galactic plane, and light from bright stars. The NSB flux has been
+measured at the H.E.S.S. site and NSB photoelectron rates were derived
+for the 12 meter telescopes (Preu et al. , 2002 ) . The calculated NSB
+photoelectron rate is @xmath MHz per pixel at zenith in extragalactic
+fields. In galactic fields, the single pixel rate is higher and reaches
+200-300 MHz per pixel. The 28 meter telescope has a larger collection
+area (596 m @xmath as compared to 108 m @xmath ), but with more pixels
+(2048 instead of 960) and a smaller angular acceptance ( @xmath sr
+instead of @xmath sr), the expected NSB rate per pixel of the LCT is
+only a factor of 1.3 higher as compared to SCT.
+
+KASKADE simulations have been used to generate gamma particles with very
+low energies not producing detectable Cherenkov light to reproduce the
+response of the detector to the NSB events. The gamma energy has been
+set arbitrarily to @xmath MeV. The NSB trigger was then simulated by
+adding random photoelectrons to every readout channel. NSB single pixel
+rates of 100, 200 and 300 MHz were studied. The different NSB levels
+have been set to reproduce different observation conditions. The low NSB
+level @xmath 100 MHz is relevant for an extragalactic observation. The
+high NSB level @xmath 300 MHz corresponds to the photon background for
+the Galactic plane observations.
+
+The NSB rate has been calculated by looking for a trigger in a 40 ns
+coincidence window:
+
+  -- -------- -- --------
+     @xmath      (1.16)
+  -- -------- -- --------
+
+The LCT trigger rates due to the NSB are shown on table 1.2 for several
+Level 1 trigger conditions. Depending on the conditions, the estimated
+rates range from several MHz to less than a few tens of Hz. Since the
+dead-time per event of the LCT acquisition is of the order of a few
+microseconds, the acquisition rate should be less than roughly 100 kHz.
+Table 1.2 shows that some Level 1 trigger condition (e.g. a pixel
+multiplicity of 3 and a pixel threshold of 3) lead to unmanageably high
+trigger rates.
+
+#### 1.8.7 Effective area
+
+The advantage of the Cherenkov imaging technique is its large collection
+area. The gamma efficiency (number of triggered events divided by number
+of simulated events) alone does not gives even a rough estimate of the
+telescope performance. To check the performance more accurately it is
+much better to calculate the effective area, which include also the
+information about the trigger efficiency as a function of the impact
+parameter. The effective collection area, @xmath , of a single telescope
+is determined by the lateral and angular distribution of the Cherenkov
+light. For gamma-rays from a point source:
+
+  -- -------- -- --------
+     @xmath      (1.17)
+  -- -------- -- --------
+
+where @xmath is the detection probability for a gamma-ray shower induced
+by a primary photon with energy E and impact parameter r.
+
+Figure 1.23 shows the detection probability as a function of the impact
+parameter for 20 GeV gamma showers at different trigger conditions. It
+is worth pointing out that at low energy the trigger efficiency depends
+very strongly on the Level 1 trigger conditions. However, at very low
+trigger thresholds the trigger efficiency is increased by random NSB
+hints. The simulations of gamma showers has been performed with
+additional photon noise at level of 100 MHz. Figure 1.24 shows the
+comparison of effective areas at different trigger conditions and
+trigger algorithm stages.
+
+#### 1.8.8 Level 2 trigger efficiency
+
+The efficiency of the different algorithm steps has been tested with the
+Monte Carlo simulations. Figure 1.25 shows the results of the
+simulations for each step of the algorithm. The solid line indicate the
+total efficiency of the algorithm as a function of @xmath -ray event
+energies. At energies below 30 GeV all events are monoscopic (the
+dot-dashed line). Above 30 GeV, a small fraction of the events start to
+be stereoscopic, then stereoscopy is starting to be efficient above an
+energy of 60 GeV. All stereoscopic events are accepted. The fraction of
+the stereoscopic events is represented by the area above the dot-dashed
+line.
+
+The algorithm based on the COG cut is very efficient at low energies
+(the dotted line). At higher energies the stereoscopy is starting to
+work very efficiently and the majority of gamma events are thus
+accepted. The solid line indicate that for energies below 40 GeV the
+efficiency of the algorithm for accepting gamma events reach 80%.
+
+#### 1.8.9 Summary of Cog algorithm
+
+Figure 1.19 shows that the proton and single muon rates are reduced by a
+factor of 3 when the COG cut is applied. The same applies to the
+electron background, as shown on figure 1.21 . The total background rate
+is summarized on figure 1.22 .
+
+The COG cut also affects the photon efficiency. The photon efficiency,
+shown on figure 1.25 , has been normalized to the efficiency of the
+Level 1 trigger. As the photon energy increases, the fraction of
+monoscopic events (solid line) decreases. Note that stereoscopic events
+are automatically accepted by the Level 2 trigger. The
+clustering/denoising algorithms (dot-dashed line) remove a fraction (
+@xmath ) of the low energy ( @xmath GeV) photons. After the COG cut
+(dotted line), around @xmath of the low energy photons pass the Level 2
+trigger. This fraction decreases with energy, and reaches a minimum of
+roughly @xmath around 50 GeV then raises again because of the increasing
+fraction of stereoscopic events.
+
+As has been shown, it is possible to efficiently remove the NSB
+background with a clustering/denoising algorithms. The background rate
+can be reduced by algorithms which based on the statistic sum similar to
+COG cut.
+
+### 1.9 The Level 2 trigger hardware
+
+The H.E.S.S. II telescope is going to observe in a standalone mode a
+variety of different sources with different background conditions. The
+hardware solution of the Level 2 trigger has to be then reconfigurable
+depending on the inset of a given observation run. The reconfiguration
+of the system should be possible without affecting the observation
+schedule.
+
+The reconfiguration condition can be achieved by using FPGA (Field
+Programmable Gate Array) chip. The algorithm described in section 1.7
+has been implemented and tested using dedicated hardware board on Xilinx
+Virtex4 FPGA. The details of the hardware solution has been described by
+Moudden, Venault, Barnacka et al. ( 2011b ) and Moudden, Barnacka,
+Glicenstein et al. ( 2011a ) .
+
+#### 1.9.1 The Level 2 trigger board
+
+The Level 2 trigger hardware is based on an FPGA with an embedded 32-bit
+PowerPC (PPC) processor, which runs up to a frequency of 300 MHz, namely
+a Xilinx’s Virtex4-FX12 ¹ ¹ 1
+http://www.xilinx.com/support/documentation/user_guides (V4FX12). The
+PPC in the V4FX12 is equipped with an auxiliary processor controller
+unit (APU). The unit allows the processor to externalize the execution
+of custom instructions to the hardware FPGA fabric, while still using
+simple function calls in the software.
+
+The evoluation board (EB) distributed by Avent ² ² 2 www.em.avent.com
+has been used to ensure optimal combination of the sequential and
+parallel processing capabilities for real time execution. V4FX12
+Evaluation Kit ³ ³ 3
+http://www.silica.com/services/engineering/design-tools/ads-xlx-v4fx-evl12-g.htm
+and V4FX12 Mini-Module ⁴ ⁴ 4
+http://www.files.em.avnet.com/files/177/fx12_mini_module_user_guide_1_1.pdf
+(MM) are used in the proposed Level 2 trigger design. The large number
+of accessible user I/O’s on the FPGA was the decisive feature of the EB.
+The view of the final Level 2 trigger board equipped with the Avent EB
+is presented in figure 1.26 .
+
+The Level 2 trigger system is receiving the data from the Front End (FE)
+electronics on 64 LVDS ⁵ ⁵ 5 Low-voltage differential signaling (LVDS).
+links. The received data contain two binary images of the camera. Each
+image is made up of 2048 pixels on an equilateral triangular grid (see
+figure 1.27 ).
+
+The EB is equipped with the Micron 32 MB DDR SDRAM memory. It can be
+used by the PPC to hold code and data. The Virtex-4 FPGA is accessible
+through 76 user I/Os and is connected to 32M x 16 of DDR memory. Both
+boards hold a 100 MHz oscillator for clocking purposes.
+
+The EB is in charge of receiving the data from the FE boards, through
+the backplane. Additional information about the stereoscopic nature of
+the incoming event reaches the EB through the front panel. The Level 2
+system sends the algorithm decision (L2A ⁶ ⁶ 6 Level 2 Accepted or L2R ⁷
+⁷ 7 Level 2 Rejected ) as an output to the Data Acquisition System
+(DAQ). The data acquisition FIFOs ⁸ ⁸ 8 First In, First Out buffer have
+a capacity of 50 events, and is used to hold the camera data while
+awaiting for the Level 2 trigger response. The capacity of the buffer
+sets an upper bound on the latency of the Level 2 system, constraining
+the real-time implementation of the Level 2 trigger algorithms.
+
+#### 1.9.2 The algorithm implementation
+
+If the processed event is tagged as stereo , the Level 2 trigger uses
+its selection algorithm to decide if the event will be issued as
+accepted (L2A) or rejected (L2R). The algorithm proceeds as follow: 1.
+Set to 0 all pixels in @xmath that are not in clusters of 3 at least
+@xmath 2. IF @xmath THEN Reject ELSE 3. Set to 0 all isolated pixels in
+@xmath @xmath 4. Compute Hillas parameterd of @xmath 5. Compute distance
+@xmath from center of gravity ( COG ) to target @xmath 6. IF @xmath THEN
+Reject ELSE Accept where @xmath and @xmath are the two input binary maps
+associated with threshold values of @xmath and @xmath , @xmath are the
+pointed target’s coordinates in the camera plane and @xmath is the
+decision threshold on the nominal distance @xmath between the COG of the
+event and the target position.
+
+The Level 2 trigger is build as a pipeline system. The first step of the
+Level 2 pipeline is a transposition of the input 64 @xmath 64 binary
+data matrix. The step is performed before the matrix is available to the
+PPC in a dedicated cacheable memory block. The first half of the data
+represents the binary camera image with the true values for pixels above
+threshold @xmath ( @xmath ). The second half is a @xmath obtained for
+the pixel threshold @xmath , respectively.
+
+The 32 bit words are then read by the PPC from the block.
+
+Each byte corresponds to the 8 pixels from one FE board. The
+geographical position of pixels follows a constant logical pattern. The
+auxiliary processor of the V4FX12 is used to achieve a parallel
+implementation of the non-linear filters in step 1 and 3. This has been
+built using logic AND and OR gates. In this way denoising (Step 1) was
+implemented by convolving @xmath with the filter:
+
+  -- -------- -- --------
+     @xmath      (1.18)
+  -- -------- -- --------
+
+where @xmath is used to index the 6 nearest neighbors of a pixel. The
+similar filter is used to detect the cluster of at least 3 or 4 pixels.
+
+A fast implementation of step 4 is obtained by reorganizing the wighted
+sums that define the @xmath and @xmath order moments of the input data.
+Computing the @xmath and @xmath order moments of the denoised combined
+map is common for the estimation of Hillas parameters and other
+parameters of interest (Hillas, 1985 ) . It can be defined as:
+
+  -- -------- -------- -- -- --------
+     @xmath   @xmath         (1.19)
+     @xmath   @xmath         (1.20)
+     @xmath   @xmath         (1.21)
+  -- -------- -------- -- -- --------
+
+where @xmath indexes the 2048 pixels in the processed data maps, and
+@xmath is the weight assigned to pixel @xmath . The binary maps @xmath
+and @xmath can be processed separately and the sums are profitably
+rearranged for an efficient hierarchical computation of the moments.
+
+First, a byte-addressable look-up table (LUT) is used to compute the
+@xmath and @xmath order moments on each FE board. These are combined
+locally to compute these statistics on each of the 64 pairs of drawers.
+This local summation requires the LUT outputs to be properly translated
+depending on the position of a given FE board in the current pair of
+drawers. Summation over the 64 pairs of drawers requires an additional
+transformation of these statistics to account for the translation and
+scaling of the local frame. This requires a move of the current drawer
+to its correct position within the global coordinate frame of the
+camera. In the end, the contributions of the two binary maps are
+linearly combined with weights @xmath and @xmath providing final 32 bit
+integer statistics @xmath , @xmath , @xmath , @xmath , @xmath and @xmath
+for the combined map.
+
+With this fast implementation, the PPC computes the first and second
+order moments of the input data in a maximum of 18000 clock cycles. For
+an even faster execution time, given that these statistics will most
+often be estimated for low energy events when only very few pixels are
+high in @xmath and even less in @xmath , it is worth checking if a byte
+is zero before using the LUT. As a result the computation time will vary
+almost linearly with the number of active bytes in the data.
+
+The algorithm proposed in section 1.7 uses only the first-order
+statistics to compute the nominal distance in finite precision:
+
+  -- -------- -- --------
+     @xmath      (1.22)
+  -- -------- -- --------
+
+where the factor @xmath is due to the equilateral triangular grid and
+the accompanying @xmath left out in the moment computation for
+simplicity. The specified precision on the target coordinates is @xmath
+of the unit length, giving the precision to which the COG coordinates
+have to be computed.
+
+#### 1.9.3 Experimental timing results
+
+The design and real time implementation of the Level 2 algorithm is
+constrained by the maximum latency. If the Level 1 rate is of the order
+of 100 kHz, the maximum latency of the Level 2 trigger is @xmath 500
+@xmath s. The minimum time between two events is then 10 @xmath s. If
+the Level 1 rate is reduced to 5 kHz, the maximum latency of the Level 2
+trigger increases to 10 ms and the minimum mean time between two events
+is 200 @xmath s.
+
+The Level 2 architecture was tested with timing experiments in order to
+benchmark the performance of the proposed hardware, firmware and
+software solution for the Level 2 trigger system. With this setup, a
+stable behavior of the system was observed up to a maximum Level 1 rate
+slightly above 10 kHz. The multi-FPGA system could sustain a maximum
+mean rate close to 30 kHz. A more realistic estimation of the maximum
+acceptable Level 1 rate is plotted on figure 1.28 . This results were
+obtained for the first implementation of the Level 2 trigger system. The
+dead-time estimate is based on the simulated rates reported in sections
+1.8 and on time measurements of the different elementary steps in the
+Level 2 trigger pipeline. For typical Level 1 trigger conditions
+(multiplicity 3 or 4 and pixel threshold between 3 and 7) the estimated
+average processing time is @xmath 37 @xmath s, which corresponds to a
+maximum Level 1 trigger rate of 27 kHz. Actually, for these trigger
+conditions, the system occupancy is estimated to be @xmath % as shown on
+figure 1.28 . The proposed multi-FPGA system will provide thus a safe
+margin. However, the real Level 1 and Level 2 trigger rate have to be
+determined on site.
+
+### 1.10 Conclusions
+
+The Level 2 trigger is going to be used to reduce the trigger rate of
+the LCT at low energy. The principle of the Level 2 trigger is to build
+a 2-bit (“combined”) map of the camera pixels at the time of trigger.
+The NSB events can then be rejected by demanding clusters of pixels on
+the combined map. Further rejection of the hadronic background can be
+obtained by using quantities such as the COG of the pixels above a pixel
+threshold. A possible, illustrative, algorithm for the Level 2 trigger
+system has been described in section 1.7 . This algorithm shows that the
+required rejection of the NSB and isolated muon triggers is achievable.
+
+The hardware and software integration into the LCT camera of the
+previously described system based on a single V4FX12 has been achieved.
+The Level 2 system is already fully integrated in the H.E.S.S. II
+acquisition system and is currently undergoing tests with real data.
+
+## Part II Data analysis and modeling of PKS 1510-089
+
+### 2.1 Introduction
+
+The observations of the FERMI satellite in the high energy (HE) range
+resulted in the identification of 1873 sources, according to the second
+FERMI catalog (Nolan et al. , 2012 ) . Among these 1873 sources majority
+are blazars. Blazars are very luminous active galactic nuclei (AGNs)
+with a relativistic jet pointing toward the observer.
+
+The broadband spectrum of blazars is dominated by non-thermal emission
+produced in the jet (Blandford & Rees, 1978 ) . The spectral energy
+distribution (SED) is characterized by two broad spectral components.
+One component, which extends from the radio to optical/UV/X-rays, peaks
+at low energy, and is produced by the synchrotron radiation of
+relativistic electrons. The second one, from X-rays to @xmath -rays,
+peaks in the HE range and in most current interpretations is produced by
+inverse Compton (IC) radiation with as possible source of seed photons
+either the synchrotron radiation, or the broad line region (BLR) or the
+dusty torus (DT).
+
+Blazars can be divided into two classes: Flat Spectrum Radio Quasars
+(FSRQs) and BL Lac objects. FSRQs are distinguished from BL Lac objects
+by the presence of broad emission lines, which are not found in BL Lac
+objects. The FSRQs have HE components much more luminous than low energy
+ones. The seed photons for IC radiation most probably come from BLR. The
+seed photons, for BL Lacs objects, probably come from the synchrotron
+radiation, and both spectral components have comparable luminosities.
+
+According to the prediction of Moderski et al. ( 2005 ) , the spectra of
+blazars should have a cut-off at a few GeV due to the Klein-Nishina
+effect, if the high energy component is produced by IC of photons
+reemitted in BLR. Spectral breaks at a few GeV have been found in the
+@xmath -ray spectra of many FSRQs and BL Lacs (Abdo et al. , 2011 ) .
+The most prominent example is 3C 454.3 (Abdo et al. , 2009 ) . In
+addition, the luminous IR-UV photon field, from the BLR and the DT, can
+cause a strong absorption of HE and VHE photons by electron-positron
+pair production (Donea & Protheroe, 2003 ; Liu & Bai, 2006 ) .
+
+The other possible explanation of the spectral break involves
+photo-absorption by He II and Ly @xmath (Poutanen & Stern, 2010 ) .
+Gamma rays photo-absorbed by He II recombination (54.5 eV) and Ly @xmath
+(40.8 eV) photons from the BLR would create a break at @xmath 5 GeV.
+
+The number of known blazars in HE range is larger than 1000, but in VHE
+range only about 50 blazars have been detected so far (Errando & for the
+VERITAS Collaboration, 2012 ) . Up to now, only BL Lacs objects, from
+the blazar class, were clearly detected as VHE sources.
+
+Recently however, Cherenkov telescopes have detected 3 FSRQ in sub-TeV
+range. The first detected object was 3C 279, observed with the MAGIC
+telescope (Aleksić et al. , 2011b ) . Two additional FSRQs are 4C 21.35
+detected by the MAGIC telescope (Aleksić et al. , 2011a ) and PKS
+1510-089 detected with H.E.S.S. (Hauser et al. , 2011 ) . The detection
+of these objects shows that FSRQs can also emit photons in the VHE
+range. The emission in this energy range is very difficult to explain by
+inverse Compton of photons from BLR.
+
+### 2.2 Unification schemes of active galaxies
+
+The unified theory of AGNs has been developed since the 70s (Antonucci,
+1993 ) . The basic idea of the unification assumes that all of the
+active galaxies have similar internal structure of their nuclei, but
+their appearances depend on their orientations. Figure 2.1 shows the
+model proposed by Urry & Padovani ( 1995 ) .
+
+This model assumes that all the AGNs are powered by accretion of
+surrounding matter onto the supermassive black hole located in the
+center of the host galaxy. The accreting matter forms a geometrically
+thin accretion disk and corona heated by magnetic or viscous processes.
+Farther out there is a geometrically thick DT. The emission from the
+accretion disk is reprocessed in DT and BLR. The fraction of reprocessed
+emission by BLR and DT ( @xmath ) can not be larger than 1. The typical
+values of @xmath are in the range of @xmath 0.1–0.3 Nalewajko et al. (
+2012 ) .
+
+The AGNs are divided to many subclasses. The most common classifications
+based on the properties like an appearance (if the source is observed as
+a point-like or a clear galaxy host), an presence or an absence of the
+broad or narrow line regions, a variability or a polarization. The most
+popular groups are
+
+-    radio-load active galaxies (10%)
+
+-    radio-quiet active galaxies (90%)
+
+-    Seyfert galaxies named after Carl Seyfert, who pointed out the
+    first six Seyfert galaxies . This group was later subdivided into
+    two types (according to presence or absence of the broad or narrow
+    emissions lines)
+
+-    Optically Violently Variable (OVV), this class is marked by
+    exceptionally rapid and large amplitude variability in the optical
+    band
+
+The further classification distinguishes also quasars group, which
+consists of objects found at large distances with very bright emission
+from the jet. Quasars include radiogalaxies and blazars.
+
+### 2.3 Blazar sequence
+
+Blazars are the most luminous AGNs. Their emission is dominated by the
+boosted radiation from the jet, and their spectra consist of two broad
+components. The low-frequency component (LFC) has a peak in the IR-X-ray
+range, while the high-frequency component (HFC) has a peak in MeV to TeV
+range. Both components are highly variable, with time scale ranging from
+years to the fraction of a day. Blazars are also characterized by high
+radio and optical polarization, and in many cases strong @xmath -ray
+emission.
+
+The superimposed blazar spectral energy distributions (SEDs) from figure
+2.2 suggest the correlation between the luminosities and the peaks
+positions. The sequence is characterized by an increasing synchrotron
+peak frequency, a decreasing overall luminosity and a decreasing
+dominance of the @xmath -ray emission over the synchrotron component.
+Fossati et al. ( 1998 ) based on this behavior elaborated an unified
+view of the SEDs called the blazar sequence (see figure 2.2 ).
+
+FSRQs and BL Lacs occupy the opposite sides of the blazar sequence. In
+the case of FSRQs, the peaks of low-frequency ( @xmath ) components are
+shifted toward lower frequencies as compared to the BL Lacs. The
+broad-band spectrum of FSRQs is characterized by a large luminosity
+ratio of their high-frequency and low-frequency spectral components.
+This luminosity ratio can reach values up to 100. In the case of BL Lac
+objects, the luminosities of high and low frequency components are
+comparable.
+
+Since the location of the low-frequency peak is quite broad, blazars are
+sometimes further divided into sub-groups based on the peak position (
+@xmath ). Blazars with @xmath Hz are called low-synchrotron-peaked
+(LSP). LSP group contains both FSRQs and LSP BL Lac objects (LBLs).
+Blazars with a low-frequency peak located in frequency range @xmath Hz
+@xmath Hz are called intermediate-synchrotron-peaked (ISP). The ISP
+group primarily consists of intermediate BL Lac objects (IBLs). Finally,
+the last group, high-frequency peaked (HSP) BL Lac objects, is
+characterized by @xmath Hz (Abdo et al. , 2010c ) . The sequence then
+appears as follows: FSRQ @xmath LBL @xmath IBL @xmath HBL. The FERMI
+satellite provided a large sample of sources with spectra measured over
+almost 4 years, the blazar classification seems to be much more
+complicated (Giommi et al. , 2012 ; Meyer et al. , 2011 ) . However,
+here I use this simplified approach to illustrate the basic properties
+of the blazar class.
+
+### 2.4 Accretion disk
+
+Lets assume a ”standard” (Shakura & Sunyaev, 1973 ) accretion disk. The
+accretion disk is optically thick and emits a large amount of thermal
+radiation from infrared to ultraviolet. The thermal emission of
+accretion disks peak in the UV (”big blue bump”). In blazars the UV
+observations during the low state of synchrotron radiation can be used
+to estimate the upper limit of the accretion disk luminosity @xmath .
+Following the prescription given by King ( 2008 ) and Ghisellini et al.
+( 2009 ) , the temperature of the disk is given by:
+
+  -- -- -- -------
+           (2.1)
+  -- -- -- -------
+
+where @xmath is the Stefan Boltzman constant, @xmath is the
+Schwarzschild radius of a black hole, @xmath refers to the last stable
+circular orbit for the Schwarzschild black hole and the disk extends up
+to 500 @xmath , @xmath is the efficiency of rest-mass conversion, which
+depends on the inner boundary conditions, and the black hole spin. The
+accretion efficiency, @xmath , is linked to the bolometric disk
+luminosity, @xmath , and to the accretion rate @xmath as @xmath . The
+radiation region of the disk extends from @xmath to 500 @xmath . The
+disk temperature peaks at @xmath .
+
+### 2.5 Broad line region
+
+The clouds surrounding the central part of AGN are ionized by
+ultraviolet radiation from the accretion disk. The clouds reprocessed
+the disk radiation and produce emission lines, which are broadened due
+to high velocity of the cloud around the central black hole. This part
+of the AGN model is called the broad lines region (BLR). The luminosity
+of the BLR is proportional to the @xmath as
+
+  -- -------- -- -------
+     @xmath      (2.2)
+  -- -------- -- -------
+
+where @xmath is the fraction of the disk radiation reprocessed in BLR.
+The radius of the BLR can be derived using the method called
+”emission-line reverberation mapping” (Peterson et al. , 2004 ) . This
+technique uses the time-lag of the emission line light curve with
+respect to the continuum light curve to determine the light crossing
+size of the BLR in AGNs. The reverberation studies resulted in the
+empirical relationship between @xmath and the optical continuum
+luminosity at 1350 (Pian et al. , 2005 ) :
+
+  -- -------- -- -------
+     @xmath      (2.3)
+  -- -------- -- -------
+
+The energy density of BLR radiation fields @xmath is constant within
+@xmath and declines as @xmath outside:
+
+  -- -------- -- -------
+     @xmath      (2.4)
+  -- -------- -- -------
+
+### 2.6 Dusty torus
+
+The radiation from accretion disk is also reprocessed by the dust, which
+forms a torus located outside the accretion disk. The luminosity of the
+DT can be expressed as:
+
+  -- -------- -- -------
+     @xmath      (2.5)
+  -- -------- -- -------
+
+where @xmath is the fraction of reprocessed emission. The reflectivity,
+in this case, is of the order of @xmath 0.1 (Ghisellini et al. 2009).
+
+The temperature of the DT (Błażejowski et al. , 2000 ) is expressed as
+
+  -- -------- -- -------
+     @xmath      (2.6)
+  -- -------- -- -------
+
+The temperature of the dust gives the characteristic frequency of the DT
+radiation field:
+
+  -- -------- -- -------
+     @xmath      (2.7)
+  -- -------- -- -------
+
+The size of DT is approximated by @xmath pc @xmath (Tavecchio &
+Ghisellini, 2008 ; Nenkova et al. , 2008 ; Sikora et al. , 2009 ) ,
+where the dust temperature @xmath .
+
+Within the @xmath , the energy density, @xmath of external radiation
+fields, is roughly independent of the radius, and outside decreases with
+distance:
+
+  -- -------- -- -------
+     @xmath      (2.8)
+  -- -------- -- -------
+
+### 2.7 Jets
+
+Jets are streams of hot plasma, which moves with relativistic speeds.
+Jets transport the energy up to distances of many kpc. Around 10% of the
+jet energy is dissipated in the very first parsecs. When the jet collide
+with the intergalactic matter it produces luminous lobes.
+
+The exact mechanism of the jet formation and collision is unknown. It
+has been suggested that it has to be mediated by the magnetic field in
+the inner part of AGN (Blandford & Znajek, 1977 ) . Its strong
+collimation suggest a large density of magnetic energy.
+
+Jets at small distances (subparsec) are dominated by magnetic field
+(Blandford, 1983 ) . At larger scales the energy of the jets is
+dominated by matter (Sikora et al. , 2005 ) . The majority of emission
+is produces at the parsec scale.
+
+The radio observations of superluminal motion impliy that matter in the
+jet reaches relativistic speeds. Other observations suggest that jets
+may have a Lorentz factors @xmath of the order of 10 to 20. The observed
+luminosity of objects moving with a large Lorentz factor is boosted by
+the Doppler effect, where the Doppler factor is defined as
+
+  -- -------- -- -------
+     @xmath      (2.9)
+  -- -------- -- -------
+
+where @xmath is the angle between the direction of the source motion and
+the line of sight between the source and the observer, and @xmath . The
+observed radiation flux is
+
+  -- -------- -- --------
+     @xmath      (2.10)
+  -- -------- -- --------
+
+where @xmath , @xmath is the source luminosity and @xmath is the
+luminosity distance.
+
+### 2.8 Models of jet emission
+
+The spectrum energy distribution (SED) is composed of two broadband
+components. There is an agreement that the lower component, which peaks
+at infrared to X-rays, is produced by the synchrotron emission of
+relativistic electrons within the jet. The non-thermal character of
+emission is confirmed by the observations of rapid variability on time
+scales of days or less throughout the entire wavelength range (Wagner &
+Witzel, 1995 ) and high polarization (even 40%) in the radio and the
+optical range (Mead et al. , 1990 ) .
+
+The origin of the high energy component is far more debated. The most
+common interpretation suggests that the origin is the inverse Compton
+(IC) emission of relativistic electrons, or pairs – the so-called
+leptonic models. The obvious choice of seed photons would be the
+synchrotron radiation from the same population of electrons. The family
+of such scenarios is called the synchrotron self-Compton (SSC) models,
+and seems to explain well the spectra of BL Lac objects, where the lack
+of any emission and absorption lines suggests the absence of any
+external radiation fields. For more details see Konigl ( 1981 );
+Marscher & Gear ( 1985 ); Ghisellini & Maraschi ( 1989 ) .
+
+For FSRQs, SSC models cannot easily explain the large difference of
+luminosities between the low-frequency component and high-frequency
+component peaks observed (Sikora et al. , 2009 ) . The luminosity of the
+high energy component exceeds the luminosity of the low energy component
+by a factor 10 to 100 times. An external source of seed photons for IC
+was proposed to explain such a large difference of the peak luminosities
+(Dermer et al. , 1992 ; Dermer & Schlickeiser, 1993 ; Blandford &
+Levinson, 1995 ; Sikora et al. , 1994 ) .
+
+In addition to the electrons, protons are an inevitable component of the
+jet. It is worth noting that even if the number of electrons largely
+exceed the number of protons, because of the large mass difference
+@xmath , the jet power may still be dominated by ultra-relativistic
+protons. In some scenarios, the so-called hadronic models, protons are
+also involved in the radiation mechanisms of jet emission. Such hadronic
+models were discussed for example by Mücke et al. ( 2003 ); Boettcher (
+2010 ); Cerruti et al. ( 2012 ) .
+
+The direct proton synchrotron emission or proton IC process are much
+less efficient in emitting radiation than the same processes involving
+electrons ( @xmath ). The proton cooling time scale is too long to
+explain the emission of blazars. To overcome this difficulty some
+hadronic models involve pion production. The high energy protons
+interacting with low energy photons may produce pions:
+
+  -- -------- -- --------
+     @xmath      (2.11)
+  -- -------- -- --------
+
+The pions initiate cascades of high energy particles. The neutral pions
+can decay to TeV photons. The hadronic models require an extreme
+environments to explain blazars emission. They require in particular a
+magnetic field of the order of 100 G, or an extreme number of protons
+with large Lorentz factors (see e.g. Sikora et al. ( 2009 ) for a
+current review).
+
+In the present thesis the leptonic model is used to explain the emission
+of blazar PKS 1510-089.
+
+### 2.9 Internal shock scenario
+
+The observations of blazars show a correlated variability of the low and
+high peak components with a time scale as low as hours suggesting a
+compact region of emission (Aharonian et al. , 2005 ) . This may suggest
+that a significant fraction of the jet energy is dissipated at a
+sub-parsec scale from the center of the region of emission. The energy
+dissipation can be explained by an internal shock scenario (Sikora
+et al. , 1994 ; Spada et al. , 2001 ) , or the reconnection of magnetic
+field (Romanova & Lovelace, 1992 ; Blackman, 1996 ) . Both approaches
+are sufficient to produce an efficient acceleration of particles.
+
+The internal shock scenario assumes some instability in the central part
+of the active galactic nuclei, which results in the ejection of blobs of
+matter. The jet consists of blobs of different velocity, masses, and
+densities (Rees, 1978 ) . The blobs with the larger velocity catch up
+with those with smaller velocities, and a nonelastic collision occur.
+Consider two blobs of matter with velocities @xmath and masses @xmath
+and @xmath . Conservation of energy and momentum implies that the
+dissipation ”efficiency” @xmath of the total bulk kinetic energy during
+the collision is (Moderski et al. , 2004 ) :
+
+  -- -------- -- --------
+     @xmath      (2.12)
+  -- -------- -- --------
+
+where @xmath is the bulk Lorentz factor of the forward shell after the
+blobs collision, and @xmath the shell velocity is:
+
+  -- -------- -- --------
+     @xmath      (2.13)
+  -- -------- -- --------
+
+Typically @xmath is of the order of 5% - 10% (Spada et al. , 2001 ) .
+The efficiency of dissipation increases when the velocity difference is
+large. The largest efficiency is obtained during the first collisions,
+close to the jet base (Spada et al. , 2001 ) . Assuming that the blobs
+velocities before the collisions are @xmath and @xmath , respectively,
+ejected with initial separation @xmath , the blobs will collide at a
+distance:
+
+  -- -------- -- --------
+     @xmath      (2.14)
+  -- -------- -- --------
+
+This region is called the blazar zone, where the majority of the
+non-thermal emission is produced. Collisions of blobs produce a shock
+structure, which accelerates particles to relativistic energies. In the
+absence of a detail model of particle acceleration the resulting
+distribution of particles is assumed to be a pawer law or a broken power
+law.
+
+In this thesis the electron injection function is assumed to take the
+broken power law form
+
+  -- -------- -- --------
+     @xmath      (2.15)
+  -- -------- -- --------
+
+where @xmath is the normalization factor, @xmath and @xmath are spectral
+indices of the injection function at the low and high energy limits,
+respectively, and @xmath is the break energy.
+
+### 2.10 Synchrotron radiation
+
+When a relativistic electron with a Lorentz factor @xmath is moving in a
+magnetic field @xmath , it emits non-thermal radiation with @xmath ,
+where @xmath Hz. The average photon energy is thus:
+
+  -- -------- -- --------
+     @xmath      (2.16)
+  -- -------- -- --------
+
+where
+
+  -- -------- -- --------
+     @xmath      (2.17)
+  -- -------- -- --------
+
+and the energy is expressed as @xmath .
+
+The rate of synchrotron cooling is calculated according to the formula:
+
+  -- -------- -- --------
+     @xmath      (2.18)
+  -- -------- -- --------
+
+where @xmath is the magnetic field energy density.
+
+### 2.11 Inverse Compton radiation
+
+Consider a collision between a soft (low energy) photon and a
+relativistic electron of velocity @xmath . If energy of the photon is
+@xmath , the incidence angle @xmath , and the electron velocity @xmath
+then the photon is boosted in energy to:
+
+  -- -------- -- --------
+     @xmath      (2.19)
+  -- -------- -- --------
+
+When the ratio between the energy of the photon and the energy of the
+electron before the collision @xmath is @xmath 1, the interaction
+proceeds in the, so-called, Thomson regime. The electron energy loss in
+a single collision is negligible and the photon collision is elastic in
+the center-of-momentum frame.
+
+The maximum energy gain of a photon occurs in @xmath and @xmath . Then
+@xmath . The average energy gain at given @xmath over all possible
+interaction angles is
+
+  -- -------- -- --------
+     @xmath      (2.20)
+  -- -------- -- --------
+
+The rate of IC energy losses of relativistic electron, isotropically
+distributed photons is
+
+  -- -------- -- --------
+     @xmath      (2.21)
+  -- -------- -- --------
+
+where @xmath is the total energy density of the radiation field ( @xmath
+), @xmath is the energy density distribution of the ambient photons.
+
+### 2.12 The Klein-Nishina effect
+
+When the photon energy becomes comparable to the electron energy or
+larger ( @xmath ), the electron may loose most of its energy during a
+single collision. In that case the IC cross-section has to be expressed
+by the full Klein-Nishina (KN) formula (Moderski et al. , 2005 ) . The
+cross-section is reduced as compared to the Thomson regime when the
+photon energy becomes larger. The main effect is a reduction of the
+electron energy loss rate:
+
+  -- -------- -- --------
+     @xmath      (2.22)
+  -- -------- -- --------
+
+where @xmath is given by equation ( 2.21 ) and a factor @xmath is given
+by
+
+  -- -------- -- --------
+     @xmath      (2.23)
+  -- -------- -- --------
+
+where @xmath . The @xmath corresponds to the transition between the
+Thomson and KN scattering regimes. The function @xmath is given by
+Moderski et al. ( 2005 ) :
+
+  -- -------- -- --------
+     @xmath      (2.24)
+  -- -------- -- --------
+
+  -- -------- -- --------
+     @xmath      (2.25)
+  -- -------- -- --------
+
+where @xmath is dilogarithm and @xmath .
+
+For @xmath (Thomson limit), @xmath ; for @xmath (KN limit), @xmath . For
+@xmath @xmath can be approximated by @xmath .
+
+Electrons, for which cooling by Comptonisation is inefficient, are
+loosing more energy throughout the synchrotron emission. Usually, the
+effect of Klein-Nishina is seen as an excess of synchrotron luminosity
+and the hardening of synchrotron spectrum, while the Compton component
+shows a cut-off.
+
+### 2.13 Absorption
+
+The influence of low energy photons present in the Universe on the
+propagation of the HE gamma-rays was pointed out by Gould & Schréder (
+1967 ) . The fundamental process responsible of the HE @xmath -ray
+absorption is the electron-positron pair production:
+
+  -- -------- -- --------
+     @xmath      (2.26)
+  -- -------- -- --------
+
+The observed HE @xmath -ray spectrum after attenuation is
+
+  -- -------- -- --------
+     @xmath      (2.27)
+  -- -------- -- --------
+
+where @xmath is the attenuation, @xmath is the optical depth, and @xmath
+is the intrinsic spectrum of the source. The optical depth given by
+Gould & Schréder ( 1967 ) is
+
+  -- -------- -- --------
+     @xmath      (2.28)
+  -- -------- -- --------
+
+where @xmath is the differential path travelled by the HE photon, @xmath
+is the angle between the momenta of HE and LE photons. The energy of HE
+photon is (1 + z)E and the energy of LE photon is (1 + z) @xmath , where
+E and @xmath are the observed photon energies at z = 0. The low energy
+photons density number is @xmath . The cross-section of pair production
+is given by Bi & Yuan ( 2008 ) :
+
+  -- -------- -- --------
+     @xmath      (2.29)
+  -- -------- -- --------
+
+where @xmath , @xmath , and @xmath .
+
+The condition for pair production is @xmath , which corresponds to a
+threshold energy of
+
+  -- -------- -- --------
+     @xmath      (2.30)
+  -- -------- -- --------
+
+HE photons can be absorbed by several backgrounds of LE photons during
+their travel to the observer. The first source of LE photons is an
+extragalactic background light (EBL). The EBL is the IR/UV radiation
+generated by stars (UV) or radiation emitted through the absorption and
+re-emission of star light by dust in galaxies (IR). The EBL models have
+been reviewed by, e.g. Hauser & Dwek ( 2001 ) and recently new
+constraints have been provided by Meyer et al. ( 2012 ) using the FERMI
+data and Abramowski et al. ( 2012 ) using the H.E.S.S. observations of
+the brightest blazars.
+
+For characteristic frequency of EBL photons of @xmath 0.1 eV the photons
+with energy above 5 TeV will be affected by absorption:
+
+  -- -------- -- --------
+     @xmath      (2.31)
+  -- -------- -- --------
+
+The distribution of angles @xmath , at which background photons can
+collide with the HE photons is flat when the photon is traveling over
+cosmological distances, therefore, the @xmath of the scattering angle
+(see equation 2.28 ) changes from -1 to 1. The differential path @xmath
+travelled by the HE photon can be calculated using equations ( 3.33 ) or
+( 3.34 ).
+
+The second possibility of absorption arises from the photon fields
+present in the blazar itself. When the HE photon is produced in the jet,
+it has to travels through two fields of LE photons: the broad line
+region (BLR) and IR radiation from the dusty torus (DT), depending on
+where it was emitted.
+
+The characteristic frequency of the BLR radiation is of the order of 10
+eV. Since, the energy of BLR photons is larger than that of DT photons,
+the threshold energy of pair production is smaller and HE photons can be
+absorbed above energies of a few GeV. To avoid significant absorption by
+BLR photons, the blazar zone where HE photons are emitted, has to be
+located outside of BLR, otherwise the HE emission is significantly
+absorbed. The photon number density of external radiation (from BLR and
+DT) decreases with distance as in equation ( 2.4 ) and ( 2.8 ),
+respectively. When HE photons propagates inside the BLR or DT then the
+@xmath distribution is flat, therefore the @xmath in the equation ( 2.28
+) ranges from -1 to 1. However, outside the BLR or DT, the @xmath can
+have values ranging from @xmath to @xmath .
+
+The distance @xmath is measured from the place where the gamma photons
+are emitted up to the distance where the energy densities of BLR or DT
+are negligible.
+
+### 2.14 The PKS 1510-089 blazar
+
+PKS 1510-089 ( @xmath , @xmath ) at redshift @xmath is the FSRQ detected
+in the MeV-GeV band by EGRET (Hartman et al. , 1999 ) . It is
+characterized by a highly relativistic jet that makes a @xmath angle
+relative to the line of sight (Wardle et al. , 2005 ) . The radio jet of
+PKS 1510-089 is curved and shows an apparent superluminal motion as high
+as 45 times the speed of light (Homan et al. , 2001 , 2002 ) . The first
+large multi-wavelength campaign on PKS 1510-089 took place in August
+2006 (Kataoka et al. , 2008 ) and involved Suzaku, Swift and
+ground-based optical and radio instruments. The campaign resulted in a
+broadband spectrum ranging from @xmath to @xmath Hz, which was
+succesfully modeled within the internal shock scenario. Kataoka et al. (
+2008 ) focused their work on the explanation of the soft X-ray part of
+the SED, where an excess of emission has been observed, which if
+interpreted as bulk-Compton radiation, allowed to obtain the e @xmath e
+@xmath to proton ratio. In the case of PKS 1510-089, the ratio was
+estimated to be of the order of @xmath . This implies that although the
+number of e @xmath e @xmath pairs is larger then the number of protons,
+the power of the jet is dominated by the latter.
+
+As an alternative interpretation, Kataoka et al. ( 2008 ) showed that
+the observed soft X-ray excess was explained by a synchrotron
+self-Compton (SSC) component, which, although energetically inefficient,
+shows its presence in the X-ray range.
+
+Abdo et al. ( 2010a ) have reported multi-wavelength observations during
+a high activity period of PKS 1510-089 between 2008 September and 2010
+July. These observations revealed a complex variability at optical, UV,
+X-ray and @xmath -ray bands on time scale down to 6-12 hours. The study
+of the correlation of variability in different passbands, performed by
+Abdo et al. ( 2010a ) , shows no correlation between the @xmath -rays
+and the X-rays, a weak correlation between the @xmath -rays and the
+UV(R) band, and a significant correlation of @xmath -rays with the
+optical band.
+
+Abdo et al. ( 2010a ) attempted to model three flares with simultaneous
+data from radio to @xmath -ray energies. They adopted the inverse
+Compton scenario with seed photons originating from the BLR to explain
+the HE emission (IC/BLR). The blazar zone in their model was assumed to
+be at sub-parsec scale. The IC/BLR in their model occurred under the KN
+regime leading to the curved MeV/GeV spectral shape that matches the
+observed spectrum in the HE range.
+
+Recently in 2011, a multi-wavelength campaign, which included Herschel
+data combined with the publicly available multi-wavelength data from
+FERMI, Swift, SMARTS and the Submillimeter Array (SMA), covered the SED
+of PKS 1510-089 in a quiet state (Nalewajko et al. , 2012 ) .
+
+Nalewajko et al. ( 2012 ) consider a two-zone blazar model to interpret
+the entire dataset. They suggest that the observed infrared emission is
+associated with the synchrotron component produced in the hot-dust
+region at the sub-pc scale. To explain the gamma-ray emission, they
+proposed an External-Compton component produced in the BLR at the sub-pc
+scale. In such a scenario, the optical/UV emission would be associated
+with the accretion disk thermal emission, with the accretion disk corona
+likely would be contributing to the X-ray emission. Nalewajko et al. (
+2012 ) showed that to explain the ratio of the maximum luminosity peaks,
+and the peaks frequency ratio within single zone scenario would require
+an unrealistically high energy density of the external radiation.
+
+### 2.15 Spectral energy distribution of PKS 1510-089
+
+The archival spectrum of PKS 1510-089 is presented in figure 2.3 . The
+grey points plotted on figure 2.3 are the data published by Kataoka
+et al. ( 2008 ) . The dark grey points are INTEGRAL data analyzed by
+Barnacka & Moderski ( 2009 ) . The INTEGRAL observations were carried
+out in January 2008 with an exposure of 600 ks. Data were analyzed using
+the INTEGRAL Data Software package OSA 7.0. The observed spectral index
+was @xmath , and the flux, obtained extrapolating ISGRI results to lower
+energies, was @xmath erg s @xmath cm @xmath .
+
+The overall spectrum of PKS 1510-089 is presented in figure 2.14 . The
+blue points on the SED are the simultaneous observations taken around
+the VHE flare on March 2009. The Swift XRT spectrum as well as the radio
+data are from Marscher et al. ( 2010 ) . The radio observation at 14.5
+GHz were taken at the Michigan Radio Astronomy observatory, observations
+with 37 GHz were recorded with the Metsahovi Radio Observatory and 230
+GHz at the sub-millimeter Array. The optical ATOM data are from
+Abramowski et al (paper in preparation). The FERMI and the H.E.S.S.
+observations were analyzed by the author following the procedure
+described in sections 2.15.2 and 2.15.1 .
+
+The multi-wavelength light curve is presented in figure 2.4 .
+
+#### 2.15.1 H.E.S.S. data analysis
+
+The observations with the H.E.S.S. telescope followed the report of
+flaring activities in HE (D’Ammando et al. , 2009 ) and in the optical
+band observed by ATOM. The H.E.S.S. data were simultaneous with the peak
+of the HE flare recorded by FERMI. The H.E.S.S. telescopes carried out
+observations of PKS 1510-089 at two periods. The first observations were
+taken between 23 March 2009 (MJD 54910) and 2 April 2009 (MJD 54923).
+The second follow-up of the HE activity triggered the H.E.S.S.
+observations between 27 April 2009 (MJD 54948) and 29 April 2009 (MJD
+54950). The H.E.S.S. observations resulted in 15.8 hours of good quality
+data.
+
+The data quality selection is based on various variables like the
+trigger rate, the telescope tracking or the fraction of the PMTs turned
+off. Runs with the mean trigger rate less than 70% of the predicted
+value (Funk et al. , 2005 ) are rejected. The mean system rate is 240 Hz
+for the four telescope data, and 180 Hz for the three telescope data. In
+addition, if the rms variation in the trigger rate is above 10%, the
+runs also are rejected. The instability of trigger rate can be caused by
+the presence of clouds or excessive dust in the atmosphere, which leads
+to the Cherenkov light absorption, and thus to the fluctuation in the
+trigger system efficiency.
+
+The problems with telescope tracking can lead to errors in the
+reconstructed position of the source and thus can affect the flux. Runs
+with the tracking error problems reported by the DAQ are then rejected,
+when the rms deviations are greater than 10 arcseconds in altitude or
+azimuth.
+
+An alternative check of the tracking system is performed by producing an
+intensity map of light of bright stars in the telescope field of view.
+The positions of known stars are then correlated with this map, giving a
+measure of the pointing position of each telescope. Runs are rejected,
+if the pointing deviation is greater than 0.1 @xmath .
+
+Runs with more than 10% of the PMTs missing are rejected from the
+analysis. PMTs can be turned off, if any bright transient light source
+passes through it. Such a source of light can be bright stars,
+meteorites, lightening, airplanes or even satellites. Detail criteria of
+quality cuts are described in Aharonian et al. ( 2006 ) .
+
+The H.E.S.S. data analysis has been performed using the Model Analysis
+developped by de Naurois & Rolland ( 2009 ) . Events were reconstructed
+using loose cuts appropriate for sources with steep spectra. PKS
+1510-089 is a high redshift source, therefore its spectrum is expected
+to be soft due to the EBL absorption.
+
+The analysis of the first flare (MJD 54916-54917), based on 3.5 hours of
+observations, recorded 51.7 photons from the source direction. This
+corresponds to a detection significance of 4.5 @xmath , following the
+method of Li & Ma ( 1983 ) . The angular distribution of events around
+the position of PKS 1510-089 (figure 2.5 ) shows the excess in the
+source region. The acceptance distribution suffers from the low
+statistic of @xmath -like events, leading to an apparent inhomogeneity.
+The observed off-set in the @xmath distribution (figure 2.5 ) is due to
+problems with the pointing model. A new DST production with a better
+pointing correction is undergoing, however the pointing problem does not
+influence significantly the detection significance or the energy
+spectrum, since the whole excess in the @xmath distribution is within
+0.1 @xmath from the target.
+
+The spectrum was derived using a forward-folding technique. The
+threshold energy, @xmath , is given by the energy at which the effective
+area falls to 10% of its maximum value. For these observations the
+energy threshold was estimated to be @xmath 0.15 TeV.
+
+Most of the VHE events were detected below @xmath 400 GeV. The spectrum
+(figure 2.7 ) is fitted with a Power-Law: @xmath , with an index @xmath
+and a normalization @xmath m @xmath s @xmath TeV @xmath at @xmath =157
+GeV. The equivalent @xmath ndf.
+
+#### 2.15.2 FERMI data analysis
+
+The Fermi-LAT (Atwood et al. , 2009 ) data, simultaneous with the
+H.E.S.S. observations period, were analyzed using the publicly available
+Fermi Science Tools (version v9r15p2) and the P6_V3_DIFFUSE instrument
+response functions. The light curve (figure 2.4 , b) is produced by an
+unbinned likelihood analysis taking into account photons (the diffuse
+class events) with energies between 200 MeV and 100 GeV from a region of
+interest (ROI) with a radius of 20 @xmath around the position of PKS
+1510-089. All sources, from the Fermi-LAT First Source Catalog (Abdo
+et al. , 2010c ) , within an angular distance of 25 @xmath PKS 1510-089,
+were modeled simultaneously. Model v02 of the Galactic and extragalactic
+backgrounds were used. Two flares are evident on the light curve (figure
+2.4 ,b), one centered around MJD 54916, and the second centered around
+MJD 54948.
+
+Figure 2.8 shows the LAT SED of PKS 1510-089 extracted for the flare
+observed around MJD 54916. Three different models have been fitted to
+the data: a Power Law, a Broken Power Law and an exponentially cut-off
+Power Law (ExpCut-off) model. Table 2.3 summarizes the values of the
+fitted parameters for all 3 models. The spectrum is best fitted by the
+ExpCut-off model, with an index of @xmath , a break energy of 400 MeV
+and P1= @xmath . The flux obtained using the ExpCut-off model is @xmath
+ph cm @xmath s @xmath . The result of the fit is compatible with the one
+obtained by Abdo et al. ( 2010a ) .
+
+### 2.16 Modeling
+
+I have aimed to reproduce the spectrum energy distribution (SED) of PKS
+1510-089 during the HE and VHE flare recorded on March 2009. The
+approach was to use the one zone leptonic model implemented in the
+BLAZAR code (Moderski et al. , 2003 ) . The BLAZAR code requires some
+input parameters, notably the value of the energy density of an external
+diffuse radiation field, the injected electron energy distribution, the
+value of the magnetic field and the description of the overall geometry
+of the source.
+
+In this work I consider two sources of the external photons: DT and BLR.
+The luminosity of the accretion disk has been reported by Nalewajko
+et al. ( 2012 ) to be @xmath . Following equation ( 2.3 ), the size of
+the BLR, @xmath , is estimated to be @xmath cm. The size of the DT is
+approximatively by @xmath cm (see section 2.6 ).
+
+The energy density of external radiation fields have been calculated
+using equations ( 2.8 ) and ( 2.4 ). To satisfy the physical boundaries
+on the fraction of reprocessed emission from the accretion disk, I have
+used @xmath and @xmath . The values of @xmath together with values of
+@xmath listed above, and taking into account the dust temperature @xmath
+from Nalewajko et al. ( 2012 ) , one can get the energy density of
+external radiation fields: @xmath and @xmath . The jet opening angle,
+@xmath is assumed to be @xmath .
+
+The other parameters are estimated to best reproduce the observed
+multi-wavelength spectrum of PKS 1510-089. The parameters are summarized
+in table 2.4 , while the spectrum obtained is presented in figure 2.14 .
+
+The BLAZAR code calculates the evolution of electrons injected along the
+jet. Figure 2.9 shows the electron evolution during the flare of PKS
+1510-089. The injected electrons follow a broken power law distribution
+(see equation 2.15 ). Parameters of the electron injection function are
+listed on table 2.4 . The electron injection starts at @xmath and
+continues until @xmath , while the electron evolution is followed up to
+3 @xmath . The proper choice of @xmath is crucial for the SED modelling.
+The next section is dedicated to the discussion of the location of the
+blazar zone in PKS 1510-089.
+
+#### 2.16.1 Location of the @xmath-ray emitting region in PKS 1510-089
+
+The choice of the distance of the shock formation from the central
+source, @xmath , is constrained from one side by the internal absorption
+of gamma rays in BLR, and from the other side by the IC efficiency.
+Figure 2.10 shows the internal absorption, @xmath , as a function of the
+photon energy emitted at different @xmath . When @xmath is below @xmath
+then a significant fraction of the HE radiation (from a several dozen to
+several hundred GeV) is absorbed. If @xmath is greater than @xmath then
+only a few percent of the HE emission is absorbed.
+
+However, if the blazar zone is too far away from the BLR then the photon
+energy density is too small to produce a sufficient @xmath -ray emission
+by IC. The photon energy densities of different radiation fields are
+presented in figure 2.11 .
+
+There exists some observational evidence that the blazar zone may be
+located outside the BLR. The radio observations of PKS 1510-089 between
+2011 September 9 and 2011 October 17 (Marscher et al. , 2010 ) show a
+@xmath 40 days ( @xmath ) increase in radio flux. If the @xmath -ray
+flare is indeed associated with the same region as the slower radio
+flare (Marscher et al. , 2010 ; Orienti et al. , 2012 ) , the projected
+distance between the regions where the shock formed and the site
+responsible for the @xmath -ray emission is:
+
+  -- -------- -- --------
+     @xmath      (2.32)
+  -- -------- -- --------
+
+where @xmath is the apparent velocity. One then finds that the @xmath
+-ray flare is produced at the projected distance of @xmath 0.6 pc from
+the site where the shock detected in the radio band was formed. Assuming
+a jet inclination angle of @xmath (Orienti et al. , 2012 ; Marscher
+et al. , 2010 ) , the de-projected distance ( @xmath ) is about @xmath
+10 pc. This shows that at least for some @xmath -ray flares, the blazar
+zone may be located far outside the BLR.
+
+In the presented modeling of PKS 1510-089, I adopted @xmath cm. At that
+distance, the absorption by the low energy photons originating from the
+BLR, is very small, of the order of 1%, while the energy density (see
+figure 2.11 ) in the blazar zone of PKS 1510-089 ( @xmath cm) is still
+dominated by radiation from the BLR. Outside @xmath , the external
+radiation field is dominated by @xmath up to a distance @xmath , where
+@xmath became comparable to the energy density of the radiation from DT
+( @xmath ).
+
+#### 2.16.2 Spectral energy distribution
+
+Figure 2.12 presents the Klein-Nishina (KN) correction ( @xmath ) as a
+function of energy for different electron Lorentz factors @xmath . The
+KN correction is presented together with the radiation of BLR and DT
+approximated as black body. For small @xmath , electrons cool in the
+Thomson regime. The electrons with Lorentz factors above @xmath are
+responsible for the HE and VHE emissions.
+
+The rate of IC energy losses of relativistic electrons, calculated using
+equation ( 2.21 ) is shown on figure 2.13 . The external photon energy
+densities in the region located at @xmath to @xmath shows that the
+energy density of the BLR exceeds a few times the energy density of DT
+(see figure 2.13 ). However, the electron cooling, in this region is
+faster for seed photons originating from DT. Therefore, despite of the
+greater energy density of BLR over DT, the last one is responsible of
+the VHE photon production via IC radiation.
+
+All above arguments suggest the following scenario for the PKS 1510-089
+flaring activity recorded on March 2010:
+
+-   The low energy component is produced by the synchrotron radiation.
+
+-   The high energy component (from X-rays to VHE) is produced by two
+    components:
+
+-   The first component is the IC radiation with seed photons from the
+    BLR. This component dominates the emission in the FERMI range. Due
+    to the KN effect this component alone cannot explain the highest
+    part of the spectrum ( @xmath 100 GeV).
+
+-   The VHE emission is produced via IC scattering of the seed photons
+    originating from DT. The same component is also responsible for the
+    X-ray part of the spectrum, as in the previous modeling attempts of
+    this object (Kataoka et al. , 2008 ) .
+
+-   The modeled emission of PKS 1510-089 convolved with the EBL
+    attenuation, calculated using Spitzer constraints on the EBL (Dole
+    et al. , 2006 ) , fits well all the observations.
+
+Figure 2.14 shows the result of the modelling of the PKS 1510-089 during
+the flare.
+
+### 2.17 Discussion
+
+The most recent attempt of PKS 1510-089 modeling was undertaken by
+Nalewajko et al. ( 2012 ) , who analyzed the 2011 low state of of the
+object. They used the data obtained with the Herschel satellite to
+constrain the theoretical models. Nalewajko et al. ( 2012 ) concluded
+that a multi-zone emission model is necessary to explain the spectral
+properties of PKS 1510-089. The model of Nalewajko et al. ( 2012 )
+differs from the model proposed by Abdo et al. ( 2010a ) , who analyzed
+the object in 2009 during an active state. The fast optical flares
+observed in 2009 were significantly brighter and strongly polarized as
+compared to those observed in 2011.
+
+The optical flaring activity in 2009 was maybe accompanied by an
+increase of the magnetic field. This is confirmed by the observation of
+the significant increase in the optical degree of polarization (Sasada
+et al. , 2011 ) and observations of the superluminal knot with VLBA at 7
+mm (Marscher et al. , 2010 ) . This behavior of the low energy component
+was not observed in 2011 when Herschel data were taken.
+
+PKS 1510-089 was detected with the H.E.S.S. system on March – April 2009
+during the high state in the HE and optical domains. Abdo et al. ( 2010a
+) model the emission for energies below 100 GeV, without predictions for
+the VHE emission. In this thesis, I developed a single zone model to
+explain the emission of PKS 1510-089 during the flare observed on March
+2009, where the emission of the low energy component is produced by the
+synchrotron radiation and the high energy component is produced by the
+same population of ultra-relativistic electrons via an IC process.
+
+### 2.18 Conclusions
+
+I have successfully modeled PKS 1510-089 with the single zone internal
+shock scenario. It has been confirmed that the IC BLR cannot explain the
+VHE emission due to the KN effect, as was anticipated by Moderski et al.
+( 2005 ) .
+
+The observations of PKS 1510-089 with the H.E.S.S. array show a VHE
+emission up to 400 GeV. The observations during the flare provide a 4.5
+@xmath detection of this emission.
+
+The absorption of the HE and the VHE photons in the blazar itself has
+been also investigated. The absorption in the BLR is avoided by locating
+the blazar zone outside the BLR. The absorption by photons from DT and
+EBL absorption become significant only for photons with energies above
+400 GeV. This emission was not observed in the case of PKS 1510-089.
+
+Marscher et al. ( 2010 ) demonstrated that the HE emission from the jet
+of PKS 1510-089 is quit complex. The emission arises from different
+regions and probably multiple emission mechanisms are involved. I have
+tried to explain the emission of PKS 1510-089 during the flare on March
+2009. The peak luminosity of the low energy component during the flare
+was much higher than that of observations shown by Nalewajko et al. (
+2012 ) .
+
+The VHE emission can be a very common feature of FSRQs. The H.E.S.S. II
+telescope, with its energy range from tens of GeV, will provide a great
+opportunity to search for emission from other objects of this class.
+
+## Part III Theory of Gravitational Lensing
+
+### 3.1 Introduction
+
+The lensing phenomena is an important topic in the cosmology. Parts IV
+and V of my thesis shows two examples of the lensing phenomena studied
+at high energy range. The first study (part IV ) provides the method of
+the time delay estimation when the lens images are spatially unresolved.
+Then, in the last section of part IV , I have showed the application of
+the obtained time delay to the Hubble constant estimation. The second
+study (part V ) presents the limits on the abundance of compact objects.
+The limits have been obtained searching for femtolensing effect in the
+spectra of GRBs. The follow part of the thesis provide a brief
+theoretical introduction concerning parts IV and V .
+
+### 3.2 Gravitational Lensing
+
+Gravitational lensing observations can be divided into strong, weak and
+micro-lenses. These lenses have different masses and image
+characteristics.
+
+Strong lensing events have multiple resolved images and arcs or arclets.
+They are produced by the lensing of a distant object by galaxies or
+clusters of galaxies.
+
+The weak lensing is a regime where background galaxies are slightly
+distorted by foreground masses. Weak gravitational lensing can thus be
+detected by studying the morphology of a large number of galaxies. It is
+therefore, an intrinsically statistical measurement.
+
+A large part of the lensing observations is dedicated to microlensing.
+In the case of microlensing, the lenses have stellar masses. The images
+separation and time delay are too small to be detected. However, the
+characteristic time dependent magnification pattern helps to distinguish
+the microlensing event from the intrinsic variability of lensed sources.
+The analysis of the light curve of a microlensed source can provide
+informations on the nature of the lens. The lensing event time scale is
+a combination of the lens mass, the transverse velocity, and the
+distances between the lens, the source and the observer.
+
+Applications of gravitational lensing include:
+
+-   Cosmology (Hubble constant (Suyu et al. , 2010 ) , compact objects
+    (Press & Gunn, 1973 ; Tisserand et al. , 2007 ) , @xmath (Dahle,
+    2006 ) )
+
+-   Astrophysics (Mao, 2012 ) (stellar atmospheres (Thurl et al. , 2004
+    ) , extrasolar planets, galactic structure, mass estimates)
+
+-   Fundamental physics (post Newtonian parameters (Bolton et al. , 2006
+    ) )
+
+This thesis is focusing on two different lensing phenomena. The first
+one is strong gravitational lensing and the other described in the
+thesis, similar to microlensing, is called femtolensing.
+
+### 3.3 Theory
+
+The gravitational lensing effect arises when a concentrated mass
+(”lens”) lies in the line of sight from the observer on the Earth to a
+distant object (”source”), see figure 3.1 . The lensing effect magnifies
+and distorts the image of the source. Depending on the geometry of the
+lens, the resulting image of the lensed object might be an arc, a
+complete ring, a series of multiple images or a combination of compact
+images and arcs (see e.g. review by Blandford & Narayan ( 1992 ) ).
+
+The deflection of photons in the presence of masses is a consequence of
+the principle of equivalence. The first correct formula for the
+deflection angle @xmath was derived by Einstein. The deflection angle
+@xmath of light passing at the distance @xmath from an object of mass
+@xmath is given by equation:
+
+  -- -------- -- -------
+     @xmath      (3.1)
+  -- -------- -- -------
+
+Equation ( 3.1 ) gives a deflection angle twice larger than the
+Newtonian deflection for a slow particle. The light deflection angle by
+the Sun is:
+
+  -- -------- -- -------
+     @xmath      (3.2)
+  -- -------- -- -------
+
+The deflection angle was first measured by Eddington during a solar
+total eclipse. The Eddington experiment in 1919 brought the first
+experimental confirmation of the Einstein predictions concerning light
+deflection.
+
+However, observing the lensing of stars by stars was at that time
+considered as technologically impossible due to the very small image
+separation of the microlensed event. Fritz Zwicky ( 1937b , a ) was the
+first to point out that galaxies are likely to be gravitationally lensed
+and the image separation would be detectable.
+
+The angular separation of images in galaxy or galaxy cluster lensing is
+usually of the order of a few arcseconds. A typical galaxy with a mass
+of @xmath M @xmath acting as a lens will produce an Einstein ring with
+an angular size of @xmath arcsecond. A galaxy cluster at @xmath =0.7
+lensing a source at @xmath =2 will lead to image separation of the order
+of 50 arcseconds.
+
+#### 3.3.1 Lens Equation
+
+Gravitationally lensed systems involve a source, a lens and an observer,
+as shown on figure 3.2 . A light ray from the source is deflected by an
+angle @xmath by the lens and reaches the observer. Figure 3.2 shows the
+corresponding angular and linear distances in a typical gravitationally
+lensed system. The projected distance from the true source position to
+the lens is @xmath (in the lens plane). @xmath and @xmath are
+respectively the angular diameter distances between the observer and the
+source, and the observer and the lens (see section 3.4.1 ). The lens is
+assumed to be point like, thus the light rays emitted by the source are
+splitted into two images @xmath and @xmath .
+
+For @xmath , @xmath , @xmath 1 and @xmath , figure 3.2 shows the
+following relations:
+
+  -- -------- -- -------
+     @xmath      (3.3)
+  -- -------- -- -------
+
+  -- -------- -- -------
+     @xmath      (3.4)
+  -- -------- -- -------
+
+  -- -------- -- -------
+     @xmath      (3.5)
+  -- -------- -- -------
+
+The angle @xmath is known from equation 3.1 . After simple
+transformations:
+
+  -- -------- -- -------
+     @xmath      (3.6)
+  -- -------- -- -------
+
+Equation ( 3.6 ) has one solution when the source and the lens are
+perfectly aligned ( @xmath ). The image in the source plane is a ring
+around the lens with radius:
+
+  -- -------- -- -------
+     @xmath      (3.7)
+  -- -------- -- -------
+
+@xmath (equation ( 3.7 )) is called the Einstein Radius.
+
+For a point lens and @xmath , the lens equation ( 3.6 ) has two
+solutions. The first solution gives a distance between the first image
+and the lens:
+
+  -- -------- -- -------
+     @xmath      (3.8)
+  -- -------- -- -------
+
+and accordingly a distance between the second image and the lens of:
+
+  -- -------- -- -------
+     @xmath      (3.9)
+  -- -------- -- -------
+
+For an isolated point source, the solution of the lens equation always
+gives two images of a background source, with corresponding positions
+@xmath and @xmath .
+
+The lensing regime is based on the size of the image separation. The
+angular radius of the Einstein ring is given by:
+
+  -- -------- -- --------
+     @xmath      (3.10)
+  -- -------- -- --------
+
+If one considers the lensing of a source by a galaxy at a cosmological
+distance of @xmath 1 Gpc and with mass @xmath M @xmath the corresponding
+Einstein angle is
+
+  -- -------- -- --------
+     @xmath      (3.11)
+  -- -------- -- --------
+
+Image separations of the order of arcseconds can be easily spatially
+resolved with optical and radio telescopes. The situation is much
+different when the lens is an object with a stellar mass or smaller. To
+illustrate this, the lensing by a star (with a mass M @xmath ), in the
+Galaxy at a distance of D @xmath 10 kpc will produce an Einstein angle
+of the order of a miliarcsecond:
+
+  -- -------- -- --------
+     @xmath      (3.12)
+  -- -------- -- --------
+
+When the image separation is of the order of one milliarcsecond, the
+lensing event is called a microlens. When the image separation is of the
+order of a femtoarcsecond, the effect is called femtolensing. For
+instance, when the distance of the lens is cosmological and the mass of
+the lens is in the range @xmath - @xmath g, one gets:
+
+  -- -------- -- --------
+     @xmath      (3.13)
+  -- -------- -- --------
+
+Objects like primordial black holes or axions clusters are in the mass
+range relevant to femtolensing.
+
+#### 3.3.2 Time delay
+
+When multiple images of a source are resolved, their light curves are
+similar except for a shift in time. The shift in time comes from the
+differences in the geometrical path of light and the gravitational
+potential felt by the photon for each individual image. Estimation of
+this time delay, together with the measurements of the brightness ratio
+of individual images are crucial for determining the parameters of the
+lens, such as the lens mass and geometry. The time delay @xmath between
+the two images (see figure 3.3 ) is given by
+
+  -- -------- -- --------
+     @xmath      (3.14)
+  -- -------- -- --------
+
+where @xmath is the Fermat potential at the position @xmath in the lens
+plane.
+
+  -- -------- -- --------
+     @xmath      (3.15)
+  -- -------- -- --------
+
+One finds:
+
+  -- -------- -- --------
+     @xmath      (3.16)
+  -- -------- -- --------
+
+The time delay @xmath is a function of the image geometry, the distances
+@xmath , @xmath and the gravitational potential. The geometrical time
+delay @xmath is caused by the extra path length compared to the direct
+line between the observer and the source. The gravitational time delay
+@xmath called the Shapiro delay (Shapiro 1964), is induced by the
+gravitational potential of the lens. The Shapiro effect is due to clocks
+slowing down in gravitational fields. Light rays are thus delayed
+relative to their travel time in vacuum.
+
+The Fermat potential (equation ( 3.15 )) can also be used to derive the
+lens equation by searching for extrema of the travel time:
+
+  -- -------- -- --------
+     @xmath      (3.17)
+  -- -------- -- --------
+
+which gives:
+
+  -- -------- -- --------
+     @xmath      (3.18)
+  -- -------- -- --------
+
+Equation ( 3.18 ) is similar to ( 3.6 ).
+
+#### 3.3.3 Magnification
+
+The magnification of a single image of a lensed system is the ratio of
+the flux of the image to the flux of the unlensed source. If there are
+several images, the magnifications add up.
+
+In the case of a point mass lens, the amplitude contributed by the
+@xmath images is
+
+  -- -------- -- --------
+     @xmath      (3.19)
+  -- -------- -- --------
+
+The magnification @xmath is obtained by summing the amplitudes ( 3.19 )
+and squaring, which gives
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (3.20)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+The phase difference @xmath is given by equation:
+
+  -- -------- -- --------
+     @xmath      (3.21)
+  -- -------- -- --------
+
+When light is not coherent ( @xmath ), the equation ( 3.20 ) is reduced
+to the two first terms. If one considers a ”traditional” lensing event
+(such as microlensing), the two light paths are not coherent because of
+large time difference between the images: @xmath . This is essentially
+the geometric optics approximation. However, the condition of light
+coherence can be fulfilled, when the lensing object is very small and
+compact. In that case, the induced time difference between images is
+comparable to the light wavelength. When light is coherent, fringes can
+be observed in the energy spectrum. This interferometry pattern may be
+observed in GRB spectra if a compact object is on the line of sight with
+mass in the range @xmath . The GRBs emits mostly in the energy range
+from @xmath to @xmath . The condition of coherence ( @xmath close to 1)
+can thus be satisfied. This idea was proposed first by Gould ( 1992 ) ,
+who also invented the word ”femtolensing”.
+
+#### 3.3.4 Projected size of a source
+
+In principle, the finite size of the source and the relative motion of
+the observer, the lens and the source have to be taken into account. In
+this thesis this effects are important only for GRBs femtolensing. The
+projected size effect is negligible provided @xmath is @xmath 1, where
+@xmath is the size of GRB emission region projected on the lens plane.
+If the GRB is observed at a time @xmath after the beginning of the
+burst, its size projected onto the lens plane is
+
+  -- -------- -- --------
+     @xmath      (3.22)
+  -- -------- -- --------
+
+where @xmath is the Lorentz factor of the burst. Note that the Lorentz
+factor of GRBs is estimated to be in excess of @xmath , so that @xmath
+given in equation ( 3.22 ) is overestimated.
+
+The Einstein radius @xmath , image position and time delay have been
+introduced in section 3.3.1 . The Einstein radius for the femtolensing
+event is of the order of:
+
+  -- -------- -- --------
+     @xmath      (3.23)
+  -- -------- -- --------
+
+The ratio of @xmath to @xmath is therefore
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (3.24)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+Equation ( 3.24 ) shows that the finite size of the GRB can be in
+general safely neglected if @xmath .
+
+#### 3.3.5 Time scale of femtolensing events
+
+The expected time scale femtolensing-induced event is given in terms of
+the typical Einstein radius and relative velocity @xmath between source
+and lens. The Einstein radius crossing time @xmath is then:
+
+  -- -------- -- --------
+     @xmath      (3.25)
+  -- -------- -- --------
+
+Equation ( 3.25 ) shows that @xmath under reasonable assumptions on the
+velocities. If so, the motion of the source in the lens plane can also
+be neglected. In the analysis of GRB spectra, it is thus assumed that
+the point source – point lens assumption is valid and that the source
+stays at a fixed position in the lens plane.
+
+#### 3.3.6 Singular Isothermal Sphere
+
+Primordial black holes can be modeled as point lenses. However, galaxies
+which are responsible for large time delays between the images are
+extended lenses. A simple model of extended lenses is a singular
+isothermal sphere model (SIS). In this model, the mass increases
+proportionally to the radius @xmath and the force is proportional to
+@xmath . Thus, the isothermal sphere is a first approximation model for
+the gravitational field of galaxies and cluster of galaxies (Rubin
+et al. , 1988 ) . The three-dimensional density distribution of SIS is
+given by:
+
+  -- -------- -- --------
+     @xmath      (3.26)
+  -- -------- -- --------
+
+where @xmath is the one-dimensional velocity dispersion of stars in the
+galaxy.
+
+The circularly-symmetric surface mass distribution is obtained by
+projecting the matter in the lens plane:
+
+  -- -------- -- --------
+     @xmath      (3.27)
+  -- -------- -- --------
+
+The mass inside a sphere of radius @xmath is given by
+
+  -- -------- -- --------
+     @xmath      (3.28)
+  -- -------- -- --------
+
+Using equation ( 3.1 ) and ( 3.28 ) one obtains:
+
+  -- -------- -- --------
+     @xmath      (3.29)
+  -- -------- -- --------
+
+Equation ( 3.29 ) shows that the deflection angle for an isothermal
+sphere is independent of @xmath . Equation ( 3.29 ) can be simplified
+to:
+
+  -- -------- -- --------
+     @xmath      (3.30)
+  -- -------- -- --------
+
+The Einstein angle calculated in SIS model is:
+
+  -- -------- -- --------
+     @xmath      (3.31)
+  -- -------- -- --------
+
+SIS creates two images of the source if it lies inside the Einstein
+ring, else just one image. A third image is hidden by the central
+singularity of the @xmath potential.
+
+### 3.4 Lensing Probability
+
+The chance of seeing a lensing event is usually expressed in terms of
+optical depth. This assumes that the optical depth is smaller than 1, so
+that it can be understood as a probability. The concept of optical depth
+was introduced by Vietri & Ostriker ( 1983 ) , and is the standard way
+of determining the probability of lensing. The optical depth @xmath is
+defined, in the context of gravitational lensing, as a measure of the
+number of lenses per Einstein ring along the line of sight from the
+observer to a given source (Nemiroff, 1989 ) . That is:
+
+  -- -------- -- --------
+     @xmath      (3.32)
+  -- -------- -- --------
+
+where @xmath is the density of lenses along the line of sight.
+
+The connection between the optical depth and the lensing probability
+depends on the observations and on the performances of the instrument.
+For instance in microlensing observations lenses are observed when the
+magnification is larger than 1.34, corresponding to one Einstein radius.
+Some of the current instruments like Kepler, can detect tiny magnitude
+variations, when sources are bright enough. In that case the lensing
+probability is obtained from the maximum area in the lens plane, where a
+passing source gives detectable lensing effects (Griest et al. , 2011 )
+. In general it is convinient to define a lensing ”cross-section”, which
+reflects the maximum detectable area in the lens plane and depends on
+the lens observation method (see Schneider ( 1999 ) section 11.1),
+
+The microlensing event detection is based on the observation of
+magnification changes of sources. In contrast, the detection of
+femtolensing is based on the observation of fringes in the energy
+spectrum (see figure 5.1 ). With GBM, the fringes can be detected when a
+lens is distant of more than 3 @xmath from the source. At this distance
+the magnification change is not detectable any more. In the case of
+femtolensing the cross-section has been defined as the area in the lens
+plane where the spectral fringes give a more than 3 sigma detection. The
+femtolensing cross-section depends on the instrument performance and
+source brightness, so that it was calculated event by event (see part V
+).
+
+The optical depth is sensitive to the cosmological model. The Universe
+is homogeneous and isotropic at large scales and is well described by
+the Friedmann-Lemaitre-Robertson-Walker (FLRW) geometry. The FLRW is
+characterized by just a few parameters including the mean mass density
+@xmath and the normalized cosmological constant @xmath . However, the
+local clumpiness has an important effect on photon propagation. This
+leads to different formula for the angular diameter distance.
+
+In the next section 3.4.1 the various distance formula are described,
+then in sections 3.4.2 and 3.4.3 the formalism of the optical depth
+calculation for the point mass and SIS models is presented. I have
+followed the analysis of Fukugita et al. ( 1992 ) .
+
+#### 3.4.1 The Distance Formula
+
+Based on observations, the Universe is homogenous on large scales.
+Therefore, on large scales it is well approximated by the FLRW geometry.
+However, at smaller distances, the light propagates through an
+inhomogeneous space-time rather than the averaged smooth space-time. The
+light ray feels the local metric which deviates from the smoothed
+Robertson-Walker metric.
+
+Even if global parameters like the mean mass density @xmath and the
+normalized cosmological constant @xmath are fixed, the propagation of
+light rays, and hence the distance formula is not uniquely determined
+(Zel’dovich, 1964 ; Dyer & Roeder, 1973 ; Fukugita et al. , 1992 ) .
+
+The distances calculations are hence made for the 2 cases of the
+homogenous and isotropic FLRW model and the Dyer & Roeder ( 1973 )
+inhomogeneous and clumpy Universe.
+
+The angular diameter distances for the FLRW model is given by:
+
+  -- -------- -- --------
+     @xmath      (3.33)
+  -- -------- -- --------
+
+The angular diameter distances for the Dyer&Roeder model cosmology is
+given by:
+
+  -- -------- -- --------
+     @xmath      (3.34)
+  -- -------- -- --------
+
+In my analysis I have used @xmath , so that the @xmath term in the
+square root vanishes.
+
+#### 3.4.2 Probability of lensing by point masses
+
+The effective radius of the lens is characterized by the length:
+
+  -- -------- -- --------
+     @xmath      (3.35)
+  -- -------- -- --------
+
+and assuming detection for @xmath the cross-section @xmath is
+
+  -- -------- -- --------
+     @xmath      (3.36)
+  -- -------- -- --------
+
+The differential probability @xmath of lensing in the path @xmath is
+given by
+
+  -- -------- -- --------
+     @xmath      (3.37)
+  -- -------- -- --------
+
+where @xmath is the lens density parameter defined as a ratio of the
+local lens density to the critical density. @xmath is the Hubble
+distance and @xmath is the Hubble constant.
+
+The total lensing probability is calculated by integrating the
+differential probability along the line of sight to the source:
+
+  -- -------- -- --------
+     @xmath      (3.38)
+  -- -------- -- --------
+
+Figure 3.4 shows the total lensing optical depth assuming point mass
+lenses. The optical depth is presented as a function of the redshift
+@xmath of the sources.
+
+#### 3.4.3 Lensing Probability by Singular Isothermal Sphere
+
+The SIS model is described in section 3.3.6 . The cross-section for
+lensing by the SIS is given by equation:
+
+  -- -------- -- --------
+     @xmath      (3.39)
+  -- -------- -- --------
+
+The differential probability of lensing is:
+
+  -- -------- -- --------
+     @xmath      (3.40)
+  -- -------- -- --------
+
+where:
+
+  -- -------- -- --------
+     @xmath      (3.41)
+  -- -------- -- --------
+
+and @xmath is a quantity which measures the effectiveness of matter in
+producing double images (Turner et al. , 1984 ) and is given by
+equation:
+
+  -- -------- -- --------
+     @xmath      (3.42)
+  -- -------- -- --------
+
+The value of @xmath used by Fukugita et al. ( 1992 ) was 0.047. The
+total probability of lensing is calculated as in equation ( 3.38 ).
+
+## Part IV Gravitational lensing in high energy
+
+### 4.1 Introduction
+
+The precise estimation of the time delay between components of lensed
+Active Galactic Nuclei (AGN) is crucial for modeling the lensing
+objects. In turn, more accurate lens models give better constraints on
+the Hubble constant. Recent years, more than 200 strong lens systems
+have been discovered, most of them by dedicated surveys such as the
+Cosmic Lens All-Sky Survey (Myers et al. , 2003 ; Browne et al. , 2003 )
+and the Sloan Lens ACS Survey (Bolton et al. , 2004 ) .
+
+The launch of the FERMI satellite (Atwood et al. , 2009 ) in 2008 gives
+the opportunity to investigate gravitational lensing phenomena with high
+energy gamma rays. The observation strategy of FERMI-LAT, which surveys
+the whole sky in 190 minutes, allows a regular sampling of quasar light
+curves with a period of a few hours.
+
+The multiple images of a gravitational lensed AGN cannot be directly
+observed with high energy gamma-ray instruments such as FERMI-LAT, Swift
+or ground based Cherenkov telescopes, due to their limited angular
+resolutions. The angular resolution of these instruments is at best a
+few arcminutes (in the case of the H.E.S.S.), when the typical
+separation of the images for quasar lensed by galaxies is a few
+arcseconds.
+
+The analysis described in this part of my thesis is concerned on the
+time delay estimation in strong lenses when only spatially unresolved
+data are available. I have developed a method that handles the problem
+of poor instrument angular resolution (Barnacka et al. , 2011 ) . It is
+based on the so-called ”double power spectrum” analysis.
+
+The method of time delay estimation have been tested on simulated light
+curves and on FERMI LAT observations of the very bright radio quasar PKS
+1830-211, for which the time delay was previously estimated by Lovell
+et al. ( 1998 ) using radio observations.
+
+This part of the thesis is organized as follows: first, I discus the
+lensing probability of the FERMI AGNs (section 4.2 ), then I give a very
+brief summary of the properties of PKS 1830-211(section 4.3 ), of the
+FERMI LAT satellite (section 4.4 ) and the data towards this AGN
+(section 4.5 ). In section 4.6 , I discus the methods for time delay
+estimation. Section 4.7 describes the measurement of the time delay
+between the two compact components of PKS 1830-211. Section 4.8 contains
+the summary of results. The last section ( 4.9 ), is devoted to
+gravitational lens time delay and the Hubble constant.
+
+### 4.2 Probability of lensing of FERMI AGNs
+
+The 2st FERMI catalogue (Nolan et al. , 2012 ) contains 1873 sources
+detected in the 100 MeV to 100 GeV range. Among the AGN associations the
+2st FERMI catalogue lists 1064 blazars, consisting of 432 BL Lacertae
+objects (BL Lacs), 370 flat-spectrum radio quasars (FSRQs), and 262 of
+unknown type. From the formalism described in part III the expected
+numbers of lenses in the FSRQ class is 9.4 @xmath - assuming the
+homogeneous FLRW model of the universe, and 8.25 @xmath for the
+Dyer-Roeder model.
+
+The probability of lensing was also calculated for BL Lacs objects. The
+expected number of lenses is 0.61 @xmath for the FLRW model and 0.58
+@xmath for the Dyer-Roeder model. The AGN are lensed by galaxies which
+are modeled as SIS lenses (chapter III ). The total probability of
+lensing by SIS lenses is shown on figure 3.6 .
+
+The large difference in number of expected lensed objects in FSRQ and BL
+Lac groups is arising from the redshift distribution of both groups. The
+BL Lac objects have been detected only at small redshifts below 1.5.
+Most of them have a z @xmath 0.5. with majority below 0.5. In addition,
+only half of BL Lac objects have measured redshift. It is very difficult
+to measured redshift of BL Lac object since this objects are lineless.
+
+The FSRQ have been detected at much larger distances. The most distant
+FSRQ in FERMI catalog was detected at a redshift @xmath 3. The redshift
+distribution for BL Lac and FSRQ objects from the second FERMI catalogue
+is shown on figure 4.1
+
+The lensing probability calculated above does not take into account the
+magnification bias. The magnification bias can substantially increase
+the probability of lensing for bright optical quasars (Turner, 1980 ;
+Turner et al. , 1984 ; Narayan & Wallington, 1993 ) .
+
+### 4.3 The PKS 1830-211 gravitational lens system
+
+PKS 1830-211 is one of the object observed in the high energy domain by
+the FERMI satellite. PKS 1830-211 is a variable, bright radio source and
+an X-ray blazar. Its redshift was measured to be z=2.507 (Lidman et al.
+, 1999 ) .
+
+The blazar was detected in @xmath -rays with EGRET. The association of
+the EGRET source with the radio source was done by Mattox et al. ( 1997
+) . The classification of PKS 1830-211 as a gravitational lensed
+quasi-stellar object was first proposed by Pramesh Rao & Subrahmanyan (
+1988 ) .
+
+The lensing galaxy is a face-on spiral galaxy, identified by Winn et al.
+( 2002 ) and Courbin et al. ( 2002 ) , and located at redshift z=0.89
+(Wiklind & Combes, 1996 ) .
+
+PKS 1830-211 is observed in radio as an elliptical ring-like structure
+connecting two bright sources distant of roughly one arcsecond (Jauncey
+et al. , 1991 ) , see figure 4.5 . The compact components were
+separately observed by the Australia Telescope Compact Array at 8.6 GHz
+for 18 months. These observations and the subsequent analysis made by
+Lovell et al. ( 1998 ) gave a magnification ratio between the 2 images
+of @xmath and a time delay of @xmath days. A separate measurement of a
+time delay of @xmath days was made by Wiklind & Combes ( 2001 ) using
+molecular absorption lines.
+
+### 4.4 The FERMI Satellite
+
+The FERMI Gamma-ray Space Telescope is a space observatory aimed at
+performing gamma-ray astronomy observations. Fermi was launched on 11
+June 2008. The key scientific goals of the FERMI mission are then
+studies of active galaxy nuclei, supernova remnants, gamma-ray bursts
+and dark matter.
+
+The observatory includes two scientific instruments. One is a
+calorimeter, the Large Area Telescope (LAT) sensitive to photons in
+energy range from 30 MeV to 300 GeV. The LAT field of view is about 20%
+(2 sr) of the sky. The second instrument is a Gamma-ray Burst Monitor
+(GBM) used to detect gamma-ray bursts in the energy range from a few keV
+to 30 MeV.
+
+### 4.5 FERMI LAT data on PKS 1830-211
+
+PKS 1830-211 has been detected by the FERMI LAT instrument with a
+detection significance above 41 FERMI Test Statistic (TS), equivalent to
+a 6 @xmath effect (Abdo et al. , 2010b ) . The long-term light curve is
+presented on figure 4.2 with a two days binning and the counts map
+centered at position of PKS 1830-211 (figure 4.3 ).
+
+The data analysis was performed using a two days binning, which provides
+a sufficient photon statistic per bin with a time span per bin much
+shorter than 28 days. The data analysis was cross-checked by binning the
+light-curve into 1 day and 23 hours bins, with similar results.
+
+The data were taken between August 4 2008 and October 13 2010, and
+processed by the publicly available Fermi Science Tools version 9. The
+v9r15p2 software version and the P6_V3_DIFFUSE instrument response
+functions have been used. The light curve has been produced by aperture
+photometry, selecting photons from a region with radius 0.5 deg around
+the nominal position of PKS 1830-211 and energies between 300 MeV and
+300 GeV.
+
+### 4.6 Methods of Time Delay estimation
+
+The most popular methods of time delay estimation, in the context of
+gravitational lensing, are the cross-correlation method (Kundic et al. ,
+1997 ) , and the dispersion spectra method (Pelt et al. , 1996 ) .
+
+In the case of PKS 1830-211, the previous time delay estimation given by
+Lovell et al. ( 1998 ) based on the dispersion analysis method (Pelt
+et al. , 1994 , 1996 ) . The light curve analysis has been performed
+using the data taken from 1997 January to 1998 July. The observation was
+done with the Australian Telescope Compact Array operating at 8.6 GHz.
+The light curves taken from Lovell et al. ( 1998 ) is shown on figure
+4.5 .
+
+The radio image (figure 4.5 ) shows two bright, well resolved components
+connected by an elliptical ring like structure. The analysis presented
+in Lovell et al. ( 1998 ) decomposes the observed system into two lensed
+images @xmath and @xmath and an additional component from the ring like
+structure. The total observation flux density was thus defined as:
+
+  -- -------- -- -------
+     @xmath      (4.1)
+  -- -------- -- -------
+
+The intensity of the lensed images changes in time in similar fashion,
+but the light curves are shifted in time by @xmath . The flux of the two
+magnifier images change with time but the magnification ratio @xmath is
+constant. Thus, the flux of the second image can be define as:
+
+  -- -------- -- -------
+     @xmath      (4.2)
+  -- -------- -- -------
+
+Lovell et al. ( 1998 ) followed the analysis of Pelt et al. ( 1994 ,
+1996 ) . They obtain two light curved datasets @xmath and @xmath (
+@xmath where @xmath is a number of observations) for every data value of
+@xmath and @xmath .
+
+The dispersion @xmath of combined light curves is given by:
+
+  -- -------- -- -------
+     @xmath      (4.3)
+  -- -------- -- -------
+
+where @xmath are weights which select only pairs of observations whose
+observing time t, do not differ more than @xmath .
+
+and @xmath is a combined statistical weight defined as
+
+  -- -------- -- -------
+     @xmath      (4.4)
+  -- -------- -- -------
+
+where @xmath and @xmath are the errors from the observations. Equation (
+4.3 ) represents the weighted sum of the squared difference between
+@xmath , @xmath pairs over the entire light curve. @xmath is minimized
+with respect to @xmath and @xmath . Lovell et al. ( 1998 ) obtain a time
+delay of @xmath days and a magnification ratio @xmath .
+
+### 4.7 Double power spectrum method
+
+At the high energy (HE @xmath 100 MeV) domain, the multiple images of a
+lensed AGN cannot be directly observed due to the limited angular
+resolution of the existing detectors. This section presents a new method
+for estimating the time delay of the images of a lensed quasar (Barnacka
+et al. , 2011 ) . This method is usable when the images are unresolved.
+
+#### 4.7.1 Idea
+
+As it was discussed in part III , if a distant source (in our case an
+AGN) is gravitationally lensed, the light reaches the observer through
+at least two different paths. For the moment only two light paths are
+assumed. In reality, the light curves of the two images are not totally
+identical since (in addition to differences due to photon noise) the
+source can be microlensed in one of the two paths. The microlensing is
+cased by a star from the lensing galaxy crossing one of the paths.
+
+Neglecting for the moment the background light and the differences due
+to microlensing, the observed flux can be decomposed into two
+components. One of the components is the intrinsic AGN light curve,
+given by @xmath with Fourier transform @xmath The other component has a
+similar time evolution than the first one, but is shifted in time with a
+delay @xmath In addition, the brightness of the second component differs
+by a factor @xmath from that of the first component, so that it can be
+written as @xmath and its transform to the Fourier space gives @xmath .
+
+The sum of two component gives
+
+  -- -------- -- -------
+     @xmath      (4.5)
+  -- -------- -- -------
+
+which transforms into
+
+  -- -------- -- -------
+     @xmath      (4.6)
+  -- -------- -- -------
+
+in Fourier space.
+
+The power spectrum @xmath of the source is obtained by computing the
+square modulus of @xmath :
+
+  -- -------- -- -------
+     @xmath      (4.7)
+  -- -------- -- -------
+
+The measured @xmath is the product of the “true” power spectrum of the
+source times a periodic component with a period (in the frequency
+domain) equal to the inverse of the relative time delay @xmath . The
+microlensing of one of the components, when taken into account, gives a
+modulation of the amplitude of the oscillatory pattern at low
+frequencies.
+
+The typical time interval for a quasar to cross its own diameter @xmath
+is
+
+  -- -------- -- -------
+     @xmath      (4.8)
+  -- -------- -- -------
+
+where @xmath is the quasar size in units of @xmath cm, and @xmath is a
+transverse velocity, perpendicular to the line of sight, here @xmath in
+600 km/s. The typical time of a caustic crossing microlensing event is
+thus a few months (Wambsganss, 2001 ) . Therefore, only frequencies
+under @xmath Hz will be affected by microlensing event.
+
+The usual way of measuring the time delay @xmath is to calculate the
+autocorrelation function of f(t). This method was investigated by Geiger
+& Schneider ( 1996 ) . The computation of the autocorrelation of a light
+curve with uneven sampled data is described in Edelson & Krolik ( 1988 )
+.
+
+The Fermi light curve of PKS 1830-211 has very few gaps, and only one
+notable four-day gap. The missing data have been linearly interpolated.
+However, simulations with an artificial gap have shown that the results
+are little affected by this gap. The autocorrelation function can be
+written as the sum of three terms.
+
+One of these terms models the ”intrinsic” autocorrelation of the AGN,
+decreasing with a time constant @xmath . If @xmath is larger than @xmath
+, the autocorrelation method fails, because the time delay peak merges
+with the intrinsic component of the AGN. Another potential problem with
+the autocorrelation method is the sensitivity to spurious periodicities
+such as the one coming from the motion and rotation of the Fermi
+satellite.
+
+The periodic modulation of @xmath suggests the use of another method,
+based on the computation of the power spectrum of @xmath , noted @xmath
+. This method is similar in spirit to the cepstrum analysis (Bogert
+et al. , 1963 ) used in seismology and speech processing.
+
+If @xmath were a constant function of @xmath , @xmath would have a peak
+at the time delay @xmath . In the general case, @xmath is obtained by
+the convolution of a Dirac function, coming from the cosine modulation,
+by the Fourier transform of the function:
+
+  -- -------- -- -------
+     @xmath      (4.9)
+  -- -------- -- -------
+
+where W(0, @xmath ) is the window in frequency of @xmath and @xmath is
+maximum available frequency. The Fourier transform h(a) of @xmath
+defines the width of the time delay peak in the double power spectrum
+@xmath . For instance if @xmath and @xmath then the time delay peak in
+@xmath has a Lorentzian shape with a FWHM of @xmath For a typical value
+of @xmath days, one has a FWHM of 3 days.
+
+In the next section we describe the calculation of @xmath and @xmath and
+illustrate the procedure with Monte Carlo simulations.
+
+#### 4.7.2 Power spectrum calculation
+
+The Fourier transform is a powerful technique to analyze astronomical
+data, but it requires a proper preparation of the dataset. To avoid
+problems arising from the finite length of measurements, sampling and
+aliasing, we use the procedure for data reduction described by Brault &
+White ( 1971 ) and Press et al. ( 2007 ) .
+
+First the whole light curve is divided into several segments of equal
+length. The data have to be evenly spaced and the number of points per
+segment needs to be equal to a power of 2.
+
+The choice of the segment length is a compromise between the spectral
+resolution and the size of error bars on points in the final spectrum.
+The resolution of lines increases with the number of points in the
+segment, but the error on each point in the spectrum decreases as the
+number of segments.
+
+As suggested by Brault & White ( 1971 ) , the segments are overlapped to
+obtain a larger number of segments with a sufficient number of points.
+Then the data in each segment are transformed with the following
+procedure:
+
+1.  Data gaps are removed by linear interpolation
+
+2.  The mean is subtracted from the series to avoid having a large value
+    in the first bin of the transform
+
+3.  The data are oversampled to remove aliasing.
+
+4.  The light curve is multiply by the window
+
+5.  Zeros are added to the end of the series to reduce power at high
+    frequencies
+
+After the interpolation of missing data, and standard operations
+(oversampling, zero-padding), the power spectrum is calculated in every
+segment. Figures 4.6 and 4.6 illustrate with the artificial light curve
+how step 3 of the data processing procedure removes the aliasing. During
+the procedure evoluation a lot of different window functions have been
+tested. Monte Carlo simulations show, that for the first power spectrum
+calculation, most efficient was a rectangular window function. The
+rectangular windows function had the smallest smoothing effect on the
+oscillations expected when the signal is delayed. Finally, the power
+spectrum is averaged over all segments.
+
+#### 4.7.3 Monte Carlo simulations
+
+Artificial light curves were produced by summing three simulated
+components. The light curve of PKS 1830-211 shown on figure 4.2 does not
+exhibit any easily recognizable features, but has a rather random-like
+aspect. The first component was thus simulated as a white noise, with a
+Poisson distribution. It would be more realistic to use red noise
+instead of white noise but the latter is sufficient for most of our
+purposes, such as computing @xmath The second component is obtained from
+the first by shifting the light curve with a 28 days time lag. The
+effect of differential magnification of the images has also been
+included. The background photon noise was taken into account by adding a
+third component with a Poisson distribution.
+
+The mean number of counts per 2 day bin for PKS 1830-211 is 5.42. This
+value was used to generate artificial light curves. The first and second
+components account for 80% of the simulated count rate and the rest is
+contributed by the Poisson noise.
+
+The power spectrum obtained with an artificial light curve is shown on
+figure 4.8 .
+
+#### 4.7.4 Time delay determination
+
+The methods of time delay determination use the power spectrum @xmath
+obtained as described in the previous section. The simulated @xmath
+presented on figure 4.8 shows a very clear periodic pattern. From
+equation ( 4.7 ), it is known that the period of the observed
+oscillations is equal to the inverse of the time delay between the
+images.
+
+The preferred approach here was to calculate a so-called double power
+spectrum @xmath . As in section 4.7.2 , the power spectrum @xmath has to
+be prepared before undergoing a Fourier transform to the “time delay”
+domain. The low frequency part ( @xmath ) of @xmath was cut off. This
+cut arises because of the large power observed at low frequencies in the
+power spectrum of PKS 1830-211.
+
+The high frequency part of the spectrum @xmath was also removed because
+the power at high frequency is small (it goes to 0 at the Nyquist
+frequency). The calculation of @xmath proceeds like in section 4.7.2 ,
+except that the @xmath data are bent to zero by multiplication with a
+cosine bell. This eliminates spurious high frequencies when zeros are
+added to the @xmath series.
+
+The @xmath distribution is estimated from 5 segments of the light curve.
+In every bin of the @xmath distribution, the estimated double power
+spectrum is given by the average over the 5 segments. The errors bars on
+@xmath are estimated from the dispersion of bin values divided by 2
+(since there are 5 segments). Due to the random nature of the sampling
+process, some of the error bars obtained are much smaller than the
+typical dispersion in the @xmath points. To take this into account, a
+small systematic error bar was added quadratically to all points. The
+result (with statistical error bars only) is presented on figure 4.9 .
+
+As described in section 4.7.2 , we simulated light curves with a time
+delay of 28 days. A peak is apparent near a time delay of 28 days on the
+@xmath distribution shown on figure 4.9 . The points just outside the
+peak are compatible with a flat distribution. Including also the points
+in the peak gives a distribution which is incompatible with a flat
+distribution at the 12.9 sigma level. The parameters of the peak were
+determined by fitting the sum of a linear function for the background
+plus a Gaussian function for the signal. In the case shown on figure 4.9
+, the time delay estimated from @xmath is @xmath days.
+
+As mentioned in section 4.7.1 , the usual approach for the time delay
+estimation is to compute the autocorrelation of the light curve. The
+auto-covariance is obtained by taking the real part of the inverse
+Fourier transform of @xmath . The auto-covariance is normalized (divided
+by the value at zero time lag) to get the autocorrelation. The
+autocorrelation function of an artificial light curve simulated as in
+section 4.7.2 is presented on figure 4.10 .
+
+A peak with a significance of roughly 16 @xmath is present at @xmath
+days. However the significance of this peak is overestimated since light
+curves are simulated with white noise instead of red noise. The
+autocorrelation function of a light curve driven by red noise is given
+by @xmath In the case of our simulated light curves, @xmath , so that
+the peak is a little affected by the background of the AGN.
+
+For the simulated light curves, both approaches of time delay
+determination give reasonable and compatible results.
+
+### 4.8 Results
+
+The results for real data were obtained with the same procedure as was
+presented for the simulated light curves. Figure 4.11 shows the power
+spectrum @xmath calculated from the light curve of PKS 1830-211.
+
+An oscillatory pattern is clearly visible in the power spectrum. It is
+similar to the pattern expected from the simulations shown on figure 4.8
+.
+
+The autocorrelation function and the @xmath distribution calculated for
+real data are shown on figures 4.12 and 4.13 .
+
+A peak around 27 days is seen in both distributions. Several other peaks
+are present on the autocorrelation function as was already noted by
+Geiger & Schneider ( 1996 ) (see their figure 1).
+
+The peak around 5 days in the @xmath distribution is likely to be an
+artefact connected to the time variation of the exposure of the LAT
+instrument on PKS 1830-211. Using the method described in section 4.7.4
+, the significance of the peak around 27 days is found to be 1.1 @xmath
+in the autocorrelation function and 4.2 @xmath in the double power
+spectrum @xmath . Fitting the position of the peak gives a time delay of
+@xmath days for the @xmath distribution. The fit of the autocorrelation
+function to a Gaussian peak over an exponential background gives @xmath
+days. In both cases, the quoted error is derived from the fit.
+
+The double power spectrum distribution obtained for PKS 1830-211
+provides the first evidence for gravitational lensing phenomena in high
+energy gamma rays. The evidence is still at the 4.2 @xmath level but
+will likely improve by a factor of 2 over the lifetime of the FERMI
+satellite. Thanks to the uniform light curve sampling provided by FERMI
+LAT instrument, it is not necessary to identify features on the light
+curve to apply Fourier transform methods. The example of PKS 1830-211
+shows that the method works in spite of the low photon statistic.
+Possible extensions of the present work are finding multiple delays in
+complicated lens systems or looking for unknown lensing systems in the
+FERMI catalog of AGNs.
+
+### 4.9 Gravitational lens time delay and the Hubble constant
+
+The Hubble constant ( @xmath ) estimation bases on the distance
+determination in the Universe. The most common methods of the distances
+determination in the nearby Universe use the Cepheids, the tip of the
+red giant branch or maser galaxies. Larger distances are estimated using
+Tully-Fisher relation for spiral galaxies, the surface brightness
+fluctuation method or the maximum luminosity of Type Ia supernovae (for
+full review see Freedman & Madore ( 2010 ) ). This methods give direct
+way of @xmath estimation. However, there are also indirect techniques to
+estimate @xmath , for example with using the Sunyaev-Zel’dovich effect,
+the anisotropy in the cosmic microwave effect or the gravitation
+lensing.
+
+Recently, the most accurate @xmath estimation is @xmath (km/s)/Mpc. This
+result was provided with the seven years Wilkinson Microwave Anisotropy
+Probe (WMAP) observations combined with BAO and @xmath data (Komatsu
+et al. , 2011 ) . The @xmath estimated with alternative and independent
+methods gives consistent value. For example, in the case of
+gravitational lensing method, the best estimation of @xmath was obtained
+with a Bayesian analysis of the strong gravitational lens system
+B1608+656. This gave @xmath (km/s)/Mpc (Suyu et al. , 2010 ) .
+
+The @xmath estimation, based on the lensed quasar PKS 1830-211, has
+provided rather weak estimation as yet. The value given by Winn et al. (
+2002 ) was based on previous time delay measurement and assumption that
+the lens galaxy has an isothermal mass distribution, they estimate
+@xmath (km/s)/Mpc.
+
+The gravitational lens PKS 1830-211 observed in radio band, consist of
+two bright components separated by 1 arcsec and connected by ring-like
+structure. The mass of lensed galaxy can be estimated using the Einstein
+ring radius @xmath from equation ( 3.10 ):
+
+  -- -------- -- --------
+     @xmath      (4.10)
+  -- -------- -- --------
+
+I will use the @xmath measured from radio ring like structure. The
+lensed image structure has rather elliptical shape. Therefore, to have
+more realistic mass estimation in this simplify case, the Einstein
+radius is measured for two different distances in the elliptical
+structure (see figure 4.14 ).
+
+This approach gives two values of @xmath : 0.5 arcsec and 0.38 arcsec.
+The mass estimated using this values is @xmath and @xmath ,
+respectively. The distances were calculated using FLRW formalism (see
+section 3.4.1 ), @xmath , @xmath and @xmath . For simplicity, I assumed
+a point mass lens. Using the time delay between two images separated by
+2 @xmath given by Lehar ( 1991 ) and mass of the lens expressed in units
+of @xmath one can get:
+
+  -- -------- -- --------
+     @xmath      (4.11)
+  -- -------- -- --------
+
+where @xmath is the angle between the position of the lensed galaxy and
+the true (undeflected) position of the background source. Usually,
+@xmath is obtain from detail lens modeling. In my analysis I used
+magnification @xmath ratio provided by Lovell et al. ( 1998 ) . The
+magnification factor @xmath for a point mass lens is:
+
+  -- -------- -- --------
+     @xmath      (4.12)
+  -- -------- -- --------
+
+where @xmath is the angular separation of the source from the point mass
+lens @xmath in units of the Einstein angle. The magnification ratio of
+the two images approximately is:
+
+  -- -------- -- --------
+     @xmath      (4.13)
+  -- -------- -- --------
+
+Using equation ( 4.13 ) and the magnification ratio @xmath one can get
+@xmath . The Hubble constant calculated using lens mass and @xmath
+obtained above is @xmath using new time delay and Einstein radius of 0.5
+arcsecond, and @xmath for 0.38 arcsec Einstein radius. The most probable
+value is then @xmath .
+
+The strong influence on the accuracy of @xmath have the systematics
+errors. Basically, the point mass lens model assumption and value of
+@xmath . The further improvement require reduction of systematics errors
+by more realistic lens modelling, measurement of the magnification ratio
+using FERMI data and improvement in the double power spectrum method.
+The time delay estimation method can be improved when the non-stationary
+processes like flares or microlensing effect will be taken into account.
+
+## Part V Femtolensing of GRBs
+
+### 5.1 Introduction
+
+Dark matter is one of the most challenging open problems in cosmology or
+particle physics. A number of candidates for particle dark matter has
+been proposed over the years (Feng, 2010 ) .
+
+An alternative idea that the missing matter consists of compact
+astrophysical objects was first proposed in the 1970s (Carr & Hawking,
+1974 ; Hawking, 1974 , 1971 ) . An example of such compact objects are
+primordial black holes (PBHs) created in the very early Universe from
+matter density perturbations. PBHs would form during the
+radiation-dominated era, and would be non-baryonic. That satisfy the big
+bang nucelosynthesis limits on baryons, and PBHs would be thus
+classified as cold dark matter in agreement with the current paradigm
+(Cieplak & Griest, 2012 ) . Another famous example is ”brown dwarfs”,
+excluded by the EROS, MACHO and OGLE searches.
+
+The abundance of PBH above @xmath g is a probe of gravitational collapse
+and large scale structure theory (Carr, 2005 ) . In particular, it
+constrains the gravitational wave background produced from primordial
+scalar perturbations in the radiation era of the early Universe (Bugaev
+& Klimai, 2011 ) .
+
+Recent advances in experimental astrophysics, especially the launch of
+the FERMI satellite with its unprecedented sensitivity, has revived the
+interest in PBH physics (Carr et al. , 2010 ; Griest et al. , 2011 ) .
+
+In this part, I present the results of a femtolensing search performed
+on the spectra of GRBs with known redshifts detected by the Gamma-ray
+Burst Monitor (GBM) on board the FERMI satellite (Barnacka et al. , 2012
+) . The non observation of femtolensing on these bursts provides new
+constraints on the PBHs fraction in the mass range @xmath g. I describe
+in details the optical depth derivation based on simulations applied to
+each burst individually. The sensitivity of the GBM to the femtolensing
+detection is also calculated.
+
+This chapter is organized as follows: The first section introduces
+Primordial Black Holes (PBH). In section 5.3 the basics of femtolensing
+are given. Section 5.5 describes the data sample and simulations. In
+section 5.6 the results are presented, while section 5.7 is devoted to
+discussion and conclusions.
+
+### 5.2 Primordial Black Holes
+
+As I mentioned in the introduction section, PBHs could have formed in
+the early Universe. PBHs are not associated with the collapse of a
+massive star, so that they could have formed with a wide range of
+masses. In this scenario, the mass of PBH would depend on their
+formation time @xmath :
+
+  -- -------- -- -------
+     @xmath      (5.1)
+  -- -------- -- -------
+
+PBH formed at the Planck time ( @xmath ) just after the Big Bang would
+have a mass equal to the Planck mass ( @xmath g). However, those formed
+1 s after the Big Bang would have a mass of @xmath .
+
+Bekenstein ( 1973 ) and Hawking ( 1974 ) discovered that black holes
+produce a thermal radiation with a temperature:
+
+  -- -------- -- -------
+     @xmath      (5.2)
+  -- -------- -- -------
+
+The radiation has a black body spectrum and is inversely proportional to
+black hole mass. Black holes of mass M should evaporate on a timescale:
+
+  -- -------- -- -------
+     @xmath      (5.3)
+  -- -------- -- -------
+
+Equation ( 5.3 ) suggests that PBHs with a mass smaller than @xmath g
+would have evaporated thus far. The @xmath g PBHs have a @xmath 100 MeV
+temperature at the present epoch. Observations of the @xmath -ray
+background constrains the density of PBH with masses of less than @xmath
+g. A recent analysis of EGRET data (Lehoucq et al. , 2009 ) shows that
+the PBH density does not exceed @xmath times the critical density.
+
+### 5.3 Femtolensing
+
+One of the most promising ways to search for PBHs is to look for lensing
+effects caused by these compact objects. Since the Schwarzschild radius
+of PBH is comparable to the photon wavelength, the wave nature of
+electromagnetic radiation has to be taken into account. In such a case,
+the lensing caused by PBHs introduces an interferometry pattern in the
+energy spectrum of the lensed object (Mandzhos, 1981 ) . This effect is
+called ’femtolensing’ (Gould, 1992 ) due to the @xmath arcseconds
+angular distance between the images of a source lensed by a @xmath g
+lens. The phenomenon has been a matter of extensive studies in the past
+(Gould, 2001 ) , but the research was almost entirely theoretical since
+no case of femtolensing has been detected as yet. Gould ( 1992 ) first
+suggested that the femtolensing of gamma-ray bursts (GRBs) at
+cosmological distances could be used to search for dark matter objects
+in the @xmath g mass range. Femtolensing could also be a signature of
+another dark matter candidate: clustered axions (Kolb & Tkachev, 1996 )
+.
+
+#### 5.3.1 Magnification and spectral pattern
+
+Consider the lensing of a GRB event by a compact object. The
+magnification of a point like source has been introduced in section
+3.3.3 . Equation ( 3.20 ) indicates that the magnification depends on
+the phase. When the two lights paths are not temporally coherent
+equation ( 3.20 ) is reduced to the two first components.
+
+In the case of femtolensing, the phase shift between the two images is:
+
+  -- -------- -- -------
+     @xmath      (5.4)
+  -- -------- -- -------
+
+where @xmath is the energy of the photon. The energy dependent
+magnification produces fringes in the energy spectrum of the lensed
+object. The magnification pattern for different configurations is
+presented on figure 5.1 as a function of the photon energy.
+
+#### 5.3.2 Lensing probability
+
+The lensing probability of gamma ray burst events is calculated in two
+steps. First, the optical depth @xmath for lensing by compact objects is
+calculated according to the formalism described in section 3.4 . The
+cosmological parameters used in the calculation are: a mean mass density
+@xmath and a normalized cosmological constant @xmath The calculations
+are made for both the FLRW and the Dyer & Roeder ( 1973 ) cosmology. In
+the sample, the GRB redshift @xmath is known. The lens redshift @xmath
+is assumed to be given by the maximum of the @xmath distribution (see
+figure 3.5 ). When @xmath the lensing probability @xmath is given by
+@xmath where @xmath is the “lensing cross-section” (see Chap. 11 of
+Schneider et al. ( 1992 ) ).
+
+In this analysis, the cross-section is defined in the following way.
+Fringes are searched in the spectra of GRBs. These fringes are
+detectable only for certain positions @xmath of the source. The exact
+criteria for detectability will be given in section 5.5.3 . The maximum
+and minimum position of @xmath in units of @xmath are noted @xmath and
+@xmath They are found by simulation and depend on the GRB redshift and
+luminosity. A minimum value of @xmath occurs because the period of the
+spectral fringes becomes larger than the GBM energy range at small
+@xmath .
+
+The femtolensing “cross-section” is simply
+
+  -- -------- -- -------
+     @xmath      (5.5)
+  -- -------- -- -------
+
+The lensing probability does not depend on the individual masses of
+lenses, but only on the density of compact objects @xmath . In the
+optical depth calculation, an increase in the mass of the lenses is
+compensated by a decrease in the number of scatterers. Therefore, the
+constraints for a given mass depend only on the cross section @xmath .
+
+### 5.4 FERMI Gamma-ray Bursts Monitor GBM
+
+The Gamma-Ray Burst (GBM) detector (Meegan et al. , 2009 ) on-board the
+Fermi satellite consists of 12 NaI and 2 BGO scintillators which cover
+the energy range from 8 keV up to 40 MeV in 128 energy bins. The energy
+resolution at 100 keV reaches @xmath 15% and @xmath 10% at 1 MeV. These
+detectors monitor the entire sky. The GBM can locate a burst with an
+accuracy of @xmath 15 deg. Currently, the average burst trigger rate is
+@xmath 260 bursts per year. In the first two years of operation, the GBM
+triggered on roughly 500 GRBs.
+
+### 5.5 Data analysis
+
+In our analysis, we use a sample of GRBs with known redshifts. The
+selection of these bursts is described in section 5.5.1 . Each burst is
+then fitted to a standard spectral model, as explained in section 5.5.2
+. Finally, the sensitivity of each burst to femtolensing is studied with
+simulated data. The simulation is described in section 5.5.3 .
+
+#### 5.5.1 Data selection
+
+In this analysis, only the bursts with known redshifts have been
+investigated. The initial sample consisted of 32 bursts taken from
+Gruber et al. ( 2011 ) and 5 additional bursts from the GRB Coordinates
+Network (GCN) circulars ⁹ ⁹ 9 http://gcn.gsfc.nasa.gov . For 17 bursts,
+the amount of available data was not sufficient to obtain good quality
+spectra. The final sample thus consists of 20 bursts, which are listed
+in table 5.5 .
+
+#### 5.5.2 Data processing and spectral analysis
+
+The GBM data are publicly available in the CSPEC format and were
+downloaded from the FERMI FSSC website ¹⁰ ¹⁰ 10
+http://fermi.gsfc.nasa.gov/ssc/ . The CSPEC files contain the counts in
+128 energy channels with 1.024 s bins for all detectors. Only detectors
+with a minimal signal to noise ratio of 5.5 in each bin were selected
+for the analysis. Data were analyzed with the RMfit version 33pr7
+program. The RMfit software package was originally developed for the
+time-resolved analysis of BATSE GRB data but has been adapted to GBM and
+other instruments. The observed data is a convolution of the GRB photon
+spectrum with an instrument response function. This is illustrated on
+figure 5.3 . For each detector with sufficient data, the background was
+subtracted and the counts spectrum of the first ten seconds of the burst
+(or less if the burst was shorter) was extracted.
+
+The energy spectrum was obtained with a standard forward-folding
+algorithm. Several GRB spectral models such as a broken power law (BKN),
+Band’s model (BAND) or a smoothly broken power law (SBKN) where
+considered. The femtolensing effect was added as a separate model. The
+magnification and the oscillating fringes were calculated according to
+equation ( 3.20 ), then multiplied with the BKN or BAND functions.
+
+#### 5.5.3 Simulations
+
+The detectability of spectral fringes has been studied with simulated
+signals. The detectability first depends on the luminosity and redshift
+of the bursts, and second on the detector’s energy resolution and data
+quality. The sensitivity of the GBM to the lens mass @xmath depends
+strongly also on the energy range and resolution of the GBM detectors.
+When small masses are considered, the pattern of spectral fringes
+appears outside of the energy range. The large masses produce fringes
+with hardly detectable amplitudes and periods smaller than the energy
+bin size.
+
+Because the data quality and the background are not easily simulated,
+the detectability estimation is performed on real data. Namely, GRB
+events with known redshifts are selected. Since the source redshift is
+known, the lens redshift is assumed to be the maximum value of @xmath as
+explained in section 3.4.2 . For a given observed GRB, the femtolensing
+signal depends thus only on 2 parameters: the lens mass @xmath and the
+source position in the lens plane @xmath The data are then processed as
+follows:
+
+1.  The magnification (equation 3.20 ) as a function of the energy is
+    calculated for the given lens mass @xmath and position of the source
+    @xmath
+
+2.  This magnification is then convolved with the instrumental
+    resolution matrix to obtain magnification factors for each channel
+    of the detector.
+
+3.  The spectral signal is extracted from the data by subtracting the
+    background. It is then multiplied by the corrected magnification.
+
+4.  The background is added back.
+
+I now illustrate the detectability calculation with the luminous burst
+GRB090424592. The spectral data of this burst were first fitted with
+standard spectral models: BKN, SBKN and BAND. The GRB090424952 burst is
+best fitted with the BAND model. The BAND model has 4 free parameters:
+the amplitude A, the low energy spectral index @xmath , the high energy
+spectral index @xmath and the peak energy @xmath (Goldstein et al. ,
+2012 ) . The fit has @xmath for 67 degrees of freedom (d.o.f).
+
+The data are then modified by incorporating the spectral fringe patterns
+for a range of lens masses @xmath and source positions @xmath The
+simulated data and the corresponding femtolensing fit are presented in
+figure 5.4 .
+
+Neither BKN nor BAND models are able to fit the simulated data (see
+figure 5.5 ). The values of @xmath are then changed until the @xmath of
+the fit obtained is not significantly different from the @xmath of the
+unmodified data. More precisely, the @xmath difference @xmath should be
+distributed in the large sample limit as a @xmath distribution with 2
+degrees of freedom according to Wilk’s theorem (Mattox et al. , 1996 ) .
+The value @xmath which corresponds to a @xmath probability of 5% for 2
+d.o.f, was taken as the cut value. The effect of changing @xmath on the
+femtolensing model is illustrated on figures 5.6 and 5.7 .
+
+The pattern in energy is visible when the phase shift between the two
+images @xmath is close to 1.
+
+The GBM detector can detect photons with energy from few keV to @xmath
+MeV. Lens masses from @xmath g to @xmath g are thus detectable with GBM.
+The femtolensing pattern can be detected when the period of the fringes
+is larger than the detector energy resolution and smaller than the
+detector energy range. The value of @xmath comes from the comparison of
+the period of the oscillating pattern to the detector energy resolution.
+The value of @xmath arises from the comparison of the period of the
+fringes to the detector energy range. Because of these constraints, the
+most sensitive mass range is @xmath g to @xmath g.
+
+In figure 5.9 I show the maximum and minimum detectable @xmath for
+different lens masses. The maximum difference between @xmath and @xmath
+is at @xmath g. The largest femtolensing cross-section occurs for this
+mass.
+
+### 5.6 Results
+
+The 20 burst sample from table 5.5 have been fitted with the standard
+BKN, BAND and SBKN models. The models with the best @xmath probability
+were selected and are shown on table 5.5 . The bursts are well fitted by
+these standard models, so there is no evidence for femtolensing in the
+data.
+
+As explained in section 5.3.2 , the lensing probability for each burst
+depends on the lens mass and on the @xmath and @xmath values. Since the
+sensitivity of GBM to femtolensing is maximal for lens masses of @xmath
+g (see figure 5.9 ), the values of @xmath and @xmath for each event were
+first determined at a mass @xmath g by simulation. As explained in
+section 5.3.2 , the value of @xmath is set by the period of the spectral
+fringes so that it is independent of the burst luminosity. The values of
+@xmath obtained are listed in table 5.5 . The lensing probability is
+then calculated for both the FRLW and Dyer & Roeder cosmological models
+using the redshift of each burst, the most probable lens position and
+the values of @xmath and @xmath for the mass @xmath g. The number of
+expected lensed bursts in the sample is the sum of the lensing
+probabilities. It depends linearly on @xmath
+
+Since no femtolensing is observed, the number of expected events should
+be less than 3 at 95% confidence level (C.L.). The constraints on the
+density of compact objects @xmath is derived to be less than 4% at 95%
+C.L for both cosmological models. The values of the lensing
+probabilities for all the bursts in our sample assuming the constrained
+density of compact objects are shown in table 5.5 . The limits at other
+lens masses are obtained by normalizing the @xmath at @xmath by the
+cross section @xmath . The cross section is calculated using equation. (
+5.5 ) and the values of @xmath and @xmath from figure 5.9 . The limits
+on @xmath at @xmath C.L. are plotted in figure 5.10 .
+
+### 5.7 Discussion and conclusions
+
+Cosmological constraints on the PBH abundance are reviewed by Carr
+et al. ( 2010 ) . One way to obtain the abundance of PBH is to constrain
+the density of compact objects @xmath . Note that the limits on the
+compact object abundance in the @xmath g range obtained with
+microlensing are at the 1 @xmath level (MACHO in figure 5.11 ).
+
+It is stated in Abramowicz et al. ( 2009 ) that the mass range @xmath g
+@xmath g is virtually unconstrained. Indeed, constraints in this mass
+range were given by just one group ( Marani et al. ( 1999 ) ). The
+limits are shown on figure 5.11 as GRB femto and pico. Their results is
+based on a sample of 117 bright bursts detected by the BATSE satellite.
+The bursts were searched for spectral features by Briggs et al. ( 1998 )
+. The constraints reported by Marani et al. ( 1999 ) are @xmath if the
+average distance to the GRBs is @xmath or @xmath if @xmath .
+
+Under the mass @xmath g, @xmath is constrained by PBH evaporation. Above
+the femtolensing range, the constraints come from microlensing. The new
+idea by Griest et al. ( 2011 ) shows that the microlensing limit could
+be improved and get constraints down to @xmath g with the Kepler
+satellite observations.
+
+The FERMI satellite was launched three and a half years ago. Since then,
+almost 1000 of GRB were observed with the GBM detector. In many cases
+data quality is good enough to reconstruct time-resolved spectra. This
+unique feature is exploited in our femtolensing search by selecting the
+first few seconds of a burst in data analysis.
+
+Limits from the present thesis were obtained by selecting only those
+bursts with known redshifts in the GBM data. This reduces the data
+sample from the 500 bursts detected in the first 2 years to only 20. The
+constraints on @xmath obtained at the @xmath C.L. are shown on figure.
+5.10 . These constraints improve the existing constraints by a factor of
+4 in the mass range @xmath – @xmath g.
+
+After ten years of operation, the GBM detector should collect over 2500
+bursts. Only a few of the bursts, say 100, will have a measured redshift
+and sufficient spectral coverage. By applying the methods described in
+this thesis, the limits will improve by a factor of 5 reaching a
+sensitivity to density of compact objects down to the 1% level.
+
+## Part VI Conclusions
+
+In this thesis I have presented my work on the Level 2 trigger system
+for the H.E.S.S. II telescope developed in cooperation with IRFU
+CEA-Saclay in France. The H.E.S.S. II telescope was built to enlarge the
+current energy range of the existing H.E.S.S. system down to tens of
+GeV. In the low energy part of the energy range, the H.E.S.S. II
+telescope has to carry the observations without the support of the
+smaller telescopes - in the, so called, monomode. In the monomode, very
+high trigger rates are expected due to a large flux of single muons. To
+reduce the trigger rate, the Level 2 trigger system has been implemented
+in the H.E.S.S. II telescope. The system consists of both hardware and
+software solutions. My work on the project focused on the algorithm
+development and the Monte Carlo simulations of the trigger system and
+overall instrument. I have developed and successfully tested the
+algorithm suitable to reject a major fraction of the background events
+and to reduce the trigger rate to the level possible to process by the
+data acquisition system (Moudden, Barnacka, Glicenstein et al. , 2011a ,
+b ) .
+
+I have also been analyzing the H.E.S.S. data of the particular blazar
+PKS 1510-089. The work on this blazar concerned the data analysis and
+modeling of broad-band emission of PKS 1510-089 observed in a flaring
+state in very high energy (VHE) range by the H.E.S.S. observatory. PKS
+1510-089 is an example of the, so-called, flat spectrum radio quasars
+(FSRQs) for which no VHE emission is expected due to the Klein-Nishina
+effects and strong absorption in the broad line region (Moderski et al.
+, 2005 ) . Recent detection of at least three FSRQs by Cherenkov
+telescopes has forced a revision of our understanding of these objects.
+In this thesis I have presented the analysis of the H.E.S.S. data: a
+light curve and a spectrum of the PKS 1510-089, together with the FERMI
+data and a collection of multi-wavelength data obtained by various
+instruments. I have successfully modeled PKS 1510-089 by applying the
+single zone internal shock scenario. In this scenario, the highest
+energy emission is the result of the Comptonization of the infrared
+photons from the dusty torus (thus avoiding Klein-Nishina limit), while
+the bulk of the emission in the MeV-GeV range is still dominated by the
+Comptonization of the radiation coming from the broad line region.
+
+The strategy of observation of FERMI-LAT, which surveys the whole sky in
+190 minutes, allows a regular sampling of quasar light curves with a
+period of a few hours. This gives the opportunity to investigate lensing
+phenomena with high energy (HE) gamma-rays. However, the multiple images
+of a gravitational lensed AGN cannot be directly observed with HE
+gamma-ray instruments due to their limited angular resolutions. I have
+developed a method of time delay estimation that handles the problem of
+the limited instrument angular resolution (Barnacka et al. , 2011 ) . It
+is called a ”double power spectrum” analysis and relies on the double
+Fourier transform of the observed light curves. The method has been
+tested on simulated light curves and on FERMI LAT observations of the
+very bright radio quasar PKS 1830-211, for which the time delay of
+@xmath days was previously estimated by Lovell et al. ( 1998 ) using
+radio observations. The double power spectrum analysis has resulted in
+an estimation of the delay of 27.1 @xmath 0.6 days, with a statistical
+uncertainty an order of magnitude better as compared to previous
+derivations. PKS 1830-211 has thus become the first gravitationally
+lensed object with its echo detected using the HE instrument.
+
+Dark matter is one of the most challenging open problems in cosmology
+and particle physics. Although currently the weakly interacting massive
+particles (WIMPs) seems to be favored as a possible constituent of the
+dark matter, the alternative idea that the missing matter consists of
+compact astrophysical objects was also proposed as early as in the 1970s
+(Carr & Hawking, 1974 ; Hawking, 1974 , 1971 ) . An example of such
+compact objects might be primordial black holes (PBHs) created in the
+very early Universe from matter density perturbations. To derive the
+constraints on the compact object abundance I have search for
+femtolensing effects in the spectra of gamma-ray bursts with known
+redshifts detected by the Gamma-ray Burst Monitor (GBM) on board the
+FERMI satellite. The search involved the analysis of the FERMI data,
+which have been used to estimate the femtolensing effect detectability.
+The lack of detection of the femtolensing effect has provided new
+constraints on the PBHs fraction in the mass range @xmath g. Less than
+3% of critical density are contributed by PBHs (or any compact objects)
+at 95% confidence level (Barnacka et al. , 2012 ) .

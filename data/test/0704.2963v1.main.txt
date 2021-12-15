@@ -1,0 +1,1307 @@
+##### Acknowledgements. I owe an immense debt of gratitude to my
+advisors, Thomas Hofmann and Thorsten Joachims, who provided me with the
+experience to work in a scientific environment on a challenging task.
+Both of them constantly supported my work during the whole process.
+Besides Thorsten, I would also like to thank Filip Radlinski for all the
+fruitful discussions and comments, which always have been stimulating
+and constructive. Being mentors in the fullest sense of the word, they
+provided me with comprehensive insight into the scientific mode of
+operation. Cornell University is an experience in itself. Its excellence
+and diversity, in terms of culture and fields of study, is ubiquitous.
+My visit to Cornell was an enriching experience, for which I am very
+grateful and which I do not want to miss. Also, I want to mention Paul
+Ginsparg and Simeon Warner from arXiv.org, having made a wealth of data
+available for the experiments, in an uncomplicated manner. Not only that
+their data forms the basis of this thesis, also their domain knowledge
+has been invaluable. Finally, special thanks go to my parents and Agata
+Daria, who always have loved and believed in me, for their support,
+trust and encouragement. To each of them, I extend my deepest
+appreciation.
+
+\contentspage \tablelistpage \figurelistpage \abbrlist
+\singlespacingplus
+
+  ----------------------------------- -----------------------------------
+  ADS                                 Astrophysics Data System
+
+  AP                                  Average Precision
+
+  arXiv                               pronounced “archive”, as if the “X”
+                                      were the Greek letter @xmath
+
+  CF                                  Collaborative Filtering
+
+  DAG                                 Directed Acyclic Graph
+
+  HEP                                 High-Energy Physics
+
+  HITS                                Hypertext-Induced Topic Search
+
+  HTML                                Hypertext Markup Language
+
+  HTTP                                Hypertext Transfer Protocol
+
+  IR                                  Information Retrieval
+
+  LANL                                Los Alamos National Laboratory
+
+  LRU                                 Least Recently Used
+
+  LSA                                 Latent Semantic Analysis
+
+  LSI                                 Latent Semantic Indexing
+                                      (application of LSA in IR)
+
+  MAP                                 Mean Average Precision
+
+  NAT                                 Network Address Translation
+
+  OAI                                 Open Archives Initiative
+
+  PDF                                 Portable Document Format
+
+  PR                                  PageRank
+
+  SLAC                                Stanford Linear Accelerator Center
+
+  TeX                                 Typographic language and program
+
+  TF @xmath IDF                       Term-Frequency @xmath
+                                      Inverted-Document-Frequency
+
+                                      
+  ----------------------------------- -----------------------------------
+
+\normalspacing
+
+## Chapter 1 Introduction
+
+The amount of available information continually grows with an increasing
+rate, so that the search for a specific information need takes more and
+more time. Search engines help to find online available information
+given a few keywords, but users have to search for them actively and
+express their demand explicitly. Thinking of what could exist and by
+which means it could be retrieved (e.g. the keywords to use, or even the
+search engine to choose) is a time-consuming, straining task.
+
+Recommendation system complement search algorithms by trying to actively
+push informations to users, which might be useful to them and otherwise
+eventually overseen. Depending on which information is already available
+and how expensive it is to acquire new data, normally a mixture of
+explicit and implicit informations about users and the objects to
+propose is used.
+
+Because explicit information provided by users is expensive in terms of
+work imposed on users (rating, assessment, preference), the exploitation
+of available implicit information is generally to prefer. As an example,
+the solely aim of Web Usage Mining , as part of Web Mining, is to apply
+data mining techniques to the copious available, implicit informations
+contained in web logs.
+
+### 1.1 Motivation
+
+Besides descriptive information about a paper, todays digital libraries
+also show up relations to some other papers. Relatedness is usually
+based on either textual similarity or the links, induced by citations.
+Similar documents based on text are inherently always available. But
+normally only obvious, superficial relationships with other papers are
+found. Looking for related documents on the basis of citation data might
+be able to find non-obvious relations to other papers, but here we
+suffer from the problem that citations are rare and not immediately
+available. Even for papers, published already for years, there are on
+average only few citations for them. But, there are even more papers,
+which never are cited and thus are not covered, i.e. will never show up
+in recommendations given by such systems. Another problem is to make
+citation data available. One has to extract citations out of papers and
+resolve them, which is an instance of a DB record matching problem.
+Research is occupied with the difficulty of this problem in itself
+already for decades! Access data is particularly promising because it
+doesn’t necessarily have this limitations. Not only that it is available
+for free and easy to collect, it is also likely that all papers in a
+collection are accessed. The question is, if those accesses contain
+implicitly enough valuable information about relationships between
+papers to be useful. Also, it might last some time to collect enough
+access data, so that it starts to become useful, but in domains where
+the availability of explicit information takes even more time, is
+completely absent or expensive to generate, this might be an interesting
+alternate source of information. For instance, todays intranet
+environments typically lack of explicit link information.
+
+Therefore, the aim of this thesis is to investigate in the usefulness of
+access data for the exemplary problem to recommend related scientific
+papers. This is done in the scholarly physics community by analyzing
+data of arXiv.org. We discuss key aspects that should be considered for
+building a recommendation system on the basis of access data. By
+examining data of the considered application domain, we find patterns of
+the underlying processes and properties of scientific writing. Finally,
+to leverage the usage of access data, an online available system has
+been built that showcases the usefulness of access data and can serve
+physicists as a complementary tool to filter relevant literature, out of
+the growing amount of documents.
+
+In this chapter, some background information is provided. This should
+help to understand the context of the problem and the type of data, we
+will use throughout this thesis. In Chapter 2 state-of-the-art
+approaches are introduced to face the problem. These include text- and
+link-based (usage of citations) methods. Chapter 3 is dedicated to
+explain processing steps to make access data usable and a measure,
+derived from the implicit informations contained in access logs.
+Subsequently, Chapter 4 discusses the results achieved with the proposed
+methods, evaluating them on different scenarios for the prediction of
+citations. Finally, Chapter 5 concludes with remarks and envisages
+possible future work.
+
+### 1.2 arXiv
+
+The arXiv ¹ ¹ 1 http://arxiv.org , introduced by Paul Ginsparg, is an
+online repository for self-archived, so-called e-prints of scientific
+papers covering different fields of physics, computer science,
+mathematics and biology. Authors upload their preprints (before
+peer-review) or postprints (after peer-review) in source format (mostly
+TeX), which are automatically converted into postscript or PDF files. In
+arXiv’s model, documents consist of meta-data and the document itself in
+source format. Furthermore, meta-data include title, author list,
+abstract, submission date and optionally a reference to a journal and
+categories. In [ 1 ] , O’Connell gives a good overview over the historic
+development of arXiv.
+
+Since its foundation, it showcased the possibility of distributing
+scientific documents freely over the internet, which led to the current
+revolution in scientific publishing, known as open access movement. As
+of September 2006, arXiv consisted of more than 380,000 papers. So it’s
+not astonishing that it is the largest centralized Open Access [ 2 ]
+archive available today. Systems like CiteSeer ² ² 2
+http://citeseer.ist.psu.edu are still bigger, but they crawl the web for
+papers, instead of letting the authors archive and maintain their papers
+themselves. In arXiv  a system of endorsements of other authors leads
+intrinsically to a better data quality.
+
+Initially already started in 1991, today almost all papers in many
+fields of physics are placed into arXiv. This makes the scientific
+community in physics special, because on top of a nearly complete
+document collection, the evolution and also the access patterns of users
+are digitally traced already for years. This makes arXiv.org a perfect
+testbed for evaluations of the potential of access data. Although, the
+processing steps which we will describe have been very time-consuming,
+this can easily be justified by further research that might be conducted
+on its basis.
+
+### 1.3 Recommendation systems
+
+Recommender try to predict items, a user might be interested in. They
+represent one instance of information filtering, retrieving relevant
+information out of a large information space. For that, they use
+knowledge about a user’s profile and the items to propose. Often such
+informations are provided in turn by other users, either explicitly or
+implicitly. There has been a lot of research and also successful
+commercial recommender systems have been built, e.g. for the fields:
+books [ 3 ] , news [ 4 ] , movies [ 5 ] , music [ 6 ] , even jokes [ 7 ]
+. A comprehensive survey is provided in [ 8 ] . Mostly, they are
+implemented with a collaborative filtering algorithm.
+
+Collaborative Filtering (CF) is the prediction of a small subset of
+items (filtering) for a specific user, that is derived out of the taste
+information of many other users (collaborating). The assumption,
+underlying of CF approaches, is that the behavior of entities (mostly
+users) in the past is representative for current ones. Formally, CF
+systems can be described with an underlying binary user-item matrix
+@xmath . Every row @xmath corresponds to a user and describes which
+items he has purchased or is interested in, and each column @xmath
+corresponds to an item and marks which users have been interested in it.
+The first CF systems calculated k-nearest neighbors, and proposed items
+that these users also preferred. Such user-based algorithms have their
+limitations, since they don’t scale very well with the number of users
+and all calculations have to be done online. Item-based algorithms
+precompute in a first step relationships between pairs of items offline,
+and combine in a second, online step those, a user is currently
+interested in. Due to the better scalability of this approach,
+recommendations have also become feasible for large datasets like arXiv.
+Nowadays, (item-based) CF is applied in most recommendation systems and
+has proven to help users in all mentioned domains.
+
+### 1.4 Related work
+
+There have been a lot of effort in the investigation of recommendation
+systems. Also for the domain of research papers, there have been many
+attempts to use the inherent properties available here, like text or
+citations to learn something about patterns in research communities.
+
+Citation analysis is a large part of what today is called bibliometrics
+. The usage of citations in itself already reveals much insight about
+the connected papers. E. Garfield is a well-known representative for
+citation analysis, having invented the most applied measure for
+assessing scientific impact [ 9 ] .
+
+To research papers, the first application of recommenders has been done
+by McNee et al. in 2002 for the field of computer science [ 10 ] . They
+applied different recommendation algorithms and evaluated their quality
+offline and also online via user ratings. The experiments show that no
+algorithm is the best for multiple usage scenarios. In a system called
+TechLens [ 11 ] the authors try to provide a basis for their future
+research in the field of providing in itself configurable information
+retrieval methods to meet the needs of different kinds of applications.
+Furthermore, the KDD Cup 2003 consisted of one task to predict citations
+for a small subset of arXiv out of full-text and citation data [ 12 ] .
+
+There also have been some attempts to investigate in the potential of
+access data. Brody et al. showed that download data can serve as an
+early predictor of later citation impact [ 13 ] . Some basic work for
+this has been done in preliminary analysis of web logs in the Open
+Citation Project [ 14 ] . Kurtz et al. examine article readership
+information of the NASA Astrophysics Data System (ADS) and already
+suggest a two-dimensional view of access and citation counts for
+assessing an individual’s scientific productivity [ 15 ] . This suggests
+that a part of the information contained in access data is sensitive to
+a different kind of research usage of publications.
+
+Woodruff et al. [ 16 ] combine text and citations into a model to make
+reading recommendations, which evaluate significantly better than the
+other models on their own. In contrast, the combination of text with
+collaborative methods, but also the usage of access-based measures in a
+real application are rare to find.
+
+An early exception is WebWatcher [ 17 ] , a tour guide accompanying
+users browsing the web and recommending related web pages.
+
+## Chapter 2 Basics
+
+Due to the vast amount of data that is subject to be recommended, we
+have chosen to implement an item-based recommendation system. For that,
+in a first step we need to extract relationships between items (papers
+in our case), which reflect the kind of relevance, proposed
+recommendations shall have. The big advantage is that they can be
+performed once offline, so their computation is not time-critical. The
+approach resembles a divide-and-conquer strategy, which can often be
+seen to succeed. Because the way, how to aggregate such pre-calculated
+measures in a second step, is not obvious, we defer those consideration
+to Chapter 4 , where further setups are provided to avoid aggregation.
+This chapter introduces basic relatedness measures which reflect
+state-of-the-art approaches and are used in most recommendation systems
+deployed in digital scientific libraries like CiteSeer. Later, they will
+serve as a baseline, the utility of access data will be compared
+against.
+
+### 2.1 Text-based methods
+
+The usage of text-based similarity for revealing relationships between
+scientific papers seems to be the most obvious. The assumption is that
+scientists are interested and will more likely refer to other papers
+which have similar content. Textual methods have been widely used in
+Information Retrieval (IR). The prevailing approach is to see a document
+as a bag-of-words , calculating weights for them, for instance with
+equation 2.1 . Although there is evidence that the word order and with
+it some contextual information is important on the word and sentence
+level, the bag-of-words model even seems to be sufficient for
+representing topicality of paragraphs [ 18 ] . An easy weighting scheme
+is given by Salton [ 19 ] . The TF @xmath IDF weight @xmath for a term
+@xmath in a document @xmath is given by
+
+  -- -------- -- -------
+     @xmath      (2.1)
+  -- -------- -- -------
+
+where @xmath is the frequency of term @xmath in document @xmath and
+@xmath is the fraction of documents, the term occurs in at least once.
+The formula reflects the simple assumption that a term describes a
+document the better, the more often it occurs in the document (term
+frequency), but the less often it occurs in other documents (inverse
+document frequency). There exist a lot of variants and extensions to
+this elementary formulation, e.g. to normalize the inversed
+document-frequency differently or with another base than two for the
+logarithm. To represent whole documents, the vector-space model allows
+to use simple vector algebra for estimating the similarity between
+documents. Here, a document is a vector consisting of all possible
+words, resp. their TF @xmath IDF weights. Thus, document similarity
+between two documents @xmath and @xmath can be defined as the angle
+between their feature vectors @xmath and @xmath :
+
+  -- -------- -- -------
+     @xmath      (2.2)
+  -- -------- -- -------
+
+Having a model, how to compute similarities is just the first step, the
+probably more important one is to choose the right data to apply it on.
+The available textual parts of a document consists of title, abstract
+and full-text. We opted not to use the title in itself, because it
+consists a very limited amount of words to describe different topics of
+the whole document. Instead, we calculated similarities using either
+concatenations of title and abstract (we refer to this as meta-data) or
+title, abstract and the full text (referred to as full-text).
+
+Experience has shown that the rendering of documents in source format
+(TeX) to a final representation like PDF and subsequently the extraction
+of type-setted text is the most passable way to retrieve a textual
+representation of a document. This gives us an equivalent to what
+readers see. On the other hand, we lose all markup information, normally
+contained in TeX documents. Unfortunately, if we would like to retrieve
+those, a complete TeX system would have to be extended because of the
+extensive use of author specific, freely defined macros. However,
+scientific papers have a very similar textual structure, so that for our
+purposes the indirect procedure is to favor.
+
+To calculate similarities between @xmath documents implies an order of
+@xmath pairwise comparisons. Such a calculation becomes easily
+prohibitive, should the 349,999 similarity calculations for one paper
+last multiple seconds. Even worse, also with use of a sparse feature
+vector representation for every document, not all documents can be held
+in memory. However, such an implementation would be useful for an exact
+determination of the used similarity formula, but, since it shall only
+serve as a baseline, we have chosen to use an existing standard
+implementation for our purposes.
+
+We made intensive use of the freely available, open-source Java
+implementation of a search engine, Lucene . ¹ ¹ 1
+http://lucene.apache.org It offers classes for word-parsing, indexing,
+querying and is easily extendable. The @xmath in every document
+occurring words, as depicted in Figure 2.1 , suggest the need for a
+customized stop-word list, which not only contain english filler words,
+but also artefacts like variable names of formulas, digits, etc.
+
+The way we extract text imposes the need for de-hyphenation of words at
+end of lines. This has been done only for words, for which the
+de-hyphenated version already exists at least three times in the
+dictionary over all found words. Not to give the textual model an
+advantage in the prediction task, which we consider during this thesis,
+we located and removed the reference section by textual heuristics. ² ²
+2 For those, see Table B.1 . For the generation of similarities, we use
+implicitly the adjusted TF @xmath IDF-formula implemented in Lucene for
+calculation of score values between a query and the indexed documents.
+For this, we extract 1,000 words with the highest TF @xmath IDF weight
+out of each paper and formulate a query containing those. However, since
+we ignore within the query the exact TF @xmath IDF weights of the
+document to query, we might not obtain exact cosine-similarities as
+described by Equation 2.1 , but we achieve an equivalent to what a user
+might find, using a search engine manually. For our experiments this is
+preferable. The size of the final index, built over roughly 350,000
+papers, takes 3 GB disk space.
+
+### 2.2 Citation-based recommendations
+
+Almost all scholarly documents contain a reference section, listing
+other papers text passages refer to. That way, a relationship between
+documents has already been established explicitly by the author. The
+characteristics of this relation is not so obvious, because it might be
+either credit or acknowledgement to the influence of previous work, or
+also refutation of others statements. However, a common denominator
+would be that a citation is a relevance judgement of the author of a
+paper, i.e. references express some kind of relatedness. In information
+retrieval, the inclusion of graph-based measures lead to a significant
+improvement over pure text based systems. The best known example for
+this is probably the success of Google, using PageRank as an importance
+measure derived from the web graph.
+
+Because papers refer by means of citations to other papers, which in
+turn have their own set of references, citations can be resolved into a
+so-called citation graph . Such a graph @xmath consists of a set of
+vertices @xmath (the papers) and a set of edges @xmath (the references),
+connecting the vertices. The edges @xmath are directed, building
+non-symmetric relationships between vertices @xmath . For clarity
+reasons, throughout this thesis we will use the term “reference” for
+papers referred to in a paper, and the term “citation” for a reference
+from a paper. In terms of the citation graph this means, references are
+the outgoing edges of a paper, while the citations are the incoming
+ones, which in turn refer uniquely to the citing papers.
+
+As any graph, a citation graph can be uniquely described in matrix form
+by means of an adjacency matrix @xmath . An element @xmath of the matrix
+is @xmath if paper @xmath has a reference to paper @xmath , and @xmath
+otherwise. While a row vector @xmath refers to all references of a paper
+@xmath , a column vector @xmath contains all citations to paper @xmath .
+The usage of an adjacency matrix also maps the domain of paper
+recommendations directly into the framework of collaborative filtering.
+Here, a paper would represent a ‘user’, giving its relevance judgement
+with a reference to papers, which would represent ‘items’.
+
+The underlying process inherently leads to properties of citations and
+they again to specifics of the graph and matrix structure,
+distinguishing them from arbitrary graphs. First of all, the graph is
+very sparse due to the average number of references in every paper,
+compared to the amount of papers potentially to refer to. Then, a paper
+can only reference past work and being referenced by papers published in
+future. This leads to the following inequality where @xmath is the
+publication date of an arbitrary document @xmath :
+
+  -- -------- -- -------
+     @xmath      (2.3)
+  -- -------- -- -------
+
+This leads to a strictly directed acyclic graph (DAG) , which is
+continuously extending itself over time, introducing more edges to past
+vertices with every new vertex. It is likely that the homogeneity of
+such a graph is strongly biased by time.
+
+Before the digital age, it was the field of activity of librarians to
+resolve and index references. Later, such informations have been
+increasingly used for bibliometrics, basing measures on them for the
+evaluation of research. With the digital availability of documents also
+automatic citation indexing became possible, which allows for the
+generation of bigger and more complete citation graphs in a much cheaper
+way [ 20 ] .
+
+Unfortunately, the automatic extraction of references is much harder in
+physics and would need a lot of expert and background knowledge. Table
+2.1 gives an impression of how a typical reference section of a physics
+paper looks like. Luckily, the Stanford Linear Accelerator Center (SLAC)
+makes already a long time an effort with the SPIRES database ³ ³ 3
+http://www.slac.stanford.edu/spires to manually keep track of references
+for papers of High-Energy Physics (HEP). It is run by the late 1960’s
+and was 1991 one of the first web sites available. Next to their own
+indexing and keys used, they also maintain cross-references to arXiv.
+This gives us a valuable source of information for arXiv papers.
+Although arXiv consists of multiple fields and SLAC/SPIRES covers
+primarily only HEP papers we still obtain a high coverage. As of July
+2006, we have citation information for 192,963 out of roughly 350,000
+papers. Even though, we have complete reference lists for those papers,
+for now, we have chosen to ignore such references of them which point to
+papers not contained in arXiv. However, Figure 2.4 indicates that a
+considerable amount of references is left. This is due to the almost
+complete set of documents in fields like High-Energy Physics. The
+decreasing amount of submitted papers is evidence for that.
+
+When it comes to real data, due to noise and artefacts often general
+assumptions are contradicted. Figure 2.2 shows that already such a
+trivial supposition like Inequation ( 2.3 ) doesn’t hold anymore.
+
+For roughly @xmath % of the documents, the most recent referenced paper
+has been published in future. This is because the submission to
+arXiv does not necessarily coincide with the real initial publication,
+which is unfortunately not generally available. ⁴ ⁴ 4 Even though for
+some submissions there is a textual note in the comments field, it is
+unstructured and thus not easily accessible. Also papers can be updated
+such that new references might be added. However, this example shows the
+importance to test every assumption on real data to account for the
+fraction by which the data violates them.
+
+#### 2.2.1 Co-citation and co-reference
+
+A citation is an explicit expression that a cited paper has relevance
+and is important for a topic. In this sense, the fact that papers are
+cited together forms some kind of relationship between them. This
+so-called co-citation of papers has been used in bibliometrics for long
+time and has shown to be able to establish patterns of linkage [ 21 ] .
+This can be explained with the circumstance that independently from a
+paper itself, a co-citation for this paper refers to a judgement of a
+third party. Although the reference list of a paper is normally diverse,
+consisting of papers covering different subtopics, they are still
+related in a broader sense, indirectly over the referring paper. Also,
+its measurement over multiple citing papers is likely to account for
+this flaw by interpolation, giving more often co-occuring papers a
+higher similarity.
+
+###### Definition 2.1 (Co-citation).
+
+Given the adjacency matrix @xmath of the citation graph @xmath ,
+co-citation between two documents @xmath and @xmath is defined as the
+absolute number of papers which cite both documents @xmath and @xmath ,
+i.e.,
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (2.4)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- -------
+
+The counterpart to co-citation is co-reference, a.k.a. bibliographic
+coupling (see Figure 2.3 ). Apart from bibliometrics, it is also used in
+linguistics to describe the relation between two strings, which point to
+the same entity.
+
+###### Definition 2.2 (Co-reference).
+
+Analogously to definition 2.1 , given the adjacency matrix @xmath of the
+citation graph @xmath , co-reference between two documents @xmath and
+@xmath is defined as the absolute number of papers that are co-referred
+to by @xmath and @xmath , i.e. the number of references shared between
+paper @xmath and @xmath ,
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (2.5)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- -------
+
+Co-reference has the advantage that it can be also applied on papers
+which have not been cited yet, which means they don’t have co-cited
+papers. Thus, for broad application of co-citation it is important to
+examine its coverage.
+
+The maximal possible co-citation value for a pair of papers is given by
+the minimum of their individual numbers of citations. This upper bound
+could be used to normalize the inherently unbounded co-citation values.
+While making co-cited papers of often cited papers more comparable, this
+could lead to an overestimation for rarely cited papers. Similarly, the
+upper bound for co-reference is the smaller number of references of both
+of them (Figure 2.4 ):
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (2.6)
+     @xmath   @xmath   @xmath      (2.7)
+  -- -------- -------- -------- -- -------
+
+Another noticeable difference is that co-citations are able to adjust
+over time because of the possibility to become cited still long time
+after initial publication. Relationships derived from co-reference are
+either fixed, or if new revisions of papers are possible in the hand of
+one set of authors, whose choice in turn might be biased.
+
+Co-citation and co-reference are symmetric pair-wise measures, such that
+for recommendation purposes one of the input documents can become fixed,
+while the set of other papers ordered by their score gives us ranked
+recommendations. For a given scenario, an essential question is where to
+apply the measures. Figure 2.5 shows an exemplary citation graph, in
+which @xmath is considered a present paper. Co-citation for @xmath would
+retrieve papers @xmath and @xmath , since they are co-cited by @xmath
+and @xmath . For this case, co-reference would also yield to @xmath ,
+and @xmath because they share the reference to @xmath with @xmath . But,
+depending on the scenario, i.e. the amount of knowledge available at a
+point in time, some possibilities can not be considered. For instance,
+co-citation cannot be applied to @xmath , given that we don’t know
+future citations of @xmath yet. Since the references of a paper lie in
+the past, there is a chance that for those, we already have citations.
+With such an application, we receive @xmath and @xmath co-cited, and
+@xmath co-referenced with @xmath . A problem with this approach is that
+we now have multiple papers and a ranked list of co-cited papers for
+each of those. As mention earlier, the choice of an aggregation function
+is crucial in a collaborative filtering implementation. To examine all
+possibilities we will also consider co-reference applied to the
+references of papers and compare the recommendations achieved.
+
+### 2.3 Importance measures
+
+Given the citation graph, the question arises, how the structure of the
+graph can reveal properties of its vertices. For information retrieval,
+some query-independent importance measures have been investigated, which
+are able to improve retrieval performance, if they are introduced into
+the retrieval function. The assumption for this is that important
+vertices, as derived by means of the graph structure, should be
+presented at a higher rank than less important ones. We give an overview
+over proposed importance measures and apply them to the citation graph.
+Out of bibliometrics or citation analyzes, basic importance measures
+have emerged. Among those are the well established citation impact of a
+paper, but also measures to assess the reputation of authors or journals
+[ 9 ] .
+
+Citation impact is probably the most known quantity which simply
+specifies the number of citations for a scientific article, resp. paper,
+i.e. the number of in-links in the citation graph. This very local
+measure has some problems which have been criticized in the past. For
+example, comparability can only be achieved between papers with the same
+age and it doesn’t distinguish between the papers which cite them. A
+citation from another paper with a high impact is the same valuable as a
+self-citation of the same author. On the other hand, its simplicity led
+to a diffusiveness, another measure would have to compete with before it
+could be accepted by a large audience. However, there is no reason, not
+to use more sophisticated algorithms for the estimation of importance
+for internal usage.
+
+The next subsections introduce the two most widely used importance
+measures: PageRank and HITS . We have chosen to implement them to
+prepare their usage in further work. For instance, it would be
+interesting to see if importance measures can help to improve the
+performance for our specific prediction task.
+
+Further proposed algorithms are the Hilltop -algorithm [ 22 ] , which
+ranks documents based on authority scores, which in turn depend on the
+search query terms and TrustRank [ 23 ] , combating Web Spam with the
+propagation of the notion of trust starting from a seed set of trusted
+vertices, or SpamRank [ 24 ] , penalizing vertices with biased
+distributions over their in-links.
+
+#### 2.3.1 PageRank
+
+Originally developed at Stanford University by Larry Page, PageRank is
+today integral part of the web search engine Google [ 25 ] . Basically,
+it calculates a numerical weight for every vertex, reflecting its
+relative importance. This is done with the following recursive equation:
+
+  -- -------- -- -------
+     @xmath      (2.8)
+  -- -------- -- -------
+
+@xmath is the number of out-links of vertex @xmath and with @xmath a
+so-called damping factor is introduced. The equation reflects the ideas
+of the Random-Surfer -model, in which a surfer randomly chooses with
+probability @xmath to follow links, instead of jumping to another
+initial vertex (with probability @xmath ). Hence, @xmath is between
+@xmath and @xmath . ⁵ ⁵ 5 In Brin et al. [ 26 ] , a damping factor of
+0.85 is suggested. The iterative calculation of PageRank with Equation
+2.8 leads to weights that sum up to the number of vertices. To obtain a
+probability distribution, instead the following formulation can be used
+directly:
+
+  -- -------- -- -------
+     @xmath      (2.9)
+  -- -------- -- -------
+
+[ 25 ] states that “we [Page et al.] found on tests of the Stanford web
+that PageRank is a better predictor of future citation counts than
+citation counts themselves.” This justifies that PageRank, incorporating
+multiple levels of indirection, might be better than simple citation
+impact measures. On the other hand, as strong improvements as Page
+et al. have seen would probably not be possible because of the slightly
+different properties of the citation graph.
+
+We calculated PageRank on the citation graph and receive an interesting
+distribution over time (see Figure 2.6 ), which can be explained by the
+properties of citation data. A comparison of papers of different
+publication date by PageRank is prohibitive, if not some kind of
+normalization is performed.
+
+#### 2.3.2 Hits
+
+HITS (Hypertext-Induced Topic Search), another link-based ranking
+method, was introduced by Jon Kleinberg [ 27 ] . Basically, it not only
+estimates one importance measure like PageRank, but simultaneously two
+of them: hubs and authorities . Authorities are such vertices in a
+graph, many other vertices with a high hub-value point to. Hubs, in
+turn, are defined as such vertices, which point to strong authorities.
+Each vertex is assigned an authority score @xmath , and a hub score
+@xmath . The inherent circularity can be broken by iteratively solving
+
+  -- -------- -- --------
+     @xmath      (2.10)
+  -- -------- -- --------
+
+For not having to calculate HITS over the whole internet, Kleinberg
+proposed also heuristics to generate a subgraph out of the results of a
+standard web search, that is still connected enough to calculate
+reasonable importance measures. For our amount of data, such a
+complexity reduction is not needed.
+
+Motivated by the fact that there are different kinds of scientific
+papers, we opted also to implement HITS. Rather than simply measuring
+the impact of a paper by the number of references to it, we are more
+interested in its authority, resembling to be referred to by good hubs.
+Documents with high hub values should resemble to survey papers,
+tutorials or introductory articles, which refer to important papers.
+
+We calculated hub and authority values for all documents with available
+citation data. Primarily, the results in Figure 2.7 show that hub and
+authority weights are correlated. For the domain of research papers,
+this might be explained by the fact that often cited papers
+(authorities) also cite many other authorities and thus, serve as a hub.
+Interesting are also high density areas in the graphs: The top 30,000
+authorities tend also to have a high hub weight (around @xmath ).
+
+Since there exists a bias in the data towards having more references
+than getting cited, the hub weights tend to exceed the authority
+weights. This becomes more significant for papers with low authority
+values. It is also shown that there are less non-zero authorities than
+hubs. This can be explained by the fact that nearly every paper
+references others, while they might not be cited and thus have an
+authority of 0. Even though for some papers the weight of authorities
+(resp. hubs) is zero, their corresponding hub (resp. authority) weights
+still form a smooth distribution.
+
+Like PageRank, also HITS shows certain irregularities depending on the
+publishing date (Figure 2.8 ). The references of recent papers are more
+likely to exist already in arXiv. Thus, the mean of the hub weights is
+strictly increasing, beginning lowest for the oldest papers published to
+arXiv. Interestingly, the curve seems to flatten out from around 2002,
+which indicates that from 2002 arXiv already contained a corpus of
+scientific literature such that the fraction of references not directed
+to papers of arXiv became constant.
+
+Authority weights, similar to PageRank show the opposite behavior: most
+recent papers denote a strong decrease in their weight due to missing
+citations. Furthermore, the authority of papers also declines the older
+they are from around 1999. This can be explained by the steadily
+increasing amount of published papers to arXiv, whose references in turn
+form a distribution over the age of previous work. For physics, the mean
+of such distributions lies typically within a decade (see Figure A.9 ).
+
+#### 2.3.3 Convergence
+
+Brin et al. argue, that the convergence of PageRank depends on the
+structure of the considered graph [ 25 ] . They refer to Motwani
+Raghavan for mathematical details [ 28 ] . Basically, the elimination of
+dangling vertices (documents without references) ensures that PageRank
+converges. HITS even converges for any graph, without the need for
+adjustments [ 27 ] .
+
+Figure 2.9 shows the convergence behavior of PageRank and HITS on top of
+the citation graph. It reveals, depending on the damping factor @xmath ,
+how many iterations are needed for a specific level of precision.
+
+As we have seen, there are many obstacles for the direct usage of
+importance measures. The strong bias over time has to be corrected,
+before they can be used comparing papers with different publication
+date. Otherwise, we would end up with recommendations of very old
+papers. We could have done so, but the main focus of this thesis is not
+on the improvement of an existing recommendation system by incorporation
+of importance measures, but to build an initial one on the basis of
+access data and its performance compared to currently used measures.
+This might be addressed in future work.
+
+### 2.4 Normalization
+
+Normalization is typically conducted to enforce certain mathematical
+properties (e.g. the probabilities of a distribution to sum up to @xmath
+, or limiting values to an interval). Another kind of normalization is
+to reverse the influence of unwanted artefacts, i.e. removal of
+systematic errors. For example, it can be often observed that people try
+to enforce an even distribution for a measure, such that it performs
+well and equally for all instances of the data.
+
+As we have already seen in section 2.3 , the usage of citation data
+leads to uneven distributions over time. More recent documents haven’t
+had much time to be cited. Also, papers with high in-degree tend to have
+high co-citation with other documents. Although absolute values do not
+influence the recommendation ranking given one paper, it has
+disadvantages for the comparability given multiple papers. Hence, it
+plays a role in our setup, because we combine rankings based on scores.
+On the other hand, it is likely that papers having lots of references
+are not very selective, expressing weaker relationships between the
+involved papers. To allow for those assumptions can improve the quality
+of a recommender, if the right normalizations for the given data are
+applied and the assumptions fit to the properties of the data.
+
+Karypis et al. pointed out that such kind of normalization issues are a
+general problem dealing with recommendation systems. To face those, they
+incorporated basic column- and row-wise normalizations into the
+CF framework and showed that their selection is application dependent [
+29 ] . We follow their approach and apply the following normalizations
+using the L2-norm:
+
+Column normalization allows for the equalization of different numbers of
+citations per paper and refers to column-wise normalization of the
+CF matrix.
+
+Row normalization reflects its complement and allows for the
+normalization of the amount of references a paper contains.
+
+Obviously, the proposed changes in the input data have a higher impact
+for CF matrices with a high variance in the number of non-null elements
+of column- and row-vectors.
+
+  -- -------- -- --------
+     @xmath      (2.11)
+  -- -------- -- --------
+
+Interestingly, McNee et al. show that cosine-similarity used in
+item-to-item CF performs significantly better than pure co-citation [ 10
+] . It turns out, instead of being a different approach, this simply
+reflects a normalization concern. Cosine similarity not only can be
+transformed into normalization of co-citation values ( 2.12 ), but also
+to the proposed column-wise normalization serving as input for the
+calculation of co-citation ( 2.13 ):
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (2.12)
+              @xmath   @xmath      (2.13)
+  -- -------- -------- -------- -- --------
+
+However, the values that we receive doesn’t reflect anymore co-citation
+values as stated in definition 2.1 . As we will see, normalization as
+proposed here is able to significantly improve the examined prediction
+task.
+
+### 2.5 Other approaches
+
+For both kinds of data further methods can be used and other
+informations incorporated. But as more sophisticated methods imply a
+higher computational complexity and are less reproducible, we opted for
+simpler methods.
+
+Latent Semantic Indexing (LSI) is in contrast to collaborative filtering
+a content-based technique to extract topics out of documents. A singular
+value decomposition is used to find an approximation for the original
+term-document matrix with a lower rank [ 30 ] . The underlying model
+belongs to the family of mixture models, in which documents consist of a
+distribution over different topics, while each topic in turn is
+represented by a distribution of terms. For bibliographic purposes
+scientific papers normally already are tagged with keywords. Either they
+could be incorporated for the generation of topics, or, where missing,
+they could be generated via LSI and being used for further improvements
+of the final ranking.
+
+Ziegler et al. show that topic diversification can greatly increase the
+usefulness of recommendations [ 31 ] . Co-reference has been applied on
+the citation graph and is thus on document level, but as mentioned, in
+linguistics similar attempts have been undertaken on the word level.
+With co-word analyzes relationships between words can be built.
+
+The citation graph is one further dimension supplementing content
+information, but we still ignore some of the meta-data that is
+available. Documents are written by multiple authors, which in turn are
+affiliated with faculties or research establishments. However, most
+available algorithms do not differentiate between different types of
+vertices in such a generalized graph and are not directly applicable.
+
+## Chapter 3 Usage of access log data
+
+This chapter considers access data as potential source of information.
+Since it has not been intended a priori to serve for this purpose, some
+additional steps have to be applied before one can make use of it. The
+first two sections are dedicated to those steps, then an analog of
+co-citation is introduced which will be used for evaluations through the
+rest of this thesis.
+
+In the authoring process a prerequisite for the ability to cite another
+paper is to read it, at least to know about its existence. Having only
+one centralized, freely accessible archive of such papers, it is
+unlikely that papers still distribute in a peer-to-peer manner
+circumventing arXiv, so that accesses to them can not be observed. The
+results of Brody et al. confirm that there is a correlation between
+downloads and later citations [ 13 ] . On the other hand, references in
+papers also lead to downloads of those. The trivial explanation for
+following a reference is further interest in its topic. As downloads
+influence citations and citations influence downloads it is likely that
+there would be some correlation between the two. On the other hand,
+another part of downloads seem to be sensitive to a different kind of
+research usage of publications. Kurtz et al. showed its orthogonality to
+citations on the basis of readership information [ 15 ] .
+
+In arXiv, we not only have one type of download, instead, there is a
+distinction between accesses to summary pages of each paper and
+downloads of the paper itself. The operators endeavor to direct links
+and search results first to the summary, mainly to save computational
+resources and bandwidth. However, this way user have the chance to make
+their relevance and importance judgement already on the basis of the
+summary which helps to keep the download data clean of undiscriminated
+downloads. We should see in the evaluation that measures based on
+downloads perform better than such based on views of the summary.
+
+The downside is that we do not have a closed loop between citations and
+accesses. As Figure 3.1 indicates, there are a lot other influences,
+being responsible for accesses.
+
+Part of them are biased and to some extent induced by arXiv itself.
+Alerting services, but also browsing through the web pages favors
+accesses to papers of the same (actual) month. Search engines, internal
+and external (e.g. Google), have the capability to direct users to
+papers not easily reachable by means of browsing, considering many of
+their (mostly textual) properties. Problematic with external engines
+might be that they only show a textual snippet and the title of the
+document, and directly link to the full-text. Not being provided with
+the abstract, users are probably more likely to download the full-text
+before making a relevancy decision. On the other hand, search engines
+are able to attract new users and direct them to related informations in
+arXiv so that we can make use of the implicit information contained in
+such accesses. Finally, there is still some kind of serendipity left in
+access data, that can’t be explained by objective reasons.
+
+Being able to make use of access data would have several advantages.
+Access data is immediately available. Authoring processes take their
+time and classically entail peer reviews, till they finally eventually
+are published. It might last years in some areas of research until a
+first citation for a paper is able to appear. This way, the implicit
+information contained in access data might be better on the prediction
+of actual and recent work. Although access data is much noisier, due to
+its large coverage it might still be useful as a source of information
+for papers, for which citation data is not available. Since it doesn’t
+represent authored relationships, but joint implicit judgements of all
+users, it has the ability to discover unknown relationship (for instance
+to different fields of research). On the other hand, it is also biased
+by authored citation data, can be inflated by automated web crawlers,
+short-changed by intermediate caches, abused from authors by hits to
+their own papers, and it can not easily discriminate between normal
+browsing and item-specific reading. Still, it seems to have some signal
+value in it too, partly correlated with and partly independent of
+citation data.
+
+One can imagine a typical scenario of a researcher who searches for
+literature in his actual field of research. So, to extract useful
+information out of access data, a straight-forward approach is to assume
+that users rather access papers over a period of time, related to their
+information need, than unrelated ones. For this purpose, we need to
+conduct preprocessing steps which preserve the type of information we
+are interested in and eliminate as much noise as possible.
+
+### 3.1 Preprocessing
+
+The source for access data are operational systems, mostly web-server,
+which underlie steadily modifications. Data formats change over time,
+already with usage of different implementations and versions. Also, it
+is likely that there have been changes in what is stored. Making use of
+distribution like installing mirrors in different countries worsens the
+situation. Apart from daylight saving, then also different time zones
+come into play. In short, one has to deal with everything, known to be
+the most time-consuming step in every data warehouse project.
+
+All this leads to the necessity of a preceding preprocessing step. But
+it not only has to deal with the unification of different formats and
+representations, also some kinds of filtering should be applied to
+minimize the amount of data having to be processed at later stages.
+Performance reasons prohibit sophisticated filtering methods here, so
+that filtering decisions should be made on a local per request level.
+
+The most important unwanted artefacts in the data originate from search
+engines crawling the website, or automatic scripts. Most of those can be
+recognized by their user agents, but some of them are ambiguous or they
+hide themselves. Besides that, it is also important that an
+implementation doesn’t have susceptibilities against malformed log
+entries, which occasionally happen due to attacks intending to cause
+buffer overflows.
+
+In our case, arXiv experienced several changes. With its formation, the
+main site was hosted at the Los Alamos National Laboratory (LANL) . With
+the transition of Paul Ginsparg to Cornell also the main site moved and
+LANL became one of the dozen mirrors. The total amount of data that we
+have been provided with consists of 741 million accesses in
+total (156 GB, or 13 GB compressed). This massive dataset consists of
+logs of LANL and Cornell. Three different data formats had to be
+unified, two timezones and their clock changes were translated into a
+universal timestamp. To profit from the experience of log analyzing
+software, we made use of the lists of known crawlers and mirroring tools
+in AWStats . ¹ ¹ 1 http://www.awstats.net We had to manually extend the
+lists with arXiv-specific automated scripts and two dozen crawler of
+mirrors. The biggest impact of the search engines has had Google (see
+Figure A.3 ). The filtering of access data involved significant amount
+of work for analyzes to identify unwanted artifacts. As a result, a much
+less peaked distribution could be obtained (Figure A.4 ).
+
+Because log entries are written after the completion of the request, but
+timestamped with initiation of the request, log files are generally
+unordered. This effect is not only significant for broken connections,
+but also for long lasting downloads of slowly connected clients. Because
+many people probably still have bookmarks to the original LANL main site
+and they basically belong to the same basic population, we have chosen
+to merge the two datasets. At least the latter fact justifies the need
+to sort the access logs. ² ² 2 The usage of standard tools like UNIX
+sort was not appropriate, since it uses temporary files even for the
+simpler task of just merging big pre-sorted files into one. Also the
+usage of compressed input files is not supported directly without the
+usage of named pipes . Those problems lead to an own implementation of
+merge sort, working completely in memory, using only compressed external
+storage and taking advantage of multi-core, resp. multiple processors
+for compression tasks.
+
+Although it has its advantages also to filter out unwanted requests
+early, we have chosen to defer further processing to later steps which
+are able to make decisions considering the context of a request.
+
+### 3.2 Session extraction
+
+For e-commerce transactions, it is essential to be able to track users,
+such that different requests can be associated to the same person.
+Because the original HTTP protocol (1.0) was not intended to be aware of
+connections, it has been extended later to support sessions . ³ ³ 3 The
+explicit support of so-called session cookies freed web applications to
+use workarounds like URL rewriting or hidden form fields . Explicit
+session support allows nowadays a very accurate tracking of users. But
+to make also use of older access data, we still have to apply some
+heuristics to derive sessions out of a-priori independent requests.
+Figures 3.4 – 3.5 will show the differences in coverage that we can
+achieve with the incorporation of non-explicit sessions. In the early
+years of the internet, users still could be tracked uniquely by their IP
+address. Nowadays, due to the limited amount of IP addresses and
+performance optimizations, we have to cope with proxies, Network Address
+Translation (NAT) and dynamic IP addresses. However, for a short period
+of time the supposition still might hold that an IP address is assigned
+to one user unambiguously. Another information available to distinguish
+between users, even though they share the same IP, is the used
+user-agent and its version. Orthogonal to this, two kinds of approaches
+have been proposed to recreate sessions out of access data.
+
+Time-oriented approaches consider the time aspect of requests. The
+assumption is that requests of the same user are typically clustered
+over time. Although web server are able to track the activity of users,
+they still suffer from the problem not always to know when a session is
+finished logically. Because of that and not to run out of memory
+maintaining too much state information they use the heuristic to declare
+a session as finished when a time-out of usually 30 minutes of
+inactivity occurs. Adjusting a time-out allows to retrieve relatedness
+in a conceptual narrower or broader way. It also embraces the likelihood
+that users underlie a concept drift, i.e. they search for papers of the
+same topic during a short period, while longer periods consist of
+searches for different topics.
+
+Navigation-oriented approaches use the background knowledge about the
+structure of a web page to identify ‘possible’ and ‘impossible’
+transitions from one website to another. This assumes that users are
+only able to navigate through a website following the provided links,
+not choosing new start points for their navigation. Such an approach is
+questionable if one also want to take advantage of the many users coming
+in over search engines, going directly to a sub-webpage. In our domain,
+there exist global scientific indexes like Google Scholar or CiteSeer ,
+many users search by. And we are especially interested in such user,
+wanting to satisfy an information need by searching for related
+documents and therefore only following links to related documents in
+arXiv.
+
+We opted for the first approach because of its simplicity and the fact
+that only one parameter has to be adjusted. The other methods would also
+have resulted in reengineering of the whole website historically for
+every point in time.
+
+There are two possibilities to realize session extraction based on a
+heuristically determined maximum time between requests belonging to the
+same session. The first is to sort the data by users, resp. sessions,
+grouping the requests of a session together. Depending on the type of
+sort algorithm used, this normally assumes that the decision if any two
+requests belong to the same session can be made independently of other
+requests, only based on the information in those two requests. Not to
+restrict us by the with this approach associated loss of context
+information, we have chosen to simulate the original sequence of
+requests over time. This has the advantage that no sorting on external
+data and only one linear run over the access data is required to extract
+all sessions. There only has to be enough main memory to maintain the
+state information needed to track all currently active sessions.
+‘‘Expiring’’ sessions still underlie several processing steps, before
+they are written out to disk in a application specific manner. To
+recognize expiring sessions efficiently, an enhanced least-recently
+used (LRU) queue is used. As a side effect, at all times the number of
+currently active sessions is known, which gives interesting,
+retrospective insight into the access statistics of arXiv.org (see
+Figures A.5 – A.7 ).
+
+The generation of sessions serves as the basis for a created framework,
+in which multiple independent steps form a processing chain. Each step
+can be reused and configured independently by external configuration.
+There are steps, allowed to manipulate sessions and such, which decide
+if a session should be further processed or rejected. We implemented
+filtering on the basis of time stamps or the extent of sessions
+(duration, number of accesses), as well as filter based on HTTP
+attributes, categorizing the domain specific type of request (search
+queries, author lookups, downloads, …), searching for valid
+arXiv identifiers or unification of identical (consecutive) accesses.
+They are organized in the filter chain in order of increasing
+computational complexity, still respecting local orderings imposed by
+preconditions of those steps.
+
+Brody et al. have shown that the publishing of a paper leads to a rush
+of accesses to a paper [ 14 ] . Main reasons for this are the various
+alerting services announcing new publications. Furthermore, access data
+also suffers from a kind of presentation bias, induced by the navigation
+on the website. Apart from being alerted, users are likely to navigate
+through different lists of new (containing the same day), recent
+(covering the recent week) or current (same month) papers. Since we are
+not interested in such artificially self-induced accesses, we
+investigated in different ways to limit their effect, but still to
+profit from early accesses. Ignoring all accesses to a paper in the
+first 31 days after its publication is a very strong regularization.
+Instead we chose to apply the algorithm, described in Function
+LABEL:alg:filtering , on page LABEL:alg:filtering . Here, we still allow
+for pairs of accesses of a just published paper and such not being on
+the same weekly, or monthly (alert) list.
+
+Figure 3.2 gives some insight into the properties of the sessions which
+we receive after the preprocessing steps. The lengths of sessions in
+terms of time, but also in the number of downloads of arXiv papers
+follow a power law distribution. Except for some outliers, the length is
+bounded to 16 hours and a few hundred downloads. With consideration of
+proxies, the sessions generated might still reflect human behavior,
+which suggests the effectivity of the filtering applied. Further control
+can be exercised with adjustment of the time-out used to generate the
+sessions. Figure 3.3 indicates that shorter time-outs are able to break
+long sessions apart which might be helpful for the treatment of proxies.
+
+### 3.3 Co-access measures
+
+Analogously to co-citation, in which a paper expresses explicitly the
+relatedness to other papers by the choice of its references, we can make
+use of sessions to derive relatedness between papers accessed in a
+session. This assumes that users are selective and their behavior
+reflects some kind of discrimination between papers accessed to those
+not accessed, hence relatedness between elements of those two groups.
+The ideal scenario for this is a scientist who searches for literature
+in a specific topic, accessing more likely related documents than
+unrelated ones. Following the basic collaborative filtering approach, we
+regard every session @xmath as a set of votes for documents, each
+originating from a different ‘user’. We receive a user-item matrix
+@xmath , in which @xmath , if session @xmath accessed document @xmath ,
+and @xmath otherwise.
+
+###### Definition 3.1.
+
+Co-access between two papers measures the co-occurrence of accesses to
+those papers over sessions, i.e. the number of sessions both papers are
+accessed in. Thus, relatedness between two papers is defined as:
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (3.1)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- -------
+
+Normally, one can distinguish between different types of accesses that
+are performed on a website. Next to the navigation through HTML pages,
+user also download files or even purchase items. Increasing cost for
+different possible user actions correlates with the interest a user
+have: The purchase of an item in a session of an e-commerce site is
+probably the strongest statement of interest. On the other hand, with
+increasing bandwidths and cheaper internet access, the difference in
+cost between accesses to a HTML page and downloads of a whole document
+diminishes. For arXiv, as an open content provider, users most often
+access overview pages (presenting meta-data of a paper like its
+abstract) and downloads of the full-text. We investigate the question to
+what extent the usage of download information is preferable over plain
+accesses. Therefore, we distinguish between co-download and co-view as
+two instantiations of co-access, which are built on different types of
+accesses.
+
+### 3.4 Implementation issues
+
+For large amounts of data like access logs, it becomes easily
+prohibitive to retain all base data in memory to work on it efficiently.
+Even worse, it is already impossible to maintain intermediate results in
+memory. Using better coding schemes leads only to a fraction of the
+required memory with the cost of more computation. Therefore, a feasible
+implementation should work on an external representation of the base
+data and use the available memory to store and update a subset of
+frequently changing intermediate results.
+
+Summarizing, an implementation for the calculation of co-downloads has
+to fulfill the following two key requirements:
+
+1.  ability to work efficiently on external data, thus being scalable to
+    the growing amount of available access data
+
+2.  make use of the sparsity of papers, being accessed together
+
+Our implementation assumes session data as input. Every session consists
+of a number of accesses to papers, i.e. either downloads or accesses to
+the document summary. In a first run over the data, the session data is
+transformed into a binary representation, encoding accesses to papers as
+plain numbers (for faster reading and parsing of external data). Then,
+multiple linear runs are performed over the session data in such a way
+that for each run all co-occurrences with other papers of as most as
+possible papers are counted. Since this number is unknown beforehand,
+running out of memory leads to an exponential decrease in the number of
+papers that are tried to count in another run. An improved version might
+determine the number of co-occurring papers for every paper as a side
+effect of a previous run and estimate the number of papers that can be
+counted in the next run in advance. For every paper a hash table is
+maintained to memorize co-accesses with other papers. Finally, by
+iteration over every hash table the @xmath most often co-occurring
+papers are collected efficiently using a heap data structure.
+
+## Chapter 4 Evaluation
+
+In this chapter, first the main setting and the application of the
+measures used are described. On that basis, first results are discussed.
+Then main parameter are examined in their influence and further
+experiments are conducted to examine the quality of recommendations over
+time after publication. Finally, we introduce a research prototype of a
+recommendation system for arXiv.org, which makes the outcomes tangible
+for human users and can serve as a basis for further research.
+
+### 4.1 Metrics & experimental design
+
+Recommendation systems are intended to filter relevant items out of the
+set of all possible items. Ideally, the set of proposed items @xmath is
+congruent with the set of relevant items @xmath . In information
+retrieval, out of the perspectives of these sets, retrieval performance
+has been defined in terms of precision and recall:
+
+  -- -------- -- -------
+     @xmath      (4.1)
+  -- -------- -- -------
+
+Here, it is assumed that a fixed set of documents is returned, without
+any ordering imposed on them. Because nowadays the number of returned
+results normally exceeds what humans are able to consider, a ranking of
+the items by their expected relevance is used. Rankings can be measured
+by computing precision and recall at different cut-off points @xmath of
+the ranking. This can be depicted in a precision-recall-graph, in which
+the area under the curve is equivalent to what is called average
+precision @xmath
+
+  -- -------- -- -------
+     @xmath      (4.2)
+  -- -------- -- -------
+
+where @xmath is 1, if the @xmath th item in the ranking is relevant, and
+0 otherwise. Mean average precision (MAP) averages over a set of queries
+issued to a system to measure its overall retrieval effectiveness and
+makes relative comparisons possible. However, for simplified
+interpretation we use the recall achieved over the top ranks in our main
+experiment.
+
+For the evaluation of the different measures we choose the following
+setting, which has been formalized in Setting 1 . Since we want a
+representative evaluation for the performance of a system deployed and
+used today, we chose to evaluate on recent papers. Not to suffer from
+possible seasonal bias (see Figure A.4 ), we consider all papers @xmath
+that have been submitted in 2005 as our test set (line 2), ignoring
+2006. The training set, out of which the system is built, consists of
+the whole corpus of papers published beforehand and for which citation
+data is available. This means, we assume the actual point in time to be
+January 1, 2005.
+
+Input : points in time: @xmath , citation graph vertices @xmath ,
+evaluation ranks @xmath
+
+Output : Recall for ( @xmath )-tupel
+
+foreach recommendation algorithm al do foreach document @xmath do @xmath
+\Hy@raisedlink \hyper@anchorstart AlgoLine0.1 \hyper@anchorend
+
+if @xmath then foreach reference @xmath do @xmath \Hy@raisedlink
+\hyper@anchorstart AlgoLine0.2 \hyper@anchorend
+
+@xmath \Hy@raisedlink \hyper@anchorstart AlgoLine0.3 \hyper@anchorend
+
+@xmath \Hy@raisedlink \hyper@anchorstart AlgoLine0.4 \hyper@anchorend
+
+@xmath \Hy@raisedlink \hyper@anchorstart AlgoLine0.5 \hyper@anchorend
+
+forall ranks @xmath do @xmath // is @xmath in top- @xmath results
+
+\Hy@raisedlink \hyper@anchorstart AlgoLine0.6 \hyper@anchorend
+
+end end forall @xmath do @xmath end end forall @xmath do @xmath
+\Hy@raisedlink \hyper@anchorstart AlgoLine0.7 \hyper@anchorend
+
+end
+
+Setting 1 Recall for held-out references
+
+7
+
+7
+
+7
+
+7
+
+7
+
+7
+
+7
+
+In this setting, we use the kind of relatedness which results from the
+co-citation relationship between references of a paper. As Figure 2.2
+indicates, 80% of papers have at least one reference in the recent
+12 months. Because we can only recommend papers before 2005 we have
+chosen to ignore all references to papers submitted later (line 3),
+amounting typically only to 10–25% of all of them. This also allows us
+to estimate the performance of a recommendation system, only
+occasionally updated.
+
+We evaluate by holding out one reference of a paper in 2005, make a
+recommendation out of the remaining ones and search for the held out
+reference in the top @xmath entries. We assure that every paper has at
+least two references (line 4), or skip the considered paper otherwise.
+Instead of randomly choosing one reference and trying to predict it,
+given the rest of references, we opted to do that with every reference
+(line 5). This makes more usage of the available data and leads to
+fractioned, more precise recall values for every examined paper @xmath
+and given rank @xmath . The setting proposed so far is an instance of a
+realistic CF problem, in which the input consists of a set of references
+of a paper, for which we want to find further related documents. Since
+our relatedness functions are only capable to build a ranking for one
+input document, we apply them on every input document and aggregate the
+resulting rankings (line 7). For the purpose to generate a new ranking,
+we generally used the sum of the scores in the separate rankings. This
+turns out to be the best choice out of usually used aggregation
+functions (see Section 4.4 ). Although higher-order models have been
+proposed [ 29 ] , this still reflects the prevalent approach in CF.
+Because we apply recommendations for each item of the set independently,
+we might also recommend items of the given set. Also, due to the use of
+relations derived from citation data as our golden truth, we penalize
+measures with higher coverage. To minimize this, we filter the
+recommendations for documents, given as input to the recommender
+(line 8), and such, not contained in the citation graph (line 9).
+
+For every examined recommendation algorithm @xmath , document @xmath ,
+each of its references @xmath and every rank @xmath , we obtain a binary
+recall, which states if the document @xmath could be found in the first
+@xmath recommendation entries (line 11). We take the mean over all
+references @xmath of each document @xmath and finally over all documents
+@xmath themselves.
+
+Although in the CF framework it is fairly clear on which properties of
+the given input data algorithms should be applied, due to that we have

@@ -1,0 +1,1987 @@
+# 1 Introduction
+
+The double covers of the definite and indefinite orthogonal groups,
+@xmath by the spin groups are venerable objects. They arise in a variety
+of applications. The covering of @xmath by @xmath is central to
+robotics. The group @xmath arises in polarization optics, [ 4 ] . The
+group @xmath arises as the dynamical symmetry group of the 2D hydrogen
+atom and also in the analysis of the DeSitter space time [ 7 , 11 ] .
+The group @xmath arises as the versor representation of the three
+dimensional conformal group and thus has applications in robotics and
+computer vision, [ 13 ]
+
+In this work we provide explicit algorithms to invert these double
+covering maps. More precisely, given the double covering map, @xmath and
+an @xmath (henceforth called the target ), we provide algorithms to
+compute the matrices @xmath , in the matrix algebra that the even
+subalgebra of @xmath is isomorphic to, satisfying @xmath . One of our
+methods which works for all @xmath , described in Remark ( 32 ), finds
+the matrices in the preimage when @xmath is viewed as living in the
+matrix algebra that @xmath is isomorphic to and this method trivially
+extends to the inversion of the abstract double covering map. Our other
+methods, aid in finding the preimage when @xmath is viewed as living in
+the matrix algebra that the even sublagebra of @xmath is isomorphic to.
+Since the even subalgebra typically consists of matrices of lower size
+than @xmath itself, such results are of great interest. Naturally, such
+methods use the detailed knowledge of the matrix forms of the various
+Clifford theoretic automorphisms (such as grade, reversion), [ 8 ] .
+
+Our interest in finding @xmath as a matrix, as opposed to an abstract
+element of @xmath , stems from wishing to use specific matrix theoretic
+properties of @xmath (respectively @xmath ), together with an explicit
+matrix form of the direct map @xmath , to infer similar properties for
+@xmath (respectively @xmath ). A classic example of this is the usage of
+the unit quaternions (equivalently @xmath ) to find axis-angle
+representations of @xmath . In the same vein to compute the polar
+decomposition of a matrix in @xmath , it is easier to find that of its
+preimage in the corresponding spin group, @xmath and then project both
+factors via @xmath . It is easy to show that the projected factors
+constitute the polar decomposition of the original matrix. Since the
+polar decomposition of a @xmath symplectic matrix can even be found in
+closed form, [ 3 ] , this is indeed a viable strategy. Similary, one can
+find the polar decomposition of a matrix @xmath in @xmath in closed
+form, [ 2 ] and this can be then used to find the polar decomposition of
+@xmath . Since @xmath is a @xmath matrix with quaternionic entries and
+there is no method available for its polar decomposition, [ 15 ]
+(barring finding the polar decomposition of an associated @xmath complex
+matrix), this is indeed useful. Similarly, block properties of the
+preimage, @xmath , viewed as a matrix, may provide useful information
+about @xmath . Such information is typically unavailable when finding
+@xmath only as an abstract element of @xmath . Furthermore, one of the
+methods to be used in this work, viz., the inversion of the
+linearization of the covering map, may be used to also compute
+exponentials in the Lie algebras @xmath .
+
+There is literature on the problem being considered in this work. For
+the case @xmath [ or @xmath ] this problem is classical. The case @xmath
+is considered in [ 5 ] . The cases @xmath and @xmath are treated in [ 6
+] . The excellent work of [ 16 ] treats the general case with extensions
+to the Pin groups, under a genericity assumption, but finds the preimage
+in the abstract Clifford algebra via a formula requiring the computation
+of several determinants. Section 1.1 below provides a detailed
+discussion of the relation between the present work and [ 6 , 16 ] . In
+[ 17 ] an algorithm is proposed, for the inversion of the abstract
+covering map, but which requires the solution of a nonlinear equation in
+several variables for which no techniques seem to be presented.
+
+###### Remark 1
+
+It is worth noting that even though the abstract map @xmath is uniquely
+defined, as is the matrix algebra that @xmath is isomorphic to, the
+matrix form of @xmath very much depends on the matrices chosen to
+represent the one-vectors of @xmath . Similar statements apply to the
+explicit matrix forms of reversion and Clifford conjugation. Indeed,
+even the group of matrices which constitute @xmath (within the matrix
+algebra that the even sublagebra of @xmath is isomorphic to) can change
+with the choice of one-vectors - though, of course, all these groups are
+isomorphic to each other. Thus, each abstract @xmath , in reality,
+determines many “matrix”, @xmath ’s. Thus, our techniques are especially
+useful if one specific matrix form of @xmath has been chosen in advance.
+This is illustrated via Example 3 later in this section.
+
+With this understood, we will write @xmath for the covering map, with
+respect to the choice of one-vectors specified in advance. Then @xmath
+is a quadratic map in the entries of @xmath . Given the target @xmath ,
+we have to solve this quadratic system of equations in several variables
+to obtain @xmath . Solving this system is arduous in general. If @xmath
+can be factored as a product of matrices @xmath , then it is conceivable
+that these systems become simpler for the individual @xmath . Then using
+the fact that @xmath is a group homomorphism, one can synthesize the
+solution for @xmath out of those for the @xmath ’s. This is the
+technique employed in our earlier work, [ 6 ] .
+
+One standard choice of these simpler factors are standard Givens and
+hyperbolic Givens rotations. These are matrices which are the identity
+except in a @xmath principal submatrix, where they are either a plane
+rotation or a hyperbolic rotation. This decomposition of @xmath is
+constructive and thus leads to a complete algorithmic procedure to find
+@xmath . For this it is important that these Givens factors also belong
+to @xmath . When @xmath , this is straightforward to show. The general
+case is less obvious [since not all matrices of determinant @xmath in
+@xmath belong to @xmath ] and is demonstrated in Section 2 by displaying
+these Givens factors as exponentials of matrices in the Lie algebra
+@xmath (see Proposition 19 in Section 2 ).
+
+As a second variant, we also invoke the polar decomposition for some
+@xmath to invert @xmath . This is aided by the remarkable fact that for
+certain @xmath (e.g., @xmath @xmath is inverted, essentially by
+inspection, when the target in @xmath is positive definite or special
+orthogonal. This circumstance may be used to not only invert @xmath but
+also compute the polar decomposition of @xmath (or for that matter that
+of the preimage @xmath ) without any eigencalculations. Once again, it
+is important to know that both factors in the polar decomposition of an
+@xmath belong to @xmath . It is known that for matrices in groups
+preserving the bilinear form defined by @xmath , both factors in the
+polar decomposition do belong to the group also. However, it does not
+immediately follow that the same holds for matrices in @xmath . Once
+again the issue at hand is that @xmath is not equal to @xmath . Inspite
+of this, as shown in [ 2 ] , both factors in the polar decomposition of
+a matrix in @xmath also belong to @xmath .
+
+A related method to invert @xmath is considered in this work. Namely we
+invert instead the linearization @xmath of @xmath . The map @xmath is
+easily inverted since it is linear. For this method to be viable,
+however, one has to first have an explicit formula for the logarithm
+(within @xmath ) of @xmath or the @xmath . Next, one has also to be able
+to compute the exponential of this preimage. In Remark 32 we show that
+both of these steps go through, when the target is decomposed via Givens
+decomposition regardless of the value of @xmath .
+
+In the interests of brevity, we illustrate only the cases @xmath ,
+@xmath , @xmath , @xmath . The @xmath case arises in polarization
+optics, for instance. The @xmath case is the simplest non-trivial case
+of the split orthogonal group. The @xmath case is of importance in the
+study of the hydrogen atom among other things. The @xmath case is
+important in computer graphics.
+
+Specifically, we will address
+
+-   The @xmath case by inspection and by invoking the polar
+    decomposition connection aforementioned. The important @xmath case
+    is also easily amenable to this method, but surprisingly @xmath is
+    not, [ 2 ] .
+
+-   The @xmath and @xmath cases via Groebner bases.
+
+-   The @xmath case via linearizing @xmath . We will provide results
+    both when @xmath is decomposed using Givens factors and when it is
+    decomposed using polar decomposition.
+
+### 1.1 Relation to Work in the Literature
+
+In this section the relation of the present work with [ 6 , 16 ] is
+dicusssed.
+
+The relation between [ 6 ] and the present work is as follows. In [ 6 ]
+the concern is with inversion for the @xmath and @xmath cases. Since the
+polar decomposition of an orthogonal matrix is trivial, it does not help
+at all with the task of inversion. On the other hand, in this work it
+plays a significant role precisely because the polar decomposition for
+the @xmath case is no longer trivial. Therefore, when the inversion of a
+positive definite target in @xmath can be carried out efficiently, it
+becomes even more useful than when the target is an ordinary or
+hyperbolic Givens matrix, since the number of Givens factor grows
+rapidly with @xmath .
+
+Next the relation to [ 16 ] is dicussed. Signifcant portions of the
+present work were completed in late 2016, [ 1 ] . As this paper was
+being written up, we became aware of the 2019 paper [ 16 ] . In [ 16 ] ,
+an elegant solution is provided for inverting the abstract (as opposed
+to the matrix) map @xmath , under a generic condition on @xmath , not
+required by our work. The solution in [ 16 ] is a generalization of a
+method proposed in [ 9 ] for the @xmath case. This formula is as
+follows. Let @xmath and define the element @xmath of @xmath via
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Here @xmath and @xmath are subsets of @xmath of equal cardinality
+(including the empty set), @xmath is the square submatrix of @xmath
+located in rows indexed by @xmath and and columns indexed by @xmath ,
+@xmath and similarly for @xmath . Here @xmath is the @xmath -th basis
+one-vector in the abstract Clifford algebra @xmath . @xmath is the
+inverse of @xmath in @xmath .
+
+It is assumed that @xmath in @xmath . This is the aforementioned
+genericity assumption. Then @xmath , where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Here @xmath is the reversion of @xmath .
+
+###### Remark 2
+
+The following nuances, besides the genericity condition @xmath , of this
+formula need attention
+
+-   The principal burden in implementing the formula in [ 16 ] is that
+    one has to compute all the minors of @xmath . If we ally this
+    formula with one innovation of the current work, namely decomposing
+    @xmath into hyerbolic and usual Givens rotations, then a significant
+    reduction in complexity in implementing the formula in [ 16 ] can be
+    expected. Indeed, the number of non-zero minors of a hyperbolic or
+    standard Givens is much lower than that for a general @xmath .
+    However, from many viewpoints, it is still emphatically not true
+    that if @xmath is a Givens rotation then only principal minors are
+    non-zero, and thus still several determinants have to be computed.
+    For instance, consider
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    Thus @xmath is a hyperbolic Givens rotation in @xmath . Then, for
+    instance, the following non-principal @xmath minors are non-zero:
+    @xmath , @xmath , @xmath , @xmath . Hence, even when the target
+    @xmath is sparse, such as a Givens matrix, one has to calculate
+    several determinants.
+
+-   Furthermore, due to the involvement of several determinants, the
+    formula obtained for @xmath often is quite elaborate and occludes
+    the “half-angle” nature of the inversion even when @xmath is simple
+    - see Example 3 below for an illustration of this issue.
+
+-   The formula only finds @xmath as an element of the abstract Clifford
+    algebra @xmath . Our methods also provide such an inversion, without
+    the need for determinants, but by using Givens decompositions - see
+    Remark 32 . Of course, by using specific matrices constituting a
+    basis of one-vectors for @xmath , @xmath can be recovered as a
+    matrix. The matrix @xmath thereby obtained, even though an even
+    vector, will live in @xmath which is typically an algebra of
+    matrices of larger size than the matrix algebra constituting the
+    even subalgebra. This is due to the very nature of the formula.
+    Thus, for instance this formula will yield, for the case @xmath ,
+    @xmath as a @xmath matrix, even though the covering group consists
+    of symplectic matrices of size @xmath . To get around this one has
+    to know how to embed the even subalgebra in @xmath , [ 8 ] . In
+    effect, one has to compute the matrix form of the grade involution.
+    This limitation is thus due to not having at one’s disposal an
+    explicit matrix form for @xmath , when using the formula in [ 16 ] .
+
+-   Next the matrix form of @xmath very much depends on the basis of
+    one-vectors. Without this caveat, one can find different find
+    different matrices, @xmath , with @xmath projecting to the same
+    @xmath . This matter is illustrated in Example 3 .
+
+-   Other steps in this method such as finding the reversion of @xmath
+    can, in principle, be performed without having to resort to finding
+    reversion as an explicit automorphism of the matrix algebra that
+    @xmath is isomorphic to. However, as @xmath grows, it is more
+    convenient to work with a concrete matrix form of reversion, such as
+    those in [ 8 ] ). Indeed @xmath is proportional to the identity and
+    thus, if a matrix form of @xmath (and @xmath ) is available, then
+    one needs to only compute the trace of @xmath . These issues are all
+    mitigated when the methods being proposed here are used, since our
+    methods make systematic use of the structure of the matrix form of
+    the map @xmath , whereas this is not the case in [ 16 ] .
+
+###### Example 3
+
+Consider @xmath . Its inversion, is of course, trivial. However, it
+illustrates Remark 1 and also the caveats ii) and iv) above about the
+usage of the formula in [ 16 ] .
+
+Let us use the basis @xmath for the one-vectors of @xmath .
+Incidentally, this is the canonical basis that the constructive proof of
+the isomorphism between @xmath and @xmath naturally yields. Then @xmath
+is realized as
+
+  -- -------- -- -----
+     @xmath      (1)
+  -- -------- -- -----
+
+Now
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let @xmath be a target matrix is @xmath . Here
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Directly solving for @xmath from the quadratic system obtained from
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+one recovers
+
+  -- -------- -- -----
+     @xmath      (2)
+  -- -------- -- -----
+
+The “half-angle” aspect of the covering map is manifest in this formula.
+
+Only after some algebra, is this also the solution yielded by the
+formula of [ 16 ] . Specifically
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+since @xmath if we use @xmath as the basis of one-vectors for @xmath .
+Next, a calculation shows @xmath . So, it follows that
+
+  -- -------- -- -----
+     @xmath      (3)
+  -- -------- -- -----
+
+which, after further manipulations, coincides with Equation ( 2 ). Thus,
+even in this simple case, it is seen that if one in interested in a
+symbolic expression for @xmath as a function of the entries of @xmath ,
+then Equation ( 3 ) is more complicated that Equation ( 2 ), even though
+they are equivalent. Next, we could also have used @xmath , as the basis
+of one-vectors. Naively applying the formula in [ 16 ] would then
+naturally lead to @xmath being a linear combination of @xmath and @xmath
+, which is inconsistent with Equation ( 1 ). The resolution is that with
+@xmath as the choice of the basis of one-vectors, @xmath is just
+
+  -- -------- -- -----
+     @xmath      (4)
+  -- -------- -- -----
+
+### 1.2 Organization of the Paper
+
+The balance of the paper is organized as follows. In Section 2.1 , we
+record notation used throughout the work, Section 2.2 records
+definitions from Clifford algebras, especially that of the covering map
+and its linearization. Section 2.3 discusses matrices with quaternionic
+entries and their complex representations. We draw attention to Remark
+11 and Remark 12 . Section 2.4 shows that inverse images of positive
+definite matrices can be chosen to be positive definite matrices in the
+covering group - see Proposition 13 . This result assumes that the basis
+of one-vectors chosen satisfy two properties (called BP1 and BP2 ). In
+the Appendix we show that every real Clifford algebra has at least one
+such basis. Section 2.4 discusses the polar decomposition and the Givens
+decompositions. We draw attention to
+
+-   Remark 15 which discusses a constructive algorithm, Algorithm 25 in
+    Section 3 , for the polar decomposition in certain indefinite
+    orthogonal groups.
+
+-   Remark 16 .
+
+-   Proposition 19 which shows that Givens matrices indeed belong to
+    @xmath , and
+
+-   Example 20 which illustrates how any matrix in the indefinite
+    orthogonal groups can be factored constructively into Givens
+    factors.
+
+Section 3 is devoted to the inversion of @xmath . In this section we use
+the polar decomposition and the key observation is that if @xmath is
+positive definite, then its preimage(s) under @xmath can be found by
+inspection. In sections 4 and 5 we directly invert @xmath and @xmath by
+solving the systems of quadratic equations when the target is a Givens
+factor. In Section 6 , we invert @xmath by first inverting the
+linearization @xmath and then showing that the exponential of the matrix
+in the Lie algebra of the spin group, thereby obtained, admits a
+closed-form expression. We demonstrate this when the target is
+decomposed using Givens factors or when the polar decomposition is
+employed for the same purpose. In particular this provides an algorithm
+for finding the polar decomposition of certain @xmath quaternionic
+matrices without having to find that of the associated @xmath complex
+matrix. We draw attention to Remark 32 of this section which shows that
+linearization provides a viable method to invert the abstract covering
+map, when used in conjunction with Givens decompositions. The last
+section offers conclusions.
+
+## 2 Preliminaries
+
+### 2.1 Notation
+
+We use the following notation throughout
+
+  N1  
+
+    @xmath is the set of quaternions. Let @xmath be an associative
+    algebra. Then @xmath is just the set of @xmath matrices with entries
+    in @xmath . For @xmath we define @xmath as the matrix obtained by
+    performing entrywise complex (respectively quaternionic) conjugation
+    first, and then transposition. For @xmath , @xmath is the matrix
+    obtained by performing entrywise complex conjugation.
+
+  N2  
+
+    The Pauli Matrices are
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+### 2.2 Preliminary Observations
+
+We will begin with informal definitions of the notions of one and
+two-vectors for a Clifford algebra, which is sufficient for the purpose
+of this work. The texts [ 12 , 14 ] are excellent sources for more
+precise definitions in the theory of Clifford algebras. The same texts
+also contain precise definitions of the various automorphisms (such as
+grade, Clifford conjugation and reversion).
+
+###### Definition 4
+
+Let @xmath @xmath be non-negative integers with @xmath . A collection of
+matrices @xmath with entries in @xmath or @xmath is a basis of
+one-vectors for the Clifford algebra @xmath if
+
+  1.  
+
+    @xmath , for @xmath where @xmath is the identity matrix of the
+    appropriate size @xmath this size is typically different from @xmath
+
+  2.  
+
+    @xmath , for @xmath
+
+  3.  
+
+    @xmath , for @xmath ; @xmath .
+
+A one-vector is just a real linear combination of the @xmath ’s, @xmath
+. Similarly, a two-vector is a real linear combination of the matrices
+@xmath , @xmath , @xmath . Analogously, we can define three, four, …,
+@xmath -vectors, etc. @xmath is just a real linear combination of @xmath
+, one-vectors, …, @xmath -vectors.
+
+###### Definition 5
+
+@xmath is the connected component of the identity of the collection of
+elements @xmath in @xmath satisfying the following requirements: i)
+@xmath , i.e., @xmath is even (here @xmath is the grade involution
+applied to @xmath ), @xmath @xmath (here @xmath is the Clifford
+conjugate of @xmath ) and @xmath For all one-vectors @xmath in @xmath ,
+@xmath is also a one-vector. The last condition, in the presence of the
+first two conditions, is known to be superfluous for @xmath , [ 12 , 14
+] .
+
+###### Definition 6
+
+Let @xmath . Denote by @xmath . Then @xmath . @xmath is the connected
+component of the identity in @xmath . Unless @xmath , @xmath is a proper
+subset of @xmath . The Lie algebra of @xmath is denoted by @xmath and it
+is described by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Definition 7
+
+The map @xmath sends @xmath to the matrix of the linear map @xmath ,
+where @xmath is a one-vector with respect to a basis @xmath of the space
+of one-vectors. @xmath is its Lie algebra and is known to equal the
+space of bivectors of @xmath . It is further known that @xmath is a
+group homomorphism with kernel @xmath . We denote by @xmath the
+linearization of @xmath . Thus, @xmath sends an element @xmath to the
+matrix of the linear map @xmath . @xmath is a Lie algebra isomorphism
+from @xmath to @xmath .
+
+### 2.3 Quaternionic and @xmath Matrices
+
+Next, to a matrix with quaternion entries will be associated a complex
+matrix. First, if @xmath is a quaternion, it can be written uniquely in
+the form @xmath , for some @xmath . Note that @xmath , for any @xmath .
+With this at hand, the following construction associating complex
+matrices to matrices with quaternionic entries is useful.
+
+###### Definition 8
+
+Let @xmath . By writing each entry @xmath of @xmath as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+we can write @xmath uniquely as @xmath with @xmath . Associate to @xmath
+the following matrix @xmath
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Remark 9
+
+Viewing an @xmath as an element of @xmath it is immediate that @xmath ,
+where @xmath is entrywise complex conjugation of @xmath .
+
+###### Definition 10
+
+A @xmath complex matrix of the form @xmath is said to be a @xmath
+matrix.
+
+Next some useful properties of the map @xmath are collected.
+
+###### Remark 11
+
+Properties of @xmath
+
+  i)  
+
+    @xmath is an @xmath -linear map
+
+  ii)  
+
+    @xmath
+
+  iii)  
+
+    @xmath . Here the @xmath on the left is quaternionic Hermitian
+    conjugation, while that on the right is complex Hermitian
+    conjugation.
+
+  iv)  
+
+    @xmath
+
+###### Remark 12
+
+In this remark we will collect some more facts concerning quaternionic
+matrices.
+
+1.  If @xmath then it is not true that @xmath . However, @xmath .
+    Therefore, the following version of cyclic invariance of trace holds
+    for quaternionic matrices
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+2.  Let @xmath and @xmath be square quaternionic matrices. Then @xmath
+    Furthermore, if at least one of @xmath and @xmath is real, then
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+3.  @xmath is Hermitian iff @xmath is Hermitian (as a complex matrix)
+    and @xmath is skew-symmetric. This is, of course, equivalent to
+    @xmath being Hermitian as a complex matrix.
+
+4.  If @xmath is a square quaternionic matrix, we define
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    Then @xmath .
+
+5.  If @xmath is a square quaternionic matrix, it is positive definite
+    if @xmath , for all @xmath . This is equivalent to @xmath being a
+    positive definite complex matrix.
+
+6.  Putting the last two items together we see that if @xmath is
+    Hermitian, then @xmath is positive definite.
+
+We next prove a very useful result, Proposition 13 , which ensures that
+one preimage in @xmath of a positive definite matrix in @xmath is also
+positive definite. In light especially of
+Remark 3 , it must be stressed that it is being assumed in Proposition
+13 that the basis, @xmath , of one-vectors for @xmath being used
+satisifies the following two properties
+
+-    BP1 If @xmath , the basis of one-vectors being used, then
+
+      -- -------- -- -----
+         @xmath      (5)
+      -- -------- -- -----
+
+-    BP2 The matrices in @xmath are orthogonal with respect to the trace
+    inner product. Specifically, if @xmath consists of real or complex
+    matrices then
+
+      -- -------- -- -----
+         @xmath      (6)
+      -- -------- -- -----
+
+    and if @xmath contains quaternionic matrices then
+
+      -- -------- -- -----
+         @xmath      (7)
+      -- -------- -- -----
+
+###### Proposition 13
+
+Let @xmath be positive definite. Let @xmath be a set of matrices serving
+as a basis of one-vectors for @xmath which satisfy both BP1 and BP2 .
+Then there is a unique positive definite @xmath with @xmath .
+
+Proof: As shown in [ 2 ] , there is a symmetric @xmath such that @xmath
+. Let @xmath be the linearization of @xmath . We will show that the
+(unique) preimage @xmath of @xmath with respect to @xmath is Hermitian.
+Therefore, from the formula @xmath , it follows that if we denote by
+@xmath , then @xmath . Since @xmath is Hermitian, it follows that @xmath
+is positive definite (where, in the event @xmath is quaternionic we
+invoke the last item of Remark 12 ).
+
+Let us now show that @xmath is Hermitian. First, suppose that @xmath
+consists of real or complex matrices. Since @xmath satisfies BP1 and BP2
+we have
+
+-   1) If @xmath , then @xmath also. Indeed the typical element of
+    @xmath is a real linear combination of the bivectors @xmath . Since
+    @xmath (using the fact that the @xmath s anticommute), it follows
+    that @xmath is also a real linear combination of the bivectors and
+    is thus in @xmath also.
+
+-   2) @xmath . To see this note that the @xmath th entry of the matrix
+    @xmath equals, due the @xmath ’s being orthogonal with respect to
+    the trace inner product
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    (where we used the cyclic invariance of trace).
+
+    Similarly the @xmath entry of @xmath equals @xmath . But this equals
+    the complex conjugate of @xmath , which again by cyclic invariance
+    of trace, equals @xmath .
+
+If @xmath contains quaternionic matrices then the above argument goes
+through verbatim if we replace @xmath by @xmath in light of item 1) of
+Remark 12 .
+
+So (as all @xmath are real), if @xmath is symmetric then, in light of
+@xmath being a vector space isomorphism, it follows that @xmath and
+hence @xmath is Hermitian and @xmath positive definite. @xmath .
+
+###### Remark 14
+
+The previous proof assumed that there is a basis of one-vectors, @xmath
+for @xmath with the properties BP1 and BP2 . For all the Clifford
+algebras discussed in this paper, this is true by construction. However,
+for the sake of completeness, we will prove that there is at least one
+such basis for all @xmath in Theorem 35 . Notwithstanding Theorem 35 ,
+it is worth emphasizing that for the purpose of inversion, in light of
+Remark 1 , one must verify the veracity of both BP1 and BP2 for the
+specific basis of one-vectors that one chooses to arrive at the matrix
+form of @xmath .
+
+### 2.4 Polar and Givens Decomposition of @xmath
+
+In this section we collect together various results on decompositions of
+@xmath which will play an important role in the remainder of this work.
+
+###### Remark 15
+
+Constructive Polar Decomposition: Let @xmath . Then (see [ 2 ] ), both
+factors @xmath in its polar decomposition @xmath , where @xmath is real
+special orthogonal and @xmath is positive definite, also belong to
+@xmath . Furthermore, as shown in [ 2 ] , when either @xmath or @xmath
+is @xmath one can find @xmath and the real symmetric @xmath with @xmath
+by inspecting the first column and row (or last if @xmath ) and finding
+special orthogonal matrices which take the first unit vector to a given
+vector of length one. See Algorithm 25 in Section 3 below for a special
+case of this. For other values of @xmath these constructive procedures
+can be extended, except that they involve substantially more matrix
+maneuvers. We will tacitly assume the contents of this remark in
+Sections 3 and 5 .
+
+###### Remark 16
+
+Logarithms of Special Orthogonal Matrices of Size 4.
+Let @xmath . Then one can find explicitly a pair of unit quaternions
+@xmath such @xmath , (see, for instance, [ 5 ] ). Suppose first that
+neither @xmath nor @xmath belong to the set @xmath . This means @xmath .
+
+Then one can further find, essentially by inspection of @xmath , a real
+skew-symmetric @xmath such that @xmath . Specifically, let @xmath be
+such that @xmath . Then let @xmath be @xmath . Similarly, find @xmath
+from inspecting @xmath . Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with
+
+  -- -------- -- -----
+     @xmath      (8)
+  -- -------- -- -----
+
+and
+
+  -- -------- -- -----
+     @xmath      (9)
+  -- -------- -- -----
+
+Furthermore, @xmath and @xmath commute.
+
+Finally, if @xmath , then @xmath , while if @xmath , then
+@xmath , with
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath .
+
+Next we discuss Givens decompositions.
+
+Define @xmath where @xmath and @xmath , for @xmath . Then the following
+facts are well known:
+
+-   Given a vector @xmath there is an @xmath where @xmath such that
+    @xmath . Similarly there is an @xmath where @xmath such that @xmath
+    .
+
+-   Next given a vector @xmath , with @xmath , there is an @xmath with
+    @xmath , such that @xmath
+
+@xmath are called plane standard Givens and hyperbolic Givens
+respectively. Embedding @xmath , respectively @xmath as a principal
+submatrix of the identity matrix @xmath , yields matrices known as
+standard Givens (respectively, Hyperbolic Givens).
+
+###### Definition 17
+
+@xmath , for @xmath , stands for the @xmath matrix which is the identity
+except in the principal submatrix, indexed by rows and columns @xmath ,
+wherein it is a hyperbolic Givens matrix. Similarly, @xmath stands for
+the @xmath matrix which is the identity except in the principal
+submatrix, indexed by rows and columns @xmath , wherein it is an
+ordinary Givens matrix.
+
+###### Remark 18
+
+While @xmath is defined only if @xmath , the matrices @xmath make sense
+for all pairs @xmath with @xmath . @xmath is the matrix which zeroes out
+the @xmath th component of a vector that it premultiplies. Thus, @xmath
+will be different, in general, if @xmath from that when @xmath .
+
+The next result shows that @xmath ’s and @xmath ’s belong to @xmath .
+Specifically
+
+###### Proposition 19
+
+Let @xmath and @xmath . Then @xmath belongs to @xmath . Similarly, if
+either @xmath or @xmath , then @xmath belongs to @xmath .
+
+Proof: Consider the @xmath case first. Define
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with @xmath . Thus @xmath is the symmetric matrix which is zero
+everywhere, except in the @xmath th and @xmath th entries wherein it is
+@xmath . Due to the conditions, @xmath and @xmath , it is easy to verify
+that @xmath . A calculation shows that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is @xmath diagonal with zeroes everywhere, except on the
+@xmath th and @xmath th diagonal entries wherein it is @xmath .
+Therefore,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Hence by the Euler-Rodrigues formula
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Thus @xmath being the exponential of a matrix in the Lie algebra @xmath
+, belongs to @xmath . The proof for @xmath is similar. @xmath
+
+The relevance of Givens rotations is that any matrix in @xmath can be
+decomposed constructively into a product of Givens matrices. It will
+suffice to illustrate this via an example.
+
+###### Example 20
+
+Let @xmath . Consider the first column of @xmath
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since @xmath , @xmath . Therefore there are @xmath such that the first
+column of @xmath , where @xmath and @xmath . Since @xmath , it follows
+that @xmath . Hence there is an @xmath such that the first column of
+@xmath equals
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+As @xmath , it follows that the first row of @xmath is also @xmath .
+
+Therefore, the second column of the product @xmath is of the form @xmath
+with @xmath . So there is an @xmath such that @xmath , where @xmath . As
+before @xmath , so there is an @xmath such that @xmath with @xmath . So
+it follows that the first and the second column equal the first two
+standard unit vectors. Since @xmath , it follows that it equals
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Again the condition @xmath , ensures that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+must itself be a plane standard Givens rotation. Therefore,
+pre-multiplying by the corresponding @xmath we get that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since the inverse of each @xmath (respectively @xmath ) is itself an
+@xmath (respectively @xmath ), it follows that @xmath can be expressed
+constructively as a product of @xmath , @xmath , @xmath , @xmath .
+
+###### Remark 21
+
+The following observations about Givens decomposition are pertinent for
+this work.
+
+-   The above factorization is not the only way to factor an element of
+    @xmath into a product of standard and hyperbolic Givens matrices. By
+    way of illustration, we use a slightly different factorization in
+    Section 4 , which emanates from using an @xmath instead of an @xmath
+    in one of the three usages of @xmath above. This will result,
+    therefore, in the usage of an @xmath instead of an @xmath . We note,
+    however, that since @xmath and an @xmath are essentially the same
+    matrix, differing only in the parameter @xmath which enters in them.
+    Thus, their inversion will require the symbolic solution of the same
+    system of equations.
+
+-   There are atmost @xmath Givens factors in the decomposition of a
+    generic @xmath . However, of these there are at most @xmath distinct
+    such factors. This is pertinent, as it implies that we have to
+    symbolically invert only @xmath targets.
+
+## 3 Inversion of @xmath and the Polar Decomposition
+
+In this section, we treat the inversion of @xmath by showing that it
+only requires inspection to find the preimage (under @xmath ) of
+matrices in @xmath which are either positive definite or special
+orthogonal. Since the factors in the polar decomposition of an @xmath
+also belong to @xmath , the method below also simultaneously provides
+the polar decomposition of the @xmath being inverted, with minimal fuss.
+Alternatively, one can also directly find the polar decomposition of
+@xmath , by essentially inspecting the last row and some extra
+calculations, and use that to invert @xmath .
+
+In principle these methods extend to all @xmath but are limited in that,
+besides the @xmath and @xmath cases (the latter is treated in [ 2 ] ),
+finding the preimage by mere inspection seems difficult. See however,
+Section 4 , wherein the @xmath case is handled by a combination of the
+polar decomposition and inverting the associated Lie algebra isomorphism
+@xmath .
+
+Let us first provide an explicit matrix form of the map @xmath . This
+follows, after some computations, from the material in [ 8 ] .
+Specifically we begin with the following basis of one-vectors for @xmath
+
+  -- -------- -- ------
+     @xmath      (10)
+  -- -------- -- ------
+
+Thus, @xmath is a matrix subalgebra of @xmath . The even subalgebra is
+isomorphic to @xmath , which can be embedded into the former subalgebra
+as follows. Specifically, given @xmath embed it in @xmath as follows
+
+  -- -------- -- ------
+     @xmath      (11)
+  -- -------- -- ------
+
+Then @xmath is isomorphic to @xmath (embedded in @xmath as in Equation (
+11 ) above).
+
+It can then be shown that the map @xmath sends an element @xmath in
+@xmath to the following matrix in @xmath
+
+  -- -------- -- ------
+     @xmath      (12)
+  -- -------- -- ------
+
+### 3.1 Preimages of Positive Definite Targets in @xmath
+
+First from many points of view, e.g., from Equation ( 12 ) itself, it is
+easily seen that if @xmath , then @xmath . Hence, in view of the fact
+that @xmath is surjective with @xmath , we see that if @xmath is a
+symmetric matrix in @xmath then necessarily @xmath .
+
+Next, a symmetric @xmath in @xmath cannot have its @xmath entry equal to
+zero. Thus, as @xmath , @xmath is either positive or negative definite.
+If @xmath is antisymmetric, it is easily seen from Equation ( 12 ) that
+@xmath is diagonal with two entries negative and one positive - i.e., it
+is indefinite.
+
+Furthermore, if @xmath is symmetric then one can also deduce directly
+that @xmath is positive definite. To that end, note that since @xmath
+and quite visibly the @xmath entry is positive, it suffices to check
+that the @xmath minor is positive to verify positive definiteness.
+
+From Equation ( 12 ), this minor equals
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Using @xmath we find that this minor is @xmath .
+
+Summarizing the contents of the previous two paragraphs we have
+
+###### Theorem 22
+
+Let @xmath be symmetric. Then it is either positive definite or
+indefinite. In the former case @xmath , with @xmath also positive
+definite. In the latter case @xmath is diagonal and @xmath with @xmath
+antisymmetric.
+
+### 3.2 Finding @xmath when @xmath by Inspection
+
+Suppose that @xmath is positive definite. Let us then address how a
+positive definite preimage @xmath is found by inspection of Equation (
+12 ). Let @xmath . From the @xmath entry of Equation ( 12 ) we see
+@xmath . Suppose @xmath first. Then we find @xmath from the equations
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+By Theorem 22 , one choice of the sign for @xmath will lead to a @xmath
+which is positive definite. If @xmath , then @xmath . Now we look at
+@xmath and @xmath to find that @xmath and @xmath may be found by solving
+the system
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We take the positive square roots of the solutions @xmath and @xmath to
+find a positive definite @xmath projecting to @xmath . This finishes our
+claim that if @xmath is positive definite then we can find by inspection
+a positive definite @xmath projecting to @xmath under @xmath
+
+The above discussion is summarized in Algorithm 23 below.
+
+###### Algorithm 23
+
+Let @xmath be positive definite. The following algorithm finds a
+positive definite @xmath satisfying @xmath .
+
+-   Suppose @xmath . Let @xmath , @xmath and @xmath
+
+-   Let @xmath . There are two choices of @xmath corresponding to the
+    choice of the square root in @xmath in Step 1, which are negatives
+    of each other. One of these @xmath is positive definite. Pick this
+    one.
+
+-   Suppose @xmath . Then let @xmath , @xmath and @xmath . Then @xmath
+    is positive definite and is one preimage of @xmath in @xmath .
+
+### 3.3 Finding the polar decomposition in @xmath
+
+Let us now address how to find the polar decomposition in @xmath using
+Algorithm 23 .
+
+Let @xmath be the polar decomposition of an @xmath . Then the orthogonal
+@xmath and positive definite @xmath are both in @xmath . To find @xmath
+we proceed as follows. First find @xmath , which is then a positive
+definite element of @xmath . Since its preimage @xmath can be chosen to
+be positive definite, we find it using Algorithm 23 . Once @xmath has
+been found, we compute its unique positive definite square root, @xmath
+. We note in passing that finding @xmath from @xmath can be executed in
+closed form, without any eigencalculations, [ 2 ] .
+
+Since @xmath , @xmath is also in @xmath . Then let @xmath . Then, we
+compute
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+So @xmath is the positive definite factor in @xmath . Of course, @xmath
+. Next, finding @xmath is easy. One just interchanges @xmath and @xmath
+and replaces @xmath by @xmath and @xmath by @xmath in the formula @xmath
+. This completes the determination of the polar decomposition of @xmath
+.
+
+However, for the purpose of inversion of @xmath , it still remains to
+find @xmath satisfying @xmath .
+
+To that end, note first that @xmath is both orthogonal and in @xmath .
+Thus, it is in @xmath . Hence it must have the following form @xmath ,
+where @xmath is @xmath orthogonal. However, from Equation ( 12 ) it is
+clear that the @xmath entry of a matrix in @xmath is positive. So,
+@xmath , with @xmath in @xmath . Let @xmath , @xmath . Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+As before, simple considerations show that the matrix @xmath projecting
+to @xmath must itself be in @xmath . Finding @xmath ’s entries as
+functions of @xmath and @xmath is easy. First, if @xmath , then @xmath .
+Indeed, denoting by @xmath , @xmath , we have
+
+  -- -------- -- ------
+     @xmath      (13)
+  -- -------- -- ------
+
+For @xmath we get
+
+  -- -------- -- ------
+     @xmath      (14)
+  -- -------- -- ------
+
+We summarize all of this in an algorithm
+
+###### Algorithm 24
+
+Given @xmath , the following algorithm computes both its polar
+decomposition and the @xmath satisfying @xmath .
+
+-   Find @xmath and find @xmath positive definite such that @xmath ,
+    using Algorithm 23 .
+
+-   Find the unique positive definite square root @xmath of @xmath .
+    This step can be executed without any diagonalization - see [ 2 ] .
+
+-   Find @xmath using Equation ( 12 ).
+
+-   Find @xmath by interchanging @xmath and @xmath and replacing @xmath
+    by @xmath respectively in @xmath from Step 3.
+
+-   Find @xmath . Then @xmath is the polar decomposition of @xmath .
+
+-   Find @xmath satisfying @xmath using Equation ( 13 ) or Equation ( 14
+    ). Then @xmath satisfies @xmath .
+
+The above algorithm inverts the covering map by also finding the polar
+decomposition of the matrix in @xmath . However, we can also find the
+polar decomposition without using the covering map. We now present a
+second algorithm which will produce the polar decomposition directly
+from @xmath itself, with inspection and finding special orthogonal
+matrices which rotate a plane vector into another of the same length.
+This is a special case of the algorithm for general @xmath from [ 2 ]
+mentioned earlier in Remark 15 .
+
+###### Algorithm 25
+
+The Polar Decomposition from the last row and column of @xmath
+
+-   Define @xmath by @xmath . If @xmath , then @xmath and the polar
+    decomposition of @xmath is trivial.
+
+-   Find @xmath so that @xmath .
+
+-   Find @xmath so that @xmath
+
+-   Define i) @xmath , ii) @xmath and iii) @xmath . Then the polar
+    decomposition of @xmath is @xmath , with @xmath and
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+-   Finally the symmetric @xmath satisfying @xmath is
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    with @xmath .
+
+## 4 Inversion of @xmath
+
+In this and the next section, we will use Groebner bases to invert
+@xmath and @xmath . We begin with a few observations, which are
+pertinent to this and the next section, collected as remarks for ease of
+future reference.
+
+###### Remark 26
+
+The task of inversion of the covering maps in question, will be
+addressed by solving directly the system of equations @xmath , where
+@xmath is either a standard Givens matrix @xmath or a hyperbolic Givens
+@xmath . In the former case @xmath and in the latter @xmath . For each
+fixed @xmath (respectively @xmath ) this is a system of @xmath equations
+in the variables @xmath , where @xmath and the number @xmath is
+determined by the structure of the corresponding spin group. For
+instance, for @xmath , @xmath is @xmath , while for @xmath , @xmath is
+@xmath . Furthermore, these equations have degree at most one in @xmath
+and @xmath (respectively @xmath and @xmath ), thereby ensuring that the
+dependence of these equations in @xmath and @xmath (respectively @xmath
+and @xmath ) is rational @xmath and @xmath (respectively @xmath and
+@xmath ). Next, this system of equations has precisely two solutions.
+This is guaranteed by Proposition 19 , since that result confirms that
+such Givens matrices reside in @xmath . To take advantage of this
+finiteness of the solution set, we view the associated ideal as an ideal
+in the polynomial ring @xmath , where @xmath is the field of rational
+functions, with complex coefficients, in the variables @xmath and @xmath
+(respectively @xmath and @xmath ). Then this ideal becomes zero
+dimensional and the standard wisdom suggests that we should find
+Groebner bases with respect to some lexicographic order in the variables
+@xmath (in the polynomial ring @xmath ). To this Groebner basis, we
+finally append formally the equations @xmath (repectively, @xmath ).
+This last output is then used to solve for the @xmath ’s parametrically
+in @xmath (respectively @xmath ). It is noted in passing that the
+equations @xmath are all quadratic (and most of them actually
+homogeneous quadratic) and there are techniques, besides Groebner bases
+(such as those related to Sylvester matrices), for analyzing such
+equations.
+
+###### Remark 27
+
+It is worth pointing out that Groebner bases play a twin role in the
+methods of this and the next section. The first has been already
+outlined above. The second, equally important, is to arrive at the
+matrix form of the covering maps @xmath . Indeed, the entries of the
+matrix representing @xmath were arrived at by computing the matrix of
+the linear map @xmath , where @xmath is an element of the spin group and
+@xmath is a one-vector, with respect to the basis of one-vectors @xmath
+chosen for this purpose. So to compute @xmath , we compute the traces of
+@xmath modulo the defining relations for the spin group. In all
+instances, these defining relations are some quadratic relations in the
+entries of the typical element of the matrix algebra that @xmath is. For
+instance, for @xmath , these relations are two equations representing
+the fact that the determinants of a pair of matrices, representing the
+typical element of @xmath both equal @xmath .
+
+Now let us turn to the inversion of @xmath .
+
+Let @xmath . First, following Example 20 and with the caveat in Remark
+21 , it is noted that @xmath can be represented as a product of ordinary
+and hyperbolic Givens rotations (non-uniquely) as follows
+
+  -- -------- -- ------
+     @xmath      (15)
+  -- -------- -- ------
+
+So it suffices to find the preimages of these Givens matrices in @xmath
+, the relevant spin group. As mentioned in Remark 21 , the systems of
+equations for the inversion of @xmath and @xmath are essentially the
+same. Furthermore by ii) of Remark 21 we have to only solve four such
+systems symbolically.
+
+To get to that goal, we begin first with an explicit description of the
+entries of the matrix @xmath .
+
+Following [ 8 ] , the following quartet of matrices is used for a basis
+of one-vectors for @xmath
+
+  -- -------- -- ------
+     @xmath      (16)
+  -- -------- -- ------
+
+Again, as described in [ 8 ] , we can view a pair of matrices
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+as embedded in @xmath as follows
+
+  -- -------- -- ------
+     @xmath      (17)
+  -- -------- -- ------
+
+The variables @xmath satisfy the quadratic relations
+
+  -- -------- -- ------
+     @xmath      (18)
+  -- -------- -- ------
+
+The entries of the matrix @xmath are then found by calcuating the matrix
+of the linear map @xmath , with @xmath as in Equation ( 17 ), with
+respect to the basis of one-vectors in Equation ( 16 ), modulo the
+relations in Equation ( 18 ) (cf., Remark 27 . Then a Groebner basis
+aided calculation shows that @xmath sends @xmath to
+@xmath , where the entries of @xmath are given by
+
+  -- -------- --
+     @xmath   
+     @xmath   
+  -- -------- --
+
+To invert @xmath we equate @xmath to each distinct @xmath or @xmath
+which appears in Equation ( 15 ). and solve the corresponding system of
+quadratic equations in the variables @xmath . The @xmath ’s depend on
+entries @xmath and @xmath , while the @xmath ’s depend on entries @xmath
+and @xmath , where @xmath , @xmath , @xmath and @xmath .
+
+The following result records @xmath , where @xmath is one of the Givens
+matrices in Equation ( 15 ). For brevity we list the matrices as living
+in @xmath . The corresponding pair in @xmath can easily be read off by
+inspection by invoking Equation ( 17 ).
+
+The results are then given by
+
+###### Theorem 28
+
+Let @xmath ; @xmath , @xmath , @xmath . Correspondingly, let @xmath ,
+@xmath . Then, the following list provides @xmath , viewed as matrices
+in @xmath as embedded by Equation ( 17 ), such that @xmath , where
+@xmath , with @xmath given by Equation ( 15 )
+
+  -------- -------- -------- --------
+  @xmath   @xmath   @xmath   @xmath
+  @xmath   @xmath   @xmath   @xmath
+  -------- -------- -------- --------
+
+For @xmath @xmath
+
+  -------- -------- -------- --------
+  @xmath   @xmath   @xmath   @xmath
+  @xmath   @xmath   @xmath   @xmath
+  -------- -------- -------- --------
+
+For @xmath @xmath .
+
+  -------- --------
+  @xmath   @xmath
+           @xmath
+  -------- --------
+
+  -------- --------
+  @xmath   @xmath
+           @xmath
+  -------- --------
+
+Proof: We just provide the details for the @xmath case. Following the
+procedure outlined in Remark 26 , we equate @xmath ’s entries to those
+of @xmath . After a Groebner basis calculation, the system of equations
+that have to be solved are given by equating each member of @xmath , as
+in the equation below, to zero.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Here @xmath is the set of equations provided by the procedure in Remark
+26 . The ordering of variables for the lexicographic order is @xmath .
+Therefore, we have @xmath , @xmath , @xmath @xmath @xmath . Solving this
+system, we get
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and analogously
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Therefore, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+@xmath
+
+## 5 Inversion of @xmath
+
+The contents of Remark 26 and Remark 27 continue to be of pertinence to
+this section as well.
+
+As before, by following the procedure in Example 20 , every matrix
+@xmath can be represented non-uniquely as a product of ordinary and
+hyperbolic Givens rotations as follows
+
+  -- -------- -- ------
+     @xmath      (19)
+  -- -------- -- ------
+
+As in the previous section, we begin by detailing the entries of @xmath
+, for any @xmath .
+
+In accordance with [ 8 ] , the basis of one-vectors for @xmath is given
+by
+
+  -- -------- -- ------
+     @xmath      (20)
+  -- -------- -- ------
+
+where
+
+@xmath
+
+Then, as shown in [ 8 ] , @xmath is the group
+
+  -- -------- -- ------
+     @xmath      (21)
+  -- -------- -- ------
+
+where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+viewed as living in @xmath via the embedding
+
+  -- -------- -- ------
+     @xmath      (22)
+  -- -------- -- ------
+
+where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Remark 29
+
+The group defined by Equation ( 21 ) is explicitly conjugate to the
+standard representation of the real symplectic group @xmath . This
+conjugation can be found without any eigencalculations. By this we mean
+that the @xmath skew-symmetric matrix @xmath of Equation ( 21 ) defining
+this version of @xmath can be rendered explicitly, conjugate to @xmath ,
+without any eigencalculations. We omit the details.
+
+Next, entries of @xmath (and thus, also those of @xmath ) satisfy
+quadratic relations emanating from Equation ( 21 ) which read as follows
+
+@xmath
+
+@xmath
+
+@xmath
+
+@xmath
+
+@xmath
+
+@xmath .
+
+As outlined in Remark 27 , we use a Groebner basis for the ideal spanned
+by the polynomials @xmath with respect to the lexicographic order, to
+calculate the matrix of the linear map @xmath , where @xmath is a
+one-vector and @xmath , with respect to the basis @xmath , from Equation
+( 20 ), Then this matrix equals @xmath . The @xmath are given by
+
+  -- -- -- ------
+           (23)
+           (24)
+  -- -- -- ------
+
+  -- -- -- ------
+           (25)
+           (26)
+           (27)
+  -- -- -- ------
+
+Thus, finding the preimage of @xmath , means solving for the 16 unknowns
+@xmath from the 25 equations @xmath , where @xmath are the entries of
+@xmath .
+
+We now let @xmath be one of the six distinct @xmath or @xmath where the
+@xmath and @xmath are as in Equation ( 19 ). The next result gives
+explicit formulae for @xmath , @xmath , …, @xmath in terms of @xmath ,
+@xmath , @xmath , @xmath .
+
+###### Theorem 30
+
+Let @xmath , @xmath , @xmath , @xmath . Correspondingly, let @xmath ,
+@xmath , @xmath , @xmath . Then, the preimages @xmath of the Givens
+factors in Equation ( 19 ) are
+@xmath @xmath @xmath @xmath @xmath @xmath @xmath @xmath
+
+For @xmath @xmath
+
+  -------- -------- -------- --------
+  @xmath   @xmath   @xmath   @xmath
+  @xmath   @xmath   @xmath   @xmath
+  -------- -------- -------- --------
+
+For @xmath , @xmath
+@xmath @xmath @xmath @xmath @xmath @xmath @xmath @xmath
+
+For @xmath , @xmath
+
+  -------- -------- -------- --------
+  @xmath   @xmath   @xmath   @xmath
+  @xmath   @xmath   @xmath   @xmath
+  -------- -------- -------- --------
+
+For @xmath , @xmath .
+@xmath @xmath @xmath
+
+  -------- --------
+  @xmath   @xmath
+           @xmath
+  -------- --------
+
+  -------- --------
+  @xmath   @xmath
+           @xmath
+  -------- --------
+
+Proof: We provide the details for @xmath . The procedure in Remark 26
+yields the following system of equations
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+                       @xmath   
+                       @xmath   
+  -- -------- -------- -------- --
+
+Therefore, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -- --
+        
+  -- -- --
+
+Solving this system, we get
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and if @xmath we get @xmath @xmath and @xmath . Analogously, if @xmath
+then @xmath @xmath and @xmath . Therefore, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+@xmath
+
+## 6 Inversion of @xmath via the Inversion of @xmath
+
+In this section the map @xmath is inverted by linearizing @xmath . We
+will see that this modus operandi works elegantly for both the case
+where the target matrix in @xmath is assumed to be given by its Givens
+factors and the case wherein we assume that the target matrix is given
+by its polar decomposition. In particular, we will see that the latter
+provides a constructive technique to find the polar decomposition of a
+matrix in @xmath . Since this a group of certain @xmath quaternionic
+matrices, we have thus a technique to compute the polar decomposition of
+such quaternionic matrices, without passage to the associated @xmath
+image in @xmath and, in particular, without any eigencalculations.
+
+As usual we begin with a basis of one-vectors for @xmath
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+As shown in [ 8 ] , with respect to this basis,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since these matrices are @xmath matrices it is convenient to identify
+them with the corresponding matrices in @xmath . Note, however, @xmath
+itself is not a @xmath matrix.
+
+Next, the Lie algebra of the spin group equals
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since @xmath is in the image of @xmath it is of the form @xmath with
+@xmath . The condition @xmath forces
+
+  -- -------- -- ------
+     @xmath      (28)
+  -- -------- -- ------
+
+and
+
+  -- -------- -- ------
+     @xmath      (29)
+  -- -------- -- ------
+
+So
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The linearization of @xmath associates to @xmath the matrix of the
+linear map which sends a one-vector @xmath to the one-vector @xmath ,
+with respect to the basis @xmath above. We then get
+
+  -- -------- -- ------
+     @xmath      (30)
+  -- -------- -- ------
+
+### 6.1 Inversion via Givens Factors
+
+Following Example 20 every matrix in @xmath can be decomposed
+non-uniquely as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We then have the following result.
+
+###### Proposition 31
+
+The table immediately below describes the @xmath satisfying @xmath ,
+where @xmath is one of the Givens matrices in the last equation.
+
+Proof: The proof proceeds by expressing each @xmath or @xmath as the
+exponential of an @xmath , finding the @xmath quaternionic matrix @xmath
+and then exponentiating @xmath explicitly. This last matrix is @xmath .
+For brevity only the details for @xmath are displayed.
+
+We begin by noting that @xmath . By inspecting, Equation ( 30 ), it is
+seen that its preimage in @xmath is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Now
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Hence
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  @xmath or @xmath   @xmath
+  ------------------ --------
+  @xmath             @xmath
+  @xmath             @xmath
+  @xmath             @xmath
+  @xmath             @xmath
+  @xmath             @xmath
+  @xmath             @xmath
+  @xmath             @xmath
+  @xmath             @xmath
+  @xmath             @xmath
+
+###### Remark 32
+
+Agnostic Inversion - Linearization and Givens in General: The fact that
+the preimages of the logarithms of the Givens factors in the spin Lie
+algebra always had a quadratic minimal polynomial holds for general
+@xmath case. This provides us with a method to invert both the abstract
+@xmath and the matrix @xmath without having to find a concrete form of
+@xmath . We dub the latter as agnostic inversion . Thus, the method of [
+16 ] as enhanced by iii) of Remark 2 is agnostic inversion. We will now
+justify our claim and thereby display a second method for agnostic
+inversion which uses Givens decompositions instead of calculating minors
+of @xmath .
+
+Specifically, the spin Lie algebra is also the space of bivectors. Let
+@xmath be the logarithm of a hyperbolic Givens @xmath . Its preimage in
+the space of bivectors is @xmath , where @xmath and @xmath . Indeed the
+abstract @xmath sends an element @xmath in the space of bivectors to the
+matrix of the linear map which sends a one-vector @xmath to @xmath .
+From the form of @xmath it then follows that if @xmath is the preimage
+of @xmath , then @xmath commutes with all one-vectors in the basis of
+one-vectors @xmath except @xmath and @xmath . This observation plus a
+few calculations show that @xmath . Quite clearly, @xmath is a positive
+multiple of the identity of @xmath . So @xmath is the preimage of @xmath
+in the spin Lie group. Similar comments apply to @xmath . This provides
+the inversion of the abstract covering map and also the agnostic
+inversion of @xmath via iii) of Remark 2 .
+
+For the inversion of the concrete @xmath via linearization we need, of
+course, an explicit matrix form of @xmath . However, since the embedding
+of the even sublagebra in the full @xmath is an algebra isomorphism onto
+its image, it is guaranteed that the @xmath also satisfies the same
+quadratic annihilating polynomial and hence its exponential is easily
+found.
+
+### 6.2 Inversion of @xmath via the polar decomposition
+
+Let @xmath . Then in view of Remark 15 , one can find constructively
+both its polar decomposition
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and the @xmath , such that it is symmetric and @xmath . Furthermore, by
+invoking Remark 16 plus a little work, we can also find a
+skew-symmetric, @xmath , real matrix whose exponential equals @xmath .
+
+We will presently see that it is possible to exponentiate in closed form
+the preimage, under @xmath , of a symmetric matrix or a skew-symmetric
+matrix in @xmath . Therefore, using the polar decomposition to invert
+@xmath is a viable option.
+
+To that end let @xmath be symmetric. Then its preimage in @xmath is the
+@xmath image of the following @xmath quaternionic matrix
+
+  -- -------- -- ------
+     @xmath      (31)
+  -- -------- -- ------
+
+A quick calculation @xmath where
+
+  -- -------- -- ------
+     @xmath      (32)
+  -- -------- -- ------
+
+wherein @xmath is the quaternion @xmath . Therefore
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Hence, the preimage of @xmath is @xmath . Note also that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Next, @xmath is both special orthogonal and in @xmath . Therefore, it is
+of the form @xmath , where @xmath is @xmath special orthogonal. Hence
+the matrix @xmath with
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is of the form
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with @xmath that is @xmath real antisymmetric.
+
+In view of Remark 16
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with @xmath . Thus @xmath , where @xmath . Clearly @xmath and @xmath
+also commute. Therefore
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and as @xmath is a Lie algebra isomorphism we find that the two summands
+on the right hand side of the last equation also commute. Thus
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Now, the preimage of @xmath under @xmath is @xmath , which in turn is
+@xmath the product of the @xmath .
+
+Let us write @xmath Then, evidently
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Now both @xmath for @xmath satisfy a cubic polynomial
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath are real (as will be shown presently). Hence
+
+  -- -------- -- ------
+     @xmath      (33)
+  -- -------- -- ------
+
+and hence finding @xmath (thus, @xmath ) is complete.
+
+We will next justify the claim that @xmath is indeed annihilated by a
+real cubic polynomial. First, inspecting Equation ( 8 ) and Equation (
+30 ), it is evident that we must also impose @xmath in Equation ( 28 )
+and Equation ( 29 ) to obtain @xmath . This then yields
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Next, a direct calculation yields
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+A quick calculation then shows @xmath and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+while
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Thus @xmath . Hence
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In other words
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Similarly, @xmath is expressible solely in terms of @xmath (but, of
+course, the triple @xmath for @xmath is different from that for @xmath
+). Once again @xmath , with @xmath .
+
+This completes the inversion of @xmath via the polar decomposition which
+we present as an algorithm below.
+
+###### Algorithm 33
+
+-   Let @xmath . Compute using Remark 16 both the polar decomposition
+    @xmath and the “logarithms” @xmath of @xmath and the logarithm
+    @xmath in @xmath , of @xmath , where @xmath are as in Equation ( 8 )
+    and Equation ( 9 ).
+
+-   Find @xmath and @xmath as given by Equation ( 31 ) and Equation ( 32
+    ). Then @xmath .
+
+-   Next find @xmath and @xmath for @xmath , from the entries of @xmath
+    . Then
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+###### Remark 34
+
+As mentioned at the beginning of this section, the above considerations
+can be used to compute the polar decomposition of a matrix @xmath in
+@xmath , without computing that of the associated @xmath complex matrix
+that is the @xmath image of it. Indeed, all that one has to do is to
+compute @xmath and apply the previous algorithm to @xmath .
+
+## 7 Conclusions
+
+Explicit algorithms for inverting the double covering maps @xmath , for
+@xmath , @xmath , @xmath , @xmath were provided. These methods extend
+for the general @xmath case, at the cost of more computation.
+
+A brief, and necessarily incomplete, comparison of the methods proposed
+here and also the formula in [ 16 ] follows. Both our methods and the
+method in [ 16 ] will require considerable computation if @xmath is
+large. Our methods require that a matrix form of @xmath be available
+first. This is, in any case, a necessity if the principal aim of
+inversion is to relate matrix theoretic properties of an element in the
+indefinite orthogonal group to those of its preimage(s) in the spin
+group.On the other hand, this aim is, in general, impossible to execute
+and achieve when viewing @xmath only as an abstract map. Next, as @xmath
+grows the matrix entries of @xmath will be quadratic entries in a large
+number of variables. On the other hand, the formula in [ 16 ] will
+require the computation of a prohibitive number of determinants. Next,
+among our methods, it is more direct to use Groebner bases for inversion
+- if the matrix form of @xmath has been already calculated. The systems
+of equations and the attendant the Groebner basis calculations become
+cumbersome if the polar decomposition is used, instead of the Givens
+decompositions. This why in Section 3 , we did not use Groebner basis
+techniques. On the other hand, the number of systems to be solved, when
+the Givens decomposition is employed, is larger than when the polar
+decomposition is deployed. Note, however, the number of such systems to
+be solved symbolically, in the Givens case, is typically lower than the
+@xmath Givens factors, since there is repetition of these different
+factors (albeit with different @xmath or @xmath ) - see ii) of Remark 21
+in Section 2.4 . Finally, the Lie algebraic methods proposed require
+first that @xmath be calcuated. This is no harder than finding the
+entries of @xmath , but it is nevertheless a requisite. The inversion of
+@xmath is, of course, orders of magnitude simpler than that of @xmath .
+However, to be able to use it effectively for the inversion of @xmath ,
+one needs to be able to compute exponentials of matrices in the spin Lie
+algebra easily. This factor is the basic tradeoff between Groebner basis
+methods and the Lie algebraic method proposed here. For @xmath , in most
+cases, there are explicit formulae for the exponential. The more this
+can be extended to larger @xmath , the Lie algebraic method becomes more
+competitive. On the other hand, for any @xmath the exponentiation is
+always elementary when Givens factors are used as Remark 32 shows.
+Finally, the combination of linearization and Givens factors provides an
+alternative for the inversion of the abstract covering map and also what
+is dubbed agnostic inversion of the concrete covering map, for any
+@xmath .
+
+## 8 Appendix I: Special Bases for Clifford Algebras
+
+In this appendix we show that every @xmath possesses a basis of
+one-vectors satisfying BP1 and BP 2 of Section 2.3 . We note that the
+work, [ 10 ] , also provides special bases of one-vectors for real
+Clifford algebras, but the properties of these special bases are neither
+BP1 nor BP2 .
+
+We begin by recalling three iterative constructions for Clifford
+algebras, [ 12 , 14 ] and show that these constructions inherit BP1 and
+BP2 .
+
+-    IC1 If @xmath is a basis of one-vectors for @xmath then
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    is a basis of one-vectors for @xmath . Here @xmath is the identity
+    element of @xmath and @xmath is the zero element of @xmath .
+
+    Let @xmath . Then note that @xmath is a @xmath block matrix with
+    zeroes on its diagonal block. Similarly, @xmath also has zero
+    diagonal blocks. Similarly, the trace (respectively real part of
+    trace) of @xmath is also zero. Finally, if @xmath has zero trace
+    (respectively zero real part of trace) then the same holds for
+    @xmath . So property BP2 is inherited by the iteration IC1 . That
+    property BP1 is also inherited by the iteration IC1 is evident.
+
+-    IC2 If @xmath is a basis of one-vectors for @xmath then the
+    following set is a basis of one-vectors for @xmath
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    where
+
+    -   @xmath is the identity on @xmath .
+
+    -   @xmath is the basis of one-vectors for @xmath used in Theorem 35
+        below.
+
+    -   @xmath .
+
+    Note that @xmath is a real symmetric matrix. The @xmath ’s are also
+    real and either symmetric or antisymmetric. Therefore, by item ii)
+    of Remark 12 the reality of @xmath and the @xmath ensures that BP2
+    is inherited by IC2 . Since @xmath is real symmetric and @xmath , we
+    also see that BP1 is also inherited by IC2 .
+
+-    IC3 If @xmath is a basis of one-vectors for @xmath then the
+    following is a basis of one-vectors for @xmath
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    where
+
+    -   @xmath is the identity on @xmath .
+
+    -   @xmath is the basis of one-vectors for @xmath used in Theorem 35
+        below.
+
+    -   @xmath .
+
+    As in the previous case @xmath is real symmetric, while each @xmath
+    is real and either symmetric or antisymmetric. Therefore, both BP1
+    and BP2 are inherited by IC3 .
+
+We are now in a position to prove the main result of this appendix.
+
+###### Theorem 35
+
+Every real Clifford algebra has a basis of one-vectors with the
+properties BP1 and BP2 .
+
+Proof: As observed above both BP1 and BP2 are inherited by each of IC1 ,
+IC2 and IC3 . Since every @xmath can be obtained by repeatedly applying
+IC1 to either some @xmath or @xmath , and every @xmath (respectively
+@xmath ) is obtained by applying IC2 (respectively IC3 ) to @xmath
+(respectively @xmath ) it suffices to verify the theorem for @xmath and
+@xmath for @xmath .
+
+Let us begin with @xmath . The following is the list of bases of
+one-vectors that will be used for this purpose
+
+-   @xmath .
+
+-   @xmath .
+
+-   @xmath .
+
+-   @xmath .
+
+-   @xmath .
+
+-   @xmath .
+
+-   @xmath @xmath , @xmath , @xmath , @xmath , @xmath , @xmath .
+
+-   @xmath , @xmath , @xmath , @xmath , @xmath , @xmath , @xmath .
+
+-   @xmath , @xmath , @xmath ,
+    @xmath , @xmath , @xmath , @xmath , @xmath @xmath .
+
+By construction BP1 and BP2 hold for these eight bases. Next we verify
+the assertion for @xmath . We work the following sets of one-vectors for
+@xmath
+
+-   @xmath .
+
+-   @xmath .
+
+-   @xmath .
+
+-   @xmath .
+
+-   @xmath .
+
+-   @xmath .
+
+-   @xmath , where the @xmath ’s are defined as in the previous item.
+
+-   @xmath .
+
+Again, by construction BP1 and BP2 hold for these bases also. This
+concludes the proof.

@@ -1,0 +1,3345 @@
+# Acknowledgements
+
+I would like to thank my supervisor, Jon Keating, for providing me with
+valuable opportunities during my time in Bristol. I’m also very grateful
+to Hung Bui and Ghaith Hiary for many helpful discussions, to Brian
+Conrey and Chris Hughes for taking the time to conduct my viva and
+provide various useful comments, and to Aman Arora and Adam Moas for
+sharing their programming expertise with me. Finally, I wish to express
+my gratitude to my family for their continued support.
+
+## Author’s declaration
+
+I declare that the work in this dissertation was carried out in
+accordance with the requirements of the University’s Regulations and
+Code of Practice for Research Degree Programmes and that it has not been
+submitted for any other academic award. Except where indicated by
+specific reference in the text, the work is the candidate’s own work.
+Work done in collaboration with, or with the assistance of, others, is
+indicated as such. Any views expressed in the dissertation are those of
+the author.
+
+Dale Smith, December 10, 2021.
+
+###### List of Tables
+
+-    B.1 Variance data for the Riemann zeta function case for @xmath
+-    B.2 Variance data for the Riemann zeta function case for @xmath
+-    B.3 Variance data for the Ramanujan tau function case for @xmath
+-    B.4 Variance data for the Ramanujan tau function case for @xmath
+-    B.5 Variance data for the Ramanujan tau function case for @xmath
+-    B.6 Variance data for the elliptic curve case E27.a1 for @xmath
+-    B.7 Variance data for the elliptic curve case E27.a1 for @xmath
+-    B.8 Variance data for the elliptic curve case E27.a1 for @xmath
+-    B.9 Variance data for the elliptic curve case E37.a1 for @xmath
+-    B.10 Variance data for the elliptic curve case E37.a1 for @xmath
+-    B.11 Variance data for the elliptic curve case E37.a1 for @xmath
+-    B.12 Variance data for the elliptic curve case E37.b2 for @xmath
+-    B.13 Variance data for the elliptic curve case E37.b2 for @xmath
+-    B.14 Variance data for the elliptic curve case E37.b2 for @xmath
+-    C.1 Arithmetic correlations for the Riemann zeta function case
+-    C.2 Arithmetic correlations for the Riemann zeta function case
+-    C.3 Arithmetic correlations for the Riemann zeta function case
+-    C.4 Arithmetic correlations for the Riemann zeta function case
+-    C.5 Arithmetic correlations for the Ramanujan tau function case
+-    C.6 Arithmetic correlations for the Ramanujan tau function case
+-    C.7 Arithmetic correlations for the Ramanujan tau function case
+-    C.8 Arithmetic correlations for the Ramanujan tau function case
+-    C.9 Arithmetic correlations for the elliptic curve case E11.a3
+-    C.10 Arithmetic correlations for the elliptic curve case E11.a3
+-    C.11 Arithmetic correlations for the elliptic curve case E11.a3
+-    C.12 Arithmetic correlations for the elliptic curve case E11.a3
+-    C.13 Arithmetic correlations for the elliptic curve case E11.a3
+
+###### List of Figures
+
+-    3.1 Variance for the Riemann zeta function case for @xmath
+-    3.2 Variance for the Ramanujan tau function case for @xmath
+-    3.3 Variances for the elliptic curve cases E27.a1, E37.a1 and
+    E37.b2 for @xmath
+-    4.1 Arithmetic correlations for the Riemann zeta function case
+-    4.2 Arithmetic correlations for the Ramanujan tau function case
+-    4.3 Arithmetic correlations for the elliptic curve case E11.a3
+
+###### Contents
+
+-    1 Introduction
+    -    1.1 Quantum chaology
+        -    1.1.1 Spectral behaviour
+        -    1.1.2 Correlations in the actions of periodic orbits
+    -    1.2 The Selberg class
+        -    1.2.1 Examples of @xmath -functions
+    -    1.3 Outline of results in this thesis
+        -    1.3.1 Heuristic @xmath
+        -    1.3.2 Heuristic @xmath
+        -    1.3.3 Heuristic @xmath
+        -    1.3.4 Theorem @xmath
+        -    1.3.5 Theorem @xmath
+        -    1.3.6 Theorem @xmath
+        -    1.3.7 Theorem @xmath
+        -    1.3.8 Remarks
+-    2 Zero statistics and arithmetic correlations associated to @xmath
+    -functions
+    -    2.1 The @xmath -point correlation statistic for the Selberg
+        class
+    -    2.2 Inverting the limiting form of the @xmath -point
+        correlation statistic for the Selberg class
+    -    2.3 Inverting the @xmath -point correlation statistic for the
+        Riemann zeta function
+-    3 Generalised primes in short intervals
+    -    3.1 A reduced form of the @xmath -point correlation statistic
+        for the Selberg class
+    -    3.2 @xmath
+        -    3.2.1 Lemma A
+        -    3.2.2 Lemma B
+        -    3.2.3 Lemma C
+    -    3.3 @xmath
+        -    3.3.1 Lemma D
+    -    3.4 Numerics
+-    4 Outlook
+    -    4.1 Random matrix theory and higher order correlations
+    -    4.2 Hardy-Littlewood type conjectures
+-    A Code for numerics
+    -    A.1 Python code for Sage
+        -    A.1.1 Generating Ramanujan tau values
+        -    A.1.2 Writing Ramanujan tau values to a file
+        -    A.1.3 Generating coefficients associated to an elliptic
+            curve
+        -    A.1.4 Writing coefficients associated to an elliptic curve
+            to a file
+    -    A.2 Java code
+        -    A.2.1 Class for the Riemann zeta function and Ramanujan tau
+            function
+        -    A.2.2 Writing variance data and correlation data to a file
+-    B Variance data
+-    C Correlation data
+-    D Exponential weight
+
+## Notation
+
+A list of commonly used notation is given here, where used otherwise
+this is indicated in the text.
+
+### Symbols
+
+  -- -------- -- --
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      
+  -- -------- -- --
+
+### Operations
+
+  -- -------- -------- --
+     @xmath            
+     @xmath   @xmath   
+     @xmath            
+     @xmath            
+     @xmath            
+     @xmath            
+  -- -------- -------- --
+
+### Conventions
+
+-   The integral, @xmath is to be taken over the whole domain of the
+    variables of integration unless specified otherwise by a subscript.
+    For integration over a domain, @xmath this is denoted by @xmath
+
+-   A function, @xmath with the Fourier transform, @xmath is given by
+    the convention @xmath so that @xmath
+
+### Functions and distributions
+
+  -- -------- -------- --
+     @xmath            
+     @xmath   @xmath   
+     @xmath            
+     @xmath            
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath            
+     @xmath            
+     @xmath            
+  -- -------- -------- --
+
+### Relations
+
+In some domain, @xmath is said to be Big O of @xmath or less than less
+than @xmath if
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is a constant. If @xmath depends on @xmath then this is
+written
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+respectively, with the subscript dropped otherwise.
+
+## Chapter 1 Introduction
+
+This thesis begins by introducing concepts in @xmath apparently
+disparate fields of study, namely quantum chaology and analytic number
+theory. However, as will emerge, there are similarities that provide
+intrigue for further investigation.
+
+### 1.1 Quantum chaology
+
+Quantum chaology is the study of quantum systems with classically
+chaotic counterparts. A remarkable feature of such systems is that the
+behaviour of their energy spectra may be deduced from the underlying
+classical dynamics, in particular via the periodic orbits in the system.
+
+#### 1.1.1 Spectral behaviour
+
+Gutzwiller’s trace formula provides the leading order @xmath asymptotic
+for the spectral energy density,
+
+  -- -------- -- ---------
+     @xmath      (1.1.1)
+  -- -------- -- ---------
+
+where @xmath corresponds to a system with classically chaotic dynamics
+with energy spectrum @xmath
+
+  -- -------- -- ---------
+     @xmath      (1.1.2)
+  -- -------- -- ---------
+
+with mean density,
+
+  -- -------- -- ---------
+     @xmath      (1.1.3)
+  -- -------- -- ---------
+
+where @xmath is the number of degrees of freedom of @xmath and @xmath is
+the volume of the energy shell. The oscillating part of the spectral
+density, @xmath is given by
+
+  -- -------- -- ---------
+     @xmath      (1.1.4)
+  -- -------- -- ---------
+
+where @xmath are respectively the stability amplitude, the period, the
+action and the Maslov index associated to primitive orbits, @xmath and
+their repetitions, @xmath in @xmath In particular the stability
+amplitude for the @xmath th repetition of @xmath is given by
+
+  -- -------- -- ---------
+     @xmath      (1.1.5)
+  -- -------- -- ---------
+
+where @xmath is the monodromy matrix associated to @xmath and @xmath is
+the identity matrix, with its dimension equal to @xmath
+
+The @xmath -point correlation statistic,
+
+  -- -------- -- ---------
+     @xmath      (1.1.6)
+  -- -------- -- ---------
+
+provides information on the distribution of energies averaged over an
+interval around @xmath specifically on pairs of energies with the
+separation @xmath Substituting ( 1.1.3 ) and ( 1.1.4 ) into ( 1.1.6 )
+gives a sum over the primitive orbits @xmath and their repetitions
+@xmath resulting in
+
+  -- -------- -- ---------
+     @xmath      (1.1.7)
+  -- -------- -- ---------
+
+with @xmath corresponding to the diagonal terms, with @xmath and @xmath
+to the off-diagonal terms, with @xmath
+
+Bogomolny and Keating calculated this statistic in [ BK96a ] . As
+described in [ Kea99 ] , there is an exact formula for the diagonal
+contribution,
+
+  -- -------- -- ---------
+     @xmath      (1.1.8)
+  -- -------- -- ---------
+
+where
+
+  -- -------- -- ---------
+     @xmath      (1.1.9)
+  -- -------- -- ---------
+
+with
+
+  -- -------- -- ----------
+     @xmath      (1.1.10)
+  -- -------- -- ----------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (1.1.11)
+  -- -------- -- ----------
+
+where @xmath is the multiplicity of the @xmath th primitive orbit and
+@xmath the largest eigenvalue of @xmath
+
+Furthermore, there is a non-zero off-diagonal contribution, indicating
+the presence of correlations between the actions of distinct orbits. For
+the case of ergodic systems without time-reversal symmetry, @xmath has a
+pole at @xmath with residue @xmath and
+
+  -- -------- -- ----------
+     @xmath      
+     @xmath      (1.1.12)
+  -- -------- -- ----------
+
+where
+
+  -- -------- -- ----------
+     @xmath      
+     @xmath      (1.1.13)
+  -- -------- -- ----------
+
+with @xmath @xmath @xmath and
+
+  -- -------- -- ----------
+     @xmath      (1.1.14)
+  -- -------- -- ----------
+
+is the @xmath -hypergeometric series, with the @xmath -Pochhammer symbol
+given by
+
+  -- -- -- ----------
+           (1.1.15)
+  -- -- -- ----------
+
+Correlations between off-diagonal terms are however unknown in general,
+as such ( 1.1.12 ) was obtained indirectly, from the diagonal terms.
+
+For a generic non-time-reversal symmetric system @xmath is replaced by
+@xmath rescaling the @xmath -point correlation then gives the system
+independent expression
+
+  -- -------- -- ----------
+     @xmath      (1.1.16)
+  -- -------- -- ----------
+
+Rescaling the off-diagonal contribution in the same way, the analytic
+structure of @xmath around the pole gives
+
+  -- -------- -- ----------
+     @xmath      (1.1.17)
+  -- -------- -- ----------
+
+together with the diagonal contribution giving a universal form for the
+rescaled @xmath -point correlation;
+
+  -- -------- -- ----------
+     @xmath      (1.1.18)
+  -- -------- -- ----------
+
+This emergent universality coincides with a celebrated conjecture of
+Bohigas, Giannoni and Schmit. In [ BGS84 ] it was conjectured that the
+form of the universal spectral statistics are purely a consequence of
+the symmetries present in the system under consideration, for further
+information on the BGS conjecture several chapters of [ ABDF11 ] are
+recommended.
+
+#### 1.1.2 Correlations in the actions of periodic orbits
+
+Assuming the BGS conjecture, in [ ADDea93 ] correlations between the
+actions of distinct orbits were quantified and compared with numerics
+for specific systems. Specialising to systems with @xmath degrees of
+freedom and even Maslov indicies, the weighted correlation statistic,
+
+  -- -------- -- ----------
+     @xmath      
+     @xmath      (1.1.19)
+  -- -------- -- ----------
+
+was studied, where
+
+  -- -------- -- ----------
+     @xmath      (1.1.20)
+  -- -------- -- ----------
+
+for the time interval @xmath with the pairs @xmath denoting the @xmath
+th repetition of the @xmath th periodic orbit and the @xmath th
+repetition of the @xmath th periodic orbit respectively. Rescaling (
+1.1.19 ) to
+
+  -- -------- -- ----------
+     @xmath      (1.1.21)
+  -- -------- -- ----------
+
+for their numerics, this was determined by inverting a general
+expression for the spectral statistics. Using the off-diagonal spectral
+correlations given by the universal form ( 1.1.17 ) for
+non-time-reversal symmetric systems, ( 1.1.21 ) was shown to be well
+approximated by
+
+  -- -------- -- ----------
+     @xmath      (1.1.22)
+  -- -------- -- ----------
+
+Making the diagonal approximation, that is neglecting any correlations
+between periodic orbits, in [ Ber85 ] Berry found the universal
+behaviour given by ( 1.1.16 ). The correlations indicated by ( 1.1.22 )
+were subsequently found to be related to crossings of periodic orbits,
+the underlying mechanism for the leading order off-diagonal
+contributions, ( 1.1.17 ), now known as the Sieber-Richter pair due to
+the work in [ SR01 ] .
+
+More precise action correlation information may be recovered from the
+added structure available in ( 1.1.12 ). Analogous correlations will be
+deduced in the next chapter in the simpler case of a class of model
+systems coming from analytic number theory, where the analogues of (
+1.1.22 ) and its more precise counterpart are of an arithmetic nature.
+
+### 1.2 The Selberg class
+
+Selberg’s eponymous class was introduced in [ Sel92 ] as an attempt to
+provide an axiomatic foundation for @xmath -functions arising in
+analytic number theory. A function, @xmath in the Selberg class, is
+given by
+
+  -- -------- -- ---------
+     @xmath      (1.2.1)
+  -- -------- -- ---------
+
+for @xmath where for every @xmath the complex multiplicative function
+
+  -- -------- -- ---------
+     @xmath      (1.2.2)
+  -- -------- -- ---------
+
+with @xmath The complex function
+
+  -- -------- -- ---------
+     @xmath      (1.2.3)
+  -- -------- -- ---------
+
+for some @xmath with @xmath unless @xmath is a power of a prime number.
+A function in the Selberg class is therefore specified by the values of
+its coefficients at prime powers,
+
+  -- -------- -- ---------
+     @xmath      (1.2.4)
+  -- -------- -- ---------
+
+The coefficients may be related at prime powers by equating the
+derivatives,
+
+  -- -------- -- ---------
+     @xmath      (1.2.5)
+  -- -------- -- ---------
+
+so that
+
+  -- -------- -- ---------
+     @xmath      (1.2.6)
+  -- -------- -- ---------
+
+and
+
+  -- -------- -- ---------
+     @xmath      (1.2.7)
+  -- -------- -- ---------
+
+Functions in the Selberg class are also endowed with a meromorphic
+continuation to the rest of the complex plane, with a pole of order
+@xmath and a functional equation,
+
+  -- -------- -- ---------
+     @xmath      (1.2.8)
+  -- -------- -- ---------
+
+where
+
+  -- -------- -- ---------
+     @xmath      (1.2.9)
+  -- -------- -- ---------
+
+for some @xmath Given a function, @xmath the overline notation is used
+for the operation
+
+  -- -------- -- ----------
+     @xmath      (1.2.10)
+  -- -------- -- ----------
+
+The form of the functional equation is not uniquely determined by @xmath
+for example applying Legendre’s duplication formula,
+
+  -- -------- -- ----------
+     @xmath      (1.2.11)
+  -- -------- -- ----------
+
+to the gamma functions appearing in @xmath doubles the value of @xmath
+However the degree of @xmath
+
+  -- -------- -- ----------
+     @xmath      (1.2.12)
+  -- -------- -- ----------
+
+is invariant under changes to the form of the functional equation.
+Another invariant is the conductor of @xmath
+
+  -- -------- -- ----------
+     @xmath      (1.2.13)
+  -- -------- -- ----------
+
+By the exponential form of @xmath there are no zeros in the region
+@xmath Furthermore, by the functional equation @xmath is also non-zero
+for @xmath except for the points @xmath otherwise, corresponding to the
+poles of the gamma function.
+
+The leading order @xmath asymptotics for the analogue of ( 1.1.1 ),
+
+  -- -------- -- ----------
+     @xmath      (1.2.14)
+  -- -------- -- ----------
+
+where the @xmath th non-trivial zero of @xmath is denoted by @xmath have
+a similar form to ( 1.1.3 ) and ( 1.1.4 ). For @xmath the mean density
+is given by
+
+  -- -------- -- ----------
+     @xmath      (1.2.15)
+  -- -------- -- ----------
+
+and the oscillating contribution is given formally by,
+
+  -- -------- -- ----------
+     @xmath      (1.2.16)
+  -- -------- -- ----------
+
+As in the case of quantum chaology, it is not feasible to directly
+calculate the 2-point correlation, since in general the inherent
+correlations are unknown, in particular for the function
+
+  -- -------- -- ----------
+     @xmath      (1.2.17)
+  -- -------- -- ----------
+
+the negative values of which serve as coefficients for the logarithmic
+derivative of @xmath ,
+
+  -- -------- -- ----------
+     @xmath      (1.2.18)
+  -- -------- -- ----------
+
+In [ KP03 ] it was shown that as @xmath for any function in the Selberg
+class
+
+  -- -------- -- ----------
+     @xmath      (1.2.19)
+  -- -------- -- ----------
+
+assuming a conjecture made by Selberg in [ Sel92 ] , namely Selberg’s
+orthogonality conjecture, which says that
+
+  -- -------- -- ----------
+     @xmath      (1.2.20)
+  -- -------- -- ----------
+
+where @xmath are primitive functions in the Selberg class, that is, they
+cannot be expressed as a product of other functions in the Selberg class
+in a non-trivial way. Assuming instead, as conjectured by Selberg in [
+Sel92 ] , that all non-trivial zeros of any function in the class have a
+real part of @xmath there is the explicit formula
+
+  -- -- -------- -- ----------
+        @xmath      (1.2.21)
+        @xmath      
+  -- -- -------- -- ----------
+
+where @xmath is the distance from @xmath to the closest integer, which
+follows as in chapter 17 of [ Dav00 ] .
+
+Under the same assumption on the horizontal positions in the complex
+plane of the non-trivial zeros, as well as Selberg’s orthogonality
+conjecture, in [ MP99 ] Murty and Perelli studied
+
+  -- -------- -- ----------
+     @xmath      (1.2.22)
+  -- -------- -- ----------
+
+where
+
+  -- -------- -- ----------
+     @xmath      (1.2.23)
+  -- -------- -- ----------
+
+Fixing the primitive function @xmath and allowing the other primitive
+function, @xmath to vary, they made the conjecture that
+
+  -- -------- -- ----------
+     @xmath      (1.2.24)
+  -- -------- -- ----------
+
+uniformly for @xmath and
+
+  -- -------- -- ----------
+     @xmath      (1.2.25)
+  -- -------- -- ----------
+
+uniformly for @xmath
+
+Murty and Perelli showed that unique factorisation into primitive
+functions follows from their conjecture for @xmath a result shown in [
+CG93 ] to be a consequence of Selberg’s orthogonality conjecture. Their
+conjecture also has implications for the fluctuations about the average
+behaviour given in ( 1.2.19 ) over short intervals. In chapter @xmath
+the variances
+
+  -- -------- -- ----------
+     @xmath      (1.2.26)
+  -- -------- -- ----------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (1.2.27)
+  -- -------- -- ----------
+
+are studied over short multiplicative and fixed intervals respectively,
+where
+
+  -- -------- -- ----------
+     @xmath      (1.2.28)
+  -- -------- -- ----------
+
+employing a more precise form of the conjecture made by Murty and
+Perelli with @xmath In doing so, functions are combined via the tensor
+product
+
+  -- -------- -- ----------
+     @xmath      (1.2.29)
+  -- -------- -- ----------
+
+Its logarithmic derivative is given by
+
+  -- -------- -- ----------
+     @xmath      (1.2.30)
+  -- -------- -- ----------
+
+so for @xmath
+
+  -- -------- -- ----------
+     @xmath      (1.2.31)
+  -- -------- -- ----------
+
+Applying partial summation and making use of Selberg’s orthogonality
+conjecture gives
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+              @xmath      (1.2.32)
+  -- -------- -------- -- ----------
+
+so that
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+     @xmath   @xmath      (1.2.33)
+  -- -------- -------- -- ----------
+
+showing that
+
+  -- -------- -- ----------
+     @xmath      (1.2.34)
+  -- -------- -- ----------
+
+and the presence of a simple pole at @xmath for @xmath when @xmath
+
+#### 1.2.1 Examples of @xmath-functions
+
+An alternative to the Selberg class formulation of @xmath -functions is
+to consider them as arising from automorphic representations of the
+general linear group over a number field, with primitive @xmath
+-functions of degree @xmath attached to cuspidal automorphic
+representations of @xmath Historically, the first @xmath -function
+studied was the Riemann zeta function.
+
+##### The Riemann zeta function
+
+Originally studied by Euler as a function of a real variable, Riemann
+first treated ^(*) ^(*) * Riemann’s influencial paper can be found in
+the appendix of [ Edw01 ]
+
+  -- -------- -- ----------
+     @xmath      (1.2.35)
+  -- -------- -- ----------
+
+as a function of a complex variable, for @xmath and then continued to
+the rest of the complex plane, except for @xmath where there is a pole
+of order @xmath The zeros occur in complex conjugate pairs since @xmath
+also by the Euler product representation for @xmath
+
+  -- -------- -- ----------
+     @xmath      (1.2.36)
+  -- -------- -- ----------
+
+there are no zeros in this region of the complex plane. Riemann showed
+that there is a functional equation,
+
+  -- -------- -- ----------
+     @xmath      (1.2.37)
+  -- -------- -- ----------
+
+so that the only zeros with @xmath occur at @xmath The functional
+equation also shows that each zero generates another by reflection about
+the critical line, @xmath where Riemann’s famous hypothesis asserts all
+the non-trivial zeros lie. Upon stating what is now known as the Riemann
+hypothesis, Riemann sketched a proof of the prime number theorem,
+
+  -- -------- -- ----------
+     @xmath      (1.2.38)
+  -- -------- -- ----------
+
+where
+
+  -- -- -- ----------
+           (1.2.39)
+  -- -- -- ----------
+
+is the von Mangoldt function. The prime number theorem was subsequently
+proved independently by De la Valée Poussin and Hadamard by showing that
+there are no zeros with real part equal to @xmath for further details
+one of the many texts covering the theory of the Riemann zeta function
+may be consulted, for example [ Apo76 ] , [ Tit86 ] , [ Edw01 ] or [
+Pat88 ] .
+
+The statistic @xmath was first studied in [ Mon73 ] . Montgomery
+considered
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+     @xmath   @xmath      (1.2.40)
+  -- -------- -------- -- ----------
+
+where assuming the Riemann hypothesis the @xmath th zero is denoted
+@xmath Montgomery proved that
+
+  -- -------- -- ----------
+     @xmath      (1.2.41)
+  -- -------- -- ----------
+
+uniformly for @xmath and conjectured that
+
+  -- -------- -- ----------
+     @xmath      (1.2.42)
+  -- -------- -- ----------
+
+uniformly for @xmath His conjecture was motivated by the work of Hardy
+and Littlewood on the distribution of pairs of primes, who in [ HL23 ]
+conjectured that
+
+  -- -- -- ----------
+           (1.2.43)
+  -- -- -- ----------
+
+where @xmath Extensive numerical investigations support Montgomery’s
+conjecture, an informative survey of results is given in [ Odl01 ] .
+
+In [ GM87 ] an equivalence was established, relating fluctuations about
+the leading term given by the prime number theorem over short intervals
+to Montgomery’s conjecture. Assuming the Riemann hypothesis it was shown
+that
+
+  -- -------- -- ----------
+     @xmath      (1.2.44)
+  -- -------- -- ----------
+
+uniformly for @xmath
+
+  -- -------- -- ----------
+     @xmath      (1.2.45)
+  -- -------- -- ----------
+
+uniformly for @xmath and
+
+  -- -------- -- ----------
+     @xmath      (1.2.46)
+  -- -------- -- ----------
+
+uniformly for @xmath are all equivalent to one another. Making an
+assumption on the form of the error term in the Hardy-Littlewood
+conjecture for finite @xmath in [ MS04 ] ( 1.2.46 ) was shown to follow
+with the lower order terms @xmath uniformly for @xmath and some @xmath
+where @xmath is Euler’s constant, with no assumptions made on the
+distribution of the zeros of the Riemann zeta function. In fact,
+assuming a @xmath -tuple form of the Hardy-Littlewood conjecture with
+the same assumption on the error term it was shown that
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      
+              @xmath      (1.2.47)
+  -- -------- -------- -- ----------
+
+uniformly for @xmath where
+
+  -- -- -- ----------
+           (1.2.48)
+  -- -- -- ----------
+
+for @xmath are the centralised moments of a standard normal
+distribution.
+
+Assuming the lower order terms given in [ MS04 ] to ( 1.2.46 ), in [
+Cha03 ] the arguments in [ GM87 ] were refined, leading to a more
+precise expression for the conjectural behaviour of @xmath
+
+  -- -------- -- ----------
+     @xmath      (1.2.49)
+  -- -------- -- ----------
+
+uniformly for @xmath A more precise form of Montgomery’s conjecture was
+first given in [ BK96a ] , expressed via the 2-point correlation for the
+zeros of the Riemann zeta function,
+
+  -- -------- -- ----------
+     @xmath      (1.2.50)
+  -- -------- -- ----------
+
+where the mean and oscillating contribution to the density of Riemann
+zeros are given by
+
+  -- -------- -- ----------
+     @xmath      (1.2.51)
+  -- -------- -- ----------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (1.2.52)
+  -- -------- -- ----------
+
+respectively. As exposited in [ Kea99 ] , the diagonal contribution is
+controlled by the behaviour of the Riemann zeta function on the line
+@xmath -line, @xmath Substituting ( 1.2.51 ) and ( 1.2.52 ) into (
+1.2.50 ) gives the analogue of ( 1.1.7 ) for the Riemann zeta function,
+
+  -- -------- -- ----------
+     @xmath      (1.2.53)
+  -- -------- -- ----------
+
+where
+
+  -- -------- -- ----------
+     @xmath      (1.2.54)
+  -- -------- -- ----------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (1.2.55)
+  -- -------- -- ----------
+
+The diagonal contribution may be expressed as
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+              @xmath      (1.2.56)
+  -- -------- -------- -- ----------
+
+Evaluating the logarithm of the conditionally convergent Euler product
+on the @xmath -line gives
+
+  -- -------- -- ----------
+     @xmath      (1.2.57)
+  -- -------- -- ----------
+
+resulting in
+
+  -- -------- -- ----------
+     @xmath      (1.2.58)
+  -- -------- -- ----------
+
+The off-diagonal contribution may be determined by making use of the
+Hardy-Littlewood conjecture, and was shown by Bogomolny and Keating to
+be given by
+
+  -- -------- -- ----------
+     @xmath      (1.2.59)
+  -- -------- -- ----------
+
+An alternative route to the 2-point correlation was given in [ CS07 ] .
+Assuming the Riemann hypothesis Conrey and Snaith made the conjecture
+that
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      
+              @xmath      (1.2.60)
+  -- -------- -------- -- ----------
+
+treating the integral as principal value near @xmath for some @xmath and
+holomorphic function in the strip @xmath where @xmath and @xmath The
+diagonal and off-diagonal contributions to the 2-point correlation are
+then given by
+
+  -- -------- -- ----------
+     @xmath      (1.2.61)
+  -- -------- -- ----------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (1.2.62)
+  -- -------- -- ----------
+
+This was found by first forming an expression for
+
+  -- -- -- ----------
+           (1.2.63)
+  -- -- -- ----------
+
+and then differentiating with respect to @xmath of the complex shifts
+along the critical line so as to utilise the residue theorem. Integrals
+over ratios of zeta functions with shifts, ( 1.2.63 ), were first
+considered by Farmer in [ Far93 ] and subsequently evaluated by Conrey,
+Farmer and Zirnbauer in [ CFZ08 ] by replacing the functions on the
+numerator by
+
+  -- -------- -- ----------
+     @xmath      (1.2.64)
+  -- -------- -- ----------
+
+and those on the denominator by
+
+  -- -------- -- ----------
+     @xmath      (1.2.65)
+  -- -------- -- ----------
+
+where @xmath is the argument of the function and @xmath is the M @xmath
+bius function, a multiplicative function given by
+
+  -- -- -- ----------
+           (1.2.66)
+  -- -- -- ----------
+
+Dropping the highly oscillatory terms when taking the integral, namely
+terms containing just @xmath factor of @xmath and the off-diagonal
+terms, the integral over the ratios of Riemann zeta functions was then
+shown to yield
+
+  -- -------- -- ----------
+     @xmath      
+     @xmath      (1.2.67)
+  -- -------- -- ----------
+
+after applying this recipe, where
+
+  -- -------- -- ----------
+     @xmath      (1.2.68)
+  -- -------- -- ----------
+
+this procedure is followed in the next chapter for the Selberg class.
+
+In analogy with ( 1.1.16 ) and ( 1.1.17 ), rescaling gives
+
+  -- -------- -- ----------
+     @xmath      (1.2.69)
+  -- -------- -- ----------
+
+and similarly
+
+  -- -------- -- ----------
+     @xmath      (1.2.70)
+  -- -------- -- ----------
+
+together giving the rescaled @xmath -point correlation as
+
+  -- -------- -- ----------
+     @xmath      (1.2.71)
+  -- -------- -- ----------
+
+In [ Kea93 ] this universal expression was shown by Keating to follow
+from knowledge of the asymptotic behaviour of the function in the
+Hardy-Littlewood conjecture, ( 1.2.43 ), also deduced in [ Kea93 ] .
+Asymptotically as @xmath the typical behaviour is given by @xmath which
+is to be interpreted as
+
+  -- -------- -- ----------
+     @xmath      (1.2.72)
+  -- -------- -- ----------
+
+Considering analogues of the action correlation statistics, ( 1.1.19 )
+and ( 1.1.21 ) for the Riemann zeta function the @xmath term in the
+averaged Hardy-Littlewood conjecture was recovered in [ ADDea93 ] by
+assuming Montgomery’s conjecture, ( 1.2.71 ), specifically by inverting
+the off-diagonal contribution given by ( 1.2.70 ). In the next chapter (
+1.2.71 ) is found to be the rescaled @xmath -point correlation for the
+Selberg class. This universal behaviour of the @xmath -point correlation
+is then used to generalise the inversion calculation performed in [
+ADDea93 ] .
+
+##### Dirichlet @xmath-functions
+
+Named in honour of Dirichlet, the series defining these @xmath
+-functions generalises that of the Riemann zeta function,
+
+  -- -------- -- ----------
+     @xmath      (1.2.73)
+  -- -------- -- ----------
+
+where the coefficients in the numerator are multiplicative characters,
+
+  -- -------- -- ----------
+     @xmath      (1.2.74)
+  -- -------- -- ----------
+
+with periodicity @xmath
+
+  -- -------- -- ----------
+     @xmath      (1.2.75)
+  -- -------- -- ----------
+
+It is stipulated that @xmath so as to avoid characters from being
+identically equal to zero, however, if the greatest common divisor of
+@xmath and @xmath @xmath is not @xmath then the Dirichlet character is
+equal to zero, and conversely @xmath
+
+The Riemann zeta function is generated from the principal character,
+
+  -- -- -- ----------
+           (1.2.76)
+  -- -- -- ----------
+
+where
+
+  -- -------- -- ----------
+     @xmath      (1.2.77)
+  -- -------- -- ----------
+
+which follows from the Euler product representation
+
+  -- -------- -- ----------
+     @xmath      (1.2.78)
+  -- -------- -- ----------
+
+Given a Dirichlet character of period @xmath the multiplicative
+function,
+
+  -- -- --
+        
+  -- -- --
+
+is an induced Dirichlet character. If a Dirichlet character is
+primitive, that is to say it is not induced from another Dirichlet
+character, and if it is also non-principal, then ( 1.2.73 ) may be
+continued to an analytic function on the whole complex plane.
+
+Furthermore, there is a functional equation,
+
+  -- -------- -- ----------
+     @xmath      (1.2.79)
+  -- -------- -- ----------
+
+where @xmath is the Gauss sum,
+
+  -- -------- -- ----------
+     @xmath      (1.2.80)
+  -- -------- -- ----------
+
+and
+
+  -- -- -- ----------
+           (1.2.81)
+  -- -- -- ----------
+
+From the Euler product together with the multiplicative property of the
+characters,
+
+  -- -------- -- ----------
+     @xmath      (1.2.82)
+  -- -------- -- ----------
+
+giving the generalised von Mangoldt function associated to a Dirichlet
+@xmath -function,
+
+  -- -------- -- ----------
+     @xmath      (1.2.83)
+  -- -------- -- ----------
+
+The mean and oscillating contribution to the density of zeros of
+Dirichlet @xmath -functions are then given by
+
+  -- -------- -- ----------
+     @xmath      (1.2.84)
+  -- -------- -- ----------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (1.2.85)
+  -- -------- -- ----------
+
+respectively.
+
+In [ BK13 ] Bogomolny and Keating used the Hardy-Littlewood conjecture
+applied to primes in arithmetic progressions to deduce the @xmath -point
+correlation,
+
+  -- -------- -- ----------
+     @xmath      (1.2.86)
+  -- -------- -- ----------
+
+showing that
+
+  -- -------- -- ----------
+     @xmath      (1.2.87)
+  -- -------- -- ----------
+
+where
+
+  -- -------- -- ----------
+     @xmath      (1.2.88)
+  -- -------- -- ----------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (1.2.89)
+  -- -------- -- ----------
+
+Also
+
+  -- -------- -- ----------
+     @xmath      (1.2.90)
+  -- -------- -- ----------
+
+where
+
+  -- -------- -- ----------
+     @xmath      (1.2.91)
+  -- -------- -- ----------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (1.2.92)
+  -- -------- -- ----------
+
+In the rescaled limit this recovers the universal form ( 1.2.71 ), which
+was deduced earlier by Bogomolny and Lebœuf in [ BL94 ] by using the
+method in [ Kea93 ] , applying the averaged form of the Hardy-Littlewood
+conjecture for primes in arithmetic progressions.
+
+From the functional equation it may be seen that Dirichlet @xmath
+-functions are degree @xmath @xmath -functions, examples of degree
+@xmath @xmath -functions will now be given.
+
+##### Degree @xmath @xmath-functions associated to the Ramanujan tau
+function and elliptic curves
+
+The Ramanujan tau @xmath -function is constructed from a modular form of
+weight 12, denoted by @xmath
+
+  -- -------- -- ----------
+     @xmath      (1.2.93)
+  -- -------- -- ----------
+
+for all integers @xmath The Ramanujan tau values are defined implicitly
+through
+
+  -- -------- -- ----------
+     @xmath      (1.2.94)
+  -- -------- -- ----------
+
+and are the Fourier coefficients of
+
+  -- -------- -- ----------
+     @xmath      (1.2.95)
+  -- -------- -- ----------
+
+The @xmath -function associated to the Ramanujan tau function, for
+@xmath is given by
+
+  -- -------- -- ----------
+     @xmath      (1.2.96)
+  -- -------- -- ----------
+
+where @xmath is the @xmath th normalised coefficient,
+
+  -- -------- -- ----------
+     @xmath      (1.2.97)
+  -- -------- -- ----------
+
+For @xmath there is also the Euler product
+
+  -- -------- -- ----------
+     @xmath      (1.2.98)
+  -- -------- -- ----------
+
+which may be written in the form
+
+  -- -------- -- ----------
+     @xmath      (1.2.99)
+  -- -------- -- ----------
+
+with @xmath There is a functional equation,
+
+  -- -------- -- -----------
+     @xmath      (1.2.100)
+  -- -------- -- -----------
+
+which shows that this is a degree @xmath @xmath -function.
+
+Another example of a degree @xmath @xmath -function is given by
+associating an @xmath -function to an elliptic curve,
+
+  -- -------- -- -----------
+     @xmath      (1.2.101)
+  -- -------- -- -----------
+
+which may be specified more succinctly by specifying its Weierstrass
+coefficients, @xmath Associated to such an elliptic curve is a modular
+form, the normalised coefficients of which, @xmath generate the @xmath
+-function,
+
+  -- -------- -- -----------
+     @xmath      (1.2.102)
+  -- -------- -- -----------
+
+for @xmath As for the Ramanujan tau case there is an Euler product which
+may be written in the form
+
+  -- -------- -- -----------
+     @xmath      (1.2.103)
+  -- -------- -- -----------
+
+where
+
+  -- -- -- -----------
+           (1.2.104)
+  -- -- -- -----------
+
+and
+
+  -- -- -- -----------
+           (1.2.105)
+  -- -- -- -----------
+
+with
+
+  -- -------- -- -----------
+     @xmath      (1.2.106)
+  -- -------- -- -----------
+
+where @xmath is the conductor of the elliptic curve and @xmath a real
+parameter. The functional equation for these degree @xmath @xmath
+-functions is given by
+
+  -- -------- -- -----------
+     @xmath      (1.2.107)
+  -- -------- -- -----------
+
+### 1.3 Outline of results in this thesis
+
+Chapter @xmath contains a heuristic study of the correlations of
+non-trivial zeros of functions in the Selberg class and the consequences
+for correlations of generalised von Mangoldt functions in the limiting
+universal case, and specifically for the von Mangoldt function in the
+non-universal case for the Riemann zeta function:
+
+#### 1.3.1 Heuristic @xmath
+
+The @xmath -point correlation for non-trivial zeros of functions in the
+Selberg class,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+where @xmath is the residue of the pole of @xmath at @xmath
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+and
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+#### 1.3.2 Heuristic @xmath
+
+The smoothed correlation statistic,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is given asymptotically as @xmath by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+#### 1.3.3 Heuristic @xmath
+
+The correlation statistic for the Riemann zeta function case,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is given by the Hardy-Littlewood conjecture,
+
+  -- -- --
+        
+  -- -- --
+
+where @xmath
+
+In chapter @xmath the implications of the distribution of non-trivial
+zeros of functions in the Selberg class on the variance of generalised
+summatory von Mangoldt functions over short intervals are given:
+
+#### 1.3.4 Theorem @xmath
+
+If @xmath and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+uniformly for @xmath for some @xmath then for any fixed @xmath
+
+  -- -------- --
+     @xmath   
+     @xmath   
+  -- -------- --
+
+uniformly for @xmath
+
+#### 1.3.5 Theorem @xmath
+
+If @xmath and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+uniformly for @xmath for some @xmath then for any fixed @xmath
+
+  -- -------- -------- --
+              @xmath   
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+uniformly for @xmath
+
+#### 1.3.6 Theorem @xmath
+
+If @xmath and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+uniformly for @xmath for some @xmath then
+
+  -- -------- --
+     @xmath   
+     @xmath   
+  -- -------- --
+
+uniformly for @xmath
+
+#### 1.3.7 Theorem @xmath
+
+If @xmath and
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+uniformly for @xmath for some @xmath then
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+uniformly for @xmath
+
+#### 1.3.8 Remarks
+
+Theorem @xmath and Theorem @xmath are valid only when the degree of the
+function in the Selberg class considered is greater than @xmath When the
+degree is equal to @xmath the behaviour of the variance first studied by
+Goldston and Montgomery in [ GM87 ] and later refined by Chan in [ Cha03
+] is recovered, as given by Theorem @xmath and Theorem @xmath The degree
+@xmath case is therefore a special case of the more general variance
+which does not exhibit the change in behaviour for @xmath of order
+@xmath Data exhibiting this phenomenom is plotted at the end of chapter
+@xmath and the relation to Heuristic @xmath and Heuristic @xmath is
+discussed in the concluding chapter.
+
+## Chapter 2 Zero statistics and arithmetic correlations associated to
+@xmath-functions
+
+In this chapter the @xmath -point correlation for the Selberg class is
+calculated by using the method described by Conrey and Snaith in [ CS07
+] . The limiting form of this statistic is then used to generalise the
+work in [ ADDea93 ] from the case of the Riemann zeta function to the
+whole Selberg class and then specifically for the Riemann zeta function
+case the heuristics are applied to recover the Hardy-Littlewood
+conjecture by inverting the @xmath -point correlation for this case.
+
+### 2.1 The @xmath-point correlation statistic for the Selberg class
+
+Substituting the density of Selberg class zeros, ( 1.2.15 ) and ( 1.2.16
+), into the @xmath -point correlation,
+
+  -- -------- -- ---------
+     @xmath      (2.1.1)
+  -- -------- -- ---------
+
+gives the analogue of the expression for the @xmath -point correlation
+for the system @xmath ( 1.1.7 ), now applied to the Selberg class for a
+generic function @xmath contained therein,
+
+  -- -------- -- ---------
+     @xmath      (2.1.2)
+  -- -------- -- ---------
+
+where
+
+  -- -------- -- ---------
+     @xmath      (2.1.3)
+  -- -------- -- ---------
+
+and
+
+  -- -------- -- ---------
+     @xmath      (2.1.4)
+  -- -------- -- ---------
+
+The diagonal and off-diagonal contributions are now indirectly
+calculated by following the recipe described in the introduction for the
+Riemann zeta function case.
+
+The integral over the ratios of functions in the Selberg class,
+
+  -- -------- -- ---------
+     @xmath      (2.1.5)
+  -- -------- -- ---------
+
+is evaluated by replacing functions in the numerator by
+
+  -- -------- -- ---------
+     @xmath      (2.1.6)
+  -- -------- -- ---------
+
+and those in the denominator by
+
+  -- -------- -- ---------
+     @xmath      (2.1.7)
+  -- -------- -- ---------
+
+where @xmath is the argument of the function. The values of the
+multiplicative function @xmath are defined implicitly as the
+coefficients for the reciprocal of @xmath
+
+  -- -------- -- ---------
+     @xmath      (2.1.8)
+  -- -------- -- ---------
+
+Making the substitutions results in
+
+  -- -------- -- ---------
+     @xmath      
+     @xmath      
+     @xmath      (2.1.9)
+  -- -------- -- ---------
+
+where
+
+  -- -------- -- ----------
+     @xmath      
+     @xmath      (2.1.10)
+  -- -------- -- ----------
+
+The factor appearing in the second term of the integral follows from the
+identity
+
+  -- -------- -- ----------
+     @xmath      (2.1.11)
+  -- -------- -- ----------
+
+Differentiating ( 2.1.9 ) with respect to @xmath and @xmath and then
+setting @xmath and @xmath gives an expression for a product of shifted
+logarithmic derivatives,
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      
+              @xmath      
+              @xmath      
+              @xmath      (2.1.12)
+  -- -------- -------- -- ----------
+
+where @xmath is the residue of the simple pole of @xmath at @xmath which
+enters upon applying the identity
+
+  -- -------- -- ----------
+     @xmath      (2.1.13)
+  -- -------- -- ----------
+
+for a function, @xmath analytic at @xmath
+
+As in the introduction, a function @xmath is taken which is holomorphic
+in the strip @xmath where @xmath and @xmath Assuming the generalisation
+of Riemann’s hypothesis for the Selberg class the sum
+
+  -- -------- -- ----------
+     @xmath      (2.1.14)
+  -- -------- -- ----------
+
+is now evaluated by means of the residue theorem,
+
+  -- -------- -- ----------
+     @xmath      (2.1.15)
+  -- -------- -- ----------
+
+where @xmath and @xmath is a positively oriented rectangle with vertices
+at @xmath , @xmath , @xmath and @xmath
+
+The integrals with contours passing through @xmath may be reflected by
+use of the functional equation, in particular taking the logarithmic
+derivative,
+
+  -- -------- -- ----------
+     @xmath      (2.1.16)
+  -- -------- -- ----------
+
+where
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+     @xmath   @xmath      (2.1.17)
+  -- -------- -------- -- ----------
+
+The integral with the contour passing through @xmath and @xmath is given
+by
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      (2.1.18)
+  -- -------- -------- -- ----------
+
+where @xmath Making use of the functional equation then gives
+
+  -- -------- -- ----------
+     @xmath      (2.1.19)
+  -- -------- -- ----------
+
+with a contribution of @xmath coming from the @xmath term after moving
+the contour to the right of @xmath The main contribution is therefore
+
+  -- -------- -- ----------
+     @xmath      (2.1.20)
+  -- -------- -- ----------
+
+Using ( 2.1.12 ), the inner integrand then yields
+
+  -- -------- -- -- ----------
+     @xmath         
+     @xmath         
+     @xmath         
+     @xmath         (2.1.21)
+  -- -------- -- -- ----------
+
+where @xmath and @xmath Setting these values then gives
+
+  -- -------- -- ----------
+     @xmath      (2.1.22)
+  -- -------- -- ----------
+
+where
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+              @xmath      (2.1.23)
+  -- -------- -------- -- ----------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (2.1.24)
+  -- -------- -- ----------
+
+with
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+              @xmath      (2.1.25)
+  -- -------- -------- -- ----------
+
+Extending the inner region of integration results in
+
+  -- -------- -- ----------
+     @xmath      (2.1.26)
+  -- -------- -- ----------
+
+incurring an error of @xmath where
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+              @xmath      (2.1.27)
+  -- -------- -------- -- ----------
+
+As @xmath
+
+  -- -------- -- ----------
+     @xmath      (2.1.28)
+  -- -------- -- ----------
+
+moving the path of integration of the inner integral to the real line
+then passes through @xmath giving the principal value
+
+  -- -------- -- ----------
+     @xmath      (2.1.29)
+  -- -------- -- ----------
+
+The integral with both contours passing through @xmath proceeds
+similarly except the functional equation is used for both of the
+logarithmic derivatives appearing in the integrand. The main
+contribution is given by
+
+  -- -------- -- ----------
+     @xmath      (2.1.30)
+  -- -------- -- ----------
+
+where an error of @xmath is incurred by moving contours involving the
+logarithmic derivative of @xmath to the right of @xmath and those
+involving the logarithmic derivative of @xmath to the @xmath line. Using
+the even property of @xmath then gives
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      (2.1.31)
+  -- -------- -------- -- ----------
+
+Incurring an error term of @xmath the integral is given by
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      (2.1.32)
+  -- -------- -------- -- ----------
+
+The remaining integral gives a contribution of @xmath therefore in total
+the recipe gives the @xmath -point correlation, @xmath with
+
+  -- -------- -- ----------
+     @xmath      (2.1.33)
+  -- -------- -- ----------
+
+and
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+              @xmath      (2.1.34)
+  -- -------- -------- -- ----------
+
+For @xmath
+
+  -- -------- -- ----------
+     @xmath      (2.1.35)
+  -- -------- -- ----------
+
+  -- -------- -- ----------
+     @xmath      (2.1.36)
+  -- -------- -- ----------
+
+  -- -------- -- ----------
+     @xmath      (2.1.37)
+  -- -------- -- ----------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (2.1.38)
+  -- -------- -- ----------
+
+Rescaling the @xmath -point correlation then once more gives the
+universal expressions
+
+  -- -------- -- ----------
+     @xmath      (2.1.39)
+  -- -------- -- ----------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (2.1.40)
+  -- -------- -- ----------
+
+### 2.2 Inverting the limiting form of the @xmath-point correlation
+statistic for the Selberg class
+
+Assuming for any @xmath there is a function @xmath that captures the
+correlations, that is allows the off-diagonal contribution to be
+expressed as
+
+  -- -------- -- ---------
+     @xmath      (2.2.1)
+  -- -------- -- ---------
+
+then an expression for @xmath may be determined by Fourier inversion.
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      (2.2.2)
+              @xmath      (2.2.3)
+              @xmath      (2.2.4)
+              @xmath      (2.2.5)
+  -- -------- -------- -- ---------
+
+Giving the Fourier transform
+
+  -- -------- -- ---------
+     @xmath      (2.2.6)
+  -- -------- -- ---------
+
+and by Fourier inversion,
+
+  -- -------- -- ---------
+     @xmath      (2.2.7)
+  -- -------- -- ---------
+
+The mean density of zeros then necessarily enters the smoothed
+correlation function
+
+  -- -------- -- ---------
+     @xmath      (2.2.8)
+  -- -------- -- ---------
+
+The integral over @xmath is
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      
+     @xmath   @xmath      (2.2.9)
+  -- -------- -------- -- ---------
+
+This may be deduced by considering the Fourier transform of the triangle
+function
+
+  -- -- -- ----------
+           (2.2.10)
+  -- -- -- ----------
+
+noting that the triangle function may be expressed in terms of the sign
+function,
+
+  -- -- -- ----------
+           (2.2.11)
+  -- -- -- ----------
+
+by the linear relation
+
+  -- -------- -- ----------
+     @xmath      (2.2.12)
+  -- -------- -- ----------
+
+Then
+
+  -- -------- -- ----------
+     @xmath      (2.2.13)
+  -- -------- -- ----------
+
+by integrating by parts, giving
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      (2.2.14)
+  -- -------- -------- -- ----------
+
+by Fourier inversion. Expanding the sinc function in terms of
+exponential functions then gives
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      (2.2.15)
+  -- -------- -------- -- ----------
+
+giving the identification
+
+  -- -------- -- ----------
+     @xmath      (2.2.16)
+  -- -------- -- ----------
+
+The smoothed correlation function is then given by another Fourier
+transform,
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      (2.2.17)
+  -- -------- -------- -- ----------
+
+### 2.3 Inverting the @xmath-point correlation statistic for the Riemann
+zeta function
+
+The Hardy-Littlewood conjecture is now shown to follow from the
+expression for the off-diagonal contribution to the @xmath -point
+correlation for the case of the Riemann zeta function.
+
+The off-diagonal contribution to the @xmath -point correlation is given
+by
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      
+              @xmath      (2.3.1)
+  -- -------- -------- -- ---------
+
+Using the Euler product on the @xmath -line then gives
+
+  -- -------- -------- -- ---------
+              @xmath      
+     @xmath   @xmath      (2.3.2)
+  -- -------- -------- -- ---------
+
+Introducing Euler’s totient function,
+
+  -- -------- -- ---------
+     @xmath      (2.3.3)
+  -- -------- -- ---------
+
+and the M @xmath bius function, this can then be expressed as
+
+  -- -- -- ---------
+           (2.3.4)
+  -- -- -- ---------
+
+which, by multiplicativity of @xmath and @xmath yields
+
+  -- -------- -- ---------
+     @xmath      (2.3.5)
+  -- -------- -- ---------
+
+where the sum is over squarefree values of @xmath due to the presence of
+@xmath Making use of the multiplicativity of @xmath once more gives
+
+  -- -------- -- ---------
+     @xmath      (2.3.6)
+  -- -------- -- ---------
+
+Using now the divergent series representation of the Riemann zeta
+function on the @xmath -line results in
+
+  -- -------- -- ---------
+     @xmath      (2.3.7)
+  -- -------- -- ---------
+
+Replacing @xmath by @xmath the sum over @xmath and @xmath becomes a sum
+over @xmath @xmath and @xmath
+
+  -- -------- -- ---------
+     @xmath      (2.3.8)
+  -- -------- -- ---------
+
+giving
+
+  -- -------- -- ---------
+     @xmath      (2.3.9)
+  -- -------- -- ---------
+
+This may be approximated by
+
+  -- -------- -- ----------
+     @xmath      (2.3.10)
+  -- -------- -- ----------
+
+where the resulting error is reduced by taking the value of @xmath to be
+large. Substituting the expression for the mean density and taking the
+exponential inside the integral then gives
+
+  -- -------- -- ----------
+     @xmath      (2.3.11)
+  -- -------- -- ----------
+
+after making a change of variables in the integral.
+
+Substituting ( 2.3.11 ) for @xmath into ( 2.2.7 ) then gives
+
+  -- -------- -- ----------
+                 
+     @xmath      (2.3.12)
+  -- -------- -- ----------
+
+Integrating over @xmath then introduces a delta function,
+
+  -- -------- -------- -- ----------
+              @xmath      
+              @xmath      
+     @xmath   @xmath      
+              @xmath      (2.3.13)
+  -- -------- -------- -- ----------
+
+Integrating over @xmath captures half the mass of the delta function,
+giving
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      (2.3.14)
+  -- -------- -------- -- ----------
+
+which may be approximated by
+
+  -- -------- -- ----------
+     @xmath      (2.3.15)
+  -- -------- -- ----------
+
+where
+
+  -- -------- -- ----------
+     @xmath      (2.3.16)
+  -- -------- -- ----------
+
+is Ramanujan’s sum.
+
+Ramanujan sums are multiplicative,
+
+  -- -------- -- ----------
+     @xmath      (2.3.17)
+  -- -------- -- ----------
+
+if @xmath They also satisfy
+
+  -- -- -- ----------
+           (2.3.18)
+  -- -- -- ----------
+
+for all primes, @xmath Using these properties then gives
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      
+     @xmath               (2.3.19)
+  -- -------- -------- -- ----------
+
+where
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      
+     @xmath               (2.3.20)
+  -- -------- -------- -- ----------
+
+## Chapter 3 Generalised primes in short intervals
+
+In this chapter the @xmath -point correlation derived in the previous
+chapter is related to fluctuations of the sum of the generalised von
+Mangoldt function over short intervals. Throughout this chapter the
+non-trivial zeros of all functions in the Selberg class are assumed to
+have a real part of @xmath To begin, the expression is put into a form
+similar to that used by Murty and Perelli in [ MP99 ] . In particular
+the test function, @xmath is first given the exponential weight @xmath
+This allows a form similar to Murty and Perelli’s function to be
+deduced,
+
+  -- -------- -- ---------
+     @xmath      (3.0.1)
+  -- -------- -- ---------
+
+It is then conjectured that @xmath is asymptotically equivalent to
+@xmath so that the analysis first performed in [ GM87 ] and then refined
+in [ Cha03 ] may be followed. A modification to the arguments in [ GM87
+] and [ Cha03 ] is then considered in Appendix C, making use of @xmath
+as a pose to @xmath In agreement with Murty and Perelli’s conjecture
+made in [ MP99 ] , it is conjectured that
+
+  -- -------- -- ---------
+     @xmath      (3.0.2)
+  -- -------- -- ---------
+
+uniformly for @xmath and
+
+  -- -------- -- ---------
+     @xmath      (3.0.3)
+  -- -------- -- ---------
+
+uniformly for @xmath
+
+It is shown that if @xmath and
+
+  -- -------- -- ---------
+     @xmath      (3.0.4)
+  -- -------- -- ---------
+
+uniformly for @xmath for some @xmath then for any fixed @xmath
+
+  -- -------- -- ---------
+     @xmath      
+     @xmath      (3.0.5)
+  -- -------- -- ---------
+
+uniformly for @xmath While for the regime @xmath if
+
+  -- -------- -- ---------
+     @xmath      (3.0.6)
+  -- -------- -- ---------
+
+uniformly for @xmath for some @xmath then for any fixed @xmath
+
+  -- -------- -------- -- ---------
+              @xmath      
+     @xmath   @xmath      
+              @xmath      (3.0.7)
+  -- -------- -------- -- ---------
+
+uniformly for @xmath
+
+From these relations the variances for fixed differences are then found.
+It is shown that if @xmath and
+
+  -- -------- -- ---------
+     @xmath      (3.0.8)
+  -- -------- -- ---------
+
+uniformly for @xmath for some @xmath then
+
+  -- -------- -- ---------
+     @xmath      
+     @xmath      (3.0.9)
+  -- -------- -- ---------
+
+uniformly for @xmath For the regime @xmath if
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+              @xmath      (3.0.10)
+  -- -------- -------- -- ----------
+
+uniformly for @xmath for some @xmath then
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+              @xmath      (3.0.11)
+  -- -------- -------- -- ----------
+
+uniformly for @xmath Further relations between @xmath @xmath and @xmath
+may be found in [ BKS16 ] .
+
+### 3.1 A reduced form of the @xmath-point correlation statistic for the
+Selberg class
+
+The @xmath -point correlation deduced in the previous chapter is now
+reduced by specifying the test function. Firstly
+
+  -- -------- -- ---------
+     @xmath      (3.1.1)
+  -- -------- -- ---------
+
+where
+
+  -- -------- -- ---------
+     @xmath      (3.1.2)
+  -- -------- -- ---------
+
+and
+
+  -- -------- -- ---------
+     @xmath      (3.1.3)
+  -- -------- -- ---------
+
+with
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      
+     @xmath   @xmath      (3.1.4)
+  -- -------- -------- -- ---------
+
+Since @xmath is even
+
+  -- -------- -- ---------
+     @xmath      (3.1.5)
+  -- -------- -- ---------
+
+and
+
+  -- -------- -------- -- ---------
+              @xmath      
+     @xmath   @xmath      (3.1.6)
+  -- -------- -------- -- ---------
+
+for any @xmath . In particular,
+
+  -- -------- -- ---------
+     @xmath      
+     @xmath      (3.1.7)
+  -- -------- -- ---------
+
+for any @xmath .
+
+Moreover
+
+  -- -------- -- ---------
+     @xmath      (3.1.8)
+  -- -------- -- ---------
+
+and
+
+  -- -------- -------- -- ---------
+              @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+              @xmath      (3.1.9)
+  -- -------- -------- -- ---------
+
+for any @xmath .
+
+In particular,
+
+  -- -------- -- -- ----------
+     @xmath         
+     @xmath         
+     @xmath         (3.1.10)
+  -- -------- -- -- ----------
+
+for any @xmath and hence for @xmath
+
+  -- -------- -- ----------
+     @xmath      
+     @xmath      (3.1.11)
+  -- -------- -- ----------
+
+whereas for @xmath
+
+  -- -------- -- ----------
+     @xmath      
+     @xmath      (3.1.12)
+  -- -------- -- ----------
+
+with some absolute constant @xmath , for any @xmath . Similarly,
+
+  -- -------- -- ----------
+     @xmath      (3.1.13)
+  -- -------- -- ----------
+
+and for @xmath
+
+  -- -------- -- ----------
+     @xmath      
+     @xmath      (3.1.14)
+  -- -------- -- ----------
+
+whereas for @xmath
+
+  -- -------- -- ----------
+     @xmath      
+     @xmath      (3.1.15)
+  -- -------- -- ----------
+
+with some absolute constant @xmath , for any @xmath .
+
+Expanding terms then gives
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+              @xmath      
+     @xmath   @xmath      
+              @xmath      (3.1.16)
+  -- -------- -------- -- ----------
+
+where for every @xmath
+
+  -- -- -- ----------
+           (3.1.17)
+  -- -- -- ----------
+
+Inserting the sum into the symbolic manipulation software, Mathematica,
+gives
+
+  -- -------- -------- -- ----------
+                          
+                          
+              @xmath      
+              @xmath      
+     @xmath   @xmath      
+              @xmath      
+              @xmath      (3.1.18)
+  -- -------- -------- -- ----------
+
+Giving
+
+  -- -------- -- ----------
+     @xmath      (3.1.19)
+  -- -------- -- ----------
+
+Together with @xmath this then gives the expression
+
+  -- -------- -- ----------
+     @xmath      (3.1.20)
+  -- -------- -- ----------
+
+unifomly for @xmath and
+
+  -- -------- -- ----------
+     @xmath      (3.1.21)
+  -- -------- -- ----------
+
+uniformly for @xmath .
+
+### 3.2 @xmath
+
+Assuming the same expression holds for @xmath consideration is now given
+to
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      
+     @xmath   @xmath      
+              @xmath      (3.2.1)
+  -- -------- -------- -- ---------
+
+Given that the number of zeros between @xmath the summation can be
+restricted to zeros with @xmath incurring an error of size @xmath
+Similarly the domain of integration can be extended to the whole real
+line, incurring an error of size @xmath Therefore
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      
+              @xmath      
+     @xmath   @xmath      (3.2.2)
+  -- -------- -------- -- ---------
+
+In the regime @xmath it then follows that
+
+  -- -------- -- ---------
+     @xmath      (3.2.3)
+  -- -------- -- ---------
+
+uniformly for @xmath whereas for the regime @xmath
+
+  -- -------- -- ---------
+     @xmath      (3.2.4)
+  -- -------- -- ---------
+
+uniformly for @xmath .
+
+Taking
+
+  -- -------- -- ---------
+     @xmath      (3.2.5)
+  -- -------- -- ---------
+
+gives
+
+  -- -------- -- ---------
+     @xmath      (3.2.6)
+  -- -------- -- ---------
+
+where @xmath and
+
+  -- -- -- ---------
+           (3.2.7)
+  -- -- -- ---------
+
+for @xmath To proceed a lemma is now demonstrated.
+
+#### 3.2.1 Lemma A
+
+Taking @xmath to be a non-negative function satisfying the bound @xmath
+if
+
+  -- -------- -- ---------
+     @xmath      (3.2.8)
+  -- -------- -- ---------
+
+uniformly for @xmath for some @xmath where @xmath for some @xmath then
+
+  -- -------- -- ---------
+     @xmath      (3.2.9)
+  -- -------- -- ---------
+
+as @xmath
+
+##### Proof
+
+Firstly
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      (3.2.10)
+  -- -------- -------- -- ----------
+
+The first term is expressible as
+
+  -- -------- -- ----------
+     @xmath      (3.2.11)
+  -- -------- -- ----------
+
+Now
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      (3.2.12)
+  -- -------- -------- -- ----------
+
+where
+
+  -- -------- -- ----------
+     @xmath      (3.2.13)
+  -- -------- -- ----------
+
+Using the definite integral
+
+  -- -------- -- ----------
+     @xmath      (3.2.14)
+  -- -------- -- ----------
+
+then gives
+
+  -- -------- -- ----------
+     @xmath      (3.2.15)
+  -- -------- -- ----------
+
+The remaining terms contribute to the errors. Integrating by parts gives
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+     @xmath               (3.2.16)
+  -- -------- -------- -- ----------
+
+where
+
+  -- -------- -- ----------
+     @xmath      (3.2.17)
+  -- -------- -- ----------
+
+with
+
+  -- -------- -- ----------
+     @xmath      (3.2.18)
+  -- -------- -- ----------
+
+similarly
+
+  -- -------- -- ----------
+     @xmath      (3.2.19)
+  -- -------- -- ----------
+
+Also
+
+  -- -------- -- ----------
+     @xmath      (3.2.20)
+  -- -------- -- ----------
+
+where
+
+  -- -------- -- ----------
+     @xmath      (3.2.21)
+  -- -------- -- ----------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (3.2.22)
+  -- -------- -- ----------
+
+where
+
+  -- -------- -- ----------
+     @xmath      (3.2.23)
+  -- -------- -- ----------
+
+giving
+
+  -- -------- -- ----------
+     @xmath      (3.2.24)
+  -- -------- -- ----------
+
+Also
+
+  -- -------- -- ----------
+     @xmath      (3.2.25)
+  -- -------- -- ----------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (3.2.26)
+  -- -------- -- ----------
+
+Similarly
+
+  -- -------- -- ----------
+     @xmath      (3.2.27)
+  -- -------- -- ----------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (3.2.28)
+  -- -------- -- ----------
+
+@xmath
+
+Applying Lemma A in the range
+
+  -- -------- -- ----------
+     @xmath      (3.2.29)
+  -- -------- -- ----------
+
+gives
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      (3.2.30)
+  -- -------- -------- -- ----------
+
+Denoting the integral above by @xmath and the integral with @xmath
+replaced by @xmath by @xmath with @xmath and @xmath since the number of
+zeros between @xmath
+
+  -- -------- -- ----------
+     @xmath      (3.2.31)
+  -- -------- -- ----------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (3.2.32)
+  -- -------- -- ----------
+
+Therefore
+
+  -- -------- -- ----------
+     @xmath      (3.2.33)
+  -- -------- -- ----------
+
+giving
+
+  -- -------- -- ----------
+     @xmath      (3.2.34)
+  -- -------- -- ----------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (3.2.35)
+  -- -------- -- ----------
+
+Using this then gives
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      (3.2.36)
+  -- -------- -------- -- ----------
+
+Making use of the Fourier transform,
+
+  -- -------- -- ----------
+     @xmath      (3.2.37)
+  -- -------- -- ----------
+
+an application of Plancherel’s formula gives
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      (3.2.38)
+  -- -------- -------- -- ----------
+
+using the substitution @xmath and @xmath A special case of lemma 1 of [
+LPZ12 ] is now used to remove the weight.
+
+#### 3.2.2 Lemma B
+
+Taking @xmath to be a non-negative function satisfying
+
+  -- -------- -- ----------
+     @xmath      (3.2.39)
+  -- -------- -- ----------
+
+for @xmath for some @xmath then
+
+  -- -------- -- ----------
+     @xmath      (3.2.40)
+  -- -------- -- ----------
+
+Applying Lemma B now gives
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      (3.2.41)
+  -- -------- -------- -- ----------
+
+after the change of variable @xmath provided that
+
+  -- -------- -- ----------
+     @xmath      (3.2.42)
+  -- -------- -- ----------
+
+Taking @xmath in the explicit formula then gives
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      (3.2.43)
+  -- -------- -------- -- ----------
+
+Summing over the dyadic intervals @xmath with @xmath and
+
+  -- -------- -- ----------
+     @xmath      (3.2.44)
+  -- -------- -- ----------
+
+and noting that
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      (3.2.45)
+  -- -------- -------- -- ----------
+
+then gives
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      
+              @xmath      (3.2.46)
+  -- -------- -------- -- ----------
+
+To bound the contribution coming from the range @xmath the steps from
+lemma @xmath of the work of Saffari and Vaughan in [ SV77 ] are now
+followed, adapted to the Selberg class.
+
+#### 3.2.3 Lemma C
+
+  -- -------- -- ----------
+     @xmath      (3.2.47)
+  -- -------- -- ----------
+
+for @xmath
+
+##### Proof
+
+Taking @xmath in the explicit formula gives
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+              @xmath      (3.2.48)
+  -- -------- -------- -- ----------
+
+so that
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      
+              @xmath      (3.2.49)
+  -- -------- -------- -- ----------
+
+Consideration is now given to
+
+  -- -------- -- -- ----------
+     @xmath         
+     @xmath         (3.2.50)
+  -- -------- -- -- ----------
+
+Firstly,
+
+  -- -------- -- ----------
+     @xmath      (3.2.51)
+  -- -------- -- ----------
+
+also
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      
+              @xmath      
+     @xmath   @xmath      
+              @xmath      (3.2.52)
+  -- -------- -------- -- ----------
+
+with
+
+  -- -------- -------- -- ----------
+              @xmath      
+              @xmath      
+     @xmath   @xmath      (3.2.53)
+  -- -------- -------- -- ----------
+
+Similarly
+
+  -- -------- -- ----------
+     @xmath      (3.2.54)
+  -- -------- -- ----------
+
+Using the bound of @xmath for the spacing between the @xmath th zero
+ordinate and the next closest zero ordinate gives
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      (3.2.55)
+  -- -------- -------- -- ----------
+
+and the lemma then follows by summing over dyadic intervals. @xmath
+
+Applying Lemma C then gives
+
+  -- -------- -- ----------
+     @xmath      
+     @xmath      (3.2.56)
+  -- -------- -- ----------
+
+therefore
+
+  -- -------- -- ----------
+     @xmath      
+     @xmath      (3.2.57)
+  -- -------- -- ----------
+
+uniformly for @xmath for some @xmath and any fixed @xmath
+
+For the regime @xmath the analysis is almost identical, as may be seen
+in [ BKS16 ] . Changing the function in Lemma A to @xmath results in
+
+  -- -------- -- ----------
+     @xmath      (3.2.58)
+  -- -------- -- ----------
+
+as @xmath where @xmath Applying this in place of Lemma A then gives
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      
+              @xmath      
+     @xmath   @xmath      
+              @xmath      (3.2.59)
+  -- -------- -------- -- ----------
+
+The calculation then proceeds as before giving
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      
+              @xmath      (3.2.60)
+  -- -------- -------- -- ----------
+
+### 3.3 @xmath
+
+It is now shown that if @xmath and
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      
+              @xmath      (3.3.1)
+  -- -------- -------- -- ---------
+
+uniformly for @xmath for some @xmath then
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      
+              @xmath      (3.3.2)
+  -- -------- -------- -- ---------
+
+uniformly for @xmath
+
+Firstly setting @xmath gives
+
+  -- -------- -------- -- ---------
+              @xmath      
+     @xmath   @xmath      (3.3.3)
+  -- -------- -------- -- ---------
+
+where
+
+  -- -------- -- ---------
+     @xmath      (3.3.4)
+  -- -------- -- ---------
+
+Assuming @xmath exchanging the order of integration gives an integral
+over @xmath where
+
+  -- -------- -- ---------
+     @xmath      (3.3.5)
+  -- -------- -- ---------
+
+  -- -------- -- ---------
+     @xmath      (3.3.6)
+  -- -------- -- ---------
+
+and
+
+  -- -------- -- ---------
+     @xmath      (3.3.7)
+  -- -------- -- ---------
+
+The integrals over @xmath are of the form
+
+  -- -------- -------- -- ---------
+              @xmath      
+     @xmath   @xmath      
+              @xmath      
+     @xmath   @xmath      
+              @xmath      (3.3.8)
+  -- -------- -------- -- ---------
+
+For @xmath and @xmath the terms coming from ( 3.3 ) are
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath and @xmath they are
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and for @xmath and @xmath they are
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The integrals over @xmath are therefore of the form
+
+  -- -------- -- ---------
+     @xmath      (3.3.9)
+  -- -------- -- ---------
+
+  -- -------- -- ----------
+     @xmath      (3.3.10)
+  -- -------- -- ----------
+
+  -- -------- -- ----------
+     @xmath      (3.3.11)
+  -- -------- -- ----------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (3.3.12)
+  -- -------- -- ----------
+
+Setting @xmath and @xmath the integral over @xmath yields
+
+  -- -------- -- ----------
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      
+                 
+                 
+     @xmath      (3.3.13)
+  -- -------- -- ----------
+
+setting @xmath and @xmath the integral over @xmath yields
+
+  -- -------- -- ----------
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      (3.3.14)
+  -- -------- -- ----------
+
+and setting @xmath and @xmath the integral over @xmath yields
+
+  -- -------- -- ----------
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      (3.3.15)
+  -- -------- -- ----------
+
+The total contribution is therefore
+
+  -- -------- --
+     @xmath   
+     @xmath   
+  -- -------- --
+
+  -- -------- -- ----------
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      
+                 
+                 
+     @xmath      
+     @xmath      
+     @xmath      
+                 
+     @xmath      (3.3.16)
+  -- -------- -- ----------
+
+Collecting terms then gives
+
+  -- -------- -------- --
+              @xmath   
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      
+              @xmath      
+     @xmath   @xmath      
+              @xmath      
+              @xmath      (3.3.17)
+  -- -------- -------- -- ----------
+
+Therefore
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+              @xmath      
+              @xmath      
+              @xmath      (3.3.18)
+  -- -------- -------- -- ----------
+
+The sums are in the form of the geometric series given by
+
+  -- -------- -- ----------
+     @xmath      (3.3.19)
+  -- -------- -- ----------
+
+or by the series given by
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      (3.3.20)
+  -- -------- -------- -- ----------
+
+Thus
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      
+              @xmath      
+              @xmath      
+              @xmath      (3.3.21)
+  -- -------- -------- -- ----------
+
+To proceed the work in [ SV77 ] , now lemma @xmath is used to produce a
+bound similar to that in the previous lemma, but now for a fixed
+difference.
+
+#### 3.3.1 Lemma D
+
+  -- -------- -- ----------
+     @xmath      (3.3.22)
+  -- -------- -- ----------
+
+for @xmath
+
+##### Proof
+
+Considering @xmath and supposing that @xmath and @xmath then
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      (3.3.23)
+  -- -------- -------- -- ----------
+
+the lemma then follows by applying Lemma C. @xmath
+
+Using
+
+  -- -------- -- ----------
+     @xmath      (3.3.24)
+  -- -------- -- ----------
+
+then gives
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      
+              @xmath      
+              @xmath      (3.3.25)
+  -- -------- -------- -- ----------
+
+Setting @xmath and @xmath gives
+
+  -- -------- -------- -- ----------
+              @xmath      
+     @xmath   @xmath      
+              @xmath      
+              @xmath      
+     @xmath   @xmath      
+              @xmath      
+              @xmath      
+     @xmath   @xmath      
+              @xmath      (3.3.26)
+  -- -------- -------- -- ----------
+
+Following the same analysis starting with
+
+  -- -------- -- ----------
+     @xmath      (3.3.27)
+  -- -------- -- ----------
+
+gives
+
+  -- -------- -- ----------
+     @xmath      
+     @xmath      (3.3.28)
+  -- -------- -- ----------
+
+### 3.4 Numerics
+
+The behaviour of @xmath is now examined numerically for some examples of
+@xmath -functions. The Riemann zeta function, the @xmath -function
+associated to the Ramanujan tau function and some @xmath -functions
+associated to different elliptic curves are used.
+
+The code used to generate the data is given in Appendix A. For the
+Ramanujan tau and elliptic curve cases the associated von Mangoldt
+functions require the coefficients in the Dirichlet series, for example
+for the Ramanujan tau case
+
+  -- -------- -- ---------
+     @xmath      (3.4.1)
+  -- -------- -- ---------
+
+The unnormalised coefficients were generated using Sage, [ Sag ] . For
+the Ramanujan tau case a normalisation of @xmath was then applied to
+each coefficient to give the @xmath th normalised coefficient, @xmath
+For the elliptic curve case there is a square root normalisation,
+otherwise the von Mangoldt function is the same except at a finite
+number of points where primes divide the conductor. The elliptic curve
+is specified by entering its Weierstrass coefficients, @xmath which were
+found on the database of @xmath -functions, modular forms, and related
+objects, [ LMF13 ] , @xmath -functions in subsequent figures and tables
+are referred to via their label given on the database, which is called
+the LMFDB label there.
+
+## Chapter 4 Outlook
+
+### 4.1 Random matrix theory and higher order correlations
+
+The universal forms of the @xmath -point correlation statistic in both
+the quantum chaology and analytic number theory setting are both
+conjectural, however they coincide with the corresponding statistic for
+random unitary matrices with normally distributed matrix elements, a
+theorem in this field of study. Random matrix theory is a rapidly
+developing area of study in both mathematics and physics, with its
+origins in the study of the multiple interactions present in atomic
+nuclei. A thorough treatment of the subject from a physical perspective
+may be found in the textbook [ Meh04 ] , for more mathematical emphasis
+[ AGZ10 ] is recommended.
+
+The connection between quantum chaology, analytic number theory and
+random matrix theory extends beyond @xmath -point statistics. In [ NM09
+] the rescaled @xmath -point correlation statistic was shown to coincide
+with the corresponding statistic in random matrix theory, given by the
+determinant
+
+  -- -------- -- ---------
+     @xmath      (4.1.1)
+  -- -------- -- ---------
+
+where
+
+  -- -------- -- ---------
+     @xmath      (4.1.2)
+  -- -------- -- ---------
+
+Following Montgomery’s study of the pair correlation of zeros of the
+Riemann zeta function through @xmath in [ Hej94 ] Hejhal studied triple
+correlations of zeros of the Riemann zeta function and subsequently
+Rudnick and Sarnak considered the general case of @xmath -point
+correlations for @xmath -functions associated to automorphic forms in [
+RS96 ] . From a physical perspective, in a pair of papers Bogomolny and
+Keating first treated the case of triple and quadruple correlations of
+zeros of the Riemann zeta function around the time of the work of Hejhal
+in [ BK95 ] and then the @xmath -point case in [ BK96b ] . In all cases
+there is a match with the random matrix theory expression ( 4.1.1 ).
+
+The results in this thesis concern @xmath -point statistics, however
+assuming the form ( 4.1.1 ), it would be interesting to determine
+moments beyond the variance determined in this thesis, generalising the
+work of Montgomery and Soundararajan in [ MS04 ] , taking zero
+correlations rather than prime correlations as the starting point.
+
+### 4.2 Hardy-Littlewood type conjectures
+
+In this thesis @xmath was calculated by starting with a conjecture for
+the distribution of non-trivial zeros of @xmath however the variance may
+be related to the generalised correlation function,
+
+  -- -------- -- ---------
+     @xmath      (4.2.1)
+  -- -------- -- ---------
+
+and was determined from the Hardy-Littlewood conjecture by Montgomery
+and Soundararajan for the case of the Riemann zeta function in [ MS04 ]
+in this way. Writing @xmath as a sum,
+
+  -- -------- -- ---------
+     @xmath      (4.2.2)
+  -- -------- -- ---------
+
+gives
+
+  -- -------- -- ---------
+     @xmath      
+     @xmath      (4.2.3)
+  -- -------- -- ---------
+
+and so an understanding of the Hardy-Littlewood type generalised
+correlation function, ( 4.2.1 ) over short intervals of length @xmath
+averaged over @xmath is desired.
+
+The inversion argument in chapter @xmath is well suited to the Riemann
+zeta function case, where the products involved in the off-diagonal
+contribution to the @xmath -point correlation statistic may be written
+in terms of Ramanujan sums. If such a decomposition of the products
+occuring in the general expression for the @xmath -point statistic may
+be found then the method could be replicated for the general case.
+
+Plots for the Riemann zeta function case, the Ramanujan tau function
+case and an elliptic curve case are given for comparison.
+
+## Appendix A Code for numerics
+
+### a.1 Python code for Sage
+
+#### a.1.1 Generating Ramanujan tau values
+
+sage: d = CuspForms(Gamma0(1), 12).basis()[0]
+sage: t = [0]
+sage: t = t + d.coefficients(1010000)
+sage: tp = []
+sage: for p in primes(1010001):
+….: tp.append(t[p])
+….:
+
+#### a.1.2 Writing Ramanujan tau values to a file
+
+sage: o = open(‘File’, ‘w’)
+sage: for i in range(0, len(tp)):
+….: o.write(str(tp[i]) + ‘ @xmath n’)
+….:
+sage: o.close()
+
+#### a.1.3 Generating coefficients associated to an elliptic curve
+
+sage: E = EllipticCurve(( @xmath , @xmath , @xmath , @xmath , @xmath ))
+sage: x = E.aplist(1010000)
+
+#### a.1.4 Writing coefficients associated to an elliptic curve to a
+file
+
+sage: o = open(‘File’, ‘w’)
+sage: for i in range(0, len(x)):
+….: o.write(str(x[i]) + ‘ @xmath n’)
+….:
+sage: o.close()
+
+### a.2 Java code
+
+#### a.2.1 Class for the Riemann zeta function and Ramanujan tau
+function
+
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Scanner;
+public class Tau {
+public static final int[] Prime = MaximumValue(1010000);
+private static int[] MaximumValue(int max) {
+boolean[] isComposite = new boolean[max + 1];
+for (int i = 2; i * i @xmath = max; i++) {
+if (!isComposite [i]) {
+for (int j = i; i * j @xmath = max; j++) {
+isComposite [i * j] = true;
+}
+}
+}
+int numPrimes = 0;
+for (int i = 2; i @xmath = max; i++) {
+if (!isComposite [i]) numPrimes++;
+}
+int index = 0;
+int [] Prime = new int [numPrimes];
+for (int i = 2; i @xmath = max; i++) {
+if (!isComposite [i]) Prime [index++] = i;
+}
+return Prime;
+}
+private static int log (int Base, int Argument) {
+return (int) (Math.log(Argument) / Math.log(Base));
+}
+private static double vonMangoldtfunction(int n, double[] a) {
+return a[n - 1];
+}
+private static double nprime(int n, double [] a){
+return Math.round(Math.pow(Math.E, vonMangoldtfunction(n, a)));
+}
+private static double nprimepower(int n, double [] a) {
+return (Math.log(n))/(vonMangoldtfunction(n, a));
+}
+private static double Taunormalisedcoefficient(int n, double[] a) {
+if (a[n - 1] != 0) {
+return (a[n - 1])/(Math.pow(n, 5.5));
+}
+else return 0;
+}
+private static double TauvonMangoldtfunction(int n, double[] a, double[]
+b) {
+if (vonMangoldtfunction(n, a) != 0) {
+return 2*(Math.cos((nprimepower(n, a))
+*(Math.acos((Taunormalisedcoefficient((int) nprime(n, a), b)) / 2))))
+*(vonMangoldtfunction(n, a));
+}
+else return 0;
+}
+private static double intervalsum(double x, double y, double[] a, double
+[] b) {
+double value = 0.0;
+for (int i = (int)(x + 1); i @xmath = x + y; i++) {
+value = value + TauvonMangoldtfunction(i, a, b);
+}
+return value;
+}
+private static double squaremodulusofintervalsum(double x, double y,
+double[] a, double [] b) {
+return (intervalsum(x, y, a, b))*(intervalsum(x, y, a, b));
+}
+private static double variance(double x, double y, double[] a, double []
+b) {
+double value = 0.0;
+for(int i = 1 ; i @xmath = x; i++){
+value = value + squaremodulusofintervalsum(i, y, a, b);
+}
+return value / (x * y);
+}
+private static double correlationfunction(int r, int n, double[] a,
+double[] b) {
+double sum = 0;
+for(int i = 1; i @xmath = n; i++){
+sum = sum + (vonMangoldtfunction(i + r, a)) * (vonMangoldtfunction(i,
+a));
+}
+return sum / n;
+}
+// —– Main Method —– //
+public static void main(String[] args) throws IOException {
+double[] vonMangoldt = new double[1010000];
+for (int i = 0; i @xmath Prime.length; i++){
+for (int j = 1; j @xmath = log(Prime[i], 1010000); j++){
+vonMangoldt[(int)(Math.pow(Prime[i], j) - 1)] = Math.log(Prime[i]);
+}
+}
+FileReader file = new FileReader(“File directory”);
+double[] Tauatprimearray = new double[79251];
+int j = 0;
+try {
+Scanner input = new Scanner(file);
+while(input.hasNext())
+{
+Tauatprimearray[j] = input.nextDouble();
+j++;
+}
+input.close();
+}
+catch(Exception e)
+{
+e.printStackTrace();
+}
+double[] Tauprimearray = new double[1010000];
+for(int i = 0; i @xmath Prime.length; i++) {
+Tauprimearray[Prime[i] - 1] = Tauatprimearray[i];
+}
+}
+}
+
+#### a.2.2 Writing variance data and correlation data to a file
+
+PrintStream out = new PrintStream(new FileOutputStream(“File.txt”));
+System.setOut(out);
+for(double h = 50.0; h @xmath = 10000.0; h = 1.1 * h) {
+System.out.println(
+Math.log(1000000 / h) + “ ” + variance(1000000, h, vonMangoldtfunction,
+Tauprimearray)
+);
+}
+for(int n = 1; n @xmath = 1000000; n++) {
+if(n % 10000 == 0)System.out.println(
+n + “ ” + (correlationfunction(r, vonMangoldtfunction, Tauprimearray))
+);
+}
+
+## Appendix B Variance data
+
+## Appendix C Correlation data
+
+## Appendix D Exponential weight
+
+Consideration is now given to
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      
+     @xmath   @xmath      
+                          (D.0.1)
+  -- -------- -------- -- ---------
+
+Following the approach in chapter @xmath using the density of zeros to
+restrict the summation to those with @xmath results in an error of size
+@xmath Also, extending the domain of integration to the whole real line
+gives an error of size @xmath . Therefore
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      
+                          
+     @xmath   @xmath      
+              @xmath      
+              @xmath      (D.0.2)
+  -- -------- -------- -- ---------
+
+For @xmath and @xmath the integral identity
+
+  -- -------- -- ---------
+     @xmath      (D.0.3)
+  -- -------- -- ---------
+
+may now be applied with @xmath and @xmath giving
+
+  -- -------- -- ---------
+     @xmath      (D.0.4)
+  -- -------- -- ---------
+
+Considering @xmath for example in the regime @xmath then gives
+
+  -- -------- -------- -- ---------
+              @xmath      
+     @xmath   @xmath      
+              @xmath      
+     @xmath   @xmath      
+              @xmath      (D.0.5)
+  -- -------- -------- -- ---------
+
+where Lemma A has been used for
+
+  -- -------- -- ---------
+     @xmath      (D.0.6)
+  -- -------- -- ---------
+
+for some @xmath Therefore
+
+  -- -------- -------- -- ---------
+              @xmath      
+     @xmath   @xmath      
+              @xmath      (D.0.7)
+  -- -------- -------- -- ---------
+
+Making use of the Fourier transform,
+
+  -- -------- -- ---------
+     @xmath      (D.0.8)
+  -- -------- -- ---------
+
+an application of Plancherel’s formula then results in
+
+  -- -------- -------- -- ---------
+              @xmath      
+     @xmath   @xmath      
+     @xmath               (D.0.9)
+  -- -------- -------- -- ---------
+
+using the substitution @xmath and @xmath
+
+The weight now differs to the one removed by Lemma B in chapter @xmath
+To proceed Lemma B requires some modification, given a more general
+initial statement than provided by Lemma B,
+
+  -- -------- -- ----------
+     @xmath      (D.0.10)
+  -- -------- -- ----------
+
+where @xmath the choice of @xmath such that
+
+  -- -------- -- ----------
+     @xmath      (D.0.11)
+  -- -------- -- ----------
+
+where @xmath is sought. @xmath if @xmath is bounded and analytic in a
+strip. By the convolution theorem
+
+  -- -------- -- ----------
+     @xmath      (D.0.12)
+  -- -------- -- ----------
+
+therefore @xmath if @xmath is bounded which will occur if @xmath decays
+more rapidly than @xmath

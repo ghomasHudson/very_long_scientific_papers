@@ -1,0 +1,4399 @@
+# Zusammenfassung
+
+Sichere Zweiparteienberechnung erlaubt es zwei Spielern, die einander
+nicht vertrauen, gemeinsam eine Berechnung durchzuführen, ohne dass der
+jeweils andere Spieler irgendwelche zusätzlichen Informationen über ihre
+Eingabe erfährt. Leider ist es unmöglich eine solche Berechnung so
+auszuführen, dass sie selbst gegen einen berechenmässig unbeschränkten
+Angreifer sicher ist. Unter der Annahme, dass der Angreifer
+berechenmässig beschränkt ist, existieren sichere Protokolle, jedoch
+basiert die Sicherheit dieser Protokolle auf zusätzlichen Annahmen, wie
+zum Beispiel der Annahme, dass Faktorisieren schwierig ist.
+
+Wenn jedoch eine Primitive mit dem Namen vergessliche Übertragung
+gegeben ist, dann kann jede Zweiparteienberechnung sicher gegen
+unbeschränkte Angreifer ausgeführt werden. In dieser Arbeit untersuchen
+wir, welche schwächeren Formen von vergesslicher Übertragung uns immer
+noch erlauben, eine sichere vergessliche Übertragung auszuführen.
+
+Zuerst zeigen wir, dass vergessliche Übertragung äquivalent ist zu einer
+randomisierten vergesslichen Übertragung, und dass diese Primitive
+symmetrisch ist. Daraus folgt, dass vergessliche Übertragung ebenfalls
+symmetrisch ist.
+
+Universelle vergessliche Übertragung ist eine schwächere Variante von
+vergesslicher Übertragung, in welcher einer der beiden Spieler
+zusätzliche Informationen erhalten kann. Wir zeigen ein neues,
+effizienteres Prokoll um daraus vergessliche Übertragung herzustellen.
+
+Schwache vergessliche Übertragung ist eine noch schwächere Form von
+vergesslicher Übertragung, in welcher beide Spieler zusätzliche
+Information erhalten können und die Übertragung falsch sein kann. Wir
+geben sowohl eine neue, schwächere Definition von schwacher
+vergesslicher Übertragung, als auch neue Protokolle wie man daraus
+vergessliche Übertragung herstellen kann.
+
+Schliesslich zeigen wir, dass jedes Verfahren, welches vergessliche
+Übertragung aus schwacher vergesslicher Übertragung herstellt, auch
+eingesetzt werden kann, um berechenmässig sichere vergessliche
+Übertragung aus berechenmässig schwacher vergesslicher Übertragung
+herzustellen.
+
+###### Contents
+
+-    \thechapter Introduction
+    -    1 Background
+    -    2 Outline of the Thesis
+-    \thechapter Preliminaries
+    -    3 Notation
+    -    4 Distances between Distributions
+    -    5 Prediction of Random Variables
+-    \thechapter Secure Two-Party Computation
+    -    6 Two-Party Computation
+    -    7 Distinguishing Systems
+    -    8 Adversaries and Secure Protocols
+        -    8.1 The Malicious Model
+        -    8.2 The Semi-Honest Model
+        -    8.3 The Weak Semi-Honest Model
+    -    9 Discussion
+-    \thechapter Oblivious Transfer
+    -    10 (Randomized) Oblivious Transfer
+    -    11 Oblivious Transfer is Symmetric
+    -    12 In the Semi-Honest Model
+    -    13 Information-Theoretic Security Conditions
+        -    13.1 In the Malicious Model
+        -    13.2 In the Semi-Honest Model
+-    \thechapter Universal Oblivious Transfer
+    -    14 Min-Entropy and Randomness Extraction
+    -    15 Definition of Universal Oblivious Transfer
+    -    16 Universal Oblivious Transfer Amplification
+    -    17 Applications
+-    \thechapter Weak Oblivious Transfer
+    -    18 Definition of WOT
+        -    18.1 In the Semi-Honest Model
+        -    18.2 In the Malicious Model
+        -    18.3 Relation to Previous Definitions
+    -    19 Impossibility Results
+    -    20 Basic Protocols for WOT Amplification
+        -    20.1 In the Semi-Honest Model
+        -    20.2 In the Malicious Model
+    -    21 WOT Amplification if @xmath
+    -    22 WOT Amplification if @xmath or @xmath
+    -    23 WOT Amplification if @xmath .
+    -    24 Discussion and Open Problems
+-    \thechapter Computational Weak Oblivious Transfer
+    -    25 Preliminaries
+    -    26 Pseudo-Randomness Extraction
+    -    27 Definition of Computational WOT
+    -    28 Computational-WOT Amplification
+    -    29 Discussion and Open Problems
+-    \thechapter Appendix
+    -    A Formal Technicalities
+
+## Chapter \thechapter Introduction
+
+On January 16, 1797, Johann Wolfgang von Goethe (1749-1832) sent a
+letter to the publisher Vieweg with the following content (translated to
+English by [ MT98 ] ):
+
+  ”I am inclined to offer Mr. Vieweg from Berlin an epic poem, Hermann
+  and Dorothea, which will have approximately 2000 hexameters. […]
+  Concerning the royalty we will proceed as follows: I will hand over to
+  Mr. Counsel Böttiger a sealed note which contains my demand, and I
+  wait for what Mr. Vieweg will suggest to offer for my work. If his
+  offer is lower than my demand, then I take my note back, unopened, and
+  the negotiation is broken. If, however, his offer is higher, then I
+  will not ask for more than what is written in the note to be opened by
+  Mr. Böttiger.”
+
+The reason for Goethe to choose such a complicated scheme was not to
+maximize his profit — he would not have earned less by just selling it
+to Vieweg — he wanted to gain information on how much Vieweg was willing
+to pay for his work. Indeed, his procedure can be viewed as a second
+price auction, where Goethe himself was playing the second bidder [ MT98
+] . However, other than in a second price auction, Goethe would get to
+know the bid of the highest bidder. To achieve his goal, Goethe needed
+to be able to commit to a value that Vieweg would not get to know before
+placing his bid, but such that Goethe himself would also not be able to
+change it. He did this by giving an envelope to a third, trusted party,
+Mr. Böttiger. Unfortunately, things turned out other than intended by
+Goethe. Böttiger opened the envelope and gave Vieweg a hint, who then
+bid exactly what Goethe had demanded in his envelope. Vieweg was
+therefore able to completely hide the information on how much he was
+willing to pay.
+
+This is an example of two-party computation , where two players want to
+achieve a common goal, however they do not trust each other and do not
+want the other to learn more than necessary about their inputs.
+Obviously, such a computation can easily be achieved with the help of a
+trusted third party. However, as the example above shows, the two
+players would rather not need to trust such a third party. Our goal is
+therefore to achieve a two-party computation without the help of a
+trusted third party .
+
+Unfortunately, this task is impossible to achieve unconditionally
+securely, i.e., such that even an adversary with infinite computing
+power has no chance in breaking the system. On the other hand, there
+exist implementations in the computational setting, i.e., they are
+secure against adversaries which only have limited computing power.
+However, the security of these implementations are based on unproven
+assumptions such as that factoring the product of two large prime
+numbers is hard.
+
+Needless to say, we would like to base the security of a two-party
+computation protocol on as few assumptions as possible. Surprisingly, it
+turned out that if a very simple primitive called oblivious transfer is
+available, then any two party computation can be implemented in an
+unconditionally secure way. Oblivious transfer is a primitive that
+allows a sender to send two bits to a receiver, who can choose which
+bits he wants to receive. The receiver will remain completely ignorant
+about the other bit, while the sender does not get to know which bit has
+been chosen by the receiver.
+
+Even though oblivious transfer is quite simple, it is rather difficult
+to implement. For example, in the computational setting quite strong
+assumptions are needed at the moment. On the other hand, it is possible
+to implement oblivious transfer under certain physical assumptions.
+However, such systems generally do not achieve a perfect oblivious
+transfer, but one where one or both players may still be able to cheat
+in some way, and obtain additional information that he should not be
+allowed.
+
+The main topic of this thesis is to present different protocols that
+implement oblivious transfer from weaker variants. For example, in weak
+oblivious transfer , there can occur three types of errors: first, even
+if both players execute the protocol honestly, the output of the
+receiver can be wrong with some probability. Secondly, a dishonest
+receiver may not remain completely ignorant about the second input bit.
+And finally, a dishonest sender may gain partial information about the
+receivers choice bit. We show that if these three errors are not too
+large, it is possible to implement an almost perfect oblivious transfer.
+
+### 1 Background
+
+##### Two- and multi-party computation.
+
+The concept of two- and multi-party computation was introduced by Yao [
+Yao82 ] . A complete solution of this problem with respect to
+computational security was given by Goldreich, Micali, and Wigderson [
+GMW87 ] , and later but independently, by Chaum, Damgård, and van de
+Graaf [ CDvdG88 ] . Later Ben-Or, Goldwasser, and Wigderson [ BGW88 ]
+and, independently, Chaum, Crépeau, and Damgård [ CCD88 ] showed that in
+a model with only pairwise secure channels, multi-party computation
+among @xmath players unconditionally secure against an active adversary
+is achievable if and only if @xmath players are corrupted. Beaver [
+Bea89 ] and independently Rabin and Ben-Or [ RB89 ] showed that this
+bound can be improved to @xmath , assuming that global broadcast
+channels are available.
+
+##### Security definitions.
+
+Intuitively, it seems to be very clear what we mean when we say that a
+two-party protocol should be secure : it should be correct , i.e., it
+should implement the desired functionality, and it should be private ,
+meaning that it should not leak additional information to any of the
+players. Unfortunately, these intuitive ad-hoc requirements are hard to
+formalize and often even insufficient.
+
+Inspired by the work of Goldwasser, Micali, and Rackoff [ GMR85 ] on
+zero-knowledge proofs of knowledge, Goldreich, Micali and Wigderson [
+GMW87 ] were the first to use the simulation paradigm to define the
+security of multi-party computation protocols. Micali and Rogaway [ MR92
+] and Beaver [ Bea92 ] further formalized this approach. The idea behind
+these definitions is very intuitive and goes as follows. We say that a
+(real) protocol securely computes a certain functionality if for any
+adversary attacking the protocol, there exists a (not much stronger)
+adversary in an ideal setting — where the players only have black-box
+access to the functionality they try to implement — that achieves the
+same. In other words, a protocol is secure if any attack in the real
+model can be simulated in the much more restrictive ideal model. As
+shown by Beaver [ Bea92 ] , and formally proved by Canetti [ Can96 ,
+Can00 ] , these security definitions imply that secure protocols are
+sequentially composable : if in a secure protocol that uses an ideal
+functionality, that ideal functionality is replaced by a secure
+protocol, then the composed protocol is again a secure protocol. Later,
+Backes, Pfitzmann and Waidner [ PW01 , BPW03 ] and independently Canetti
+[ Can01 ] introduced a stronger security definition called universal
+composability , which guarantees that protocols can be composed in an
+arbitrary way.
+
+##### Oblivious transfer.
+
+For the special case of two-party computation, there cannot exist a
+protocol that is unconditionally secure against one corrupted player.
+However, if a primitive called oblivious transfer (OT) is available,
+then any two-party computation can be executed unconditionally secure,
+which was shown by Goldreich and Vainish [ GV88 ] for passive
+adversaries, and by Kilian [ Kil88 ] for active adversaries. These
+results were later improved by Crépeau [ Cré90 ] , Goldwasser and Levin
+[ GL91 ] , and Crépeau, van de Graaf, and Tapp [ CvdGT95 ] . The idea of
+oblivious transfer goes back to Wiesner [ Wie83 ] in around 1970. He
+tried to show that quantum physics allows us to achieve certain
+(classical) tasks that otherwise would not be possible. Since a quantum
+state can contain more information than what we can get out by measuring
+it, he proposed to use quantum communication as “a means for
+transmitting two messages either but not both of which may be received.”
+, which is exactly what OT achieves. More formally, OT is a primitive
+that receives two bits @xmath and @xmath from the sender and a bit
+@xmath from the receiver, and sends @xmath to the receiver, while the
+receiver does not get to know @xmath , and the sender does not get to
+know @xmath . Wiesner proposed a simple protocol that achieves this, but
+he pointed out that it could be broken in principle. Rabin [ Rab81 ]
+introduced a similar primitive in 1981, and showed its usefulness to
+cryptographic applications. (He also gave oblivious transfer its name.)
+Even, Goldreich and Lempel [ EGL85 ] reintroduced Wiesner’s version OT.
+
+##### Computationally secure oblivious transfer.
+
+There exist different approaches to securely implement OT, with
+different degrees of security. If we are only interested in
+computational security , i.e., a system that cannot be broken by any
+adversary limited to polynomial computing time, then OT can be
+implemented using noiseless communication only, given some assumptions
+are correct. Of course, we would like to make these assumptions as weak
+as possible, for example, we would like to have an implementation of OT
+that is secure under the assumption that one-way functions — functions
+that are easy to evaluate, but hard to invert — exist. Unfortunately,
+such an implementation is still not known. Even worse, Impagliazzo and
+Rudich [ IR89 ] showed that such an implementation, if it exists, will
+be very hard to find, because there cannot exist any black-box reduction
+of OT to one-way functions.
+
+Even, Goldreich and Lempel [ EGL85 ] presented an implementation of OT
+using trapdoor permutations. However, Goldreich [ Gol04 ] showed that in
+fact the stronger assumption of an enhanced trapdoor permutations is
+needed for the protocol to be secure. This assumption was later weakened
+by Haitner [ Hai04 ] to dense trapdoor permutations . Other
+implementations use more specific assumptions such as the assumption
+that factoring a product of two primes is hard, as shown by Rabin [
+Rab81 ] , or the Diffie-Hellman assumption , shown by Bellare and
+Micali, Naor and Pinkas, and Aiello, Ishai and Reingold [ BM90 , NP01 ,
+AIR01 ] . Unfortunately, these latter assumptions have turned out to be
+wrong in the quantum world, as there exists an efficient algorithm for
+breaking both assumptions, shown by Shor [ Sho94 ] .
+
+In the universally composable framework, Canetti and Fischlin [ CF01 ]
+showed that there cannot exist an implementation of OT secure against
+active adversaries ¹ ¹ 1 They showed that bit-commitment is impossible,
+but since bit-commitment can be implemented from OT, this implies that
+also OT is impossible. . On the other hand, Canetti, Lindell, Ostrovsky,
+and Sahai [ CLOS02 ] showed that the protocol presented in [ GMW87 ] is
+secure against passive adversaries in the universally composable
+framework. Garay, MacKenzie and Yang [ GMY04 ] proposed an
+implementation of enhanced committed OT secure against active
+adversaries under the additional assumption of a common reference string
+. Fischlin [ Fis06 ] proposed a protocol that does not assume a common
+reference string, but needs the help of other players.
+
+##### Unconditionally secure oblivious transfer.
+
+All known computational implementations of OT — besides the assumption
+that the adversary is computationally bounded — are based on quite
+strong, unproven assumptions about the complexity of certain problems.
+Unconditional security does not have these shortcomings. It offers a
+security that cannot be broken in principle , no matter what computing
+power the adversary has, and is generally not based on unproven
+assumptions. Unfortunately, unconditional secure OT is impossible to
+achieve if the players only have access to noiseless communication. In
+fact, even noiseless quantum communication does not help, as has been
+shown by Mayers [ May97 ] , and independently by Lo and Chau [ LC97 ] ²
+² 2 They showed that bit-commitment is impossible, but since
+bit-commitment can be implemented from OT, this implies that also OT is
+impossible. . Therefore, some additional resources must be available in
+order to achieve unconditionally secure OT.
+
+##### Reductions between different variants of OT.
+
+There exist many different variants of OT, and all of them have been
+shown to be equivalent to OT. Crépeau [ Cré88 ] showed that OT can be
+implemented from Rabin’s OT, and Brassard, Crépeau and Robert [ BCR86 ]
+showed, among others, that string OT (where the sender can send strings
+instead of single bits) can be implemented from bit OT. More efficient
+methods to implement string OT from bit OT were presented by Brassard,
+Crépeau and Sántha [ BCS96 ] , by Brassard, Crépeau and Wolf [ BC97 ,
+BCW03 ] , and by Crépeau and Savvides [ CS06 ] . Imai, Morozov, and
+Nascimento [ IMN06 ] showed a direct implementation of string OT from
+Rabin’s OT. Dodis and Micali [ DM99 ] presented a protocol to extend the
+number of choices for the receiver. Another interesting property of OT
+was shown by Bennett, Brassard, Crépeau and Skubiszewska [ BBCS92 ] and
+Beaver [ Bea95 ] , namely that OT can be precomputed . This means that
+OT can be converted into a randomized version of OT, that can later be
+converted back into OT. Crépeau and Sántha [ CS91 ] , and independently
+Ostrovsky, Venkatesan and Yung [ OVY93 ] presented protocols which
+implement OT in one direction from OT in the other direction. Wolf and
+Wullschleger [ WW06 ] presented a much simpler and more efficient
+protocol for this.
+
+Various weak versions of OT have been proposed where either the sender’s
+or the receiver’s security is weakened. Crépeau and Kilian [ CK88 ]
+presented an implementation of OT from @xmath -1-2 slightly OT , which
+is a weak version of OT where the sender may get some information about
+the choice bit of the receiver. Brassard, Crépeau and Wolf [ BC97 ,
+BCW03 ] showed that OT can also be implemented from XOT , GOT or UOT
+with repetitions , which are weak versions of OT where the receiver may
+get information he is not supposed to. Cachin [ Cac98 ] proposed a
+primitive called Universal OT (without repetitions), which is a
+generalization of XOT, GOT or UOT with repetitions. He proposed a
+protocol to implement OT, but his proof turned out to be incorrect. The
+protocol was finally shown to be secure by Damgård, Fehr, Salvail and
+Schaffner [ DFSS06 ] . The bound for the protocol were later improved by
+Wullschleger [ Wul07 ] . Damgård, Kilian and Salvail [ DKS99 ] presented
+an even weaker form of OT called weak OT (WOT), where the security for
+both players is weakened and the output to the receiver may be faulty.
+They presented some bounds for which OT can be implemented from WOT.
+Later Wullschleger [ Wul07 ] showed that their definition of WOT
+implicitly uses quite strong assumptions, and proposed a new, weaker
+definition together with new reductions.
+
+##### OT from physical assumptions.
+
+Crépeau and Kilian [ CK88 ] were the first to present protocols for OT
+using noise as additional resource in form of an erasure channel .
+Crépeau [ Cré97 ] presented a protocol for the binary-symmetric noisy
+channel , which was later generalized by Korjik and Morozov [ KM01 ] .
+Crépeau, Morozov and Wolf [ CMW04 ] finally presented a protocol for any
+non-trivial channel . As shown by Imai, Müller-Quade, Nascimento and
+Winter, [ IMQNW04 ] , Wolf and Wullschleger [ WW04 ] , and Nascimento
+and Winter [ NW06 ] , these results also translate to the model where
+the players receive distributed randomness ³ ³ 3 A similar model has
+already been studied in the context of key agreement by Ahlswede and
+Csiszár [ AC93 ] and Maurer [ Mau93 ] . .
+
+Damgård, Kilian and Salvail [ DKS99 ] introduced a more realistic,
+unfair model in which the adversary is given more information than the
+honest players. For example, if a noisy channel is implemented using a
+transmitter and an antenna, an adversary may be able to replace the
+official antenna by a larger one, and may, therefore, receive the
+transmitted signal with less noise than an honest receiver would. They
+presented explicit bounds for the unfair binary noisy channel , which
+were later improved by Damgård, Fehr, Morozov and Salvail [ DFMS04 ,
+Mor05 ] . A central part of these results was the algorithm that
+implements OT from WOT. However, for the reduction to work, the
+definition of [ Wul07 ] must be used.
+
+### 2 Outline of the Thesis
+
+##### Preliminaries.
+
+In Chapter \thechapter , we introduce the three distance measures that
+we will be using in this thesis. We will present some of the properties
+they have and how they are related. The distinguishing advantage and the
+statistical distance are standard measures for the distance between two
+distributions. On the other hand, the maximal bit-prediction advantage
+is a special measure that we will use in Chapters \thechapter and
+\thechapter .
+
+##### Definition of secure two-party computation.
+
+In Chapter \thechapter , we give a simplified, formal framework for
+two-party computation that is universally composable. We will define two
+different models: the malicious model, where the corrupted players may
+behave arbitrarily, and the semi-honest model, where the corrupted
+players follow the protocol, but may try to obtain as much information
+as they can during the protocol. We will also show that these
+definitions allow protocols to be composed. Finally, we show that
+security in the malicious model does not imply security in the
+semi-honest model, and give a weaker security definition for the
+semi-honest model for which this implication holds.
+
+##### Oblivious transfer.
+
+In Chapter \thechapter , we will introduce the main topic of this
+thesis: oblivious transfer (OT). We will also define a randomized
+version of OT, called randomized OT (ROT), and show that OT and ROT are
+equivalent if communication is free. We will then give a very simple
+protocol which shows that ROT is symmetric. In connection with the other
+protocols, this gives us a simple way to reverse the direction of OT.
+Finally, we will present information-theoretic conditions that imply
+that a protocol securely implements ROT.
+
+Contribution. Our reduction that reverses ROT and hence also OT is joint
+work with Stefan Wolf [ WW06 ] , and is much simpler and more efficient
+than previous reductions presented in [ CS91 , OVY93 ] . The
+information-theoretic conditions for the security of ROT presented here
+build on prior joint work with Claude Crépeau, George Savvides and
+Christian Schaffner [ CSSW06 ] . There, we presented
+information-theoretic conditions that imply that a protocol securely
+implements secure function evaluation in a sequentially composable
+model. These conditions replace many ad-hoc definitions for the security
+of protocols which often have been faulty. Here, we only present
+conditions for ROT, however we show a stronger statement about ROT, as
+our conditions imply that a protocol is universally composable , and not
+only sequentially. Also, our conditions have explicit error terms, which
+makes them easier to use.
+
+##### Universal oblivious transfer.
+
+In Chapter \thechapter , we will present a protocol that implements ROT
+from a weak variant of ROT called universal OT (UOT). In contrast to
+ROT, UOT allows a corrupted receiver to receive any information he wants
+about the input, as long as he does not receive too much information.
+For example, he could be allowed to receive a bit string of a certain
+size that is an arbitrary function of his choice of the sender’s inputs.
+
+Contribution. Our proof, which is also presented in [ Wul07 ] , shows
+that in the reduction of OT to UOT, the string length of the resulting
+OT can be about twice as long as for the bound presented in [ DFSS06 ] ,
+which is optimal for that protocol. (The same bound that we present here
+has already been claimed in [ Cac98 ] , but the proof presented there
+was incorrect, which was discovered by [ DFSS06 ] .) Our proof makes use
+of a novel distributed leftover hash lemma , which is a generalization
+of the well-known leftover hash lemma [ BBR88 , ILL89 ] , and of
+independent interest.
+
+##### Weak oblivious transfer.
+
+In Chapter \thechapter , we introduce weak oblivious transfer (WOT), a
+weak variant of ROT where the security for both players is weak, and
+where the output may be incorrect. We give formal definitions of WOT in
+both the semi-honest and the malicious model. We show that for certain
+parameters (when the instances of WOT are too weak), it is impossible to
+implement ROT from WOT. Then we present several protocols that implement
+ROT from WOT, and give upper bounds on how many instances of WOT are
+needed. Unfortunately, these reductions do not meet the impossibility
+bound.
+
+Contribution. We give several improvements over the results presented in
+[ DKS99 ] , most of which are also presented in [ Wul07 ] . First of
+all, we give new, weaker definitions of WOT that replaces the definition
+presented in [ DKS99 , DFMS04 ] , which was too strong and had only a
+very limited range of applications. Also, our definitions make the need
+for the more general notion of generalized weak oblivious transfer of [
+DFMS04 ] unnecessary. For the special case where the WOT does not make
+any error, we present a more detailed proof and a better upper bound on
+the amount of instances used than in [ DKS99 ] . Then, using a different
+error-reduction protocol that also works with our weaker definitions, we
+give bounds for the special case where information is leaked only to one
+of the two players, as well as several new bounds for the general case.
+
+##### Computational weak oblivious transfer.
+
+In Chapter \thechapter we transfer the results from Chapter \thechapter
+to the computational setting. We define computational weak oblivious
+transfer (compWOT), which is a computational version of WOT, where the
+adversary may get some additional computational knowledge about the
+value he is not supposed to. Using Holenstein’s hard-core lemma [ Hol05
+, Hol06 ] , we show that any protocol that is secure in the
+information-theoretic setting can also be used in the computational
+setting. Hence, the reductions presented in Chapter \thechapter can be
+used to amplify compWOT to a computationally secure OT.
+
+Contribution. We give a simplified but slightly stronger version of the
+pseudo-randomness extraction theorem from [ Hol06 ] , and fix the proof
+given in [ Hol06 ] , where a step was missing. Then, we show that
+computationally secure OT can be implemented from a large set of
+compWOT. This improves the results presented in [ Hai04 ] , where only
+one special case was solved.
+
+## Chapter \thechapter Preliminaries
+
+### 3 Notation
+
+We will use the following convention: lower case letters will denote
+fixed values and upper case letters will denote random variables and
+algorithms. Calligraphic letters will denote sets and domains of random
+variables. For a random variable @xmath over @xmath , we denote its
+distribution by @xmath with @xmath . For a given distribution @xmath ,
+we write for the marginal distribution @xmath and, if @xmath , @xmath
+for the conditional distribution. By @xmath we denote the list @xmath .
+
+We use the function @xmath . @xmath denotes the natural logarithm, and
+@xmath denotes the logarithm to the base 2.
+
+### 4 Distances between Distributions
+
+In this section, we will introduce two measures for the distance between
+two distributions: the distinguishing advantage and the statistical
+distance .
+
+###### Definition \thechapter.1.
+
+The distinguishing advantage of an algorithm @xmath (called the
+distinguisher ) to distinguish @xmath from @xmath , which are random
+variables over the domain @xmath , is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The distinguishing advantage of a class @xmath of distinguishers in
+distinguishing @xmath from @xmath is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We have @xmath and @xmath for all @xmath and @xmath . It is also easy to
+see that probabilistic distinguishers do not perform better than
+deterministic ones: let @xmath be a probabilistic distinguisher that
+takes additionally some randomness @xmath as input. We have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Now let @xmath be the value that maximizes the expression
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then @xmath is a deterministic distinguisher with
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In the following, we will therefore only consider deterministic
+distinguishers. Lemma \thechapter .1 shows that the triangle inequality
+holds for the distinguishing advantage.
+
+###### Lemma \thechapter.1 (Triangle inequality).
+
+For any @xmath , @xmath , and @xmath over @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+We have
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+∎
+
+It is easy to see that the same also holds for classes of
+distinguishers, i.e., for any @xmath , we have @xmath .
+
+###### Definition \thechapter.2.
+
+The statistical distance of two random variables @xmath and @xmath (or
+two distributions @xmath and @xmath ) over the same domain @xmath is
+defined as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We say that @xmath is @xmath -close to @xmath , denoted by @xmath , if
+@xmath . We say that a random variable @xmath is @xmath -close to
+uniform with respect to @xmath , if @xmath , where @xmath is the uniform
+distribution over @xmath .
+
+###### Lemma \thechapter.2.
+
+For all @xmath and @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath .
+
+###### Proof.
+
+We have
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+∎
+
+###### Lemma \thechapter.3.
+
+For all @xmath and @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+Follows directly from Lemma \thechapter .2 , since
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is maximal for @xmath . ∎
+
+From Lemma \thechapter .3 follows now that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the class of all (also inefficient) distinguishers.
+
+###### Lemma \thechapter.4.
+
+For any @xmath and @xmath over @xmath and @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+Let @xmath be the class of all (also inefficient) distinguishers, and
+let @xmath be a distinguisher such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then, for @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since @xmath , we have
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+∎
+
+###### Lemma \thechapter.5.
+
+Let @xmath and @xmath be distributions over @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+For any set @xmath , we have
+
+  -- -------- --
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+              
+     @xmath   
+  -- -------- --
+
+and therefore
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+∎
+
+### 5 Prediction of Random Variables
+
+For the case where @xmath , we will also use another measure of its
+closeness to uniform with respect to a random variable @xmath , the
+maximal bit-prediction advantage , which measures how well @xmath can be
+predicted from @xmath . See also Section 2.1 in [ Hol06 ] .
+
+###### Definition \thechapter.3.
+
+Let @xmath be a distribution over @xmath . The maximal bit-prediction
+advantage of @xmath from @xmath is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In other words, if @xmath , then we have for all functions @xmath
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+First, we show that @xmath , if and only if @xmath is @xmath -close to
+uniform with respect to @xmath .
+
+###### Lemma \thechapter.6.
+
+Let @xmath be a distribution over @xmath . Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the uniform distribution over @xmath .
+
+###### Proof.
+
+Obviously, the best function @xmath for guessing @xmath is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We have
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+∎
+
+Lemma \thechapter .7 follows immediately from Lemmas \thechapter .4 and
+\thechapter .6 .
+
+###### Lemma \thechapter.7.
+
+Let @xmath be a distribution over @xmath , and let @xmath . Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The following lemma shows that for any distribution @xmath over @xmath ,
+we can define an event that has probability @xmath , such that
+conditioned on that event, @xmath is uniformly distributed given @xmath
+, and therefore no function @xmath can predict @xmath .
+
+###### Lemma \thechapter.8.
+
+Let @xmath be any distribution over @xmath . There exists a conditional
+distribution @xmath over @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and such that for all functions @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+We define
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Using Lemma \thechapter .6 , we get
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+For @xmath , we have
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+Since @xmath does not depend on @xmath , it must be equal to @xmath ,
+and, therefore, we have, for all functions @xmath and for all values
+@xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+∎
+
+Lemma \thechapter .9 shows that the statement of Lemma \thechapter .8
+also works in the other direction. If there exists an event with
+probability @xmath under which @xmath cannot be guessed from @xmath with
+any advantage, then @xmath .
+
+###### Lemma \thechapter.9.
+
+Let @xmath be any distribution over @xmath . If there exists a
+conditional distribution @xmath over @xmath such that for all functions
+@xmath we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+For any function @xmath , we have
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+and, therefore,
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+∎
+
+The following lemmas show some rules for @xmath .
+
+###### Lemma \thechapter.10.
+
+Let @xmath be distributions over @xmath . Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+For @xmath , let @xmath be the random variable defined by Lemma
+\thechapter .8 . Let @xmath . If @xmath then for a @xmath we have @xmath
+. Therefore, @xmath is uniformly at random given @xmath , and any @xmath
+will output @xmath with probability @xmath . The statement now follows
+from Lemma \thechapter .9 , and from the fact that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+∎
+
+###### Lemma \thechapter.11.
+
+Let @xmath be distributions over @xmath , and let @xmath . Then
+
+  -- -- --
+        
+  -- -- --
+
+###### Proof.
+
+For @xmath , let @xmath be the random variable defined by Lemma
+\thechapter .8 , and let @xmath . If @xmath then for all @xmath we have
+@xmath , and therefore @xmath will be uniformly at random given @xmath .
+It follows that @xmath is independent from @xmath and any @xmath will
+output @xmath with probability @xmath . The statement now follows from
+Lemma \thechapter .9 , and from the fact that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+∎
+
+###### Lemma \thechapter.12.
+
+For all @xmath and @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+If a function @xmath can predict @xmath with advantage @xmath , then the
+function @xmath can predict @xmath with advantage @xmath , and if @xmath
+can predict @xmath with advantage @xmath , then the function @xmath can
+predict @xmath with advantage @xmath . ∎
+
+## Chapter \thechapter Secure Two-Party Computation
+
+In this chapter we give an introduction to a simplified version of
+universally composable two-party computation . We define security in the
+malicious and the semi-honest models, and show that these definitions
+allow protocols to be composed. Finally, we show that security in the
+malicious model does not imply security in the semi-honest model, and
+give a weaker security definition for the semi-honest model for which
+this implication holds.
+
+### 6 Two-Party Computation
+
+We start with some basic definitions. Our definitions are based on the
+formalism by Maurer [ Mau06 ] , as well as the formalisms of Backes,
+Pfitzmann and Waidner [ PW01 , BPW03 ] and Canetti [ Can01 ] , but
+simplified and adapted for our needs. Since we will only consider two
+players interacting with each other, we can simplify the notation. For
+example, we will not use any identification tags.
+
+We will model everything in terms of systems which may interact with
+other systems or the environment via interfaces . We say that system
+@xmath implements a set @xmath of interfaces. There are two players
+present, which we will call and . The set of interfaces @xmath can be
+divided into two sets: the set @xmath of the interfaces belonging to
+player , and the set @xmath of the interfaces belonging to player .
+
+[] []
+
+A system has an internal, possibly infinite supply of randomness. Every
+output of the system is a function of the received messages so far, and
+the internal randomness. The system is efficient if these functions can
+be evaluated efficiently, i.e., using a polynomial time turing machine.
+The whole interaction between systems is asynchronous , i.e., there is
+no global time.
+
+Two systems @xmath and @xmath can be composed in parallel to a new
+system, denoted by @xmath . The two sub-systems @xmath and @xmath do not
+interact with each other, and the resulting system has all the
+interfaces of the two subsystems.
+
+[] []
+
+We denote the parallel composition of @xmath times the same system
+@xmath by @xmath .
+
+A system @xmath may use another system @xmath as a subsystem, which we
+denote by @xmath . @xmath may have some interfaces that are connected to
+some interfaces of @xmath . We use this notation because @xmath can be
+viewed as a function that transforms a system @xmath into a system
+@xmath . @xmath is a special case of this composition.
+
+[] []
+
+### 7 Distinguishing Systems
+
+Definition \thechapter .1 in Section 4 , which defines the
+distinguishing advantage for random variables, can be generalized to
+systems in a straightforward way. A distinguisher is now an algorithm
+@xmath that interacts with a system @xmath and outputs @xmath or @xmath
+.
+
+[] []
+
+###### Definition \thechapter.1.
+
+For two systems @xmath and @xmath , the distinguishing advantage of a
+distinguisher @xmath in distinguishing @xmath from @xmath is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The distinguishing advantage of a class @xmath of distinguishers in
+distinguishing @xmath from @xmath is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The distinguishing advantage of systems still has the same important
+properties as the distinguishing advantage for random variables.
+Obviously, we have @xmath and @xmath , for all @xmath and @xmath .
+Furthermore, it also satisfies the triangle inequality:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all @xmath , @xmath , @xmath , and @xmath .
+
+Except in Chapter \thechapter , @xmath will be the set of all possible
+(also inefficient) distinguishers. In this case, we will omit the @xmath
+and only write @xmath . We also write @xmath for @xmath , and @xmath for
+@xmath .
+
+Similar to Lemma \thechapter .4 , we have for all systems @xmath ,
+@xmath , and @xmath
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+since any distinguisher @xmath that distinguishes @xmath from @xmath
+with an advantage of @xmath can be used to distinguish @xmath from
+@xmath , by first applying @xmath . If @xmath is the class of all
+efficient distinguishers, then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+if @xmath is efficient.
+
+Note that for the case where @xmath and @xmath have no inputs and output
+random variables @xmath and @xmath , respectively, this definition is
+equivalent to Definition \thechapter .1 , and we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+### 8 Adversaries and Secure Protocols
+
+In this section we define protocols and their security. In the
+following, we will often use special systems that only have interfaces
+for one player @xmath . We denote such systems by @xmath . For any
+systems @xmath , @xmath , and @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+A system of the form @xmath is called a (two-party) protocol .
+
+[] []
+
+Players may be honest , which means that they follow the protocol, or
+they may be corrupted in two different ways. If a player is actively
+corrupted , he may behave in an arbitrary way. If a player is passively
+corrupted , then he follows the protocol, but forwards everything he
+sends or receives immediately over an additional interface that we will
+call auxiliary interface . Such players are also called honest, but
+curious .
+
+The set of all corrupted players are called the adversary . Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+be the set of corrupted players, where and are actively and @xmath and
+@xmath passively corrupted players. We will assume that this set is
+static , i.e., it is already determined before the protocol starts. We
+will not mix actively and passively corrupted players, and consider two
+different models. In the malicious model , the players may be actively
+corrupted, and in the semi-honest model the players may be passively
+corrupted. Furthermore, we can ignore the case where @xmath or @xmath ,
+as we never have any requirement for these cases. Therefore, we only
+have to consider the case @xmath .
+
+Because an adversary may be able to use a system in a different way than
+the honest players, we will use the following generalized notion of a
+system. A collection of systems
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+(in the malicious or the semi-honest model) defines a different system
+@xmath for every possible set of corrupted players @xmath , where the
+honest players always have the same interfaces as in @xmath . This means
+that in @xmath and @xmath , must have the same interfaces as in @xmath ,
+and in @xmath and @xmath , must have the same interfaces as in @xmath .
+Furthermore, the system @xmath should be at least as good for the
+adversary as the system @xmath , i.e., the adversary should always be
+able to behave honestly. @xmath can be interpreted as a model of a
+system where the adversary @xmath can corrupt a part of the system
+@xmath .
+
+In the following, we will abuse the term “system”, and also use it for
+collections of systems.
+
+#### 8.1 The Malicious Model
+
+In the malicious model , the adversary is allowed to cheat actively, in
+an arbitrary way. Therefore, we do not have any restrictions on how the
+interface to the adversary may look like, as long as it allows him to
+behave honestly, if he wants.
+
+[] []
+
+We will now define the security of protocols. We say that a protocol
+@xmath having access to the system @xmath securely implements a system
+@xmath , if, first of all, @xmath , i.e., the protocol implements the
+system @xmath correctly, given that both players are honest.
+Additionally, for @xmath , we require that the adversary attacking the
+protocol has no advantage over another adversary that attacks @xmath
+directly. We therefore require that there exists a simulator @xmath that
+simulates exactly what the adversary would get in the execution of the
+protocol @xmath . Since the adversary may not follow the protocol, his
+view of the protocol is in fact the “raw” interface of @xmath , without
+his part of the protocol.
+
+###### Definition \thechapter.2.
+
+A protocol @xmath securely implements a system @xmath in the malicious
+model with an error of at most @xmath , if
+
+-   (Correctness) @xmath .
+
+-   (Security for ) There exists a system @xmath (called the simulator
+    for ), such that
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+-   (Security for ) There exists a system @xmath (called the simulator
+    for ), such that
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+Note that the protocol @xmath can also be viewed as a new system @xmath
+, defined by @xmath , @xmath , and @xmath . Definition \thechapter .2
+could then be stated by comparing the systems @xmath and @xmath .
+
+We do generally not require the simulation to be efficient. Therefore,
+an attack that is efficient in @xmath may be mapped to a very
+inefficient attack in @xmath . This means that if the system @xmath is
+replaced by the protocol @xmath , the adversary may gain extra
+possibilities because he may be able to execute some attacks more
+efficiently in the new setting. More precisely, he gains the extra
+possibility of executing the simulator for free. Depending on the
+setting, this may be a problem. For example, if the simulator allows him
+to invert a one-way function, a system that relies on the assumption
+that inverting this one-way function is hard may not be secure anymore.
+On the other hand, if @xmath is used in a protocol that is
+information-theoretically secure, the additional, virtual computing
+power of the adversary will be of little use to him. Therefore, an
+efficient simulation is preferable, even in the model where the
+adversary is (potentially) unbounded, because it allows the protocol to
+be used also in the computational setting. A very important property of
+this security definition is that it allows protocols to be composed .
+
+###### Theorem \thechapter.1 (Composition theorem, malicious model).
+
+If @xmath securely implements @xmath in the malicious model with an
+error of at most @xmath , and @xmath securely implements @xmath in the
+malicious model with an error of at most @xmath , then @xmath securely
+implements @xmath in the malicious model with an error of at most @xmath
+.
+
+###### Proof.
+
+From @xmath follows that @xmath . Since @xmath , it follows from the
+triangle inequality that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+There exists a simulator @xmath , such that @xmath . It follows that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since there exists a simulator @xmath such that @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+It follows from the triangle inequality that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and hence the protocol is secure for , with an error of at most @xmath .
+The security for can be shown in the same way. ∎
+
+#### 8.2 The Semi-Honest Model
+
+In the semi-honest model , the adversary is passive . Instead of
+executing @xmath , a passively corrupted player @xmath executes @xmath ,
+which is equal to @xmath , but forwards everything it sends or receives
+immediately over an auxiliary interface. Note that the output of the
+auxiliary interface contains the entire view of the corrupted player,
+and therefore also the output of the honest interface.
+
+[] []
+
+We require that every system in a collection must also have the same
+interfaces for the adversary as for the honest player, because the
+adversary executes the protocol honestly and can only connect to these
+interfaces. However, the system has auxiliary output interfaces for the
+adversary, that provide him with some extra information.
+
+[] []
+
+Let @xmath . A protocol @xmath securely implements a system @xmath in
+the semi-honest model if there exists a simulator @xmath that accesses
+the interaction of the system @xmath with player @xmath and produces the
+same output as @xmath . Furthermore, the simulator @xmath is not allowed
+to modify the inputs and outputs on the interfaces of the honest player,
+because we require that the simulated adversary attacking @xmath is also
+only passively, and not actively corrupted. Otherwise, the protocol
+could not be composed. We get the following definition.
+
+###### Definition \thechapter.3.
+
+A protocol @xmath securely implements @xmath in the semi-honest model
+with an error of at most @xmath , if
+
+-   (Correctness) @xmath .
+
+-   (Security for A ) There exists a system @xmath (called the simulator
+    for ), that only modifies the auxiliary interfaces, such that
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+-   (Security for B ) There exists a system @xmath (called the simulator
+    for ), that only modifies the auxiliary interfaces, such that
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+As in the malicious model, we can show that protocols in the semi-honest
+model compose.
+
+###### Theorem \thechapter.2 (Composition theorem, semi-honest model).
+
+If @xmath securely implements @xmath in the semi-honest model with an
+error of at most @xmath , and @xmath securely implements @xmath in the
+semi-honest model with an error of at most @xmath , then @xmath securely
+implements @xmath in the semi-honest model with an error of at most
+@xmath .
+
+###### Proof sketch.
+
+From @xmath follows that @xmath . Since @xmath , it follows from the
+triangle inequality that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+There exists a simulator @xmath , such that @xmath . It follows that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Note that @xmath passes all its communication to , and @xmath only
+modifies the additional output, but leaves the messages of the honest
+player unchanged. Furthermore, all messages that @xmath sees will be
+passed along by the protocol @xmath . Hence, we can move @xmath to the
+outside, i.e.,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since there exists a simulator @xmath such that @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+It follows from the triangle inequality that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since @xmath only modifies the auxiliary output, it is a valid
+simulator, and hence the protocol is secure for with an error of at most
+@xmath . The security for can be shown in the same way. ∎
+
+##### From passive to active security.
+
+Since security against passively corrupted players is quite weak in
+practice, it is preferable to have a protocol that is secure against
+active adversaries. [ GMW87 ] showed that it is possible to convert any
+protocols that is secure in the semi-honest model into a protocol that
+is secure in the malicious model, by forcing all players to follow the
+protocol. To achieve this, every player must commit himself to all the
+values he has, and in every step of the protocols, he must proof in
+zero-knowledge that he has executed the computation correctly. We will
+not further comment on this method, and refer to [ GMW87 , Cré90 ,
+CvdGT95 , DKS99 , CLOS02 , DFMS04 ] for any details.
+
+#### 8.3 The Weak Semi-Honest Model
+
+We would expect that every protocol that is secure in the malicious
+model is also secure in the semi-honest model, since the adversary is
+restricted in the latter case. Unfortunately, this is not always true.
+The security condition in the malicious model only tells us that for any
+(also semi-honest) adversary, there exists a malicious adversary for the
+ideal system. On the other hand, the security condition in the
+semi-honest model requires the adversary for the ideal system to be
+semi-honest . The following example, which we call the asymmetric dating
+problem , illustrates the difference.
+
+###### Example 1 (The asymmetric dating problem).
+
+Let the system @xmath be defined as follows. It receives a value @xmath
+from , and a value @xmath from . Then, it outputs @xmath to .
+
+[] []
+
+Let be a communication channel, and let the protocol @xmath be defined
+as follows. @xmath receives input @xmath and sends @xmath over to .
+@xmath receives input @xmath from and @xmath over and outputs @xmath .
+Let us look at the security for . It is easy to see that @xmath securely
+implements @xmath in the malicious model, since the simulator @xmath can
+always input @xmath to @xmath and obtain the same information as in
+@xmath . However, the protocol @xmath is not secure in the semi-honest
+model . Since the simulator @xmath is not allowed to change the value
+@xmath , @xmath cannot simulate @xmath if @xmath .
+
+We will now present a weaker security definition for the semi-honest
+model that is also strictly weaker than the security definition of the
+malicious model. The only difference to Definition \thechapter .3 is
+that we allow arbitrary simulators, i.e., the simulator may modify the
+inputs as it likes.
+
+###### Definition \thechapter.4.
+
+A protocol @xmath securely implements @xmath in the weak semi-honest
+model with an error of at most @xmath , if
+
+-   (Correctness) @xmath .
+
+-   (Security for A ) There exists a system @xmath (called the simulator
+    for ), such that
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+-   (Security for B ) There exists a system @xmath (called the simulator
+    for ), such that
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+###### Lemma \thechapter.1.
+
+If a protocol @xmath securely implements @xmath in the semi-honest model
+or in the malicious model with an error of at most @xmath , then it also
+securely implements @xmath in the weak semi-honest model with an error
+of at most @xmath .
+
+###### Proof.
+
+It is obvious that security in the semi-honest model implies security in
+the weak semi-honest model.
+
+Let us assume that @xmath securely implements @xmath in the malicious
+model. The correctness conditions in the weak semi-honest model is the
+same as in the malicious model.
+
+From the security for follows that there exists a simulator @xmath ,
+such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Therefore, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The system @xmath is a simulator, which implies security for in the weak
+semi-honest model. The security for can be shown in the same way. ∎
+
+Unfortunately, Definition \thechapter .4 is too weak to allow for
+composition, and is therefore not a very useful definition for the
+security of protocols. The only composition that is possible is the
+following, where the outer protocol is secure in the weak semi-honest
+model, and the inner protocol is secure in the semi-honest model.
+
+###### Theorem \thechapter.3 (Simple composition theorem, weak
+semi-honest model).
+
+If @xmath securely implements @xmath in the weak semi-honest model with
+an error of at most @xmath , and @xmath securely implements @xmath in
+the semi-honest model with an error of at most @xmath , then @xmath
+securely implements @xmath in the weak semi-honest model with an error
+of at most @xmath .
+
+###### Proof sketch.
+
+The proof can be done in the same way as the proof of Theorem
+\thechapter .2 . The only difference is that now, the simulator @xmath
+is not restricted in any way. The argument works in the same way, except
+that the resulting simulator @xmath will not be restricted either.
+Hence, the protocol is secure in the weak semi-honest model. ∎
+
+The weak semi-honest model is useful to prove impossibilities, since it
+is weaker than the definitions in both the malicious and the semi-honest
+models. If we can show that there cannot exist a protocol in the weak
+semi-honest model, then there can neither exist a protocol secure in the
+malicious, nor in the semi-honest model.
+
+### 9 Discussion
+
+In this chapter we presented a simplified universally composable
+framework for two-party computation. We did not use the frameworks
+presented in [ PW01 , BPW03 ] or [ Can01 ] because they are far too
+complex and too general for what we will need them. Our simplified
+framework will make the results in the following chapters easier to
+state, and hopefully also easier to understand. However, this also means
+that in order to fit our results into more general frameworks such as [
+PW01 , BPW03 ] or [ Can01 ] , additional work will be needed.
+
+If our protocols are to be executed in an environment where more players
+are present, we have to make sure that all the other players do not get
+any information over the inputs or the outputs of and . This can be
+achieved by requiring that all our two-party systems are completely
+independent of the other players. This means for example that all
+channels must be secure and authentic.
+
+## Chapter \thechapter Oblivious Transfer
+
+In this chapter we introduce the primitives oblivious transfer (OT) and
+randomized oblivious transfer (ROT), which is a variant of OT where the
+inputs of the honest players are chosen at random.
+
+We start by showing that OT and ROT are equivalent if noiseless
+communication is available for free. Then, we show that ROT is symmetric
+by presenting a protocol that converts an instance of ROT into an
+instance of ROT in the opposite direction. This implies that also the
+direction of OT can be reversed in a very simple way (Theorem
+\thechapter .1 ).
+
+In Theorems \thechapter .2 and \thechapter .3 we give
+information-theoretic conditions for the security of ROT. These
+conditions are similar to the ones presented in [ CSSW06 ] , however we
+are able to show a stronger result, as our conditions imply that a
+protocol which satisfies them is universally composable , and not only
+sequentially. Also, our conditions have explicit error terms, which
+makes them easier to use.
+
+All the results will be stated in the malicious and the semi-honest
+model.
+
+### 10 (Randomized) Oblivious Transfer
+
+In this section we will introduce oblivious transfer (OT) , and a
+randomized version of OT called randomized OT (ROT) .
+
+###### Definition \thechapter.1 (Oblivious transfer).
+
+The system @xmath (or, if the values of @xmath and @xmath are clear from
+the context, ) is defined as follows. First, it waits for to send his
+input @xmath , and sends @xmath ⁴ ⁴ 4 This is a message without any
+content, which notifies about the fact that has sent his input @xmath .
+. After having received input @xmath from , it sends @xmath to . (Notice
+that @xmath .)
+
+[] []
+
+(Note that from now on, the drawings will also include timing aspects.
+The time flows from the top to the bottom. The dotted lines indicate
+waiting points, where the system waits to receive all messages above the
+line before it continues.)
+
+We use the same version of OT as [ CLOS02 ] , where the sender is
+notified about the fact that the receiver has made his choice. Notice
+that in [ Can01 , Fis06 ] , OT has been defined differently. There, the
+honest sender does not get this notification. We do not know how to
+securely implement OT if the malicious sender does not get to know the
+fact that the receiver has made his choice. Therefore, it is preferable
+to also give this information to the honest sender. For example, this
+allows us to easily implement a bit-commitment protocol from the
+receiver to the sender. Also, only this definition allows us to show
+that OT and ROT are equivalent if noiseless communication is available
+for free.
+
+Often, it is much easier to implement a randomized version of OT, called
+randomized oblivious transfer (ROT), first. One way of defining ROT
+would be to make it equivalent to OT, but where all the inputs are
+chosen uniformly at random by the system. This definition would,
+however, not be very useful, because it is too strong: any secure
+implementation would have to make sure that all values are indeed chosen
+uniformly at random, which can be very difficult. Furthermore, it turns
+out that in most applications this is not needed. We will, therefore,
+define ROT as a collection of systems, where the adversary can choose
+her own output.
+
+###### Definition \thechapter.2 (Randomized oblivious transfer,
+malicious model).
+
+The system @xmath (or, if the values of @xmath and @xmath are clear from
+the context, ) is defined as a collection of systems
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where
+
+-   @xmath : The system chooses uniformly at random the value @xmath and
+    @xmath . It sends @xmath to and @xmath to where @xmath .
+
+-   @xmath : The system waits for to send the value @xmath . Then, it
+    chooses the value @xmath uniformly at random and sends @xmath to ,
+    where @xmath .
+
+-   @xmath : The system waits for to send the value @xmath . Then, it
+    sets @xmath , chooses the values @xmath uniformly at random for
+    @xmath , and sends @xmath to .
+
+[] []
+
+We will now show that and are equivalent if communication is given for
+free, by presenting two protocols that securely implement one system
+using one instance of the other and a communication channel.
+
+Protocol @xmath securely implements from one instance of , and is
+defined as follows.
+
+###### Protocol 1.
+
+@xmath :
+
+1.  Choose @xmath uniformly at random.
+
+2.  Send @xmath to .
+
+3.  Receive @xmath from .
+
+4.  Output @xmath .
+
+@xmath :
+
+1.  Choose @xmath uniformly at random.
+
+2.  Send @xmath to .
+
+3.  Receive @xmath from .
+
+4.  Output @xmath .
+
+[] []
+
+###### Lemma \thechapter.1.
+
+@xmath securely implements @xmath in the malicious model.
+
+###### Proof.
+
+Obviously, we have @xmath .
+
+@xmath waits for input @xmath from , and then outputs @xmath to , where
+all @xmath are chosen uniformly at random and independently of the rest,
+and @xmath to . We define @xmath as follows. It waits for input @xmath
+from . Then it chooses @xmath uniformly at random, sends @xmath to
+@xmath , and outputs @xmath .
+
+[] []
+
+It is easy to verify that @xmath .
+
+@xmath outputs @xmath to . It waits for input @xmath from , chooses a
+value @xmath uniformly at random, and sends @xmath and @xmath to . We
+define @xmath as follows. It outputs @xmath to . It waits for input
+@xmath from and sends it to @xmath .
+
+[] []
+
+It is easy to verify that @xmath . ∎
+
+To implement from , and need to be able to communicate. We will
+therefore additionally need the system , which implements a
+communication channel from to and from to . Note that, in contrast to or
+, can be used many times.
+
+###### Definition \thechapter.3 (Channel).
+
+The system is defined as follows. Every time it receives a message
+@xmath from @xmath , it sends it to the other player in @xmath .
+
+We can now state the protocol , which was first proposed in [ BBCS92 ]
+to securely implements using and . The protocol is defined as follows.
+
+###### Protocol 2.
+
+@xmath :
+
+1.  Receive @xmath from and @xmath from .
+
+2.  Output @xmath to .
+
+3.  Receive @xmath from .
+
+4.  Send @xmath to , where @xmath .
+
+@xmath :
+
+1.  Receive @xmath from and @xmath from .
+
+2.  Send @xmath to .
+
+3.  Receive @xmath from .
+
+4.  Output @xmath to .
+
+[] []
+
+###### Lemma \thechapter.2.
+
+@xmath securely implements @xmath in the malicious model.
+
+###### Proof.
+
+@xmath waits for input @xmath from , and sends @xmath to . After
+receiving @xmath from , it sends
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+to . (We used the fact that @xmath .) Hence, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+@xmath waits for @xmath and @xmath from , and then outputs @xmath to .
+It then waits for its input @xmath from and outputs @xmath to , where
+@xmath , and all the other values @xmath are uniformly distributed and
+independent of the rest. We define @xmath as follows. It waits for input
+@xmath on the @xmath interface, and @xmath on the interface. Then it
+sends @xmath to . It receives @xmath from , sets @xmath and chooses all
+other @xmath uniformly at random. Finally, it outputs @xmath on the
+interface.
+
+[] []
+
+It is easy to verify that @xmath .
+
+@xmath waits for @xmath from the interface, and the input @xmath from .
+It chooses @xmath uniformly at random and sends it to . After receiving
+also @xmath from the interface from , it outputs @xmath to . We define
+@xmath as follows. It waits for @xmath on the interface, and @xmath from
+. Then, it chooses @xmath uniformly at random and sends it to on the
+interface. After receiving @xmath on the interface, it sends the inputs
+@xmath for @xmath to .
+
+[] []
+
+It is easy to verify that @xmath . ∎
+
+### 11 Oblivious Transfer is Symmetric
+
+Even though @xmath does not look very symmetric, it is almost symmetric,
+as we will show in this section. In particular, we will show that @xmath
+can be reversed , using a very simple transformation that we will call .
+Let @xmath be @xmath in the opposite direction.
+
+The protocol implements @xmath using @xmath and is defined as follows.
+
+###### Protocol 3.
+
+@xmath :
+
+1.  Receive @xmath from .
+
+2.  Output @xmath to , where @xmath and @xmath .
+
+@xmath :
+
+1.  Receive @xmath from .
+
+2.  Output @xmath , where @xmath and @xmath .
+
+[] []
+
+###### Lemma \thechapter.3.
+
+@xmath securely implements @xmath in the malicious model.
+
+###### Proof.
+
+From
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+follows that @xmath . We choose @xmath and @xmath . It is easy to verify
+that @xmath and @xmath . ∎
+
+Let @xmath be @xmath in the opposite direction. Using the protocols ,
+and , we can implement @xmath using one instance of @xmath , and get the
+following theorem.
+
+###### Theorem \thechapter.1.
+
+@xmath can be securely implemented in the malicious model using and one
+instance of @xmath .
+
+Protocols that implement @xmath from @xmath have previously been
+presented in [ CS91 ] , and independently in [ OVY93 ] . However,
+Theorem \thechapter .1 leads to a much simpler and more efficient
+protocol. The protocol of Theorem \thechapter .1 has been proposed in [
+WW06 ] , together with an even more efficient protocol, that only used
+one bit of communication. Unfortunately, that protocol does not work
+here. The problem is that we are not able to send the value @xmath to as
+soon as has made his choice, if makes his choice before has given her
+input.
+
+### 12 In the Semi-Honest Model
+
+In Section 8.3 we have seen that security in the malicious model does
+not always imply security in the semi-honest model. We will therefore
+show that the protocols , and are also secure in the semi-honest model.
+
+First of all, we have to adjust the definition of . Since a semi-honest
+adversary will always choose its random inputs truly random, we have
+@xmath .
+
+###### Lemma \thechapter.4.
+
+Protocol @xmath securely implements @xmath in the semi-honest model.
+
+###### Proof.
+
+Obviously, we have @xmath .
+
+@xmath outputs @xmath to and @xmath (on the auxiliary interface) and
+@xmath to . @xmath receives @xmath , outputs @xmath on the auxiliary
+interface, and passes @xmath along to . We have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+@xmath outputs @xmath and @xmath (on the auxiliary interface) and @xmath
+to , and @xmath to . @xmath receives @xmath , outputs @xmath and @xmath
+on the auxiliary interface and then passes @xmath along to . We have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Hence, the protocol is secure in the semi-honest model. ∎
+
+###### Lemma \thechapter.5.
+
+@xmath securely implements @xmath in the semi-honest model.
+
+###### Proof.
+
+We have seen in Lemma \thechapter .2 that @xmath .
+
+@xmath chooses @xmath uniformly at random, outputs it on the auxiliary
+interface to , and waits for input @xmath from . Then it outputs @xmath
+on the auxiliary interface to , and @xmath to . After receiving @xmath
+from , it outputs @xmath on the auxiliary interface and @xmath on the
+normal interface to , where @xmath and all the other values @xmath are
+chosen uniformly at random.
+
+@xmath chooses @xmath uniformly at random and outputs it on the
+auxiliary interface. It waits for input @xmath , passes it along to ,
+and outputs @xmath on the auxiliary interface. After receiving @xmath
+from , it outputs @xmath to , where @xmath and the remaining values are
+chosen uniformly at random. Finally, it outputs @xmath . It is easy to
+verify that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+@xmath chooses @xmath uniformly at random and outputs it on the
+auxiliary interface to . After receiving @xmath from , it chooses @xmath
+uniformly at random and outputs @xmath and @xmath to on the auxiliary
+interface. After receiving @xmath from , it outputs @xmath to , where
+@xmath , and @xmath to .
+
+@xmath chooses @xmath at random and outputs it on the auxiliary
+interface to . After receiving @xmath from , it outputs @xmath chosen
+uniformly at random on the auxiliary interface and passes @xmath along
+to . After receiving @xmath , it outputs @xmath to , where @xmath , and
+passes @xmath along to . It is easy to verify that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Hence, the protocol is secure. ∎
+
+Protocol applies a bijective function on the output of . Hence, all the
+auxiliary output can be simulated from the output of @xmath , and we get
+the following lemma.
+
+###### Lemma \thechapter.6.
+
+@xmath securely implements @xmath in the semi-honest model.
+
+### 13 Information-Theoretic Security Conditions
+
+We will now present information-theoretic conditions, which imply that a
+protocol securely implements either in the malicious or the semi-honest
+models.
+
+#### 13.1 In the Malicious Model
+
+The following information-theoretic conditions are similar to the
+conditions presented in [ CSSW06 ] , and to the definitions of
+randomized oblivious transfer used in [ DFSS06 ] and [ Wul07 ] .
+However, our correctness condition is stronger, because we require the
+outputs to be random, if the players are honest.
+
+###### Theorem \thechapter.2.
+
+A protocol @xmath securely implements @xmath with an error of at most
+@xmath in the malicious model, if
+
+-    (Correctness) @xmath .
+
+-    (Security for A ) @xmath interacts over the interfaces belonging to
+    (which produces a transcript @xmath ), and after the last input is
+    received, it outputs @xmath to . There exists a conditional
+    probability distribution @xmath that produces a random variable
+    @xmath such that @xmath is @xmath -close to uniform with respect to
+    @xmath .
+
+-    (Security for B ) @xmath interacts over the interfaces belonging to
+    (which produces a transcript @xmath ), and after the last input is
+    received, it outputs @xmath to where @xmath is @xmath -close to
+    uniform with respect to @xmath .
+
+###### Proof.
+
+Let @xmath satisfy these conditions. The correctness condition is the
+same as in Definition \thechapter .2 .
+
+Let @xmath first simulate @xmath which interacts with and outputs @xmath
+and the transcript @xmath of the interaction with . Then, it samples
+@xmath according to @xmath and sends @xmath to @xmath , where @xmath .
+@xmath will output @xmath to , where @xmath and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is chosen uniformly at random and independent from the rest. Since
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is @xmath -close to uniform with respect to @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+from which follows that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+@xmath is defined as follows. First, it simulates @xmath , which
+interacts with and outputs @xmath and the transcript @xmath of the
+interaction with . Since @xmath is @xmath -close to uniform with respect
+to @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the uniform distribution over @xmath . @xmath now
+calculates @xmath , where @xmath is sampled according to the probability
+distributions @xmath , and sends them to @xmath . Note that the behavior
+of the system @xmath is known, and therefore also the probability
+distribution @xmath . receives a value @xmath chosen uniformly at
+random, and @xmath distributed according to @xmath . We have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and, therefore,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+∎
+
+Note that the simulation given in Theorem \thechapter .2 is not
+necessarily efficient.
+
+#### 13.2 In the Semi-Honest Model
+
+###### Theorem \thechapter.3.
+
+Let @xmath . Let @xmath be a protocol that outputs @xmath to and @xmath
+to , and let @xmath be the auxiliary output to given by @xmath , and
+@xmath be the auxiliary output to given by @xmath . @xmath securely
+implements @xmath with an error of at most @xmath in the semi-honest
+model, if
+
+-    (Correctness) @xmath .
+
+-    (Security for ) @xmath is @xmath -close to uniform with respect to
+    @xmath .
+
+-    (Security for ) @xmath is @xmath -close to uniform with respect to
+    @xmath .
+
+###### Proof.
+
+Let @xmath satisfy these conditions and let @xmath be the output
+distribution of @xmath . We have @xmath . Obviously, the correctness
+condition is satisfied with an error of at most @xmath .
+
+We define @xmath as follows. After receiving @xmath , it samples a value
+@xmath distributed according to @xmath and outputs @xmath . We get
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+and, therefore,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We define @xmath as follows. After receiving @xmath , it samples a value
+@xmath distributed according to @xmath and outputs @xmath . We get
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+and, therefore,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+∎
+
+One way to sample @xmath according to @xmath is to simulate the protocol
+@xmath until @xmath is received where @xmath and @xmath . This
+simulation needs exponential time in the parameter @xmath and @xmath ,
+but is efficient if @xmath and @xmath are small and @xmath is efficient.
+Similarly, we can sample @xmath by simulating the protocol @xmath until
+@xmath is received where @xmath .
+
+## Chapter \thechapter Universal Oblivious Transfer
+
+Universal oblivious transfer (UOT) is a variant of ROT where the
+security of the sender is weakened. A malicious receiver is allowed to
+receive any information he wants about the sender’s input, as long as he
+does not receive too much information. A parameter @xmath specifies a
+lower bound on the amount of uncertainty the receiver must have over the
+sender’s input, measured in terms of min-entropy. UOT was introduced in
+[ Cac98 ] , together with a protocol that implements ROT from UOT.
+However, the security proof contained an error which was discovered in [
+DFSS06 ] . It was showed that ROT with a string length of @xmath can be
+implemented from one instance of UOT with an error of at most @xmath if
+@xmath , which is only about half as much as originally claimed in [
+Cac98 ] .
+
+In Theorem \thechapter .1 we give a new proof for the same protocol that
+was also used in [ Cac98 , DFSS06 ] , and show that the protocol is also
+secure for
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with an error of at most @xmath . This improves the bound of [ DFSS06 ]
+by a factor of 2 (at the cost of a larger error term) and achieves the
+bound that has been originally claimed in [ Cac98 ] , which is
+asymptotically optimal for this protocol.
+
+Our proof makes use of a new distributed leftover hash lemma (Lemma
+\thechapter .3 ) which is of independent interest.
+
+### 14 Min-Entropy and Randomness Extraction
+
+In this section we show how almost uniform randomness can be extracted
+out of non-uniform randomness. We use the min-entropy to measure the
+amount of randomness a random variable has.
+
+###### Definition \thechapter.1 (Conditional Min-entropy).
+
+Let @xmath and @xmath be random variables. The min-entropy of @xmath
+given @xmath is defined as
+
+  -- -------- -------- --
+     @xmath   @xmath   
+  -- -------- -------- --
+
+We will need the following lemma.
+
+###### Lemma \thechapter.1.
+
+For all @xmath , @xmath , and @xmath , we have @xmath .
+
+###### Proof.
+
+This inequality follows from
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+∎
+
+We will use @xmath -universal hash functions to extract randomness.
+
+###### Definition \thechapter.2 ([Cw79]).
+
+A function @xmath is called a @xmath -universal hash function , if for
+all @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+if @xmath is uniform over @xmath .
+
+The leftover hash lemma [ ILL89 ] shows that a @xmath -universal hash
+function is able to extract almost all randomness, if some additional
+uniform randomness @xmath is provided as a catalyst. Notice that the
+extracted randomness is independent from @xmath . A slightly less
+general form of this lemma has been proved before in [ BBR88 ] , where
+it was called privacy amplification . [ BBCM95 ] generalized the notion
+of privacy amplification to basically the same statement as [ ILL89 ] ,
+in a slightly different notion.
+
+###### Lemma \thechapter.2 (Leftover hash lemma [Bbr88, Ill89]).
+
+Let @xmath be a random variable over @xmath and let @xmath . Let @xmath
+be a @xmath -universal hash function. If
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+then for @xmath uniform over @xmath , @xmath is @xmath -close to uniform
+with respect to @xmath .
+
+We will now give a distributed version of the leftover hash lemma, where
+two players independently extract randomness from two dependent random
+variables @xmath and @xmath . The (normal) leftover hash lemma tells us
+that if the extracted randomness of @xmath and @xmath , respectively, is
+smaller than the min-entropy of @xmath and @xmath , respectively, then
+the extracted strings are close to uniform. However, the two extracted
+strings might depend on each other. Lemma \thechapter .3 now states that
+if the total length of the extracted randomness is smaller than the
+min-entropy of @xmath , then the two strings are also almost
+independent. Clearly, this bound is optimal.
+
+###### Lemma \thechapter.3 (Distributed leftover hash lemma).
+
+Let @xmath and @xmath be random variables over @xmath and @xmath , and
+let @xmath . Let @xmath and @xmath be @xmath -universal hash functions.
+If
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+then, for @xmath uniform over @xmath , @xmath is @xmath -close to
+uniform with respect to @xmath .
+
+###### Proof.
+
+For any @xmath having distribution @xmath over @xmath , and @xmath
+uniformly distributed over @xmath , we have
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Here we used Lemma \thechapter .3 .
+
+Let @xmath , @xmath and @xmath be two uniform random variables over
+@xmath and @xmath . Choosing @xmath and @xmath in the above inequality,
+we get
+
+  -- -------- --
+     @xmath   
+     @xmath   
+  -- -------- --
+
+Since @xmath is the collision probability ⁵ ⁵ 5 Let @xmath and @xmath be
+distributed according to @xmath . The collision probability is @xmath .
+of a random variable @xmath , we have for @xmath and @xmath
+independently distributed according to @xmath and for uniformly random
+@xmath , @xmath , @xmath , and @xmath that
+
+  -- -------- --
+     @xmath   
+     @xmath   
+  -- -------- --
+
+Because @xmath and @xmath are 2-universal hash functions, we have
+
+  -- -------- --
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+  -- -------- --
+
+which implies that
+
+  -- -------- --
+     @xmath   
+     @xmath   
+  -- -------- --
+
+∎
+
+Notice that Lemma \thechapter .3 implies Lemma \thechapter .2 .
+
+### 15 Definition of Universal Oblivious Transfer
+
+We now define universal oblivious transfer , or @xmath , which is a
+variant of @xmath that provides weaker security for . For @xmath or
+@xmath , is equal to . But for @xmath , instead of requiring that does
+not know anything about one of the two strings, we only require that he
+does not entirely know both of them, i.e., the a min-entropy of sender’s
+input is at least @xmath . Note that from Lemma 2 in [ RW05 ] , it
+follows that there is no need to use different kinds of Rényi-entropies
+[ Rén61 ] as done in [ Cac98 ] or [ DFSS06 ] , as they are basically all
+equivalent to the min-entropy.
+
+###### Definition \thechapter.3 (Universal oblivious transfer).
+
+The system @xmath (or, if @xmath and @xmath are clear from the context,
+) is defined as a collection of systems
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath and @xmath . @xmath is defined as follows. The system waits
+for to input a distribution
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath . After receiving @xmath , it chooses @xmath according to
+@xmath and outputs @xmath to .
+
+Notice that our definition UOT is slightly weaker than the definitions
+used in [ Cac98 , DFSS06 ] . Because our UOT is a weak version of ROT,
+we do not only allow the malicious receiver to receive arbitrary
+information about his input, but we also allow him to freely choose his
+output. For example, we allow him to select @xmath bit and freely fix
+their values. UOT will then choose the remaining @xmath bit randomly.
+
+### 16 Universal Oblivious Transfer Amplification
+
+Our protocol is basically the same as the protocols used in [ BC97 ,
+Cac98 , BCW03 , DFSS06 ] . It securely implements @xmath using one
+instance of @xmath and in the malicious model. Let @xmath be a @xmath
+-universal hash function. The protocol is defined as follows.
+
+###### Protocol 4.
+
+@xmath :
+
+1.  Receive @xmath from .
+
+2.  Choose @xmath uniformly at random.
+
+3.  Send @xmath to .
+
+4.  Output @xmath to , where @xmath and @xmath .
+
+@xmath :
+
+1.  Receive @xmath from and @xmath from .
+
+2.  Output @xmath to , where @xmath .
+
+[] []
+
+We will now show that this protocol indeed achieves the optimal bound of
+@xmath . The proof works roughly as follows. We define an additional
+random variable @xmath that distinguishes between three different cases,
+and show that in each case there exists a random variable @xmath such
+that @xmath is almost uniform and independent of the rest. If @xmath ,
+we can lower-bound the min-entropy of @xmath conditioned on @xmath , and
+are therefore able to apply Lemma \thechapter .2 for @xmath . If @xmath
+we have lower bounds for the min-entropy of @xmath , @xmath , and @xmath
+, which allow us to apply Lemma \thechapter .3 . We need that @xmath .
+If this is not the case, we ignore the events @xmath at the cost of an
+additional error of at most @xmath .
+
+###### Theorem \thechapter.1.
+
+Let @xmath . Protocol @xmath securely implements @xmath in the malicious
+model with an error of at most @xmath , if @xmath .
+
+###### Proof.
+
+Obviously, for @xmath , we have @xmath .
+
+Let @xmath . @xmath waits for receiving @xmath and @xmath from and then
+outputs @xmath to , where @xmath is chosen uniformly at random and
+@xmath . We define @xmath as follows. It waits for receiving @xmath and
+@xmath from and sends @xmath to . It is easy to see that @xmath .
+
+Let @xmath . The system @xmath receives the value @xmath from , and then
+outputs @xmath to and @xmath to . In the following, we will implicitly
+condition on the values @xmath . Let
+
+  -- -- --
+        
+  -- -- --
+
+for @xmath . Let
+
+  -- -------- -- -------------------
+     @xmath      ( \thechapter .1)
+  -- -------- -- -------------------
+
+and @xmath , for @xmath chosen uniformly at random from @xmath . If
+@xmath , let @xmath be the event that @xmath , and let @xmath be the
+event with probability @xmath otherwise. We have @xmath , and the event
+@xmath either has probability @xmath or at least @xmath . Let @xmath .
+
+-   For @xmath and @xmath , we have @xmath . All @xmath have @xmath .
+    For all @xmath we have
+
+      -- -------- --
+         @xmath   
+         @xmath   
+         @xmath   
+      -- -------- --
+
+    It follows that
+
+      -- -------- --
+         @xmath   
+         @xmath   
+         @xmath   
+      -- -------- --
+
+    and hence, @xmath . Since @xmath and @xmath are uniformly
+    distributed and independent of the rest, it follows from Lemma
+    \thechapter .2 that, conditioned on @xmath , @xmath is @xmath -close
+    to uniform with respect to @xmath .
+
+-   If @xmath and @xmath , then @xmath , @xmath , @xmath , and @xmath ,
+    for @xmath . It follows that
+
+      -- -------- -------- --
+                  @xmath   
+                  @xmath   
+         @xmath   @xmath   
+      -- -------- -------- --
+
+    Since @xmath and @xmath are uniformly distributed and independent of
+    the rest, it follows from Lemma \thechapter .3 that conditioned on
+    @xmath , @xmath is @xmath -close to uniform with respect to @xmath ,
+    from which follows that @xmath is @xmath -close to uniform with
+    respect to @xmath .
+
+Therefore, for all @xmath , conditioned on @xmath , the distribution of
+@xmath is @xmath -close to uniform with respect to @xmath . Since @xmath
+, it follows from Lemma \thechapter .5 that @xmath is @xmath -close to
+uniform with respect to @xmath . Because this holds for every @xmath ,
+it follows that @xmath is @xmath -close to uniform with respect to
+@xmath .
+
+We define @xmath as follows. After receiving @xmath from , it simulates
+@xmath on input @xmath , from which it gets the values @xmath and @xmath
+, distributed according to @xmath . It calculates @xmath according to (
+\thechapter .1 ). Then it choses @xmath and @xmath uniformly at random
+from @xmath , sends @xmath to @xmath and outputs @xmath on the
+interface. @xmath will output @xmath to , where @xmath and @xmath is
+chosen uniformly at random and independent from the rest. Since @xmath
+is @xmath -close to uniform with respect to @xmath , it is easy to see
+that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+from which follows that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+∎
+
+### 17 Applications
+
+The definition of UOT emerged as a generalization of the protocol
+presented in [ BC97 , BCW03 ] to implement string OT out of bit OT.
+Therefore it is not surprising that the reduction we presented in this
+chapter can be used to implement string OT from bit OT. Asymptotically,
+our protocol also achieves the same bound as the protocol of [ BC97 ,
+BCW03 ] for this task. Our protocol can also be used to implement OT
+from GOT, which leads to better bounds than the ones presented in [ BC97
+, BCW03 ] or [ DFSS06 ] .
+
+Recently, another very interesting application of UOT has been
+presented: in [ DFR @xmath 06 ] , it was shown that in the bounded
+quantum-storage model , it is possible to implement a simple protocol
+that achieves a quantum version of UOT. Whereas it is not clear how the
+results of [ DFSS06 ] can be used in that setting to implement OT, they
+showed that a simplified version of our proof (only requiring the normal
+leftover hash lemma) can directly be applied, using a quantum version of
+the leftover hash lemma, called privacy amplification against quantum
+adversaries [ RK05 , Ren05 ] . It is also possible to generalize our
+distributed leftover hash lemma to the quantum setting, and therefore
+the proof we present in this chapter can also be used in the setting of
+[ DFR @xmath 06 ] to improve the efficiency of their reduction.
+
+## Chapter \thechapter Weak Oblivious Transfer
+
+Weak oblivious transfer (WOT), introduced in [ DKS99 ] , is a weak
+variant of ROT where both players may obtain additional information
+about the other player’s input, and where the output may have some
+errors. In [ DKS99 ] it was used as a tool to construct OT from unfair
+primitives , i.e., primitives where the adversary is more powerful than
+the honest participants, such as the unfair noisy channel . WOT is
+parameterized by three parameters, @xmath , @xmath , and @xmath , where
+@xmath measures the amount of side information that the sender gets
+about the receiver’s choice bit, @xmath the amount of side information
+the receiver gets about the sender’s second input bit, and @xmath is the
+maximal probability that an error occurs.
+
+While the definition of WOT is very informal in [ DKS99 ] , the
+definition used in [ DFMS04 ] (which gives an ideal functionality of
+WOT) made implicitly a quite strong assumption, namely that the event
+that an adversary gains information is independent of the error.
+Unfortunately, the protocol used in [ DKS99 , DFMS04 ] based on unfair
+noisy channels does not achieve these strong requirements. We propose
+two new, weaker definitions of WOT, one for the semi-honest (Definition
+\thechapter .1 ) and one for the malicious model (Definition \thechapter
+.2 ), that do not have these assumptions. Also, our definitions make the
+use of generalized weak oblivious transfer [ DFMS04 ] , at least for the
+protocols we have at the moment, unnecessary.
+
+In Theorem \thechapter .1 we restate the impossibility result from [
+DKS99 ] that there does not exist a protocol which implements OT from
+WOT if @xmath . Then, we give several protocols that implement ROT from
+WOT. In Theorem \thechapter .2 , we show that the bound of @xmath and
+@xmath presented in [ DKS99 ] can also be achieved using our definition,
+both in the semi-honest and the malicious model. Furthermore, we give a
+more detailed analysis of the protocols’s efficiency. For the case where
+@xmath , our new definition makes it necessary to use a different
+protocol to reduce the error @xmath , which implies that we are not able
+to achieve the same bound as [ DKS99 ] . In Theorems \thechapter .3 and
+Corollary \thechapter .1 , we show that for the special case where
+either @xmath or @xmath holds, ROT can securely be implemented from WOT
+in the semi-honest model if
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We achieve these bounds very easily by using an interesting connection
+to key agreement protocols [ HR05 , Hol06 ] and the statistical distance
+polarization problem [ SV99 , Vad99 ] . For the general case where
+@xmath , @xmath , and @xmath may be larger than @xmath , we show in
+Theorem \thechapter .4 that if
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+or
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+ROT can efficiently be implemented from WOT secure in the semi-honest
+model. These bounds do not achieve the bound of @xmath from [ DKS99 ]
+for all values @xmath , @xmath , and @xmath , but they are better for
+the cases where two parameters are small and one is large. Finally, we
+show in Corollary \thechapter .2 that we can also implement ROT from WOT
+in the semi-honest model if
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which means that if @xmath is small enough, then we can achieve OT for
+all values @xmath .
+
+### 18 Definition of WOT
+
+In this section we give formal definitions of WOT. Because our protocols
+will reduce the information of the adversary by using the XOR of several
+values, the maximum bit-prediction advantage ( @xmath ) turns out to be
+a good measure for the adversary’s side information. Furthermore, it has
+the advantage that we can easily find a computational version of this
+measure, which will be very useful in Chapter \thechapter . Our
+definition of WOT is inspired by the definition of weak bit agreement in
+[ Hol05 , Hol06 ] .
+
+#### 18.1 In the Semi-Honest Model
+
+We start with the definition of WOT in the semi-honest model. Since the
+adversary is not able to choose which information he would like to
+obtain in the semi-honest model, he may only obtain whatever information
+the functionality provides him with. But we do not want to fix this
+information, as we want to cover a wide range of possibilities — we
+might not even know what information the functionality will provide to
+the adversary. Therefore, we cannot define an ideal functionality.
+Instead, we will define a set of ideal functionalities, and assume that
+one instance of this set is provided to us, but we may not know which
+instance. We will define this set of ideal functionalities by a list of
+properties that the ideal functionality must satisfy.
+
+###### Definition \thechapter.1 (Weak oblivious transfer, semi-honest
+model).
+
+Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+be a collection of systems in the semi-honest model. Let @xmath output
+@xmath to and @xmath to . Let @xmath be the auxiliary output to by
+@xmath and @xmath be the auxiliary output to by @xmath . Let @xmath .
+@xmath implements @xmath in the semi-honest model, if
+
+-   (Correctness) @xmath .
+
+-   (Security for ) @xmath .
+
+-   (Security for ) @xmath .
+
+We also use @xmath for @xmath .
+
+It is not immediately clear why we require that @xmath and @xmath are
+difficult to guess even when additionally the value @xmath is given. We
+do this for allowing the adversary to learn the error during the
+protocol without getting additional information about @xmath or @xmath .
+For example, in the protocol , may get to know @xmath during the
+protocol, which means that he gets to know @xmath . Therefore, we must
+make sure that his side information about @xmath is not increased if he
+gets to know @xmath . Note, however, that for the protocols we present
+here, it would be sufficient to only require @xmath for the security for
+, because @xmath is never leaked to . We do not use this definition in
+order to keep WOT symmetric, and to get a stronger Theorem \thechapter
+.2 that is simpler to proof. (Otherwise, Theorem \thechapter .2 would
+not work for all protocols, but just for the protocols we present here.)
+
+We will now show that the conditions of suffice to implement in the
+semi-honest model. We need the following lemma.
+
+###### Lemma \thechapter.1.
+
+Let @xmath be the uniform distribution over @xmath and let @xmath be a
+distribution over @xmath for which @xmath and @xmath holds. Then @xmath
+.
+
+###### Proof.
+
+Let @xmath , @xmath , @xmath , @xmath , …, and let @xmath . From @xmath
+and Lemma \thechapter .6 , we get
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and from @xmath and Lemma \thechapter .6
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Adding up the two inequalities, we get
+
+  -- -------- -- -------------------
+     @xmath      
+     @xmath      ( \thechapter .1)
+  -- -------- -- -------------------
+
+It is easy to see that the difference between the minimal and the
+maximal values in the set @xmath is at most @xmath , and that the
+statistical distance is maximized for ( \thechapter .1 ) by
+distributions where @xmath values have equal probability @xmath , and
+@xmath values have equal probability @xmath . The statistical distance
+is @xmath , which is maximized for @xmath ⁶ ⁶ 6 Note that such a
+distribution does not satisfy our original, stricter requirements.
+Values that do satisfy them are @xmath and @xmath , which gives a
+statistical distance of @xmath . , where it is @xmath . ∎
+
+###### Lemma \thechapter.2.
+
+If a protocol @xmath implements @xmath , then it implements @xmath
+secure in the semi-honest model, with an error of at most @xmath .
+
+###### Proof.
+
+Let @xmath be the output of @xmath , let @xmath be the auxiliary output
+of @xmath to and @xmath the auxiliary output of @xmath to . From Lemma
+\thechapter .6 follows that @xmath is @xmath -close to uniform with
+respect to @xmath , and that @xmath is @xmath -close to uniform with
+respect to @xmath . Let @xmath be the output distribution of @xmath .
+
+Lemma \thechapter .1 implies that @xmath . Since @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We can now apply Theorem \thechapter .3 . ∎
+
+#### 18.2 In the Malicious Model
+
+We will now also give a formal definition of WOT in the malicious model.
+The definition differs from the semi-honest case in two important
+points. Firstly, since we do not have any protocol that can do error
+reduction in the malicious model, we will only define the case without
+any error, i.e., @xmath . Secondly, for the security of , we require
+that the XOR of the two input bits is difficult to guess, because this
+is a much easier requirement than the standard approach used in Theorem
+\thechapter .2 . Lemma \thechapter .3 shows that the two conditions are
+equivalent. Notice that the security of the XOR does not suffice in the
+semi-honest model, and, therefore, this trick cannot be applied there.
+On the other hand, since in the malicious model a corrupted may choose
+@xmath freely, we cannot use Lemma \thechapter .1 , and, therefore, the
+condition @xmath would not suffice in the malicious model.
+
+###### Definition \thechapter.2 (Weak oblivious transfer, malicious
+model).
+
+Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+be a collection of systems in the malicious model. The system @xmath
+implements @xmath (or, if @xmath and @xmath are clear from the context,
+) in the malicious model, if
+
+-   (Correctness): @xmath .
+
+-   (Security for A ): The system @xmath interacts over the interfaces
+    belonging to (which produces a transcript @xmath ), and after the
+    last input is received over these interfaces, it outputs @xmath to
+    where @xmath .
+
+-   (Security for B ) The system @xmath interacts over the interfaces
+    belonging to (which produces a transcript @xmath ), and after the
+    last input is received over these interfaces, it outputs @xmath to
+    where @xmath .
+
+Notice that since we are now in the malicious model, the adversary is
+able to choose what information he would like to receive, and we could
+define an ideal functionality in a similar way as we did in Definition
+\thechapter .3 for UOT. We did not do this in order to be closer to
+Definition \thechapter .1 and Theorem \thechapter .2 .
+
+Again, we will first show that suffices to implement in the malicious
+model. We will need the following lemma, which has already been proved
+in [ DFSS06 ] .
+
+###### Lemma \thechapter.3.
+
+Let @xmath be given. There exists a random variable @xmath distributed
+according to a conditional distribution @xmath such that @xmath is
+uniform with respect to @xmath , if and only if @xmath is uniformly
+distributed.
+
+###### Proof.
+
+Let @xmath be a distribution such that @xmath is uniform with respect to
+@xmath . We have
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+Hence, @xmath is uniformly distributed.
+
+The other direction is slightly more complicated. Let @xmath be
+uniformly distributed. We choose
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+For @xmath and @xmath , we have
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+Since @xmath is uniformly distributed, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which implies that for @xmath and @xmath ,
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+Hence, for @xmath and @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Therefore, @xmath is uniform with respect to @xmath . ∎
+
+###### Lemma \thechapter.4.
+
+If a protocol @xmath implements @xmath in the malicious model, then it
+implements @xmath secure in the malicious model, with an error of at
+most @xmath .
+
+###### Proof.
+
+Let @xmath . From Lemma \thechapter .6 follows that there exists @xmath
+, such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and @xmath is uniform with respect to @xmath . We choose @xmath as
+proposed in Lemma \thechapter .3 . @xmath is uniform with respect to
+@xmath , and, therefore, @xmath is @xmath -close to uniform with respect
+to @xmath .
+
+Let @xmath . From Lemma \thechapter .6 follows that @xmath is @xmath
+-close to uniform with respect to @xmath .
+
+The lemma follows now from Theorem \thechapter .2 . ∎
+
+#### 18.3 Relation to Previous Definitions
+
+##### Difference to WOT from [Dks99, Dfms04].
+
+Besides the fact that we only consider a randomized version of WOT, the
+difference of our definition of @xmath to the definitions used in [
+DKS99 , DFMS04 ] is that we do not specify exactly what a malicious
+player may receive, but we only require that his output should not give
+too much information about the bits @xmath and @xmath . This means that
+a malicious player may, for example, always receive whether an error
+occurred in the transmission or not, if that information is independent
+of the inputs. The most important difference is, however, that our
+definitions do not require that the error must occur independently of
+the event that a player gets side information, which is very important
+when we want to apply it.
+
+Lemmas \thechapter .8 and \thechapter .9 imply that our definitions
+still are quite close to the definitions from [ DKS99 , DFMS04 ] ,
+because there exist events with probability @xmath and @xmath , such
+that, if they occur, then the adversary does not get any side
+information.
+
+##### Connection to GWOT from [Dfms04].
+
+In [ DFMS04 ] , Generalized WOT (GWOT) was introduced to improve the
+achievable range of the reductions. It was shown in Lemma 3 in [ DFMS04
+] that in the reductions they used, WOT can be replaced by a GWOT, if
+the probability to guess the bits @xmath and @xmath , respectively,
+remain the same for the adversary. Since we defined WOT over the
+advantage to guess these values, Lemma 3 in [ DFMS04 ] is not needed
+anymore, and therefore, at least for the moment, the use of GWOT does
+not give any advantage over WOT.
+
+### 19 Impossibility Results
+
+In this section we prove the impossibility result stated in [ DKS99 ] ,
+that WOT cannot be amplified if @xmath . Note that the proof does not
+work for the definition of WOT used in [ DKS99 , DFMS04 ] . We start
+with the protocol @xmath that implements @xmath for @xmath in the
+semi-honest model.
+
+###### Protocol 5.
+
+@xmath :
+
+1.  Choose @xmath uniformly at random.
+
+2.  With probability @xmath , send @xmath to . Otherwise, send @xmath to
+    .
+
+3.  Receive @xmath .
+
+4.  If @xmath then output @xmath . Otherwise, @xmath . Output @xmath ,
+    where @xmath and @xmath .
+
+@xmath :
+
+1.  Choose @xmath uniformly at random.
+
+2.  Receive @xmath .
+
+3.  If @xmath then output @xmath and send with probability @xmath the
+    value @xmath to , and @xmath otherwise. Otherwise, @xmath . Send
+    @xmath to and outputs @xmath .
+
+###### Lemma \thechapter.5.
+
+Protocol @xmath securely implements @xmath in the semi-honest model.
+
+###### Proof.
+
+Let @xmath . With probability @xmath , will adjust his output such that
+@xmath , and with probability @xmath , will adjust her output such that
+@xmath . With probability @xmath , the values @xmath and @xmath will be
+chosen uniformly at random. Therefore, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+When @xmath sends @xmath to , then the value @xmath is uniform with
+respect @xmath . From Lemma \thechapter .9 follows that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+When @xmath sends @xmath to , then the value @xmath is uniform with
+respect @xmath . From Lemma \thechapter .9 follows that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+∎
+
+We need the following well-known fact.
+
+###### Lemma \thechapter.6.
+
+There cannot exist a protocol @xmath that securely implements @xmath in
+the weak semi-honest model.
+
+###### Theorem \thechapter.1.
+
+For any @xmath , @xmath , und @xmath with @xmath and for any @xmath ,
+there cannot exist a protocol @xmath that securely implements @xmath in
+the semi-honest or the malicious model.
+
+###### Proof.
+
+From Lemma \thechapter .1 follows that @xmath is secure in the weak
+semi-honest model. Therefore, it would follow from Lemma \thechapter .5
+and Theorem \thechapter .3 that the protocol
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+would implement @xmath from scratch in the weak semi-honest model, which
+contradicts Lemma \thechapter .6 . ∎
+
+### 20 Basic Protocols for WOT Amplification
+
+We now present the three basic protocols that we use to implement from .
+The protocol allows for reducing the parameter @xmath , and the protocol
+is used to reduce the parameter @xmath . Both reductions were already
+used in [ CK88 , DKS99 , DFMS04 , Hai04 ] , as well as in [ HKN @xmath
+05 , MPW07 ] for building OT combiners. The protocol is used to reduce
+the parameter @xmath . Whereas the other two protocols are secure in
+both models, is merely secure in the semi-honest model. The same
+protocol was also used in [ Hai04 ] and is the one-way variant of the
+protocol presented in [ DKS99 ] . Notice that since we defined to be a
+randomized primitive, we are not able to choose the input, which makes
+the protocols slightly more complicated.
+
+We first present all protocols in the semi-honest model, and later give
+the proofs for the malicious model.
+
+#### 20.1 In the Semi-Honest Model
+
+The protocol @xmath is defined as follows.
+
+###### Protocol 6.
+
+@xmath :
+
+1.  Receive @xmath from the @xmath th , for all @xmath .
+
+2.  Receive @xmath from . Set @xmath .
+
+3.  Output @xmath .
+
+@xmath :
+
+1.  Receive @xmath from the @xmath th , for all @xmath .
+
+2.  Send @xmath to , where @xmath .
+
+3.  Output @xmath .
+
+[] []
+
+###### Lemma \thechapter.7.
+
+The protocol @xmath securely implements @xmath in the semi-honest model,
+where @xmath , @xmath , and @xmath .
+
+###### Proof.
+
+Let @xmath , and @xmath . We have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let @xmath . Since @xmath , it follows from Lemma \thechapter .8 that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let @xmath , and let @xmath be the auxiliary output to from the @xmath
+th instance of @xmath . The auxiliary output of the protocol to is
+@xmath . Since
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and because @xmath is a function of @xmath , it follows from Lemmas
+\thechapter .7 , \thechapter .10 and \thechapter .4 that
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+Let @xmath , and let @xmath be the auxiliary output to from the @xmath
+th instance of @xmath . The auxiliary output of the protocol to is
+@xmath . Because @xmath is a function of @xmath , Lemmas \thechapter .7
+, \thechapter .11 and \thechapter .9 imply that
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+∎
+
+We will also need a protocol that reduces the error @xmath . To achieve
+this, we can simply use the protocol in the opposite direction, together
+with the protocol . We need the fact that Protocol @xmath implements in
+the inverse direction.
+
+###### Lemma \thechapter.8.
+
+Protocol @xmath implements @xmath in the opposite direction, secure in
+the semi-honest model.
+
+###### Proof.
+
+Let @xmath be the output of @xmath , and let @xmath be the output of .
+Let @xmath be the auxiliary output to by @xmath , and let @xmath be the
+auxiliary output to by @xmath . The auxiliary output output to by is
+@xmath , and the auxiliary output to by is @xmath .
+
+Let @xmath . It is easy to verify that @xmath , and therefore that the
+correctness condition is satisfied. From Lemma \thechapter .12 follows
+that
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+and
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+∎
+
+We can, therefore, implement in the following way: We apply to all
+@xmath instances of , then use in the opposite direction, and finally
+apply to the resulting . We get
+
+###### Lemma \thechapter.9.
+
+The protocol @xmath securely implements @xmath in the semi-honest model,
+where @xmath , @xmath , and @xmath .
+
+Protocol @xmath reduces the error @xmath , and is defined as follows.
+
+###### Protocol 7.
+
+@xmath :
+
+1.  Receive @xmath from the @xmath th , for all @xmath .
+
+2.  Receive @xmath from .
+
+3.  Send @xmath to , where @xmath .
+
+4.  Output @xmath and @xmath .
+
+@xmath :
+
+1.  Receive @xmath from the @xmath th , for all @xmath .
+
+2.  Send @xmath to , where @xmath .
+
+3.  Receive @xmath from .
+
+4.  Output @xmath where @xmath for @xmath and @xmath .
+
+[] []
+
+###### Lemma \thechapter.10.
+
+Protocol @xmath securely implements @xmath in the semi-honest model,
+where @xmath , @xmath and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+Let @xmath , and @xmath .
+
+Let @xmath . We have @xmath . Since for @xmath
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+it follows from Lemma \thechapter .10 that the protocol satisfies
+correctness with an error of at most
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let @xmath . Let @xmath be the auxiliary output to from the @xmath th
+instance of @xmath . The auxiliary output to is @xmath . Note that
+@xmath is a function of @xmath . Furthermore, @xmath is a function of
+@xmath , because
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+for all @xmath . Since
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Lemmas \thechapter .7 , \thechapter .11 and \thechapter .9 imply
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+Let @xmath , and let @xmath be the auxiliary output to from the @xmath
+th instance of @xmath . The auxiliary output of the protocol to is
+@xmath . Because @xmath is a function of @xmath , it follows from Lemmas
+\thechapter .7 , \thechapter .11 and \thechapter .9 that
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+∎
+
+#### 20.2 In the Malicious Model
+
+We will now show that the protocols and are also secure in the malicious
+model, for the same parameters as in the semi-honest model.
+
+###### Lemma \thechapter.11.
+
+Protocol @xmath securely implements @xmath in the malicious model, where
+@xmath and @xmath .
+
+###### Proof.
+
+Let @xmath . It is easy to verify that @xmath , @xmath , and @xmath are
+uniformly distributed. Further, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Hence, the protocol achieves correctness.
+
+Let @xmath , and let @xmath be the transcript of the interaction with
+player by the @xmath th instance of . The transcript of the interaction
+with of the protocol is @xmath . From Lemma \thechapter .11 and
+\thechapter .9 follows that
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+Let @xmath , and let @xmath be the transcript of the interaction with
+player by the @xmath th instance of . The transcript of the interaction
+with of the protocol is @xmath . Note that since @xmath is a
+probabilistic function of @xmath it can be ignored. It follows from
+Lemmas \thechapter .10 and \thechapter .4 that
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+∎
+
+The proof that @xmath implements in the opposite direction is very
+simple.
+
+###### Lemma \thechapter.12.
+
+@xmath implements @xmath in the opposite direction, secure in the
+malicious model.
+
+###### Proof.
+
+It is easy to verify that the correctness condition is satisfied.
+Furthermore, we have
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+∎
+
+In the same way as in the passive case, we can implement by first
+applying to all @xmath instances of , then use in the opposite
+direction, and by finally applying . We get
+
+###### Lemma \thechapter.13.
+
+Protocol @xmath securely implements @xmath in the semi-honest model,
+where @xmath and @xmath .
+
+### 21 WOT Amplification if @xmath
+
+We will now present several protocols that implement ROT from WOT. We
+start with the special case where @xmath , but @xmath . In [ DKS99 ] , a
+protocol for this case is presented that works for all values @xmath and
+@xmath if @xmath , which is optimal. We present a slightly simplified
+protocol and give a more detailed analysis of its efficiency.
+
+The main part of the reduction is the following lemma, which shows that
+we can implement a @xmath out of 4 instances of @xmath , where the value
+@xmath is squared.
+
+###### Lemma \thechapter.14.
+
+Let @xmath , and let @xmath . We can securely implement @xmath out of 4
+instances of @xmath with
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+secure in the semi-honest and the malicious model.
+
+###### Proof.
+
+It suffices to show that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+since then
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+Twice, we apply either the protocol @xmath or protocol @xmath , such
+that each time the larger of the two parameter gets reduced.
+
+Since the protocols are symmetric, we can assume that @xmath .
+Therefore, the first protocol that will be applied is . We have to
+distinguish between two cases. If @xmath , then also the second protocol
+is , and, therefore,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We will now show that @xmath if @xmath . Since for @xmath and @xmath ,
+we have @xmath . It follows that @xmath for all @xmath and @xmath that
+satisfy @xmath and, therefore, also
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all these values. Hence, it suffices to show that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath .
+
+Let us fix the value @xmath . We have @xmath , and thus @xmath is
+minimal for @xmath . It is taken on by the values @xmath and @xmath ,
+which can be calculated by solving the equation @xmath , which is equal
+to @xmath . We get
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+So, for @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If @xmath , the second protocol will be , and, therefore,
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Let
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+We will now show that @xmath for @xmath . Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which is equal to @xmath if @xmath . Therefore, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all @xmath and @xmath that satisfy @xmath . Again, let us fix @xmath
+and let
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+We differentiate @xmath twice, and get
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Since @xmath for @xmath , @xmath is concave for @xmath and @xmath . It
+will therefore take on its minimum on a point on the bound. One one
+side, we have @xmath , and therefore @xmath (see above) is the value on
+the bound, for which we have @xmath . On the other side, @xmath is the
+value on the bound, for which we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+For all @xmath we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+so the minimum is always in @xmath . Therefore, both @xmath and @xmath
+take on their minimum in @xmath , and are always larger than @xmath .
+The statement follows. ∎
+
+###### Theorem \thechapter.2.
+
+Let @xmath and @xmath be functions computable in time @xmath such that
+@xmath for all @xmath . @xmath can efficiently be implemented using
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+instances of @xmath , secure in the semi-honest and the malicious model.
+
+###### Proof.
+
+We apply @xmath times Lemma \thechapter .14 , which gives us a @xmath
+with @xmath . Using Lemmas \thechapter .4 and \thechapter .5 , we get
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+To satisfy @xmath , we choose
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Our protocol requires
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+instances of @xmath . ∎
+
+##### OT-Combiners.
+
+As shown in [ HKN @xmath 05 , MPW07 ] , Theorem \thechapter .2 can be
+used to implement an efficient @xmath -robust oblivious transfer
+combiner . We have @xmath different implementations of OT, out of which
+@xmath are secure for the sender, and @xmath are secure for the
+receiver, where @xmath . Choosing randomly one of these @xmath different
+implementations of OT and using random inputs implements a @xmath for
+@xmath , and @xmath . Since @xmath , we can implement a @xmath using
+@xmath instances of the weak implementations of OT, and common
+randomness.
+
+### 22 WOT Amplification if @xmath or @xmath
+
+We will now look at the special case where @xmath , but either @xmath or
+@xmath . This special case has not been considered in [ DKS99 ] . There
+is a strong connection of this problem to the one-way key-agreement
+problem studied in [ HR05 , Hol06 ] , as well as to the
+statistical-distance polarization problem studied in [ SV99 , Vad99 ] .
+
+We will make the amplification in two steps. First, in Lemma \thechapter
+.15 (which is related to Lemma 4.13 in [ Hol06 ] ), we implement a with
+constant errors. In Lemma \thechapter .16 (related to Lemma 4.1 in [
+SV99 ] ), we show how the error can be made arbitrarily small.
+
+###### Lemma \thechapter.15.
+
+Let @xmath and @xmath be functions computable in time @xmath such that
+@xmath for all @xmath . Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then @xmath can efficiently be implemented using at most
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+instances of @xmath secure in the semi-honest model.
+
+###### Proof.
+
+Let @xmath and @xmath . Note that @xmath . We use
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+for @xmath and @xmath . Notice that @xmath . Further, since @xmath , we
+get
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Using Lemmas \thechapter .7 and \thechapter .10 , we get that @xmath is
+a @xmath with @xmath and @xmath , and @xmath is a @xmath with
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+and, using that @xmath , we get @xmath .
+
+Finally, the number of instances used is @xmath , which is at most
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+since @xmath and thus @xmath . ∎
+
+###### Lemma \thechapter.16.
+
+@xmath can efficiently be implemented using
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+instances of @xmath secure in the semi-honest model.
+
+###### Proof.
+
+Let @xmath , and @xmath . Let @xmath and @xmath . We use the reductions
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Using Lemmas \thechapter .7 and \thechapter .10 and since @xmath is a
+@xmath , @xmath is a @xmath , where @xmath and @xmath . @xmath is a
+@xmath with
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and, since @xmath ,
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+Finally, @xmath is a @xmath with @xmath and @xmath .
+
+From Lemma \thechapter .4 follows that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The number of instances used is, using Lemma \thechapter .4 ,
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+∎
+
+Combining Lemma \thechapter .15 and Lemma \thechapter .16 , we get the
+following theorem.
+
+###### Theorem \thechapter.3.
+
+Let @xmath and @xmath be functions computable in time @xmath such that
+@xmath for all @xmath . Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+@xmath can efficiently be implemented using at most
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+instances of @xmath secure in the semi-honest model.
+
+Since and are symmetrical, we immediately get
+
+###### Corollary \thechapter.1.
+
+Let @xmath and @xmath be functions computable in time @xmath such that
+@xmath for all @xmath . Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+@xmath can efficiently be implemented using at most
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+instances of @xmath secure in the semi-honest model.
+
+Since any protocol (using our basic protocols) for the special cases
+where either @xmath or @xmath can directly be translated into a one-way
+key-agreement protocol for distributions studied in [ HR05 ] , it
+follows from Theorem 4 in [ HR05 ] that using our basic protocols, this
+is the best bound that we can achieve. However, it is not clear whether
+other reductions, would be able to achieve a better bound.
+
+### 23 WOT Amplification if @xmath.
+
+To find an optimal protocol for the general case where all three
+parameters are non-zero turns out to be much harder than the other three
+special cases. It is still unknown what the exact bound is in this case.
+In this section we present some partial results.
+
+We start with the case where all values are non-zero, but smaller than
+@xmath .
+
+###### Lemma \thechapter.17.
+
+@xmath can efficiently be implemented using
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+instances of @xmath secure in the semi-honest model.
+
+###### Proof.
+
+We set @xmath and iterate the reduction
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+until @xmath is a @xmath with @xmath . In every iteration, we have
+@xmath , @xmath , and @xmath , from which follows that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+To achieve @xmath , we choose
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+To implement one instance of @xmath , we need at most
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+instances of @xmath . ∎
+
+We will now give a similar bound as in Lemma 5 in [ DKS99 ] , which was
+@xmath . But since our protocol is different, we are only able to
+achieve a smaller bound. As in [ DKS99 ] , we are only able to obtain
+our bound using a simulation. Our simulation works as follows: Let
+@xmath be a function such that for all @xmath , @xmath and @xmath ,
+@xmath can be implemented using @xmath . Using @xmath , we define
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and @xmath is the inverse of @xmath .
+
+Now, for all @xmath , @xmath and @xmath , @xmath can be implemented
+using @xmath , since applying one of the three protocols @xmath , @xmath
+, or @xmath gives us an instance of @xmath with @xmath , from which
+@xmath can be implemented.
+
+Obviously, @xmath satisfies our condition. Iterating @xmath times, we
+get @xmath , where for all @xmath we have @xmath . Using @xmath and
+iterating @xmath times, we get @xmath , were for all @xmath we have
+@xmath (See also Figure 4 ).
+
+###### Lemma \thechapter.18.
+
+If @xmath , then @xmath can efficiently be implemented using @xmath
+instances of @xmath , secure in the semi-honest model.
+
+We will now further extend this result and give bounds for the cases
+where one of the three values is large, while the others are small.
+
+###### Lemma \thechapter.19.
+
+If @xmath , then @xmath with @xmath can efficiently be implemented using
+@xmath instances of @xmath , secure in the semi-honest model.
+
+###### Proof.
+
+We apply
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for an @xmath such that @xmath is a @xmath with @xmath . Using Lemma
+\thechapter .9 , we need to find a value @xmath and constants @xmath and
+@xmath with @xmath , such that @xmath and @xmath , which is equivalent
+to @xmath and @xmath . We can choose
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The first inequality is satisfied by definition of @xmath , and the
+second if
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which is equivalent to
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Choosing @xmath , and @xmath , we get @xmath . Our protocol needs @xmath
+instances. ∎
+
+In the same way, we get
+
+###### Lemma \thechapter.20.
+
+If @xmath , then @xmath with @xmath can efficiently be implemented using
+@xmath instances of @xmath , secure in the semi-honest model.
+
+The proof of Lemma \thechapter .20 is omitted, as it can be done in the
+same way as the proof of Lemma \thechapter .19 .
+
+###### Lemma \thechapter.21.
+
+If @xmath , then @xmath with @xmath can efficiently be implemented using
+@xmath instances of @xmath , secure in the semi-honest model.
+
+###### Proof.
+
+We apply
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for an @xmath such that @xmath is a @xmath with @xmath . Using Lemma
+\thechapter .10 , we need to find a value @xmath and constants @xmath
+and @xmath with @xmath , such that @xmath and @xmath , which is
+equivalent to @xmath and @xmath . Furthermore, we need @xmath . We
+choose
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The last inequality follows from the fact that @xmath . The first
+inequality is satisfied by definition of @xmath , and the second if
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which is equivalent to
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Choosing @xmath and @xmath , we get
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Our protocol needs @xmath instances. ∎
+
+Theorem \thechapter .4 summarizes all the partial results we obtained in
+this section.
+
+###### Theorem \thechapter.4.
+
+Let @xmath , @xmath and @xmath be functions computable in time @xmath
+such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+or
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all @xmath . Then @xmath can efficiently be implemented using
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+instances of @xmath secure in the semi-honest model.
+
+###### Proof.
+
+Follows directly from Lemmas \thechapter .18 , \thechapter .19 ,
+\thechapter .20 , and \thechapter .21 . ∎
+
+Since Theorem \thechapter .2 gives us a bound on the number of instances
+used, we can also bound the error probability, and therefore, we can
+extend the result of Theorem \thechapter .2 to allow for a (small)
+error.
+
+###### Corollary \thechapter.2.
+
+Let @xmath , @xmath and @xmath be functions computable in time @xmath
+such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all @xmath . Then @xmath can efficiently be implemented using
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+instances of @xmath , secure in the semi-honest model.
+
+###### Proof.
+
+We apply the reduction used in Theorem \thechapter .2 for @xmath . We
+get @xmath , @xmath , and @xmath , for @xmath . We have
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+and therefore
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The statement follows now by applying Lemmas \thechapter .17 and
+\thechapter .18 . ∎
+
+### 24 Discussion and Open Problems
+
+We have presented several protocols that implement ROT from many
+instances of WOT. For the special case where @xmath , we were able to
+achieve the optimal bound, and when either @xmath or @xmath , we were at
+least able to give protocols which achieve the optimal bound for the
+basic protocols that we use.
+
+However, for the general case, we still do not have very satisfactory
+results. One of the main difficulties is that we do not know exactly
+which of the basic protocols needs to be applied in which situation. To
+be able to do that, we would need a better understanding of how these
+protocols work together.
+
+There are still many open problems concerning WOT amplification. Here
+are some of them:
+
+-   Can we improve the impossibility bound?
+
+-   For what parameters of WOT can we implement ROT with our basic
+    protocols? How many instances do we need?
+
+-   Are there other basic protocols that give better bounds? Is it
+    possible to use (a modified version of) the protocol from [ DKS99 ]
+    ? Is it possible to reduce two parameters at the same time?
+
+-   Is there a (simple) way to make secure in the malicious model?
+
+-   Can GWOT be used to improve WOT amplification?
+
+-   Is it possible to define WOT in another, more general way?
+
+-   How do we have to define WOT in a multi-party setting?
+
+## Chapter \thechapter Computational Weak Oblivious Transfer
+
+In this chapter we show how an OT which may contain errors and which is
+only mildly computationally secure for the two players can be amplified
+to a computationally-secure OT. In particular, we show in Theorem
+\thechapter .2 — using Holenstein’s uniform hard-core lemma [ Hol05 ,
+Hol06 ] , which is a uniform variant of Impagliazzo’s hard-core lemma [
+Imp95 ] — that if WOT can be amplified to ROT in the
+information-theoretic setting, then also the corresponding computational
+version of WOT can be amplified to a computationally-secure ROT, using
+the same protocol .
+
+Our results generalize the results presented in [ Hai04 ] , as we cover
+a much larger region for the values @xmath , @xmath and @xmath , and in
+our case the security for both players may be computational.
+
+### 25 Preliminaries
+
+In the following, @xmath is always the the security parameter. We say
+that a function @xmath is polynomial in @xmath , denoted by @xmath , if
+there exist constants @xmath and @xmath , such that @xmath for all
+@xmath . A function @xmath is negligible in @xmath , denoted by @xmath ,
+if for all constant @xmath there exists a constant @xmath , such that
+@xmath for all @xmath . A function @xmath is noticeable if there exit
+constants @xmath and @xmath such that @xmath for all @xmath . An
+algorithm @xmath which has oracle access to an algorithm @xmath will be
+denoted by @xmath .
+
+We will need the following lemmas, which are, when put together, the
+computational version of Lemma \thechapter .6 .
+
+###### Lemma \thechapter.1.
+
+Let functions @xmath , @xmath , and a distribution @xmath over @xmath be
+given. There is an oracle algorithm @xmath such that, for any algorithm
+@xmath where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is distributed according to @xmath and @xmath is uniformly
+distributed, algorithm @xmath satisfies
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+does one oracle call to @xmath , and computes one XOR.
+
+###### Proof.
+
+On input @xmath , let algorithm @xmath choose a bit @xmath uniformly at
+random and output @xmath . Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The output of @xmath is correct either if @xmath and the output of
+@xmath is @xmath , or @xmath and the output of @xmath is @xmath . We get
+
+  -- -------- --
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+  -- -------- --
+
+∎
+
+###### Lemma \thechapter.2.
+
+Let functions @xmath , @xmath , and a distribution @xmath over @xmath be
+given. There is an oracle algorithm @xmath such that, for any algorithm
+@xmath where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is distributed according to @xmath and @xmath is uniformly
+distributed, does one oracle call to @xmath , and computes one XOR.
+
+###### Proof.
+
+On input @xmath , let Algorithm @xmath output @xmath . If @xmath is a
+uniform random bit, than we have @xmath , and if @xmath , then @xmath .
+Therefore, we have @xmath . ∎
+
+### 26 Pseudo-Randomness Extraction
+
+In this section we state a pseudo-randomness extraction theorem ,
+Theorem \thechapter .1 , that we need later to prove our main theorem of
+this chapter, Theorem \thechapter .2 . Theorem \thechapter .1 is based
+on the uniform hard-core lemma [ Hol05 , Hol06 ] , which is a uniform
+variant of the hard-core lemma from [ Imp95 ] .
+
+###### Lemma \thechapter.3 (Uniform hard-core lemma [Hol05, Hol06]).
+
+Let the functions @xmath , @xmath , @xmath and @xmath computable in time
+@xmath be given, such that @xmath and @xmath are noticeable. Assume that
+there is no polynomial time algorithm @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is chosen uniformly at random from @xmath , for infinitely
+many @xmath . Then, there is no polynomial time oracle algorithm @xmath
+⁷ ⁷ 7 @xmath has oracle access to the characteristic function @xmath of
+the set @xmath , which is defined as @xmath if @xmath and @xmath
+otherwise. such that for infinitely many @xmath the following holds: For
+any set @xmath with @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is chosen uniformly at random from @xmath and the queries
+of @xmath to @xmath are computed independently of the input @xmath .
+
+Theorem \thechapter .1 is a modified version of Theorem 7.3 in [ Hol06 ]
+and differs from it in two points. First, we simplified it by omitting
+the function @xmath that indicates whether @xmath is valid, because in
+our setting all @xmath are valid. Second, we allow the functions @xmath
+and @xmath to depend on the value @xmath , and not only on @xmath . The
+proof of Theorem \thechapter .1 is basically the same as the proof of
+Theorem 7.3 in [ Hol06 ] . Notice that in the proof of Theorem 7.3 in [
+Hol06 ] there is a step missing before equation (7.8), which is fixed in
+our proof.
+
+The main difference of Theorem 7.3 in [ Hol06 ] and our Theorem
+\thechapter .1 compared to the (implicit) extraction lemma in [ Hås90 ,
+HILL99 ] and the extraction lemma in [ HHR06 ] is that it allows the
+adversary to gain some additional knowledge during the extraction,
+expressed by the function @xmath .
+
+###### Theorem \thechapter.1 (Pseudo-randomness extraction theorem,
+[Hol06]).
+
+Let the functions @xmath , @xmath , and @xmath , all computable in time
+@xmath , be given, and let @xmath be noticeable. Assume that every
+polynomial time algorithm @xmath satisfies
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all but finitely many k, for a uniform random @xmath . Further, let
+also functions @xmath , @xmath ,
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+be given which are computable in time @xmath , and satisfy the
+following: For any distribution @xmath over @xmath where @xmath , @xmath
+is @xmath -close to uniform with respect to @xmath , for @xmath chosen
+uniformly at random. Then, no polynomial time algorithm @xmath , which
+gets as input
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+(where @xmath is chosen uniformly at random) distinguishes
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+from a uniform random string of length @xmath with advantage @xmath ,
+for any non-negligible function @xmath .
+
+###### Proof.
+
+Let us assume there exists an algorithm @xmath that contradicts our
+assumption. We will use @xmath to construct an oracle algorithm @xmath
+for which the following holds for infinitely many @xmath for a
+noticeable function @xmath . For any set @xmath with @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where the probability is over the randomness of @xmath , @xmath is
+chosen uniformly at random from @xmath , and @xmath calls @xmath only
+with queries which are computed independently of the input.
+
+Since @xmath is non-negligible, there exists a constant @xmath , such
+that @xmath for infinitely many @xmath . Let @xmath . @xmath is a
+noticeable function with @xmath for infinitely many @xmath .
+
+For any fixed @xmath and any fixed set @xmath with @xmath , we define
+the following values. For all @xmath , we choose @xmath and @xmath
+uniformly at random. Then we compute
+
+  -- -------- -------- -- -------------------
+     @xmath   @xmath      ( \thechapter .1)
+     @xmath   @xmath      ( \thechapter .2)
+     @xmath   @xmath      ( \thechapter .3)
+  -- -------- -------- -- -------------------
+
+where @xmath is chosen uniformly at random.
+
+Let @xmath be the distribution of @xmath . From our assumption follows
+that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for infinitely many @xmath , where @xmath is chosen uniformly at random.
+On the other hand, for @xmath , with probability @xmath (over the choice
+of @xmath ) we have @xmath , and therefore, by Lemma \thechapter .8 ,
+@xmath . The information-theoretic requirement on the functions @xmath
+and @xmath imply that @xmath is @xmath -close to uniform with respect to
+@xmath and therefore
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The triangle inequality implies
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for infinitely many @xmath . It follows that at least one of the four
+inequalities @xmath , @xmath , @xmath , or @xmath holds for infinitely
+many @xmath , from which follows that there exists an algorithm @xmath
+such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for infinitely many @xmath . For a @xmath chosen uniformly at random, we
+have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for infinitely many @xmath . We can now give an implementation of a
+distinguisher which distinguishes @xmath from @xmath with advantage
+@xmath for infinitely many @xmath , if @xmath is chosen uniformly from
+@xmath and @xmath is a uniform random bit, as long as oracle access to
+@xmath is given. Let @xmath be the input to the distinguisher. It
+chooses @xmath , and for all @xmath the values @xmath and @xmath
+uniformly at random. Then, for all @xmath , it computes the values
+@xmath , @xmath and @xmath as in ( \thechapter .1 ). If @xmath , it
+replaces @xmath with @xmath and @xmath with @xmath . Then, it computes
+@xmath and @xmath as in ( \thechapter .2 ) and ( \thechapter .3 ). If
+@xmath is a uniform bit, then this process gives random variables @xmath
+distributed according to @xmath , otherwise it gives random variables
+distributed according to @xmath . Therefore, @xmath distinguishes @xmath
+from @xmath with advantage @xmath for infinitely many @xmath , if @xmath
+is chosen uniformly at random from @xmath . From Lemma \thechapter .1
+follows that there exists a polynomial time algorithm that predicts
+@xmath from @xmath , where @xmath is chosen uniformly at random from
+@xmath , with probability at least @xmath for infinitely many @xmath .
+We can now apply Lemma \thechapter .3 for @xmath and @xmath to obtain
+the statement. ∎
+
+### 27 Definition of Computational WOT
+
+In order to define security in the computational setting, i.e., where
+the running time of the adversary is bounded by a polynomial, we need to
+introduce a security parameter @xmath on which the players agree
+beforehand. We consider the uniform model, that is, we require the same
+protocols to run on all security parameters, which they get as a
+separate input. Additionally, we require the security parameter to be
+larger than the sum of the length of all the inputs and outputs of the
+protocol. The security in the computational semi-honest model is very
+similar to the (information-theoretic) semi-honest model (Definition
+\thechapter .3 ). The only differences are that we require the
+distinguishers to be efficient, i.e., to run in time @xmath , and we
+require the advantage of these distinguishers to be negligible in @xmath
+. Furthermore, we require that the simulator is efficient, i.e., runs in
+time @xmath .
+
+We say that @xmath and @xmath are computationally indistinguishable ,
+denoted by @xmath , if @xmath , where @xmath is the set of all
+distinguishers that run in time @xmath .
+
+###### Definition \thechapter.1.
+
+A protocol @xmath securely implements @xmath in the computational
+semi-honest model , if
+
+-   (Correctness) @xmath .
+
+-   (Security for A ) There exists a system @xmath (called the simulator
+    for ), that runs in time @xmath and only modifies the auxiliary
+    interfaces, such that
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+-   (Security for B ) There exists a system @xmath (called the simulator
+    for ), that runs in time @xmath and only modifies the auxiliary
+    interfaces, such that
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+The primitive @xmath denotes the computational version of @xmath . The
+difference to the definition of is that we require the algorithm that
+guesses @xmath or @xmath to be efficient.
+
+###### Definition \thechapter.2 (Computational WOT, semi-honest model).
+
+Let functions @xmath , @xmath , and @xmath computable in time @xmath be
+given. Let @xmath be a collection of systems in the computational
+semi-honest model. On input @xmath , @xmath outputs @xmath to and @xmath
+to . Let @xmath be the auxiliary output to by @xmath and @xmath be the
+auxiliary output to by @xmath . Let @xmath . @xmath implements @xmath in
+the computational semi-honest model, if
+
+-   (Efficiency) @xmath can be executed in time @xmath .
+
+-   (Correctness) @xmath for all @xmath .
+
+-   (Security for A ) All polynomial time algorithms @xmath satisfy
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    for all but finitely many @xmath .
+
+-   (Security for B ) All polynomial time algorithms @xmath satisfy
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    for all but finitely many @xmath .
+
+Lemma \thechapter .4 is the computational version of Lemma \thechapter
+.2 .
+
+###### Lemma \thechapter.4.
+
+A collection of systems @xmath that securely implements
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+also securely implements @xmath in the computational semi-honest model.
+
+###### Proof.
+
+From the (computational) security conditions for follows that @xmath is
+(statistically) @xmath -close to uniform with respect to @xmath .
+Otherwise, it could easily and efficiently be distinguished from
+uniform. Similarly, it follows from the security condition for that
+@xmath is @xmath -close to uniform with respect to @xmath . From Lemma
+\thechapter .1 follows that @xmath is @xmath -close to uniform. Together
+with the correctness condition, we get
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let @xmath produce the output distribution @xmath , and let @xmath be
+the output distribution of . We define @xmath as follows. After
+receiving @xmath from , it simulates @xmath , which outputs @xmath ,
+until @xmath and @xmath . It outputs @xmath .
+
+From the correctness condition follows that @xmath is @xmath -close to
+uniform, and, therefore, the probability @xmath and @xmath is at least
+@xmath . The expected number of iterations ⁸ ⁸ 8 If we want the
+algorithm to be worst-case polynomial, we simply abort after a
+polynomial amount of simulations. is therefore constant and the
+simulator is efficient since the system @xmath is efficient.
+
+Let us assume that there exists an algorithm @xmath with
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for a non-negligible function @xmath . There exists a constant @xmath ,
+such that @xmath for infinitely many @xmath . Let @xmath . @xmath is a
+noticeable function with @xmath for infinitely many @xmath .
+
+Since @xmath is @xmath -close to @xmath , and @xmath is uniform with
+respect to @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is chosen uniformly at random. It follows that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for infinitely many @xmath , and therefore either
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for infinitely many @xmath , or
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for infinitely many @xmath . Note that @xmath is a function of @xmath
+and @xmath . In both cases, it follows from Lemma \thechapter .1 that
+there exists an algorithm that can predict @xmath with probability
+@xmath for infinitely many @xmath , which contradicts our assumption
+that no such algorithm exists.
+
+The proof for the security of can be done the same way. ∎
+
+### 28 Computational-WOT Amplification
+
+In [ Hol05 ] , Lemma \thechapter .3 was used to show that any
+information-theoretic key-agreement protocol can also be used in the
+computational setting. We will use a very similar proof to show that any
+protocol that efficiently implements out of many instances of in the
+semi-honest model can be used to implement out of many instances of in
+the computational semi-honest model.
+
+###### Theorem \thechapter.2.
+
+Let the functions @xmath , @xmath , @xmath and @xmath computable in time
+@xmath be given. Let a protocol @xmath achieve @xmath . Further, let an
+efficient protocol @xmath be given which takes @xmath as input and
+securely implements @xmath in the semi-honest model. Then the protocol ⁹
+⁹ 9 This is an execution of @xmath , where all calls to are replaced by
+independent executions of @xmath . @xmath implements @xmath in the
+computational semi-honest model.
+
+###### Proof.
+
+Let @xmath be the randomness used in @xmath by the sender and the
+receiver, and let @xmath be the communication. The honest protocols
+@xmath and @xmath output @xmath and @xmath , respectively, while the
+semi-honest protocols @xmath and @xmath additionally have the auxiliary
+outputs @xmath and @xmath , respectively. Let @xmath . All these values
+are functions of @xmath .
+
+@xmath receives @xmath from @xmath and outputs @xmath . @xmath receives
+@xmath from @xmath and outputs @xmath . Let @xmath be the randomness
+used in @xmath by both players, and let @xmath be the communication sent
+over in @xmath . Let @xmath . The values @xmath , @xmath , @xmath ,
+@xmath , @xmath and @xmath are functions of @xmath .
+
+First of all, the resulting protocol @xmath will be correct and
+efficient, as every outcome of @xmath satisfies @xmath .
+
+For the security for , we define the following functions: let @xmath and
+@xmath . Since @xmath , it is possible to simulate the protocol @xmath
+using the values @xmath , @xmath , and @xmath . Therefore, we can define
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+@xmath implements @xmath . It follows from Lemma \thechapter .2 that the
+functions @xmath and @xmath satisfy the extraction requirements from
+Theorem \thechapter .1 with @xmath . Furthermore, @xmath and @xmath can
+be computed efficiently, since the protocol @xmath is efficient. From
+the security condition of follows that every polynomial-time algorithm
+@xmath satisfies
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all but finitely many @xmath , for @xmath chosen uniformly at
+random. Theorem \thechapter .1 tells us that no polynomial time
+algorithm @xmath , which gets as input @xmath distinguishes @xmath from
+a uniform random bit with advantage @xmath , for any non-negligible
+function @xmath . The security for follows now from Lemma \thechapter .2
+.
+
+For the security for , we define the following functions: let @xmath and
+@xmath . Since @xmath , it is possible to simulate the protocol @xmath
+using the values @xmath , @xmath , and @xmath . Therefore, we can define
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+@xmath implements @xmath . It follows from Lemma \thechapter .2 that the
+functions @xmath and @xmath satisfy the extraction requirements from
+Theorem \thechapter .1 with @xmath . Furthermore, @xmath and @xmath can
+be computed efficiently, since the protocol @xmath is efficient. From
+the security condition of follows that every polynomial time algorithm
+@xmath satisfies
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all but finitely many k, for @xmath chosen uniformly at random.
+Theorem \thechapter .1 tells us that no polynomial time algorithm @xmath
+, which gets as input @xmath distinguishes @xmath from a uniform random
+bit with advantage @xmath , for any non-negligible function @xmath . The
+security for follows now from Lemma \thechapter .2 . ∎
+
+Together with the information-theoretic reductions presented in Chapters
+\thechapter and \thechapter , we get a protocol that securely amplifies
+@xmath to @xmath in the computational semi-honest model.
+
+###### Corollary \thechapter.1.
+
+Let the functions @xmath , @xmath , and @xmath , computable in time
+@xmath , be given, where either for all @xmath
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+or
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+or, for constant functions @xmath , @xmath and @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+or
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If there exists a protocol @xmath that securely implements @xmath in the
+computational semi-honest model, then there exists a protocol @xmath
+that implements @xmath in the computational semi-honest model.
+
+### 29 Discussion and Open Problems
+
+We have shown that Holenstein’s hard-core lemma [ Hol05 , Hol06 ] can
+also be applied in the setting of two-party computation, and presented a
+new computational assumption, namely computational weak oblivious
+transfer , under which oblivious transfer and hence any two-party
+computation is possible in a computationally secure way.
+
+The pseudo-randomness extraction theorem presented in [ Hol06 ] turned
+out not to be general enough for our application. It would be
+interesting to know whether our generalization is also useful in other
+applications.
+
+A very interesting open problem is whether our results can be used to
+improve the results from [ Hai04 ] , i.e., whether it is possible to
+implement computationally-secure OT from weaker requirements on trapdoor
+permutations.

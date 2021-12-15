@@ -1,0 +1,4015 @@
+# Acknowledgments
+
+I’d like to thank Bob Coecke for supervising me for the duration of my
+Master thesis work and for supplying me with a very interesting problem,
+Klaas Landsman for putting me in contact with the right people and for
+agreeing to be the second reader, and the people working at the Quantum
+Group for helping me with all the questions I had and for supplying a
+stimulating environment.
+
+The text, theorems and proofs contained in this thesis are, unless
+otherwise noted, my own work. Some of the results in this thesis related
+to distributional semantics have been presented at the 2016 Workshop on
+the Intersection between NLP, Physics and Cognitive Science and will be
+published in the proceedings as part of a EPTCS volume wetering2016 .
+
+– John van de Wetering
+
+3th of July 2016
+
+\pdfbookmark
+
+[1]Contentstableofcontents \manualmark
+
+###### Contents
+
+-    Acknowledgments
+-    Introduction
+-    \thechapter Orderings
+    -    1 Definitions
+    -    2 Some examples
+    -    3 Proving directed completeness
+    -    4 Examples of upwards small posets
+    -    5 The upperset map
+    -    6 Convex uppersets
+-    \thechapter Ordering Distributions
+    -    7 Information Orders
+    -    8 Examples
+        -    8.1 Bayesian order
+        -    8.2 Renormalised Löwner orders
+    -    9 Basic properties
+    -    10 Restricted Information Orders
+    -    11 Classification of restricted information orders
+        -    11.1 Polynomials and affine functions
+        -    11.2 Classification
+        -    11.3 Adding additional inequalities
+        -    11.4 Changing parameters
+        -    11.5 Antisymmetry and non-contradicting orders
+        -    11.6 The maximum restricted order
+        -    11.7 Entropy
+    -    12 Domains
+    -    13 Summary and conclusions
+-    \thechapter Ordering Density Operators
+    -    14 Preliminaries
+    -    15 Renormalising the Löwner order
+    -    16 Composing systems
+    -    17 Unicity of the maximum eigenvalue order
+        -    17.1 The rank of operators
+        -    17.2 Alternative derivations
+        -    17.3 Last steps
+        -    17.4 Graphical intuition
+    -    18 Extending the order to positive operators
+-    \thechapter Entailment in Distributional Semantics
+    -    19 Distributional natural language models
+    -    20 Entailment and disambiguation
+    -    21 Known methods
+    -    22 Applications of Information Orders
+        -    22.1 Smoothing
+        -    22.2 Forms of grading
+    -    23 Compositionality
+-    Conclusion
+-    \thechapter Classification of restricted orders
+
+\automark
+
+[section]chapter
+
+\pdfbookmark
+
+[1]List of Figureslof
+
+###### List of Figures
+
+-    \thechapter .1 Bayesian order on @xmath
+-    \thechapter .2 Renormalised Löwner orders in @xmath
+-    (a) @xmath .
+-    (b) @xmath .
+-    \thechapter .3 The unique information order on @xmath
+-    \thechapter .4 Minimal structure of an information order
+-    \thechapter .5 Comparison of @xmath and @xmath
+-    (a) @xmath .
+-    (b) @xmath .
+-    \thechapter .6 Increasing sequence with no approximation
+-    \thechapter .7 Summary of properties of information orders
+-    \thechapter .1 diagonal matrices in @xmath mapped by @xmath
+-    \thechapter .2 @xmath mapped into a cone
+-    \thechapter .3 @xmath mapped by @xmath
+-    \thechapter .1 Smoothing in information orders
+
+## Introduction \pdfbookmark
+
+[1]IntroductionIntroduction
+
+One of the most fundamental ideas in mathematics (if not the most) is
+that of ordering objects. Even before you can count numbers, you have to
+be able to say which number is bigger than another (idea stolen from
+coecke2013 ).
+
+One of the most fundamental ideas in science (if not the most) is that
+of information. Science is ultimately about the pursuit of more accurate
+knowledge about the world and this knowledge is gained somehow via
+information transfer.
+
+Combining these two fundamental idea’s then gives rise to a natural
+question: what kind of order structure exists with relation to
+information content?
+
+To start answering this question we have to precisely define what we
+mean by ’order structure’ and ’information content’. The order structure
+we will take to be a partial order , some properties of which we will
+look at in Chapter 1. Information content we will take to be a
+collection of certain properties of a state an agent can be in. That is:
+certain states are more informative than others. The agent has a
+preference of being in the more informative state. The precise question
+we wish to answer in this thesis will then be: is there a natural choice
+of partial order on the space of states (either classical or quantum)
+that orders the states according to their information content?
+
+Note that we haven’t actually defined yet what we mean by information
+content. We will actually not give a complete definition of that in this
+thesis. We will skirt the issue by specifying some minimal set of
+properties that a notion of information content should satisfy in
+Chapter 2, and look at what kind of partial orders are compatible with
+these properties. An exact definition of information content is left as
+an exercise to the reader.
+
+In classical physics, a state can be represented by a probability
+distribution over the different definite ( pure ) states a system can be
+in. A partial order over classical states will thus be a partial order
+on the space of probability distributions. In a similar vein in quantum
+physics a state can be represented by a density matrix. We will be
+looking at classical states (probability distributions) in Chapter 2,
+and at quantum states (density matrices) in Chapter 3.
+
+A possible application of this theory is in computation. When we want to
+know if a certain computation is producing valuable output we might want
+to check whether the information content of the state the process is in
+is actually increasing or not. A powerful way to study the behaviour of
+processes is by using a special kind of partial order called a domain .
+For this reason we will also show properties related to domain theory.
+Another application is in computational linguistics. Some concepts in
+language are related to the information content present in words. This
+is studied in detail in Chapter 4.
+
+## Chapter \thechapter Orderings
+
+### 1 Definitions
+
+We’ll start with the basic definitions related to orders.
+
+  Definition 1.1.1:  
+
+    A preorder @xmath on a set @xmath is a binary relation which is
+
+    -   Reflexive: @xmath .
+
+    -   Transitive: @xmath .
+
+    A partial order is a preorder that is also antisymmetric:
+
+    -   if @xmath and @xmath then @xmath .
+
+    A set which has a partial order defined on it is called a poset and
+    is denoted as @xmath or just as @xmath when it is clear which
+    partial order we are referring to.
+
+  Definition 1.1.2:  
+
+    For an element @xmath in a poset @xmath we define the upperset of
+    @xmath as @xmath and conversely the downset of @xmath as @xmath .
+
+  Definition 1.1.3:  
+
+    Let @xmath be a subset of a poset. The join (or supremum ) of @xmath
+    if it exists is the smallest upper bound of @xmath and is denoted as
+    @xmath . Conversely the meet (or infinum ) of @xmath if it exists is
+    the largest lower bound of @xmath and is denoted as @xmath .
+
+So if the meet and join of @xmath exist we have for all @xmath @xmath (
+@xmath is an upperbound) and for all @xmath that are upperbounds of
+@xmath @xmath ( @xmath is minimal), and the same with the directions
+reversed for @xmath .
+
+A specific kind of particularly nice type of poset is a domain . In
+order to define what a domain is we need some further definitions.
+
+  Definition 1.1.4:  
+
+    A subset @xmath of a poset @xmath is called (upwards) directed iff
+    for all @xmath there is a @xmath such that @xmath and @xmath . A
+    particular kind of directed subset is an increasing sequence . This
+    is a set of elements @xmath such that @xmath for @xmath .
+
+  Definition 1.1.5:  
+
+    For @xmath we define @xmath iff for all directed subsets @xmath with
+    existing supremum we have that when @xmath then there exists an
+    @xmath such that @xmath . We call @xmath the approximation relation
+    and say that @xmath approximates @xmath . We denote Approx @xmath .
+    We call the poset @xmath continuous iff Approx @xmath is directed
+    with supremum @xmath , for all @xmath .
+
+  Definition 1.1.6:  
+
+    If all directed subsets of a poset @xmath have a join we call @xmath
+    directed complete and say that @xmath is a directed complete poset
+    which we will abbreviate to dcpo .
+
+  Definition 1.1.7:  
+
+    A poset @xmath is a domain if it is a dcpo and continuous.
+
+Since we will often be talking about different partial orders on the
+same space, we will often say that a partial order itself is a
+dcpo/domain when it turns the underlying set into a dcpo/domain.
+
+Domains are spaces that allow a natural way to talk about continuous
+approximation of elements abramsky1994 . This is why they are used when
+talking about for instance formal semantics of programming languages
+such as in winskel1993 . We will not specifically use the theory of
+domains, but we will note it when certain partial orders have a dcpo or
+domain structure.
+
+When talking about mathematical structures we are of course interested
+in the structure preserving maps.
+
+  Definition 1.1.8:  
+
+    A map @xmath between posets (or preorders) is called monotone if for
+    all @xmath with @xmath we have @xmath . The map is called
+    Scott-continuous iff it preserves all directed joins. That is, if we
+    have a directed subset of @xmath called @xmath whose join exists we
+    have @xmath .
+
+The relevant morphisms for posets are monotone maps, and for dcpo’s they
+are Scott-continuous maps. Note that Scott-continuous maps are always
+monotone. If a monotone map @xmath is bijective and its inverse is also
+monotone then @xmath is called an order isomorphism and @xmath and
+@xmath are called order isomorphic.
+
+  Definition 1.1.9:  
+
+    Let @xmath be a monotone map from a preordered set @xmath to a poset
+    @xmath . We call @xmath strict monotone iff for all @xmath with
+    @xmath and @xmath then @xmath . If @xmath is furthermore
+    Scott-continuous and @xmath a dcpo then we call @xmath a measurement
+    .
+
+Note that if @xmath is a preorder and it allows a strict monotone map to
+a poset, then @xmath is a partial order. Because @xmath implies @xmath
+and @xmath implies @xmath , and since @xmath is antisymmetric we have
+@xmath which by strictness implies @xmath so that @xmath is also
+antisymmetric. Any injective monotone map is also strict monotone, so
+strict monotonicity can be seen as a generalisation of injectivity.
+
+### 2 Some examples
+
+Partial orders occur everywhere in mathematics, so we could list
+hundreds of examples, but a few will hopefully suffice.
+
+  Example 1.2.1:  
+
+    For any set @xmath the powerset @xmath is a poset with the partial
+    order given by inclusion. The maximal element is @xmath and the
+    minimal element is the empty set. @xmath is in fact a complete
+    lattice : all joins and meets exist and are given respectively by
+    the union of the sets, and the intersection of the sets.
+
+  Example 1.2.2:  
+
+    The real line @xmath is a poset with @xmath iff @xmath . In fact, it
+    is totally ordered : for all @xmath in @xmath we have either @xmath
+    or @xmath . @xmath is also a lattice with the join and meet of
+    finite sets given by the maximal and minimal elements of the set.
+    For any poset @xmath we denote the dual order as @xmath , which is
+    given by @xmath iff @xmath . Let @xmath be the restriction of @xmath
+    to the positive reals with the reversed order. The maximal element
+    is 0 and any directed set is an decreasing sequence in @xmath
+    bounded by 0, so the supremum is well defined. So @xmath contains
+    all joins of directed sets, so it is a dcpo. We furthermore have
+    @xmath iff @xmath which means that it is continuous, so @xmath is a
+    domain.
+
+  Example 1.2.3:  
+
+    For a locally compact space @xmath its upper space is given by
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    When equipped with the reversed inclusion order: @xmath iff @xmath
+    it is a continuous dcpo with the join of a directed subset given by
+    the intersection (which is again a compact set, and garantueed
+    non-empty because of directedness) and @xmath iff @xmath int @xmath
+    , where int @xmath denotes the interior of a set. The maximal
+    elements are the singletons, and @xmath has a minimal element if and
+    only if @xmath is compact, in which case @xmath is the minimal
+    element.
+
+If @xmath is compact then @xmath is compact, and if @xmath is a compact
+metric space then @xmath is also a compact metric space with the metric
+given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+### 3 Proving directed completeness
+
+There are some general methods to show that a partial order is directed
+complete. A useful one was given in ( martinphd, , Theorem 2.2.1) :
+
+  Theorem 1.3.1:  
+
+    Given a poset @xmath and a map @xmath that is strict monotone and
+    preserves the joins of directed sequences we have the following:
+
+    -   P is a dcpo.
+
+    -   @xmath is Scott continuous
+
+    -   Every directed subset @xmath contains an increasing sequence
+        whose supremum is @xmath .
+
+    -   For all @xmath , @xmath iff for all increasing sequences @xmath
+        with @xmath then there is an @xmath such that @xmath .
+
+    -   For all @xmath Approx @xmath is directed with supremum @xmath if
+        and only if it contains an increasing sequence with supremum
+        @xmath .
+
+In short, such a map @xmath makes sure @xmath is a dcpo and that
+wherever you normally have to work with a directed set you can instead
+simplify to working with an increasing sequence.
+
+We will now show that a certain class of topological posets has the same
+sort of properties. Results very similar to these can be found in (
+scottbook2003, , Chapter VI) although the results proven here are
+sometimes slightly more general. We also use different terminology ¹ ¹ 1
+The proofs given here are original because the author wasn’t aware that
+these statements were already proven. Since the source mentioned is
+behind a paywall, the proofs here can be seen as a public service. .
+
+  Definition 1.3.2:  
+
+    Let @xmath be a Haussdorff topological space. It is called first
+    countable if it admits a countable neighbourhood basis. It is called
+    separable if it contains a countable dense subset, and it is called
+    sequentially compact iff any sequence contains a convergent
+    subsequence.
+
+@xmath being Haussdorf means that limits of nets and sequences are
+unique when they exist. First countable means that the topology can be
+understood in terms of sequences, instead of the more general nets.
+Separable ensures that the space isn’t too large. Sequentially compact
+is a different notion of compactness. For metric spaces it is equivalent
+to the requirement of compactness.
+
+  Definition 1.3.3:  
+
+    Let @xmath be a poset with @xmath first countable Haussdorff. We
+    call @xmath upwards small iff for every @xmath , @xmath is
+    sequentially compact and @xmath is closed. Dually, it is called
+    downwards small if @xmath is sequentially compact and @xmath is
+    closed. It is called small iff it is downwards small and upwards
+    small.
+
+An upwards small poset has uppersets that are bounded in a certain
+sense. Indeed for @xmath a subset of Euclidean space, sequentially
+compact is equivalent to bounded and closed. Note that a sequentially
+compact subspace is always closed. Closedness of uppersets (or downsets)
+means that if we have a convergent sequence @xmath and @xmath (or @xmath
+) for all @xmath , then @xmath (or @xmath ). Note that if @xmath is
+sequentially compact, then a poset is upwards small if and only if it is
+downwards small. This definition als works for preorders, since the
+required properties have nothing to do with antisymmetry, but when not
+otherwise specified we will assume @xmath to be a partial order. Upwards
+small partial orders turn out to interact really nicely with the
+topology. They are a special case of what in the literature is known as
+a pospace : a topological poset @xmath where the graph of @xmath is a
+closed subset of @xmath .
+
+  Lemma 1.3.4:  
+
+    Let @xmath be a first countable Haussdorff space with @xmath upwards
+    small, then
+
+    -   All increasing sequences have a join.
+
+    -   All increasing sequences converge.
+
+    -   the join of an increasing sequence is equal to its limit.
+
+###### Proof.
+
+Let @xmath be an increasing sequence in @xmath . We have @xmath for all
+@xmath , so @xmath . The sequence lies in @xmath which is sequentially
+compact, so there exists a convergent subsequence @xmath . Since we have
+@xmath for @xmath , we can take the limit on the right side and use the
+closedness of the uppersets to get @xmath . So @xmath is an upper bound
+of @xmath . Suppose @xmath is also an upper bound. Then we get @xmath
+for all @xmath . By the closedness of lowersets we get @xmath , so that
+@xmath is the least upper bound of @xmath . Now, since for any @xmath we
+can find a @xmath such that @xmath we see that @xmath is also an upper
+bound of @xmath . Any upper bound of @xmath will also be an upper bound
+of @xmath , so that @xmath is the least upper bound of @xmath . By the
+same argument as above, any convergent subsequence of @xmath will
+converge to a least upper bound of @xmath . A least upper bound is
+unique, so they all converge to @xmath . Therefore @xmath is convergent
+and we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+∎
+
+  Lemma 1.3.5:  
+
+    Let @xmath be a first countable Haussdorff space with @xmath upwards
+    small and let @xmath be a directed set. @xmath denotes the closure
+    of @xmath . Then
+
+    -   @xmath is directed.
+
+    -   @xmath has a least upper bound if and only if @xmath has a least
+        upper bound.
+
+    -   If either @xmath or @xmath has a least upper bound, then @xmath
+        .
+
+###### Proof.
+
+An element in @xmath is the limit of a sequence in @xmath , so take
+@xmath and @xmath , where @xmath and @xmath are arbitrary elements in
+@xmath . Because of the directedness of @xmath we can find @xmath such
+that @xmath . Let @xmath and let @xmath be chosen so that it is bigger
+than @xmath and @xmath , then @xmath is an increasing sequence. By the
+lemma above it is convergent, so that the limit/join @xmath lies in
+@xmath and we have @xmath for all @xmath . Because downsets are closed
+we then get @xmath , and the same for @xmath . So for any @xmath we can
+find @xmath such that @xmath . So if @xmath is directed, then @xmath is
+directed as well.
+
+Suppose @xmath has a join: @xmath . Then @xmath . Taking the closure on
+both sides and using that downsets are closed we get @xmath , so @xmath
+is an upper bound of @xmath . Suppose @xmath is another upper bound of
+@xmath , then we get @xmath , so that @xmath is an upper bound of @xmath
+as well, so that @xmath . The other direction works similarly. ∎
+
+If we also require that @xmath is separable we can do a bit more than
+this. We get an analog of Theorem 1.3.1:
+
+  Theorem 1.3.6:  
+
+    Let @xmath be a first countable separable Haussdorff space with
+    @xmath upwards small, then
+
+    1.  @xmath is a dcpo.
+
+    2.  Every directed set @xmath has a join in its closure: @xmath .
+
+    3.  Every directed set @xmath contains an increasing sequence with
+        the same join.
+
+    4.  For all @xmath , @xmath iff for all increasing sequences @xmath
+        with @xmath there is an @xmath such that @xmath .
+
+    5.  For all @xmath , Approx @xmath is directed with supremum @xmath
+        if and only if it contains an increasing sequence with supremum
+        @xmath .
+
+###### Proof.
+
+Let @xmath be a directed subset. If it is finite then it contains its
+maximal element and we are done, so suppose it is infinite. Because of
+the previous lemma we can take @xmath to be closed.
+
+Let @xmath be any countable collection of elements in @xmath . Then set
+@xmath . By directedness, there exists an element @xmath in @xmath such
+that @xmath . Continuing this procedure we construct an increasing
+sequence @xmath in @xmath such that @xmath . We know that @xmath has a
+join equal to its limit. Since @xmath and @xmath is closed, the limit is
+an element @xmath . So we know that @xmath is an upperbound of @xmath .
+We conclude that any countable subset of @xmath contains an upperbound
+in @xmath .
+
+Now because @xmath is separable, there exists a countable dense subset
+@xmath . Dense here means that @xmath . @xmath is a dense subset of
+@xmath , because @xmath is closed. Since @xmath is a countable subset of
+a directed set, it has an upper bound @xmath . So we have @xmath . Now
+taking the closure on both sides we get @xmath . So @xmath is an
+upperbound of @xmath . Now suppose @xmath is another upper bound of
+@xmath . Since @xmath , we must have @xmath . So @xmath is the least
+upper bound of @xmath .
+
+If @xmath is not necessarily closed, then we can use the above argument
+for @xmath , to find a least upper bound @xmath that is also a least
+upper bound of @xmath .
+
+Since the least upper bound of any directed set @xmath is contained in
+its closure there is a convergent sequence @xmath . Set @xmath , and let
+@xmath be such that @xmath , then we construct an increasing sequence
+@xmath in @xmath . This sequence is necessarily convergent: @xmath and
+we have @xmath for all @xmath , so we also have @xmath , but since
+@xmath is the least upper bound of @xmath we get @xmath , so that @xmath
+.
+
+For the last two points we only need to prove the only if part. Suppose
+we have @xmath and @xmath such that for all directed sequences @xmath
+with @xmath there is an @xmath such that @xmath . Let @xmath be a
+directed subset such that @xmath . There is a directed sequence @xmath
+in @xmath such that @xmath . So @xmath , but then there is an @xmath
+such that @xmath . Since @xmath , we have @xmath .
+
+For the last point, suppose Approx @xmath contains an increasing
+sequence with join @xmath . Call this sequence @xmath . Let @xmath
+Approx @xmath . We have @xmath , so there are @xmath and @xmath such
+that @xmath and @xmath . Let @xmath . Then @xmath Approx @xmath . So
+Approx @xmath is directed. Since it is contained inside of @xmath , its
+join is smaller than @xmath , and because @xmath , the join is exactly
+@xmath . ∎
+
+So we see that these type of spaces are really well behaved. The
+closedness of the upper and lowersets ensures that the joins of directed
+sets are “nearby” to the set (in the closure of the set).
+
+We can actually weaken the requirements on @xmath a bit further, by
+moving the separable condition from @xmath to the directed sets in
+@xmath . For instance, we have the following:
+
+  Theorem 1.3.7:  
+
+    Let @xmath be a metric space with an upwards small partial order
+    @xmath . Then the above theorem still holds.
+
+###### Proof.
+
+Since @xmath is a metric space, it is first countable and Haussdorff so
+we can use the lemma’s proved earlier. For a metric space sequential
+compactness is equivalent to compactness.
+
+Let @xmath be a closed directed set in @xmath . Pick an arbitrary @xmath
+. Then @xmath is a compact set and @xmath is the intersection of a
+closed set with a compact set, so is compact. Furthermore @xmath is a
+directed set. A compact subset of a metric space inherits the metric, so
+is a compact metric space. Compact metric spaces are always separable,
+so we can use the previous theorem to find a least upper bound of @xmath
+. Call this @xmath . Let @xmath . By directedness there is a @xmath such
+that @xmath . But then @xmath , so @xmath . So @xmath is also an upper
+bound for @xmath and if @xmath is another upper bound of @xmath then it
+must also be an upper bound of @xmath , so that @xmath . For @xmath not
+closed, we can use Lemma 3 . ∎
+
+Due to these theorems, directedness can be understood in terms of
+increasing sequences:
+
+  Lemma 1.3.8:  
+
+    Let @xmath and @xmath be first countable separable Haussdorff with
+    partial orders that are upwards small, then for a monotone map
+    @xmath we have that it is Scott-continuous iff it preserves suprema
+    of increasing sequences.
+
+###### Proof.
+
+A Scott-continuous map obviously preserves suprema of increasing
+sequences, so we only have to check the other direction. Let @xmath be a
+map that preserves the join of increasing sequences and let @xmath be a
+closed directed set. Then @xmath is also a directed set by monotonicity
+of @xmath . Then there is an increasing sequence @xmath in @xmath with
+@xmath , and @xmath is a sequence in @xmath , and we can construct an
+increasing sequence @xmath in @xmath with @xmath . Then @xmath and by
+closedness @xmath , but because @xmath is closed we have @xmath , so
+@xmath , so @xmath , so @xmath . Since @xmath we have so @xmath . For
+the other direction: there exists an increasing convergent sequence
+@xmath . Then @xmath , because we are taking the join over a subset of
+@xmath so that the join will be smaller. We conclude that @xmath .
+
+Now suppose @xmath is not necessarily closed. We know that @xmath and
+since @xmath we have @xmath . In the other direction we again have
+@xmath , so @xmath . ∎
+
+From now on, when we are talking about a set with an upwards small
+partial order, it is to be understood that the space is first countable
+separable Haussdorff.
+
+  Lemma 1.3.9:  
+
+    Let @xmath and @xmath be posets with an upwards small partial order.
+    Any continuous (in the topologies of @xmath and @xmath ) monotone
+    map @xmath is Scott-continuous.
+
+###### Proof.
+
+Due to the previous lemma we only have to prove that @xmath preserves
+suprema of increasing sequences. But if @xmath is an increasing sequence
+in @xmath , then it is also convergent, and the join is equal to the
+limit. Note that for any continuous map @xmath , so we get
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+∎
+
+This is not too surprising. In fact a map between posets is
+Scott-continuous when it is continuous with respect to their Scott
+topology. The closed sets in this topology are given by Scott downsets,
+a basis of which is given by the downsets of all elements in @xmath .
+Since all these downsets are closed with respect to the original
+topology, we see that the original topology is finer than the Scott
+topology. So if we have a continuous map from @xmath in its Scott
+topology to @xmath in its original topology (a monotone continuous map)
+we can replace the topology on @xmath with a coarser topology, in this
+case the Scott topology, and we are left with a Scott continuous map.
+For this reason such a partial order is also called compatible (with the
+topology) in the literature.
+
+### 4 Examples of upwards small posets
+
+  Example 1.4.1:  
+
+    Any metric space satisfies the necessary topological conditions for
+    Theorem 3 , so for @xmath a metric space the requirement for upwards
+    smallness becomes that uppersets are compact and the downsets are
+    closed. If @xmath is compact itself, it is enough to require that
+    uppersets and downsets are closed. We call a partial order whose
+    uppersets and downsets are closed, a closed partial order.
+
+    For any (sequentially) compact, first countable, separable
+    Haussdorff space @xmath with partial order @xmath . The closedness,
+    upward smallness and downward smallness of @xmath are equivalent.
+
+  Example 1.4.2:  
+
+    The real line with its standard ordering is a closed poset. So any
+    closed subset of the real line that is bounded from above is upwards
+    small. When equipped with the reversed ordering, any closed subset
+    bounded from below is upwards closed. For example: @xmath .
+
+  Example 1.4.3:  
+
+    Any poset @xmath where we equip @xmath with the discrete topology is
+    closed. It is upwards small iff all the uppersets are finite. Since
+    any discrete space can be seen as a metric space with the discrete
+    metric, Theorem 3 applies. For instance @xmath with @xmath iff
+    @xmath is upwards small. Similarly the set of finite subsets of
+    @xmath with the reversed inclusion order and the topology of the
+    upper space is upwards small.
+
+  Example 1.4.4:  
+
+    Define @xmath the space of positive operators on @xmath . We write
+    the condition that @xmath for all @xmath as @xmath . @xmath allows a
+    natural choice for a partial order called the Löwner order: @xmath
+    iff @xmath . @xmath can be seen as a subset of @xmath , so it
+    satisfies the necessary topological conditions. This means that the
+    map @xmath is continuous for any @xmath . This ensures that @xmath
+    is closed. Note that all the elements in @xmath have a smaller trace
+    than @xmath , so @xmath is bounded, which together with its
+    closedness makes it compact, so @xmath is downwards small. Any
+    compact subset of @xmath will therefore be a dcpo, and the dual
+    order of @xmath on @xmath is upwards small so that it is a dcpo.
+    More on this in Chapter 3.
+
+We can construct new upwards small partial orders from other ones.
+
+  Lemma 1.4.5:  
+
+    For @xmath let @xmath be a finite collection of closed/upwards small
+    posets/preorder spaces, then @xmath is a a closed/upwards small
+    poset/preorder space, given by the product partial order/preorder.
+
+###### Proof.
+
+We equip @xmath with the regular product topology. Since we are
+considering finite products, this preserves the Haussdorff, separable,
+first countable and possibly (sequential) compactness properties. For
+@xmath where @xmath define @xmath iff for all @xmath @xmath .
+Transitivity and reflexitivity (and antisymmetry in the case of a
+partial order) carry over from the @xmath . And we have @xmath and the
+same for downsets, so closedness and sequential compactness are
+preserved.
+
+Note also that the projection maps @xmath are monotone and continuous,
+so they are Scott-continuous (when all the @xmath are partial orders). ∎
+
+  Theorem 1.4.6:  
+
+    Let @xmath be a sequentially compact first countable separable
+    Haussdorff space and @xmath some first countable Haussdorff space
+    with a closed partial order (respectively a preorder) @xmath and
+    @xmath continuous and injective, then @xmath inherits a small
+    partial order (respectively a preorder) from @xmath via @xmath .
+
+###### Proof.
+
+Define the partial order @xmath for @xmath as @xmath iff @xmath .
+Reflexivity and transitivity follow from those properties on @xmath and
+antisymmetry follows from injectivity of @xmath . Suppose @xmath is a
+convergent sequence in @xmath and @xmath . Then @xmath and because of
+the continuity of @xmath @xmath , so by the closedness of @xmath we get
+@xmath so that @xmath . We can do the same thing for sequences with
+@xmath , so the partial order @xmath is closed under limits, so it is
+closed. Since @xmath is sequentially compact, @xmath is also small. ∎
+
+We also have a theorem that classifies closed partial orders on compact
+metric spaces ( scottbook2003, , Excercise VI-1.18) :
+
+  Theorem 1.4.7:  
+
+    Urysohn-Carruth Metrization Theorem. Let @xmath be a compact
+    metrizable pospace (poset with closed uppersets and downsets), then
+    there is a homeormorphic order-isomorphic map @xmath which induces a
+    radially convex metric on @xmath .
+
+A radially convex metric @xmath on a pospace @xmath is a metric such
+that when @xmath we have @xmath . The important part of this theorem is
+usually considered to be that each compact metric pospace can be
+equipped with a radially convex metric. The part we are interested in in
+this paper however is that we can understand any closed partial order on
+a compact metric space to be induced by a continuous injective map
+@xmath .
+
+### 5 The upperset map
+
+So far we have shown that there is a class of partial orders called
+upwards small that are all dcpo’s. Can we also say something about their
+approximation structure? Recall that a poset is called continuous when
+Approx @xmath is a directed set with supremum @xmath , for all @xmath .
+
+We will work with a slightly stricter type of space. Namely, we require
+that @xmath is locally compact in addition to it being Haussdorff, first
+countable and separable. In addition we require that our uppersets are
+compact instead of sequentially compact. Note that in first countable
+spaces compactness implies sequential compactness, so the partial order
+is still upwards small.
+
+Recall that we defined @xmath , which when equiped with the reversed
+inclusion order is a domain. Since we required that the uppersets in
+@xmath are compact, we have for every @xmath : @xmath . In fact suppose
+we have @xmath , then for any @xmath , we have @xmath so that @xmath ,
+which gives @xmath . The converse is true as well, so we have @xmath if
+and only if @xmath .
+
+This means that the upperset map
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is a strict monotone map. It is also injective, so @xmath is embedded
+into @xmath , and in fact @xmath is order isomorphic to @xmath . Because
+it is an order isomorphism it is also Scott-continuous. It is helpful to
+show this explicitly though. Let @xmath be an increasing sequence
+convergent to its join @xmath . Since @xmath we have @xmath for all
+@xmath , so in fact @xmath . For the other direction, let @xmath , then
+@xmath , and by closedness of @xmath we get @xmath , so that @xmath , so
+@xmath . So we in fact have @xmath .
+
+We can view @xmath as a subset of @xmath with the reversed inclusion
+order using the upperset map. So when we have @xmath in @xmath we also
+have @xmath . The converse is not true, since in general it will be
+easier to satisfy the @xmath condition in @xmath as it is a smaller
+space that allows a smaller set of increasing sequences. Recall that
+@xmath in @xmath iff @xmath int @xmath , so when @xmath int @xmath we
+have @xmath .
+
+If @xmath is compact, then we can also look at @xmath with the regular
+(not reversed) inclusion order. So @xmath iff @xmath . The join of an
+increasing sequence is then @xmath . Note that @xmath compact ensures
+that this is again a compact space, since any closed subspace of a
+compact space is again compact. We also have @xmath iff @xmath int
+@xmath , but note that @xmath is no longer a domain as any singleton
+@xmath has Approx @xmath .
+
+In a similar way as before we can order embed @xmath into @xmath with
+the downset map @xmath . So then we see that when @xmath int @xmath we
+have @xmath .
+
+Unfortunately it doesn’t seem we can say much more about the
+approximations of an upwards closed poset without restricting ourselves
+further.
+
+### 6 Convex uppersets
+
+The condition for upwards smallness refers to the uppersets and downsets
+of elements. For a certain well behaved class of partial orders, it is
+enough to say something about only the uppersets.
+
+Let @xmath be a compact subset of Euclidean space. And denote @xmath the
+space of compact and convex subsets of @xmath . Because @xmath is a
+compact metric space, @xmath is one as well. @xmath inherits the domain
+structure from @xmath . The reversed inclusion order is closed, so the
+order on @xmath is upwards small.
+
+Let @xmath denote the Lebeque measure on @xmath . Denote the interior of
+a set @xmath as @xmath .
+
+  Lemma 1.6.1:  
+
+    Let @xmath such that @xmath and both finite. Then if @xmath we have
+    @xmath (monotonicity). If furthermore @xmath and @xmath then if
+    @xmath and @xmath we have @xmath (strict monotonicity).
+
+###### Proof.
+
+The first statement on monotonicity follows directly from the definition
+of the Lebeque measure. For the second statement: Let @xmath and @xmath
+as described. Since @xmath we can write @xmath , so that @xmath . From
+@xmath we then get @xmath . Then we can write @xmath because the
+interior of any zero measure set is empty. Since @xmath we can take the
+closure on both sides: @xmath and we are done. ∎
+
+Any closed and bounded (so compact) convex subset @xmath with non-empty
+interior has this property that @xmath . ² ² 2 It would also hold for
+slightly more complex spaces, such as a finite union of convex spaces.
+If the interior of such a set is empty then there is a hyperplane into
+which the convex set embeds, so that we can view the set as ‘lower
+dimensional’: there is an isometric homeomorphic map @xmath where @xmath
+is a compact convex set in @xmath with nonempty interior. We can then
+define @xmath , its @xmath -dimensional measure. We can also do a
+similar thing when the interior of @xmath is not empty:
+
+  Definition 1.6.2:  
+
+    Define the @xmath -dimensional measure of a compact convex set
+    @xmath as
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+It then follows that when @xmath embeds into @xmath we have @xmath .
+Furthermore we also have that @xmath implies that @xmath .
+
+  Lemma 1.6.3:  
+
+    Let @xmath be the total measure defined as @xmath . @xmath is a
+    strict monotonic continuous and thus Scott-continuous map.
+
+###### Proof.
+
+Let @xmath be compact convex sets and @xmath so @xmath . Then for all
+@xmath , @xmath , so also @xmath . Suppose furthermore that @xmath .
+This is only possible when @xmath for all @xmath . Pick the highest
+@xmath such that @xmath , then @xmath and @xmath embed into @xmath and
+we can use the above lemma to conclude that @xmath . Continuity follows
+because the Lebeque measure is continuous and the fact that the supremum
+in the definition of @xmath changes smoothly when the set is slightly
+changed. Scott-continuity then follows because both @xmath and @xmath
+are upwards small. ∎
+
+Note also that the maximal elements of @xmath are precisely the
+singletons, so we have @xmath maximal iff @xmath .
+
+Now let @xmath be a compact subset of Euclidean space and let @xmath be
+such that the upperset of any element in @xmath is a closed convex set.
+Then the uparrow map maps order isomorphically into a subset of @xmath .
+Specifically, this map preserves joins of directed sets.
+
+  Theorem 1.6.4:  
+
+    If @xmath is a compact subset of Euclidean space and the upperset of
+    any element is a closed convex subspace, then @xmath is a dcpo, and
+    Theorem 3 applies.
+
+###### Proof.
+
+In this case @xmath is a strictly monotone map that preserves joins of
+increasing sequences. @xmath is a Scott-continuous strict monotone map.
+In particular it preserves joins of increasing sequences. Then the
+composition @xmath is also strict monotone and preserves joins of
+increasing sequences so Theorem 3 applies. ∎
+
+Note that this theorem also holds when the uppersets of @xmath are
+slightly more complex, for instance when they are finite unions of
+closed convex sets. Then the upperset map no longer maps to @xmath , but
+we can still use the map @xmath in the same capacity.
+
+## Chapter \thechapter Ordering Distributions
+
+In this chapter we will postulate a minimal set of conditions that any
+order of information content should satisfy. We will study a subset of
+these dubbed restricted information orders in great detail. In this
+chapter we restrict ourselves to studying classical states.
+
+### 7 Information Orders
+
+A finite classical state is given by a probability distribution on some
+finite amount of points, which we will label @xmath . Such a probability
+distribution @xmath is a set of @xmath real numbers @xmath such that for
+all @xmath @xmath and @xmath . In this case @xmath refers to the entire
+probability distribution, while @xmath referred to a specific component
+or coordinate of @xmath .
+
+  Definition 2.7.1:  
+
+    The space of probability distributions on @xmath points is
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+Geometrically @xmath can be interpreted as the @xmath -simplex. So
+@xmath is a line while @xmath is a triangle. The figures in this chapter
+will often use that depiction of @xmath . @xmath is a compact convex
+subspace of @xmath :
+
+  Definition 2.7.2:  
+
+    A subspace @xmath is called convex iff for all @xmath and @xmath we
+    have @xmath . Informally, @xmath contains the line connecting two
+    arbitrary points in @xmath . A point @xmath is called an extremal
+    convex point when for any @xmath , if @xmath for a @xmath , then
+    @xmath . Intuitively this means that @xmath is in a corner of @xmath
+    .
+
+The extremal convex points of @xmath are precisely the pure
+distributions @xmath . The distributions that are @xmath on their @xmath
+-th component, and @xmath everywhere else.
+
+There is another special distribution in @xmath : the uniform
+distribution @xmath . This is the unique probability distribution with
+@xmath for all @xmath and @xmath . It can be seen as lying in the
+‘middle’ of @xmath .
+
+The pure distributions and the uniform distribution have a special role
+concerning information content. Namely, let us define the standard
+notion of information content:
+
+  Definition 2.7.3:  
+
+    The Shannon entropy of a probability distribution @xmath is given by
+    @xmath .
+
+The Shannon entropy is a positive value corresponding to the uncertainty
+that a distribution represents. For instance, the only distributions
+that have @xmath , no uncertainty, are the pure distributions @xmath .
+The unique distribution on @xmath points with the highest entropy (the
+most uncertainty) is @xmath .
+
+This intuitively makes a lot of sense. Suppose you have @xmath boxes,
+where there is a bar of gold in precisely one of the boxes. You are also
+given a probability distribution that tells you the probability that a
+certain box contains this gold bar. What kind of probability
+distributions would you like to be given? Of course you would be really
+happy with a pure distribution, as you would be sure to get the gold (if
+we assume that the probability distribution actually describes the real
+world, and you haven’t been lied to). You would be the least happy with
+the uniform distribution as that doesn’t give you any extra information
+regarding which box contains the gold. The Shannon entropy of a
+distribution is a measure of how happy you should be when given that
+distribution in this scenario (with lower values corresponding to more
+happiness).
+
+For our information orders it would therefore make sense to require that
+@xmath is the least element of the partial order, and that the @xmath
+are the maximal elements. Since you would be happier with replacing
+@xmath with any state @xmath we say that @xmath for all @xmath . For the
+@xmath the situation is slightly more complicated, since we would still
+be happier when our distribution were a pure distribution, but it would
+still have to represent compatible information: @xmath and @xmath are
+obviously incompatible. Since @xmath would tell you that the gold is
+definitely in box 1, while @xmath would tell you that the gold is
+definitely in box 2. We will therefore require that each @xmath is
+smaller than at least one pure state @xmath .
+
+Suppose we have @xmath and some partial order @xmath that captures the
+idea of information content on @xmath , so that @xmath would mean “
+@xmath contains at least all the information @xmath has”. Suppose now
+that we have two other distributions @xmath and @xmath that are the same
+as @xmath and respectively @xmath , but with their first and second
+components interchanged. We didn’t really change any of the information
+content, we just changed in which order the coordinates were presented,
+so we would assume that @xmath .
+
+  Definition 2.7.4:  
+
+    Let @xmath be the permutation group on @xmath points. So @xmath is a
+    bijection @xmath . Then we define for @xmath : @xmath . We call a
+    partial order on @xmath permutation invariant when for all @xmath
+    and @xmath we have @xmath .
+
+We need an additional ingredient to arrive at our minimal definition of
+an information order. Suppose we have a state @xmath that has less
+information than a state @xmath . Now we can imagine a process that
+transforms the state @xmath into @xmath , thereby gaining information.
+The most simple mix of states would be @xmath for any @xmath , which is
+guaranteed to be a distribution by convexity of @xmath .
+
+  Definition 2.7.5:  
+
+    We say that a partial order @xmath on a convex space @xmath allows
+    mixing iff for all @xmath we have @xmath for all @xmath .
+
+And finally, we have the logical inclusion @xmath by sending @xmath to
+@xmath . We want the restriction of an information order on @xmath to
+@xmath to still be an information order.
+
+We now have all we need to make a basic definition of what we call an
+information order.
+
+  Definition 2.7.6:  
+
+    Let @xmath be a partial order on @xmath . We call @xmath an
+    information order if and only if all the following hold
+
+    -   @xmath is permutation invariant.
+
+    -   @xmath allows mixing.
+
+    -   @xmath for all @xmath .
+
+    -   The @xmath are maximal and for all @xmath : @xmath for some
+        @xmath .
+
+    -   @xmath restricted to @xmath is also an information order.
+
+### 8 Examples
+
+We’ll start with giving the example that guided this minimal definition
+for an information order.
+
+#### 8.1 Bayesian order
+
+The Bayesian order was defined in Coecke2010book as an example of a
+partial order on @xmath that captures the idea of information content.
+It is defined inductively using the example above about the boxes and
+the bar of gold.
+
+Suppose we have Alice and Bob that each have some information about
+where the gold is, which is captured by probability distributions @xmath
+and @xmath . Suppose that for some definition @xmath has more
+information than @xmath which we denote as @xmath . Now, if someone who
+knew where the gold was revealed that box @xmath didn’t contain it, then
+@xmath and @xmath can now be updated to reflect that they have certainty
+that @xmath doesn’t contain the gold. So @xmath , and the rest of the
+probabilities is rescaled. Then we would still expect the updated
+probabilities @xmath to have more information than @xmath : @xmath . We
+can then define @xmath inductively in the following way: Let @xmath ,
+and supposed @xmath is defined for @xmath . Then set @xmath if and only
+if for all @xmath such that @xmath and @xmath we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where we define @xmath in the only sensible way possible: @xmath iff
+@xmath , or equivalently, @xmath iff @xmath and @xmath and @xmath , or
+@xmath and @xmath and @xmath .
+
+As is shown in Coecke2010book , this inductive procedure gives you a
+valid partial order. To give a concise description of this order we need
+an extra definition.
+
+  Definition 2.8.1:  
+
+    The monotone sector of @xmath is @xmath . A sector of @xmath is a
+    region equal to @xmath for some @xmath . We have @xmath . The
+    boundary of the montone sector consists of the degenerated
+    distributions: @xmath
+
+  Definition 2.8.2:  
+
+    The Bayesian order on @xmath is given by @xmath if and only if there
+    exists @xmath such that @xmath and
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+So two distributions @xmath and @xmath are comparable in the Bayesian
+order when they belong to the same sector of @xmath . Lets take @xmath
+and @xmath to belong to @xmath so we can take @xmath , and suppose
+@xmath for all @xmath . Then we can write the comparisons in the
+Bayesian order as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We see that @xmath means that the coordinates of @xmath and @xmath can
+be simultaneously ordered and that the coordinates of @xmath are more
+sharply decreasing. It is routine to check that the Bayesian order as
+given in this form satisfies the properties for an information order
+outlined in Definition 7 .
+
+In Figure \thechapter .1 you can see an illustration of the upperset and
+downset of a specific point in @xmath . As you can see, the upper- and
+downset are contained inside of @xmath .
+
+#### 8.2 Renormalised Löwner orders
+
+In Chapter 3 we will be looking at partial orders on density operators,
+which come from the Löwner order, which is the ‘standard’ partial order
+structure that the positive operators carry. Its restriction to diagonal
+matrices, that is, the space @xmath is just @xmath iff @xmath for all
+@xmath . If we put this order on @xmath and we have @xmath , then @xmath
+, but also @xmath , so we must have @xmath , which gives @xmath . So
+this partial order reduces to @xmath iff @xmath .
+
+There are ways to change this partial order into something nontrivial.
+The two ways we will show here are what we refer to as eigenvalue
+renormalisations . The fact that @xmath is trivial on @xmath is a result
+of the normalisation of the elements in @xmath . By changing the
+normalisation, we can create a nontrivial partial order.
+
+Define @xmath the maximum eigenvalue (or coordinate) of @xmath . So the
+normalisation of @xmath such that @xmath is given by @xmath . If we use
+@xmath on the maximum eigenvalue renormalised distributions and switch
+to the dual of @xmath we get the partial order
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Transitivity and reflexivity follow easily. Antisymmetry is a result of
+the normalisation of distributions in @xmath : if @xmath and @xmath then
+@xmath for all @xmath . So if @xmath then also @xmath for all @xmath ,
+which breaks the normalisation. So @xmath for all @xmath . That @xmath
+is minimal and that the @xmath are maximal is also easily checked.
+Permutation invariance follows because a permutation would just switch
+around the order of the inequalities.
+
+Mixing is slightly more tricky. First, suppose @xmath , and suppose
+@xmath , then @xmath . So @xmath , but also @xmath by definition, so
+@xmath . So, when @xmath there is a @xmath such that @xmath and @xmath .
+Now define @xmath . Then @xmath , so @xmath and @xmath . That @xmath
+then follows easily by just substiting in the definition of @xmath into
+the inequalities.
+
+@xmath satisfies all the conditions of Definition 7 . Since all the
+inequalities involved are continuous it is also not hard to see that the
+uppersets and downsets are closed. Because @xmath is a compact set,
+@xmath is upwards small. So @xmath is a dcpo.
+
+We can do a similar sort of construction with a renormalisation to the
+lowest eigenvalue, although we do run into some extra difficulties here.
+First, when @xmath and @xmath contain no zeroes, we can simply take
+@xmath , and set @xmath iff for all @xmath : @xmath . It then follows in
+the same way as above that this has all the correct properties. Now, if
+@xmath and @xmath contain some zeroes, but we have @xmath if and only if
+@xmath , then we can simply ignore these zeroes, and set @xmath . We
+then still get the definition above and everything works out. But now
+suppose that @xmath contains more zeroes than @xmath . In the case that
+there is a @xmath such that @xmath while @xmath the renormalisation to
+the @xmath th coordinate would ‘blow up’ @xmath to infinity while @xmath
+stays bounded. So we simply define @xmath . If however there is no such
+@xmath then there is no easy choice of normalisation, so we say that
+@xmath and @xmath are incomparable.
+
+Now let @xmath be the set of zeroes of @xmath and @xmath the lowest
+nonzero coordinate and set @xmath if and only if one of the following
+(mutually exclusive options) holds:
+
+-   @xmath and for all @xmath .
+
+-   @xmath and there exists a @xmath such that @xmath and @xmath .
+
+  Lemma 2.8.3:  
+
+    @xmath as defined above is an information order.
+
+###### Proof.
+
+Reflexivity is trivial. Antisymmetry follows because in that case we
+must have @xmath , so that it reduces to the same problem as for @xmath
+. For transitivity we distinguish 4 cases. Let @xmath and @xmath . If
+@xmath , then it follows easily. If @xmath then we note that in the same
+way as for @xmath , when @xmath we also have @xmath . So if @xmath ,
+then there is a @xmath such that @xmath and @xmath , but then @xmath as
+well, so @xmath . If instead @xmath , then there is a @xmath such that
+@xmath and @xmath , in which case @xmath as well, so that @xmath .
+Suppose @xmath , so there is a @xmath such that @xmath and @xmath , but
+then also @xmath so again @xmath .
+
+The minimality and maximality of @xmath and @xmath can be directly
+checked, and permutation invariance is also clear from the definition.
+For mixing we split into two different cases. Either @xmath in which
+case we can use the same argument as for @xmath , or @xmath , in which
+case there is a @xmath such that @xmath and @xmath . Let @xmath , then
+@xmath . For @xmath we have @xmath , so we immediately have @xmath , and
+since @xmath and @xmath we also have @xmath . ∎
+
+@xmath is also a dcpo: any element which has a nondegenerated lowest
+nonzero coordinate has a closed convex upperset. If it is degenerated
+then the upperset will be a finite union of convex spaces, so we can use
+Theorem 6 to prove directed completeness.
+
+We now already have 3 very different orders that satisfy the information
+order conditions. In fact, in Figure \thechapter .2 it is easily seen
+how different the two renormalised Löwner orders are. In fact, the two
+orders are contradicting : The illustrated points @xmath and @xmath have
+@xmath and @xmath . In so far as Definition 7 defines a notion of
+information content, the conditions are not strong enough to define a
+unique direction of information content, as illustrated by this example.
+
+### 9 Basic properties
+
+Information orders (partial orders satisfying Definition 7 ) have a
+certain kind of minimal structure, which we will look at in detail in
+this section. Let @xmath denote an information order for the duration of
+this section.
+
+  Lemma 2.9.1:  
+
+    Let @xmath and @xmath such that @xmath or @xmath . Then @xmath .
+
+###### Proof.
+
+Suppose @xmath . We have @xmath for some @xmath , so by permutation
+invariance we get @xmath . So @xmath , but also @xmath , so by
+antisymmetry of @xmath we have @xmath . The other case follows
+analogously. ∎
+
+Now, consider an information order for @xmath . @xmath is the minimal
+element and @xmath and @xmath are the maximal elements. Call @xmath ,
+then by mixing we have @xmath whenever @xmath . There are no other
+comparisons possible because of the above lemma. The entire partial
+order is determined on @xmath . We get the structure as seen in Figure
+\thechapter .3 .
+
+The condition that an information order on @xmath restricts to an
+information order on @xmath is equivalent to a simpler demand.
+
+  Theorem 2.9.2:  
+
+    An information order @xmath on @xmath induces an information order
+    @xmath on @xmath iff @xmath for all @xmath .
+
+###### Proof.
+
+Define @xmath as follows for any @xmath :
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+That is: we interpret @xmath as the subset of @xmath given by setting
+the last coordinates to zero. Note that due to permutation invariance it
+doesn’t matter which coordinate we take to be zero: the partial order
+will be the same. The only if direction follows because an information
+order on @xmath has @xmath as a minimal element. Since @xmath for @xmath
+, we have @xmath .
+
+For the other direction we will work by induction. Since @xmath is
+defined as a restriction of @xmath , it is again a partial order, and it
+carries over the mixing requirement and the maximal elements. The only
+property left to check is that @xmath has the correct least element. For
+@xmath we have that @xmath , so by using permutation invariance and
+mixing, the entire partial order is determined and we are done.
+
+For the induction hypothesis we will assume that @xmath is the least
+element of @xmath . We know that @xmath , so for any element @xmath we
+have @xmath . Let @xmath and define @xmath . For @xmath this is the line
+between @xmath and @xmath , but if we take @xmath then we extend the
+line further. We can take this extension until the point where @xmath
+doesn’t lie in @xmath anymore. Since normalisation is preserved, at this
+point one of the coordinates of @xmath must have become less than zero.
+Take @xmath to be the exact value when @xmath is at the border of @xmath
+. At this point @xmath has at least one more zero than @xmath , so
+@xmath . But then @xmath and by the mixing property we get @xmath , so
+@xmath is indeed the least element of @xmath . ∎
+
+An illustration of what this structure looks like graphically is given
+in Figure \thechapter .4 .
+
+The smaller triangles are the sectors @xmath , the arrows denote the
+direction of the comparisons.
+
+### 10 Restricted Information Orders
+
+We will be looking at a subclass of information orders in detail. We
+will start by motivating this restriction.
+
+  Definition 2.10.1:  
+
+    For each @xmath there is a unique @xmath such that @xmath for some
+    @xmath . Denote this unique @xmath as @xmath . We call @xmath the
+    monotone retraction .
+
+What @xmath does is ordering the coordinates from high to low for any
+distribution @xmath .
+
+  Lemma 2.10.2:  
+
+    If @xmath is an information order on @xmath , then @xmath is a
+    strict monotonic map. Furthermore, if @xmath is a closed partial
+    order, than @xmath is Scott-continuous.
+
+###### Proof.
+
+Let @xmath with @xmath . Because of permutation invariance, without loss
+of generality we can take @xmath to be in @xmath , so that @xmath . If
+@xmath , then we are done, so suppose it is not. Let @xmath be in a
+‘neighbouring sector’ of @xmath : there exists a @xmath , such that
+@xmath where @xmath is given by a single permutation of successive
+coordinates. Name these coordinates @xmath and @xmath . We then have
+@xmath and @xmath . Let @xmath . For some @xmath we must then have
+@xmath . But then @xmath , so @xmath translates by permutation
+invariance to @xmath . So we have @xmath , which means that @xmath . If
+@xmath doesn’t lie in a neighbouring sector than @xmath crosses every
+sector in between and we can repeat this procedure for a finite amount
+of @xmath in each of these intermediate sectors. So @xmath is monotone.
+
+Now suppose @xmath and @xmath . Again, without loss of generality we can
+take @xmath so that @xmath for some @xmath . Then @xmath and from Lemma
+9 we then get @xmath .
+
+@xmath is a contraction: @xmath so @xmath is continous. Since @xmath is
+a compact subset of @xmath , when @xmath is closed, it is upwards small,
+so that any monotone continuous map is also Scott-continuous (Lemma 3 ).
+∎
+
+This lemma shows us that the behaviour of @xmath on @xmath gives us a
+lot of information of @xmath on @xmath : @xmath is a measurement of
+@xmath . We can then wonder when @xmath gives us all the information of
+@xmath : when do we have @xmath if and only if @xmath ? Let @xmath be in
+@xmath . Then for any @xmath we have @xmath and of course @xmath , so by
+the if direction we get @xmath for any sigma, which can’t happen for an
+information order.
+
+This procedure then doesn’t work, but we can define an information order
+on @xmath that is completely defined by its behaviour on @xmath in a
+different way:
+
+Set @xmath if and only if @xmath and there exists a @xmath such that
+@xmath , or equivalently, there exists a @xmath such that @xmath .
+
+This extra condition, which makes sure that @xmath and @xmath belong to
+the same sector, ensures that the situation we described above where we
+would get @xmath can’t occur. Now, when does a partial order on @xmath
+extend to an information order on @xmath ? It is clear that the partial
+order on @xmath , should have @xmath as the maximal element and @xmath
+as the minimal element, and furthermore that the partial order should
+support mixing. There is however one extra condition that the partial
+order on @xmath should satisfy.
+
+Let @xmath int @xmath and suppose there is an @xmath where @xmath is a
+border element of @xmath . Then it is also in a different sector @xmath
+. Suppose there is a @xmath int @xmath such that @xmath . By
+transitivity we must have @xmath which is a comparison between elements
+in different sectors which isn’t allowed by the form of the partial
+order.
+
+This problem arises when border elements of @xmath are sometimes smaller
+and sometimes bigger than an element in the interior of @xmath . It is
+fixed if the partial order has all the border elements below or above
+the interior elements. Picking them above creates all sorts of problems
+(not least of which is that @xmath is a border element, so the partial
+order will need to have some ‘discontinuities’), so we will have to
+choose them below:
+
+  Definition 2.10.3:  
+
+    We say that an information order @xmath on @xmath has the degeneracy
+    condition when for all @xmath , if @xmath and for some @xmath and
+    @xmath @xmath , then @xmath .
+
+Recall that an element @xmath is a border element of @xmath if it has a
+degenerated spectrum. That is, there is an @xmath such that @xmath . It
+has to be nonzero, because otherwise it wouldn’t be a border element.
+This condition precisely states that elements with a degeneracy on a
+pair of coordinates @xmath can’t be above elements that don’t have a
+degeneracy on coordinates @xmath .
+
+There is some intuition behind this related to information content.
+Suppose again we have the situation where Alice and Bob are looking at
+some boxes of which they know one contains a bar of gold. Their
+knowledge is represented by probability distributions @xmath and @xmath
+. Suppose @xmath is degenerated on coordinates @xmath and @xmath , so
+@xmath , while @xmath isn’t. Now someone comes along and forces them to
+choose between boxes @xmath and @xmath . Alice wouldn’t like this, since
+she has no preference for any of these boxes so she would have to pick
+randomly. Bob might also not be too happy about this, but his
+probability distribution does reflect a difference between these boxes
+which gives him the opportunity to pick the box which he thinks has the
+highest probability of containing the gold. Since in this case you would
+prefer to be Bob, it is not unreasonable to say that we at least know
+that Alice does not have more information than Bob.
+
+The degeneracy condition turns out to be enough to be able to restrict
+to a partial order on @xmath :
+
+  Lemma 2.10.4:  
+
+    Suppose @xmath is an information order with the degeneracy condition
+    on @xmath , then @xmath can be written as @xmath if and only if
+    there exists a @xmath such that @xmath and @xmath .
+
+###### Proof.
+
+Let @xmath int @xmath and @xmath not in @xmath , such that @xmath . Let
+@xmath . At some @xmath @xmath , so then @xmath , which breaks the
+degeneracy condition. So elements are only comparable when they belong
+to the same sector: @xmath implies that there is a @xmath such that
+@xmath . But then @xmath and @xmath . By permutation invariance, @xmath
+implies @xmath . The other direction works similarly. ∎
+
+From this we easily get:
+
+  Lemma 2.10.5:  
+
+    There is a one-to-one correspondence between information orders on
+    @xmath with the degeneracy condition and information orders on
+    @xmath with the degeneracy condition.
+
+So when assuming the degeneracy condition we can interchangably talk
+about information orders on @xmath and on @xmath . Let’s define a
+shorthand for this.
+
+  Definition 2.10.6:  
+
+    An information order on @xmath or equivalently @xmath is called a
+    restricted information order (RIO) iff it satisfies the degeneracy
+    condition.
+
+We have already seen a RIO: The Bayesian order. The renormalised Löwner
+orders aren’t restricted.
+
+Because @xmath is a simpler space than @xmath restricted information
+orders are a good place to start the study of information orders.
+
+### 11 Classification of restricted information orders
+
+We will give a classification of a limited set of these restricted
+orders.
+
+Since a restricted order is completely defined by its behaviour on
+@xmath , we will be working exclusively on @xmath instead of @xmath in
+this section.
+
+The assumption here will be that, since a restricted order encodes
+information, this information should somehow be encodable in a set of
+real numbers that represent the information features and the partial
+order would then consist of comparing these features.
+
+Specifically, we would want to define our partial order by an injective
+map @xmath , where we equip @xmath with the product partial order:
+@xmath iff @xmath for all @xmath . @xmath then inherits a partial order
+via @xmath (it is antisymmetric iff @xmath is injective). Furthermore if
+@xmath is continuous, then since the order on @xmath is closed, the
+partial order on @xmath will be a dcpo.
+
+Note that due to the Urysohn-Carruth Metrization Theorem (Theorem 4 ),
+any closed partial order on @xmath is induced by a continuous injective
+map @xmath , so this is less of a restriction then it might seem.
+
+We will however be carrying on in a slightly different way. Recall that
+the Bayesian order (which is a restricted information order) was given
+by a set of inequalities of the form @xmath . Defining @xmath we can fit
+it into this model, but it will go wrong if @xmath . This could
+potentially be fixed by allowing @xmath to map into the one-point
+compacted reals @xmath , but then what to do when @xmath is zero as
+well? How would you define @xmath ?
+
+We will fix this problem by taking inspiration from the Bayesian order
+and mapping @xmath into a product of a slightly bigger space.
+
+  Definition 2.11.1:  
+
+    Define the extended reals @xmath with an order given by: for @xmath
+    , @xmath iff @xmath .
+
+Transitivity and reflexivity of this order are easy enough to check, but
+it is not antisymmetric. There is a continuous order isomorphic
+embedding @xmath given by @xmath , so this is a valid extension of the
+real numbers. There is also a map defined on the subset of @xmath where
+the second component is nonzero that reflects back: @xmath which is
+monotonic.
+
+The reason we work with this space is because it allows us to represent
+infinities in a consistent way. These correspond to the elements where
+the second coordinate is zero. Note also another peculiar property:
+@xmath . The zero is bigger and smaller than any other element. This
+turns out to be really useful.
+
+So let’s look at partial orders defined by an injective map @xmath .
+Such a map is given by @xmath pairs of functions @xmath , where we then
+have @xmath . @xmath is continuous iff all the @xmath and @xmath are
+continuous. The preorder on @xmath is closed, so if @xmath is continous
+than the induced partial order on @xmath will be closed, so that it is a
+dcpo.
+
+So suppose a partial order on @xmath is given in this way. Then we would
+have @xmath iff @xmath iff for all @xmath : @xmath . Note that @xmath is
+required to be injective for it to result in a partial order, but it is
+not the case that any injective @xmath will result in a partial order
+since @xmath is only a preorder. Antisymmetry will have to be checked
+independently.
+
+As the canonical example, for the Bayesian order we have @xmath , and
+@xmath . This approach makes clear what would happen if @xmath . Since
+this would map @xmath in @xmath , this element would be bigger and
+smaller than any other element. In other words, there is no information
+to be gained from the @xmath th componenet of @xmath for this @xmath in
+comparison with any other @xmath . This makes sense, because if @xmath ,
+with its last @xmath coordinates equal to zero, then it is actually an
+element of @xmath , so that we should be able to use the Bayesian order
+on @xmath which is given by an @xmath defined with @xmath components.
+
+#### 11.1 Polynomials and affine functions
+
+If we want to classify these partial orders, we have to know what kind
+of functions we can choose for @xmath and @xmath . We will be working
+with continuous functions. This seems like a reasonable enough demand
+and we will later see an argument for why the only valid information
+orders are produced by continuous maps.
+
+Note that @xmath is a compact subset of @xmath so that for a continuous
+function @xmath the Stone-Weierstrass theorem states that @xmath can be
+approximated arbitrarily well by a polynomial. The uppersets and
+downsets of the partial order are determined by the function values of
+the @xmath and @xmath . If we can arbitrarily approximate those by
+polynomials, we can also get arbitrarily close to the correct upper and
+downsets. So let’s look at the situation where we have two @xmath th
+order polynomials @xmath and @xmath .
+
+Any @xmath th order polynomial can be written as the product of @xmath
+affine functions (an affine function is a linear map plus a constant, or
+equivalently a 1st order polynomial), so we can write @xmath and @xmath
+where the @xmath and @xmath are affine functions. The inequality is
+@xmath . Suppose we have @xmath for all @xmath , then we can take the
+product of all these inequalities to arrive at @xmath . So, suppose
+@xmath was part of some @xmath to determine a partial order on @xmath .
+If we were to replace these @xmath in @xmath by the @xmath pairs @xmath
+we would arrive at a more strict partial order.
+
+We can actually do quite a bit more than this. It turns out that any
+higher order polynomial will not produce a valid information order,
+because they don’t allow mixing. So first, let’s assume @xmath and
+@xmath are first order polynomials. Or in other words: they are affine
+maps. The defining characteristic of an affine map is that @xmath for
+all @xmath and @xmath . Now suppose @xmath with @xmath and @xmath affine
+maps. Let @xmath , then
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+This means that @xmath if and only if @xmath if and only if @xmath .
+With affine maps, we get mixing “for free”.
+
+For higher order polynomials this doesn’t work. We will work with a
+second order polynomial, and show that it can’t have mixing, and then
+give an argument for why this generalises to higher order polynomials.
+
+Write @xmath and @xmath with @xmath and @xmath affine maps. We can
+suppose that @xmath is nonnegative otherwise we would relabel, the same
+goes for @xmath . For the duration of the argument we will also assume
+that @xmath , as this would just complicate the situation. Suppose
+@xmath . We’ll assume that for the pair of coordinates @xmath and @xmath
+this inequality was the ‘deciding factor’ that determined that @xmath
+(such a pair must exist, otherwise we could remove this inequality and
+keep the same partial order), then we must also have @xmath and @xmath
+for @xmath . Let’s calculate the first expression:
+
+@xmath @xmath @xmath @xmath @xmath @xmath @xmath @xmath
+
+The LHS is negative by assumption, and if @xmath it decreases faster to
+zero than the RHS, because of the quadratic factor so that the RHS must
+be nonnegative for this to hold. we assumed that @xmath , so we must
+have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We can perform the same type of calculation for @xmath and arrive at
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+At this point it will prove helpful to define some new variables. Denote
+@xmath and @xmath , then we can rewrite these inequalities to
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+These two inequalities are not independent. Note that @xmath and that
+@xmath . Write
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+Now suppose @xmath , then @xmath so that @xmath . So @xmath .
+
+Now set @xmath . Since @xmath we then also have @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We also have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since we assumed that @xmath this is only true when @xmath , which is
+the case when @xmath or when @xmath and @xmath . If @xmath we then get
+@xmath , so that @xmath and @xmath . If @xmath , we have by the starting
+assumption @xmath and @xmath . By relabelling we can assume that this is
+the case.
+
+So from @xmath we get @xmath for @xmath and otherwise the mixing
+condition will be violated. If there are no @xmath and @xmath where this
+equality holds then we must have @xmath for all @xmath and @xmath so
+that we can remove the inequality without changing the partial order.
+Since @xmath and @xmath are affine maps, the surface where @xmath is
+given by a plane, while if @xmath and @xmath are true 2nd degree
+polynomials the equality surface would be some curved space, so this
+property can in fact only hold when @xmath and @xmath are actually
+affine maps in disguise for instance with @xmath for all @xmath and
+@xmath . This proves that second order polynomials can’t give
+information orders. If one of the @xmath or @xmath were zero we could
+still do the same kind of arguments.
+
+For higher order polynomials we can use that for an arbitrary @xmath
+there will be @xmath smaller than it arbitarily close (in the usual
+metric) to @xmath (because of the mixing property). We can then
+approximate @xmath and @xmath by a second order Taylor series and arrive
+at the same conclusions. The reason the mixing conditions fails for any
+higher order polynomial is because mixing ‘ensures’ that the boundaries
+of uppersets and downsets are straight surfaces. The levelset of a
+polynomial however is curved. For this reason we also don’t have to look
+at arbitrary (non-polynomial) continuous functions, because at small
+distances we can also approximate this by a quadratic polynomial.
+
+For discontinuous functions the boundaries of uppersets and downsets
+will also not be straight, so we can disregard these kinds of functions
+as well, with a small caveat: the function has to be continuous (and
+thus affine) on the interior of @xmath . On the boundary, so with @xmath
+or @xmath for some @xmath we can in general no longer use these
+techniques, and in fact some discontinuity when going from the interior
+to the boundary can still produce a valid information order. See for
+instance the second renormalised Löwner order @xmath .
+
+To conclude: to study restricted information orders of the type @xmath
+iff for all @xmath : @xmath it suffices to look at @xmath and @xmath
+affine. The minimal value for @xmath is @xmath , because @xmath is
+@xmath dimensional, so @xmath can’t be injective otherwise. If we take
+@xmath to be bigger the partial order is defined by strictly more
+inequalities so that we get a stricter partial order. So we’ll first
+look at the case for @xmath first.
+
+#### 11.2 Classification
+
+A long and complete proof of the statement in this section is given in
+the appendix, here he will present a less extensive proof that relies
+more on intuition.
+
+Call @xmath . Then @xmath would give @xmath . If @xmath and @xmath are
+affine, then @xmath is affine as well in both arguments. Furthermore
+@xmath is antisymmetric. @xmath is a convex space with extremal points
+@xmath . We can write any @xmath as a convex sum of the @xmath in the
+following way. Set @xmath , then @xmath . Also write @xmath . Then
+@xmath . Using that @xmath is antisymmetric, we can write this as @xmath
+. Since we have @xmath when @xmath , we have @xmath , so by antisymmetry
+@xmath . Define @xmath , so that we can write @xmath .
+
+Now, we have @xmath such functions @xmath . The degeneracy conditions
+state that when @xmath and @xmath we must have @xmath . So we actually
+see that these are @xmath seperate conditions. Each of the @xmath ’s
+will have to take care of one of these degeneracy conditions. Suppose
+@xmath has to ‘enforce’ the @xmath th degeneracy condition. So when
+@xmath and @xmath , then @xmath . From the definition of the @xmath and
+@xmath we see that @xmath precisely when @xmath . Write out the double
+sum in @xmath with respect to @xmath :
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Here we have already used that @xmath in the last double sum. This last
+term is nonnegative. The first term can be positive and negative
+depending on how we choose @xmath and @xmath as long as one of the
+@xmath for @xmath is nonzero. But in that case, there will be a
+combination of @xmath and @xmath with @xmath , such that @xmath which
+breaks the degeneracy condition. So we must have @xmath for all @xmath
+and @xmath where there is not at least one equal to @xmath . The nonzero
+terms are then @xmath for @xmath and by antisymmetry also the @xmath for
+@xmath .
+
+Knowing this, we can write
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+where @xmath and @xmath . We would like to write @xmath and @xmath in
+terms of the coordinates of the distributions in @xmath . Converting
+back, and rescaling will give us @xmath and @xmath for some parameters
+@xmath .
+
+The form of the @xmath ensures that it is always positive, and @xmath is
+zero exactly when @xmath is degenerated. Let @xmath , then @xmath .
+Suppose @xmath . Let @xmath be any nondegenerated element with @xmath
+for @xmath , then we should have @xmath which means @xmath where the RHS
+is a strictly positive number @xmath multiplied by a negative number
+@xmath which breaks the inequality. This means that @xmath will also
+always be nonnegative.
+
+Combining all this, we get the following classification for RIO’s
+defined by @xmath pairs of affine maps @xmath and @xmath :
+
+  -- -------- -------- --
+     @xmath   @xmath   
+                       
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+We denote it @xmath because the partial order is determined by a set of
+parameters @xmath . In total there are @xmath free parameters, or
+specifically, @xmath . The Bayesian order corresponds to the situation
+where @xmath for all the parameters. Note that all the parameters are
+bounded from below, but not from above. Note also that each inequality
+has a different amount of free parameters. For @xmath there are no free
+parameters, and the inequality is always @xmath which can be simplified
+to @xmath . The next inequality @xmath , has 1 free parameter: @xmath .
+The next inequality has 2 free parameters, and so forth.
+
+#### 11.3 Adding additional inequalities
+
+The above classification is only for partial orders given by @xmath
+inequalities: the minimal amount. what would happen if we added other
+inequalities? So suppose we already have a partial order @xmath , and
+that we want to add an inequality @xmath . The functions @xmath and
+@xmath have to be affine. We again write @xmath in the convex extremal
+basis introduced in the previous section: @xmath and @xmath so that
+@xmath and @xmath . In this basis @xmath and @xmath are still affine
+functions, so we can write @xmath and @xmath .
+
+We note that we must have @xmath if @xmath , so the inequality must
+satisfy @xmath . Noting that if we take @xmath then we have @xmath and
+the other @xmath ’s equal to zero, and for @xmath we have @xmath if
+@xmath . This inequality then becomes
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Which can equally be written as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since we can simply take @xmath for an arbitrary @xmath (and the other
+@xmath ’s equal to zero) we must then have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Now we take @xmath and @xmath arbitrary again.
+
+  -- -------- --
+     @xmath   
+     @xmath   
+     @xmath   
+  -- -------- --
+
+Call @xmath and @xmath , then we can write this as
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+where in the last line we relabelled the coordinates so that it is
+easily seen to be always positive (since @xmath ). We then see that
+instead of adding the inequality @xmath to the partial order, we could
+make a stricter partial order by adding the set of inequalities @xmath .
+These inequalities are precisely of the form we have already seen with
+@xmath and @xmath (after rescaling). So adding an arbitrary inequality
+to a partial order @xmath will create a partial order that in strictness
+lies between @xmath and an intersection of partial orders @xmath , where
+@xmath as a set of parameters is the same as @xmath , but the parameters
+relating to the @xmath th inequality are taken from @xmath .
+
+With this in mind it suffices to study the family of partial orders
+@xmath to ascertain many properties of the restricted information
+orders.
+
+#### 11.4 Changing parameters
+
+We have a family of partial orders @xmath indexed by the set of
+parameters @xmath that define the partial order. We will call a partial
+order @xmath stricter than a partial order @xmath iff for all @xmath and
+@xmath with @xmath we have @xmath . That is: the identity map @xmath is
+monotone.
+
+Let us fix a set of parameters @xmath and pick @xmath and @xmath such
+that @xmath . So we have @xmath for all @xmath . We can rewrite these
+inequalities to
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Note that only the lefthandside (LHS) depends on the parameters @xmath .
+The righthandside is constant. If we fix @xmath and @xmath we can view
+@xmath as a function of the parameters. If we take the derivative of the
+LHS with respect to a given parameter and this derivative is
+nonpositive, than this means that increasing the parameter will decrease
+the LHS, so that the inequality will still hold. We will show that the
+derivative to certain parameters is always negative regardless of @xmath
+and @xmath , so that increasing that parameter creates a less strict
+partial order.
+
+The derivative to @xmath with respect to @xmath is given by the quotient
+rule as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The sign of that expression is equal to the sign of
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let’s in particular look at the inequality @xmath which has one free
+parameter @xmath . The above expression then simply becomes @xmath which
+is precisely the @xmath inequality, so we know that this is negative. So
+increasing @xmath gives us a less strict partial order. We can rewrite
+the @xmath inequality to the following form:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Suppose @xmath and that the righthandside (RHS) term is negative.
+Increasing @xmath would then decrease the RHS, so that at one point the
+inequality stops holding. So the RHS must be positive. If @xmath then it
+is a stricter partial order than the one with @xmath , so we must have
+that the RHS term is positive as well.
+
+So for any @xmath and @xmath and @xmath , if @xmath , we must have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+This inequality can be rewritten to
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Now we move on to the next inequality: @xmath , @xmath . The expression
+of the sign of the derivative to @xmath is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We know that both the terms involving @xmath and @xmath components are
+negative so if @xmath is positive this expression is negative. Checking
+back to the classification we have @xmath . So, taking @xmath we can
+write
+
+  -- -------- -------- --
+              @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+So the derivative to @xmath is again always negative. Using the same
+argument as before we get @xmath which can be used to form a chain of
+inequalities:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+This allows us to continue this procedure until we get down to @xmath .
+So we know that for each parameter @xmath where @xmath increasing it
+will create a less strict partial order, and for any set of parameters
+@xmath when @xmath we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Adding these inequalities together we get
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+This turns out to be very useful.
+
+#### 11.5 Antisymmetry and non-contradicting orders
+
+We can use the previously derived inequalities to derive some nice
+properties of the partial orders @xmath .
+
+  Lemma 2.11.2:  
+
+    If @xmath and @xmath then @xmath . So if @xmath then @xmath .
+
+###### Proof.
+
+Suppose we have @xmath and @xmath . If @xmath , then the above
+inequalities directly give @xmath . Taking @xmath then immediately gives
+@xmath , so we must have @xmath . Then the inequalities proven above
+give
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Specifically, taking @xmath gives @xmath , so that @xmath for all @xmath
+. Because @xmath and @xmath are normalised, this is only possible when
+@xmath . ∎
+
+So we now know that when @xmath we have @xmath .
+
+The lemma above also ensures that when @xmath and @xmath , then @xmath .
+In this case all the parameters @xmath don’t influence @xmath and we can
+prove all the statements about increasing parameters with @xmath
+replaced by @xmath . The lemma here then works for @xmath . In fact we
+get a more general statement.
+
+  Lemma 2.11.3:  
+
+    Let @xmath denote the smallest nonzero coordinate of @xmath and let
+    @xmath the zero counting function, then if @xmath
+
+    -   For all @xmath where @xmath we have @xmath , so @xmath .
+
+    -   If @xmath , then @xmath .
+
+    -   If @xmath and @xmath , then @xmath .
+
+###### Proof.
+
+Note that @xmath , so @xmath , so if @xmath , then @xmath . So the first
+point follows by induction, because we know that when @xmath , @xmath
+and then we can reduce the situation to that of @xmath .
+
+If the amount of zeroes in @xmath and @xmath is equal, then there is a
+unique @xmath such that @xmath and @xmath and @xmath and @xmath . But
+then @xmath and @xmath are in the situation of the previous lemma, so we
+get @xmath .
+
+If furthermore we also have @xmath , then we have @xmath , so by the
+previous lemma we get @xmath . ∎
+
+This allows us to define a useful map.
+
+  Theorem 2.11.4:  
+
+    Define @xmath as @xmath . @xmath is a strict monotonic map for any
+    @xmath .
+
+###### Proof.
+
+The constant @xmath in @xmath is chosen so that @xmath , it doesn’t
+affect any of the properties of @xmath . Let @xmath . We know that
+@xmath . If @xmath is strictly greater than @xmath , than in particular
+@xmath , so @xmath . If @xmath , then we know that @xmath , so still
+@xmath . This proves the monotonicity of @xmath .
+
+For strictness assume that @xmath , and @xmath . We then must have
+@xmath , so that from @xmath we get @xmath . Using the previous lemma
+then gives us @xmath . ∎
+
+Note that the map @xmath is not Scott-continuous: take an arbitrary
+point @xmath int @xmath , and let @xmath , and construct the sequence
+@xmath . This sequence is obviously increasing with limit and join
+@xmath . @xmath while @xmath , so there is no way that @xmath .
+
+The existence of this map has an important consequence. First of all: we
+haven’t actually shown yet that the @xmath are partial orders! But now
+it follows easily, because when @xmath and @xmath , we have @xmath and
+@xmath , so that @xmath which gives @xmath . So the @xmath are indeed
+antisymmetric.
+
+Furthermore, call two partial orders @xmath and @xmath on the same set
+contradicting if there exist @xmath and @xmath such that @xmath and
+@xmath . We then immediately see that the @xmath are not contradicting
+because of the @xmath map. The restrictions that produced these partial
+orders are strict enough to ‘force’ the comparisons in a certain
+direction.
+
+  Lemma 2.11.5:  
+
+    The renormalised Löwnner orders also don’t contradict any restricted
+    order.
+
+###### Proof.
+
+The order @xmath also has @xmath as a strict monotone map, so this
+follows immediately. For @xmath we have to do a little bit more work to
+get the same result. Suppose @xmath . We have already seen that we then
+have @xmath where @xmath (we’ll assume @xmath , the argument still works
+if these are zero). Take @xmath , and rewrite the inequalities to @xmath
+. Now suppose that @xmath . This implies @xmath so that @xmath for all
+@xmath . We can rewrite this to @xmath . @xmath implies @xmath so that
+this inequality can only be satisfied when @xmath for all @xmath , but
+then @xmath . ∎
+
+Because the restricted information orders don’t contradict we could
+consider the ‘union’ of the partial orders. This turns out to be a
+restricted information order as well.
+
+#### 11.6 The maximum restricted order
+
+Consider the specific case of @xmath . A partial order @xmath is then
+given by one parameter, and has the form @xmath iff @xmath and @xmath .
+We have shown in the previous section that increasing @xmath gives a
+more general (less strict) partial order. It would then seem that in the
+limit of taking this value to infinity we would get the most general
+partial order.
+
+Suppose @xmath and @xmath . Note that we can rescale the inequality
+@xmath by an arbitrary constant. Divide it by @xmath so that the
+expression will remain bounded when @xmath . Then we have @xmath . In
+the limit the inequality would become @xmath . Note that the other
+inequality @xmath can also be written as @xmath so that the partial
+order now is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+This is the case for @xmath and @xmath . If we have @xmath , then by
+necessity also @xmath in which case the partial order simplifies to
+@xmath iff @xmath which is the unique information order on @xmath .
+
+There is one case left: @xmath and @xmath . In this case for very large
+@xmath the inequality gets close to
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We must again distinguish two cases. If @xmath , then the RHS blows up
+while the LHS stays bounded, so in this case the inequality would be
+trivial. The other inequality @xmath is also trivially satisfied. If
+@xmath then the RHS is zero, so that this inequality is only satisfied
+when @xmath (this is simply the degeneracy condition).
+
+This motivates the definition of the maximal order.
+
+  Definition 2.11.6:  
+
+    For @xmath we set @xmath if and only if one of the following
+    mutually exclusive options hold.
+
+    -   @xmath and @xmath .
+
+    -   @xmath and for all @xmath we have @xmath .
+
+    -   @xmath and @xmath and for all @xmath such that @xmath we have
+        @xmath .
+
+    The base case @xmath is defined as @xmath iff @xmath .
+
+    We call @xmath the maximal restricted order on @xmath .
+
+  Theorem 2.11.7:  
+
+    @xmath is indeed the maximal restricted order:
+
+    -   @xmath is a restricted information order.
+
+    -   If @xmath for any @xmath and @xmath , then @xmath .
+
+###### Proof.
+
+We prove by induction. We know that @xmath is a restricted information
+order and for @xmath any @xmath is equal to the unique information order
+on @xmath . Suppose it is true for @xmath . Reflexivity is trivial. For
+transitivity we have to distinguish cases. Let @xmath and @xmath . If
+@xmath we reduce to @xmath . So suppose @xmath . If @xmath then @xmath ,
+and for all @xmath where @xmath we have @xmath so that @xmath , so
+@xmath . When @xmath and @xmath we can do it similarly. When @xmath , we
+rewrite the inequalities to @xmath in which case transitivity is clear.
+
+For antisymmetry we can assume that @xmath and @xmath contain no zero
+coordinates since otherwise we would simplify to @xmath . So @xmath and
+@xmath would give @xmath . We can rewrite this to @xmath . For @xmath we
+get @xmath . So we in fact get @xmath for all @xmath . If we suppose
+that @xmath , then we see that either @xmath for all @xmath or @xmath
+for all @xmath , both can’t happen. So we must have @xmath , which then
+gives @xmath for all @xmath , so @xmath .
+
+The proof that this partial order allows mixing is similar to the proof
+that the renormalised Löwner orders allow mixing. That @xmath is the
+minimal element and that @xmath is the maximal element can simply be
+checked directly.
+
+Now suppose @xmath . @xmath satisfies the degeneracy condition so we
+know that when @xmath then @xmath and when @xmath then @xmath . So if
+@xmath and @xmath , we immediately have @xmath . If @xmath we have
+already seen that we can derive that @xmath for all @xmath , so that we
+also have @xmath . If @xmath we use the induction hypothesis. ∎
+
+@xmath is less well behaved than the @xmath . In particular, it is not
+closed and it is not a dcpo. We will show this explicitly: Take an
+arbitrary element @xmath with @xmath and let @xmath . We know that
+@xmath is not the case because @xmath while @xmath . Define @xmath , and
+let @xmath for @xmath , so @xmath and all the @xmath have their first
+three coordinates nonzero and the rest zero, so to derive if @xmath we
+can restrict to @xmath . We have @xmath and @xmath , so @xmath for all
+@xmath . We can use the same argument to show that @xmath is an
+increasing sequence. Any element @xmath with @xmath is an upper bound of
+this sequence. In fact, we can set @xmath which is a decreasing sequence
+of upperbounds of @xmath . This sequence has a highest lower bound:
+@xmath . Since @xmath is not a upper bound of @xmath we see that @xmath
+has no least upper bound.
+
+The reason @xmath is not a dcpo is because we had to exclude elements
+like @xmath from being above any nondegenerated element to preserve the
+degeneracy condition. If we were to include these elements in the
+uppersets we would have a dcpo, but in that case by transitivity @xmath
+, so if we want to preserve mixing we would also have to include the
+line between @xmath and @xmath . In fact: the smallest information order
+that is a dcpo that covers @xmath is @xmath . This is best seen when
+comparing the uppersets in a picture. See Figure \thechapter .5 .
+
+#### 11.7 Entropy
+
+The Shannon entropy @xmath is a strict monotone Scott-continuous map for
+the Bayesian order Coecke2010book . We can wonder when this is the case
+for the other information orders as well.
+
+We turn back to the method of taking the derivatives of the parameters
+to prove inequalities about the partial orders. Suppose @xmath . Recall
+that the sign of the derivative with respect to @xmath of the LHS of
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is equal to the sign of
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In Section 11.4 we showed that for @xmath this expression is always
+negative, which also produced the inequalities
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath . Now set @xmath and @xmath , then the sign equation is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Recall that the @xmath th inequality is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which can be rewritten to
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We have already seen that @xmath , so if @xmath , then the RHS is
+negative, which means that @xmath . Looking back at the sign equation
+for @xmath and @xmath we can see that if we also take @xmath , the
+expression will always be negative. We will then get some new
+inequalities we can use in our derivations of the sign of @xmath , and
+we can continue this procedure. The inequalities resulting from this
+procedure are
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The clue here is that we took the parameters to be negative. If some
+parameters are positive then we can’t say anything in general about the
+sign of the derivative of @xmath . For the partial orders given by small
+(negative) parameters we can say something general.
+
+  Lemma 2.11.8:  
+
+    Let @xmath and @xmath be restricted information orders given by sets
+    of parameters @xmath and @xmath , with @xmath for all @xmath and
+    @xmath . If @xmath for all @xmath and @xmath , then @xmath is
+    stricter than @xmath : @xmath implies @xmath .
+
+###### Proof.
+
+For all components where @xmath is negative this follows directly from
+the sign equations as defined above. If some of the components of @xmath
+are positive it follows because we can start from the lowest values of
+@xmath and work our way up. So let @xmath be the set of parameters given
+by @xmath , then it should be clear that @xmath is less strict than
+@xmath . Then we can pick the lowest @xmath and @xmath such that @xmath
+. Increasing this parameter on @xmath still gives a more general order,
+since all the relevant parameters in @xmath for this to hold are
+nonpositive, so let @xmath be @xmath but with @xmath , then @xmath lies
+above @xmath . We can then carry on to the next positive parameter which
+only depends on the parameters with a higher value for @xmath and @xmath
+. In the end we indeed have @xmath stricter than @xmath . ∎
+
+Recall that the Bayesian order is given by @xmath with @xmath for all
+@xmath and @xmath . This lemma shows that the Bayesian order is the
+maximal order with respect to these negative parameter orders. It then
+follows that these orders also allow Shannon entropy as a strict
+monotone Scott-continuous map (Scott-continuity folllows from the
+continuity of the entropy function and the closedness of the orders).
+
+We can now also consider a minimal information order as the order given
+by the intersection of all the @xmath ’s. Since the RIO’s with negative
+parameters are already stricter than the ones with positive parameters,
+we only have to consider the intersection of the negative parameter
+orders. For illustration, consider the @xmath case. Then there is one
+free parameter @xmath , and we have the condition @xmath , so the
+intersection would consist of taking the limit @xmath . Let’s look at
+the order given by @xmath . It looks like
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+This works completely fine as an information order, except when we have
+a pair @xmath and @xmath with @xmath and @xmath and @xmath . In this
+case both inequalities reduce to @xmath , so that @xmath and @xmath .
+The problem is that @xmath has a double degeneracy that the first
+inequality can’t deal with. Fortunately, this is only the case when
+@xmath in which case @xmath . So this problem is easily fixed by adding
+the extra requirement to the above order that @xmath .
+
+For @xmath there are multiple parameters that we could take the limit
+of. In general these all produce different partial orders, where one is
+not stricter than the order. The minimal order is then the intersection
+of all these limit orders. This order is the following:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all @xmath .
+
+The Bayesian order is not the maximal restricted order having Shannon
+entropy as a measurement. As a counter example let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all @xmath . This partial order looks almost the same as the
+Bayesian order except for the first inequality. Note that this partial
+order is given by @xmath for @xmath , and @xmath for @xmath where we use
+that @xmath due to the normalisation of @xmath . Because these
+parameters are all bigger than (or equal to) zero this order is indeed
+less strict than the Bayesian order.
+
+  Lemma 2.11.9:  
+
+    The order @xmath has the following properties.
+
+    -   The map @xmath , @xmath is a measurement.
+
+    -   If @xmath then there is a @xmath such that @xmath for @xmath and
+        @xmath for @xmath .
+
+    -   @xmath allows Shannon Entropy as a measurement.
+
+###### Proof.
+
+Let @xmath , and suppose @xmath . Then @xmath . Since @xmath we must
+then have @xmath . Rewriting then gives @xmath , so that @xmath . The
+second inequality is @xmath which then gives @xmath . We repeat so that
+we get @xmath for all @xmath . This is only possible when @xmath . So if
+@xmath we have @xmath , and if @xmath then @xmath . This proves that
+@xmath is strict monotone. Scott-continuity follows from the continuity
+of the map and the closedenss of @xmath .
+
+Let @xmath . Suppose that @xmath for a @xmath . Then @xmath , so then
+also @xmath . So if for some @xmath , @xmath , then also @xmath for all
+@xmath . Since @xmath and @xmath , there is a minimal such @xmath . The
+proof that @xmath has Shannon Entropy as a measurement then follows
+completely analogous to the proof that the Bayesian order allows Shannon
+Entropy as a measurement in Coecke2010book . ∎
+
+At the moment it is not clear if this is the maximal restricted order
+that is compatible with Shannon entropy.
+
+The majorization preorder is a partial order when restricted to @xmath
+and is given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+It is well known that the majorization order is monotone over all
+Schur-convex functions, an example of which is Shannon Entropy (
+convex1992, , Chapter 12) . This means that an order that contradicts
+the majorization order on a pair of points can’t be monotone over
+Shannon Entropy. Note that @xmath is monotone over @xmath . This means
+that any restricted information order is compatible with majorization.
+Majorization is also monotone over @xmath . Note that majorization does
+not satisfy the degeneracy conditions, so it doesn’t extend to an
+information order on @xmath . The maximum order @xmath does not agree
+with entropy, but it still allows @xmath as a strict monotone map, so it
+doesn’t contradict majorization. This shows that non-contradiction with
+majorization is not enough to prove that it is compatible with entropy.
+
+@xmath is not the least restrictive information order that has @xmath as
+a measurement.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We call it @xmath , because this is the order where @xmath for all
+@xmath and @xmath . Suppose again that @xmath and @xmath , then as in
+the other lemma we get @xmath . We then have @xmath , so using the
+second inequality we must have @xmath , which rewrites to @xmath so that
+@xmath . Rinse and repeat: @xmath for all @xmath , so @xmath . This
+order does not have the property that @xmath for small @xmath and @xmath
+for large @xmath , so the proof that @xmath has Shannon entropy as a
+measurement can’t be applied here. It is not clear if this partial
+orders is compatible with entropy. Some new proof method would be
+needed. Note that for @xmath , @xmath and @xmath are the same.
+
+### 12 Domains
+
+  Theorem 2.12.1:  
+
+    @xmath is a domain (continuous dcpo) when equipped with any @xmath .
+
+###### Proof.
+
+This proof is an adapted more general version of the proof that the
+Bayesian order is a domain as given in Coecke2010book . We have already
+seen that @xmath is a dcpo, so we only have to show that @xmath is
+continuous: that for each @xmath Approx @xmath is a directed set with
+least upper bound @xmath . Since @xmath is an upwards small partial
+order, it suffices to find an increasing sequence @xmath with @xmath
+such that @xmath . We will show that @xmath for @xmath with @xmath which
+proves the statement.
+
+Let @xmath with join/limit @xmath such that @xmath . We note that we
+then have @xmath for all @xmath . Since all the @xmath and @xmath are
+continuous and the @xmath are converging, for any @xmath there will be
+an @xmath such that for all @xmath we have @xmath . We note further that
+if @xmath then either @xmath in which case @xmath so that we can ignore
+this @xmath th inequality, or @xmath , in which case there is an @xmath
+such that @xmath for all @xmath . Now choose
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since @xmath for all @xmath we have @xmath , then take @xmath such that
+for all @xmath we have @xmath and @xmath . Pick a @xmath . We can now
+calculate:
+
+  -- -------- -------- --
+              @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+for all @xmath where @xmath . If @xmath then @xmath so because @xmath we
+also have @xmath so that the @xmath th inequality trivially holds. So
+@xmath . Since the sequence @xmath was arbitrary we have @xmath which
+proves that @xmath is a domain. ∎
+
+We can use a similar argument for @xmath : recall that it was defined as
+@xmath iff @xmath . Now if for a certain @xmath @xmath , then we must
+also have @xmath . This means that when @xmath increasing and @xmath ,
+there is a @xmath such that @xmath , @xmath , @xmath and @xmath . So
+writing @xmath and @xmath for all @xmath we can use exactly the same
+argument as above. So @xmath is also a domain.
+
+When restricted to @xmath , the second renormalised Löwner order is also
+a domain: when we only consider @xmath we can write
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the zero counting function. Again let @xmath for @xmath
+then @xmath . Let @xmath be an increasing sequence. Suppose @xmath
+contains an element with @xmath , then we have @xmath and we are done,
+so assume @xmath . Suppose @xmath , then @xmath . But then @xmath , so
+at some point @xmath . So finally suppose @xmath , then if @xmath we
+also have @xmath . But in this case we can just set @xmath and @xmath
+and use the same arguments as above.
+
+We have now shown that all these partial orders are domains when
+restricted to @xmath . However they do not produce domains on @xmath in
+general. This is best illustrated with a picture: see Figure \thechapter
+.6 .
+
+Let @xmath with @xmath and @xmath , then @xmath and construct @xmath for
+@xmath , then @xmath is an increasing sequence with join @xmath . For
+any @xmath and @xmath there is not any element in int @xmath that is
+bigger then any of these @xmath , so there can’t possibly be an
+increasing sequence that converges to @xmath (which is in the interior
+of @xmath ).
+
+The maximum eigenvalue Löwner order is still a domain on @xmath . The
+argument used in Theorem 12 also works for @xmath in @xmath . The reason
+why it doesn’t fail for this specific @xmath is because @xmath is in the
+interior of the upperset of any element, so that any sequence converging
+to the top element will at some point lie in the upperset itself.
+
+### 13 Summary and conclusions
+
+In this chapter we defined a new kind of structure called an information
+order. These are partial orders on @xmath that carry a certain kind of
+information-like structure. We looked in detail at a certain class of
+these orders called restricted information orders (RIO’s) and found that
+these can be classified by a group of real parameters. See Figure
+\thechapter .7 for a short summary of the different properties of a
+couple of information orders encountered.
+
+Note that all the orders in the table that are dcpo’s are also domains
+when restricted to @xmath , the monotone sector. The only order found so
+far that is also a domain on the entirety of @xmath is @xmath . With
+‘measurements’ we mean maps that are strict monotone in that order.
+@xmath and @xmath the Shannon entropy are continuous so that they are
+also Scott-continuous for closed partial orders. @xmath is not
+continuous and is also not Scott-continuous.
+
+We’ve seen that some restricted information orders have Shannon entropy
+as a measurement and some have @xmath as a measurement (Section 11.7 ),
+but is not yet clear whether these are the maximal orders with these
+properties. It is also not yet clear if @xmath has @xmath as a
+measurement.
+
+Other open questions relate to what kind of information orders exist
+that are not of the restricted kind like the renormalised Löwner orders.
+@xmath still satisfies the degeneracy condition on the first coordinate,
+while @xmath satisfies it on the last coordinate, perhaps there are
+other information orders that only satisfy the degeneracy condition on
+the @xmath th coordinate?
+
+It is clear that for an information order to be a domain on @xmath any
+element @xmath must have @xmath in the interior of its upperset. This
+means that any information order that is also a domain can’t have the
+degeneracy condition on the @xmath th coordinate for @xmath .
+Information orders that are domains will in that sense be ‘similar’ to
+@xmath . We’ll investigate this in more detail in the following chapter.
+
+We’ll also look at how the orders studied here can be extended to the
+space of density operators. In particular, we’ll take a closer look at
+@xmath and @xmath and see that they have some more interesting
+properties.
+
+## Chapter \thechapter Ordering Density Operators
+
+In the previous chapter we looked at information orders on the space of
+probability distributions. In this chapter we will extend this idea to
+the space of density operators. We will also define some extra
+properties and hypothesise that the maximum eigenvalue renormalised
+Löwner order is the unique order satisfying these properties.
+
+### 14 Preliminaries
+
+  Definition 3.14.1:  
+
+    A linear operator ³ ³ 3 We will use the terms ‘operator’ and
+    ‘matrix’ interchangeably in this chapter. @xmath is called positive
+    when for all @xmath , @xmath . We denote the space of positive
+    operators on @xmath as @xmath . If @xmath is positive we also write
+    @xmath .
+
+A positive operator is necessarily Hermitian, so it has a spectrum of
+eigenvalues. It is not too hard to see that a Hermitian operator is
+positive iff all its eigenvalues are nonnegative. Note that if @xmath
+and @xmath , then @xmath and @xmath , so @xmath is a cone (a special
+type of convex subspace) in the space of linear operators on @xmath .
+
+  Definition 3.14.2:  
+
+    A matrix @xmath is called unitary if @xmath . If @xmath as a matrix
+    is written in a certain orthonormal basis, then for any basis
+    transformation there is a unitary @xmath such that @xmath written in
+    that basis is @xmath . We denote the space of unitary matrices as
+    @xmath .
+
+  Definition 3.14.3:  
+
+    For a given orthonormal basis @xmath we call a linear operator
+    @xmath diagonal with respect to this basis iff @xmath for a set of
+    eigenvalues @xmath . Denote the space of Hermitian diagonal matrices
+    on @xmath as Diag @xmath . For any Hermitian matrix @xmath we can
+    find an unitary @xmath and a diagonal @xmath such that @xmath .
+
+Note that Diag @xmath since for a Hermitian matrix all the eigenvalues
+are real and @xmath Diag @xmath .
+
+  Definition 3.14.4:  
+
+    The of a matrix @xmath is given by Tr @xmath where @xmath is an
+    orthonormal basis.
+
+  Lemma 3.14.5:  
+
+    Let @xmath , @xmath and @xmath be matrices, @xmath unitary, @xmath a
+    Hermitian matrix with @xmath where @xmath diag @xmath is diagonal.
+    The trace has the following properties.
+
+    -   The trace of a matrix is linear and independent of the chosen
+        orthonormal basis.
+
+    -   The trace is permutation invariant: Tr @xmath Tr @xmath Tr
+        @xmath .
+
+    -   The trace is invariant under basis change: Tr @xmath Tr @xmath .
+
+    -   The trace of a Hermitian matrix is equal to the sum of its
+        eigenvalues: Tr @xmath Tr @xmath Tr @xmath .
+
+    -   The trace of a positive matrix @xmath is positive and is zero
+        iff @xmath .
+
+  Definition 3.14.6:  
+
+    We call a positive operator @xmath normalised iff Tr @xmath . A
+    normalised operator is also called a density operator . The space of
+    density operators is denoted as @xmath . Note that @xmath . We will
+    from now on denote density operators by greek letters (such as
+    @xmath and @xmath ).
+
+All the density operators are positive and thus Hermitian. This means
+that for @xmath we can find a unitary matrix @xmath and diagonal matrix
+@xmath such that @xmath . We have 1 = Tr @xmath Tr @xmath . Since @xmath
+and @xmath , the eigenvalues of @xmath form a probability distribution.
+So in fact we have Diag @xmath . Because of this we will simply denote
+the space of diagonal density operators as @xmath and identify them with
+probability distributions.
+
+This is no coincidence. A probability distribution is a classical notion
+of a state: a configuration that a classical system can be in. A density
+matrix on the other hand represents a quantum state. Such a state can be
+more complex because there are observables that don’t commute with each
+other (such as position and momentum). This is represented in @xmath by
+the fact that not all density matrices can be diagonalised
+simultaneously. The diagonal density operators can then be seen as the
+subspace where all the observables do commute, so this is again a purely
+classical state.
+
+In the previous chapter we were discussing orders that capture the idea
+of information content on classical states (probability distributions).
+Can we extend these to these quantum states (density matrices). This is
+in fact the case.
+
+  Definition 3.14.7:  
+
+    Define the uniform distribution of @xmath as @xmath where @xmath is
+    the identity operator on @xmath . @xmath is obviously diagonal and
+    when interpreted as en element of @xmath it is precisely the uniform
+    distribution in @xmath .The pure states of @xmath are precisely the
+    rank-1 projections, or in other words: @xmath is a pure state if
+    there is a normalised vector @xmath such that @xmath (so @xmath is
+    an eigenvector of @xmath with eigenvalue 1. By normalisation all the
+    other eigenvalues are then equal to zero).
+
+  Theorem 3.14.8:  
+
+    Let @xmath be an information order as defined in Definition 7 on
+    @xmath . This extends to a partial order on @xmath that allows
+    mixing with least element @xmath and the pure states as the maximal
+    elements.
+
+###### Proof.
+
+For @xmath define @xmath iff there is a @xmath such that @xmath (that
+is: @xmath and @xmath can be diagonalised at the same time) and @xmath .
+
+Simultaneous diagonalisability defines an equivalence relation on @xmath
+so the transitivity, reflexivity and antisymmetry of @xmath carries over
+to @xmath . Note that the unitary matrix @xmath is not uniquely defined:
+we can permute the coordinates in the basis and still be left with
+diagonal matrices, but this doesn’t matter for the partial order
+precisely because @xmath is permutation invariant.
+
+For any @xmath we have @xmath , so @xmath is simultaneously
+diagonalisable with any density matrix, so it is indeed the least
+element. For any @xmath we have the @xmath @xmath that project to one of
+the eigenspaces of @xmath . When simultaneously diagonalised, these
+@xmath have a 1 somewhere on the diagonal and zeroes everywhere else, so
+they are represented as the @xmath on @xmath , which indeed makes them
+maximal elements by the properties of @xmath . That @xmath also allows
+mixing follows from the mixing property on @xmath and the fact that if
+@xmath and @xmath are simultaneously diagonalisable, then any convex
+combination of them will also be simultaneously diagonalisable. ∎
+
+It is also true that if @xmath is closed or a dcpo on @xmath that this
+extension will also be closed or a dcpo on @xmath . None of these
+extensions will be a domain. This can be demonstrated using the same
+argument as is demonstrated in Figure \thechapter .6 : for any @xmath we
+can make an increasing sequence converging to the projection operator of
+the highest eigenvalue of @xmath such that this increasing sequence is
+everywhere written in a different basis than @xmath is.
+
+Although these extensions give information-like orderings on @xmath they
+might be considered too restrictive: the requirement that operators be
+simultaneously diagonisable for them to be comparable is very strong and
+trows away most of what makes @xmath interesting. We might hope there is
+a better set of information orders on @xmath .
+
+On the space of positive operators @xmath there is a natural choice of
+partial order lowner1934monotone .
+
+  Definition 3.14.9:  
+
+    Define the Löwner order @xmath on @xmath as follows.
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+  Lemma 3.14.10:  
+
+    Some properties of the Löwner order.
+
+    -   The Löwner order is invariant under basis transformations
+        (unitary invariant), allows mixing and has zero as the unique
+        least element.
+
+    -   The Löwner order is downwards small (so the dual is a dcpo).
+
+    -   The Löwner order has kernel inclusion: if @xmath and @xmath for
+        some @xmath , then @xmath . In other words ker @xmath ker @xmath
+        .
+
+    -   The trace is strict monotone. For the dual order the trace is
+        also Scott-continuous when we consider Tr @xmath .
+
+###### Proof.
+
+Let @xmath be a unitary operator and suppose @xmath , so for all @xmath
+: @xmath . Since this holds for all @xmath . This also holds for all
+@xmath , as @xmath is a bijection of @xmath . Then for all @xmath :
+@xmath which can be rewritten to @xmath , so @xmath .
+
+Define @xmath for @xmath . Then @xmath and @xmath , so it is clear that
+when @xmath then also @xmath for all @xmath .
+
+Suppose @xmath , then @xmath , so then Tr @xmath , and by linearity of
+the trace: Tr @xmath Tr @xmath . So the trace is monotone over the
+Löwner order. Furthermore if Tr @xmath Tr @xmath then Tr @xmath and
+since @xmath is a positive operator, we must then have @xmath , so
+@xmath , which proves strictness. The monotonicity of the trace means
+that the downset of a positive operator @xmath is contained in @xmath
+which is a bounded set. Now downwards smallness follows if we prove that
+the Löwner order is closed. To do this note that @xmath is a linear (and
+thus continuous) map to the real numbers. So suppose @xmath converging
+and that @xmath for all @xmath . Then @xmath and for a given @xmath
+@xmath . @xmath is continuous so it preserves limits, so that we then
+also have @xmath for any @xmath which proves that @xmath . The same
+holds for downsets of @xmath . The Scott-continuousness of the trace
+with respect to the dual order then follows by noting that the trace is
+a continuous map. ∎
+
+  Theorem 3.14.11:  
+
+    The dual of the Löwner order is a domain.
+
+###### Proof.
+
+Since the Löwner order is downwards small, the dual is upwards small, so
+it suffices to find for each @xmath an increasing sequence @xmath such
+that @xmath and @xmath , and to prove this condition we only need to
+work with converging increasing sequences.
+
+Define @xmath , then @xmath so it is clear that @xmath is increasing for
+@xmath and that @xmath as @xmath . Note that @xmath is a subset of the
+Euclidean space @xmath , so it is a metric space. There are multiple
+equivalent metrics but for this proof it is easiest if we work with the
+sup-norm induced metric:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let @xmath be an increasing sequence such that @xmath , so @xmath .
+Because of upwards smallness the sequence is converging in the metric.
+In particular from some @xmath onward we have @xmath , which means that
+for all normalised @xmath : @xmath . Then we have for all normalised
+@xmath :
+
+  -- -------- -------- --
+              @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+So @xmath and since this increasing sequence was arbitrary @xmath . ∎
+
+While the dual of the Löwner order is a domain, the Löwner order isn’t
+even directed complete. This is because any sequence @xmath , is
+increasing and obviously does not have any least upper bound. The
+restriction of @xmath to any compact subset is directed complete with
+the Löwner order.
+
+The Löwner order might be seen as a good candidate for an information
+order on @xmath , but unfortunately as the strict monotonicity of the
+trace demonstrates, when restricted to @xmath the Löwner order is
+trivial: @xmath if and only if @xmath . Fortunately there are some other
+candidates.
+
+### 15 Renormalising the Löwner order
+
+We revisit the two renormalised Löwner orders that we looked at in
+Chapter 2, but now we define them in the bigger context of the density
+operators. So first of all, some definitions.
+
+  Definition 3.15.1:  
+
+    Let @xmath with its set of eigenvalues in descending order (with
+    degeneracies) @xmath with corresponding eigenvectors @xmath , then
+    @xmath denotes the maximum eigenvalue of @xmath . @xmath denotes the
+    smallest nonzero eigenvalue. Define @xmath the linear span of the
+    @xmath th eigenvalue, and specifically @xmath and similarly for
+    @xmath . The kernel of @xmath is given by ker @xmath .
+
+We are now ready to define the renormalised Löwner orders.
+
+  Definition 3.15.2:  
+
+    For @xmath define
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    @xmath is called the maximum eigenvalue order .
+
+  Lemma 3.15.3:  
+
+    @xmath has the following properties.
+
+    -   @xmath is closed and a dcpo.
+
+    -   If @xmath then ker @xmath ker @xmath .
+
+    -   If @xmath then @xmath .
+
+    -   @xmath allows mixing.
+
+    -   @xmath is unitary conjugation invariant: for all @xmath : @xmath
+        iff @xmath .
+
+    -   The uniform distribution @xmath is the least element and the
+        pure states are the maximal elements.
+
+###### Proof.
+
+We can view @xmath as being implemented by the map @xmath where @xmath
+in the sense of Theorem 4 : @xmath is continuous and injective and
+@xmath is a closed partial order. Furthermore @xmath is a compact metric
+space, so @xmath induces a small partial order on @xmath , which is
+@xmath . So @xmath is a dcpo and closed.
+
+Let @xmath be a normalised vector. If @xmath , then @xmath which is only
+the case when @xmath . So indeed ker @xmath ker @xmath . Suppose @xmath
+. Then @xmath , so @xmath . The LHS is a convex combination of the
+eigenvalues of @xmath while the RHS is the highest eigenvalue of @xmath
+, so this equality can only hold when we have equality: @xmath , so
+@xmath .
+
+Suppose @xmath . Let @xmath . In general @xmath , but because of the
+above, there is a @xmath such that @xmath and @xmath , so @xmath , which
+means that @xmath . Now we calculate @xmath , so @xmath and we can use
+the same argument to get @xmath .
+
+For unitary conjugation invariance we note that @xmath since a basis
+transformation doesn’t change the eigenvalues. We then note that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since @xmath is a bijection it maps the @xmath one to one, which means
+it preserves the positivity structure.
+
+That the uniform distribution is minimal and the pure states are maximal
+can be checked directly. ∎
+
+  Definition 3.15.4:  
+
+    For @xmath define @xmath iff one of the following mutual exclusive
+    options holds.
+
+    -   ker @xmath ker @xmath and @xmath .
+
+    -   ker @xmath ker @xmath and @xmath ker @xmath .
+
+    @xmath is called the minimal eigenvalue order .
+
+  Lemma 3.15.5:  
+
+    @xmath has the following properties.
+
+    -   @xmath is a dcpo (but is not closed).
+
+    -   If @xmath then ker @xmath ker @xmath .
+
+    -   @xmath allows mixing.
+
+    -   @xmath is unitary conjugation invariant.
+
+    -   The uniform distribution @xmath is the least element and the
+        pure states are the maximal elements.
+
+###### Proof.
+
+That @xmath is a dcpo (and not closed) is done in the same way as for
+@xmath on @xmath . The clue is that for a given @xmath its upperset is a
+closed convex space if @xmath is @xmath -dimensional (so if its lowest
+nonzero eigenvalue is nondegenerated). Otherwise the upperset will be a
+finite union of closed convex spaces. We can then use Theorem 6 .
+
+Suppose @xmath . If ker @xmath ker @xmath , then just as in the proof
+for @xmath we see that @xmath so that @xmath where @xmath . Mixing then
+follows easily. If ker @xmath ker @xmath then because @xmath ker @xmath
+there is a @xmath such that @xmath and @xmath . Then @xmath and we
+proceed in the same way.
+
+For unitary conjugation invariance we note that ker @xmath @xmath ker
+@xmath and the same for @xmath . The invariance then follows easily.
+
+That @xmath is the minimal element follows because @xmath is equal to
+the entire space @xmath . Similarly let @xmath be a pure state and
+suppose @xmath , then either ker @xmath ker @xmath in which case @xmath
+is also a pure state which means that @xmath . So the pure states are
+indeed maximal. ∎
+
+Note that the condition @xmath (or the same with @xmath ) is essentially
+a degeneracy condition of the highest (or lowest) eigenvalue as we say
+in the previous chapter, because it implies dim @xmath dim @xmath .
+
+There is another property the partial orders share relating to
+conjugation invariance.
+
+  Lemma 3.15.6:  
+
+    Let @xmath be a poset with a conjugation invariant closed @xmath .
+    Then if @xmath we must have @xmath .
+
+###### Proof.
+
+Denote @xmath . Assume @xmath . By conjugation invariance then also
+@xmath , and so on. So @xmath is an increasing sequence. Because @xmath
+is closed it is a dcpo so that this sequence has a join, and moreover
+this sequence is convergent, but that is only possible if @xmath . ∎
+
+Note that although @xmath is not closed, it still has this property
+which can be checked directly. This property is the density operator
+analog of Lemma 9 , that for probability distributions states that
+@xmath implies @xmath .
+
+### 16 Composing systems
+
+The renormalised Löwner orders also share another property with the
+normal Löwner order: the ability to compose systems. We’ll define what
+we mean by that, but first we need some preliminaries.
+
+  Definition 3.16.1:  
+
+    Let @xmath be a @xmath -dimensional vector space with basis @xmath
+    and @xmath a @xmath -dimensional vector space with basis @xmath . We
+    define their tensor product @xmath to be the @xmath -dimensional
+    vector space with basis @xmath with @xmath and @xmath . An arbitrary
+    vector in @xmath can then be written as @xmath . Given linear
+    operators @xmath and @xmath we define their tensor product @xmath as
+    the unique linear map with @xmath .
+
+.
+
+  Lemma 3.16.2:  
+
+    Let @xmath and @xmath be Hermitian linear operators on some finite
+    dimensional vector spaces @xmath and @xmath .
+
+    -   As a map @xmath , @xmath is bilinear.
+
+    -   If @xmath and @xmath , then @xmath .
+
+    -   Tr @xmath = Tr @xmath Tr @xmath .
+
+    -   @xmath .
+
+    -   @xmath .
+
+    -   if @xmath and @xmath are positive/Hermitian, then @xmath is also
+        positive/Hermitian.
+
+Note also that if we have two finite dimensional complex vector spaces
+@xmath and @xmath and dim @xmath dim @xmath , then for any choice of
+basis @xmath of @xmath and @xmath of @xmath we have an isomorphism
+@xmath so that @xmath . Because of this we can identify @xmath for a
+given choice of basis. In fact if we pick the standard basis of @xmath :
+@xmath , then we can identify @xmath when @xmath . In this case we can
+construct @xmath and view the tensor product as @xmath .
+
+This sort of construction also works for @xmath and @xmath : since the
+tensor product of @xmath and @xmath is again positive, we have @xmath
+for some choice of basis, and if Tr @xmath and Tr @xmath , then Tr
+@xmath Tr @xmath Tr @xmath , so if @xmath and @xmath then @xmath for
+some choice of basis.
+
+Now why is this useful? A finite quantum state is decribed by a density
+matrix. For instance, the state of @xmath qbits is described by a
+density matrix in @xmath . Now suppose we have two quantum systems that
+don’t interact with each other with the first one described by the state
+@xmath and the second one described by @xmath . The fact that the
+systems don’t interact precisely means that we can describe the
+composite system as the tensor product of the states: @xmath . If they
+had some sort of interaction then the composite system is more complex
+than the sum of its parts and we wouldn’t be able to describe it as a
+pure tensor of the individual states.
+
+Taking this idea a bit further. Suppose we had some measure of
+information content on the density operators that then also describes
+the information content in the particular quantum states. So supposing
+that we have quantum systems 1 and 2 that are either described by states
+@xmath or states @xmath for @xmath and @xmath , so that the states
+@xmath contain less information than the states @xmath . If we suppose
+that system 1 and 2 are noninteracting then we can describe the
+composite system as either @xmath or @xmath . Now of course since the
+@xmath contain less information then the @xmath we would assume that
+composing these noninteracting systems together would not change the
+information content. In fact we might assume that information in
+composite system = information in system 1 + information in system 2 ,
+so this information order should also have @xmath .
+
+  Definition 3.16.3:  
+
+    If we have a family of posets @xmath we’ll say this family allows
+    composing when @xmath for @xmath implies @xmath .
+
+  Definition 3.16.4:  
+
+    Let Let @xmath for @xmath be a family of maps. We say that the
+    @xmath are compatible when for any @xmath , @xmath . So if @xmath
+    then @xmath . We say that this family splits under tensor products
+    when for @xmath and @xmath we have @xmath . Instead of @xmath , we
+    can also take @xmath to be the domain in this definition.
+
+Examples of a compatible family of maps that splits under tensor
+products is given by the set of identities @xmath , or @xmath where
+@xmath or similarly @xmath .
+
+  Theorem 3.16.5:  
+
+    Let @xmath be a compatible family that splits under tensor products.
+    For @xmath define @xmath iff @xmath . Then this family of partial
+    orders allows composing.
+
+###### Proof.
+
+Let @xmath and @xmath and @xmath and @xmath then we need to show that
+@xmath .
+
+@xmath @xmath @xmath @xmath @xmath @xmath @xmath @xmath @xmath
+
+because by assumption @xmath and the same for @xmath and @xmath , so
+indeed @xmath . ∎
+
+This proves that the Löwner order and the maximum eigenvalue order allow
+composing. For the minimal eigenvalue order we need to some extra work.
+Supposing that @xmath , if ker @xmath ker @xmath for @xmath we can use
+the theorem above. If however ker @xmath ker @xmath , so that @xmath ker
+@xmath . Let @xmath be such that @xmath and @xmath . We have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and for any @xmath we have @xmath and @xmath . So indeed @xmath .
+
+We also have the following.
+
+  Lemma 3.16.6:  
+
+    Let @xmath be a family of partial orders on @xmath induced by a
+    family of compatible maps that split under tensors products. Let
+    @xmath be such that @xmath . The right tensor map @xmath defined as
+    @xmath is a strict monotone continuous map and @xmath is order
+    isomorphic to @xmath . The same holds for the left tensor map @xmath
+    given by @xmath . This also works when working with @xmath instead
+    of @xmath .
+
+###### Proof.
+
+Monotonicity follows by the previous theorem. Strictness follows from
+injectivity of @xmath . Continuity follows from the linearity of the
+tensor product. To prove that this map is an order isomorphy we only
+have to show that if @xmath then @xmath . If @xmath then @xmath . Since
+@xmath , there is a @xmath such that @xmath . Pick this @xmath , then we
+must have, for all @xmath :
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In particular for all @xmath : @xmath , so indeed @xmath . ∎
+
+Although @xmath is not completely described by a family of maps
+spliiting under tensor producs you can still check that this property
+holds for @xmath for any @xmath .
+
+This property has an intuitive explanation: @xmath can be seen as a sort
+of ‘external environment’ that does not interact with the system we are
+interested in. Adding such an environment to the description of your
+system should not change any of the fundamental properties of the
+system. In this case this translates to @xmath being order isomorphic to
+@xmath : the relative information content of states in @xmath isn’t in
+any way affected by adding an external state.
+
+It should be noted that any of the restricted information orders on
+@xmath extended to @xmath does not in any way allow composing of systems
+in a natural way. The reason for this is that elements in @xmath are
+comparable when they belong to the same sector, for instance @xmath .
+The problem is that there is no obvious way in which the tensor product
+of @xmath and @xmath is an element of @xmath . We’d have to choose some
+kind of basis that maps the coordinates of @xmath in a descending order
+so that it belongs to @xmath , but this mapping would depend on the
+@xmath and @xmath you started with. The only properties that are
+preserved by this tensor product are the highest values of @xmath and
+@xmath and their lowest values, which is why the renormalised Löwner
+orders do allow composing.
+
+So far we have two partial orders on @xmath , the renormalised Löwner
+orders, that seem to behave really nicely: they are directed complete,
+they have mixing, they allow composing, they both have reasonable
+behaviour on kernels, the least element is the uniform distribution and
+the maximal elements are the pure states. The maximum eigenvalue order
+however seems to work better then the minimal eigenvalue order. We have
+already seen that the minimal eigenvalue order is not closed, while the
+maximum eigenvalue is. There is however another way in which they are
+different. We have already seen that @xmath when restricted to @xmath is
+not a domain so it is also not a domain on @xmath . However:
+
+  Theorem 3.16.7:  
+
+    @xmath is a domain:
+
+    -   For all @xmath and @xmath : @xmath .
+
+    -   If @xmath then ker @xmath .
+
+    -   If @xmath then for @xmath : @xmath .
+
+###### Proof.
+
+This proof is an adaption of the proof in Theorem 12 and is also similar
+to the proof that the dual of the Löwner order is a domain. @xmath is
+upwards small so we only have to work with converging increasing
+sequences and it suffices to find for any @xmath an increasing sequence
+@xmath such that @xmath and @xmath .
+
+Let @xmath be an increasing sequence in @xmath with limit/join @xmath .
+We have @xmath for all @xmath . From some @xmath we must have equality
+for all @xmath : suppose this is not the case, then there is a
+normalised @xmath such that @xmath for all @xmath while @xmath . Then
+@xmath . Since we have @xmath we also have @xmath , so @xmath , but
+@xmath for some @xmath . @xmath converges in the matrix norm so this is
+a contradiction. We will now assume that @xmath , otherwise we could
+just take the tail of the sequence where this is the case.
+
+Let @xmath . Assume @xmath . Then @xmath . The goal is to find a @xmath
+such that @xmath . This is the case when for all normalised @xmath :
+
+  -- -------- -------- --
+              @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Suppose @xmath , then @xmath as well, which implies @xmath so that the
+expression above is equal to zero. We can therefore restrict to the
+@xmath ’s where @xmath . Then the last 2 terms in the expression above
+are strictly positive, say bigger than some @xmath . Now since @xmath in
+the sup-norm, we can find an @xmath such that for all @xmath @xmath and
+also @xmath for all @xmath . We can then write
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+This means that @xmath for all @xmath , so indeed @xmath . We therefore
+have @xmath which proves that @xmath is indeed a domain.
+
+Now suppose @xmath . Then for some @xmath we have @xmath . We then have
+ker @xmath ker @xmath .
+
+Define @xmath for @xmath . In the same way as above we write
+
+  -- -------- -------- --
+              @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Just as before we can ignore the @xmath where @xmath . Since @xmath we
+can pick @xmath high enough such that the first term is then strictly
+positive. The second term goes to zero just as we saw earlier in this
+proof. So at some point this expression is positive. So indeed @xmath .
+That @xmath works similarly. ∎
+
+### 17 Unicity of the maximum eigenvalue order
+
+We’ll now try to establish some ways in which the maximum eigenvalue
+order is unique. Unique in what way?
+
+  Definition 3.17.1:  
+
+    Let @xmath be a family of posets. We’ll call the sequence of partial
+    orders @xmath a quantum information order iff
+
+    -   The uniform distribution @xmath is the minimal element in @xmath
+        .
+
+    -   The pure states are the maximal elements in each @xmath .
+
+    -   The partial orders are compatible: if we view @xmath for @xmath
+        , then for @xmath we have @xmath iff @xmath .
+
+    -   The partial orders are unitary invariant: For all @xmath :
+        @xmath iff @xmath .
+
+    -   The partial orders allow mixing: for @xmath , if @xmath then
+        @xmath .
+
+    -   The partial orders allow composing: for @xmath with @xmath for
+        @xmath then @xmath .
+
+    -   Items increase in specificity: If @xmath then ker @xmath ker
+        @xmath .
+
+Note that these properties are not all independent (for instance, the
+increase in specificity ensures that the pure states are maximal). The
+identification of @xmath is done in a chosen basis: if we have @xmath
+then we can add extra columns are rows o the matrix representation of
+@xmath that are filled with zeroes. Because of the unitary invariance,
+it doesn’t matter in which basis we do this, the resulting order
+structure is the same. The last property in this definition ensures that
+for @xmath @xmath . This definition can also be used for an order
+structure on @xmath , in which case we require that the maximal element
+is the zero element, and that there are no minimal elements.
+
+We have already seen that both @xmath and @xmath satisfy these
+conditions (and the dual Löwner order satisfies the definition on @xmath
+), so obviously these properties do not define a unique order on @xmath
+. We hypothesize (not prove) the following:
+
+  Hypothesis : The only quantum information order that is also a domain
+  is the maximum eigenvalue order.
+
+It might be that the question we should be trying to answer is that the
+maximum eigenvalue order is the only closed quantum information order,
+or even the only closed order which is also a domain, or it might be
+that all these coincide.
+
+We will show a specific construction that uniquely produces the maximum
+eigenvalue order, but so far there is no proof that this is the only
+possible construction.
+
+Specifically, we will consider partial orders on @xmath that are induced
+by a continuous map @xmath . In fact, we will consider a compatible
+family of continuous injective maps that split under tensor products
+given by @xmath . It should be clear that the family of partial orders
+induced by such a family of maps is closed (so they are dcpo’s),
+compatible and allow composing. Note that this construction is similar
+to how we constructed partial orders on @xmath . In that case we looked
+at an embedding @xmath , which can be seen as the diagonal restriction
+of a map @xmath .
+
+Pick a given @xmath and for brevity denote @xmath . Note that if @xmath
+, then @xmath will be the unique maximal element of @xmath , which can’t
+be the case. So @xmath for all @xmath . Define @xmath as @xmath Tr
+@xmath and define @xmath as @xmath Tr @xmath . Then we can write @xmath
+where @xmath is some self map of @xmath and @xmath is a map from @xmath
+to the positive reals. Note that since Tr @xmath Tr @xmath Tr @xmath ,
+both @xmath and @xmath split under tensor products. Both @xmath and
+@xmath are also continuous. Furthermore @xmath is a strict monotonic map
+to @xmath with the regular ordering. Note that although @xmath is
+injective, @xmath doesn’t have to be.
+
+A partial order is not uniquely defined by a @xmath : if we were to
+scale @xmath by a positive constant, this would not change the induced
+order so there is some gauge freedom in choosing @xmath . What kind of
+freedom do we have? Suppose we have some linear matrix valued map @xmath
+and that we transform @xmath to @xmath . Then we should have @xmath iff
+@xmath iff @xmath iff @xmath . @xmath should be injective to preserve
+antisymmetry (and so is a bijection), and it should be clear that this
+holds only if @xmath maps all positive operators to positive operators
+and doesn’t map any nonpositive operator to a positive operator. That
+is: @xmath is a positive map and its inverse is positive as well. It
+turns out these maps have been classified cariello2012 : @xmath is
+either @xmath for all @xmath or @xmath where @xmath is some invertible
+matrix and @xmath denotes the transpose of @xmath . So in particular, we
+can transform @xmath by rescaling, taking the transpose or conjugate it
+with a unitary operator and it wouldn’t change the partial order.
+
+Note that the restriction of @xmath to the diagonal operators gives an
+information order on @xmath . As we saw in the previous chapter, such a
+partial order has to be defined by affine maps. So we will take @xmath
+to be an affine map. This makes additional sense as the primary
+structure of @xmath is that of a convex space, so the affine maps are
+the structure preserving maps. We’ll now proceed with a short proof of a
+well known fact.
+
+  Lemma 3.17.2:  
+
+    There is a one-to-one correspondence between affine maps @xmath and
+    linear positive trace preserving maps @xmath , where @xmath denotes
+    the space of all complex valued @xmath matrices.
+
+###### Proof.
+
+The restriction of a linear positive trace preserving map to @xmath is
+clearly an affine self map. We’ll look at the other direction.
+
+Start with an affine map @xmath . We extend this to a map on the
+positive operators @xmath by setting @xmath and @xmath Tr @xmath for
+@xmath . It should be clear that then @xmath for all @xmath and by using
+the affineness of @xmath we can prove @xmath .
+
+Now we extend to Hermitian matrices. For any Hermitian @xmath we can
+uniquely write @xmath where @xmath and @xmath are positive operators. We
+then define @xmath . That @xmath is linear is routine to check.
+
+And finally to extend to all matrices we note that any matrix @xmath can
+be written as the sum of a Hermitian matrix and an anti-Hermitian
+matrix: @xmath where @xmath and @xmath are both Hermitian. Again we
+define @xmath .
+
+The resulting map @xmath is linear and sends positive matrices to
+positive matrices. It is furthermore easy to check per step that it
+preserves the trace. We also have that @xmath is injective iff @xmath is
+injective, and if @xmath is surjective then @xmath is surjective. If
+@xmath splits under tensor products then @xmath does so as well. ∎
+
+#### 17.1 The rank of operators
+
+The rank of an operator is the dimension of the subspace covered by its
+image: rnk @xmath dim(Im @xmath . For a hermitian operator it is the sum
+of the amount of nonzero eigenvalues (counting multiplicities). So for
+instance rnk @xmath , and for a pure state @xmath rnk @xmath . Indeed
+another way to define pure states is as the rank 1 projections. The
+rank, just like the trace, distributes over tensor products: rnk @xmath
+rnk @xmath rnk @xmath .
+
+Choose an orthonormal basis @xmath and fix it for all @xmath . Let
+@xmath be the projection to the first basis element @xmath . So @xmath
+and @xmath for all @xmath . Then we can view @xmath for all @xmath since
+the matrix representation of @xmath is just a @xmath in the left upper
+corner followed by zeroes everywhere else. The tensor product @xmath is
+represented in the same way (although in a bigger space), so we can
+identify @xmath . Recalling that @xmath splits under tensors we get
+@xmath . Calculating the rank on both sides gives rnk @xmath rnk @xmath
+, so rnk @xmath . This is not a completely rigorous argument since we
+are abusing notation here, but it should make intuitive sense. If the
+rank of @xmath would be bigger than @xmath , then taking the repeated
+tensor product @xmath would result in an operator with an arbitrarily
+high rank, while the underlying operator @xmath would still have rank 1.
+
+The basis we chose was arbitrary, so @xmath was also arbitrary. Any
+other rank @xmath projection can be found by taking a unitary
+conjugation of @xmath which corresponds to a basis change. If we want
+the partial order to be unitary conjugation invariant then it makes
+sense to require that all rank @xmath projections preserve their rank.
+So we’ll assume that if rnk @xmath then rnk @xmath .
+
+Any rank @xmath operator @xmath can be written as @xmath where @xmath is
+some nonzero complex number and @xmath is a rank @xmath projection. For
+@xmath an affine map on @xmath we then have @xmath , so if @xmath
+preserves rank @xmath operators, then @xmath does so as well. Since
+@xmath preserves rank 1 operators, @xmath does so as well, so we are
+left with a linear rank @xmath preserving operator @xmath on @xmath . It
+just so happens that marcus1959 has classified these operators:
+
+  Lemma 3.17.3:  
+
+    Let @xmath be a linear map preserving the rank of all rank 1
+    operators, then there exist invertible matrices @xmath such that for
+    all @xmath , @xmath or @xmath .
+
+As we’ve already seen, we have gauge freedom to apply transpose to
+@xmath , so we can assume that we are dealing with the first case. This
+means we have @xmath . Noting that @xmath is trace preserving we get Tr
+@xmath Tr @xmath Tr @xmath = Tr @xmath for all @xmath . This is only
+possible if @xmath , so @xmath . @xmath is a positive linear map. In
+cariello2012 they showed that for any such map we have @xmath . This is
+now only possible when @xmath , so @xmath is a unitary matrix. We then
+have @xmath for some @xmath , and by using our gauge freedom we can
+simply set @xmath . This means we can take @xmath to be the identity.
+
+#### 17.2 Alternative derivations
+
+Since the argument from the rank 1 operators is not completely rigorous
+we offer some other assumptions on @xmath that would produce the same
+result.
+
+Once we get @xmath we can simplify @xmath to be the identity. There are
+other ways to prove @xmath must have this form. marcus1959 lists a few
+possibilities: If a linear map @xmath preserves one of the following:
+
+-   the determinant of every matrix or
+
+-   the rank of all rank @xmath matrices or
+
+-   the rank of rank 2 matrices
+
+then it must be of the form @xmath or @xmath . In cariello2012 they show
+that a positive linear bijection @xmath with positive inverse has to be
+of the form @xmath or @xmath . In particular, if we assume that @xmath
+is surjective and affine, then the inverse of the extension @xmath is
+positive, and this holds. In fact, because @xmath is affine, it is
+enough to require surjectivity to the pure states.
+
+There are also results for bijective (not necessarily affine) maps
+@xmath . If @xmath preserves one of the following:
+
+-   the fidelity between all matrices,
+
+-   the transition probabilities,
+
+-   the Bures metric,
+
+-   the trace distance metric,
+
+-   the relative entropy between all matrices, or
+
+-   the Jensen-Shannon divergence between all matrices
+
+then @xmath has to be of the form @xmath where @xmath is a unitary or
+anti-unitary operator molnar2001 ; molnar2002 ; molnar2008a ;
+molnar2008b .
+
+We will not use any of these results, but it should be clear that if
+@xmath is to preserve any kind of structure on @xmath it has to be a
+very simple map.
+
+#### 17.3 Last steps
+
+Now that we’ve established (or at least made it very plausible) that we
+can set @xmath for all @xmath we are left with @xmath . The partial
+order is then given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+So we simply modify the Löwner order by dividing all the elements by a
+scalar.
+
+We can reuse the argument about rank @xmath operators here. We know that
+@xmath splits over tensors, so let @xmath denote the projection to the
+first basis element, so that we can identify @xmath .Then we should also
+have @xmath , so @xmath . Again, the choice of basis is arbitrary, so
+set @xmath for all rank 1 projections @xmath .
+
+The rank @xmath projections are the maximal elements. Suppose we have
+@xmath for @xmath and @xmath some rank 1 projection. Let @xmath be the
+unique normalised vector such that @xmath . Then we must have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+or slightly rewritten: @xmath . The rank 1 projections are the only
+maximal elements, so there must be a projection where this inequality
+holds. the LHS is a convex sum of @xmath ’s eigenvalues. In particular,
+it is smaller than @xmath . So we must at least have @xmath .
+
+  Lemma 3.17.4:  
+
+    @xmath is unitary conjugation invariant: @xmath for all @xmath and
+    @xmath .
+
+###### Proof.
+
+The only maximal elements are the rank 1 projections, so for each @xmath
+there must exist a projection @xmath such that @xmath . Because of
+unitary conjugation invariance, we must then for all @xmath have
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+So we must have @xmath if and only if @xmath . This is only possible
+when @xmath for all @xmath and @xmath . ∎
+
+This has important consequences: any @xmath can be written as @xmath
+where @xmath is the diagonal matrix with on the diagonal the eigenvalues
+of @xmath in decreasing order. @xmath , so @xmath only depends on the
+ordered eigenvalues of an operator.
+
+As was discussed earlier in this chapter, the space @xmath doesn’t
+behave well under tensor products: there is not a single choice of basis
+such that when @xmath and @xmath then @xmath since in general it is not
+possible to preserve the order of the eigenvalues. In fact, there are 3
+preserved quantities when tensoring: the highest eigenvalue, the lowest
+eigenvalue, and the lowest nonzero eigenvalue. Since @xmath splits under
+tensor products, it can only depend on these quantities. The lowest
+nonzero eigenvalue is noncontinuous, and since @xmath is continuous it
+can’t depend on that. That leaves two variables @xmath can depend on:
+@xmath where in this case @xmath denotes the lowest eigenvalue, not the
+lowest nonzero eigenvalue. We then have @xmath . So @xmath is a function
+that satisfies @xmath . We furthermore know that @xmath , and @xmath ,
+@xmath , so @xmath , so we have @xmath which means that @xmath is only a
+function of its first argument: @xmath . Then @xmath with @xmath . In
+other words: @xmath is a group homomorphism from a subgroup of @xmath to
+itself. These have all been classified: such a group homomorphism is
+always of the form @xmath for some @xmath . Since @xmath is a strict
+monotone function we must have @xmath . We have already seen that @xmath
+, which is only the case when @xmath .
+
+  Lemma 3.17.5:  
+
+    The partial order induced by @xmath for @xmath only allows mixing
+    when @xmath .
+
+###### Proof.
+
+As we’ve seen in Chapter 2, an information order follows from an affine
+map, so mixing only holds when @xmath , but in this case we can show
+this explicitly. Suppose we have the partial order given by @xmath with
+@xmath . Let @xmath be a diagonal matrix, and let @xmath be the diagonal
+matrix @xmath with the 1 at the @xmath th position. We have @xmath iff
+@xmath for all the diagonal components indexed by @xmath . The LHS is
+zero except for @xmath . So we have @xmath iff @xmath . Now, since
+@xmath is strictly bigger then 1, there exist @xmath such that @xmath
+with @xmath where @xmath . Pick such a @xmath . Let @xmath . The mixing
+condition then says that @xmath for all @xmath . Note that @xmath and
+@xmath . For some @xmath we will have @xmath . Since we have @xmath we
+must have @xmath . Filling in the values of @xmath we get @xmath so that
+@xmath , which is never the case for any @xmath and @xmath . We conclude
+that for @xmath there exists a diagonal @xmath such that @xmath while
+there is a @xmath such that @xmath does not hold. So the partial order
+doesn’t satisfy the mixing condition. That the partial order does
+satisfy the mixing requirement for @xmath has already been shown. ∎
+
+The proof of the unicity of the maximum eigenvalue order above is far
+from rigorous at some points. We will list some of the problems in the
+proof.
+
+-   Why would a general quantum information order on @xmath have to be
+    induced by a map @xmath ?
+
+-   Can the affineness of @xmath be derived explicitly instead of
+    implicitly? Can it perhaps be shown that it has to satisfy some
+    other property mentioned in Section 17.2 ?
+
+-   Can the argument using the rank @xmath operators be made more
+    rigorous?
+
+-   Can the argument about @xmath only depending on “quantities
+    preserved by the tensor product” be made more rigorous?
+
+The first point might be solved by applying something similar to the
+Urysohn-Carruth Metrization Theorem, but that instead of the partial
+order being induced by a map to @xmath , it will be induced by a map to
+@xmath .
+
+For the third point it might be possible to use the fact that the family
+of @xmath ’s which extend to @xmath can be combined into a single linear
+positive trace preserving map that splits under tensor products @xmath ,
+where @xmath . The preservation of rank @xmath operators might then be
+cast in terms of the continuity of @xmath , or that we want to describe
+@xmath in a coordinate free way.
+
+That @xmath has to depend solely on the maximum eigenvalue can possibly
+also be derived in another way: the reason @xmath is affine between
+operators with @xmath is because @xmath , if @xmath were to depend on
+other eigenvalues of @xmath as well, then these eigenspaces must also be
+preserved in some way by @xmath , because otherwise affineness would
+fail. But in general, when mixing the operators together, the ordered
+eigenvalues might change in order, so it is not clear how a partial
+order would work that also depended on, say the second highest
+eigenvalue.
+
+#### 17.4 Graphical intuition
+
+There is a nice graphical intuition behind the operation of the map
+@xmath . Consider @xmath , and pick the subset of diagonal matrices in
+@xmath and @xmath . @xmath can then be seen as @xmath and @xmath is a
+diagonal line between the points @xmath and @xmath . See Figure
+\thechapter .1 .
+
+The subspace of @xmath with highest eigenvalue less than @xmath is then
+a square with with the sides given by @xmath . The red area illustrates
+the image of @xmath . The comparable elements belong to the same red
+line segment. These lines correspond to different eigenspaces @xmath .
+
+The entirety of @xmath can be seen as @xmath , or in other words, it is
+the filled circle with @xmath in the middle and the pure states on the
+outside. See Figure \thechapter .2 .
+
+The map @xmath ‘pulls’ the middle up so that the circle becomes a cone.
+The points of @xmath lie on the outside of the cone. Two points in
+@xmath are comparable if they belong to the same line piece from @xmath
+to a pure state.
+
+We can draw a similar picture for @xmath . Because humans are bad at
+visualising high dimensional spaces we’ll only consider the diagonal
+matrices. See Figure \thechapter .3 .
+
+The triangle @xmath that is embedded into this cube is mapped into three
+of the faces of the cube. These faces correspond to the eigenspace of
+the highest eigenvalue @xmath . Points mapped to different faces of the
+cube are not comparable in @xmath . The reason @xmath allows mixing is
+then simply that the map @xmath is affine as long as points belong to
+the same ‘face’.
+
+### 18 Extending the order to positive operators
+
+The Löwner order gives an order structure on the positive operators,
+that allows comparisons between operators that have a different trace:
+If @xmath and Tr @xmath Tr @xmath then either @xmath or @xmath implies
+@xmath (in other words, the trace is a strict monotone map). The
+‘distance’ between operators @xmath can be seen as measured by the
+difference in the trace: Tr @xmath .
+
+The maximum eigenvalue order as defined on @xmath allows nontrivial
+comparisons and is not bound by the trace of the operators (as they all
+have the same trace). Instead the ‘distance’ between two comparable
+items can be seen as the difference between the maximum eigenvalues.
+Seeing as @xmath is a subset of @xmath , one can wonder if we can extend
+this partial order in a natural way to the entirety of @xmath . We’ll
+show a couple of ways that it can be extended, and the different
+properties that each of these extensions have.
+
+  Definition 3.18.1:  
+
+    The minimal extension: For @xmath let @xmath iff Tr @xmath Tr @xmath
+    and @xmath Tr @xmath Tr @xmath .
+
+This extension has @xmath order isomorphically, where @xmath is equipped
+with the equality order: @xmath . This is a product of two domains with
+an additional element @xmath , so it is still a domain, and it obviously
+preserves all the other properties that @xmath has, but this extension
+is not very interesting. It merely glues together copies of @xmath onto
+@xmath and doesn’t use any of the extra structure that @xmath has.
+
+Any map @xmath can be extended to a map @xmath by setting @xmath and
+@xmath Tr @xmath Tr @xmath . If we apply this procedure to @xmath we get
+
+  Definition 3.18.2:  
+
+    The intuitive extension: For @xmath let @xmath iff Tr @xmath Tr
+    @xmath , and we set @xmath as the unique maximal element.
+
+This extension works pretty well. In particular it allows composing, and
+it is a domain, but it doesn’t allow mixing: Let @xmath diag @xmath and
+@xmath diag @xmath , then @xmath , but @xmath diag @xmath , then not
+@xmath .
+
+We can also define a sort of ‘maximal extension’:
+
+  Definition 3.18.3:  
+
+    The maximal extension: For @xmath let @xmath iff Tr @xmath Tr @xmath
+    and @xmath or Tr @xmath Tr @xmath and ker @xmath ker @xmath .
+
+This extension is a quantum information order and includes the Löwner
+order (if @xmath then @xmath ), but it is no longer closed or even a
+dcpo.
+
+  Definition 3.18.4:  
+
+    The natural extension: For @xmath let @xmath iff Tr @xmath Tr @xmath
+    and @xmath .
+
+The order @xmath has all the properties we require of a quantum
+information order. Furthermore it is closed, so it is a dcpo, and for
+any @xmath let @xmath . Then @xmath is an increasing sequence for @xmath
+, so @xmath is also a domain. We also have: if @xmath and @xmath , then
+Tr @xmath Tr @xmath so that @xmath . So @xmath and @xmath , the dual
+Löwner order, are non-contradicting. Furthermore we have @xmath in
+@xmath and in @xmath , so the intersection of the orders will again be a
+domain and this domain also preserves all the properties of a quantum
+information order. Note that this is indeed a stricter order: if we take
+@xmath diag @xmath ) and @xmath diag @xmath , then @xmath but not @xmath
+and if we let @xmath diag @xmath then @xmath but not @xmath , so it is
+not the case that one of the orders is contained in the other.
+
+The dual Löwner order gives information on operators with different
+traces, while the natural extension of the maximal eigenvalue order also
+gives information on operators with the same trace. Since they are
+non-contradictory, a natural question to ask next is wether there is an
+order that includes the both of them. The answer to that is yes, because
+the maximal extension does precisely that. However, this extension is
+not a dcpo and doesn’t really use any information on the content of
+operators with different traces. So the question then becomes, “is there
+a quantum information order that encapsulates both @xmath and @xmath and
+is itself also a domain?” If such an order were to exist we would have a
+very rich information content structure on the space of positive
+operators that allows comparisons between operators with the same, or
+with different traces. Such a partial order would have to include at
+least the transitive closure of the following relation:
+
+  @xmath iff Tr @xmath Tr @xmath and @xmath or @xmath such that Tr
+  @xmath Tr @xmath and @xmath and @xmath .
+
+Since this relation contains an existential quantifier on the downset of
+@xmath the transitive closure would be very big indeed. It is not clear
+at the moment what a partial order containing this relation would look
+like. It could very well be that @xmath is also the minimal order
+containing @xmath and @xmath . If this is the case then there is a sort
+of trade-off in having a partial order based on the structure of @xmath
+: either you can compare elements with different traces in detail, or
+you can compare elements with the same trace in detail.
+
+## Chapter \thechapter Entailment in Distributional Semantics
+
+In this chapter we will outline a potential application of the
+structures studied in Chapter 2 and 3. This application is the study of
+entailment and disambiguation in distributional natural language models.
+We’ll also take a short look at the question of how we can apply
+entailment at the sentence level by composing words.
+
+### 19 Distributional natural language models
+
+The problem of making computers deal with natural language when you are
+interested in the semantic content of sentences and words is often
+tackled by using a distributional natural language model. This is a
+model based on the distributional hypothesis: the meaning of a word is
+defined by the context in which it is used . What this means is that if
+you have a large database of written text (a corpus ), then by merely
+looking at the context in which each word occurs, that is, which words
+surround it, you can infer the meaning of the word. Or rather: the
+meaning is the context in which it occurs.
+
+How this works in practice usually is that you take a large corpus of
+text, for instance the British National Corpus, and you pick a few
+thousand basis words, usually the most occurring words. Then for every
+unique word in the corpus you count how many times it co-occurres with
+each of the basis words, say within a distance of five words of the
+basis word. The result is that for each word in the corpus, you have a
+vector representing how the word is distributed trough it. This vector
+is then often normalised in some way to ensure that the vectors are
+sufficiently comparable.
+
+You can do all kinds of things with this model. For instance, a measure
+of how similar two words are is the cosine distance between the
+distributions of the words: if word @xmath and @xmath are represented by
+vectors @xmath and @xmath , then the similarity is given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We will be looking in more detail at another application.
+
+### 20 Entailment and disambiguation
+
+A common relation between words that often occurs is that of entailment
+: word @xmath entails word @xmath if in a true sentence containing the
+word @xmath , @xmath can usually be replaced by @xmath and still produce
+a true sentence. An example of such a pair is dog and animal . If we
+know that the dog bites the cat is true, then the animal bites the cat
+is also true since every dog is an animal. Note that we said that in an
+entailment pair, the word can usually be replaced. It can for instance
+go wrong when using universal quantifiers: all dogs eat meat does not
+entail all animals eat meat . This has to do with the positivity of
+words. In a positive sentence, if we have entailment on each of the
+words, then we have entailment on the sentence. An existential
+quantifier is positive, but universal quantifiers and negations are
+negative.
+
+Another important thing happening in language is disambiguation . This
+is when an ambiguous word is disambiguated by the context in which it
+occurs. Consider for instance the word bank . Without a suitable context
+you can’t say whether the speaker meant river bank or financial
+institution .
+
+While disambiguation and entailment might be seen as two disparate
+structures in language, distributionally they have something in common.
+The word dog is more narrowly used then the word animal since it is more
+specific. We would expect this to be reflected in the distributional
+properties of the words. Namely, that dog is used in less contexts than
+animal . We expect the same thing to happen in the case of
+disambiguation. River bank disambiguates bank because it is more
+specific, so again we would expect to see it in less contexts.
+
+Another way of viewing these problems is trough the lens of information
+content. Dog contains more information than animal , precisely because
+it is more specific. Dog bites cat gives you more information about the
+situation than Animal bites cat . The same goes for I went to the bank
+and I went to the river bank (although in this case you would probably
+expect the first sentence to be referring to the financial institution.
+Technically you can’t know for certain). This view of looking at these
+problems points towards an application for the partial orders studied in
+this thesis so far. But first, an overview of what has been done so far
+in this field.
+
+### 21 Known methods
+
+A very comprehensive paper on different kinds of measures of entailment
+and other assymetric texual relations was written by Kotlerman et al.
+kotlerman2010 . In it they distinguish three important properties that a
+measure of entailment should have:
+
+-   Promoting the similarity scores if included features are highly
+    relevant for the narrower term; the estimation of feature relevance
+    may be better based on feature ranks rather than on feature weights.
+
+-   Promoting the similarity scores when included features are placed
+    higher in the vector of the broader term as well.
+
+-   Demoting similarities for short feature vectors
+
+Features here refer to the components of the word vector, and feature
+relevance is the relative size of the component with respect to the
+other components. A short feature vector is a vector that contains many
+zero components. This is a word that doesn’t occur much in the corpus,
+and thus there is more uncertainty about the properties of the word. In
+the paper they produce a similarity measure based on the Average
+Precision measure taking these points into account, which does well on
+standard tests.
+
+Another approach that focuses more on the relation between entailment
+and compositionality (how entailment at the word level transitions to
+entailment at the sentence level) is taken in balkir2016 . Instead of
+using vectors to represent words, they use density matrices, the logic
+behind this being that density matrices are more suitable to represent
+correlations between features which is important for these kinds of
+problems. The function they based their similarity measure on is the
+Kullback-Leibler (KL) divergence:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which is the density matrix analog of the relative entropy between
+probability distributions. The normalised version of KL-divergence which
+they call the representativeness is given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+This is a number between zero and one. It is only 1 when @xmath . The
+model based on the representativeness performed well when presented with
+simple sentences.
+
+Another approach was taken in bankova2016 where they looked at graded
+entailment: a pair like dog and pet can be considered a partial
+entailment pair. A lot of dogs are pets, but not all of them. This can
+be presented by a probability specifying with what chance the entailment
+holds. This is what is meant by grading. They implement this by
+representing words by density matrices and then using a graded version
+of the Löwner order:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the value of the grading. We will not go into detail
+here how the compositionality in distributional models is achieved. For
+us it suffices to say that the composition of words is achieved by
+tensoring together the representations of words and then performing some
+linear map on the resulting tensor that reduces it to a simpler object.
+For the details see for instance clark2008 ; coecke2010 . This graded
+entailment preserves its structure when words are composed together.
+
+### 22 Applications of Information Orders
+
+Entailment and disambiguation relations are related to the information
+content in words or similarly in the distributions that represent those
+words. Since the information orders on @xmath and @xmath studied in
+Chapter 2 and 3 were expressly designed to incorporate this idea of
+information content they might prove suitable for the task of entailment
+and disambiguation.
+
+Let’s first consider the case of restricted information orders (RIO). In
+empirical natural language models the vector spaces used often have at
+least a few thousand dimensions. As we saw in Chapter 2, the amount of
+free parameters that can be chosen for a RIO scales with the square of
+@xmath , so there is a lot of freedom in choosing which particular order
+you’ll use for a specific linguistic application. The downside however
+is that RIO’s can only compare elements that belong to the same monotone
+sector. The amount of sectors in @xmath scales with the factorial of
+@xmath . When we have @xmath in the thousands this would probably mean
+that each words belongs to its own sector, so that no words are
+comparable at all. This is a problem for the other information orders as
+well, so let’s discuss some possible remedies.
+
+#### 22.1 Smoothing
+
+A technique often used in information retrieval tasks is to use some
+form of smoothing to deal with zeroes in distributions that would
+otherwise cause problems (by causing singularities on some points for
+instance). Such smoothing often takes the form of adding a small
+constant term somewhere or mixing together different distributions in
+some way to produce a more homogeneous distribution.
+
+In the case of information orders we will consider the following form of
+smoothing:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The advantage of this is that it leaves the original partial order
+structure intact, because the orders allowed mixing. So when we have
+@xmath then also @xmath . What this smoothing does, is that while @xmath
+and @xmath might be in incomparable regions of the distributional space
+(for instance, for RIO’s they could belong to different sectors), if we
+take a mix of them we might cross into the right sector which makes the
+distributions comparable. See Figure \thechapter .1 . Here @xmath
+denotes the smoothed element between @xmath and @xmath . While @xmath
+would originally not be comparable to @xmath , with this smoothing we do
+have a comparison.
+
+It should be noted that this kind of smoothing breaks transitivity, so
+it is in general no longer a partial order. The other similarity
+measures used to study entailment are not partial orders either, so this
+is not necessarily a problem.
+
+#### 22.2 Forms of grading
+
+There are multiple forms of grading we can consider. We’ll start with
+the most intuitive form, based on the grading of the Löwner order
+considered in bankova2016 .
+
+The orders on @xmath studied in this thesis have the form @xmath iff for
+all @xmath : @xmath (except for the maximum RIO and @xmath , there the
+behaviour is slightly different when presented with elements with
+different amounts of zeroes, but the general idea still holds). Grading
+on this partial order can be easily implemented by saying that @xmath
+-graded entailment is given by @xmath iff for all @xmath : @xmath . In
+the same vain, if we have an order on @xmath given by @xmath iff @xmath
+, then grading is implemented by @xmath iff @xmath . This is a
+straightforward generalisation of the grading in bankova2016 where they
+took @xmath .
+
+Another form of grading can be considered based on the three important
+properties that an asymmetric similarity measure should have as outlined
+in Kotlerman et al. For a RIO the partial order consists of @xmath
+comparisons and if all these comparisons hold then we say that the
+elements are comparable. Recall that the @xmath th inequality only makes
+reference to coordinates @xmath and higher (where the coordinates are
+ordered from high to low). If we take the advice from Kotlerman et al.
+then these last inequalities should count less towards our understanding
+of the entailment relations. Instead of letting the partial order return
+a binary 1 or 0 determining whether there is entailment or not we can
+count the amount of inequalities that point the right way, and scale the
+points awarded based on the exact inequality. So if the partial order is
+given by @xmath iff for all @xmath : @xmath (for a RIO @xmath ), then we
+could make an assymetric similarity measure in the following way:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The @xmath are weights that determine how important a certain inequality
+is. Following the advice of Kotlerman et al. these should be decreasing
+with increasing @xmath . The @xmath ’s should be positive and sum up to
+1, so that when @xmath we have Sim @xmath . ⁴ ⁴ 4 These conditions
+actually ensure that @xmath . If the @xmath is antisymmetric in its
+arguments (as it the case for a RIO), then we also have Sim @xmath Sim
+@xmath .
+
+Something similar can be done for the maximum eigenvalue order on @xmath
+. Let @xmath , and let @xmath and @xmath denote orthonormal bases of
+eigenvectors for @xmath respectively @xmath . Call @xmath and @xmath ,
+then we can define
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since again, the spaces corresponding to the higher eigenvalues
+correspond to the features occurring most of the time they should be
+assigned higher weights.
+
+It might be that slightly different forms of similarity measures prove
+more useful in practice. This is merely to show that similarity measures
+can be constructed from these partial orders. Empirical research is
+needed to assess the practical usefulness of these partial orders, and
+the specific combination of smoothing and grading of the first and
+second type that works best.
+
+### 23 Compositionality
+
+The graded entailment of bankova2016 uses the Löwner order as the
+structure that defines the grading. Since the Löwner order is the
+trivial order on @xmath you only have @xmath with @xmath when @xmath .
+This might not be what you want since @xmath determines the degree of
+entailment. It is reasonable to assume that there are pairs of distinct
+terms that have a ‘perfect’ entailment relation, but this can’t fit into
+this model. In this model when @xmath and @xmath then @xmath . If the
+@xmath and @xmath are distinct then @xmath and @xmath will always be
+smaller than 1, so we see that tensoring terms together (composing
+words) gives a smaller level of entailment: @xmath .
+
+As they already touched on in their paper, this problem is alleviated by
+normalising the positive operators in some other way. They reference
+dhondt2006 as using the space of positive operators with the maximum
+eigenvalue bounded by 1. Call this space @xmath for maximum eigenvalue
+normalised operators. We then see that the map used in Chapter 3 to
+describe the maximum eigenvalue order @xmath is actually a map @xmath .
+So this idea is actually using the maximum eigenvalue order in a
+disguised way.
+
+Using the maximum eigenvalue order instead of the normal Löwner order
+doesn’t change much. If we have @xmath then we have @xmath with @xmath .
+The only difference is in what the exact value of @xmath is. The grading
+with the maximum eigenvalue order behaves better with respect to
+composing however, since the values for @xmath will in general be
+higher, so that the entailment strength doesn’t artificially drop off as
+you compose words together. It therefore seems that the maximum
+eigenvalue order is a more natural choice for doing this kind of
+entailment.
+
+## Conclusion \pdfbookmark
+
+[1]ConclusionConclusion
+
+In this thesis we set out to define some properties that a partial order
+on @xmath or @xmath should satisfy to qualify as an information order.
+Starting from a minimal set of properties we saw that there were many
+examples of such partial orders on @xmath . When given another
+restriction, the degeneracy condition, the resulting class of partial
+orders could be classified, and we saw that this uniquely defines a
+direction for the partial orders. This class generalises the Bayesian
+order, which is a specific example of a restricted information order.
+These restricted information orders can be seen as being defined on the
+monotone sector @xmath and when restricted to @xmath they are continuous
+dcpo’s (domains). This seems to imply that @xmath is a more simple space
+than @xmath : the information orders on @xmath have a unique direction,
+and they are all domains. For information orders on @xmath this is no
+longer the case. There are for instance the two renormalised Löwner
+orders that contradict each other in some points. The only information
+order that has been found to be a domain on @xmath is the maximum
+eigenvalue Löwner order. It was further put forward (and hopefully made
+likely) that this might be the only domain structure on @xmath that is
+also an information order.
+
+When looking for information orders on @xmath we saw that those coming
+from @xmath are too restrictive. We could reformulate the renormalised
+Löwner orders to get information orders on @xmath , and they satisfied a
+new property: the order structure is preserved when composing systems
+together using the tensor product. It was again seen that only the
+maximum eigenvalue Löwner order was a domain, and it was shown that a
+certain construction had this order as the unique solution.
+
+In the introduction it was stated that the question of combining an
+order and the idea of information content is a rather fundamental one.
+The only direct work in the direction of this question was done with
+regard to the Bayesian order, which served as starting point for this
+thesis. It is the hope of the author that this thesis might serve as a
+starting point for looking into this question in a bit more depth.
+
+Some interesting open questions that have arisen from this thesis:
+
+-   What is the least restrictive information order on @xmath having
+    @xmath (Shannon entropy) as a measurement? What about @xmath ? Does
+    @xmath have Shannon entropy as a measurement?
+
+-   What kind of nonrestricted information orders are there on @xmath
+    next to the renormalized Löwner orders? Specifically, are there
+    information orders that satisfy the @xmath th degeneracy condition,
+    but not any of the others?
+
+-   What kind of orders are there on @xmath that allow the composing of
+    systems? Are there more quantum information orders on @xmath next to
+    @xmath and @xmath ? Is @xmath the unique quantum information order
+    that is also a domain?
+
+-   Is there a way to combine @xmath and the dual Löwner order into a
+    single order on @xmath ? If this is not possible is there some
+    deeper reason behind this?
+
+Next to these more formal mathematical questions it might also be
+interesting to see if the orders seen in this thesis would be
+practically applicable to computational linguistics.
+
+\manualmark

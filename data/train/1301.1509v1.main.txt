@@ -1,0 +1,4356 @@
+# Resumo
+
+As primeiras tentativas de evolução da geometria de um sistema binário
+de buracos negros datam da década de 60, com o trabalho pioneiro de Hahn
+e Lindquist. Apesar de todos os avanços computacionais e enormes
+esforços por parte de vários grupos, as primeiras evoluções estáveis da
+órbita e coalescência de dois buracos negros foram conseguidas apenas 40
+anos depois, em 2005. Desde então, o campo da Relatividade Numérica
+amadureceu, e tem sido usado extensivamente para explorar e descobrir
+fenómenos físicos em vários cenários.
+
+Nesta tese, levamos este campo a novas fronteiras e exploramos extensões
+a dimensões extra, espaços não-assimptoticamente planos e teoria de
+Einstein-Maxwell. Começamos por rever o formalismo e ferramentas usuais,
+incluindo a decomposição “3+1”, construção de dados iniciais, o esquema
+de evolução BSSN e os procedimentos padrão de extracção de radiação.
+Seguidamente apresentamos um procedimento de redução dimensional que
+permite o uso de códigos numéricos existentes (com adaptações menores)
+para evoluir sistemas em dimensões mais elevadas com simetria
+suficiente, apresentando ainda os correspondentes resultados obtidos
+para colisões frontais de buracos negros em cinco dimensões. Finalmente,
+mostramos resultados em espaços não-assimptoticamente planos e teoria de
+Einstein-Maxwell.
+
+###### Contents
+
+-    1 Introduction
+    -    1.1 Motivation and historical background
+    -    1.2 The new frontiers
+        -    1.2.1 Higher-dimensional gravity
+        -    1.2.2 Non-asymptotically flat geometries
+        -    1.2.3 Einstein-Maxwell
+    -    1.3 Structure
+    -    1.4 Preliminaries
+-    2 @xmath decomposition
+    -    2.1 Hypersurfaces
+        -    2.1.1 Definition
+        -    2.1.2 Normal vector
+        -    2.1.3 Induced metric
+        -    2.1.4 Orthogonal projector
+        -    2.1.5 Intrinsic curvature
+        -    2.1.6 Extrinsic curvature
+    -    2.2 Foliations
+        -    2.2.1 The lapse function
+        -    2.2.2 Normal evolution vector
+        -    2.2.3 Eulerian observers
+        -    2.2.4 Evolution of @xmath
+    -    2.3 Gauss, Codazzi and Ricci equations
+        -    2.3.1 Gauss equation
+        -    2.3.2 Codazzi equation
+        -    2.3.3 Ricci equation
+    -    2.4 Einstein equations
+        -    2.4.1 Decomposition of the stress-energy tensor
+        -    2.4.2 Projection of the Einstein equations
+    -    2.5 Choice of coordinates
+    -    2.6 The PDE system
+-    3 Initial data
+    -    3.1 Conformal decomposition
+        -    3.1.1 Conformal transformations
+    -    3.2 Initial data for vacuum spacetimes
+        -    3.2.1 Brill-Lindquist initial data
+        -    3.2.2 Bowen-York initial data
+    -    3.3 Final remarks
+-    4 Numerical implementation
+    -    4.1 BSSN formulation
+    -    4.2 Gauge conditions
+        -    4.2.1 1+log slicing
+        -    4.2.2 Gamma driver
+    -    4.3 Numerical code
+    -    4.A @xmath -dimensional BSSN equations
+-    5 Wave extraction and horizon finding
+    -    5.1 Wave extraction
+        -    5.1.1 Newman-Penrose formalism
+        -    5.1.2 Kodama-Ishibashi
+    -    5.2 Horizon finding
+-    6 Higher-dimensional numerical relativity
+    -    6.1 Dimensional reduction
+        -    6.1.1 General formalism
+        -    6.1.2 Examples
+    -    6.2 Dimensional reduction on a @xmath -sphere and 3+1 split
+        -    6.2.1 BSSN formulation
+    -    6.3 Higher-dimensional initial data
+        -    6.3.1 Coordinate transformation
+        -    6.3.2 Four dimensional initial data for a general @xmath
+            head-on collision
+        -    6.3.3 Single puncture with linear momentum
+        -    6.3.4 Two punctures with linear momentum
+    -    6.4 Numerical evolutions
+        -    6.4.1 Code tests
+        -    6.4.2 Head-on collisions
+        -    6.4.3 Head-on collision from rest in @xmath
+    -    6.5 Discussion
+    -    6.A Ricci tensor
+    -    6.B Equations of motion: Einstein frame
+-    7 Non-asymptotically flat spacetimes
+    -    7.1 de Sitter
+        -    7.1.1 Evolution equations
+        -    7.1.2 Schwarzschild-de Sitter
+        -    7.1.3 Numerical Setup
+        -    7.1.4 Numerical Results
+        -    7.1.5 Final Remarks
+    -    7.2 Black holes in a box
+        -    7.2.1 Numerical setup
+        -    7.2.2 Gravitational wave signal
+        -    7.2.3 Interaction of the wave pulse with the remnant black
+            hole
+        -    7.2.4 Final remarks
+    -    7.3 Black holes in cylinders
+        -    7.3.1 Setup
+        -    7.3.2 Initial data
+        -    7.3.3 Results
+        -    7.3.4 Final remarks
+-    8 Einstein-Maxwell
+    -    8.1 Evolution equations
+        -    8.1.1 3+1 decomposition
+        -    8.1.2 Initial data
+    -    8.2 Wave Extraction
+    -    8.3 Analytic predictions
+    -    8.4 Numerical Results
+        -    8.4.1 Code tests
+        -    8.4.2 Collisions of two black holes: the “static”
+            components and infall time
+        -    8.4.3 Waveforms: infall, merger and ringdown
+        -    8.4.4 Radiated energy and fluxes
+    -    8.5 Conclusions
+-    9 Final remarks
+-    A List of publications
+
+###### List of Tables
+
+-    6.1 ADM mass obtained with equation ()
+-    6.2 Grid structure and initial parameters of the head-on collisions
+    starting from rest in @xmath
+-    8.1 Grid structure, coordinate distance, proper horizon-to-horizon
+    distance, charge, gravitational and electromagnetic radiated energy
+    for our set of simulations
+-    8.2 Comparison of the ringdown frequencies
+
+###### List of Figures
+
+-    6.1 @xmath -dimensional representation of two types of black hole
+    collisions
+-    6.2 Convergence plot for the @xmath , @xmath cases.
+-    6.3 @xmath function for @xmath plotted along the @xmath -axis
+-    6.4 Violation of the Hamiltonian constraint along the @xmath -axis
+-    6.5 @xmath Tangherlini black hole, geodesic slicing
+-    6.6 @xmath single black hole, constraint violation
+-    6.7 @xmath black hole collision from rest
+-    6.8 Estimates for the time it takes for two equal-mass black holes
+    to collide in @xmath
+-    6.9 The @xmath and @xmath mode of the KI function
+-    6.10 @xmath components of the KI function as generated by a head-on
+    collision of black holes
+-    6.11 Energy flux in the @xmath component of the KI wave function
+    @xmath
+-    7.1 Conformal factor for a single black hole evolution with @xmath
+-    7.2 Critical coordinate distance for small mass binaries
+-    7.3 Hamiltonian constraint violation
+-    7.4 Proper distance between the black hole horizons as a function
+    of time
+-    7.5 Snapshots at different times of a simulation with @xmath
+-    7.6 Illustration of a (Lego-)spherical outer boundary.
+-    7.7 Real part of the @xmath mode of @xmath and @xmath
+-    7.8 Time evolution of the (relative) mass of the black hole
+-    7.9 Illustration of the coordinate system for the Minkowski
+    space-time @xmath
+-    7.10 Illustration of the correspondence between real space and
+    covering space for a single black hole and a situation of head on
+    collision
+-    7.11 Hamiltonian constraint along the @xmath and @xmath axis, for
+    the @xmath case.
+-    7.12 Puncture @xmath coordinate as function of time for the
+    outgoing and @xmath cases.
+-    8.1 Numerical profiles for @xmath and @xmath obtained in geodesic
+    slicing
+-    8.2 Convergence analysis for simulation d08q05
+-    8.3 Monopole @xmath and quadrupole @xmath of the radial part of the
+    electromagnetic field @xmath
+-    8.4 Time for apparent horizon formation
+-    8.5 Real part of the @xmath mode of @xmath and @xmath
+-    8.6 Power spectrum for the gravitational and electromagnetic
+    quadrupole
+-    8.7 Radiated fluxes
+-    8.8 Energy radiated in the gravitational and electromagnetic
+    quadrupole
+
+## Chapter 1 Introduction
+
+  Why you care about small things? World very simple place. World only
+  have two things: things you can eat and things you no can eat.
+
+  Quina
+  Final Fantasy IX
+
+### 1.1 Motivation and historical background
+
+Formulated by Einstein in 1915 [ Einstein:1915by , Einstein:1915bz ,
+Einstein:1915ca ] , general relativity is one of the most beautiful
+theories ever discovered. Its very elegance, however, can also be a
+disadvantage. We are able to do purely analytical calculations—sometimes
+using just pen and paper—in highly symmetrical ideal examples where
+exact solutions are known, or limits where gravity is weak. Alas, Nature
+is not that simple.
+
+To attack more complicated problems—such as those with strong and
+dynamical gravitational fields—one will eventually need to perform
+numerical computations. The quintessential example is the two-body
+problem. With well known solutions in terms of conics in Newtonian
+gravity, the equivalent problem in general relativity—the evolution of a
+black hole binary—posses no (known) closed-form solution. Perturbative
+analytical techniques do exist and some are very well suited to study
+certain stages of this problem. In particular, the inspiral phase
+(before the merger) is well modelled by post-Newtonian methods; the
+ringdown phase (after merger) can be described by perturbative methods
+using the quasi-normal modes of the final black hole. Full numerical
+simulations are required, however, to evolve the system during the
+merger.
+
+Much of the motivation to understand the nature of such systems and the
+corresponding energy emitted via gravitational radiation originally came
+from the gravitational wave astronomy field. A first generation of
+highly sensitive gravitational waves detectors—LIGO [ Abramovici:1992ah
+] , Virgo [ Caron:1997hu ] , GEO [ Luck:1997hv ] and TAMA [ Ando:2001ej
+] —have been operational and a second generation of even more sensitive
+detectors is under construction. These detectors may allow us to study
+signals produced from strong-field systems, which carry the specific
+signature of the system that produced them. The analysis of these
+signals may then provide us with a new window to the universe. For that,
+however, we rely on source modelling: templates of theoretical waveforms
+from likely sources are needed if one wishes to reconstruct the signal.
+
+Numerical relativity can be regarded as a tool to study spacetimes that
+cannot be studied by analytical means. It dates back to the mid 1960s
+with Hahn and Lindquist’s attempts of numerically evolving Einstein’s
+field equations for a binary black hole spacetime [ 1964AnPhy..29..304H
+] . Their computer power was very limited, however, and not much physics
+could be extracted from the simulation. More reliable simulations were
+only performed in the late 1970s by Smarr [ Smarr:1976qy ] and Eppley [
+Eppley:1977dk ] , which again attempted the head-on collision of two
+black holes. Though almost a decade after Hahn and Lindquist, the
+available computer power was still only enough to evolve low resolution
+simulations.
+
+With the development of faster computers and the extra motivation of
+returning to the two-body problem coming from LIGO, the 1990s finally
+witnessed the simulation of a head-on collision of two black holes [
+Bernstein:1994wt , Anninos:1994gp ] as well as the study of more complex
+systems. To name just a few: simulations of rapidly rotating neutron
+stars [ Stergioulas:1997ja ] , the formation of a toroidal event horizon
+in the collapse of a system containing a toroidal distribution of
+particles [ Shapiro:1992gr , Hughes:1994ea ] and one of the most
+influential results, gravitational collapse and its relation with
+critical phenomena [ Choptuik:1992jv ] . For a more comprehensive
+overview see, for example, [ Lehner:2001wq ] .
+
+In spite of all these successes, the real breakthrough came only in 2005
+with the first simulations of stable, long-term evolutions of the
+inspiral and merger of two black holes [ Pretorius:2005gq , Baker:2005vv
+, Campanelli:2005dd ] . For an overview of the two-body problem in
+general relativity see [ Pretorius:2007nq ] .
+
+Since then, numerical codes have considerably improved and much progress
+has been made. In particular, we have witnessed numerical evolutions of
+(see e.g. [ Hinder:2010vn ] for a thorough overview of some recent
+results):
+
+-   binary black hole mergers lasting for 15 orbits before merger [
+    Boyle:2007ft , Scheel:2008rj ] . The corresponding waveforms, which
+    include the infall, non-linear merger and ringdown phase, have been
+    used in comparisons with post-Newtonian results.
+
+-   black hole binaries with mass ratios up to @xmath [ Lousto:2010ut ,
+    Sperhake:2011ik ] . Waveforms for high mass ratios are essential,
+    since they are expected to be the most common, astrophysically.
+    Computationally, however, they are much more demanding than
+    comparable mass cases.
+
+-   rotating black holes with near extremal spin [ Lovelace:2011nu ,
+    Lousto:2012es ] .
+
+-   zoom-whirl orbits—characterised by black hole trajectories that
+    alternate between a whirling quasi-circular motion and a highly
+    eccentric quasi-elliptical zooming out [ Pretorius:2007jn ,
+    Healy:2009zm ] .
+
+-   so called “superkick” configurations—equal mass black holes with
+    (initially) opposite spin vectors lying in the orbital plane—where
+    the post-merger recoil velocity can reach up to @xmath km/s [
+    Campanelli:2007cga , Brugmann:2007zj ] . Recently [ Lousto:2011kp ]
+    , this effect was combined with the “hangup” configuration [
+    Campanelli:2006uy ] —where the black holes have spin aligned with
+    the orbital angular momentum—to predict maximum recoils up to @xmath
+    km/s. Given that such velocities are enough to eject a black hole
+    from the centre of a galaxy [ Merritt:2004xa ] , these results could
+    have important consequences for astronomy (such as in structure
+    formation), see e.g. [ BoylanKolchin:2004tf , Haiman:2004ve ,
+    Madau:2004st , Komossa:2012cy ] .
+
+-   high velocity collisions of black holes—head-on collisions up to
+    @xmath [ Sperhake:2008ga ] , where the radiated energy was found to
+    be around @xmath when extrapolating the relative velocity between
+    the black holes to @xmath ; as well as non-head-on collisions [
+    Shibata:2008rq , Sperhake:2009jz ] , where the impact parameter for
+    black hole merger was determined in the limit where the relative
+    velocity approaches @xmath .
+
+As we can observe from these previous examples, numerical relativity has
+now reached a state of maturity and, at least in the four-dimensional
+asymptotically flat vacuum case, is largely under control allowing us to
+evolve a large class of different configurations.
+
+Motivation to study gravity in the dynamical/strong field regime is not
+restricted to the evolution of the two-body problem or variations
+thereof, and computation of the respective waveform. Indeed, incentive
+to study such systems also comes from fields other than gravity itself.
+In the following we mention some of these topics and briefly describe
+how numerical relativity can be expected to shed light on some
+outstanding issues.
+
+  Tests of cosmic censorship hypothesis  
+
+    
+    It has been known for some time from the Penrose-Hawking singularity
+    theorems that, quite generically, solutions of Einstein’s field
+    equations with physically reasonable matter content can develop
+    singularities [ HawkingEllis ] . If such singularities are visible
+    to the rest of spacetime (i.e., no horizon is covering them),
+    predictability may break down. Originally formulated by Penrose in
+    1969 [ Penrose:1969pc ] , what is known as the weak cosmic
+    censorship conjecture roughly states that, generically,
+    singularities of gravitational collapse are covered by an event
+    horizon and therefore have no causal contact with distant observers.
+
+    In the absence of a generic proof ¹ ¹ 1 Indeed, the conjecture has
+    not even been stated in a rigorous way—as often happens, that is
+    part of the task. , one can try and put the conjecture to the test
+    in specific configurations. The ability to perform full blown
+    non-linear numerical simulations in arbitrary spacetimes could here
+    prove invaluable.
+
+    With such simulations, the conjecture has been shown to hold under
+    extremely violent events—the ultra-relativistic collision of black
+    holes [ Sperhake:2008ga ] . In higher-dimensional gravity, it was
+    shown by Lehner and Pretorius that cosmic censorship does not seem
+    to hold generically, even in vacuum [ Lehner:2010pn ] .
+    Specifically, it was shown that five dimensional black strings
+    (solutions of five dimensional vacuum gravity, known to be unstable
+    [ Gregory:1993vy ] ) display, when perturbed, a self-similar
+    behaviour that ultimately gives rise to naked singularities in
+    rather generic conditions. Also in higher dimensions, results by
+    Okawa et al. [ Okawa:2011fv ] seem to indicate that in a
+    high-velocity scattering of five-dimensional black holes, curvature
+    radius shorter than the Planck length can be observed (i.e., no
+    horizon is covering this region). This could be regarded as an
+    effective singularity in classical gravity.
+
+  Stability of (higher-dimensional) black hole solutions  
+
+    
+    Higher dimensional gravity has a much richer diversity of black
+    object solutions than its four dimensional counterpart. Spherical
+    topology is not the only allowed topology for objects with a horizon
+    and one can also have, e.g., black rings (with a donut-like
+    topology) [ Emparan:2001wn , Pomeransky:2006bd ] and even regular
+    solutions with disconnected horizons, such as the “black Saturn” [
+    Elvang:2007rd ] , the “black di-ring” [ Iguchi:2007is ] or the
+    “bicycling black rings” [ Elvang:2007hs ] .
+
+    The study of these objects is relevant for a number of reasons.
+    Other than the obvious intrinsic value that such studies carry and
+    the possibly interesting mathematical properties that some of these
+    objects may have, the understanding of these solutions can also be
+    helpful for: (i) quantum gravity—the calculations of black hole
+    entropy within string theory were first performed in five
+    dimensional spacetimes, and only afterwards extended to four
+    dimensions; (ii) gauge/gravity correspondence, which maps properties
+    of @xmath -dimensional black holes to strongly coupled field
+    theories in @xmath dimensions; (iii) large extra dimensions
+    scenarios, suggesting that (microscopic) higher-dimensional black
+    objects could be formed in particle collisions with centre of mass
+    energy @xmath (such as at the LHC). See the review article [
+    Emparan:2008eg ] for more details and further motivation.
+
+    The stability of these higher-dimensional black objects is now
+    starting to be explored. It had been conjectured that for @xmath
+    ultra-spinning Myers-Perry black holes will be unstable [
+    Emparan:2003sy ] , and this instability has been confirmed by an
+    analysis of linearised axi-symmetric perturbations in @xmath [
+    Dias:2009iu ] .
+
+    Clearly, the study of the non-linear development of these
+    instabilities and determination of the respective endpoint requires
+    numerical methods. Such studies have been recently presented for a
+    non axi-symmetric perturbation in @xmath [ Shibata:2009ad ] and
+    @xmath [ Shibata:2010wz ] , where it was found that the single
+    spinning Myers-Perry black hole is unstable, for sufficiently large
+    rotation parameter.
+
+  AdS/CFT correspondence  
+
+    
+    In 1997–98, a powerful tool known as the AdS/CFT correspondence (or
+    the gauge/gravity duality, or even, more generically, as holography
+    ) was introduced [ Maldacena:1997re ] . This holographic
+    correspondence (if true in general) is extremely powerful since it
+    maps the dynamics of a non-perturbative, strongly coupled regime of
+    certain gauge theories in @xmath dimensions to @xmath -dimensional
+    classical gravity. This means that, for such gauge theories, we can
+    map strongly coupled quantum field theory dynamics to systems of
+    partial differential equations, which can in principle be solved
+    (numerically, if needed).
+
+    In particular, high energy collisions of black holes are said to
+    have a dual description in terms of high energy collisions with
+    balls of de-confined plasma surrounded by a confining phase. These
+    are the type of events that may have direct observational
+    consequences for the experiments at Brookhaven’s Relativistic Heavy
+    Ion Collider (RHIC) [ Amsel:2007cw , Gubser:2008pc ] .
+
+    Numerical relativity in anti-de Sitter (AdS) is notoriously
+    difficult, and therefore progress has been slow in applying its
+    techniques to the aforementioned problems. Nevertheless, some
+    exciting results have been recently put forth [ Chesler:2009cy ,
+    Chesler:2010bi , Bantilan:2012vu ] .
+
+  TeV-scale gravity scenarios  
+
+    
+    As first pointed out by ’t Hooft [ 'tHooft:1987rb ] , if two point
+    particles collide at energies above the Planck energy, it is
+    expected that gravity should dominate the interaction and thus,
+    quite remarkably, the process should be well described by general
+    relativity.
+
+    Thorne’s Hoop Conjecture [ Thorne:1972ji ] further tells us that if
+    one traps a given amount of Energy @xmath in a region of space such
+    that a circular hoop with radius @xmath encloses this matter in all
+    directions , a black hole is formed if its Schwarzschild radius
+    @xmath . This conjecture (or rather, the classical variant thereof)
+    has recently gained more support with the work by Choptuik and
+    Pretorius [ Choptuik:2009ww ] , where it was shown that collisions
+    of boson stars do form black holes, for sufficiently high boost
+    parameter.
+
+    If this conjecture does hold, it would imply that particle
+    collisions could produce black holes [ Dimopoulos:2001hw ,
+    Giddings:2001bu ] . As argued above, the production of black holes
+    at trans-Planckian collision energies (compared to the fundamental
+    Planck scale) should be well described by using classical general
+    relativity (see also [ Kanti:2008eq ] and references therein).
+    Writing down the exact solution describing the collision of two
+    ultra-relativistic particles in general relativity is not feasible,
+    however, and approximations have to be used. One possible
+    approximation (good for its simplicity) is to use black holes, and
+    model the scattering of point particles by black hole collisions.
+
+    This gains further relevance in the context of the so-called
+    TeV-gravity scenarios. Such models were proposed as a possible
+    solution to the hierarchy problem , i.e., the relative weakness of
+    gravity by about 40 orders of magnitude compared to the other
+    fundamental interactions. It has been proposed that this can be
+    resolved if one adopts the idea that the Standard Model is confined
+    to a brane in a higher dimensional space, such that the extra
+    dimensions are much larger than the four dimensional Planck scale
+    (they may be large up to a sub-millimetre scale) [ Antoniadis:1990ew
+    , ArkaniHamed:1998rs , Antoniadis:1998ig ] . In a different version
+    of the model, the extra dimensions are infinite, but the metric has
+    an exponential factor introducing a finite length scale [
+    Randall:1999ee , Randall:1999vf ] .
+
+    In such models, the fundamental Planck scale could be as low as 1
+    TeV. Thus, high energy colliders, such as the Large Hadron Collider
+    (LHC), may directly probe strongly coupled gravitational physics [
+    Argyres:1998qn , Banks:1999gd , Giddings:2001bu , Dimopoulos:2001hw
+    , Ahn:2002mj , Chamblin:2004zg ] . In fact, such tests may even be
+    routinely available in the collisions of ultra-high energy cosmic
+    rays with the Earth’s atmosphere [ Feng:2001ib , Ahn:2003qn ,
+    Cardoso:2004zi ] , or in astrophysical black hole environments [
+    Banados:2009pr , Berti:2009bk , Jacobson:2009zg ] (for reviews see [
+    Cavaglia:2002si , Kanti:2004nr , Kanti:2008eq ] ).
+
+    Numerical simulations of high energy black hole collisions in higher
+    dimensional spacetimes, then, could give an accurate estimate of the
+    fractions of the collision energy and angular momentum that are lost
+    in the higher-dimensional space by emission of gravitational waves;
+    such information would be extremely important to improve the
+    modelling of microscopic black hole production, and of the ensuing
+    evaporation phase, which might be observed during LHC collisions.
+
+    The challenge is then to use the classical framework to determine
+    the cross section for production and, for each initial setup, the
+    fractions of the collision energy and angular momentum that are lost
+    in the higher dimensional space by emission of gravitational waves.
+    This information will be of paramount importance to improve the
+    modelling of microscopic black hole production in event generators
+    such as Truenoir [ Dimopoulos:2001hw ] , Charybdis2 [ Frost:2009cf ]
+    , Catfish [ Cavaglia:2006uk ] or Blackmax [ Dai:2007ki , Dai:2009by
+    ] . The event generators will then provide a description of the
+    corresponding evaporation phase, which might be observed during LHC
+    collisions.
+
+For a thorough review of these topics, challenges and how tools coming
+from numerical relativity can help see [ Cardoso:2012qm ] .
+
+### 1.2 The new frontiers
+
+With these motivations in mind, we propose in this thesis to extend
+current numerical relativity tools to new frontiers.
+
+#### 1.2.1 Higher-dimensional gravity
+
+The first such frontier, in light of our discussion in the previous
+section, is higher-dimensional gravity. We start by emphasising that
+full blown @xmath , @xmath , etc. numerical simulations of Einstein’s
+field equations without symmetry are currently (and in the near future)
+not possible due to the heavy computational costs. We have thus
+developed a framework and a numerical code that can, in principle, be
+applied to different spacetime dimensions (with enough symmetry) with
+little adaptations. This is achieved by taking the @xmath dimensional
+vacuum spacetime to have an isometry group fit to include a large class
+of interesting problems. If this isometry group is sufficiently large,
+it allows a dimensional reduction of the problem to 3+1 dimensions,
+where our originally higher-dimensional problem now appears as (four
+dimensional) general relativity coupled to source terms. Thus, the
+different spacetime dimensions manifest themselves only in the different
+“matter” content of the four dimensional theory. An obvious advantage of
+this approach is that we can use existing numerical codes with small
+adaptations: taking a working four-dimensional code, the four
+dimensional equations need to be coupled to the appropriate source terms
+and some issues related to the chosen coordinates must be addressed.
+Incidentally, other issues possibly related with the choice of gauge
+conditions further complicate the problem.
+
+We should here point out that alternative approaches have been proposed
+to evolve numerically Einstein’s equations in higher dimensions, as well
+as other codes tailored to study specific problems. In particular we
+note the previously mentioned pioneering works concerned with the
+non-linear development of the Gregory-Laflamme instability [
+Gregory:1993vy ] of cosmic strings [ Choptuik:2003qd , Lehner:2010pn ] ;
+studies of gravitational collapse [ Sorkin:2009bc , Sorkin:2009wh ] ;
+static situations [ Headrick:2009pv ] ; and the alternative approach,
+based on the Cartoon method [ Alcubierre:1999ab ] , that has been
+developed and tested by Yoshino and Shibata [ Yoshino:2009xp ,
+Shibata:2010wz ] . For a review of numerical relativity in
+higher-dimensions see also [ Yoshino:2011zz , Yoshino:2011zza ] .
+
+#### 1.2.2 Non-asymptotically flat geometries
+
+Another frontier has to do with numerical evolutions in
+non-asymptotically flat spacetimes.
+
+  de Sitter  
+
+    
+    Going back to four dimensions, an obvious first choice of a
+    non-asymptotically flat spacetime is de Sitter , the simplest model
+    for an accelerating universe. de Sitter is a maximally symmetric
+    solution of Einstein’s equations with a positive cosmological
+    constant, describing a Friedmann-Robertson-Walker (FRW) cosmology
+    with a constant Hubble parameter. There is now a large body of
+    observational evidence for a present cosmological acceleration well
+    modelled by a positive cosmological constant @xmath [ Komatsu:2010fb
+    ] .
+
+    Cosmological dynamics should leave imprints in gravitational
+    phenomena, such as gravitational radiation emitted in a black hole
+    binary coalescence. Identifying such signatures can thus be
+    phenomenologically relevant in view of ongoing efforts to directly
+    detect gravitational radiation.
+
+    Studying the dynamics of black holes in asymptotically de Sitter
+    spacetimes can also potentially teach us about more fundamental
+    questions such as cosmic censorship, as in the following scenario.
+    Consider two black holes of sufficiently large mass in a de Sitter
+    spacetime. If, upon merger, the final black hole is too large to fit
+    in its cosmological horizon the end state of such an evolution would
+    be a naked singularity. This possibility begs for a time evolution
+    of such a configuration, which we will show and discuss.
+
+  Black holes in a box  
+
+    
+    As argued above, having a framework to solve Einstein’s equations in
+    asymptotically Anti-de Sitter geometries would be of major help for
+    studies of AdS/CFT duality, in particular in dynamical settings.
+    This is no easy task, however, and a major reason for that is the
+    “active role” played by the boundary of AdS spaces. This is easily
+    visualised in the Penrose diagram of AdS, which has a timelike
+    boundary. Null geodesics in AdS reach the boundary in a finite
+    affine parameter, and one therefore often refers to an
+    asymptotically AdS space as a “box”, having in mind that AdS
+    boundary conditions directly affect the bulk physics [ Wald:1980jn ,
+    Ishibashi:2003jd , Ishibashi:2004wx ] .
+
+    As a first step to model the role of the boundary in evolutions, we
+    will here give an overview of the work reported in [ Witek:2010qc ]
+    where a toy model for AdS was considered. Therein, as we will
+    explain, the cosmological constant is set to zero and mirror-like
+    boundary conditions are imposed on a box containing the dynamical
+    system, which mimics the global AdS geometry.
+
+    Inside this box, black hole binaries are evolved, producing an
+    inspiralling merger. Such systems are very well tested in standard
+    asymptotically flat spacetimes with purely outgoing boundary
+    conditions, and differences to these cases can be clearly seen.
+
+  Black holes in cylinders  
+
+    
+    Again in the topic of higher-dimensional gravity, now in scenarios
+    with compact extra dimensions, a natural question to ask is how the
+    compactness of the extra dimensions changes the dynamics of such
+    scenarios (as opposed to the asymptotically flat cases) and
+    understanding the role of the compactness of the extra dimensions in
+    the aforementioned TeV gravity scenarios.
+
+    There is considerable literature on Kaluza-Klein black holes and
+    black holes on cylinders [ Myers:1986rx , Korotkin:1994dw ,
+    Frolov:2003kd , Harmark:2005pp ] , but, to the best of our
+    knowledge, the full non-linear dynamics of black holes in such
+    spacetimes remain unexplored.
+
+    In this spirit, using the formalism developed for higher-dimensional
+    spacetimes, we have started exploring what happens when one of the
+    directions is compactified.
+
+#### 1.2.3 Einstein-Maxwell
+
+Finally, we have started exploring the electrovacuum Einstein-Maxwell
+system. We first note that while the dynamics of black holes interacting
+with electromagnetic fields and plasmas have been the subject of a
+number of numerical studies (e.g. [ Palenzuela:2009yr ,
+Palenzuela:2010nf ] ), dynamics of charged (Reissner-Nordström) black
+holes have remained rather unexplored.
+
+Studying the dynamics of charged black holes is relevant for a number of
+reasons. In the context of astrophysics, charged black holes may
+actually be of interest in realistic systems. First, a rotating black
+hole in an external magnetic field will accrete charged particles up to
+a given value, @xmath [ Wald:1974np ] . It is thus conceivable that
+astrophysical black holes could have some (albeit rather small) amount
+of electrical charge. It is then of interest to understand the role of
+this charge in the Blandford-Znajek mechanism [ Blandford:1977ds ] ,
+which has been suggested for extracting spin energy from the hole, or in
+a related mechanism capable of extracting energy from a moving black
+hole [ Palenzuela:2010nf , Palenzuela:2010xn ] to power outflows from
+accretion disk-fed black holes. Also of interest is investigating the
+role of charge in post-merger recoil velocities of black hole binaries,
+and see if the recently predicted recoils of @xmath km/s [ Lousto:2011kp
+] could be exceeded.
+
+Incentive to study such systems also comes from outside of astrophysics.
+In particular, as already mentioned above, it was argued by ’t Hooft [
+'tHooft:1987rb ] , that in trans-Planckian particle collisions, gravity
+should dominate the interaction and thus the process should be well
+described by general relativity—we can say that, for ultra high energy
+collisions, matter does not matter [ Choptuik:2009ww ] . Calculations of
+shock wave collisions, however, seem to suggest that even though other
+interactions—say charge—may become irrelevant in the ultra-relativistic
+limit, the properties of the final black hole (and of the associated
+emission of gravitational radiation) will in fact depend on the amount
+of charge carried by the colliding particles [ Yoshino:2006dp ,
+Gingrich:2006qh ] . One then wonders whether the often repeated matter
+does not matter scenario is actually true.
+
+Light can be shed in this issue by performing highly boosted collisions
+of charged black holes (analogous to the ones performed in vacuum [
+Sperhake:2008ga , Shibata:2008rq ] ) and comparing the results—in
+particular the profile of the corresponding waveform—against equivalent
+electrically neutral systems.
+
+With these incentives, we will report on the first steps taken in the
+numerical evolution of Reissner-Nordström black holes, building on
+previous numerical evolutions of the Einstein-Maxwell system [
+Palenzuela:2008sf , Palenzuela:2009yr , Palenzuela:2009hx , Mosta:2009rr
+] .
+
+### 1.3 Structure
+
+The structure of this thesis is as follows. We start by reviewing, in
+chapter 2 , standard differential geometry results, summarise the
+formalism of the “ @xmath ’’ decomposition ² ² 2 Usually found in the
+literature as “3+1” decomposition. Here we will keep the @xmath
+arbitrary, but the differences are minimal. and conformal decomposition
+to write Einstein’s equations in a dynamical systems form. In chapter 3
+we then review the construction of relevant initial data for the class
+of problems we will be interested on and discuss, in chapter 4 , the
+numerical implementation of Einstein’s equations: first, we need to
+re-write the evolution equations in the so-called BSSN (Baumgarte,
+Shapiro, Shibata, Nakamura) form; we next discuss the gauge conditions
+and finish by giving a very brief overview of the numerical code we use
+for the simulations. In chapter 5 we review the usual procedures to
+extract the physical results from numerical simulations: wave extracting
+and horizon finding. These chapters consist mostly of review material
+found in the usual literature (e.g. [ Gourgoulhon:2007ue ,
+Alcubierre:2008 , baumgarte2010numerical ] ). Finally, in chapter 6 , we
+introduce a dimensional reduction procedure that allows us to reduce
+higher-dimensional systems (with enough symmetry) to effective
+four-dimensional theories with source terms. This enables us to perform
+numerical evolutions of such higher-dimensional systems by adapting
+existing numerical codes. We also discuss the construction of initial
+data and present results. Chapter 7 is dedicated to evolutions in
+non-asymptotically flat spacetimes: we present the aforementioned
+collisions of black holes in asymptotically de Sitter spacetimes, black
+holes in a box and black holes in asymptotically cylindrical spacetimes.
+In chapter 8 we report on evolutions of charged black holes, in
+electrovacuum Einstein-Maxwell theory, and we end with some final
+remarks and future directions in chapter 9 .
+
+### 1.4 Preliminaries
+
+Let us consider a @xmath -dimensional pseudo-Riemannian manifold @xmath
+, that is, a differentiable manifold @xmath equipped with a smooth,
+symmetric metric tensor @xmath with signature @xmath . We further assume
+that the manifold is covered by a set of coordinates @xmath , @xmath .
+
+A coordinate basis of the tangent space of @xmath at @xmath , @xmath ,
+is given by @xmath . A vector @xmath can be written in the form
+
+  -- -------- -- ---------
+     @xmath      (1.4.1)
+  -- -------- -- ---------
+
+where @xmath are the components of @xmath in the basis @xmath . When a
+vector @xmath acts on a function @xmath it produces the directional
+derivative of @xmath along @xmath :
+
+  -- -------- -- ---------
+     @xmath      (1.4.2)
+  -- -------- -- ---------
+
+A 1-form @xmath (the cotangent space at @xmath ) is an object which is
+dual to a vector, i.e., it produces a number when acting on a vector.
+The simplest example of such an object is the differential @xmath of a
+function @xmath . The action of @xmath on @xmath is defined to be
+
+  -- -------- -- ---------
+     @xmath      (1.4.3)
+  -- -------- -- ---------
+
+Since @xmath , @xmath is a natural choice as a basis of @xmath . We thus
+naturally expand an arbitrary 1-form @xmath as
+
+  -- -------- -- ---------
+     @xmath      (1.4.4)
+  -- -------- -- ---------
+
+The metric tensor @xmath allows us to define a scalar product between
+two vectors @xmath and @xmath
+
+  -- -------- -- ---------
+     @xmath      (1.4.5)
+  -- -------- -- ---------
+
+which induces an isomorphism between vectors and 1-forms, corresponding
+in the index notation to the usual raising and lowering of indices: if
+@xmath is a vector, one can define a 1-form @xmath through
+
+  -- -------- -- ---------
+     @xmath      (1.4.6)
+  -- -------- -- ---------
+
+Analogously, given a 1-form @xmath we can map it to a vector @xmath
+through
+
+  -- -------- -- ---------
+     @xmath      (1.4.7)
+  -- -------- -- ---------
+
+Since we will be working mostly in the index notation, and the placement
+of the index makes clear whether one is dealing with vectors of 1-forms,
+we will omit the flat and sharp symbols throughout.
+
+The metric further allows us to determine the distance between two
+nearby points in the manifold according to
+
+  -- -------- -- ---------
+     @xmath      (1.4.8)
+  -- -------- -- ---------
+
+Notice that a basis of @xmath (and of @xmath ) need not be coordinate.
+One can have, for instance, the combination @xmath . @xmath is an
+example of a non-coordinate basis .
+
+We now introduce a (generic) non-coordinate basis obeying
+
+  -- -------- -- ---------
+     @xmath      (1.4.9)
+  -- -------- -- ---------
+
+where the Lie bracket @xmath is defined by
+
+  -- -------- -- ----------
+     @xmath      (1.4.10)
+  -- -------- -- ----------
+
+The connection coefficients @xmath then take the form
+
+  -- -------- -- ----------
+     @xmath      (1.4.11)
+  -- -------- -- ----------
+
+where @xmath . When using coordinate basis ( @xmath ), these are usually
+called the Christoffel symbols.
+
+We now define the Riemann curvature tensor
+
+  -- -------- -- ----------
+     @xmath      (1.4.12)
+  -- -------- -- ----------
+
+Mind the notation
+
+  -- -------- -- ----------
+     @xmath      (1.4.13)
+  -- -------- -- ----------
+
+Thus, @xmath .
+
+General relativity is a geometric theory of gravity which relates the
+curvature of spacetime to its matter content via the Einstein field
+equations, which read
+
+  -- -------- -- ----------
+     @xmath      (1.4.14)
+  -- -------- -- ----------
+
+where @xmath is the Ricci curvature tensor, @xmath its trace (the Ricci
+scalar), @xmath the metric tensor and @xmath the stress-energy tensor.
+All these quantities are @xmath -dimensional.
+
+Throughout this work we will always use the @xmath metric signature and
+geometrised units @xmath .
+
+## Chapter 2 @xmath decomposition
+
+We start by briefly stating some known results from differential
+geometry that will be of use to us. In this chapter we use the following
+conventions: Greek indices ( @xmath , @xmath , @xmath , …) run from 0 to
+@xmath ; Latin indices ( @xmath , @xmath , @xmath , …) run from 1 to
+@xmath .
+
+We work on a @xmath -dimensional manifold @xmath with a metric @xmath .
+We denote the torsion-free Levi-Civita connection on @xmath associated
+with @xmath by @xmath . All quantities defined relative to the manifold
+@xmath will have a leading @xmath superscript, e.g., the Riemann
+curvature tensor on @xmath is denoted by @xmath .
+
+### 2.1 Hypersurfaces
+
+#### 2.1.1 Definition
+
+A codimension 1 hypersurface @xmath is a @xmath -dimensional submanifold
+of @xmath , defined as the image of a @xmath -dimensional manifold
+@xmath by an embedding @xmath , @xmath [ Poisson:2004 ,
+Gourgoulhon:2007ue ] . Given a scalar field @xmath on @xmath , we can
+select a particular hypersurface @xmath by putting a restriction on the
+coordinates
+
+  -- -------- -- ---------
+     @xmath      (2.1.1)
+  -- -------- -- ---------
+
+or by giving parametric equations
+
+  -- -------- -- ---------
+     @xmath      (2.1.2)
+  -- -------- -- ---------
+
+where @xmath are coordinates intrinsic to the hypersurface.
+
+#### 2.1.2 Normal vector
+
+The 1-form @xmath is normal to the hypersurface. We can introduce a unit
+normal @xmath (if the hypersurface is not null) as
+
+  -- -------- -- ---------
+     @xmath      (2.1.3)
+  -- -------- -- ---------
+
+With this definition
+
+  -- -------- -- ---------
+     @xmath      (2.1.4)
+  -- -------- -- ---------
+
+#### 2.1.3 Induced metric
+
+We obtain the induced metric on @xmath by restricting the line element
+to displacements confined to the hypersurface. Using the parametric
+equations @xmath , we define the vectors
+
+  -- -------- -- ---------
+     @xmath      (2.1.5)
+  -- -------- -- ---------
+
+that are tangent to the curves in @xmath . For displacements confined to
+@xmath we have
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      (2.1.6)
+  -- -------- -------- -- ---------
+
+where
+
+  -- -------- -- ---------
+     @xmath      (2.1.7)
+  -- -------- -- ---------
+
+is the induced metric of the hypersurface (also called the first
+fundamental form of @xmath ). Notice that if @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+#### 2.1.4 Orthogonal projector
+
+The orthogonal projector onto @xmath is a concept closely related with
+that of the induced metric. For a hypersurface @xmath with unit normal
+@xmath we define it as
+
+  -- -------- -- ---------
+     @xmath      (2.1.8)
+  -- -------- -- ---------
+
+To see that this definition makes sense, we note that, for any vector
+@xmath in @xmath (or, more correctly, in @xmath , the tangent space of
+@xmath at @xmath ), @xmath will project it tangent to the hypersurface,
+i.e., orthogonal to @xmath :
+
+  -- -------- -- ---------
+     @xmath      (2.1.9)
+  -- -------- -- ---------
+
+Notice also that the projector is idempotent:
+
+  -- -------- -- ----------
+     @xmath      (2.1.10)
+  -- -------- -- ----------
+
+Finally, note that for @xmath , @xmath acts just like the metric:
+
+  -- -------- -- ----------
+     @xmath      (2.1.11)
+  -- -------- -- ----------
+
+Thus, we see that the orthogonal projector @xmath is the natural
+extension of the induced metric @xmath for all vectors in @xmath . As
+such, from now on we will no longer make any distinction between these
+two concepts, and will denote both by @xmath (defined as @xmath . This
+way we adopt a @xmath -dimensional point of view, where we treat all
+tensor fields defined on @xmath as if they were defined on @xmath and we
+avoid the need to introduce a specific coordinate system on @xmath .
+
+Note that we can project an arbitrary tensor on @xmath onto @xmath in
+the following way. Let @xmath be a tensor field on @xmath . Denoting
+@xmath another tensor in @xmath such that
+
+  -- -------- -- ----------
+     @xmath      (2.1.12)
+  -- -------- -- ----------
+
+we easily see that @xmath is in @xmath .
+
+#### 2.1.5 Intrinsic curvature
+
+We now want to define a covariant derivative associated with @xmath on
+@xmath , @xmath , that has the “usual properties” of a covariant
+derivative, in particular that it is torsion-free and satisfies
+
+  -- -------- -- ----------
+     @xmath      (2.1.13)
+  -- -------- -- ----------
+
+The easiest way to define it is just to project the covariant derivative
+@xmath onto @xmath using ( 2.1.8 ):
+
+  -- -------- -- ----------
+     @xmath      (2.1.14)
+  -- -------- -- ----------
+
+It can be shown [ Gourgoulhon:2007ue ] that this definition of the
+covariant derivative has all the properties we want (linearity, Leibniz’
+rule, its torsion vanishes, …) and it satisfies ( 2.1.13 ).
+
+We can now define the Riemann tensor associated with this connection,
+@xmath , as the measure of the non-commutativity of this covariant
+derivative, associated with the @xmath metric on @xmath ,
+
+  -- -------- -- ----------
+     @xmath      (2.1.15)
+  -- -------- -- ----------
+
+where @xmath .
+
+@xmath represents the intrinsic curvature of @xmath .
+
+#### 2.1.6 Extrinsic curvature
+
+The intrinsic curvature of the hypersurface @xmath , as the name
+implies, is a property of the hypersurface itself. We will now define
+the extrinsic curvature , which depends on how @xmath is embedded on
+@xmath . We define it as ¹ ¹ 1 Our definition, with the minus sign,
+agrees with the standard convention used in the numerical relativity
+community, but note that some authors use different conventions. [
+Carroll:2004st ]
+
+  -- -------- -- ----------
+     @xmath      (2.1.16)
+  -- -------- -- ----------
+
+It can be shown that @xmath . Defining
+
+  -- -------- -- ----------
+     @xmath      (2.1.17)
+  -- -------- -- ----------
+
+we have, after some simple algebra,
+
+  -- -------- -- ----------
+     @xmath      (2.1.18)
+  -- -------- -- ----------
+
+We will always consider spacelike hypersurfaces, so from now on we will
+work with @xmath . Note that, by definition, @xmath lives on @xmath .
+
+### 2.2 Foliations
+
+We assume that our spacetime can be foliated by a family of spacelike
+hypersurfaces @xmath , that is, there exists a smooth scalar field
+@xmath on @xmath such that
+
+  -- -------- -- ---------
+     @xmath      (2.2.1)
+  -- -------- -- ---------
+
+In the following we will not distinguish between @xmath and @xmath .
+
+#### 2.2.1 The lapse function
+
+We write the unit normal vector as
+
+  -- -------- -- ---------
+     @xmath      (2.2.2)
+  -- -------- -- ---------
+
+where
+
+  -- -------- -- ---------
+     @xmath      (2.2.3)
+  -- -------- -- ---------
+
+is called the lapse function .
+
+#### 2.2.2 Normal evolution vector
+
+We define the normal evolution vector as
+
+  -- -------- -- ---------
+     @xmath      (2.2.4)
+  -- -------- -- ---------
+
+We can easily see that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which means that @xmath , unlike @xmath , is adapted to the scalar field
+@xmath . It can be shown [ Gourgoulhon:2007ue ] that the hypersurfaces
+@xmath are Lie dragged by @xmath . As consequence of this, if @xmath is
+in @xmath , @xmath is also in @xmath .
+
+#### 2.2.3 Eulerian observers
+
+We can identify the unit timelike vector @xmath as the velocity (or the
+“ @xmath -velocity”…) of some observer, that we will call the Eulerian
+observer . The worldlines of these observers are orthogonal to the
+hypersurfaces @xmath , which means that, for a given @xmath , the
+hypersurface @xmath is the set of events that are simultaneous from the
+point of view of the Eulerian observer.
+
+We define the acceleration of the Eulerian observer the usual way,
+
+  -- -------- -- ---------
+     @xmath      (2.2.5)
+  -- -------- -- ---------
+
+Let us now list some formulæ that will be useful for the following
+sections:
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      (2.2.6)
+     @xmath   @xmath      (2.2.7)
+     @xmath   @xmath      (2.2.8)
+  -- -------- -------- -- ---------
+
+#### 2.2.4 Evolution of @xmath
+
+From the definition of Lie derivative and equation ( 2.2.8 ), one can
+show
+
+  -- -------- -- ---------
+     @xmath      (2.2.9)
+  -- -------- -- ---------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (2.2.10)
+  -- -------- -- ----------
+
+which means that, for any tensor field @xmath on @xmath , its Lie
+derivative along @xmath is also a tensor field on @xmath .
+
+### 2.3 Gauss, Codazzi and Ricci equations
+
+We still need a way to relate quantities defined on the hypersurface to
+those defined on the manifold @xmath ; in particular, we would like to
+have a relation between the @xmath -dimensional Riemann curvature
+tensor, the @xmath -dimensional Riemann tensor on the hypersurface and
+the extrinsic curvature. Such relations are common in differential
+geometry—known as the equations of Gauss, Codazzi and Ricci—which we now
+state without proof (see, e.g., [ Gourgoulhon:2007ue ] ).
+
+#### 2.3.1 Gauss equation
+
+The starting point is equation ( 2.1.15 ). We just need to use
+equation ( 2.1.14 ) to relate @xmath with @xmath . After some algebra we
+arrive at
+
+  -- -------- -- ---------
+     @xmath      (2.3.1)
+  -- -------- -- ---------
+
+which is called the Gauss equation . Contracting this equation on @xmath
+and @xmath we get
+
+  -- -------- -- ---------
+     @xmath      (2.3.2)
+  -- -------- -- ---------
+
+where we defined @xmath (where the equality comes from the fact that
+@xmath lives on @xmath ). Taking the trace of this expression we have
+(noting that @xmath )
+
+  -- -------- -- ---------
+     @xmath      (2.3.3)
+  -- -------- -- ---------
+
+#### 2.3.2 Codazzi equation
+
+We now start with the following equation
+
+  -- -------- -- ---------
+     @xmath      (2.3.4)
+  -- -------- -- ---------
+
+and we project it onto @xmath using ( 2.1.12 ). Using equation ( 2.1.18
+) and after some algebra we arrive at
+
+  -- -------- -- ---------
+     @xmath      (2.3.5)
+  -- -------- -- ---------
+
+which is called the Codazzi equation . Contracting this equation on
+@xmath and @xmath we have
+
+  -- -------- -- ---------
+     @xmath      (2.3.6)
+  -- -------- -- ---------
+
+#### 2.3.3 Ricci equation
+
+We still need one more projection of the Riemann tensor (in fact, the
+last non-trivial projection). Again, we start with equation ( 2.3.4 ),
+but this time we project it only twice onto @xmath and one time along
+@xmath :
+
+  -- -------- -- ---------
+     @xmath      (2.3.7)
+  -- -------- -- ---------
+
+Using equations ( 2.2.7 ), ( 2.2.8 ) and some properties of the Lie
+derivative we arrive at
+
+  -- -------- -- ---------
+     @xmath      (2.3.8)
+  -- -------- -- ---------
+
+which is called the Ricci equation . We can combine equation ( 2.3.8 )
+with equation ( 2.3.2 ) to get
+
+  -- -------- -- ---------
+     @xmath      (2.3.9)
+  -- -------- -- ---------
+
+### 2.4 Einstein equations
+
+Our goal now is to write the Einstein equations in an explicit dynamical
+system form. Let us start by writing the equations themselves in their
+“traditional” form,
+
+  -- -------- -- ---------
+     @xmath      (2.4.1)
+  -- -------- -- ---------
+
+The alternative form
+
+  -- -------- -- ---------
+     @xmath      (2.4.2)
+  -- -------- -- ---------
+
+where @xmath , will also be useful to us.
+
+#### 2.4.1 Decomposition of the stress-energy tensor
+
+We define
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      (2.4.3)
+     @xmath   @xmath      (2.4.4)
+     @xmath   @xmath      (2.4.5)
+  -- -------- -------- -- ---------
+
+which correspond to the matter energy density , the matter momentum
+density and the matter stress density , respectively, as measured by the
+Eulerian observer. We further define @xmath and note that @xmath .
+
+#### 2.4.2 Projection of the Einstein equations
+
+##### Projection onto @xmath
+
+Using equation ( 2.3.9 ) we project equation ( 2.4.2 ) onto @xmath . We
+get
+
+  -- -------- -- ---------
+     @xmath      (2.4.6)
+  -- -------- -- ---------
+
+Note that every single term in this equation lives in @xmath . Thus, we
+can restrict the indices to spacial ones,
+
+  -- -------- -- ---------
+     @xmath      (2.4.7)
+  -- -------- -- ---------
+
+##### Projection along @xmath
+
+This step is easy, we just need to contract equation ( 2.4.1 ) with
+@xmath and use ( 2.3.3 ), yielding
+
+  -- -------- -- ---------
+     @xmath      (2.4.8)
+  -- -------- -- ---------
+
+This equation is called the Hamiltonian constraint .
+
+##### Mixed projection
+
+Finally, we need to project equation ( 2.4.1 ) once onto @xmath and once
+along @xmath . Using equation ( 2.3.6 ) we get
+
+  -- -------- -- ---------
+     @xmath      (2.4.9)
+  -- -------- -- ---------
+
+This equation is called the momentum constraint .
+
+### 2.5 Choice of coordinates
+
+Equations ( 2.4.7 ) ( @xmath equations), ( 2.4.8 ) (1 equation) and (
+2.4.9 ) ( @xmath equations) contain the same information as equation (
+2.4.1 ) (it can be checked that the number of independent components is
+the same: @xmath ). Before we can cast these equations in a dynamical
+system form, however, we have to introduce a specific coordinate system,
+something we have not yet done.
+
+We will introduce coordinates adapted to the foliation @xmath in the
+following way [ Gourgoulhon:2007ue ] . On each hypersurface @xmath we
+have a coordinate system @xmath that is varying smoothly between
+neighbouring hypersurfaces, so that @xmath is a well behaved coordinate
+system on @xmath . In this coordinate system
+
+  -- -------- -- ---------
+     @xmath      (2.5.1)
+  -- -------- -- ---------
+
+We define the shift vector @xmath as
+
+  -- -------- -- ---------
+     @xmath      (2.5.2)
+  -- -------- -- ---------
+
+or in components, @xmath . Note that @xmath , so @xmath lives on @xmath
+( @xmath . Using ( 2.5.2 ) we can also write
+
+  -- -------- -- ---------
+     @xmath      (2.5.3)
+  -- -------- -- ---------
+
+Notice also that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We are now able to write the metric components @xmath relative to this
+coordinate system,
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath            
+  -- -------- -------- --
+
+The line element is thus
+
+  -- -------- -- ---------
+     @xmath      (2.5.4)
+  -- -------- -- ---------
+
+or, in matrix form,
+
+  -- -------- -- ---------
+     @xmath      (2.5.5)
+  -- -------- -- ---------
+
+The inverse metric takes the form
+
+  -- -------- -- ---------
+     @xmath      (2.5.6)
+  -- -------- -- ---------
+
+The determinants of @xmath and @xmath are related by
+
+  -- -------- -- ---------
+     @xmath      (2.5.7)
+  -- -------- -- ---------
+
+where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+### 2.6 The PDE system
+
+Using the properties of the Lie derivative and the definition of shift
+vector, equation ( 2.5.2 ), we can write
+
+  -- -------- -- ---------
+     @xmath      (2.6.1)
+  -- -------- -- ---------
+
+Equation ( 2.2.9 ) can also be put in the form
+
+  -- -------- -- ---------
+     @xmath      (2.6.2)
+  -- -------- -- ---------
+
+We now have our full system, which we rewrite here
+
+  -- -------- -- ----------
+                 
+     @xmath      (2.6.3a)
+     @xmath      (2.6.3b)
+     @xmath      (2.6.3c)
+     @xmath      (2.6.3d)
+  -- -------- -- ----------
+
+Note that we can write the covariant derivatives @xmath and the Lie
+derivatives @xmath in terms of partial derivatives of the coordinates
+@xmath , and the Ricci tensor @xmath and Ricci scalar @xmath in terms of
+@xmath and its derivatives in the usual way. This way, assuming that the
+source terms @xmath , @xmath , @xmath are given, we have a second-order
+non-linear system of PDEs with the unknowns @xmath , @xmath , @xmath ,
+@xmath .
+
+The above equations ( 2.6.3 ) are known in the numerical relativity
+community as the ADM equations , after the work of Arnowitt, Deser and
+Misner [ Arnowitt:1962hi ] on their Hamiltonian formulation of general
+relativity. In this form, however, the equations were in fact first
+written by York [ York1979 ] (in four spacetime dimensions), and are
+thus sometimes referred to as the ADM-York equations.
+
+By now we have cast the Einstein equations on an explicit @xmath
+-dimensional dynamical system form. Note, however, that whereas
+equations ( 2.6.3a ) and ( 2.6.3b ) are evolution equations, equations (
+2.6.3c ) and ( 2.6.3d ) are not. These last two equations constitute
+constraints that the system must satisfy at all times. In particular,
+these constraints must be satisfied at @xmath . So we would now need to
+specify the relevant initial conditions, satisfying equations ( 2.6.3c )
+and ( 2.6.3d ), and then evolve them using equations ( 2.6.3a ) and (
+2.6.3b ), while making sure that equations ( 2.6.3c ) and ( 2.6.3d )
+always hold.
+
+The question arises: given a specific physical problem (say, a head-on
+collision of two black holes), how does one specify the initial
+conditions that correspond to the problem we have in mind? This is the
+initial data problem which will be the focus of the next chapter.
+
+## Chapter 3 Initial data
+
+On any dynamical system, to perform an evolution one needs to supply the
+initial conditions. In our case, this amounts to providing a snapshot of
+the gravitational fields on some hypersurface—the initial data . Then,
+one evolves this data to neighbouring hypersurfaces and so on.
+
+In general relativity initial data cannot be freely specified. As we
+have seen in chapter 2 , not all of Einstein’s equations are evolutions
+equations. We also have a set of constraint equations that must be
+satisfied at all times, the Hamiltonian ( 2.6.3c ) and momentum ( 2.6.3d
+) constraints. In particular, these equations need to be solved at
+@xmath for the @xmath that represent the physical system we are
+interested in evolving. We then feed these values to the evolution
+equations themselves.
+
+In general, this step is far from trivial. There is no unique recipe for
+the writing of initial data corresponding to an arbitrary gravitational
+system. For some systems, however,—such as vacuum spacetimes with moving
+black holes—recipes do exist. Actually, for the four-dimensional case,
+several methods for constructing initial data for different systems have
+been explored over the years (see [ Cook:2000vr ] for a review). For
+higher-dimensional systems, however, only recently the “standard” way of
+constructing initial data for moving black holes in the vacuum was
+generalised [ Yoshino:2005ps , Yoshino:2006kc ] .
+
+In this chapter we will give an overview of the procedure of conformal
+decomposition first introduced by York and Lichnerowicz [
+Lichnerowicz1944 , York1971 , York1972 , York1973 ] which rearranges the
+degrees of freedom contained in the three-metric @xmath and extrinsic
+curvature @xmath via a conformal transformation and a split of the
+curvature into trace and traceless part followed by a
+transverse-traceless decomposition of the conformally rescaled traceless
+extrinsic curvature.
+
+We will focus specifically on initial data for vacuum spacetimes,
+generalising the well-known Brill-Lindquist [ Brill:1963yv ] and
+Bowen-York [ Bowen:1980yu , Brandt:1997tf ] initial data along the lines
+of [ Yoshino:2005ps , Yoshino:2006kc ] . For alternative procedures to
+tackle the initial data problem we refer the reader to Cook’s review [
+Cook:2000vr ] , Alcubierre’s book [ Alcubierre:2008 ] , the recent book
+by Baumgarte & Shapiro [ baumgarte2010numerical ] and references
+therein.
+
+As in the previous chapter, Greek indices are spacetime indices running
+from 0 to @xmath ; Latin indices are spatial indices, running from 1 to
+@xmath .
+
+### 3.1 Conformal decomposition
+
+#### 3.1.1 Conformal transformations
+
+We start by recalling a known general result: given an @xmath
+-dimensional manifold with metric @xmath , if one performs the conformal
+transformation
+
+  -- -------- -- ---------
+     @xmath      (3.1.1)
+  -- -------- -- ---------
+
+the Ricci scalars relative to the metrics @xmath and @xmath are related
+by
+
+  -- -------- -- ---------
+     @xmath      (3.1.2)
+  -- -------- -- ---------
+
+where @xmath is the covariant derivative associated with the conformal
+metric @xmath .
+
+Let us now consider our case, where we have a @xmath -dimensional
+spacelike slice with induced metric @xmath and “conformal metric” @xmath
+. We have @xmath , and we make
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We have
+
+  -- -------- -- ---------
+     @xmath      (3.1.3)
+  -- -------- -- ---------
+
+We further decompose the extrinsic curvature in trace and trace-free
+parts,
+
+  -- -------- -- ---------
+     @xmath      (3.1.4)
+  -- -------- -- ---------
+
+where @xmath and, by definition, @xmath . Defining @xmath , we can also
+write
+
+  -- -------- -- ---------
+     @xmath      (3.1.5)
+  -- -------- -- ---------
+
+##### Conformal decomposition of the Hamiltonian and momentum constraint
+
+Under such a transformation, it is a matter of simple substitution to
+show that the Hamiltonian constraint equation ( 2.6.3c ) takes the form
+
+  -- -------- -- ---------
+     @xmath      (3.1.6)
+  -- -------- -- ---------
+
+where @xmath .
+
+With a straightforward calculation we can easily show that
+
+  -- -------- -- ---------
+     @xmath      (3.1.7)
+  -- -------- -- ---------
+
+with @xmath . Thus, we define
+
+  -- -------- -- ---------
+     @xmath      (3.1.8)
+  -- -------- -- ---------
+
+and we will lower its indices with @xmath ,
+
+  -- -------- -- ---------
+     @xmath      (3.1.9)
+  -- -------- -- ---------
+
+We thus have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Equation ( 2.4.9 ) is then written in the form
+
+  -- -------- -- ----------
+     @xmath      (3.1.10)
+  -- -------- -- ----------
+
+All we need now is to write equation ( 3.1.6 ) as function of @xmath ,
+which is very easy. Our system is now
+
+  -- -------- -- ----------
+     @xmath      (3.1.11)
+     @xmath      (3.1.12)
+  -- -------- -- ----------
+
+where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+### 3.2 Initial data for vacuum spacetimes
+
+Let us now consider the equations ( 3.1.11 ) and ( 3.1.12 ) for the
+particular case of vacuum solutions ( @xmath ). We further impose that
+the “conformal metric” @xmath is flat (and, thus, @xmath ) and the
+“maximum slicing condition”, @xmath (to be discussed in section 4.2.1 ).
+The equations ( 3.1.11 ) and ( 3.1.10 ) greatly simplify, and we are
+left with
+
+  -- -------- -- ---------
+     @xmath      (3.2.1)
+     @xmath      (3.2.2)
+  -- -------- -- ---------
+
+where @xmath is now the flat space Laplace operator.
+
+Here we make a pause to recall that the Schwarzschild-Tangherlini metric
+in @xmath dimensions is
+
+  -- -------- -- ---------
+     @xmath      (3.2.3)
+  -- -------- -- ---------
+
+where @xmath , @xmath being the mass of the black hole and @xmath the
+area of the hypersphere. By performing the coordinate transformation
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+we can write it in isotropic coordinates as
+
+  -- -------- -- ---------
+     @xmath      (3.2.4)
+  -- -------- -- ---------
+
+We will shortly make use of this geometry.
+
+#### 3.2.1 Brill-Lindquist initial data
+
+We now assume that the extrinsic curvature vanishes identically, @xmath
+, a condition that holds for time-symmetric initial data. It can be
+shown [ Gourgoulhon:2007ue ] that if @xmath and we choose coordinates
+such that @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which means that, locally, @xmath is a Killing vector. @xmath is also
+orthogonal to the hypersurface @xmath , and as such this configuration
+is static. This property only holds locally (on @xmath ) and we
+therefore call this configuration momentarily static .
+
+For @xmath equation ( 3.2.1 ) is automatically satisfied, and ( 3.2.2 )
+reduces to the standard @xmath -dimensional flat space Laplace equation,
+
+  -- -------- -- ---------
+     @xmath      (3.2.5)
+  -- -------- -- ---------
+
+We impose the following conditions on @xmath
+
+  -- -------- -- ---------
+     @xmath      (3.2.6)
+  -- -------- -- ---------
+
+which is the asymptotic flatness condition (remember that @xmath ).
+
+Let @xmath , where the @xmath are arbitrary points in our spacetime. A
+solution to equation ( 3.2.5 ) is given by
+
+  -- -------- -- ---------
+     @xmath      (3.2.7)
+  -- -------- -- ---------
+
+where the @xmath are arbitrary constants. Note that equation ( 3.2.7 )
+obeys the condition ( 3.2.6 ). The spatial metric takes the form (recall
+that the conformal metric @xmath is flat)
+
+  -- -------- -- ---------
+     @xmath      (3.2.8)
+  -- -------- -- ---------
+
+This solution is asymptotically flat (by construction), and if we
+compare this expression with ( 3.2.4 ), we can identify @xmath , which
+is the mass parameter measured in the “principal sheet” (anticipating
+the interpretation).
+
+We now have to analyse what happens as @xmath , for a given @xmath .
+When @xmath , @xmath and @xmath . Setting the origin of our coordinate
+system at @xmath ( @xmath ) we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and when @xmath
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where we defined @xmath . With the coordinate transformation @xmath we
+have
+
+  -- -------- -- ---------
+     @xmath      (3.2.9)
+  -- -------- -- ---------
+
+This shows that in this limit the space is also asymptotically flat.
+Thus, our solution ( 3.2.8 ) describes a space with @xmath
+asymptotically flat regions. Note that all “lower sheets” are separate,
+i.e., there is no way to travel from one sheet to the other except
+through the “upper sheet” (or “principal sheet”). Equation ( 3.2.9 )
+shows that each sheet, asymptotically, has a Schwarzschild-Tangherlini
+form, with the mass measured in the @xmath th sheet being given by
+
+  -- -------- -- ----------
+     @xmath      (3.2.10)
+  -- -------- -- ----------
+
+The observer located on the principal sheet (the ( @xmath )th sheet) is
+the only one that sees a system of @xmath black holes, with total mass
+@xmath , as we had already mentioned. Thus we identify @xmath and
+rewrite our expressions in terms of @xmath ,
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+where @xmath and @xmath . The points @xmath are called punctures .
+
+Note that @xmath . This difference can be attributed to the interaction
+energy between the black holes. It is important to note that @xmath , as
+we have defined it, is just a convenient label for the mass of the
+@xmath th black hole (but is not the mass). The mass of the @xmath th
+black hole as measured on the @xmath th sheet (its “bare mass”), is
+given by @xmath . ¹ ¹ 1 There seems to be some mismatch in the
+literature as to the definition of “bare mass”. Brill and Lindquist [
+Brill:1963yv ] clearly define it as @xmath , in our notation, and they
+even point out that the sum of the bare masses is different from the
+total mass. However, Brandt and Brügmann [ Brandt:1997tf ] seem to
+define bare mass as @xmath .
+
+#### 3.2.2 Bowen-York initial data
+
+Brill-Lindquist initial data is very useful because it provides us with
+an analytical solution for the constraint equations. However, it also
+has little physical relevance. Generally, one is interested in solutions
+with black holes that are spinning and moving and as such
+Brill-Lindquist data is clearly not enough.
+
+In order to have a more general configuration, i.e. one that is not
+momentarily static, we cannot impose @xmath . Let us recall that our
+assumptions are: @xmath —the maximum slicing condition; @xmath is
+flat—the conformal flatness condition; and @xmath —the asymptotic
+flatness condition.
+
+We now start by writing @xmath in the form
+
+  -- -------- -- ----------
+     @xmath      (3.2.11)
+  -- -------- -- ----------
+
+where
+
+  -- -------- -- ----------
+     @xmath      (3.2.12)
+  -- -------- -- ----------
+
+By construction, @xmath , and we impose @xmath . We will also restrict
+ourselves to the case @xmath . The equations ( 3.2.1 ) and ( 3.2.2 )
+take the form
+
+  -- -------- -- ----------
+     @xmath      (3.2.13)
+     @xmath      (3.2.14)
+     @xmath      (3.2.15)
+  -- -------- -- ----------
+
+Thus, we have to solve ( 3.2.13 ), plug @xmath in ( 3.2.15 ) and then
+solve ( 3.2.14 ). We will see that, even though we will be able to
+solve ( 3.2.13 ) analytically, we generally have to use numerical
+methods to solve ( 3.2.14 ).
+
+To solve ( 3.2.13 ) we make the following decomposition [ Yoshino:2006kc
+] , which introduces functions @xmath and @xmath ,
+
+  -- -------- -- ----------
+     @xmath      (3.2.16)
+  -- -------- -- ----------
+
+Equation ( 3.2.13 ) then gets the form
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which is solved if
+
+  -- -------- -- ----------
+     @xmath      (3.2.17)
+  -- -------- -- ----------
+
+We have reduced our problem to solving two flat space Laplace equations,
+which have known analytical solutions. In the following we analyse some
+possible solutions [ Yoshino:2006kc ] .
+
+##### Moving black holes
+
+We start by choosing a solution for the system ( 3.2.17 ) of the form
+
+  -- -------- -- ----------
+     @xmath      (3.2.18)
+  -- -------- -- ----------
+
+@xmath stands for the area of the @xmath -dimensional hypersphere.
+@xmath are constants that, as we shall see, will be the linear momentum
+of the black hole in the @xmath direction.
+
+For such an ansatz we have, from equation ( 3.2.16 ),
+
+  -- -------- -- ----------
+     @xmath      (3.2.19)
+  -- -------- -- ----------
+
+where @xmath , and from equations ( 3.2.15 ) and ( 3.2.12 )
+
+  -- -- -- ----------
+           (3.2.20)
+  -- -- -- ----------
+
+The ADM linear momentum is given by [ Bowen:1980yu , Yoshino:2006kc ,
+Gourgoulhon:2007ue ]
+
+  -- -------- -- ----------
+     @xmath      (3.2.21)
+  -- -------- -- ----------
+
+where we perform the integration on a hypersphere at infinity; @xmath
+denotes the induced metric on the hypersphere—using spherical
+coordinates @xmath (we can write the induced metric on a hypersphere
+@xmath of radius @xmath as @xmath , and thus @xmath ); @xmath is its
+unit normal vector.
+
+Reminding ourselves that
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+we see that we can calculate the ADM linear momentum without knowing
+@xmath . Plugging ( 3.2.20 ) into ( 3.2.21 ) we have that @xmath , as
+expected.
+
+Finally, we note that, as the equation ( 3.2.1 ) is linear, we can
+superimpose @xmath solutions of the type ( 3.2.21 ) corresponding to
+@xmath Schwarzschild black holes,
+
+  -- -------- -- ----------
+     @xmath      (3.2.22)
+  -- -------- -- ----------
+
+where
+
+  -- -------- -- ----------
+     @xmath      (3.2.23)
+  -- -------- -- ----------
+
+where @xmath and the parameters @xmath correspond to the ADM momentum of
+the @xmath th black hole when the separation of the holes is very large.
+
+##### Spinning black holes
+
+Let us now try a solution of ( 3.2.17 ) of the form
+
+  -- -------- -- ----------
+     @xmath      (3.2.24)
+  -- -------- -- ----------
+
+where @xmath will be the angular momentum tensor of the black hole. We
+have
+
+  -- -------- -- ----------
+     @xmath      (3.2.25)
+  -- -------- -- ----------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (3.2.26)
+  -- -------- -- ----------
+
+The ADM angular momentum is given by (when @xmath ) [ Bowen:1980yu ,
+Yoshino:2006kc , Gourgoulhon:2007ue ]
+
+  -- -------- -- ----------
+     @xmath      (3.2.27)
+  -- -------- -- ----------
+
+We can check that @xmath .
+
+For @xmath we can define the angular momentum vector in the usual way,
+
+  -- -------- -- ----------
+     @xmath      (3.2.28)
+  -- -------- -- ----------
+
+As in the previous section, we can now superimpose @xmath solutions of
+the type ( 3.2.26 ),
+
+  -- -------- -- ----------
+     @xmath      (3.2.29)
+  -- -------- -- ----------
+
+where
+
+  -- -------- -- ----------
+     @xmath      (3.2.30)
+  -- -------- -- ----------
+
+The parameters @xmath correspond to the ADM angular momentum of the
+@xmath th black hole when the separation of the holes is very large.
+
+##### General case
+
+We can now combine the results from the two previous sections to build a
+solution of @xmath black holes with arbitrary linear momentum and spin,
+
+  -- -------- -- ----------
+     @xmath      (3.2.31)
+  -- -------- -- ----------
+
+where @xmath and @xmath are given by equations ( 3.2.23 ) and ( 3.2.30
+).
+
+  Note:  
+
+    This solution reduces to the Brill-Lindquist momentarily static
+    solution ( @xmath ) when @xmath . For @xmath , @xmath and @xmath ,
+    however, we do not have a slice of a Kerr (or, for the
+    higher-dimensional case, Myers-Perry) spacetime. It has actually
+    been shown [ Garat:2000pn ] that there is no foliation of the Kerr
+    spacetime that is axisymmetric, conformally flat, and reduces
+    smoothly to the Schwarzschild solution in the non-rotating limit. ²
+    ² 2 For the four-dimensional Kerr solution, but there is no reason
+    to believe that the higher-dimensional case is any different. This
+    means that our Bowen-York solution with @xmath does represent a
+    rotating black hole, but not a stationary one. For the
+    four-dimensional case, when we evolve the data, the system emits
+    gravitational radiation and eventually settles down to the Kerr
+    solution [ Brandt:1994db , Gleiser:1997ng ] (the higher-dimensional
+    case has not been studied as of yet). This spurious gravitational
+    radiation has no desirable physical properties and is often referred
+    to as “junk radiation”.
+
+##### Conformal factor
+
+We still need to solve equation ( 3.2.14 ) to get the full initial data,
+and now there is no hope of finding an analytical solution. Let us
+rewrite the equation we need to solve,
+
+  -- -------- -- ----------
+     @xmath      (3.2.32)
+  -- -------- -- ----------
+
+with @xmath given by ( 3.2.31 ).
+
+Along the lines of [ Brandt:1997tf ] and [ Yoshino:2006kc ] we write
+
+  -- -------- -- ----------
+     @xmath      (3.2.33)
+  -- -------- -- ----------
+
+where
+
+  -- -------- -- ----------
+     @xmath      (3.2.34)
+  -- -------- -- ----------
+
+Equation ( 3.2.32 ) then takes the form
+
+  -- -------- -- ----------
+     @xmath      (3.2.35)
+  -- -------- -- ----------
+
+For the four-dimensional case, Brandt and Brügmann [ Brandt:1997tf ]
+were able to show the existence and uniqueness of @xmath solutions for
+the above equations. Furthermore, the solution for @xmath is found on an
+Euclidean manifold; we do not need to impose inner boundary conditions
+to avoid singularities. Brandt and Brügmann also show that this solution
+is the “natural” generalisation of the Brill-Lindquist initial data,
+i.e., each puncture represents the infinity of another asymptotically
+flat region of the spacetime and there is no way to travel from one
+sheet to the other except through the “upper” sheet. The
+higher-dimensional case has not been thoroughly studied, but it is
+believed that the situation is not radically different [ Yoshino:2006kc
+] .
+
+### 3.3 Final remarks
+
+In this chapter we introduced tools for the construction of initial data
+for higher-dimensional numerical relativity. As we mentioned, even
+though the four-dimensional case has been thoroughly studied, the study
+of initial data for higher-dimensional systems started only very
+recently. As of yet, only Brill-Lindquist and Bowen-York initial data
+have been generalised, but with these two approaches one is already able
+to construct quite interesting systems for vacuum spacetimes. In
+particular, the Bowen-York approach allows us to write initial data for
+spacetimes with an arbitrary number of moving and spinning black holes.
+
+For the four-dimensional case there are also powerful computer codes to
+solve the elliptic equation ( 3.2.35 ), such as the spectral method
+presented by Ansorg et al. [ Ansorg:2004ds ] .
+
+In upcoming chapters we will present a generalisation of the spectral
+solver in [ Ansorg:2004ds ] that solves ( 3.2.35 ) for black hole
+binaries in @xmath dimensions with non-vanishing initial boost, and
+preserves the spectral convergence properties observed in four
+dimensions.
+
+## Chapter 4 Numerical implementation
+
+In chapter 2 , we have written Einstein’s field equations explicitly in
+a form (usually referred to as ADM equations ( 2.6.3 )) which one could
+easily give to a computer to evolve. As can be seen from this system of
+equations, though, we are still not quite ready to perform numerical
+evolutions: we still need to say what happens with the variables @xmath
+(lapse) and @xmath (shift). The Einstein equations have not imposed any
+evolution equation for these variables. This reflects our coordinate
+freedom: fixing the lapse function and shift vector is a gauge choice,
+which one could in principle do arbitrarily. In turns out, though, that
+a good choice is crucial to achieve a stable numerical integration. We
+will in this chapter briefly discuss why this is the case and write down
+the equations we will be using throughout this work.
+
+It also turns out, as researchers eventually found out empirically in
+the 1990s when full three-dimensional evolutions were attempted using
+the ADM equations, that this system of evolution equations is not well
+suited to obtain long-term stable numerical simulations. This is now
+known to be due to the fact that the ADM equations are only weakly
+hyperbolic. ¹ ¹ 1 The ADM equations do allow stable evolutions in
+spherical symmetry, though (see e.g. [ Alcubierre:2008 ] ). People
+started experimenting with reformulations of the ADM equations and in
+1998 Baumgarte and Shapiro—revisiting an earlier formulation based on
+conformal transformations by Nakamura, Oohara and Kojima [
+Nakamura:1987zz ] and Shibata and Nakamura [ Shibata:1995we ] —showed
+that this formulation behaved much better than ADM for all cases
+considered [ Baumgarte:1998te ] . This formulation became known as BSSN
+(Baumgarte, Shapiro, Shibata and Nakamura) and is today the most popular
+scheme used to evolve Einstein’s equations.
+
+It was later realised that indeed the BSSN scheme can be shown to be
+strongly hyperbolic, as opposed to only weakly hyperbolic like in the
+ADM case, and thus well-posed, e.g. [ Sarbach:2002bt , Yoneda:2002kg ] .
+
+We should also mention that other successful evolution schemes do exit.
+Most notably, the generalised harmonic coordinates approach, e.g. [
+Friedrich:1996hq ] , was successfully used by Pretorius in the first
+ever evolutions of binary black holes through several orbits [
+Pretorius:2005gq ] . Giving a full overview of such topics falls outside
+of the scope of this work. We will in this chapter merely introduce the
+BSSN evolution equations and we refer the interested reader to, e.g., [
+Alcubierre:2008 , baumgarte2010numerical ] for comprehensive overviews.
+
+We close this chapter by introducing the numerical code itself used for
+all the simulations to be presented.
+
+In this chapter, we restrict ourselves to the four-dimensional case (for
+completeness, we present in appendix 4.A the higher-dimensional BSSN
+scheme), and therefore spatial (Latin) indices are here restricted to
+@xmath .
+
+### 4.1 BSSN formulation
+
+As we have just mentioned, if we were to try and evolve Einstein’s
+equations in the ADM formulation ( 2.6.3 ) (supplemented with the gauge
+conditions we will introduce in the next section) we would find out that
+the system is severely unstable. In this section we recast the evolution
+equations in the BSSN form, which allows for stable numerical
+evolutions.
+
+We start by performing a conformal decomposition of the spatial metric
+@xmath in the following way (observe it is going to be a different
+decomposition from the one performed in the study of the initial data)
+
+  -- -------- -- ---------
+     @xmath      (4.1.1)
+  -- -------- -- ---------
+
+The conformal factor @xmath can in principle be freely prescribed. In
+the BSSN scheme, one imposes that the determinant of the conformal
+metric be equal to the determinant of the flat metric @xmath ,
+
+  -- -------- -- ---------
+     @xmath      (4.1.2)
+  -- -------- -- ---------
+
+By construction, we have
+
+  -- -------- -- ---------
+     @xmath      (4.1.3)
+  -- -------- -- ---------
+
+Since we will stick to Cartesian coordinate systems throughout this
+work, we will always have @xmath , which makes @xmath a scalar density
+with weight @xmath .
+
+Just like in equation ( 3.1.4 ), we decompose the extrinsic curvature
+@xmath into trace and trace-free parts and apply the conformal
+transformation we used for the metric to the traceless part,
+
+  -- -- -- ---------
+           (4.1.4)
+  -- -- -- ---------
+
+Let us now find evolution equations for the variables we have introduced
+( @xmath ). Inserting ( 4.1.1 ) and ( 4.1.4 ) into ( 2.6.3a ) and (
+2.6.3b ) we have, taking the trace,
+
+  -- -------- -- ---------
+     @xmath      (4.1.5)
+  -- -------- -- ---------
+
+and
+
+  -- -------- -- ---------
+     @xmath      (4.1.6)
+  -- -------- -- ---------
+
+where in this last equation we have already used the constraint ( 2.6.3c
+) to eliminate the Ricci scalar. Substituting back we can compute the
+remaining evolution equations, which take the form
+
+  -- -------- -- ---------
+     @xmath      (4.1.7)
+  -- -------- -- ---------
+
+and
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      
+              @xmath      (4.1.8)
+  -- -------- -------- -- ---------
+
+where @xmath denotes the trace-free part, e.g., @xmath .
+
+We further need to decompose the Ricci tensor in two parts,
+
+  -- -------- -- ---------
+     @xmath      (4.1.9)
+  -- -------- -- ---------
+
+where @xmath only depends on @xmath and @xmath is the Ricci tensor
+associated with the metric @xmath . This term contains mixed second
+derivatives of the metric, something that is undesirable. For stable
+numerical integration, the following “conformal connection” variable was
+introduced [ Shibata:1995we , Baumgarte:1998te ]
+
+  -- -------- -- ----------
+     @xmath      (4.1.10)
+  -- -------- -- ----------
+
+In terms of this conformal connection, the conformal Ricci tensor then
+takes the form
+
+  -- -------- -- ----------
+     @xmath      (4.1.11)
+  -- -------- -- ----------
+
+As we can see, the first term in this expression, which involves a
+Laplacian, is the only explicit second order derivative operator acting
+on @xmath . All the mixed second derivatives have been absorbed in
+derivatives of @xmath . Since the BSSN scheme considers @xmath to be an
+independent variable, we need an evolution equation for it. Acting on (
+4.1.10 ) and interchanging the time and space derivatives we get
+
+  -- -------- -- ----------
+     @xmath      (4.1.12)
+  -- -------- -- ----------
+
+We further use the momentum constraint ( 2.6.3d ) to do away with the
+divergence of the extrinsic curvature and obtain
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+              @xmath      (4.1.13)
+  -- -------- -------- -- ----------
+
+The full system of evolution equations is then
+
+  -- -------- -------- -- -----------
+                          
+     @xmath   @xmath      (4.1.14a)
+     @xmath   @xmath      (4.1.14b)
+     @xmath   @xmath      
+              @xmath      (4.1.14c)
+     @xmath   @xmath      (4.1.14d)
+     @xmath   @xmath      
+              @xmath      (4.1.14e)
+  -- -------- -------- -- -----------
+
+where @xmath
+
+  -- -------- -------- -------- ----------
+     @xmath   @xmath            (4.1.15)
+              @xmath   @xmath   
+                       @xmath   
+  -- -------- -------- -------- ----------
+
+Source terms are determined by
+
+  -- -------- -------- -------- -------- -------- ----------
+     @xmath   @xmath   @xmath   @xmath            (4.1.16)
+              @xmath   @xmath   @xmath   @xmath   
+  -- -------- -------- -------- -------- -------- ----------
+
+The above system of evolution equations ( 4.1.14 ) is known as the BSSN
+evolution scheme and has proven to be extremely robust for numerical
+evolutions of Einstein’s field equations. Numerous other schemes do
+exist; most, however, offer no substantial advantage over BSSN, which
+has remained extremely popular. We will use BSSN for all our numerical
+evolutions.
+
+### 4.2 Gauge conditions
+
+We now turn our attention to the gauge conditions. The first question to
+ask is: what is a “good” choice for @xmath and @xmath ? An obvious first
+choice, also the simplest possible, is to impose the so-called geodesic
+slicing (also known as Gaussian normal coordinates ),
+
+  -- -------- -- ---------
+     @xmath      (4.2.1)
+  -- -------- -- ---------
+
+This choice was in fact used in the pioneering work by Hahn and
+Lindquist [ 1964AnPhy..29..304H ] ; it is now known, however, that it is
+actually a very bad choice for long-term evolutions. We can intuitively
+understand why this is the case. First we note from equation ( 2.2.6 )
+that the Eulerian observers have zero acceleration and thus follow
+geodesics (hence the name of this slicing). In the presence of black
+holes (or other gravitational sources), geodesics tend to focus.
+Coordinate observers will then collide with each other, consequently
+forming coordinate singularities and crashing the numerical evolution.
+We thus need better gauge choices. It falls outside the scope of this
+work to give an overview on the merits and disadvantages of the
+different conditions that have been proposed throughout the years. We
+will simply state and motivate the conditions we will be using.
+
+#### 4.2.1 1+log slicing
+
+A famous choice for the lapse function is known as maximal slicing ,
+which corresponds to imposing that the trace of the extrinsic curvature
+vanishes throughout the evolution,
+
+  -- -------- -- ---------
+     @xmath      (4.2.2)
+  -- -------- -- ---------
+
+A nice property of this condition is its singularity avoidance . We can
+see this by taking the trace of equation ( 2.1.18 ), which with ( 4.2.2
+) implies @xmath , an incompressibility condition on the velocity field
+of the Eulerian observers. This prevents the observers from converging
+and the subsequent appearance of a coordinate singularity, as in the
+geodesic slicing case. Such a property is very much desirable, making
+maximal slicing an attractive choice. There is an enormous disadvantage,
+however, which is the need to solve an elliptic equation at every time
+step during the numerical evolution in order to ensure ( 4.2.2 ). We
+therefore would like to have conditions that mimic this property of
+maximal slicing, yet with a hyperbolic character.
+
+Such a choice is the so-called 1+log slicing ,
+
+  -- -------- -- ---------
+     @xmath      (4.2.3)
+  -- -------- -- ---------
+
+which, being a hyperbolic equation, is trivial to implement numerically,
+has been shown to be extremely robust and mimics the singularity
+avoidance properties of maximal slicing [ Anninos:1995am ] .
+
+This condition gets its name from the fact that, when imposing @xmath ,
+equation ( 4.2.3 ) can be integrated to give
+
+  -- -------- -- ---------
+     @xmath      (4.2.4)
+  -- -------- -- ---------
+
+where we recall that @xmath .
+
+#### 4.2.2 Gamma driver
+
+Having chosen a condition for the lapse function, it remains then to say
+what happens to the shift.
+
+A possible choice, known as the Gamma freezing condition, is the
+following
+
+  -- -------- -- ---------
+     @xmath      (4.2.5)
+  -- -------- -- ---------
+
+Using equation ( 4.1.14e ), we can write the above condition as an
+elliptic equation for @xmath . This condition is related to the “minimal
+distortion” shift condition [ Smarr:1977uf ] , which attempts to choose
+coordinates such that the time derivative of the 3-metric @xmath is
+minimised. The disadvantage is once again the need to solve an elliptic
+equation at each time step.
+
+Researchers have therefore proposed alternative conditions, using
+parabolic or hyperbolic equations, that mimic the minimal distortion
+condition with good approximation. The following choice (and variations
+thereof) is now extremely popular
+
+  -- -------- -- ---------
+     @xmath      (4.2.6)
+  -- -------- -- ---------
+
+where @xmath is a function of spacetime. This is known as the Gamma
+driver condition [ Alcubierre:2002kk ] .
+
+Use of these gauge choices proved crucial for the 2005 breakthroughs
+using the moving puncture technique [ Campanelli:2005dd , Baker:2005vv ]
+.
+
+### 4.3 Numerical code
+
+Having chosen a set of evolution equations ( 4.1.14 ), gauge
+conditions ( 4.2.3 ), ( 4.2.6 ) and prescriptions for setting initial
+data (see chapter 3 ), it remains then to assemble everything on a
+numerical code. Such a task is far from trivial. One of the main reasons
+is that the presence of very different scales in the spacetimes that are
+usually evolved requires the use of mesh refinement . The problem is
+further complicated by the need to use parallel computing and to store
+large amounts of data.
+
+All numerical simulations that will be presented in subsequent chapters
+have been performed by adapting the Lean code [ Sperhake:2006cy ] ,
+initially designed for @xmath vacuum spacetimes by U. Sperhake. Lean is
+based on the Cactus computational toolkit [ cactus ] , it employs the
+BSSN formulation of the Einstein equations [ Shibata:1995we ,
+Baumgarte:1998te ] (with fourth order discretisation in the spatial
+derivatives) with the moving puncture method [ Campanelli:2005dd ,
+Baker:2005vv ] , uses the Carpet package for Berger-Oliger mesh
+refinement [ Schnetter:2003rb , carpet ] , the spectral solver described
+in [ Ansorg:2004ds ] for @xmath initial data and Thornburg’s
+AHFinderDirect [ Thornburg:1995cp , Thornburg:2003sf ] for horizon
+finding (see section 5.2 ).
+
+For a given numerical simulation our numerical grid will consist of two
+types of cubic refinement levels: @xmath outer levels centred on the
+origin (remaining stationary throughout the simulation), and @xmath
+inner levels centred around each black hole (and following these as the
+simulation progresses). The following notation (which we will make
+frequent use of)
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+specifies a grid with six fixed outer components of “radius” @xmath ,
+@xmath , @xmath , @xmath , @xmath and @xmath respectively and two
+refinement levels with two components each with radius @xmath and @xmath
+centred around either black hole. The resolution is @xmath on the finest
+level and successively decreases to @xmath on the outermost level.
+Further details about Lean may be found in [ Sperhake:2006cy ] .
+
+## Appendix 4.A @xmath-dimensional BSSN equations
+
+For completeness, we here write the full @xmath -dimensional BSSN
+equations, as first written in [ Yoshino:2009xp ] . These equations can
+be derived in a procedure entirely analogous to the one outlined in
+section 4.1 .
+
+  -- -------- -------- -- ----------
+                          
+     @xmath   @xmath      (4.A.1a)
+     @xmath   @xmath      (4.A.1b)
+     @xmath   @xmath      
+              @xmath      (4.A.1c)
+     @xmath   @xmath      (4.A.1d)
+     @xmath   @xmath      
+              @xmath      (4.A.1e)
+  -- -------- -------- -- ----------
+
+where @xmath denotes the trace-free part and the Ricci tensor @xmath is
+further split into @xmath , where
+
+  -- -------- -------- -------- ---------
+     @xmath   @xmath            (4.A.2)
+              @xmath   @xmath   
+                       @xmath   
+  -- -------- -------- -------- ---------
+
+Equations ( 4.1.14 ) can be recovered with @xmath .
+
+## Chapter 5 Wave extraction and horizon finding
+
+We have thus far covered, essentially, all the main tools necessary to
+successfully evolve Einstein’s equations on a computer. Assuming then
+that we can specify some arbitrary initial configuration and evolve it
+for as long as we like, we are still faced with the most important task:
+how to extract the relevant physical information. Recalling that the
+coordinate system used throughout the evolution is designed to be well
+suited to the numerical evolution and not for human-readability, we
+easily convince ourselves that it is not trivial to read physical
+information from the numerical output. For this purpose, tools were
+developed to enable the extraction of the gravitational wave information
+from a numerical simulation and, when dealing with black hole
+spacetimes, information about the black hole’s horizon.
+
+In this chapter we will briefly outline the two main methods of
+extracting gravitational wave information and the corresponding
+waveforms: the gauge invariant formalism of Kodama and Ishibashi [
+Kodama:2000fa , Kodama:2003jz ] —itself a generalisation to
+higher-dimensional spacetimes of the Regge-Wheeler-Zerilli formalism [
+Regge:1957td , Zerilli:1970se ] , later put in a gauge-invariant form by
+Moncrief [ Moncrief:1974am ] —and the Newman-Penrose formalism [
+Newman:1961qr ] . We will also mention the very basics regarding finding
+(apparent) black hole horizons.
+
+### 5.1 Wave extraction
+
+Gravitational waves are ripples in the shape of spacetime that propagate
+information at finite speed, just as water waves are ripples in the
+shape of an ocean’s surface. They are one of the most important
+predictions of general relativity. These waves have never been directly
+detected; there is, however, strong indirect evidence for its existence
+since the discovery of the famous binary pulsar PSR 1913+16 (also known
+as the Hulse-Taylor binary pulsar after its discoverers [ Hulse:1974eb ]
+), whose orbital period change is consistent with the general
+relativistic prediction for energy loss via gravitational wave emission.
+Other systems have since been uncovered, allowing for even more
+stringent tests, e.g. [ Lyne:2004cj , Kramer:2009zza ] .
+
+These waves are generated by dynamical gravitational fields---roughly
+speaking, accelerated bodies in non-spherically symmetric motion will
+emit gravitational waves ¹ ¹ 1 For a system to emit gravitational waves
+the third time derivative of its quadrupole moment has to be non-zero. .
+As they propagate throughout spacetime, they carry with them information
+about the physical properties of the system that produced them. By
+measuring them with gravitational wave detectors—such as the already
+mentioned LIGO, Virgo, GEO and TAMA—we can have a brand new window
+opening up to the universe. The likelihood of such detections is greatly
+enhanced if one can use theoretical gravitational wave signals coming
+from possible astrophysical sources as templates. Our task here is to
+briefly introduce the techniques used to generate such templates from
+numerical simulations.
+
+Before we begin, let us make one last comment. We have mentioned energy
+carried away by gravitational radiation, but as we know there is no
+notion of local energy of a gravitational field, so some care has to be
+taken here. The usual procedure is to write a stress-energy tensor for
+the metric fluctuations that is second-order in said fluctuations (the
+same way that the stress-energy tensor associated with a scalar or
+electromagnetic field is second order in the fields). Modulo some
+subtleties, such a quantity can be constructed, and meaningful
+quantities can be extracted from it. We will not be giving details on
+its derivation or the subtleties involved (see, e.g., [ Isaacson:1967zz
+, Isaacson:1968zza , Misner:1974qy ] ), but merely present the relevant
+formulæ that will be of use to us.
+
+We will start by recalling known four-dimensional results that will be
+of use. In the weak-field limit, we can write the metric tensor as the
+Minkowski metric plus perturbations,
+
+  -- -------- -- ---------
+     @xmath      (5.1.1)
+  -- -------- -- ---------
+
+To first order in @xmath , the Riemann tensor is
+
+  -- -------- -- ---------
+     @xmath      (5.1.2)
+  -- -------- -- ---------
+
+It is useful to introduce the usual trace reversed perturbation
+
+  -- -------- -- ---------
+     @xmath      (5.1.3)
+  -- -------- -- ---------
+
+Imposing the Lorenz gauge
+
+  -- -------- -- ---------
+     @xmath      (5.1.4)
+  -- -------- -- ---------
+
+the linearised field equations reduce to
+
+  -- -------- -- ---------
+     @xmath      (5.1.5)
+  -- -------- -- ---------
+
+where @xmath is the d’Alembertian operator in flat space. In vacuum we
+get the usual wave equation
+
+  -- -------- -- ---------
+     @xmath      (5.1.6)
+  -- -------- -- ---------
+
+Since the Lorenz gauge does not completely fix our degrees of freedom,
+we can further impose the transverse-traceless (TT) gauge
+
+  -- -------- -- ---------
+     @xmath      (5.1.7)
+  -- -------- -- ---------
+
+where, to simplify, we can use a Cartesian coordinate system @xmath and
+@xmath is a unit timelike vector. The second equation reflects the fact
+that there is no propagating scalar mode in general relativity. Note
+that in this gauge @xmath . With the constraints ( 5.1.4 ) and ( 5.1.7 )
+we are left with two degrees of freedom (in four dimensions;
+generically, in @xmath -dimensions, we have @xmath degrees of freedom).
+We can write the plane-wave solution of equation ( 5.1.6 ) subject to
+the constraints ( 5.1.7 ) in the usual form
+
+  -- -------- -- ---------
+     @xmath      (5.1.8)
+  -- -------- -- ---------
+
+taking @xmath and where
+
+  -- -------- -- ---------
+     @xmath      (5.1.9)
+  -- -------- -- ---------
+
+@xmath and @xmath are the two independent polarisations of the
+gravitational wave, known as “plus” and “cross” polarisations.
+
+It can be shown (e.g. [ Misner:1974qy , Carroll:2004st ,
+baumgarte2010numerical ] ) that the outgoing energy flux carried by the
+gravitational radiation is given by
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      (5.1.10)
+  -- -------- -------- -- ----------
+
+To derive this formula, we need to expand Einstein’s equations up to
+second order perturbations. Terms that are quadratic in the first order
+perturbations of the metric, after suitable averaging, can then be
+viewed as sources, constituting an effective stress-energy tensor for
+gravitational waves. This stress-energy tensor can then be used to
+compute energy and momentum carried away by the gravitational radiation.
+
+#### 5.1.1 Newman-Penrose formalism
+
+We now briefly describe the Newman-Penrose formalism. This formalism
+(also known as the spin-coefficient formalism ) introduced by Newman and
+Penrose in 1962 [ Newman:1961qr ] is an alternative way to write
+Einstein’s equations which has proven to be extremely useful in many
+situations in general relativity, such as in searches of exact
+solutions, black hole perturbation theory and studies of gravitational
+radiation. There is a whole literature devoted to this formalism. For
+its application in numerical simulations, we mention for instance the
+books by Alcubierre [ Alcubierre:2008 ] , Baumgarte & Shapiro [
+baumgarte2010numerical ] and references therein. Here we will only state
+the basic equations that we will need and refer the reader to relevant
+publications where appropriate.
+
+In this section we restrict ourselves to four-dimensional spacetimes
+since this formalism has not been generalised to higher dimensions. ² ²
+2 A related formalism also based on spin-coefficients, the
+Geroch-Held-Penrose (GHP) [ Geroch:1973am ] formalism, has been extended
+to higher dimensions [ Durkee:2010xq ] .
+
+This formalism starts with introducing a null complex tetrad @xmath
+satisfying
+
+  -- -------- -- ----------
+     @xmath      (5.1.11)
+  -- -------- -- ----------
+
+where @xmath is the complex conjugate of @xmath and all other inner
+products vanish.
+
+We further note that the four-dimensional Riemann tensor @xmath has 20
+independent components. Its trace, the Ricci tensor @xmath has 10. The
+remaining degrees of freedom are encoded in the Weyl tensor @xmath ,
+defined as
+
+  -- -------- -- ----------
+     @xmath      (5.1.12)
+  -- -------- -- ----------
+
+The Newman-Penrose formalism encodes these degrees of freedom in a set
+of complex scalars, often called Newman-Penrose scalars . The ten
+independent components of the Weyl tensor are encoded in the five
+complex scalars @xmath (often also called Weyl scalars ). ³ ³ 3 The ten
+independent components of the Ricci tensor are analogously written in
+terms of four scalars and three complex scalars, but we will never make
+use of these quantities in this work. All of these scalars are formed by
+contracting the Weyl tensor (and the Ricci) with the complex null
+tetrad. Since there is no unique choice for a null tetrad satisfying (
+5.1.11 ), the choice of this tetrad will affect the Weyl scalars and
+their physical interpretation.
+
+For a class of such tetrads, the so-called quasi-Kinnersley frames ,
+@xmath and @xmath both vanish, and we can interpret @xmath and @xmath as
+measures of the incoming and outgoing gravitational radiation, whereas
+@xmath can be interpreted as the “Coulombic” part. @xmath and @xmath are
+defined as ⁴ ⁴ 4 Different sign conventions exist in the literature.
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      (5.1.13)
+     @xmath   @xmath      (5.1.14)
+  -- -------- -------- -- ----------
+
+Since (for the suitable tetrad we mentioned above) the latter quantity
+encodes the outgoing gravitational wave signal, this will be of
+particular use to us ( @xmath will also be of use in section 7.2 ).
+
+In practice, we construct @xmath , @xmath and @xmath from an orthonormal
+triad @xmath orthogonal to the unit timelike vector @xmath
+
+  -- -------- -------- -------- ----------
+     @xmath   @xmath            (5.1.15)
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- ----------
+
+We refer the reader to [ Lehner:2007ip ] for a review of the formalism;
+here we merely note that asymptotically the triad vectors @xmath ,
+@xmath , @xmath behave as the unit radial, polar and azimuthal vectors.
+
+Having chosen our tetrad, we can now compute an explicit expression for
+@xmath using the definition ( 5.1.14 ). In the TT gauge, this can be
+shown to be, for outgoing waves [ Alcubierre:2008 ,
+baumgarte2010numerical ]
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      (5.1.16)
+     @xmath   @xmath      (5.1.17)
+  -- -------- -------- -- ----------
+
+whereas for ingoing waves, we have instead
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      (5.1.18)
+     @xmath   @xmath      (5.1.19)
+  -- -------- -------- -- ----------
+
+where @xmath denotes a time derivative and @xmath and @xmath are the
+amplitudes of the plus and cross polarisation of the gravitational
+wave ( 5.1.8 ), ( 5.1.9 ). Herein lies the usefulness of the @xmath
+scalar.
+
+It is useful to perform a multipolar decomposition by projecting @xmath
+onto spherical harmonics of spin weight @xmath (cf., e.g., appendix D of
+[ Alcubierre:2008 ] ):
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      (5.1.20)
+  -- -------- -------- -- ----------
+
+In terms of these multipoles, the radiated flux is given by the
+expressions [ Newman:1961qr , Newman:1981fn ]
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      (5.1.21)
+  -- -------- -------- -- ----------
+
+In Einstein-Maxwell theory, the right-hand-side of Einstein’s equations
+reads
+
+  -- -------- -- ----------
+     @xmath      (5.1.22)
+  -- -------- -- ----------
+
+where @xmath is the Maxwell-Faraday tensor. In such cases, we can
+analogously extract the electromagnetic wave signal in the form of the
+scalar functions, @xmath and @xmath [ Newman:1961qr , Newman:1981fn ] ,
+defined as
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      (5.1.23)
+     @xmath   @xmath      (5.1.24)
+  -- -------- -------- -- ----------
+
+For outgoing waves at infinity, these quantities behave as
+
+  -- -------- -- ----------
+     @xmath      (5.1.25)
+  -- -------- -- ----------
+
+Again, it is useful to perform a multipolar decomposition by projecting
+@xmath and @xmath onto spherical harmonics of spin weight @xmath and
+@xmath respectively:
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      (5.1.26)
+     @xmath   @xmath      (5.1.27)
+  -- -------- -------- -- ----------
+
+In terms of these multipoles, the radiated flux is given by the
+expressions [ Newman:1961qr , Newman:1981fn ]
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      (5.1.28)
+  -- -------- -------- -- ----------
+
+We see from ( 5.1.25 ) that @xmath encodes the radiative modes.
+
+#### 5.1.2 Kodama-Ishibashi
+
+A different approach to extract gravitational wave perturbations is that
+of the gauge-invariant Moncrief formalism [ Moncrief:1974am ] . This has
+been generalised to higher dimensions by Kodama and Ishibashi (KI) [
+Kodama:2000fa , Kodama:2003jz ] , and we will review this approach in
+the following.
+
+In the KI formalism, we start by writing the metric element as a
+background metric plus a perturbation
+
+  -- -------- -- ----------
+     @xmath      (5.1.29)
+  -- -------- -- ----------
+
+The background spacetime has the form
+
+  -- -------- -- ----------
+     @xmath      (5.1.30)
+  -- -------- -- ----------
+
+where the @xmath coordinates refer to the whole spacetime ( @xmath ),
+@xmath and @xmath is the metric on the unit @xmath -sphere @xmath .
+
+The procedure now is to expand the metric perturbations @xmath into
+harmonic functions. These exist in three flavours—scalar, vector and
+tensor harmonics. Metric perturbations can then be written in terms of
+gauge invariant quantities [ Kodama:2000fa ] :
+
+  Tensor harmonics @xmath  
+
+    satisfy
+
+      -- -------- -- ----------
+         @xmath      (5.1.31)
+      -- -------- -- ----------
+
+    with the properties
+
+      -- -------- -- ----------
+         @xmath      (5.1.32)
+      -- -------- -- ----------
+
+    where @xmath is the Laplace-Beltrami operator on @xmath and @xmath
+    denotes the covariant derivative with respect to the metric @xmath
+    on the sphere. Note that we will omit the index labelling the
+    harmonic throughout this discussion.
+
+    For tensor-type perturbations, the metric perturbations @xmath are
+    expanded in the following way
+
+      -- -------- -- ----------
+         @xmath      (5.1.33)
+      -- -------- -- ----------
+
+    where @xmath (again, we leave the harmonic labels implicit), and
+    note that there is sum over the indices of the harmonics in this
+    expression.
+
+  Vector harmonics @xmath  
+
+    satisfy
+
+      -- -------- -- ----------
+         @xmath      (5.1.34)
+         @xmath      (5.1.35)
+      -- -------- -- ----------
+
+    from this, vector-type harmonic tensors can further be defined
+
+      -- -------- -- ----------
+         @xmath      (5.1.36)
+      -- -------- -- ----------
+
+    We expand the vector-type perturbations as
+
+      -- -------- -- ----------
+         @xmath      (5.1.37)
+      -- -------- -- ----------
+
+    where @xmath .
+
+  Scalar harmonics @xmath  
+
+    satisfy
+
+      -- -------- -- ----------
+         @xmath      (5.1.38)
+      -- -------- -- ----------
+
+    from which we can build scalar-type vector harmonics
+
+      -- -------- -- ----------
+         @xmath      (5.1.39)
+      -- -------- -- ----------
+
+    and scalar-type harmonic tensors
+
+      -- -------- -- ----------
+         @xmath      (5.1.40)
+      -- -------- -- ----------
+
+    We expand scalar-type perturbations as
+
+      -- -------- -- ----------
+         @xmath      (5.1.41)
+      -- -------- -- ----------
+
+    where @xmath .
+
+    For @xmath , the metric perturbations can be expressed in terms of
+    the following gauge-invariant variables [ Kodama:2000fa ]
+
+      -- -------- -------- -------- ----------
+         @xmath   @xmath            (5.1.42)
+                  @xmath   @xmath   
+      -- -------- -------- -------- ----------
+
+    where we have defined
+
+      -- -------- -- ----------
+         @xmath      (5.1.43)
+      -- -------- -- ----------
+
+    and we denote the covariant derivative with respect to the metric
+    @xmath with a subscript @xmath .
+
+Impressively, a master function @xmath can be defined that, from the
+perturbed Einstein equations, can be shown to obey the simple wave
+equation [ Kodama:2003jz ]
+
+  -- -------- -- ----------
+     @xmath      (5.1.44)
+  -- -------- -- ----------
+
+where @xmath is the d’Alembertian operator with respect to @xmath , and
+the form of the potential @xmath depends on whether one is considering
+scalar, vector or tensor perturbations.
+
+The master function @xmath is specially useful since it encodes the
+gravitational waveform; the energy emitted via gravitational radiation
+can also be computed quite effortlessly. Writing the index @xmath
+explicitly, the energy flux in each @xmath -multipole is [ Berti:2003si
+]
+
+  -- -------- -- ----------
+     @xmath      (5.1.45)
+  -- -------- -- ----------
+
+The total energy emitted in the process is then
+
+  -- -------- -- ----------
+     @xmath      (5.1.46)
+  -- -------- -- ----------
+
+### 5.2 Horizon finding
+
+When evolving black hole spacetimes, besides the wave extraction tools,
+physical information can also be read from its horizon properties. A
+black hole is a region of spacetime from which no future directed null
+geodesic can reach an outside observer. Its surface, the event horizon ,
+acts therefore as a one-way membrane. In asymptotically flat spacetimes,
+the event horizon can be defined as the boundary of the causal past of
+future null infinity. It is thus as global concept, requiring
+information from the whole spacetime to be located. From the point of
+view of a numerical evolution, this is not very useful since one would
+like to know about the location of the black hole as the simulation
+progresses.
+
+A more useful concept in this regard is that of the apparent horizon .
+It is defined as the outermost marginally trapped surface on a given
+spatial hypersurface—a closed surface on which the expansion of
+(outgoing) null geodesics vanishes. The apparent horizon is a local
+concept, depending only on information present on the given
+hypersurface, making it an ideal diagnostic tool for numerical
+evolutions.
+
+Given a spatial section @xmath of a spacetime with 3-metric @xmath and
+extrinsic curvature @xmath , the expansion of null geodesics can be
+shown to be
+
+  -- -------- -- ---------
+     @xmath      (5.2.1)
+  -- -------- -- ---------
+
+where @xmath is the covariant derivative with respect to the 3-metric
+@xmath and @xmath is the spatial normal to the apparent horizon surface
+within @xmath . @xmath is the expansion of the outgoing null geodesics,
+@xmath the expansion of the ingoing ones. The (black hole) apparent
+horizon is then defined by the following equation
+
+  -- -------- -- ---------
+     @xmath      (5.2.2)
+  -- -------- -- ---------
+
+General purpose tools exist to solve this equation during numerical
+evolutions; for an overview see e.g. [ Thornburg:2006zb ] and references
+therein.
+
+Finally, we emphasise that apparent horizons are slicing dependent. It
+is possible, for instance, to foliate the Schwarzschild spacetime in
+such a way that there is no apparent horizon [ Wald:1991zz ] (the event
+horizon, being a global quantity, is an intrinsic property of the
+geometry and is thus always present). The presence of an apparent
+horizon, however, does imply the existence of a section of an event
+horizon exterior to it (assuming cosmic censorship and @xmath for all
+null @xmath [ wald1984general ] ).
+
+## Chapter 6 Higher-dimensional numerical relativity
+
+As mentioned in the Introduction, the ability to perform fully
+non-linear numerical evolutions of Einstein’s field equations in
+higher-dimensional scenarios has tremendous potential to answer
+fundamental questions in physics, with possible applications including
+studies of the AdS/CFT duality, explorations of TeV-gravity scenarios
+and the study of higher-dimensional black hole solutions.
+
+Numerical relativity in higher dimensions has only recently started
+being explored, with pioneering works including those in [
+Choptuik:2003qd , Yoshino:2009xp , Zilhao:2010sr , Shibata:2010wz ,
+Witek:2010xi ] . In this chapter, we will describe the approach of [
+Zilhao:2010sr , Witek:2010xi ] .
+
+The formalism we will present allows us to consider two classes of
+models, which are generalisations of axial symmetry to higher
+dimensional spacetimes: a @xmath dimensional vacuum spacetime with an
+@xmath isometry group, and a @xmath dimensional vacuum spacetime with an
+@xmath isometry group. The former class allows studies of head-on
+collisions of non-spinning black holes. The latter class allows to model
+black hole collisions with impact parameter and with spinning black
+holes, as long as all the dynamics take place on a single plane. This
+class includes the most interesting physical configurations relevant to
+accelerator—and cosmic ray—physics (in the context of TeV-scale
+gravity), and to the theoretical properties of higher-dimensional black
+objects (such as stability and phase diagrams).
+
+In section 6.1 , we introduce a general dimensional reduction procedure
+from @xmath -dimensional vacuum general relativity to a lower dimension
+model; in section 6.2 we specialise the equations obtained to the case
+where the @xmath -dimensional spacetime has an @xmath isometry group,
+perform the 3+1 splitting of space and time and write down a system of
+evolution equations; in section 6.3 we outline the construction of
+relevant initial data, following the approach of [ Zilhao:2011yc ] ; in
+section 6.4 , we discuss some code tests, introduce a wave extraction
+procedure and present results. We end this chapter with a discussion in
+6.5 .
+
+We note that in this chapter, due to the necessity of introducing
+multiple covariant derivatives, we shall explain the notation as we go
+along.
+
+### 6.1 Dimensional reduction
+
+The starting point of our formalism is a dimensional reduction from
+@xmath -dimensional general relativity in vacuum to a lower dimensional
+model.
+
+The isometry group of a Schwarzschild (or, for @xmath , Tangherlini [
+Tangherlini:1963bw ] ) black hole is @xmath . For a head-on collision of
+two non-rotating black holes, the isometry is further reduced to @xmath
+: indeed, neither the time direction nor the direction of the collision
+correspond to symmetries, but a rotation of the remaining @xmath spatial
+directions leaves the spacetime invariant.
+
+One can take advantage of this symmetry to reduce the spacetime
+dimensionality. This can be accomplished by writing Einstein’s equations
+in @xmath dimensions in a coordinate system which makes the symmetry
+manifest, allowing for a lower dimensional interpretation of the @xmath
+-dimensional Einstein’s equations (in the spirit of the Kaluza-Klein
+reduction). We remark, however, that we do not perform a
+compactification; rather, we perform a dimensional reduction by
+isometry, as first proposed by Geroch [ Geroch:1970nt ] . The extra
+dimensions manifest themselves in the lower dimensionality as a source
+of Einstein’s equations, defined on the lower dimensional manifold.
+
+In the original proposal of Geroch [ Geroch:1970nt ] the symmetry space
+was @xmath . This approach has been applied to numerical relativity, see
+for instance [ Sjodin:2000zd , Sperhake:2000fe , Choptuik:2003as ] ; a
+five dimensional extension, with the same symmetry space, has been
+derived in [ Chiang:1985rk ] . A generalisation to coset manifolds (like
+the sphere @xmath ) was given by Cho in [ Cho:1986wk , Cho:1987jf ] ,
+but in these papers the complete form of Einstein’s equations was not
+presented.
+
+Following the approach by Cho [ Cho:1986wk ] , we will start by deriving
+the general equations obtained doing a dimensional reduction by
+isometry. We will afterwards focus on the isometry group of the @xmath
+sphere and present the equations obtained with a dimensional reduction
+to four dimensions, as well as their numerical implementation.
+
+#### 6.1.1 General formalism
+
+The most general @xmath -dimensional metric @xmath , @xmath , can be
+written in the following form (in the coordinate basis @xmath )
+
+  -- -------- -- ---------
+     @xmath      (6.1.1)
+  -- -------- -- ---------
+
+where @xmath and @xmath . @xmath is a scale parameter and @xmath a
+coupling constant. This metric is fully general and not an ansatz .
+
+Assume that @xmath admits an @xmath -dimensional isometry @xmath ,
+generated by @xmath Killing vector fields which we express as (assuming
+@xmath is large enough)
+
+  -- -------- -- ---------
+     @xmath      (6.1.2)
+  -- -------- -- ---------
+
+@xmath . The Killing vector fields form the Lie algebra of @xmath ,
+satisfying
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      (6.1.3)
+     @xmath   @xmath      (6.1.4)
+  -- -------- -------- -- ---------
+
+Defining
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and the “dual” form @xmath to the Killing fields @xmath by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+we can derive, from ( 6.1.3 ),
+
+  -- -- -------- -------- ---------
+        @xmath            (6.1.5)
+                 @xmath   
+                 @xmath   
+  -- -- -------- -------- ---------
+
+where @xmath .
+
+Our goal is to compute the Ricci tensor of metric ( 6.1.1 ), which is
+more easily done in a non-coordinate basis. Details of the computation
+can be found in appendix 6.A ; here we mention only the final result.
+
+We first define the “covariant derivatives” @xmath and @xmath as
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      (6.1.6)
+     @xmath   @xmath      (6.1.7)
+  -- -------- -------- -- ---------
+
+where
+
+  -- -------- -------- -------- ---------
+     @xmath   @xmath            (6.1.8)
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- ---------
+
+and both connections are metric,
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Note however that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The Ricci tensor of ( 6.1.1 ) is (see appendix 6.A )
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      (6.1.9)
+     @xmath   @xmath      
+              @xmath      (6.1.10)
+     @xmath   @xmath      
+              @xmath      (6.1.11)
+  -- -------- -------- -- ----------
+
+and
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+              @xmath      (6.1.12)
+  -- -------- -------- -- ----------
+
+These are the expressions we were looking for. Equivalent forms can be
+found in [ Chiang:1985rk , Cho:1986wk ] .
+
+#### 6.1.2 Examples
+
+##### @xmath
+
+As a first (trivial) exercise, we can reproduce the standard
+Kaluza-Klein expressions. Remember that the Kaluza-Klein metric has the
+form
+
+  -- -------- -- ----------
+     @xmath      (6.1.13)
+  -- -------- -- ----------
+
+We can easily recover this case from our formalism by making @xmath ,
+@xmath , @xmath , @xmath , @xmath , and @xmath (cf. equations ( 6.1.8
+)). Remember also that for the Kaluza-Klein case nothing depends on the
+“fifth” dimension, and as such @xmath . We get the usual Kaluza-Klein
+expressions,
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+##### @xmath
+
+A more interesting case is performing the dimensional reduction on the
+@xmath sphere, @xmath . For such an isometry, the Killing vectors @xmath
+, @xmath satisfy
+
+  -- -------- -- ----------
+     @xmath      (6.1.14)
+  -- -------- -- ----------
+
+where @xmath are the structure constants of @xmath . Because the fibre
+has the minimal dimension necessary to accommodate @xmath independent
+Killing vector fields, we may assume without loss of generality that the
+Killing vector fields have components exclusively along the fibre:
+@xmath . Furthermore, we may normalise the Killing vectors so that they
+only depend on the coordinates of the fibre, i.e. @xmath .
+
+Equation ( 6.1.3 ) gives the following conditions
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      (6.1.15)
+     @xmath   @xmath      (6.1.16)
+     @xmath   @xmath      (6.1.17)
+  -- -------- -------- -- ----------
+
+These expressions can be interpreted either as Lie derivatives of rank-
+@xmath tensors defined on the @xmath -dimensional spacetime, or as Lie
+derivatives of a rank- @xmath tensor, a vector and a scalar, which are
+defined on @xmath .
+
+Together with ( 6.1.14 ), conditions ( 6.1.15 )-( 6.1.17 ) have the
+following implications:
+
+-   -- -------- -- ----------
+         @xmath      (6.1.18)
+      -- -------- -- ----------
+
+    because, from ( 6.1.15 ), @xmath admits the maximal number of
+    Killing vector fields and thus must be the metric on a maximally
+    symmetric space at each @xmath . Due to ( 6.1.14 ) this space must
+    be the @xmath sphere. @xmath denotes the metric on an @xmath with
+    unit radius;
+
+-   -- -------- -- ----------
+         @xmath      (6.1.19)
+      -- -------- -- ----------
+
+    because the Killing vector fields @xmath act transitively on the
+    fibre and therefore the base space metric must be independent of the
+    fibre coordinates;
+
+-   -- -------- -- ----------
+         @xmath      (6.1.20)
+      -- -------- -- ----------
+
+    because equation ( 6.1.16 ) is equivalent to
+
+      -- -------- -- ----------
+         @xmath      (6.1.21)
+      -- -------- -- ----------
+
+    and there exist no non-trivial vector fields on @xmath for @xmath
+    that commute with all Killing vector fields on the sphere.
+
+We write the metric on the sphere as
+
+  -- -------- -- ----------
+     @xmath      (6.1.22)
+  -- -------- -- ----------
+
+with @xmath . Our @xmath -dimensional metric has a block diagonal form.
+Making @xmath and @xmath in the expressions ( 6.1.9 )-( 6.1.1 ) we get
+
+  -- -------- -------- -------- ----------
+     @xmath   @xmath            (6.1.23)
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- ----------
+
+where @xmath and @xmath are the Ricci tensor and Ricci scalar for the
+metric ( 6.1.22 ). They evaluate to
+
+  -- -------- -- ----------
+     @xmath      (6.1.24)
+  -- -------- -- ----------
+
+For @xmath -dimensional vacuum spacetimes @xmath . Using also ( 6.1.24 )
+on ( 6.1.23 ) we get two coupled equations,
+
+  -- -------- -- ----------
+     @xmath      (6.1.25)
+  -- -------- -- ----------
+
+These equations can also be obtained from the following action
+
+  -- -- -- ----------
+           (6.1.26)
+  -- -- -- ----------
+
+Performing the substitution @xmath will be useful for the upcoming
+numerical implementation. We get
+
+  -- -- -------- -------- ----------
+        @xmath            (6.1.27)
+                 @xmath   
+  -- -- -------- -------- ----------
+
+For completeness, we write in appendix 6.B the equations of motion
+obtained when we write the action ( 6.1.26 ) in the Einstein frame.
+
+### 6.2 Dimensional reduction on a @xmath-sphere and 3+1 split
+
+In the previous section we were considering a dimensional reduction
+under the full isometry group of the higher-dimensional spacetime. In
+the case of head-on black hole collisions, this would produce a
+reduction down to 3 spacetime dimensions. In practice, we are actually
+interested in performing a @xmath split of the @xmath dimensional
+spacetime. This may be done as follows. The metric on a unit @xmath may
+always be written in terms of the line element on a unit @xmath ,
+denoted by @xmath , as follows,
+
+  -- -- -- ---------
+           (6.2.1)
+  -- -- -- ---------
+
+where @xmath is a polar-like coordinate, @xmath . Now we introduce four
+dimensional coordinates, @xmath , @xmath , and define a four dimensional
+metric
+
+  -- -------- -- ---------
+     @xmath      (6.2.2)
+  -- -------- -- ---------
+
+as well as a new conformal factor
+
+  -- -------- -- ---------
+     @xmath      (6.2.3)
+  -- -------- -- ---------
+
+As we have seen in the previous sections, the most general @xmath
+-dimensional metric compatible with @xmath isometry is, for @xmath
+
+  -- -------- -- ---------
+     @xmath      (6.2.4)
+  -- -------- -- ---------
+
+The geometry ( 6.2.4 ) has a manifest @xmath symmetry. We will now
+perform a dimensional reduction on a @xmath -sphere, which yields, from
+the @xmath -dimensional vacuum Einstein equations, a set of @xmath
+dimensional Einstein equations coupled to quasi-matter. In cases with
+larger symmetry (if @xmath is the full isometry group, for example), the
+quasi-matter terms do not contain independent degrees of freedom and
+could in principle be fully determined by the @xmath dimensional
+geometry. For such cases we could perform the dimensional reduction on a
+@xmath -sphere instead (which has the full isometry group @xmath ),
+which would yield a @xmath dimensional system. The former method allows,
+however, the use of existing numerical codes, with small changes, which
+justifies our choice.
+
+The @xmath isometry group allows the study of a large class of black
+hole collisions with impact parameter and with spin: the collisions in
+which the two black holes always move on the same 2-plane and the only
+non trivial components of the spin 2-form are on that same 2-plane—see
+figure 6.1 . With our framework we are able, therefore, to describe not
+only head-on collisions of spinless black holes but also a class of
+collisions for spinning black holes with impact parameter. As follows
+from the discussion of ( 6.1.20 ), the ansatz ( 6.2.4 ) describes
+general spacetimes with @xmath isometry in @xmath . We remark that the
+models with @xmath are actually the most interesting for
+phenomenological studies of large extra dimensions models (see for
+instance [ Kanti:2004nr ] ).
+
+Taking ( 6.2.4 ) as an ansatz, we see from ( 6.1.26 ) that the @xmath
+-dimensional Einstein-Hilbert action takes the form (for reasons related
+with the numerical implementation, we now use the variable @xmath
+instead of the previously used @xmath )
+
+  -- -------- -- ---------
+     @xmath      (6.2.5)
+  -- -------- -- ---------
+
+where the @xmath -dimensional Newton’s constant @xmath is related to the
+four dimensional one @xmath by the area of the unit @xmath dimensional
+sphere: @xmath . Explicitly, the @xmath -dimensional Einstein’s
+equations in vacuum yield the following system of four dimensional
+equations coupled to a scalar field:
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      (6.2.6)
+     @xmath   @xmath      (6.2.7)
+  -- -------- -------- -- ---------
+
+In these equations, all operators are covariant with respect to the four
+dimensional metric @xmath . These could also be obtained from
+equations ( 6.1.27 ) with @xmath . The energy momentum tensor is
+
+  -- -------- -- ---------
+     @xmath      (6.2.8)
+  -- -------- -- ---------
+
+With this four dimensional perspective, the usual @xmath split of
+spacetime can be performed, as outlined in section 2.5 . As explained
+therein, the projection operator @xmath and the normal to the three
+dimensional hypersurface @xmath , @xmath ( @xmath ), are introduced
+
+  -- -------- -- ---------
+     @xmath      (6.2.9)
+  -- -------- -- ---------
+
+as well as the lapse @xmath and shift @xmath ,
+
+  -- -------- -- ----------
+     @xmath      (6.2.10)
+  -- -------- -- ----------
+
+where @xmath is the time coordinate. The four dimensional metric is then
+written in the form
+
+  -- -------- -- ----------
+     @xmath      (6.2.11)
+  -- -------- -- ----------
+
+As usual, we introduce the extrinsic curvature @xmath , which gives the
+evolution equation for the @xmath -metric ( 2.6.2 ). Defining the
+variable
+
+  -- -------- -- ----------
+     @xmath      (6.2.12)
+  -- -------- -- ----------
+
+we further get an evolution equation for @xmath
+
+  -- -------- -- ----------
+     @xmath      (6.2.13)
+  -- -------- -- ----------
+
+Using the relation
+
+  -- -------- -- ----------
+     @xmath      (6.2.14)
+  -- -------- -- ----------
+
+where @xmath denotes now the covariant derivative with respect to the
+3-metric @xmath on @xmath , and equation ( 6.2.7 ) we can get an
+evolution equation for @xmath . The contraction of equation ( 6.2.14 )
+with @xmath , yields
+
+  -- -------- -- ----------
+     @xmath      (6.2.15)
+  -- -------- -- ----------
+
+Noting that
+
+  -- -------- -- ----------
+     @xmath      (6.2.16)
+  -- -------- -- ----------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (6.2.17)
+  -- -------- -- ----------
+
+we obtain
+
+  -- -------- -- ----------
+     @xmath      (6.2.18)
+  -- -------- -- ----------
+
+Noticing also that @xmath , we write
+
+  -- -------- -- ----------
+     @xmath      (6.2.19)
+  -- -------- -- ----------
+
+Moreover, from equation
+
+  -- -------- -- ----------
+     @xmath      (6.2.20)
+  -- -------- -- ----------
+
+we get
+
+  -- -------- -- ----------
+     @xmath      (6.2.21)
+  -- -------- -- ----------
+
+so that the evolution equation for @xmath is
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+              @xmath      (6.2.22)
+  -- -------- -------- -- ----------
+
+Equations ( 6.2.13 ) and ( 6.2 ) are the evolution equations for the
+quasi-matter degrees of freedom.
+
+#### 6.2.1 BSSN formulation
+
+For numerical implementation, we write the evolution equations in the
+BSSN formulation, as introduced in section 4 . The evolution equations
+are those of ( 4.1.14 ) with source terms determined by ( 4.1.16 ) where
+the energy momentum tensor is given by equation ( 6.2.8 ). A
+straightforward computation shows that
+
+  -- -------- -------- -- -----------
+                          
+     @xmath               (6.2.23a)
+     @xmath               (6.2.23b)
+     @xmath   @xmath      (6.2.23c)
+  -- -------- -------- -- -----------
+
+where @xmath is the covariant derivative with respect to @xmath .
+
+Finally, the evolution equations for @xmath and @xmath are
+
+  -- -------- -------- -- -----------
+                          
+     @xmath   @xmath      (6.2.24a)
+     @xmath               (6.2.24b)
+  -- -------- -------- -- -----------
+
+As stated before, in the case of head-on collisions of spinless black
+holes the full symmetry of the @xmath -dimensional system we want to
+consider makes equations ( 6.2.24 ) redundant, by virtue of ( 6.2.3 ).
+This allows to determine the quasi-matter degree of freedom in terms of
+the three dimensional spatial geometry, at each time slice. The extra
+symmetry manifests itself in the fact that @xmath possesses, at all
+times, (at least) one Killing vector field. If one chooses coordinates
+adapted to this Killing vector field, @xmath , the metric can then be
+written in the form ( 6.2.2 ), and then the quasi-matter degree of
+freedom can be determined from the spatial geometry by ( 6.2.3 ). In the
+numerical implementation, one can either determine, at each time-step,
+the scalar field through ( 6.2.3 ), or impose ( 6.2.3 ) only in the
+initial data, and then evolve the scalar field using equation ( 6.2.24
+). We have implemented the latter method.
+
+### 6.3 Higher-dimensional initial data
+
+Having written our system of evolution equations, we now need to
+construct relevant initial data. Building on the results outlined in
+chapter 3 (based on [ Yoshino:2005ps , Yoshino:2006kc ] ), we now
+present a generalisation of the spectral solver in [ Ansorg:2004ds ]
+that generates initial data for black hole binaries in @xmath dimensions
+with non-vanishing initial boost [ Zilhao:2011yc ] .
+
+In this section we need to make some changes to our notation. Early
+lower case Latin indices @xmath will here extend from @xmath to @xmath ,
+late lower case Latin indices @xmath run from @xmath to @xmath and early
+upper case Latin indices @xmath from @xmath to @xmath .
+
+#### 6.3.1 Coordinate transformation
+
+We start by recalling, from chapter 3 that, for a system of boosted
+black holes, we can solve the momentum constraint equation ( 2.6.3d )
+analytically. It remains then to solve equation ( 3.2.35 ), which we
+re-write here:
+
+  -- -------- -- ---------
+     @xmath      (6.3.1)
+  -- -------- -- ---------
+
+The numerical solution of this equation will be our task in this
+section.
+
+First, it is convenient to transform to a coordinate system adapted to
+the generalised axial symmetry @xmath in @xmath dimensions and @xmath in
+@xmath dimensions as discussed in section 6.2 . For this purpose we
+consider the (flat) conformal spatial metric in cylindrical coordinates
+
+  -- -------- -- ---------
+     @xmath      (6.3.2)
+  -- -------- -- ---------
+
+where @xmath is the metric on the @xmath -sphere. Observe that @xmath is
+a polar rather than an azimuthal coordinate, i.e. @xmath . Next, we
+introduce “incomplete” Cartesian coordinates as
+
+  -- -------- -- ---------
+     @xmath      (6.3.3)
+  -- -------- -- ---------
+
+where @xmath and @xmath . The @xmath dimensional initial data for the
+spatial metric is then
+
+  -- -------- -- ---------
+     @xmath      (6.3.4)
+  -- -------- -- ---------
+
+We can transform the @xmath dimensional Cartesian coordinates @xmath to
+the coordinate system @xmath with hyperspherical coordinates @xmath by
+
+  -- -------- -- ---------
+     @xmath      (6.3.5)
+  -- -------- -- ---------
+
+Without loss of generality, we can always choose coordinates such that
+the black holes are initially located on the @xmath axis at @xmath and
+@xmath and have momenta of equal magnitude in opposite directions @xmath
+. Inserting the momenta into equation ( 3.2.23 ) then provides the
+conformal traceless extrinsic cuvature and the differential equation (
+6.3.1 ) which is solved numerically for @xmath .
+
+The class of symmetries covered by the formalism developed in this
+chapter includes head-on and grazing collisions of non-spinning black
+holes with initial position and momenta
+
+  -- -------- -- ---------
+     @xmath      
+     @xmath      (6.3.6)
+  -- -------- -- ---------
+
+Note that a non-zero @xmath is not compatible with the assumed
+symmetries. On the other hand, the @xmath -axis can always be oriented
+such that the collision takes place in the @xmath plane. Our formalism
+therefore covers general grazing collisions of non-spinning black hole
+binaries in @xmath dimensions.
+
+#### 6.3.2 Four dimensional initial data for a general @xmath head-on
+collision
+
+We will now discuss in detail the case of black holes with momenta in
+the @xmath direction, that is, the case given by setting @xmath in
+equation ( 6.3.6 ). The linear momenta are thus given by
+
+  -- -------- -- ---------
+     @xmath      (6.3.7)
+  -- -------- -- ---------
+
+The rescaled trace-free part of the extrinsic curvature for such a
+configuration is
+
+  -- -------- -- ---------
+     @xmath      (6.3.8)
+  -- -------- -- ---------
+
+where @xmath and @xmath are given by equation ( 3.2.23 ) with ( 6.3.6 )
+and ( 6.3.7 ). Using equation ( 6.3.5 ) we can write this in the
+coordinate system @xmath adapted to the spacetime symmetry:
+
+  -- -------- -- ---------
+     @xmath      (6.3.9)
+  -- -------- -- ---------
+
+with
+
+  -- -- -- ----------
+           (6.3.10)
+  -- -- -- ----------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (6.3.11)
+  -- -------- -- ----------
+
+where @xmath is the metric on the @xmath -sphere. The expression for
+@xmath is analogous, but with @xmath in place of @xmath and @xmath in
+place of @xmath in equation ( 6.3.9 ).
+
+We now need to re-express these quantities in terms of our @xmath
+quantities, @xmath , as introduced in the previous section. These are
+the variables evolved in time and therefore the variables we ultimately
+wish to construct from the initial data calculation. For their
+extraction we first note that @xmath , @xmath and @xmath are related to
+the @xmath -dimensional metric @xmath and extrinsic curvature @xmath by
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+     @xmath   @xmath      (6.3.12)
+     @xmath   @xmath      
+     @xmath   @xmath      (6.3.13)
+  -- -------- -------- -- ----------
+
+Using these relations and equation ( 6.2.4 ) we can express all “3+1”
+variables in terms of those describing the initial data
+
+  -- -------- -------- -------- ----------
+     @xmath   @xmath            (6.3.14)
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- ----------
+
+where
+
+  -- -------- -- ----------
+     @xmath      (6.3.15)
+  -- -------- -- ----------
+
+The conformal factor is
+
+  -- -------- -- ----------
+     @xmath      (6.3.16)
+  -- -------- -- ----------
+
+and @xmath is the solution of the equation
+
+  -- -------- -- ----------
+     @xmath      (6.3.17)
+  -- -------- -- ----------
+
+where
+
+  -- -------- -- ----------
+     @xmath      (6.3.18)
+  -- -------- -- ----------
+
+Our numerical construction of the function @xmath will be based on the
+spectral solver developed in [ Ansorg:2004ds ] . This solver employs
+coordinates specifically adapted to the asymptotic behaviour of @xmath
+at spatial infinity. In order to investigate this behaviour, we next
+consider a single black hole with non-zero linear momentum.
+
+#### 6.3.3 Single puncture with linear momentum
+
+For a single puncture with momentum @xmath located at the origin @xmath
+, equation ( 3.2.23 ) implies
+
+  -- -- -- ----------
+           (6.3.19)
+  -- -- -- ----------
+
+so that equation ( 6.3.17 ) takes the form
+
+  -- -------- -- ----------
+     @xmath      (6.3.20)
+  -- -------- -- ----------
+
+It turns out to be convenient for solving this differential equation to
+introduce a hyperspherical coordinate system on the @xmath dimensional
+spatial slices, such that the flat conformal metric is
+
+  -- -- --
+        
+  -- -- --
+
+with @xmath . We further introduce the radial coordinate
+
+  -- -------- -- ----------
+     @xmath      (6.3.21)
+  -- -------- -- ----------
+
+which reduces to the coordinate @xmath of equation (31) in [
+Ansorg:2004ds ] for the case of @xmath spacetime dimensions. Expressed
+in the new coordinate system, equation ( 6.3.20 ) becomes
+
+  -- -------- -- ----------
+     @xmath      (6.3.22)
+  -- -------- -- ----------
+
+with
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+For @xmath we recover equation (40) of [ Ansorg:2004ds ] . In order to
+study the behaviour of the solution at spatial infinity, we now perform
+a Taylor expansion in @xmath ,
+
+  -- -------- -- ----------
+     @xmath      (6.3.23)
+  -- -------- -- ----------
+
+Odd powers of @xmath have to vanish in order to satisfy equation (
+6.3.22 ). We have the following equation for @xmath
+
+  -- -------- -- ----------
+     @xmath      (6.3.24)
+  -- -------- -- ----------
+
+In order to solve equation ( 6.3.24 ), we make the ansatz
+
+  -- -------- -- ----------
+     @xmath      (6.3.25)
+  -- -------- -- ----------
+
+where @xmath . By solving equation ( 6.3.24 ), we find that the
+functions @xmath and @xmath take the form
+
+  -- -------- -- ----------
+     @xmath      (6.3.26)
+  -- -------- -- ----------
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      (6.3.27)
+  -- -------- -------- -- ----------
+
+where @xmath is the hypergeometric function and @xmath are constants to
+be fixed by imposing that @xmath and @xmath is smooth. Requiring
+analyticity at @xmath and using the property @xmath , we immediately
+find @xmath .
+
+We are now interested in the large @xmath limit. Therefore, we use the
+@xmath transformation law for the hypergeometric functions [ abramowitz
+] ,
+
+  -- -------- -- ----------
+     @xmath      (6.3.28)
+  -- -------- -- ----------
+
+Requiring a regular solution we find that @xmath has to satisfy
+
+  -- -------- -- ----------
+     @xmath      (6.3.29)
+  -- -------- -- ----------
+
+Let us write these functions explicitly for @xmath (for @xmath the
+hypergeometric function does not simplify):
+
+-   @xmath
+
+      -- -------- -------- -- ----------
+         @xmath   @xmath      (6.3.30)
+         @xmath   @xmath      (6.3.31)
+      -- -------- -------- -- ----------
+
+    These are equations (42–44) in [ Ansorg:2004ds ] , with appropriate
+    redefinitions.
+
+-   @xmath
+
+      -- -------- -------- -- ----------
+         @xmath   @xmath      (6.3.32)
+         @xmath   @xmath      (6.3.33)
+      -- -------- -------- -- ----------
+
+-   @xmath
+
+      -- -------- -------- -- ----------
+         @xmath   @xmath      (6.3.34)
+         @xmath   @xmath      
+                  @xmath      (6.3.35)
+      -- -------- -------- -- ----------
+
+Analysing these expressions, we can anticipate the convergence
+properties of the numerical solutions obtained in terms of
+pseudo-spectral methods. For instance, analyticity of @xmath and @xmath
+suggests exponential convergence. As will become clear in the next
+section, we are interested in the convergence properties in a coordinate
+@xmath behaving as @xmath , for large @xmath . We thus introduce a
+coordinate @xmath that satisfies
+
+  -- -------- -- ----------
+     @xmath      (6.3.36)
+  -- -------- -- ----------
+
+In terms of the @xmath coordinate, we find that the functions @xmath are
+analytical. For the function @xmath in the vicinity of @xmath , the
+leading terms behave as follows:
+
+-   @xmath
+
+      -- -------- -- ----------
+         @xmath      (6.3.37)
+      -- -------- -- ----------
+
+-   @xmath
+
+      -- -------- -- ----------
+         @xmath      (6.3.38)
+      -- -------- -- ----------
+
+-   @xmath
+
+      -- -------- -- ----------
+         @xmath      (6.3.39)
+      -- -------- -- ----------
+
+From the behaviour of the functions @xmath and @xmath and equation (
+6.3.25 ) we conclude that the first term in the expansion ( 6.3.23 ) has
+a leading-order behaviour @xmath as @xmath . Iteratively solving
+equation ( 6.3.22 ) for higher powers of @xmath is complicated by the
+presence of the source terms on the right hand side, but under
+simplifying assumptions indicates that higher-order terms @xmath acquire
+additional factors of @xmath and therefore the leading-order fall off
+behaviour is given correctly by that of @xmath . This result is
+confirmed by our numerical investigation using finite boost parameters
+as we shall discuss in the next section.
+
+With regard to the analyticity of the solutions and the resulting
+expectations for the convergence properties of a spectral algorithm, we
+summarise the results of our analytical study of a single puncture as
+follows. In @xmath , the leading terms are analytic functions in the
+vicinity of @xmath . Actually, for @xmath , @xmath is analytic in the
+vicinity of any point. Therefore, we expect exponential convergence of
+the pseudo-spectral code. For @xmath , one observes the presence of a
+logarithmic term. This type of term is known to arise in @xmath , when
+punctures have non-vanishing momenta [ Dain:2001ry , Gleiser:1999hw ]
+and in that case their presence makes the convergence algebraic in the
+single puncture case. In the next section we shall investigate the
+impact of the logarithmic terms on the convergence properties of our
+spectral solver.
+
+#### 6.3.4 Two punctures with linear momentum
+
+##### Code changes
+
+We first explicitly list the modifications applied to the spectral
+solver of reference [ Ansorg:2004ds ] and demonstrate how these
+modifications enable us to generate initial data for boosted black hole
+binaries with convergence properties and levels of constraint violation
+similar to the @xmath case. For this purpose we start by recalling that
+the spectral solver of [ Ansorg:2004ds ] employs coordinates
+
+  -- -------- -- ----------
+     @xmath      (6.3.40)
+  -- -------- -- ----------
+
+which are defined by equation (62) of [ Ansorg:2004ds ] ,
+
+  -- -------- -- ----------
+     @xmath      (6.3.41)
+  -- -------- -- ----------
+
+where @xmath is half of the coordinate distance between the punctures.
+In particular, the coordinate @xmath satisfies
+
+  -- -------- -- ----------
+     @xmath      (6.3.42)
+  -- -------- -- ----------
+
+The first modification consist in adapting the source term and Laplace
+operator according to ( 6.3.17 ).
+
+Next, we note that the type of high-energy collisions which form the
+main motivation for this work often start from relatively large initial
+separations of the holes, @xmath . In order to obtain high-precision
+solutions for such binary configurations, we found it crucial to
+introduce a coordinate @xmath defined as
+
+  -- -------- -- ----------
+     @xmath      (6.3.43)
+  -- -------- -- ----------
+
+where @xmath is an adjustable free parameter. Note that for @xmath we
+obtain @xmath For @xmath , however, the new coordinate @xmath provides
+the spectral method with enhanced resolution near @xmath .
+
+A further modification is related to the asymptotic fall off of the
+function @xmath as obtained in the previous section,
+
+  -- -------- -- ----------
+     @xmath      (6.3.44)
+  -- -------- -- ----------
+
+To naturally accommodate this behaviour with the spectral coordinates
+used in the code, we have changed the variable @xmath of equation (5) in
+[ Ansorg:2004ds ] to
+
+  -- -------- -- ----------
+     @xmath      (6.3.45)
+  -- -------- -- ----------
+
+Note that this @xmath variable is the variable that the code actually
+solves for.
+
+Finally, we adjust the calculation of the ADM mass from the numerical
+solution. For this purpose, we note that, asymptotically
+
+  -- -------- -- ----------
+     @xmath      (6.3.46)
+  -- -------- -- ----------
+
+with @xmath and @xmath . The ADM mass is then obtained from
+
+  -- -------- -------- -- ----------
+     @xmath   @xmath      
+              @xmath      (6.3.47)
+  -- -------- -------- -- ----------
+
+where we have used equation (62) of [ Ansorg:2004ds ] , and equation (
+6.3.43 ) and ( 6.3.45 ). We show in table 6.1 the values obtained for
+the ADM mass of some cases we considered.
+
+##### Results
+
+We now study the numerical results as obtained for @xmath with these
+adaptations of the spectral solver of [ Ansorg:2004ds ] . Throughout the
+remainder of this section we will graphically present results in units
+of the “bare” Schwarzschild radius defined as @xmath .
+
+We first address the convergence properties of the numerical algorithm
+by evaluating the quantity
+
+  -- -------- -- ----------
+     @xmath      (6.3.48)
+  -- -------- -- ----------
+
+where the maximum is obtained along the collision axis, i.e. @xmath
+-axis in our case. Here, the index @xmath refers to a reference solution
+obtained using a large number @xmath of grid points while @xmath denotes
+test solutions using a coarser resolution, @xmath . The result obtained
+for black hole binaries with initial separation @xmath and boost @xmath
+in @xmath , @xmath , @xmath and @xmath dimensions is displayed in figure
+6.2 . We note from this figure, that achieving a given target accuracy
+@xmath requires a larger number of points @xmath as @xmath increases. We
+emphasise in this context, however, that this increase in computational
+cost in higher dimensions is unlikely to significantly affect the total
+computational cost of the simulations which typically are dominated by
+the time evolution rather than the initial data calculation. Most
+importantly, we observe exponential convergence up to a level of @xmath
+for all values of the spacetime dimensionality @xmath . Below that
+level, the two leftmost curves in figure 6.2 , corresponding to @xmath
+and @xmath , respectively, show that the rate of convergence decreases
+indicating that the logarithmic terms become significant and reduce the
+convergence to algebraic level similar to the observation in figure 4 of
+reference [ Ansorg:2004ds ] . For @xmath , the convergence remains
+exponential, in agreement with the absence of logarithmic terms in the
+analysis of section 6.3.3 . Irrespective of a change to algebraic
+convergence, however, our algorithm is capable of reducing the quantity
+@xmath for all values of @xmath to a level comparable to the case @xmath
+and, thus, producing initial data of similar quality as in 3+1
+dimensions, provided we use a sufficiently high resolution @xmath .
+
+For illustration, we plot in figure 6.3 the function @xmath obtained for
+the case of @xmath , @xmath . The behaviour is qualitatively similar for
+all values of @xmath , but the figure demonstrates the faster fall off
+for larger @xmath as predicted by ( 6.3.44 ). For this plot we have used
+@xmath , @xmath and @xmath grid points. The inset in the figure shows
+the function @xmath in the immediate vicinity of the puncture. While the
+profile develops multiple extrema for @xmath , the profile remains
+smooth for all values of @xmath .
+
+Finally, we show in figure 6.4 , the Hamiltonian constraint
+corresponding to the solutions presented in figure 6.3 as measured by a
+fourth-order finite differencing scheme of the Lean evolution code
+(section 4.3 and reference [ Sperhake:2006cy ] ). We emphasise that the
+violation of equation ( 6.3.1 ) inside the spectral initial data solver
+is @xmath by construction. The independent evaluation of the constraint
+violation in the evolution code serves two purposes. First, it checks
+that the differential equation ( 6.3.1 ) solved by the spectral method
+corresponds to the Hamiltonian constraint formulated in ADM variables;
+an error in coding up the differential equation ( 6.3.1 ) could still
+result in a solution for @xmath of the spectral solver, but would
+manifest itself in significantly larger violations in figure 6.4 .
+Second, it demonstrates that the remaining numerical error is dominated
+by the time evolution instead of the initial solver. Note in this
+context that the relatively large violations of order unity near the
+puncture location in figure 6.4 are an artifact of the fourth-order
+discretisation in the diagnostics of the evolution code and are typical
+for evolutions of the moving-puncture type; see e.g. the right panel in
+figure 8 in Brown et al. [ Brown:2008sb ] .
+
+The solid (blue) curve obtained for the “standard” @xmath case serves as
+reference. For all values of @xmath the constraint violations are
+maximal at the puncture location @xmath and rapidly decrease away from
+the puncture. As expected from the higher fall off rate of the grid
+functions for larger @xmath , the constraints also drop faster for
+higher dimensionality of the spacetime.
+
+### 6.4 Numerical evolutions
+
+Having established that our initial data code is working, we will now
+show some numerical results, obtained by adapting the Lean code
+introduced in section 4.3 . In this section we will begin by briefly
+commenting on numerical issues generated by the quasi-matter terms
+arising from the dimensional reduction. We then present some code tests
+and results.
+
+From the initial data construction of section 6.3 , we see that the
+quasi-matter field @xmath has a @xmath fall off as @xmath , that is, on
+the @xmath plane (cf. ( 6.3.14 )). From ( 6.2.23 ), we see that this
+leads to divisions by zero on the right-hand side of the BSSN evolution
+equations; thus, we need to isolate such irregular terms and re-write
+the equations in terms of variables which are explicitly regular at
+@xmath . In this spirit, we introduce the following evolution variable
+
+  -- -------- -- ---------
+     @xmath      (6.4.1)
+  -- -------- -- ---------
+
+and corresponding auxiliary variable
+
+  -- -------- -- ---------
+     @xmath      (6.4.2)
+  -- -------- -- ---------
+
+The full quasi-matter terms and evolution equations in terms of these
+regular variables can be found in Appendices A and B of [ Zilhao:2010sr
+] . Here we note only that, with the above definition, we have the
+relation
+
+  -- -------- -- ---------
+     @xmath      (6.4.3)
+  -- -------- -- ---------
+
+Finally, for long term evolutions, we employed the following gauge
+conditions, which are generalisations of conditions ( 4.2.3 ), ( 4.2.6 )
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      (6.4.4)
+     @xmath   @xmath      (6.4.5)
+  -- -------- -------- -- ---------
+
+Note the extra term involving @xmath in the slicing condition compared
+with standard moving puncture gauge in @xmath dimensions and the
+additional freedom we have introduced in the form of the parameters
+@xmath and @xmath .
+
+#### 6.4.1 Code tests
+
+##### Geodesic slicing
+
+As a first test of our numerical implementation, we have numerically
+evolved a single @xmath Tangherlini black hole in the so-called geodesic
+slicing , which corresponds to fixing the gauge parameters to ( 4.2.1 )
+throughout the evolution. Such a gauge choice is not adequate to perform
+long term numerical evolutions. The advantage of this choice, though, is
+that one can easily write the Tangherlini metric element in this
+coordinate system, which we can then match against the numerically
+obtained solutions [ Yoshino:2009xp ] . This coordinate system may be
+achieved by setting a congruence of in-falling radial time-like
+geodesics, each geodesic starting from rest at radial coordinate @xmath
+, with @xmath spanning the interval @xmath , and using their proper time
+@xmath and @xmath as coordinates (instead of the standard @xmath ,
+@xmath Schwarzschild-like coordinates). The line element becomes
+
+  -- -------- -- ---------
+     @xmath      (6.4.6)
+  -- -------- -- ---------
+
+where @xmath is given by
+
+  -- -------- -- ---------
+     @xmath      (6.4.7)
+  -- -------- -- ---------
+
+Before the breaking down of the numerical evolution, we can compare our
+numerical results with the above metric element. This is shown in figure
+6.5 , where we have plotted one metric component @xmath along the @xmath
+axis (left) and @xmath (right), for various values of @xmath using both
+the analytical solution and numerical data. The agreement is excellent
+for @xmath and good for @xmath . The latter shows some deviations very
+close to the puncture, but we believe that it is not a problem for two
+reasons: (i) the agreement improves for higher resolution; (ii) the
+mismatch does not propagate outside of the horizon.
+
+##### Single black hole evolution
+
+To further test our numerical framework, we have performed long term
+simulations of a single black hole in @xmath using the gauge conditions
+in ( 6.4.4 ) and ( 6.4.5 ), the initial data from equations ( 6.3.14 )
+(with @xmath ) and grid setup (cf. section 4.3 )
+
+  -- -- --
+        
+  -- -- --
+
+in units of @xmath with resolutions @xmath and @xmath . In figure 6.6 we
+show the Hamiltonian constraint and the @xmath component of the momentum
+constraint at evolution time @xmath . For the Hamiltonian constraint the
+convergence is essentially 4th order; for the momentum constraint it
+decreases towards 2nd or 3rd order in patches.
+
+##### Head-on collision
+
+Finally, we tested the code capability to evolve a head-on collision
+from rest. Using again the initial conditions ( 6.3.14 ) with @xmath ,
+we let two black holes with parameters
+
+  -- -------- -- ---------
+     @xmath      (6.4.8)
+     @xmath      (6.4.9)
+  -- -------- -- ---------
+
+collide from rest, using the grid setup
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+in units of @xmath . The gauge variables @xmath and @xmath were evolved
+according to equations ( 6.4.4 ) and ( 6.4.5 ) with parameters @xmath
+and @xmath .
+
+In figure 6.7 we show the conformal factor @xmath and the momentum
+@xmath along the axis of collision at various times for such an
+evolution. At early times, the evolution is dominated by the adjustment
+of the gauge (cf. the solid and short-dashed curves). The two holes next
+start approaching each other (long-dashed and dotted curves) and
+eventually merge and settle down into a single stationary hole
+(dash-dotted curves). No signs of instabilities were observed.
+
+#### 6.4.2 Head-on collisions
+
+Having established, in the previous section, that our numerical
+implementation does work (for the five dimensional case) we will now
+present some results.
+
+Since the final result of a head-on collision of two @xmath dimensional,
+non-spinning black holes approaches, at late times, a @xmath dimensional
+Schwarzschild (i.e. Tangherlini) black hole, we can make use of the
+Kodama-Ishibashi formalism, presented in section 5.1.2 to extract the
+gravitational wave information. Our remaining task is then to obtain the
+relevant gauge-invariant quantities from our numerical data. We will
+give here the main steps for this procedure; the full details can be
+found in reference [ Witek:2010xi ] .
+
+##### Coordinate frames
+
+In the approach developed in section 6.2 , we perform a dimensional
+reduction by isometry on the @xmath -sphere @xmath , in such a way that
+the @xmath dimensional vacuum Einstein equations are rewritten as an
+effective @xmath dimensional time evolution problem with source terms
+that involve a scalar field. We focus here on @xmath dimensional
+spacetimes with @xmath isometry group, which allows us to model head-on
+collisions of non-spinning black holes; we dub hereafter these
+spacetimes as axially symmetric . Although the corresponding symmetry
+manifold is the @xmath -sphere @xmath , the quotient manifold in our
+dimensional reduction is its submanifold @xmath . The coordinate frame
+in which the numerical simulations are performed is
+
+  -- -------- -- ----------
+     @xmath      (6.4.10)
+  -- -------- -- ----------
+
+where the angles @xmath describe the quotient manifold @xmath and do not
+appear explicitly in the simulations. Here, @xmath is the symmetry axis,
+i.e. the collision line.
+
+Recall that in the frame ( 6.4.10 ), the spacetime metric has the form
+(cf. equation ( 6.2.4 ))
+
+  -- -------- -- ----------
+     @xmath      (6.4.11)
+  -- -------- -- ----------
+
+Also recall, from equations ( 6.2.2 ) and ( 6.2.3 ), that with an
+appropriate transformation of the four dimensional coordinates @xmath ,
+the residual symmetry left after the dimensional reduction on @xmath can
+be made manifest: @xmath ( @xmath ),
+
+  -- -------- -- ----------
+     @xmath      (6.4.12)
+  -- -------- -- ----------
+
+and
+
+  -- -------- -- ----------
+     @xmath      (6.4.13)
+  -- -------- -- ----------
+
+so that equation ( 6.4.11 ) takes the form @xmath .
+
+To extract the gravitational waves with the KI formalism, spacetime,
+away from the black holes, is required to be approximately spherically
+symmetric. In @xmath dimensions this means symmetry with respect to
+rotations on @xmath , which is manifest in the coordinate frame:
+
+  -- -------- -- ----------
+     @xmath      (6.4.14)
+  -- -------- -- ----------
+
+Note that @xmath and that we have introduced polar-like coordinates
+@xmath to “build up” the manifold @xmath in the background, together
+with a radial spherical coordinate @xmath , which is the areal
+coordinate in the background.
+
+The coordinate frame ( 6.4.14 ) is defined in such a way that the metric
+can be expressed as a stationary background @xmath (i.e., the
+Tangherlini metric) plus a perturbation @xmath which decays faster than
+@xmath for large @xmath , and the formalism from section 5.1.2 can thus
+be applied [ Witek:2010xi ] .
+
+##### Implementation of axisymmetry
+
+In an axially symmetric spacetime, the metric perturbations are
+symmetric with respect to @xmath . Therefore, the harmonics in the
+expansion of @xmath depend only on the angle @xmath (which does not
+belong to @xmath ). Furthermore, since there are no off-diagonal terms
+in the metric, the only non-vanishing @xmath components are @xmath ; the
+only components @xmath are either proportional to @xmath , or all
+vanishing but @xmath . This implies that only scalar spherical harmonics
+can appear in the expansion of the metric perturbations. Indeed, if
+
+  -- -------- -- ----------
+     @xmath      (6.4.15)
+  -- -------- -- ----------
+
+then equation ( 5.1.35 ) gives
+
+  -- -------- -- ----------
+     @xmath      (6.4.16)
+  -- -------- -- ----------
+
+Similarly, from equation ( 5.1.32 ) we obtain @xmath .
+
+The scalar harmonics, solutions of equation ( 5.1.38 ) and which depend
+only on the coordinate @xmath , are given by the Gegenbauer polynomials
+@xmath , as discussed in references [ Berti:2003si , Cardoso:2002ay ,
+Yoshino:2005ps ] ; writing explicitly the index @xmath , they take the
+form
+
+  -- -------- -- ----------
+     @xmath      (6.4.17)
+  -- -------- -- ----------
+
+where the normalization @xmath is chosen such that
+
+  -- -------- -- ----------
+     @xmath      (6.4.18)
+  -- -------- -- ----------
+
+and @xmath .
+
+Metric perturbations, and corresponding gauge-invariant functions, can
+then be computed in terms of these functions [ Witek:2010xi ] .
+
+##### Extracting gravitational waves
+
+In the KI framework, the emitted gravitational waves are described by
+the master function @xmath , cf. section 5.1.2 . We can compute directly
+@xmath with [ Kodama:2003jz , Witek:2010xi ] ¹ ¹ 1 Note that there is a
+factor @xmath missing in equation (3.15) of reference [ Kodama:2003jz ]
+.
+
+  -- -------- -- ----------
+     @xmath      (6.4.19)
+  -- -------- -- ----------
+
+where @xmath . The energy flux can then be computed from expressions (
+5.1.45 ), ( 5.1.46 ).
+
+#### 6.4.3 Head-on collision from rest in @xmath
+
+Having introduced and tested our formalism and numerical code, we now
+present results obtained for head-on collisions of five-dimensional
+black holes. The black holes collide from rest, with initial coordinate
+separation @xmath . Note that in five spacetime dimensions the
+Schwarzschild radius is related to the ADM mass @xmath via
+
+  -- -------- -- ----------
+     @xmath      (6.4.20)
+  -- -------- -- ----------
+
+We therefore define the “total” Schwarzschild radius @xmath such that
+@xmath . By using this definition, @xmath has physical dimension of
+length and provides a suitable unit for measuring both results and grid
+setup.
+
+As summarised in table 6.2 , we consider a sequence of binaries with
+initial coordinate separation ranging from @xmath to @xmath . The table
+further lists the proper separation @xmath along the line of sight
+between the holes and the grid configurations used for the individual
+simulations.
+
+##### Newtonian collision time
+
+An estimate of the time at which the black holes “collide” can be
+obtained by considering a Newtonian approximation of two point particles
+in @xmath . The Newtonian time it takes for two point-masses (with
+Schwarzschild parameters @xmath and @xmath ) to collide from rest with
+initial distance @xmath in @xmath dimensions is given by
+
+  -- -------- -- ----------
+     @xmath      (6.4.21)
+  -- -------- -- ----------
+
+where @xmath and
+
+  -- -------- -- ----------
+     @xmath      (6.4.22)
+  -- -------- -- ----------
+
+For @xmath , one recovers the standard result @xmath whereas for @xmath
+we get
+
+  -- -------- -- ----------
+     @xmath      (6.4.23)
+  -- -------- -- ----------
+
+In general relativity, black hole trajectories and merger times are
+intrinsically observer dependent quantities. For our comparison with
+Newtonian estimates we have chosen relativistic trajectories as viewed
+by observers adapted to the numerical coordinate system. While the lack
+of fundamentally gauge invariant analogues in general relativity
+prevents us from deriving rigorous conclusions, we believe such a
+comparison to serve the intuitive interpretation of results obtained
+within the “moving puncture” gauge. Bearing in mind these caveats, we
+plot in figure 6.8 the analytical estimate of the Newtonian time of
+collision, together with the numerically computed time of formation of a
+common apparent horizon. Also shown in the figure is the time at which
+the separation between the individual hole’s puncture trajectory
+decreases below the Schwarzschild parameter @xmath .
+
+The remarkable agreement provides yet another example of how well
+numerically successful gauge conditions appear to be adapted to the
+black hole kinematics.
+
+##### Waveforms
+
+Let us now discuss the gravitational wave signal, extracted with the KI
+formalism, generated by the head-on collision of two black holes in five
+dimensions.
+
+In figure 6.9 , the @xmath multipole of the KI function @xmath for model
+HD5e obtained at different extraction radii is plotted. A small spurious
+wavepulse due to the initial data construction is visible at @xmath ,
+the so-called “junk radiation”. The physical part of the waveform is
+dominated by the merger signal around @xmath , followed by the
+(exponentially damped) ringdown, whereas the infall of the holes before
+@xmath does not produce a significant amount of gravitational waves.
+Comparison of the waveforms extracted at different radii demonstrates
+excellent agreement, in particular for those extracted at @xmath and
+@xmath . Extrapolation of the radiated energy to infinite extraction
+radius yield a relative error of 5 % at @xmath , indicating that such
+radii are adequate for the analysis presented in this work.
+
+Due to symmetry, no gravitational waves are emitted in the @xmath
+multipole, so that @xmath represents the second strongest contribution
+to the wave signal. As demonstrated in the right panel of figure 6.9 ,
+however, its amplitude is two orders of magnitude below that of the
+quadrupole.
+
+In order to assess how accurately we are thus able to approximate an
+infall from infinity, we have varied the initial separation for models
+HD5a to HD5f as summarised in table 6.2 . As demonstrated in figure 6.10
+, for models HD5e and HD5f we can safely neglect the spurious radiation
+as well as the impact of a finite initial separation, provided we use a
+sufficiently large initial distance @xmath of the binary. Here, we
+compare the radiation emitted during the head-on collision of black
+holes starting from rest with initial separations @xmath and @xmath .
+The waveforms have been shifted in time by the extraction radius @xmath
+and such that the formation of a common apparent horizon occurs at
+@xmath . The merger signal starting around @xmath shows excellent
+agreement for the two configurations and is not affected by the spurious
+signal visible for HD5e at @xmath .
+
+We conclude this discussion with an analysis of the ringdown. After
+formation of a common horizon, the waveform is dominated by an
+exponentially damped sinusoid, as the merged hole rings down into a
+stationary state. By fitting our results with an exponentially-damped
+sinusoid, we obtain a characteristic frequency
+
+  -- -------- -- ----------
+     @xmath      (6.4.24)
+  -- -------- -- ----------
+
+This value is in excellent agreement with perturbative calculations,
+which predict a lowest quasinormal frequency @xmath for @xmath [
+Cardoso:2003qd , Yoshino:2005ps , Berti:2009kk ] .
+
+##### Radiated energy
+
+We now compute the energy flux from the KI master function via
+equation ( 5.1.45 ). The fluxes thus obtained for the @xmath multipole
+of models HD5e and HD5f in table 6.2 , extracted at @xmath , are shown
+in figure 6.11 . As in the case of the KI master function in figure 6.10
+, we see no significant variation of the flux for the two different
+initial separations. The flux reaches a maximum value of @xmath , and is
+then dominated by the ringdown flux. The energy flux from the @xmath
+mode is typically four orders of magnitude smaller; this is consistent
+with the factor of 100 difference of the corresponding wave multipoles
+observed in figure 6.9 , and the quadratic dependence of the flux on the
+wave amplitude. Integrating, we find that a fraction of @xmath of the
+centre of mass energy is emitted in the form of gravitational radiation.
+We have verified for these models that the amount of energy contained in
+the spurious radiation is about three orders of magnitude smaller than
+in the physical merger signal.
+
+### 6.5 Discussion
+
+In this chapter we have presented a framework that allows the
+generalisation of the present generation of 3+1 numerical codes to
+evolve, with relatively minor modifications, spacetimes with @xmath
+symmetry in @xmath dimensions and @xmath symmetry in @xmath dimensions.

@@ -1,0 +1,4242 @@
+##### Contents
+
+-    1 Introduction
+    -    1.1 Background
+    -    1.2 Key Agreement in Information Theory
+    -    1.3 Unique Property of Quantum Key Distribution
+    -    1.4 Summary
+-    2 Preliminaries
+    -    2.1 Elements of Classical and Quantum Information Theory
+        -    2.1.1 Probability Distribution and Density Operator
+        -    2.1.2 Distance and Fidelity
+        -    2.1.3 Entropy and its Related Quantities
+        -    2.1.4 Bloch Sphere, Choi Operator, and Stokes
+            Parameterization
+    -    2.2 Privacy Amplification
+        -    2.2.1 Min- and Max- Entropy
+        -    2.2.2 Privacy Amplification
+-    3 Channel Estimation
+    -    3.1 Background
+    -    3.2 BB84 and Six-State Protocol
+    -    3.3 One-Way Information Reconciliation
+    -    3.4 Channel Estimation and Asymptotic Key Generation Rate
+        -    3.4.1 Channel Estimation Procedure
+        -    3.4.2 Sufficient Condition on Key Generation Rates for
+            Secure Key Agreement
+        -    3.4.3 Asymptotic Key Generation Rate of The Six-State
+            Protocol
+        -    3.4.4 Asymptotic Key Generation Rate of The BB84 Protocol
+    -    3.5 Comparison to Conventional Estimation
+        -    3.5.1 Six-State Protocol
+        -    3.5.2 BB84 Protocol
+    -    3.6 Asymptotic Key Generation Rates for Specific Channels
+        -    3.6.1 Amplitude Damping Channel
+        -    3.6.2 Unital Channel and Rotation Channel
+    -    3.7 Condition for Strict Improvement
+    -    3.8 Summary
+-    4 Postprocessing
+    -    4.1 Background
+    -    4.2 Advantage Distillation
+    -    4.3 Two-Way Information Reconciliation
+    -    4.4 Security and Asymptotic Key Generation Rate
+        -    4.4.1 Sufficient Condition on Key Generation Rate for
+            Secure Key Agreement
+        -    4.4.2 Asymptotic Key Generation Rates
+    -    4.5 Comparison of Asymptotic Key Generation Rates for Specific
+        Channels
+        -    4.5.1 Pauli Channel
+        -    4.5.2 Unital Channel
+        -    4.5.3 Amplitude Damping Channel
+    -    4.6 Relation to Entanglement Distillation Protocol
+    -    4.7 Summary
+-    5 Conclusion
+-    A Notations
+-    B Publications Related to This Thesis
+
+## Chapter 1 Introduction
+
+### 1.1 Background
+
+Key distribution is one of the most important and challenging problem in
+cryptology. When a sender wants to transmit a confidential message to a
+receiver, the sender usually encipher the message by using a secret key
+that is only available to the sender and the receiver. For a long time,
+many methods have been proposed to solve the key distribution problem.
+One of the most broadly used method in the present day is a method whose
+security is based on difficulties to solve some mathematical problems,
+such as factorization into prime numbers. Such kind of method is
+believed to be practically secure, but it has not been proved to be
+unconditionally secure; there might exist some clever algorithm to solve
+those mathematical problems efficiently. On the other hand, quantum key
+distribution (QKD), which is the main theme of this thesis, has
+attracted the attention of many researchers, for the reason that its
+security is based on principles of the quantum mechanics. In other word,
+the QKD is secure as long as the quantum mechanics is correct.
+
+The concept of the quantum cryptography was proposed by Wiesner in
+1970s. Unfortunately, his paper was rejected by a journal, and was not
+published until 1983 [ Wie83 ] ¹ ¹ 1 For more detailed history on the
+quantum cryptography, see Brassard’s review article [ Bra05 ] . . In
+1980s, the quantum cryptography was revived by Bennett et al . in a
+series of papers [ BBBW82 , BB83 , BB84b , BB84a ] . Especially, the
+quantum key distribution first appeared in Bennett and Brassard’s one
+page proceedings paper [ BB83 ] presented at a conference, although it
+is more commonly known as BB84 from its 1984 full publication [ BB84a ]
+.
+
+At first, the security of the BB84 protocol was guaranteed only in the
+ideal situation such that the channel between the sender and receiver is
+noiseless. Later, Bennett et al . proposed modified protocols to handle
+the case in which the channel between the sender and the receiver is not
+necessarily noiseless [ BB89 , BBB @xmath 92 ] . During the course of
+their struggle against the problem, many important concepts such as the
+information reconciliation and the privacy amplification, which are
+explained in detail later, were proposed [ BBR85 , BBR88 ] . Finally ,
+Mayers proposed his version of the BB84 protocol, and showed its
+unconditional security [ May01 ] (preliminary versions of his proof were
+published in [ May95 , May96 ] ). Biham et al . also proposed their
+version of the BB84 protocol and showed its unconditional security [ BBB
+@xmath 00 , BBB @xmath 06 ] .
+
+In 2000, Shor an Preskill made a remarkable observation on Mayer’s
+security proof of the BB84 protocol [ SP00 ] . They observed that the
+entanglement distillation protocol (EDP) [ BBP @xmath 96 , LC99 ] with
+the CSS code, one of the quantum error correcting codes proposed by
+Calderbank, Shor, and Stean [ CS96 , Ste96 ] , is implicitly used in
+Mayer’s version of the BB84 protocol, and presented a simple proof of
+Mayer’s version of the BB84 protocol. Their proof technique based on the
+CSS code is further extended to some directions. For example, Lo [ Lo01
+] proved the security of another QKD protocol, the six state protocol
+proposed by Bruß [ Bru98 ] , by using the technique based on the CSS
+code.
+
+Recently, Renner et al . [ RGK05 , Ren05 , KGR05 ] developed information
+theoretical techniques to prove the security of the QKD protocols
+including the BB84 protocol and the six-state protocol ² ² 2 Throughout
+this thesis, we only treat the BB84 protocol and the six-state protocol,
+and we mean these two protocols by the QKD protocols. . Their proof
+method provides important insight into the security proof of the QKD
+protocols. More precisely, they proved the security of the QKD protocols
+by extending the key agreement in the information theory [ Mau93 , AC93
+] , which will be explained in the next section, to the context of the
+QKD protocols.
+
+In this thesis, we employ Renner et al .’s approach for the security
+proof of the QKD protocols instead of Shor and Preskill’s approach.
+Then, we investigate two important phases, the channel estimation and
+the postprocessing, of the QKD protocols.
+
+The QKD protocol roughly consists of three phases: the bit transmission
+phase, the channel estimation phase, and the postprocessing phase. In
+the bit transmission phase, the legitimate sender, usually referred to
+as Alice sends a bit sequence to the legitimate receiver, usually
+referred to as Bob, by encoding them into quantum carrier (eg.
+polarizations of photons). The channel estimation phase will be
+explained in Section 1.3 . In the postprocessing phase, Alice and Bob
+share a secret key based on their bit sequences obtained in the bit
+transmission phase. The postprocessing phase can be essentially regarded
+as the key agreement problem in the information theory, which will be
+explained in the next section.
+
+### 1.2 Key Agreement in Information Theory
+
+Following Shannon’s mathematical formulation of the cryptography [ Sha48
+] and the studies on confidential message transmissions over noisy
+channels by Wyner [ Wyn75 ] and Csisźar and Körner [ CK79 ] , the
+problem of the key agreement in the information theory was formulated by
+Maurer [ Mau93 ] , and was also studied by Ahlswede and Csisźar [ AC93 ]
+.
+
+In Maurer’s formulation Alice and Bob have sequences of independently
+identically distributed (i.i.d.) correlated binary ³ ³ 3 Actually, the
+formulation in [ Mau93 , AC93 ] is not restricted to binary random
+variables. However, we restrict our attention to the binary case because
+Alice and Bob obtain binary sequences in the QKD protocols (refer to
+Section 1.3 ). random variables @xmath and @xmath respectively, and the
+eavesdropper, usually referred to as Eve, has a sequence of i.i.d.
+random variables @xmath , which are regarded as the information she
+obtained by eavesdropping @xmath and @xmath . They conduct a
+postprocessing ⁴ ⁴ 4 The postprocessing is a QKD jargon that means a
+procedure to distill a secret key from Alice and Bob’s bit sequences.
+procedure and share a secret key by using the pair of bit sequence
+@xmath as a seed.
+
+In the postprocessing procedure, Alice and Bob are allowed to exchange
+messages over the authenticated public channel, that is, Eve can know
+every message transmitted over this channel but she cannot tamper or
+forge a message. Actually, the authenticated public channel can be
+realized if Alice and Bob initially share a short secret key [ Sti91 ] ⁵
+⁵ 5 For this reason, it might be more appropriate to call the procedure
+the key expansion rather than the key agreement . . In the rest of this
+thesis, we assume that the public channel is always authenticated though
+we do not mention it explicitly.
+
+The communication over the public channel in the postprocessing
+procedure may be one-way (from Alice to Bob ⁶ ⁶ 6 The message
+transmission can be from Bob to Alice, which case will be treated in
+Chapter 3 . ) or two-way. The most elementary postprocessing procedure
+is a procedure with one-way public communication, and it consists of two
+procedures, the information reconciliation procedure and the privacy
+amplification procedure.
+
+The purpose of the information reconciliation procedure for Alice and
+Bob is to agree on a bit sequence from their correlated bit sequences.
+This procedure is nothing but the Slepian-Wolf coding scheme [ SW73 ] ⁷
+⁷ 7 Actually, the procedures proposed in [ Mau93 , AC93 ] do not use the
+Slepian-Wolf coding scheme. The Slepian-Wolf coding scheme in the
+context of the key agreement was first used by Muramatsu [ Mur06 ]
+explicitly, although it was already used in cryptography community
+implicitly (for example in [ MW00 ] ). . In this scheme, Alice sends the
+compressed version @xmath (say @xmath bit data) of @xmath to Bob. Then,
+Bob reproduce @xmath by using his bit sequence @xmath and the received
+data @xmath . It is well known that Bob can reproduce Alice’s bit
+sequence with negligible error probability if Alice sends appropriate
+@xmath bits data.
+
+The purpose of the privacy amplification procedure for Alice and Bob is
+to distill secret keys from their bit sequences shared in the
+information reconciliation procedure. More specifically, Alice and Bob
+distill @xmath bits (usually much shorter than @xmath bit) secret key by
+using appropriate function from @xmath bit to @xmath bit. We require the
+secret keys to be information theoretically secure, i.e., the distilled
+key is uniformly distributed and statistically independent from Eve’s
+available information @xmath and @xmath .
+
+Since the pair of bit sequences initially shared by Alice and Bob are
+considered as a precious resource ⁸ ⁸ 8 Actually, Alice and Bob’s
+initial bit sequences are shared by transmitting photons in the QKD
+protocols, and the transmission rate of the photon is usually very slow
+compared to the transmission rate of the public channel. , we desire the
+key generation rate @xmath to be as large as possible. Especially in
+this paper, we investigate the asymptotic behavior of the key generation
+rate, asymptotic key generation rate , such that the secure key
+agreement is possible. Roughly speaking ⁹ ⁹ 9 If Alice conducts a
+preprocessing before the information reconciliation procedure, then the
+condition in Eq. ( 1.1 ) can be slightly generalized as
+
+@xmath
+
+where @xmath and @xmath are auxiliary random variables such that @xmath
+, @xmath , @xmath , and @xmath form a Markov chain in this order.
+Although the meaning of the auxiliary random variables have been unclear
+for a long time, recently Renner et al . clarified the meaning of @xmath
+as the noisy preprocessing in the context of QKD protocol [ RGK05 ] (see
+also Remark 3.4.6 ). , the secure key can be distilled if the key
+generation rate is smaller than Eve’s ambiguity (per bit) about the bit
+sequence after the information reconciliation, that is,
+
+  -- -------- -- -------
+     @xmath      (1.1)
+  -- -------- -- -------
+
+In [ Mau93 ] , Maurer also proposed a postprocessing procedure with
+two-way public communication. More specifically, he proposed a
+preprocessing called advantage distillation that is conducted before the
+information reconciliation procedure. In the advantage distillation,
+Alice divides her bit sequence into blocks of length @xmath , and sends
+the parity @xmath of each block to Bob. Bob also divides his bit
+sequence into blocks of length @xmath , and tells Alice whether the
+received parity of the @xmath th block coincides with Bob’s
+corresponding parity @xmath . If their corresponding parities coincide,
+they keep the second bits of those blocks, which are regarded to have
+strong correlation. Otherwise, they discard those blocks, which are
+regarded to have weak correlation. Maurer showed that the key generation
+rate of the postprocessing with the advantage distillation can be
+strictly higher than the right hand side of Eq. ( 1.1 ) in an example.
+
+In the context of the QKD protocol, the postprocessing procedure with
+both one-way and two-way public communication were considered. Actually,
+the postprocessing procedure with one-way public communication were
+first studied [ May01 , SP00 ] . Later, the postprocessing with the
+advantage distillation in the context of QKD protocol was proposed by
+Gottesman and Lo [ GL03 ] . The postprocessing with the advantage
+distillation was extensively studied by Bae and Acín [ BA07 ] .
+
+In Chapter 4 , we propose a new kind of postprocessing procedure with
+two-way public communication in the context of QKD protocol. The purpose
+of the advantage distillation was to divide the blocks into highly
+correlated ones and weakly correlated ones by exchanging the parities.
+The key idea of our proposed postprocessing is that the parities in the
+conventional advantage distillation is redundantly transmitted over the
+public channel, and should be compressed by the Slepian-Wolf coding
+because Bob’s bits @xmath is correlated to Alice’s parity @xmath . In
+our proposed postprocessing, Alice does not sends the parities itself,
+but she sends the compressed version of the parities by regarding Bob’s
+sequence @xmath as the side-information at the decoder. This enables
+Alice and Bob to extract a secret key also from the parity sequence, and
+improves the key generation rate. Actually, the key generation rate of
+the QKD protocols with our proposed postprocessing procedure is as high
+as that with conventional one-way or two-way postprocessing procedures.
+We also clarify that the former is strictly higher than the latter in
+some cases.
+
+### 1.3 Unique Property of Quantum Key Distribution
+
+In the previous section, we have explained the mathematical formulation
+of the key agreement in the information theory. Then, we have explained
+the fact that Alice and Bob have to set the key generation rate
+according Eve’s ambiguity about the bit sequence after the information
+reconciliation procedure (Eq. ( 1.1 )) ¹⁰ ¹⁰ 10 When Alice and Bob
+conduct the postprocessing with two-way public communication, they have
+to set the key generation rate according to more complicated formula
+(for more detail, see Chapter 4 ). in order to share an information
+theoretically secure key. However, Alice and Bob cannot calculate the
+amount of Eve’s ambiguity about the bit sequence if they do not know the
+probability distribution @xmath of their initial bit sequence and Eve’s
+available information. Therefore, they have to estimate the probability
+distribution itself, or at least they have to estimate a lower bound on
+the quantity @xmath ¹¹ ¹¹ 11 Since the quantity @xmath only involves the
+marginal distribution @xmath , Alice and Bob can easily estimate it by
+sacrificing a part of their bit sequence as samples. Therefore, we
+restrict our attention to the quantity @xmath . . If Alice and Bob’s bit
+sequences @xmath are distributed by using a classical channel, for
+example the standard telephone line or the Internet, then a valid
+estimate will be the trivial one, @xmath , because Eve can eavesdrop as
+much as she want without being detected. The QKD protocols provide a way
+to estimate a non-trivial lower bound on @xmath by using the axioms of
+the quantum mechanics.
+
+In the BB84 protocol, Alice randomly chooses a bit sequence and send it
+by encoding each bit into a polarization of a photon. When she encodes
+each bit into a polarization of a photon, she chooses one of two
+encoding rules at random. In the first encoding rule, she encodes @xmath
+into the vertical polarization, and @xmath into the horizontal
+polarization. In the second encoding rule, she encodes @xmath into the
+@xmath degree polarization, and @xmath into the @xmath degree
+polarization.
+
+On the other hand, Bob measures the received photons by using one of two
+measurement device at random. The first measurement device discriminate
+between the vertical and the horizontal polarizations, and the
+measurement outcome is decoded into the corresponding bit value. The
+second measurement device discriminate between the @xmath degree and the
+@xmath degree polarizations, and the measurement outcome is decoded into
+the corresponding bit value.
+
+After the reception of the photons, Alice and Bob announce over the
+public channel which encoding rule and which measurement device they
+have used for each bit. Then, they keep those bits if their encoding
+rule and measurement device are compatible, i.e., Alice uses the first
+(the second) encoding rule and Bob uses the first (the second)
+measurement device. We call such bit sequences the matched measurement
+outcomes . On the other hand, they discard those bits if their encoding
+rule and measurement device are incompatible, i.e., Alice uses the first
+(the second) encoding rule and Bob uses the second (the first)
+measurement device. We call such bit sequences the mismatched
+measurement outcomes . Furthermore, Alice and Bob announce a part of
+their matched measurement outcomes to estimate candidates of the quantum
+channel over which the photons were transmitted. The rest of the matched
+measurement outcomes are used as a seed for sharing a secret key.
+
+The most important feature of the QKD protocols is that we can calculate
+the quantity @xmath ¹² ¹² 12 It should be noted that we have to use the
+conditional von Neumann entropy instead of the conditional Shannon
+entropy in the case of the QKD protocols (for more detail, see Chapter 3
+). by using the axioms of the quantum mechanics if they know the quantum
+channel exactly. Therefore, we can estimate a lower bound on @xmath via
+estimating the candidates of the quantum channel. Actually, we employ
+the quantity @xmath minimized over the estimated candidates of the
+quantum channel as an estimate of true @xmath .
+
+As we explained above, in the conventional BB84 protocol we discard the
+mismatched measurement outcomes and we estimate the candidates of the
+quantum channel by using only the samples from the matched measurement
+outcomes. In Chapter 3 , we propose a channel estimation procedure in
+which we use the mismatched measurement outcomes in addition to the
+samples from the matched measurement outcomes. The use of the mismatched
+measurement outcomes enables us to reduce candidates of the quantum
+channel, and then enables us to estimate tighter lower bounds on the
+quantity @xmath . Actually, we clarify that the key generation rate
+decided according to our proposed channel estimation procedure is at
+least as high as the key generation rate decided according to the
+conventional channel estimation procedure. We also clarify that the
+former is strictly higher than the latter in some cases. In Chapter 4 ,
+we also apply our proposed channel estimation procedure to the protocol
+with the two-way postprocessing proposed in Chapter 4 .
+
+It should be noted that the use of the mismatched measurement outcomes
+was already considered in literatures. In early 90s, Barnett et al. [
+BHP93 ] showed that the use of mismatched measurement outcomes enables
+Alice and Bob to detect the presence of Eve with higher probability for
+the so-called intercept and resend attack. Furthermore, some literatures
+use the mismatched measurement outcomes to ensure the quantum channel to
+be a Pauli channel [ BCE @xmath 03 , LKE @xmath 03 , KLO @xmath 05 ,
+KLKE05 ] , where a Pauli channel is a channel over which four kinds of
+Pauli errors (including the identity) occur probabilistically. However
+the quantum channel is not necessarily a Pauli channel in general. One
+of the aims of this thesis is to convince the readers that the non-Pauli
+channels deserve consideration in the research of the QKD protocols as
+well as the Pauli channel.
+
+### 1.4 Summary
+
+The QKD protocols consists of three phases: the bit transmission phase,
+the channel estimation phase, and the postprocessing phase. The role of
+the channel estimation phase is to estimate the amount of Eve’s
+ambiguity about the bit sequence transmitted in the bit transmission
+phase. According to the estimated amount of Eve’s ambiguity, we decide
+the key generation rate and conduct the postprocessing to share a secret
+key.
+
+In the conventional estimation procedure, we do not use the mismatched
+measurement outcomes. By using the mismatched measurement outcomes in
+addition to the samples from the matched measurement outcomes, we can
+improve the key generation rate of the QKD protocols. This topic is
+investigated in Chapter 3 .
+
+In the conventional (two-way) postprocessing procedure, we transmit a
+message over the public channel redundantly, which is unnecessary
+divulging of information to Eve. By transmitting the compressed version
+of the redundantly transmitted message, we can improve the key
+generation rate of the QKD protocols. This topic is investigated in
+Chapter 4 .
+
+## Chapter 2 Preliminaries
+
+In this chapter, we introduce some terminologies and notations, and give
+a brief review of the known results that are used throughout this
+thesis. The first section is devoted to a review of the classical
+information theory [ CT06 ] and the quantum information theory [ NC00 ,
+Hay06 ] . In the second section, we review the known results on the
+privacy amplification, which is the most important tool for the security
+of the QKD protocols.
+
+### 2.1 Elements of Classical and Quantum Information Theory
+
+#### 2.1.1 Probability Distribution and Density Operator
+
+For a finite set @xmath , let @xmath be the set of all probability
+distributions @xmath on @xmath , i.e., @xmath for all @xmath and @xmath
+. For a sequence @xmath , the type of @xmath is the empirical
+probability distribution @xmath defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the cardinality of a set @xmath .
+
+For a finite-dimensional Hilbert space @xmath , let @xmath be the set of
+all density operators @xmath on @xmath , i.e., @xmath is non-negative
+and normalized, @xmath . Mathematically, a state of a quantum mechanical
+system with @xmath -degree of freedom is represented by a density
+operator on @xmath with @xmath . Throughout the thesis, we occasionally
+call @xmath a state and @xmath a system. For Hilbert spaces @xmath and
+@xmath , the set of all density operators @xmath on the tensor product
+space @xmath is defined in a similar manner. In Section 2.2 , we
+occasionally treat non-normalized non-negative operators. For this
+reason, we denote the set of all non-negative operators on a system
+@xmath (and a composite system @xmath ) by @xmath (and @xmath ).
+
+The classical random variables can be regarded as a special case of the
+quantum states. For a random variable @xmath with a distribution @xmath
+, let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is an orthonormal basis of @xmath . We call @xmath the
+operator representation of the classical distribution @xmath .
+
+When a quantum system @xmath is prepared in a state @xmath according to
+a realization @xmath of a random variable @xmath with a probability
+distribution @xmath , it is convenient to describe this situation by a
+density operator
+
+  -- -------- -- -------
+     @xmath      (2.1)
+  -- -------- -- -------
+
+where @xmath is an orthonormal basis of @xmath . We call the density
+operator @xmath a @xmath -state [ DW05 ] , or we say @xmath is classical
+on @xmath with respect to the orthonormal basis @xmath . We call @xmath
+a conditional operator. When a quantum system @xmath is prepared in a
+state @xmath according to a joint random variable @xmath with a
+probability distribution @xmath , a state @xmath is defined in a similar
+manner, and the state @xmath is called a @xmath -state. For
+non-normalized operator @xmath , if we can write @xmath as in Eq. ( 2.1
+), we say that @xmath is classical on @xmath with respect to the
+orthonormal basis @xmath . However, it should be noted that the
+distribution @xmath or conditional operators @xmath are not necessarily
+normalized for a non-normalized @xmath .
+
+For a @xmath -state @xmath , we occasionally consider a density operator
+such that the classical system @xmath is mapped by a function @xmath .
+By setting the distribution
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and the density operator
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+we can describe the resulting @xmath -state as
+
+  -- -------- -- -------
+     @xmath      (2.2)
+  -- -------- -- -------
+
+In the quantum mechanics, the most general measurement is described by
+the positive operator valued measure (POVM). A POVM for a system @xmath
+consists of the set @xmath of measurement outcomes, and the set @xmath
+of positive operators indexed by the set @xmath . For a state @xmath ,
+the probability distribution of the measurement outcomes is given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In the quantum mechanics, the most general state evolution of a quantum
+mechanical system is described by a completely positive (CP) map. It can
+be shown that any CP map @xmath can be written as
+
+  -- -------- -- -------
+     @xmath      (2.3)
+  -- -------- -- -------
+
+for a family of linear operators @xmath from the initial system @xmath
+to the destination system @xmath , where @xmath is the index set. We
+usually require the map to be trace preserving (TP), i.e., @xmath , but
+if a state evolution involves a selection of states by a measurement,
+then the corresponding CP map is not necessarily trace preserving, i.e.,
+@xmath .
+
+#### 2.1.2 Distance and Fidelity
+
+In this thesis, we use two kinds of distances. One is the variational
+distance of @xmath . For non-negative functions @xmath , the variational
+distance between @xmath and @xmath is defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The other distance used in this paper is the trace distance of @xmath .
+For non-negative operators @xmath , the trace distance between @xmath
+and @xmath is defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath for a operator on @xmath , and @xmath is the adjoint
+operator of @xmath . The following lemma states that the trace distance
+between (not necessarily normalized operators) does not increase by
+applying a CP map, and it is used several times in this paper.
+
+###### Lemma 2.1.1
+
+[ Ren05 , Lemma A.2.1] Let @xmath and let @xmath be a
+trace-non-increasing CP map, i.e., @xmath satisfies @xmath for any
+@xmath . Then we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The following lemma states that, for a @xmath -state @xmath , if two
+classical messages @xmath and @xmath are computed from @xmath and they
+are equal with high probability, then the @xmath state @xmath and @xmath
+that involve computed classical messages @xmath and @xmath are close
+with respect to the trace distance.
+
+###### Lemma 2.1.2
+
+Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+be a @xmath -state, and let @xmath for a function @xmath and @xmath for
+a function @xmath . Assume that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then, for @xmath -states
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+We have
+
+  -- -------- -------- -------- --
+     @xmath                     
+                                
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where @xmath if @xmath and @xmath if @xmath . ∎
+
+The fidelity between two (not necessarily normalized) operators @xmath
+is defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The following lemma is an extension of Uhlmann’s theorem to
+non-normalized operators @xmath and @xmath .
+
+###### Lemma 2.1.3
+
+[ Ren05 , Theorem A.1.2] Let @xmath , and let @xmath be a purification
+of @xmath . Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where the maximum is taken over all purifications @xmath of @xmath .
+
+The trace distance and the fidelity have close relationship. If the
+trace distance between two non-negative operators @xmath and @xmath is
+close to @xmath , then the fidelity between @xmath and @xmath is close
+to @xmath , and vise versa.
+
+###### Lemma 2.1.4
+
+[ Ren05 , Lemma A.2.4] Let @xmath . Then, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Lemma 2.1.5
+
+[ Ren05 , Lemma A.2.6] Let @xmath . Then, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+#### 2.1.3 Entropy and its Related Quantities
+
+For a random variable @xmath on @xmath with a probability distribution
+@xmath , the entropy of @xmath is defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where we assume the base of @xmath is @xmath throughout the thesis.
+Especially for a real number @xmath , the binary entropy function is
+defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Similarly, for a joint random variables @xmath and @xmath with a joint
+probability distribution @xmath , the joint entropy of @xmath and @xmath
+is
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+The conditional entropy of @xmath given @xmath is defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The mutual information between the joint random variables @xmath and
+@xmath is defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+For a quantum state @xmath , the von Neumann entropy of the system is
+defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+For a quantum state @xmath of the composite system, the von Neumann
+entropy of the composite system is @xmath . The conditional von Neaumann
+entropy of the system @xmath given the system @xmath is defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the partial trace of @xmath over the system @xmath . The
+quantum mutual information between the system @xmath and @xmath is
+defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+It should be noted that, for @xmath -state @xmath , the quantum mutual
+information coincides with the Holevo information, i.e.,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Remark 2.1.6
+
+In this paper, we denote @xmath for @xmath or @xmath for @xmath e.t.c.
+without declaring them if they are obvious from the context.
+
+#### 2.1.4 Bloch Sphere, Choi Operator, and Stokes Parameterization
+
+In this section, we first introduce the Bloch sphere, which is a
+parameterization of the set @xmath of density operators on
+two-dimensional space (qubit). Then, we introduce the Choi operator for
+the qubit channel and its Stokes parameterization.
+
+Let
+
+  -- -- --
+        
+  -- -- --
+
+be the Pauli operators, and let @xmath be the identity operator on the
+qubit. Then, the set @xmath form a basis of the set @xmath of all
+operators on @xmath . Furthermore, we have
+
+  -- -- -- -------
+           (2.4)
+  -- -- -- -------
+
+that is, there is one-to-one correspondence between a qubit density
+operator and a (column) vector ¹ ¹ 1 For a reason clarified in Section
+3.6 , we denote the coordinate in this order. @xmath within the unit
+sphere, which is called the Bloch sphere [ NC00 ] . By a straightforward
+calculation, we can find that the von Neumann entropy of the density
+operator @xmath that corresponds to the vector @xmath is
+
+  -- -------- -- -------
+     @xmath      (2.5)
+  -- -------- -- -------
+
+where @xmath is the Euclidian norm of the vector @xmath .
+
+Let @xmath be the set of all TPCP maps (see Section 2.1.1 ) from @xmath
+to @xmath , where we set @xmath as qubit. Let
+
+  -- -------- -- -------
+     @xmath      (2.6)
+  -- -------- -- -------
+
+be a maximally entangled state on the composite system @xmath . Then, we
+define the set @xmath such as any element @xmath satisfies @xmath . It
+is well known that [ Cho75 , FA99 ] there is one-to-one correspondence
+between the set @xmath and the set @xmath via the map
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The operator @xmath is also known as the (normalized) Choi operator [
+Cho75 ] .
+
+For a Choi operator @xmath , let
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (2.7)
+  -- -------- -------- -------- -- -------
+
+and
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (2.8)
+  -- -------- -------- -------- -- -------
+
+for @xmath , where @xmath is the complex conjugate of @xmath . The pair
+
+  -- -- --
+        
+  -- -- --
+
+of the matrix and the vector is called the Stokes parameterization of
+the channel @xmath and the Choi operator @xmath [ FN98 , FA99 ] . By a
+straightforward calculation, we can find that the channel @xmath is
+equivalent to the affine map
+
+  -- -- --
+        
+  -- -- --
+
+from the Bloch sphere to itself.
+
+In the rest of this thesis, we identify a Choi operator and its Stokes
+parameterization if it is obvious from the context. For example, @xmath
+means that the Choi operator @xmath corresponding to @xmath is included
+in the subset @xmath .
+
+### 2.2 Privacy Amplification
+
+In this section, we review the privacy amplification. First, we review
+notions of the (smooth) min-entropy and the (smooth) max-entropy. The
+(smooth) min-entropy and the (smooth) max-entropy are useful tool to
+prove the security of QKD protocols [ KGR05 , RGK05 , Ren05 ] .
+Especially, (smooth) min-entropy is much more important, because it is
+related to the length of the securely distillable key by the privacy
+amplification. The privacy amplification [ BBR85 , BBR88 , BBCM95 ] is a
+technique to distill a secret key from partially secret data, on which
+an adversary might have some information. Later, the privacy
+amplification was extended to the case that an adversary have
+information encoded into a state of a quantum system [ CRE04 , KMR05 ,
+RK05 , Ren05 ] . Most of the following results can be found in [ Ren05 ,
+Sections 3 and 5] , but lemmas without citations are additionally proved
+in the appendix of [ WMUK07 ] . We need Lemma 2.2.8 to apply the results
+in [ Ren05 ] to the QKD protocols with two-way postprocessing in Chapter
+4 . More specifically, Eq. (3.22) in [ Ren05 , Theorem 3.2.12] plays an
+important role to show a statement similar as Corollary 2.2.9 in the
+case of the QKD protocols with one-way postprocessing. However, the
+condition of Eq. (3.22) in [ Ren05 , Theorem 3.2.12] is too restricted,
+and cannot be applied to the case of the two-way postprocessing proposed
+in Chapter 4 . Thus, we show Corollary 2.2.9 via Lemma 2.2.8 . Lemmas
+2.2.5 and 2.2.7 are needed to prove Lemma 2.2.8 .
+
+#### 2.2.1 Min- and Max- Entropy
+
+The (smooth) min-entropy and (smooth) max-entropy are formally defined
+as follows.
+
+###### Definition 2.2.1
+
+[ Ren05 , Definition 3.1.1] Let @xmath and @xmath . The min-entropy of
+@xmath relative to @xmath is defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the minimum real number such that @xmath , where @xmath
+is the identity operator on @xmath . When the condition @xmath does not
+hold, there is no @xmath satisfying the condition @xmath , thus we
+define @xmath .
+
+The max-entropy of @xmath relative to @xmath is defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath denotes the projector onto the support of @xmath .
+
+The min-entropy and the max-entropy of @xmath given @xmath are defined
+by
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where the supremum ranges over all @xmath .
+
+When @xmath is the trivial space @xmath , the min-entropy and the
+max-entropy of @xmath is
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where @xmath denotes the maximum eigenvalue of the argument.
+
+###### Definition 2.2.2
+
+[ Ren05 , Definitions 3.2.1 and 3.2.2] Let @xmath , @xmath , and @xmath
+. The @xmath -smooth min-entropy and the @xmath -smooth max-entropy of
+@xmath relative to @xmath are defined by
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where the supremum and infimum ranges over the set @xmath of all
+operators @xmath such that @xmath .
+
+The conditional @xmath -smooth min-entropy and the @xmath -smooth
+max-entropy of @xmath given @xmath are defined by
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where the supremum ranges over all @xmath .
+
+The following lemma is a kind of chain rule for the smooth min-entropy.
+
+###### Lemma 2.2.3
+
+[ Ren05 , Theorem 3.2.12] For a tripartite operator @xmath , we have
+
+  -- -------- -- -------
+     @xmath      (2.9)
+  -- -------- -- -------
+
+The following lemma states that removing the classical system only
+decreases the min-entropy.
+
+###### Lemma 2.2.4
+
+[ Ren05 , Lemma 3.1.9] (monotonicity of min-entropy) Let @xmath be
+classical on @xmath , and let @xmath . Then, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In order to extend Lemma 2.2.4 to the smooth min-entropy, we need Lemmas
+2.2.5 and 2.2.7 .
+
+###### Lemma 2.2.5
+
+Let @xmath be a density operator. For @xmath , let @xmath . Then, there
+exists a operator @xmath such that @xmath , where @xmath .
+
+###### Proof.
+
+Since @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then, from Lemma 2.1.5 , we have
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Let @xmath be a purification of @xmath . Then, from Theorem 2.1.3 ,
+there exists a purification @xmath of @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+By noting that @xmath , from Lemma 2.1.4 , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let @xmath . Then, since the trace distance does not increase by the
+partial trace, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+∎
+
+###### Remark 2.2.6
+
+In Lemma 2.2.5 , if the density operator @xmath is classical with
+respect to both systems @xmath , then we can easily replace @xmath by
+@xmath . Then, @xmath in Lemma 2.2.7 , 2.2.8 and Corollary 2.2.9 can
+also be replaced by @xmath .
+
+###### Lemma 2.2.7
+
+Let @xmath be a density operator that is classical on @xmath . For
+@xmath , let @xmath . Then, there exists a operator @xmath such that
+@xmath and @xmath is classical on @xmath , where @xmath .
+
+###### Proof.
+
+From Lemma 2.2.5 , there exists a operator @xmath such that @xmath . Let
+@xmath be a projection measurement CP map on @xmath , i.e.,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is an orthonormal basis of @xmath . Let @xmath . Then,
+since the trace distance does not increase by the CP map, and @xmath ,
+we have
+
+  -- -------- -------- -------- --
+     @xmath                     
+                                
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where the first inequality follows from Lemma 2.1.1 . Furthermore, we
+have @xmath , and @xmath is classical on @xmath . ∎
+
+The following lemma states that the monotonicity of the min-entropy
+(Lemma 2.2.4 ) can be extended to the smooth min-entropy by adjusting
+the smoothness @xmath .
+
+###### Lemma 2.2.8
+
+Let @xmath be a density operator that is classical on @xmath . Then, for
+any @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath .
+
+###### Proof.
+
+We will prove that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+holds for any @xmath . From the definition of the smooth min-entropy,
+for any @xmath , there exists @xmath such that
+
+  -- -------- -- --------
+     @xmath      (2.10)
+  -- -------- -- --------
+
+From Lemma 2.2.7 , there exists a operator @xmath such that @xmath , and
+@xmath is classical on @xmath . Then, from Lemma 2.2.4 , we have
+
+  -- -------- -- --------
+     @xmath      (2.11)
+  -- -------- -- --------
+
+Furthermore, from the definition of smooth min-entropy, we have
+
+  -- -------- -- --------
+     @xmath      (2.12)
+  -- -------- -- --------
+
+Since @xmath is arbitrary, combining Eqs. ( 2.10 )–( 2.12 ), we have the
+assertion of the lemma. ∎
+
+Combining Eq. ( 2.9 ) of Lemma 2.2.3 and Lemma 2.2.8 , we have the
+following corollary, which states that the condition decreases the
+smooth min-entropy by at most the amount of the max-entropy of the
+condition, and plays an important role to prove the security of the QKD
+protocols.
+
+###### Corollary 2.2.9
+
+Let @xmath be a density operator that is classical on @xmath . Then, for
+any @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath .
+
+For a product @xmath -state @xmath , the smooth min-entropy can be
+evaluated by using the von Neumann entropy.
+
+###### Lemma 2.2.10
+
+[ Ren05 , Corollary 3.3.7] ² ² 2 See also Ref. [22] of [ SR08 ] Let
+@xmath be a density operator which is classical on @xmath . Then for
+@xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath .
+
+#### 2.2.2 Privacy Amplification
+
+The following definition is used to state the security of the distilled
+key by the privacy amplification.
+
+###### Definition 2.2.11
+
+[ Ren05 , Definition 5.2.1] Let @xmath . Then the trace distance from
+the uniform of @xmath given @xmath is defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the fully mixed state on @xmath and @xmath .
+
+###### Definition 2.2.12
+
+[ CW79 ] Let @xmath be a set of functions from @xmath to @xmath , and
+let @xmath be the uniform probability distribution on @xmath . The set
+@xmath is called universal hash family if @xmath for any distinct @xmath
+.
+
+Consider an operator @xmath that is classical with respect to an
+orthonormal basis @xmath of @xmath , and assume that @xmath is a
+function from @xmath to @xmath . The operator describing the classical
+function output together with the quantum system @xmath is then given by
+
+  -- -------- -- --------
+     @xmath      (2.13)
+  -- -------- -- --------
+
+where @xmath is an orthonormal basis of @xmath .
+
+Assume now that the function @xmath is randomly chosen from a set @xmath
+of function according to the uniform probability distribution @xmath .
+Then the output @xmath , the state of the quantum system, and the choice
+of the function @xmath is described by the operator
+
+  -- -------- -- --------
+     @xmath      (2.14)
+  -- -------- -- --------
+
+on @xmath , where @xmath is a Hilbert space with orthonormal basis
+@xmath . The system @xmath describes the distilled key, and the system
+@xmath and @xmath describe the information which an adversary Eve can
+access. The following lemma states that the length of securely
+distillable key is given by the conditional smooth min-entropy @xmath .
+
+###### Lemma 2.2.13
+
+[ Ren05 , Corollary 5.6.1] Let @xmath be a density operator which is
+classical with respect to an orthonormal basis @xmath of @xmath . Let
+@xmath be a universal hash family of functions from @xmath to @xmath ,
+and let @xmath . Then we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath defined by Eq. ( 2.14 ).
+
+By using Corollary 2.2.9 and Lemma 2.2.13 , we can derive the following
+corollary, which gives the length of the securely distillable key when
+Eve can access classical information in addition to the quantum
+information.
+
+###### Corollary 2.2.14
+
+Let @xmath be a density operator on @xmath that is classical with
+respect to the systems @xmath and @xmath . Let @xmath be a universal
+family of hash functions from @xmath to @xmath , and let @xmath . If
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+then we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath .
+
+###### Remark 2.2.15
+
+When the density operator @xmath is such that the system @xmath only
+depends on @xmath , then @xmath in Corollary 2.2.14 can be replaced by
+@xmath [ Ren05 , Lemma 6.4.1] .
+
+## Chapter 3 Channel Estimation
+
+### 3.1 Background
+
+As we have mentioned in Chapter 1 , the QKD protocols consists of three
+phases: the bit transmission phase, the channel estimation phase, and
+the postprocessing phases. The postprocessing is a procedure in which
+Alice and Bob generate a secret key from their bit sequences obtained in
+the bit transmission phase, and the key generation rate (the length of
+the generated key divided by the length of their initial bit sequences)
+is decided according to the amount of Eve’s ambiguity about their bit
+sequence estimated in the channel estimation phase. The channel
+estimation phase is the main topic investigated in this chapter.
+
+Mathematically, quantum channels are described by trace preserving
+completely positive (TPCP) maps [ NC00 ] . Conventionally in the QKD
+protocols, we only use the statistics of matched measurement outcomes,
+which are transmitted and received by the same basis, to estimate the
+TPCP map describing the quantum channel; mismatched measurement
+outcomes, which are transmitted and received by different bases, are
+discarded in the conventionally used channel estimation methods. By
+using the statistics of mismatched measurement outcomes in addition to
+that of matched measurement outcomes, we can estimate the TPCP map more
+accurately than the conventional estimation method. Such an accurate
+channel estimation method is also known as the quantum tomography [ CN97
+, PCZ97 ] . In early 90s, Barnett et al. [ BHP93 ] showed that the use
+of mismatched measurement outcomes enables Alice and Bob to detect the
+presence of Eve with higher probability for the so-called intercept and
+resend attack. Furthermore, some literatures use the accurate estimation
+method to ensure the channel to be a Pauli channel [ BCE @xmath 03 , LKE
+@xmath 03 , KLO @xmath 05 , KLKE05 ] , where a Pauli channel is a
+channel over which four kinds of Pauli errors (including the identity)
+occur probabilistically. However the channel is not necessarily a Pauli
+channel.
+
+The use of the accurate channel estimation method has a potential to
+improve the key generation rates of the QKD protocols. For this purpose,
+we have to construct a postprocessing that fully utilize the accurate
+channel estimation results. However, there was no proposed practically
+implementable postprocessing that can fully utilizes the accurate
+estimation method. Recently, Renner et al. [ RGK05 , Ren05 , KGR05 ]
+developed information theoretical techniques to prove the security of
+the QKD protocols. Their proof techniques can be used to prove the
+security of the QKD protocols with a postprocessing that fully utilizes
+the accurate estimation method. However they only considered Pauli
+channels or partial twirled channels ¹ ¹ 1 By the partial twirling
+(discrete twirling) [ BDSW96 ] , any channel becomes a Pauli channel. .
+For Pauli channels, the accurate estimation method and the conventional
+estimation method make no difference.
+
+In this chapter, we propose a channel estimation procedure in which we
+use the mismatched measurement outcomes in addition to the matched
+measurement outcomes, and also propose a postprocessing that fully
+utilize our channel estimation procedure. We use the Slepian-Wolf coding
+[ SW73 ] with the linear code (linear Slepian-Wolf coding) in our
+information reconciliation (IR) procedure.
+
+The use of the linear Slepian-Wolf coding in the IR procedure has the
+following advantage over the IR procedures in the literatures [ RGK05 ,
+Ren05 , KGR05 , DW05 ] . In [ DW05 ] , the authors constructed their IR
+procedure by the so-called random coding method. Therefore, their IR
+procedure is not practically implementable. In [ RGK05 , Ren05 , KGR05 ]
+, the authors constructed their IR procedure by randomly choosing an
+encoder from a universal hash family ² ² 2 See Definition 2.2.12 for the
+definition of the universal hash family. . Their IR procedure is
+essentially equivalent to the Slepian-Wolf coding. However, the ensemble
+the encoder of the low density parity check (LDPC) code, which is one of
+the practical linear codes, is not a universal hash family. On the other
+hand, the linear code in our IR procedure can be a LDPC code.
+
+The rest of this chapter is organized as follows: In Section 3.2 , we
+explain the bit transmission phase of the QKD protocols with some
+technical terminologies. Then, we formally describe the problem setting
+of the QKD protocols. In Section 3.3 , we show our IR procedure. In
+Section 3.4.1 , we show our proposed channel estimation procedure, and
+then clarify a sufficient condition such that Alice and Bob can share a
+secure key (Theorem 3.4.3 ). Then, we derive the asymptotic key
+generation rate formulae. In Section 3.5 , we clarify the relation
+between our proposed channel estimation procedure and the conventional
+channel estimation procedure. In Section 3.6 , we investigate the
+asymptotic key generation rates for some representative examples of
+channels.
+
+It should be noted that most of the results in this chapter first
+appeared in [ WMU08 ] . However, some of the results in Section 3.6.1
+and Section 3.7 are newly obtained in this thesis.
+
+### 3.2 BB84 and Six-State Protocol
+
+In the six-state protocol, Alice randomly sends bit @xmath or @xmath to
+Bob by modulating it into a transmission basis that is randomly chosen
+from the @xmath -basis @xmath , the @xmath -basis @xmath , or the @xmath
+-basis @xmath , where @xmath are eigenstates of the Pauli operator
+@xmath for @xmath respectively. Then Bob randomly chooses one of
+measurement observables @xmath , @xmath , and @xmath , and converts a
+measurement result @xmath or @xmath into a bit @xmath or @xmath
+respectively. After a sufficient number of transmissions, Alice and Bob
+publicly announce their transmission bases and measurement observables.
+They also announce a part of their bit sequences as sample bit sequences
+for estimating channel between Alice and Bob.
+
+In the BB84 protocol, Alice only uses @xmath -basis and @xmath -basis to
+transmit the bit sequence, and Bob only uses observables @xmath and
+@xmath to receive the bit sequence.
+
+For simplicity we assume that Eve’s attack is the collective attack,
+i.e., the channel connecting Alice and Bob is given by tensor products
+of a channel @xmath from a qubit density operator to itself. This
+assumption is not a restriction for Eve’s attack by the following
+reason. Suppose that Alice and Bob perform a random permutation to their
+bit sequence. By performing this random permutation, the channel between
+Alice and Bob becomes permutation invariant. Then, we can asymptotically
+reduce the security of the QKD protocols for the most general attack,
+the coherent attack, to the security of the collective attack by using
+the (quantum) de Finetti representation theorem [ Ren05 , Ren07 , CKR09
+] . Roughly speaking, the de Finetti representation theorem says that
+(randomly permuted) general attack can be approximated by a convex
+mixture of collective attacks.
+
+So far we have explained the so-called prepare and measure scheme of the
+QKD protocols. There is the so-called entanglement based scheme of the
+QKD protocols [ Eke91 ] . In the entanglement based scheme, Alice
+prepares the Bell state
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and sends the second system to Bob over the quantum channel @xmath .
+Then, Alice and Bob conduct measurements for the shared state
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+by using randomly chosen observables @xmath and @xmath respectively.
+Although the entangled based scheme is essentially equivalent to the
+prepare and measure scheme [ BBM92 ] , the latter is more practical in
+the present day technology because Alice and Bob do not need the quantum
+memory to store qubits. However, the former is more convenient to
+mathematically treat the BB84 protocol and the six-state protocol in a
+unified manner. Therefore in the rest of this thesis, we employ the
+entanglement based scheme of the QKD protocols, and consider the
+following situation.
+
+Suppose that Alice and Bob share the bipartite (qubits) system @xmath
+whose state is @xmath . Alice and Bob conduct measurements for the first
+@xmath (out of @xmath ) bipartite systems by @xmath -basis respectively
+³ ³ 3 In this thesis, we mainly consider a secret key generated from
+Alice and Bob’s measurement outcomes by @xmath -basis. Therefore, we
+occasionally omit the subscripts @xmath of bases, and the basis @xmath
+is regarded as @xmath -basis unless otherwise stated. . They also
+conduct measurements for the latter @xmath (out of @xmath ) bipartite
+systems by randomly chosen bases from the set @xmath in the BB84
+protocol and @xmath in the six-state protocol. Formally, the measurement
+for the latter @xmath systems can be described by the bipartite POVM
+@xmath on the bipartite system @xmath , where @xmath for the BB84
+protocol and @xmath for the six-state protocol. Note that Alice and Bob
+generate a secret key from the first @xmath measurement outcomes @xmath
+, and they estimate an unknown density operator @xmath by using the
+latter measurement outcomes @xmath , which we call the sample sequence.
+When we do not have to discriminate between the BB84 protocol and the
+six-state protocol, we omit the subscripts of @xmath and @xmath , and
+denote them by @xmath .
+
+As is usual in QKD literatures, we assume ⁴ ⁴ 4 By this assumption, we
+are considering the worst case, that is, the security under this
+assumption implies the security for the situation in which Eve can
+conduct a measurement for a subsystem @xmath of @xmath . This fact can
+be formally proved by using the monotonicity of the trace distance,
+because the security is defined by using the trace distance in this
+thesis (see Section 3.4.1 ). that Eve can obtain her information by
+conducting a measurement for an environment system @xmath such that a
+purification @xmath of @xmath is a density operator of joint system
+@xmath . Therefore, Alice’s bit sequence @xmath , Bob’s bit sequence
+@xmath , and the state in Eve’s system can be described by the @xmath
+-state
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the product distribution of @xmath , and @xmath for the
+normalized density operator @xmath of @xmath .
+
+### 3.3 One-Way Information Reconciliation
+
+When Alice and Bob have correlated classical sequences, @xmath , the
+purpose of the IR procedure for Alice and Bob is to share the same
+classical sequence by exchanging messages over the public authenticated
+channel, where @xmath is the field of order @xmath . Then, the purpose
+of the PA procedure is to extract a secret key from the shared bit
+sequence. In this section, we present the most basic IR procedure, the
+one-way IR procedure. In the one-way IR procedure, only Alice
+(resp. Bob) transmit messages to Bob (resp. Alice) over the public
+channel.
+
+Before describing our IR procedure, we should review the basic facts of
+linear codes. An @xmath classical linear code @xmath is an @xmath
+-dimensional linear subspace of @xmath , and its parity check matrix
+@xmath is an @xmath matrix of rank @xmath with @xmath entries such that
+@xmath for any codeword @xmath . By using these preparations, our
+procedure is described as follows:
+
+1.  Alice calculates the syndrome @xmath , and sends it to Bob over the
+    public channel.
+
+2.  Bob decodes @xmath into an estimate of @xmath by a decoder @xmath .
+
+In the QKD protocols, Alice and Bob do not know the probability
+distribution @xmath in advance, and they estimate candidates @xmath of
+the actual probability distribution @xmath . In order to use the above
+IR procedure in the QKD protocols, the decoding error probability have
+to be universally small for any candidate of the probability
+distribution. For this reason, we introduce the concept that an IR
+procedure is @xmath -universally-correct ⁵ ⁵ 5 Early papers of QKD
+protocols did not consider the universality of the IR procedure. The
+need for the universality was first pointed out by Hamada [ Ham04 ] as
+long as the author’s knowledge. as follows.
+
+###### Definition 3.3.1
+
+We define an IR procedure to be @xmath -universally-correct for the
+class @xmath of probability distributions if
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath .
+
+An example of a decoder that fulfils the universality is the minimum
+entropy decoder defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Theorem 3.3.2
+
+[ Csi82 , Theorem 1] Let @xmath be a real number that satisfies
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where the random variables @xmath are distributed according to @xmath .
+Then, for every sufficiently large @xmath , there exists a @xmath parity
+check matrix @xmath such that @xmath and a constant @xmath that does not
+depends on @xmath , and then the decoding error probability by the
+minimum entropy decoding satisfies
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath .
+
+###### Remark 3.3.3
+
+Conventionally, we used the error correcting code instead of the
+Slepian-Wolf coding in the IR procedure (e.g. [ SP00 ] ). In this
+remark, we show that the leakage of information to Eve in the above IR
+procedure is as small as that in the IR procedure with the error
+correcting code. Furthermore, we show the sufficient and necessary
+condition for that the former equals to the latter.
+
+For appropriately chosen linear code @xmath , the IR procedure with the
+error correcting (linear) code is conducted as follows.
+
+1.  Alice randomly choose a code word @xmath , and sends @xmath to Bob
+    over the public channel.
+
+2.  Bob decodes @xmath into an estimate @xmath of the code word @xmath
+    by a decoder from @xmath to @xmath . Then, he obtains an estimate
+    @xmath of @xmath by subtracting @xmath from the received public
+    message @xmath .
+
+Note that Step ( i ) is equivalent to sending the syndrome @xmath to Bob
+from the view point of Eve, because Eve can know to which coset of
+@xmath Alice’s sequence @xmath belongs by knowing @xmath . However, the
+length @xmath of the syndrome have to be larger than that in the IR
+procedure with the Slepian-Wolf coding by the following reason.
+
+Define a probability distribution ⁶ ⁶ 6 For simplicity, we assume that
+there exists only one candidate of distribution @xmath , and omit @xmath
+in this remark. on @xmath as
+
+  -- -------- -- -------
+     @xmath      (3.1)
+  -- -------- -- -------
+
+Then the error @xmath between Alice and Bob’s sequences is distributed
+according to @xmath . Since we can regard that the code word @xmath is
+transmitted over the binary symmetric channel (BSC) with the crossover
+probability @xmath , the converse of the channel coding theorem [ CT06 ]
+implies that @xmath have to be smaller than @xmath . By using the
+log-sum inequality [ CT06 ] and Eq. ( 3.1 ), we have
+
+  -- -------- -------- -------- --
+     @xmath                     
+                                
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+and the equality holds if and only if @xmath equals @xmath for any
+@xmath .
+
+###### Remark 3.3.4
+
+When we implement the above IR procedure, we should use a parity check
+matrix with an efficient decoding algorithm. For example, we may use the
+low density parity check (LDPC) matrix [ Gal63 ] with the sum-product
+algorithm.
+
+For a given sequence @xmath , and a syndrome @xmath , define a function
+
+  -- -------- -- -------
+     @xmath      (3.2)
+  -- -------- -- -------
+
+where @xmath for the parity check matrix @xmath , and @xmath is the
+indicator function. The function @xmath is the non-normalized a
+posteriori probability distribution on @xmath given @xmath and @xmath .
+The sum-product algorithm is a method to (approximately) calculate the
+marginal a posteriori probability, i.e.,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The definition of a posteriori probability in Eq. ( 3.2 ) is the only
+difference between the decoding for the Slepian-Wolf source coding and
+that for the channel coding. More precisely, we replace [ Mac03 ,
+Eq. (47.6)] with Eq. ( 3.2 ), and use the algorithm in [ Mac03 , Section
+47.3] . The above procedure is a generalization of [ LXG02 ] , and a
+special case of [ CLME06 ] .
+
+In QKD protocols we should minimize the block error probability rather
+than the bit error probability, because a bit error might propagate to
+other bits after the privacy amplification. Although the sum-product
+algorithm is designed to minimize the bit error probability, it is known
+by computer simulations that the algorithm makes the block error
+probability small [ Mac03 ] .
+
+Unfortunately, it has not been shown analytically that the LDPC matrix
+with the sum-product algorithm can satisfy the condition in Definition
+3.3.1 . However, it has been shown that the LDPC matrix can satisfy the
+condition in Definition 3.3.1 if we use the maximum a posteriori
+probability (MAP) decoding with an estimated probability distribution [
+YMU09 ] ⁷ ⁷ 7 In [ MUW05 ] , Muramatsu et. al. has proposed to use the
+LDPC code and the MAP decoding for the Slepian-Wolf code sysmtem.
+However, their result cannot be used in the context of the QKD protocol,
+because there is an estimation error of the distribution @xmath . .
+Since the sum-product algorithm is a approximation of the MAP decoding,
+we expect that the LDPC matrix with the sum-product algorithm can
+satisfy the condition in Definition 3.3.1 as well.
+
+### 3.4 Channel Estimation and Asymptotic Key Generation Rate
+
+#### 3.4.1 Channel Estimation Procedure
+
+In this section, we show the channel estimation procedure. The purpose
+of the channel estimation procedure is to estimate an unknown Choi
+operator @xmath from the sample sequence @xmath . By using the estimate
+of the Choi operator, we show a condition on the parameters (the rate of
+the syndrome and the key generation rate) in the postprocessing such
+that Alice and Bob can share a secure key (Theorem 3.4.3 ).
+
+Let us start with the channel estimation procedure of the six-state
+protocol. In this thesis, we employ the maximum likelihood (ML)
+estimator:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is @xmath products of the probability distribution @xmath
+of the sample symbol @xmath defined by @xmath .
+
+As we have seen in Section 1.2 , the conditional von Neumann entropy
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+plays an important role to decide the key generation rate in the
+postprocessing, where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for a purification @xmath of @xmath . Therefore, we have to estimate
+this quantity, @xmath . Actually, the estimator
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is the ML estimator of @xmath [ CB02 , Theorem 7.2.10] .
+
+Next, we consider the channel estimation procedure of the BB84 protocol.
+Although the Choi operator @xmath is described by @xmath real parameters
+(in the Stokes parameterization), from Eqs. ( 2.7 ) and ( 2.8 ), we find
+that the distribution @xmath only depends on the parameters @xmath , and
+does not depend on the parameters @xmath . Therefore, we regard the set
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+as the parameter space, and denote @xmath by @xmath . Then, we estimate
+the parameters @xmath by the ML estimator:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since we cannot estimate the parameters @xmath , we have to consider the
+worst case, and estimate the quantity
+
+  -- -------- -- -------
+     @xmath      (3.3)
+  -- -------- -- -------
+
+for a given @xmath , where the set
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is the candidates of Choi operators for a given @xmath . Actually,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is the ML estimator of the quantity in Eq. ( 3.3 ).
+
+It is known that the ML estimator is a consistent estimator (with
+certain conditions, which are satisfied in our case [ Wal49 ] ), that
+is, the quantities
+
+  -- -------- -- -------
+     @xmath      (3.4)
+  -- -------- -- -------
+
+for the six-state protocol and
+
+  -- -------- -- -------
+     @xmath      (3.5)
+  -- -------- -- -------
+
+for the BB84 protocol converge to @xmath for any @xmath as @xmath goes
+to infinity. In the rest of this thesis, we omit the subscripts of
+@xmath and @xmath , and denote them by @xmath .
+
+Since @xmath is a continuous function of @xmath , which follows from the
+continuity of the von Neumann entropy, there exists a function @xmath
+such that
+
+  -- -------- -- -------
+     @xmath      (3.6)
+  -- -------- -- -------
+
+for @xmath and @xmath as @xmath . Similarly, since Eq. ( 3.3 ) is a
+continuous function of @xmath , which will be proved in Lemma 3.4.11 ,
+there exists a function @xmath such that
+
+  -- -------- -- -------
+     @xmath      (3.7)
+  -- -------- -- -------
+
+for @xmath and @xmath as @xmath . In the rest of this thesis, we omit
+the subscripts of @xmath and @xmath , and denote them by @xmath .
+
+#### 3.4.2 Sufficient Condition on Key Generation Rates for Secure Key
+Agreement
+
+In this section, we explain how Alice and Bob decides the parameters of
+the postprocessing and conduct it. Then, we show a sufficient conditions
+on the parameters such that Alice and Bob can share a secure key.
+
+If the sample sequence is not contained in a prescribed acceptable
+region @xmath (see Remark 3.4.4 for the definition), then Alice and Bob
+abort the protocol. Otherwise, they decide the rate @xmath of the linear
+code used in the IR procedure according to the sample bit sequence
+@xmath . Furthermore, they also decide the length @xmath of the finally
+distilled key according to the sample sequence @xmath . Then, they
+conduct the postprocessing as follows.
+
+1.  Alice and Bob undertake the IR procedure of Section 3.3 , and Bob
+    obtains the estimate @xmath of Alice’s raw key @xmath .
+
+2.  Alice and Bob carry out the privacy amplification (PA) procedure to
+    distill a key pair @xmath such that Eve has little information about
+    it. Alice first randomly chooses a function, @xmath , from a
+    universal hash family (see Definition 2.2.12 ), and sends the choice
+    of @xmath to Bob over the public channel. Then, Alice’s distilled
+    key is @xmath and Bos’s distilled key is @xmath respectively.
+
+We have explained the procedures of the postprocessing so far. The next
+thing we have to do is to define the security of the generated key
+formally. By using the convention in Eq. ( 2.2 ) for the @xmath -state
+@xmath and the mapping that describes the postprocessing, the generated
+key pair and Eve’s available information can be described by a @xmath
+-state, @xmath , where classical system @xmath consists of the random
+variable @xmath that describe the syndrome transmitted in the IR
+procedure and the random variable @xmath that describes the choice of
+the function in the PA procedure. It should be noted that the @xmath
+-state @xmath depends on the sample sequence @xmath because the
+parameters in the postprocessing is determined from it. To define the
+security of the distilled key pair @xmath , we use the universally
+composable security definition [ BOHL @xmath 05 , RK05 ] (see also [
+Ren05 ] ), which is defined by the trace distance between the actual key
+pair and the ideal key pair. We cannot state security of the QKD
+protocols in the sense that the distilled key pair @xmath is secure for
+a particular sample sequence @xmath , because there is a slight
+possibility that the channel estimation procedure will underestimate
+Eve’s information.
+
+###### Definition 3.4.1
+
+The generated key pair is said to be @xmath -secure (in the sense of the
+average over the sample sequence ⁸ ⁸ 8 If it is obvious from the
+context, we occasionally use terms “ @xmath -secure”, “ @xmath -secret”,
+and “ @xmath -correct” for specific realization @xmath instead for
+average. ) if
+
+  -- -------- -- -------
+     @xmath      (3.8)
+  -- -------- -- -------
+
+for any (unknown) Choi operator @xmath initially shared by Alice and
+Bob, where @xmath is the uniformly distributed key on the key space
+@xmath .
+
+###### Remark 3.4.2
+
+[ Ren05 , Remark 6.1.3] The above security definition can be subdivided
+into two conditions. If the generated key is @xmath -secret, i.e.,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and @xmath -correct, i.e.,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+then the generated key pair is @xmath -secure.
+
+For a given Choi operator @xmath , we define the probability
+distribution @xmath as
+
+  -- -------- -- -------
+     @xmath      (3.9)
+  -- -------- -- -------
+
+Actually, @xmath does not depend on the parameter @xmath in the BB84
+protocol. Therefor, we denote @xmath by @xmath when we treat the BB84
+protocol.
+
+The following theorem gives a sufficient conditions on @xmath and @xmath
+such that the generated key pair is secure.
+
+###### Theorem 3.4.3
+
+For each sample sequence @xmath , assume that the IR procedure is @xmath
+-universally-correct for the class of distributions
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+in the six-state protocol, and for the class of distributions
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+in the BB84 protocol. For each @xmath , if we set
+
+  -- -------- -- --------
+     @xmath      (3.10)
+  -- -------- -- --------
+
+then the distilled key pair is @xmath -secure, where @xmath .
+
+###### Proof.
+
+We only prove the statement for the six-state protocol, because the
+statement for the BB84 protocol is proved exactly in the same way by
+replacing @xmath with @xmath and some other related quantities. The
+assertion of the theorem follows from the combination of Corollary
+2.2.14 , Remark 2.2.15 , Lemma 2.2.10 , and Eqs. ( 3.4 ), and ( 3.6 ).
+
+For any @xmath , Eq. ( 3.4 ) means that @xmath with probability @xmath .
+When @xmath , the distilled key pair trivially satisfies
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+On the other hand, when @xmath , Eq. ( 3.10 ) implies
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+by using Lemma 2.2.10 . Thus the distilled key satisfies
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+by Corollary 2.2.14 , Remark 2.2.15 , and the assumption that the IR
+procedure is @xmath -universally-correct for the class of distribution
+@xmath . Averaging over the sample sequence @xmath , we have the
+assertion of the theorem. ∎
+
+From Eq. ( 3.10 ), we find that the estimator @xmath of Eve’s ambiguity
+and the syndrome rate @xmath for the IR procedure are the important
+factors to decide the key generation rate @xmath . In the next section,
+we investigate the asymptotic behavior of the key generation rate
+derived from the right hand side of Eq. ( 3.10 ).
+
+###### Remark 3.4.4
+
+The acceptable region @xmath is defined as follows: Each @xmath belongs
+to @xmath if and only if the right hand side of Eq. ( 3.10 ) is
+positive.
+
+###### Remark 3.4.5
+
+By switching the role of Alice and Bob, we obtain a postprocessing with
+the so-called reverse reconciliation ⁹ ⁹ 9 The reverse reconciliation
+was originally proposed by Maurer in the classical key agreement context
+[ Mau93 ] . . On the other hand, the original procedure is usually
+called the direct reconciliation.
+
+In the reverse reconciliation, Bob sends syndrome @xmath to Alice, and
+Alice recovers the estimate @xmath of Bob’s sequence. Then, Alice and
+Bob’s final keys are @xmath and @xmath for a randomly chosen function
+@xmath from a universal hash family.
+
+For the postprocessing with the reverse reconciliation, we can show
+almost the same statement as Theorem 3.4.3 by replacing @xmath with
+@xmath , which is defined in a similar manner as @xmath , and by using
+@xmath -universally-correct for the reverse reconciliation.
+
+In Section 3.6 , we will show that the asymptotic key generation rate of
+the reverse reconciliation can be higher than that of the direct
+reconciliation. Although the fact that the asymptotic key generation
+rate of the direct reconciliation and the reverse reconciliation are
+different is already pointed out for QKD protocols with weak coherent
+states [ BBL05 , Hay07 ] , it is new for the QKD protocols with qubit
+states.
+
+###### Remark 3.4.6
+
+Although Alice and Bob conducted the (direct) IR procedure for the pair
+of bit sequence @xmath in the postprocessing explained so far, Alice can
+locally conducts a (stochastic) preprocessing for her bit sequence
+before conducting the IR procedure. Surprisingly, Renner et al . [ RGK05
+, Ren05 , KGR05 ] found that Alice should add noise to her bit sequence
+in some cases, which is called the noisy preprocessing. In the
+postprocessing with the noisy preprocessing, Alice first flip each bit
+with probability @xmath and obtain a bit sequence @xmath . Then, Alice
+and Bob conduct the IR procedure and the PA procedure for the pair
+@xmath . Renner et al . found that, by appropriately choosing the value
+@xmath , the key generation rate can be improved.
+
+#### 3.4.3 Asymptotic Key Generation Rate of The Six-State Protocol
+
+In this section, we derive the asymptotic key generation rate formula
+for the six-state protocol. As we have seen in Section 3.4.1 , the
+estimator @xmath converges to the true value @xmath in probability as
+@xmath goes to infinity. On the other hand, Theorem 3.3.2 implies that
+it is sufficient to set the rate of the syndrome so that
+
+  -- -------- -- --------
+     @xmath      (3.11)
+  -- -------- -- --------
+
+for sufficiently large @xmath , where @xmath is the conditional entropy
+¹⁰ ¹⁰ 10 Equivalently, we can regard @xmath as the quantum conditional
+entropy for the classical density operator @xmath . for the random
+variables @xmath that are distributed according to @xmath , and the
+minimization is taken over the set @xmath . Since the ML estimator
+@xmath is a consistency estimator of @xmath , we can set the sequence of
+the syndrome rates so that it converges to @xmath in probability as
+@xmath . Therefore, we can set the sequence of the key generation rates
+so that it converges to the asymptotic key generation rate formula
+
+  -- -------- -- --------
+     @xmath      (3.12)
+  -- -------- -- --------
+
+in probability as @xmath .
+
+Similarly for the postprocessing with the reverse reconciliation, we can
+set the sequence of the key generation rates so that it converges to the
+asymptotic key generation rate formula
+
+  -- -------- -- --------
+     @xmath      (3.13)
+  -- -------- -- --------
+
+#### 3.4.4 Asymptotic Key Generation Rate of The BB84 Protocol
+
+In this section, we derive the asymptotic key generation rate formula
+for the BB84 protocol. As we have seen in Section 3.4.1 , the estimator
+@xmath converges to the true value @xmath in probability as @xmath goes
+to infinity. On the other hand, Theorem 3.3.2 implies that it is
+sufficient to set the rate of the syndrome so that
+
+  -- -------- -- --------
+     @xmath      (3.14)
+  -- -------- -- --------
+
+for sufficiently large @xmath , where @xmath is the conditional entropy
+for the random variables @xmath that are distributed according to @xmath
+, and the minimization is taken over the set @xmath . Since the ML
+estimator @xmath is a consistency estimator of @xmath , we can set the
+sequence of the syndrome rates so that it converges to @xmath in
+probability as @xmath . Therefore, we can set the sequence of the key
+generation rates so that it converges to the asymptotic key generation
+rate formula
+
+  -- -------- -- --------
+     @xmath      (3.15)
+  -- -------- -- --------
+
+Similarly, for the postprocessing with the reverse reconciliation, we
+can set the sequence of the key generation rates so that it converges to
+the asymptotic key generation rate formula
+
+  -- -------- -- --------
+     @xmath      (3.16)
+  -- -------- -- --------
+
+Although the asymptotic key generation rate formulae for the six-state
+protocol (Eqs. ( 3.12 ) and ( 3.13 )) do not involve the minimization,
+the asymptotic key generation rate formulae for the BB84 protocol
+(Eqs. ( 3.15 ) and ( 3.16 )) involve the minimization, and therefore
+calculation of these formula is not straightforward. The following
+propositions are very useful for the calculation of the asymptotic key
+generation rate of the BB84 protocol.
+
+###### Proposition 3.4.7
+
+For two Choi operators @xmath and a probabilistically mixture @xmath ,
+Eve’s ambiguity is convex, i.e., we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is @xmath -state derived from a purification @xmath of
+@xmath .
+
+###### Proof.
+
+For @xmath and @xmath , let @xmath be a purification of the @xmath .
+Then the density operator @xmath is derived by Alice’s measurement by
+@xmath -basis and the partial trace over Bob’s system, i.e.,
+
+  -- -------- -- --------
+     @xmath      (3.17)
+  -- -------- -- --------
+
+Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+be a purification of @xmath , where @xmath is the reference system, and
+@xmath is an orthonormal basis of @xmath . Let
+
+  -- -------- -- --------
+     @xmath      (3.18)
+  -- -------- -- --------
+
+and let
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+be the density operator such that the system @xmath is measured by
+@xmath basis. Then we have
+
+  -- -------- -------- -------- --
+     @xmath                     
+                                
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where the inequality follows from the monotonicity of the quantum mutual
+information for measurements (data processing inequality) [ Hay06 ] . By
+renaming the systems @xmath to @xmath , we have the assertion of the
+lemma. ∎
+
+###### Remark 3.4.8
+
+In a similar manner, we can also show the convexity
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+under the same condition as in Proposition 3.4.7 .
+
+The following proposition reduces the number of free parameters in the
+minimization of Eqs. ( 3.15 ) and ( 3.16 ).
+
+###### Proposition 3.4.9
+
+For the BB84 protocol, the minimization in Eqs. ( 3.15 ) and ( 3.16 ) is
+achieved by Choi operator @xmath whose components @xmath , @xmath ,
+@xmath , @xmath , and @xmath , are all @xmath .
+
+###### Proof.
+
+The statement of this proposition easily follows from Proposition 3.4.7
+. We only prove the statement for Eq. ( 3.15 ) because the statement for
+Eq. ( 3.16 ) can be proved exactly in the same manner.
+
+For any @xmath , let @xmath be the complex conjugate of @xmath . Note
+that eigenvalues of density matrices are unchanged by the complex
+conjugate, and thus Eve’s ambiguity @xmath for @xmath equals to @xmath .
+By applying Proposition 3.4.7 for @xmath , @xmath , and @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath . Note that the Stokes parameterization of @xmath is given
+by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Therefore, the components, @xmath , @xmath , @xmath , @xmath , and
+@xmath , of the Stokes parameterization of @xmath are all @xmath . Since
+@xmath is a convex set, @xmath . Since @xmath was arbitrary, we have the
+assertion of the proposition. ∎
+
+The following proposition can be used to calculate a lower bound on the
+asymptotic key generation rate of the BB84 protocol.
+
+###### Proposition 3.4.10
+
+For the BB84 protocol, we have
+
+  -- -------- -- -------- -------- --------
+     @xmath                        (3.19)
+                                   
+                 @xmath   @xmath   
+  -- -------- -- -------- -------- --------
+
+and
+
+  -- -------- -- -------- -------- --------
+     @xmath                        (3.20)
+                                   
+                 @xmath   @xmath   
+  -- -------- -- -------- -------- --------
+
+where @xmath and @xmath are the singular values of the matrix
+
+  -- -------- -- --------
+     @xmath      (3.21)
+  -- -------- -- --------
+
+for @xmath . The equalities in Eqs. ( 3.19 ) and ( 3.20 ) hold if @xmath
+.
+
+###### Proof.
+
+We only prove the statement for Eq. ( 3.19 ) because the statement for
+Eq. ( 3.20 ) is proved exactly in a similar manner. By Proposition 3.4.9
+, it suffice to consider the Choi operator @xmath of the form
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Define another Choi operator @xmath and the mixed one @xmath . Since the
+Stokes parameterization of @xmath is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+the vector part (of the Stokes parameterization) of @xmath is zero
+vector, and the matrix part (of the Stokes parameterization) of @xmath
+is the same as that of @xmath . Furthermore, since @xmath , by using
+Proposition 3.4.7 , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The equality holds if @xmath .
+
+The rest of the proof is to calculate the minimization of @xmath with
+respect to @xmath . By the singular value decomposition, we can
+decompose the matrix @xmath corresponding to the Choi operator @xmath as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath and @xmath are some rotation matrices within @xmath -
+@xmath -plane, and @xmath and @xmath are the singular value of the
+matrix in Eq. ( 3.21 ). Then, we have
+
+  -- -------- -------- -------- --
+     @xmath                     
+                                
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where @xmath are the eigenvalues of the Choi operator @xmath , and
+@xmath . Note that we used Eq. ( 2.5 ) to calculate the von Neumann
+entropy @xmath . By noting that @xmath and @xmath (see Eqs. ( 3.42 ) and
+( 3.43 )), we have the statement for Eq. ( 3.19 ). ∎
+
+The following lemma shows that the function
+
+  -- -------- -- --------
+     @xmath      (3.22)
+  -- -------- -- --------
+
+is a continuous function of @xmath , which we suspended in Section 3.4.1
+.
+
+###### Lemma 3.4.11
+
+The function @xmath is a continuous function of @xmath (with respect to
+the Euclidean distance) for any @xmath .
+
+###### Proof.
+
+Owing to Proposition 3.4.9 , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath and @xmath is the set of all @xmath such that @xmath .
+
+Since the conditional entropy is a continuous function, the following
+statement is suffice for proving that @xmath is continuous function at
+any @xmath . For any @xmath such that @xmath , there exist @xmath such
+that
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (3.23)
+     @xmath   @xmath   @xmath      (3.24)
+  -- -------- -------- -------- -- --------
+
+and @xmath and @xmath converge to @xmath as @xmath goes to @xmath ,
+where @xmath is the @xmath -neighbor of the set @xmath .
+
+Define the set @xmath , which is a closed convex set. Define functions
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+as the upper surface and the lower surface of the set @xmath
+respectively. Then @xmath and @xmath are concave and convex functions
+respectively, because @xmath is a convex set. Thus, @xmath and @xmath
+are continuous functions except the extreme points of @xmath . For any
+extreme point @xmath of @xmath and for any interior point @xmath of
+@xmath , we have @xmath and @xmath , because @xmath is a convex set.
+Since @xmath is a closed set, we have @xmath and @xmath , which implies
+that @xmath and @xmath . Thus @xmath and @xmath are also continuous at
+the extreme points. Since @xmath is a convex set, the continuity of
+@xmath and @xmath implies that Eqs. ( 3.23 ) and ( 3.24 ) hold for some
+@xmath , and @xmath and @xmath converge to @xmath as @xmath goes to
+@xmath . ∎
+
+### 3.5 Comparison to Conventional Estimation
+
+In this section, we show the conventional channel estimation procedure,
+and the asymptotic key generation rate formulas with the conventional
+channel estimation. Then, we show that the asymptotic key generation
+rates with our proposed channel estimation are at least as high as those
+with the conventional channel estimation for the six-state protocol
+(Theorem 3.5.1 ) and the BB84 protocol (Theorem 3.5.5 ) respectively.
+
+In the conventional channel estimation procedure, Alice and Bob discard
+those bits if their bases disagree. Furthermore, they ignore the
+difference between @xmath and @xmath . Mathematically, these discarding
+and ignoring can be described by a function @xmath defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath and @xmath is a dummy symbol indicating that Alice and Bob
+discarded that sample bit.
+
+#### 3.5.1 Six-State Protocol
+
+In the conventional estimation, Alice and Bob estimate @xmath from the
+degraded sample sequence @xmath . Although the Choi operator @xmath is
+described by @xmath real parameters (in the Stokes parameterization),
+from Eqs. ( 2.7 ) and ( 2.8 ), we find that the distribution
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+of the degraded sample symbol @xmath only depends on the parameters
+@xmath , and does not depend on the parameters @xmath . Therefore, we
+regard the set
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+as the parameter space, and denote @xmath by @xmath . Then, we estimate
+the parameters @xmath by the ML estimator:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath .
+
+Since we cannot estimate the parameters @xmath , we have to consider the
+worst case, and estimate the quantity
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for a given @xmath , where the set
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is the candidates of Choi operators for a given @xmath .
+
+By following similar arguments as in Sections 3.4.1 , 3.4.2 , and 3.4.3
+, we can derive the asymptotic key generation rate formula of the
+postprocessing with the direct reconciliation
+
+  -- -------- -- --------
+     @xmath      (3.25)
+  -- -------- -- --------
+
+We can also derive the asymptotic key generation rate formula of the
+postprocessing with the reverse reconciliation
+
+  -- -------- -- --------
+     @xmath      (3.26)
+  -- -------- -- --------
+
+Since Eqs. ( 3.25 ) and ( 3.26 ) involves the minimizations, we have the
+following straight forward but important theorem.
+
+###### Theorem 3.5.1
+
+The asymptotic key generation rates for the direct and the reverse
+reconciliation with our proposed channel estimation procedure (Eqs. (
+3.12 ) and ( 3.13 )) are at least as high as those with the conventional
+channel estimation procedure (Eqs. ( 3.25 ) and ( 3.26 )) respectively.
+
+The following proposition gives an explicit expression of Eqs. ( 3.25 )
+and ( 3.26 ) for any Choi operator. The following proposition also
+clarifies that the asymptotic key generation rates of the direct and the
+reverse reconciliation coincide for any Choi operator if we use the
+conventional channel estimation procedure. Although the following
+proposition is implicitly stated in the literatures [ RGK05 , Ren05 ,
+KGR05 ] , we present it for readers’ convenience.
+
+###### Proposition 3.5.2
+
+For any @xmath , we have
+
+  -- -------- -------- -------- -- --------
+     @xmath                        (3.27)
+                                   
+              @xmath   @xmath      (3.28)
+              @xmath   @xmath      (3.29)
+  -- -------- -------- -------- -- --------
+
+where the distribution @xmath is given by
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+###### Proof.
+
+We only prove the equality between Eqs. ( 3.27 ) and ( 3.29 ), because
+the equality between Eqs. ( 3.28 ) and ( 3.29 ) can be proved exactly in
+the same manner.
+
+For any @xmath , let @xmath , @xmath , and @xmath . Then, @xmath ,
+@xmath , and @xmath also belong to the set @xmath . Define the (partial)
+twirled ¹¹ ¹¹ 11 The (partial) twirling was a technique to convert any
+bipartite density operator into the Bell diagonal state (see Section
+4.5.1 for the definition of the Bell diagonal state). The (partial)
+twirling was first proposed by Bennett et al . [ BDSW96 ] . Choi
+operator
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then, the convexity of @xmath implies @xmath , and we can also find that
+the vector components (in the Stokes parameterization) of @xmath is the
+zero vector and the matrix components (in the Stokes parameterization)
+of @xmath is the diagonal matrix with the diagonal entries @xmath ,
+@xmath , and @xmath . Furthermore, we find that @xmath for any @xmath .
+
+By using Proposition 3.4.7 (twice), we have
+
+  -- -------- -- -------- -------- --------
+     @xmath                        (3.30)
+                                   
+                 @xmath   @xmath   
+                 @xmath   @xmath   
+                 @xmath   @xmath   
+  -- -------- -- -------- -------- --------
+
+where @xmath .
+
+In a similar manner as in Remark 3.3.3 , we have
+
+  -- -------- -- --------
+     @xmath      (3.31)
+  -- -------- -- --------
+
+for any @xmath , where @xmath is the entropy of the random variable
+@xmath whose distribution is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Combining Eqs. ( 3.30 ) and ( 3.31 ), we have the equality between
+Eqs. ( 3.27 ) and ( 3.29 ). ∎
+
+###### Remark 3.5.3
+
+As we can find in the proof of Proposition 3.5.2 , the use of the IR
+procedure (with the linear Slepian-Wolf coding) proposed in Section 3.3
+and the use of the IR procedure (with the error correcting code)
+presented in Remark 3.3.3 make no difference to the asymptotic key
+generation rate if we use the conventional channel estimation procedure.
+
+###### Remark 3.5.4
+
+It should be noted that Eq. ( 3.29 ) is the well known asymptotic key
+generation rate formula [ Lo01 ] , which can be derived by using the
+technique based on the CSS code (See Section 1.1 for the CSS code
+technique).
+
+#### 3.5.2 BB84 Protocol
+
+In the conventional estimation, Alice and Bob estimate @xmath from the
+degraded sample sequence @xmath . Although the Choi operator @xmath is
+described by @xmath real parameters (in the Stokes parameterization),
+from Eqs. ( 2.7 ) and ( 2.8 ), we find that the distribution
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+of the degraded sample symbol @xmath only depends on the parameters
+@xmath , and does not depend on the parameters @xmath . Therefore, we
+regard the set
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+as the parameter space, and denote @xmath by @xmath . Then, we estimate
+the parameters @xmath by the ML estimator:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath .
+
+Since we cannot estimate the parameters @xmath , we have to consider the
+worst case, and estimate the quantity
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for a given @xmath , where the set
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is the candidates of Choi operators for a given @xmath .
+
+By following similar arguments as in Sections 3.4.1 , 3.4.2 , and 3.4.4
+, we can derive the asymptotic key generation rate formula of the
+postprocessing with the direct reconciliation
+
+  -- -------- -- --------
+     @xmath      (3.32)
+  -- -------- -- --------
+
+We can also derive the asymptotic key generation rate formula of the
+postprocessing with the reverse reconciliation
+
+  -- -------- -- --------
+     @xmath      (3.33)
+  -- -------- -- --------
+
+Since the range @xmath of the minimizations in Eqs. ( 3.15 ) and ( 3.16
+) is smaller than the range @xmath of the minimizations in Eqs. ( 3.32 )
+and ( 3.33 ), we have the following obvious but important theorem.
+
+###### Theorem 3.5.5
+
+The asymptotic key generation rates for the direct and the reverse
+reconciliation with our proposed channel estimation procedure (Eqs. (
+3.15 ) and ( 3.16 )) are at least as high as those with the conventional
+channel estimation procedure (Eqs. ( 3.32 ) and ( 3.33 )) respectively.
+
+The following proposition gives an explicit expression of Eqs. ( 3.32 )
+and ( 3.33 ) for any Choi operator. The following proposition also
+clarifies that the asymptotic key generation rates of the direct and the
+reverse reconciliation coincide for any Choi operator if we use the
+conventional channel estimation procedure. Although the following
+proposition is implicitly stated in the literatures [ RGK05 , Ren05 ,
+KGR05 ] , we present it for readers’ convenience.
+
+###### Proposition 3.5.6
+
+For any @xmath , we have
+
+  -- -------- -------- -------- -- --------
+     @xmath                        (3.34)
+                                   
+              @xmath   @xmath      (3.35)
+              @xmath   @xmath      (3.36)
+  -- -------- -------- -------- -- --------
+
+###### Proof.
+
+This proposition is proved in a similar manner as Proposition 3.5.2 .
+Therefore, we omit the proof. ∎
+
+###### Remark 3.5.7
+
+It should be noted that the same remark as Remark 3.5.3 also holds for
+the BB84 protocol.
+
+###### Remark 3.5.8
+
+It should be noted that Eq. ( 3.36 ) is with the well known asymptotic
+key generation rate formula [ SP00 ] , which can be derived by using the
+technique based on the CSS code (See Section 1.1 for the CSS code
+technique).
+
+### 3.6 Asymptotic Key Generation Rates for Specific Channels
+
+In this section, we calculate the asymptotic key generation rates of the
+BB84 protocol and the six-state protocol for specific channels, and
+clarify the advantage to use our proposed channel estimation instead of
+the conventional channel estimation.
+
+#### 3.6.1 Amplitude Damping Channel
+
+When the channel between Alice and Bob is an amplitude damping channel,
+the Stokes parameterization of the corresponding density operator @xmath
+is
+
+  -- -------- -- --------
+     @xmath      (3.37)
+  -- -------- -- --------
+
+where @xmath .
+
+For the six-state protocol, since there are no minimization in Eqs. (
+3.12 ) and ( 3.13 ), there are no difficulty to calculate Eqs. ( 3.12 )
+and ( 3.13 ).
+
+Next, we consider the BB84 protocol. For @xmath , Eqs. ( 3.15 ) and (
+3.16 ) can be calculated as follows. By Proposition 3.4.9 , it is
+sufficient to consider @xmath such that @xmath . Furthermore, by the
+condition on the TPCP map [ FA99 ]
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+we can decide the remaining parameter as @xmath . Therefore, Eqs. ( 3.15
+) and ( 3.16 ) coincide with the true values respectively. Furthermore,
+the asymptotic key generation rates for the BB84 protocol coincide with
+those for the six-state protocol.
+
+The asymptotic key generation rates for the direct and the reverse
+reconciliations can be written as functions of the parameter @xmath :
+
+  -- -------- -- --------
+     @xmath      (3.38)
+  -- -------- -- --------
+
+and
+
+  -- -------- -- --------
+     @xmath      (3.39)
+  -- -------- -- --------
+
+respectively. They are plotted in Fig. 3.1 .
+
+From Fig. 3.1 , we find that the asymptotic key generation rate with the
+reverse reconciliation is higher than that with the forward
+reconciliation. Actually, they are analyzed in detail as follows. By a
+straightforward calculation, we have
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+and
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where @xmath is the entropy of the random variables with distribution
+@xmath . Therefore, the difference between the asymptotic key generation
+rate with the forward and the reverse reconciliations comes from the
+difference between @xmath and @xmath , which is equal to the difference
+between @xmath and @xmath . Note that @xmath goes to @xmath as @xmath .
+
+The Bell diagonal entries of the Choi operator @xmath are @xmath ,
+@xmath , @xmath , and @xmath . When Alice and Bob only use the degraded
+statistic, i.e., when Alice and Bob use the conventional channel
+estimation, the asymptotic key generation rates of the six-state
+protocol and the BB84 protocol can be calculated only from the Bell
+diagonal entries (Propositions 3.5.2 and 3.5.6 ), and are also plotted
+in Fig. 3.1 .
+
+###### Remark 3.6.1
+
+As is mentioned in Remark 3.4.6 , there is a possibility to improve the
+asymptotic key generation rate in Eq. ( 3.12 ) by the noisy
+preprocessing. If a @xmath -state @xmath derived from a Choi operator
+@xmath satisfies the condition below, we can show that the noisy
+preprocessing does not improve the asymptotic key generation rate.
+
+We define a @xmath -state
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+to be degradable state ¹² ¹² 12 The concept of the degradable state is
+an analogy of the degradable channel [ DS05 ] . For the degradable
+channel, the quantum wire-tap channel capacity [ Dev05 ] is known to be
+achievable without any auxiliary random variable [ Smi08 , Hay06 ] .
+(from Alice to Bob and Eve) if there exist states @xmath satisfying
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for any @xmath . If a @xmath -state @xmath derived from a Choi operator
+@xmath is degradable, then the asymptotic key generation rate in Eq. (
+3.12 ) is optimal, that is, it cannot be improved by the noisy
+preprocessing.
+
+The above statement is proved as follows. Even if we know the Choi
+operator @xmath in advance, the asymptotic key generation rate of any
+postprocessing is upper bounded by the quantum intrinsic information ¹³
+¹³ 13 It is the quantum analogy of the intrinsic information proposed by
+Maurer and Wolf [ MW99 ] .
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is the quantum conditional mutual information, and the infimum is taken
+over all @xmath -states @xmath for CPTP maps @xmath from system @xmath
+to @xmath [ CEH @xmath 07 ] . Taking the identity map @xmath , the
+quantum conditional mutual information @xmath itself is an upper bound
+on the asymptotic key generation rate for any postprocessing.
+
+Since we are now considering the postprocessing in which only Alice
+sends the public message, the maximum of the asymptotic key generation
+rate only depends on the distribution @xmath and @xmath -state @xmath .
+Thus the maximum of the asymptotic key generation rate for @xmath is
+equals to that for degraded version of it,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Applying the above upper bound @xmath for the degraded @xmath -state
+@xmath , the maximum of the asymptotic key generation rate is upper
+bounded by
+
+  -- -------- -------- -------- --
+     @xmath                     
+                                
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+which is the desired upper bound, and equals to Eq. ( 3.12 ).
+
+For the amplitude damping channel, we can show that the @xmath -state
+@xmath is degradable by a straightforward calculation. Therefore, the
+asymptotic key generation rate in Eq. ( 3.12 ) is optimal for the
+amplitude damping channel.
+
+Although we exclusively considered a key generated from the bit
+sequences transmitted and received by the @xmath -basis, we can also
+obtain a key from the bit sequences transmitted and received by the
+@xmath -basis (or the @xmath -basis for the six-state protocol). In this
+case, the asymptotic key generation rates are also given by Eqs. ( 3.12
+), ( 3.13 ), ( 3.15 ), and ( 3.16 ), where the definition of the @xmath
+-state @xmath and the distribution @xmath must be replaced
+appropriately.
+
+For the amplitude damping channel ¹⁴ ¹⁴ 14 By the symmetry of the
+amplitude damping channel for the @xmath -basis and the @xmath -basis,
+the asymptotic key generation rates for the @xmath -basis are the same
+as those for the @xmath -basis , the asymptotic key generation rates for
+the forward and the reverse reconciliations can be written as functions
+of the parameter @xmath :
+
+  -- -------- -- --------
+     @xmath      (3.40)
+  -- -------- -- --------
+
+and
+
+  -- -------- -- --------
+     @xmath      (3.41)
+  -- -------- -- --------
+
+respectively. They are plotted in Fig. 3.2 , and compared to the
+asymptotic key generation rates with the conventional channel
+estimation.
+
+From Fig. 3.2 , we find that the asymptotic key generation rate with the
+reverse reconciliation is higher than that with the forward
+reconciliation. Although the difference between the asymptotic key
+generation rate with the forward and the reverse reconciliations comes
+from the difference between @xmath and @xmath in the case of the @xmath
+-basis, the difference between the asymptotic key generation rate with
+the forward and the reverse reconciliations comes from the difference
+between @xmath and @xmath , because @xmath in the case of the @xmath
+-basis.
+
+#### 3.6.2 Unital Channel and Rotation Channel
+
+A channel is called a unital channel if @xmath maps the completely mixed
+state @xmath to itself, or equivalently the corresponding Choi operator
+@xmath satisfies @xmath . In the Stokes parameterization, a unital
+channel @xmath satisfies that @xmath is the zero vector. The unital
+channel has the following physical meaning in QKD protocols. When Eve
+conducts the Pauli cloning [ Cer00 ] with respect to an orthonormal
+basis that is a rotated version of @xmath , @xmath , the quantum channel
+from Alice to Bob is not a Pauli channel but a unital channel. It is
+natural to assume that Eve cannot determine the direction of the basis
+@xmath , @xmath accurately, and the unital channel deserve consideration
+in the QKD research as well as the Pauli channel.
+
+By the singular value decomposition, we can decompose the matrix @xmath
+of the Stokes parameterization as
+
+  -- -------- -- --------
+     @xmath      (3.42)
+  -- -------- -- --------
+
+where @xmath and @xmath are some rotation matrices ¹⁵ ¹⁵ 15 The rotation
+matrix is the real orthogonal matrix with determinant @xmath . , and
+@xmath , @xmath , and @xmath are the singular value of the matrix @xmath
+¹⁶ ¹⁶ 16 The decomposition is not unique because we can change the order
+of @xmath or the sign of them by adjusting the rotation matrices @xmath
+and @xmath . However, the result in this paper does not depends on a
+choice of the decomposition. . Thus, we can consider the unital channel
+as a composition of a unitary channel, a Pauli channel
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and a unitary channel [ BW04 ] , where
+
+  -- -- -- --------
+           (3.43)
+  -- -- -- --------
+
+For the six-state protocol, we can derive simple forms of @xmath and
+@xmath as follows.
+
+###### Lemma 3.6.2
+
+For the unital channel, we have
+
+  -- -------- -- --------
+     @xmath      (3.44)
+  -- -------- -- --------
+
+and
+
+  -- -------- -- --------
+     @xmath      (3.45)
+  -- -------- -- --------
+
+###### Proof.
+
+We omit the proof because it can be proved in a similar manner as the
+latter half of the proof of Proposition 3.4.10 . ∎
+
+From this lemma, we can find that @xmath is the necessary and sufficient
+condition for @xmath . Furthermore, we can show @xmath by a
+straightforward calculation.
+
+For the BB84 protocol, @xmath consists of infinitely many elements in
+general. By using Proposition 3.4.10 , we can calculate Eve’s worst case
+ambiguity as
+
+  -- -------- -- -------- -------- --------
+     @xmath                        (3.46)
+                                   
+                 @xmath   @xmath   
+  -- -------- -- -------- -------- --------
+
+and
+
+  -- -------- -- -------- -------- --------
+     @xmath                        (3.47)
+                                   
+                 @xmath   @xmath   
+  -- -------- -- -------- -------- --------
+
+where @xmath and @xmath are the singular values of the matrix @xmath .
+From these formulae, we find that @xmath is the necessary and sufficient
+condition for @xmath coincides with @xmath . It should be noted that the
+singular values @xmath are different from the singular values @xmath in
+general because there exist off-diagonal elements @xmath . By a
+straightforward calculation, we can show that @xmath .
+
+In the rest of this section, we analyze a special class of the unital
+channel, the rotation channel, for the BB84 protocol. The rotation
+channel is a channel whose Stokes parameterization is given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The rotation channels occur, for example, when the directions of the
+transmitter and the receiver are not properly aligned.
+
+For the rotation channel, Eq. ( 3.46 ) gives @xmath , which implies that
+Eve gained no information. Thus, Eve’s worst case ambiguity, @xmath
+coincide with the true value @xmath , and the BB84 protocol can achieve
+the same asymptotic key generation rate as the six-state protocol.
+
+The reason why we show this example is that Alice and Bob can share a
+secret key with a positive asymptotic key generation rate even though
+the so-called error rate is higher than the @xmath % limit [ GL03 ] in
+the BB84 protocol. The Bell diagonal entries of the Choi operator @xmath
+that corresponds to the rotation channel are @xmath , @xmath , @xmath ,
+and @xmath . Thus the error rate is @xmath . For @xmath , the error rate
+is higher than @xmath %, but we can obtain the positive key rate, @xmath
+except @xmath . Note that the asymptotic key generation rate in Eq. (
+3.32 ) is given by @xmath . This fact verifies Curty et al’s suggestion
+[ CLL04 ] that key agreement might be possible even for the error rates
+higher than @xmath % limits.
+
+### 3.7 Condition for Strict Improvement
+
+So far, we have seen that the asymptotic key generation rates with our
+proposed channel estimation is at least as high as those with the
+conventional channel estimation (Section 3.5 ), and that the former is
+strictly higher than the latter for some specific channels (Section 3.6
+). For the BB84 protocol, the following theorems show the necessary and
+sufficient condition such that the former is strictly higher than the
+latter is that the channel is a Pauli channel.
+
+###### Theorem 3.7.1
+
+Suppose that @xmath and @xmath . In the BB84 protocol, for the bit
+sequences transmitted and received by either @xmath -basis or the @xmath
+-basis, the asymptotic key generation rates with our proposed channel
+estimation are strictly higher than those with the conventional channel
+estimation if and only if @xmath or @xmath .
+
+###### Proof.
+
+We only prove the statement for the direct reconciliation, because the
+statement for the reverse reconciliation can be proved in a similar
+manner.
+
+##### “only if” part
+
+Suppose that @xmath and @xmath . Then, Propositions 3.4.10 and 3.5.6
+implies that Eq. ( 3.15 ) is equal to Eq. ( 3.32 ). Similarly, the
+asymptotic key generation rate for the @xmath -basis with our proposed
+channel estimation is equal to that with the conventional channel
+estimation.
+
+##### “if” part
+
+Suppose that @xmath . Let @xmath be the Choi operator satisfying
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the entropy of the distribution defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then, @xmath and the arguments at the end of Remark 3.3.3 imply
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Eq. ( 3.15 ) is strictly higher than Eq. ( 3.32 ). In a similar manner,
+we can show that the asymptotic key generation rate for the @xmath
+-basis with our proposed channel estimation is strictly higher that that
+with the conventional channel estimation if @xmath .
+
+Suppose that @xmath and @xmath . By using Proposition 3.4.10 , we have
+
+  -- -------- -- -------- -------- --------
+     @xmath                        (3.48)
+                                   
+                 @xmath   @xmath   
+                          @xmath   
+  -- -------- -- -------- -------- --------
+
+By the singular value decomposition, we have
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where @xmath and @xmath are the rotation matrices, and we set @xmath and
+@xmath . From Proposition 3.5.6 , we have
+
+  -- -------- -- -------- -------- --------
+     @xmath                        (3.49)
+                                   
+                 @xmath   @xmath   
+  -- -------- -- -------- -------- --------
+
+Subtracting Eq. ( 3.49 ) from Eq. ( 3.48 ), we have
+
+  -- -------- -- -------- -------- --------
+     @xmath                        (3.50)
+                                   
+                          @xmath   
+                 @xmath   @xmath   
+                          @xmath   
+                 @xmath   @xmath   
+                          @xmath   
+                 @xmath   @xmath   
+                          @xmath   
+                          @xmath   
+                 @xmath   @xmath   
+  -- -------- -- -------- -------- --------
+
+where the second inequality follows from the concavity of the function
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which can be shown by a straight forward calculation. Thus, we have
+shown that Eq. ( 3.15 ) is strictly higher than Eq. ( 3.32 ). In a
+similar manner, we can show that the asymptotic key generation rate for
+the @xmath -basis with our proposed channel estimation is strictly
+higher that with the conventional channel estimation if @xmath . ∎
+
+### 3.8 Summary
+
+The results in this chapter is summarized as follows: In Section 3.2 ,
+we formally described the problem setting of the QKD protocols.
+
+In Section 3.3 , we showed the most basic IR procedure with one-way
+public communication. We introduced the condition such the IR procedure
+is universally correct (Definition 3.3.1 ). This condition was required
+because the IR procedure have to be robust against the fluctuation of
+the estimated probability of Alice and Bob’s bit sequences. We also
+explained the conventionally used IR procedure with the error correcting
+code, and we clarified that the length of the syndrome that must be
+transmitted in the conventional IR procedure is larger than that in our
+IR procedure (Remark 3.3.3 ). We showed how to apply the LDPC code with
+the sum product algorithm in our IR procedure (Remark 3.3.4 ).
+
+In Section 3.4.1 , we showed our proposed channel estimation procedure.
+We clarified a sufficient condition on the key generation rate such that
+Alice and Bob can share a secure key (Theorem 3.4.3 ), and we derived
+the asymptotic key generation rate formulae. We developed some
+techniques to calculate the asymptotic key generation rates
+(Propositions 3.4.9 and 3.4.10 ) for the BB84 protocol.
+
+In Section 3.5 , we explained the conventional estimation procedure.
+Then, we derived the asymptotic key generation rate formulae with the
+conventional channel estimation.
+
+In Section 3.6 , we investigated the asymptotic key generation rates for
+some examples of channels. We also introduced the concept of the
+degradable state, and we clarified that the asymptotic key generation
+rate in Eq. ( 3.12 ) is optimal if the state shared by Alice, Bob, and
+Eve is degradable (Remark 3.6.1 ). For the rotation channel, we
+clarified that the asymptotic key generation rate can be positive even
+if the error rate is higher than the 25% limit (Section 3.6.2 ).
+
+Finally in Section 3.7 , for the BB84 protocol we clarified the
+necessary and sufficient condition such that the asymptotic key
+generation rates with our proposed channel estimation is strictly higher
+than those with the conventional channel estimation is that the channel
+is a Pauli channel.
+
+## Chapter 4 Postprocessing
+
+### 4.1 Background
+
+The postprocessing shown in Chapter 3 consists of the IR procedure and
+the PA procedure. Roughly speaking, Alice and Bob can share a secret key
+with the key generation rate
+
+  -- -------- -- -------
+     @xmath      (4.1)
+  -- -------- -- -------
+
+in that postprocessing. An interpretation of Eq. ( 4.1 ) is that the key
+generation rate is given by the difference between Eve’s ambiguity about
+Alice’s bit sequence subtracted by Bob’s ambiguity about Alice’s bit
+sequence. Therefore, when Eve’s ambiguity about Alice’s bit sequence is
+smaller than Bob’s ambiguity about Alice’s bit sequence, the key
+generation rate of that postprocessing is @xmath .
+
+In [ Mau93 ] , Maurer proposed a procedure, the so-called advantage
+distillation. The advantage distillation is conducted before the IR
+procedure, and the resulting postprocessing can have positive key
+generation rate even though Eq. ( 4.1 ) is negative. Gottesman and Lo
+applied the advantage distillation to the QKD protocols [ GL03 ] . In
+the QKD protocols, the postprocessing with the advantage distillation
+was extensively studied by Bae and Acín [ BA07 ] .
+
+In this chapter, we propose a new kind of postprocessing, which can be
+regarded as a generalization of the postprocessing that consists of the
+advantage distillation, the IR procedure, and the PA procedure. In our
+proposed postprocessing, the advantage distillation and the IR procedure
+are combined into one procedure, the two-way IR procedure. After the
+two-way IR procedure, we conduct the standard PA procedure.
+
+The rest of this chapter is organized as follows: In Section 4.2 , we
+review the advantage distillation. Then in Section 4.3 , we propose the
+two-way information reconciliation procedure. In Section 4.4 , we show a
+sufficient condition of the key generation rate such that Alice and Bob
+can share a secure key by our proposed postprocessing. In Section 4.5 ,
+we clarify that the key generation rate of our proposed postprocessing
+is higher than the other postprocessing by showing examples. Finally, we
+mention the relation between our proposed postprocessing and the
+entanglement distillation protocols in Section 4.6 .
+
+### 4.2 Advantage Distillation
+
+In order to clarify the relation between the two-way IR procedure and
+the advantage distillation proposed by Maurer [ Mau93 ] , we review the
+postprocessing with the advantage distillation in this section. For
+convenience, the notations are adapted to this thesis. We assume that
+Alice and Bob have correlated binary sequences @xmath of even length.
+The pair of sequences @xmath is independently identically distributed
+(i.i.d.) according to a joint probability distribution @xmath .
+
+First, we need to define some auxiliary random variables to describe the
+postprocessing with the advantage distillation procedure. Let @xmath be
+a function defined as @xmath for @xmath , and let @xmath be a function
+defined as @xmath and @xmath for @xmath . For a pair of joint random
+variables @xmath , @xmath with a distribution, @xmath , we define random
+variables @xmath , @xmath and @xmath . Furthermore, define random
+variables @xmath , @xmath and @xmath . For the pair of sequences, @xmath
+and @xmath , which is distributed according to @xmath , let @xmath ,
+@xmath and @xmath be @xmath -bit sequences such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath . Then, the pair @xmath and the discrepancy, @xmath between
+@xmath and @xmath are distributed according to the distribution @xmath .
+
+The purpose of the advantage distillation is to classify blocks of
+length @xmath according to the parity @xmath of the discrepancies in
+each block. When @xmath is a distribution such that @xmath is the
+uniform distribution and @xmath is a binary symmetric channel (BSC), the
+validity of this classification can be understood because we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+This formula means that Alice have to send @xmath itself if she want to
+tell Bob @xmath . Therefore, they cannot obtain any secret key from
+@xmath , and they should discard @xmath if @xmath . For general @xmath ,
+the validity of above mentioned classification is unclear. For this
+reason, we employ a function which is more general than @xmath in the
+next section.
+
+By using above preparations, we can describe the postprocessing with the
+advantage distillation as follows. First, Alice sends the parity
+sequence @xmath to Bob so that he can identify the parity sequence
+@xmath of the discrepancies. Bob sends @xmath back to Alice. Then, they
+discard @xmath and @xmath respectively, because @xmath is revealed to
+Eve. As the final step of the advantage distillation, Alice calculate ¹
+¹ 1 Conventionally, Alice discard those blocks if @xmath . In our
+procedure, Alice convert the second bit of those blocks into the
+constant @xmath , which is mathematically equivalent to discarding those
+blocks. the sequence @xmath by using @xmath and @xmath .
+
+At the end of the advantage distillation, Alice has @xmath and Bob has
+@xmath and @xmath as a seed for the key agreement. By conducting the
+(one-way) IR procedure and the PA procedure for @xmath , Alice and Bob
+share a secret key.
+
+### 4.3 Two-Way Information Reconciliation
+
+In this section, we show the two-way IR procedure. The essential
+difference between the two-way IR procedure and the advantage
+distillation is that Alice does not send the sequence @xmath itself. As
+is usual in information theory, if we allow negligible error
+probability, Alice does not need to send the parity sequence, @xmath ,
+to Bob to identify parity sequence @xmath . More precisely, Bob can
+decode @xmath with negligible decoding error probability if Alice sends
+a syndrome with a sufficient length. Since Eve’s available information
+from the syndrome is much smaller than that from sequence @xmath itself,
+Alice and Bob can use @xmath as a seed for the key agreement.
+
+First, we need to define some auxiliary random variables. As we have
+mentioned in the previous section, we use a function which is more
+general than @xmath . Let @xmath be arbitrary functions from @xmath to
+@xmath . Then, let @xmath be a function defined as @xmath if @xmath ,
+and @xmath else. Let @xmath be a function defined as @xmath if @xmath ,
+and @xmath else. By using these functions and the function @xmath
+defined in the previous section, we define the auxiliary random
+variables: @xmath , @xmath , @xmath , @xmath , and @xmath . These
+auxiliary random variables mean that either Alice or Bob’s second bits
+are kept or discarded depending on the values of @xmath and @xmath . The
+specific form of @xmath and @xmath will be given in Section 4.5 so that
+the asymptotic key generation rates are maximized.
+
+Our proposed two-way IR procedure is conducted as follows:
+
+1.  Alice calculate @xmath and Bob does the same for @xmath .
+
+2.  Alice calculates syndrome @xmath , and sends it to Bob over the
+    public channel.
+
+3.  Bob decodes @xmath into estimate of @xmath by a decoder @xmath .
+    Then, he calculates @xmath , and sends it to Alice over the public
+    channel.
+
+4.  Alice calculates @xmath by using @xmath , @xmath , and the function
+    @xmath . Bob also calculates @xmath by using @xmath , @xmath , and
+    the function @xmath .
+
+5.  Alice calculates syndrome @xmath , and sends it to Bob over the
+    public channel. Bob also calculate syndrome @xmath , and sends it to
+    Alice over the public channel.
+
+6.  Bob decodes @xmath into estimate of @xmath by using a decoder @xmath
+    . Alice also decodes @xmath by using a decoder @xmath .
+
+As we mentioned in Section 3.3 , the decoding error probability of the
+two-way IR procedure have to be universally small for any distribution
+in the candidate @xmath that are estimated by Alice and Bob. For this
+reason, we introduce the concept that a two-way IR procedure is @xmath
+-universally-correct in a similar manner as in Definition 3.3.1 :
+
+###### Definition 4.3.1
+
+We define a two-way IR procedure to be @xmath -universally-correct for
+the class @xmath of probability distribution if
+
+  -- -------- -- -------- --
+     @xmath               
+                          
+                 @xmath   
+  -- -------- -- -------- --
+
+for any @xmath .
+
+An example of a decoder that fulfils the universality is the minimum
+entropy decoder. For Step ( iii ), the minimum entropy decoder is
+defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the joint type of the sequence
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+of length @xmath . For Step ( vi ), the minimum entropy decoder is
+defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the joint type of the sequence
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+of length @xmath . The minimum entropy decoder for @xmath is defined in
+a similar manner.
+
+###### Theorem 4.3.2
+
+[ Csi82 , Theorem 1] Let @xmath , @xmath , and @xmath be real numbers
+that satisfy
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+respectively, where @xmath , @xmath , and @xmath for the random
+variables @xmath that are distributed according to @xmath . Then, for
+every sufficiently large @xmath , there exist a @xmath parity check
+matrix @xmath , a @xmath parity check matrix @xmath , and a @xmath
+parity check matrix @xmath such that @xmath , @xmath , and @xmath , and
+the decoding error probability by the minimum entropy decoding satisfies
+
+  -- -------- -------- -------- --
+     @xmath                     
+                                
+                       @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+for any @xmath , where @xmath are constants that do not depends on
+@xmath .
+
+### 4.4 Security and Asymptotic Key Generation Rate
+
+#### 4.4.1 Sufficient Condition on Key Generation Rate for Secure Key
+Agreement
+
+In this section, we show how Alice and Bob decide the parameters of the
+postprocessing and share a secret key. Then, we show a sufficient
+condition on the parameters such that Alice and Bob can share a secure
+key. We employ almost the same notations as in Section 3.4.1 .
+
+Let us start with the six-state protocol. Instead of the conditional von
+Neumann entropy @xmath , the quantities
+
+  -- -------- -- -------
+     @xmath      (4.2)
+  -- -------- -- -------
+
+and
+
+  -- -------- -- -------
+     @xmath      (4.3)
+  -- -------- -- -------
+
+play important roles in our postprocessing, where the von Neumann
+entropies are calculated with respect to the operator @xmath derived
+from @xmath via the measurement and the functions @xmath . For the ML
+estimator @xmath of @xmath , we set
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which are the ML estimators of the quantities in Eqs. ( 4.2 ) and ( 4.3
+) respectively.
+
+For the BB84 protocol, we similarly set
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+respectively.
+
+According to the sample bit sequence @xmath , Alice and Bob decide the
+rate @xmath , @xmath , and @xmath of the parity check matrices used in
+the two-way IR procedure. Furthermore, they also decide the length
+@xmath of the finally distilled key according to the sample bit sequence
+@xmath . Then, they conduct the postprocessing as follows.
+
+1.  Alice and Bob undertake the two-way IR procedure of Section 4.3 ,
+    and they obtain @xmath and @xmath respectively.
+
+2.  Alice and Bob carry out the PA procedure to distill a key pair
+    @xmath . First, Alice randomly chooses a hash function, @xmath ,
+    from a family of two-universal hash functions, and sends the choice
+    of @xmath to Bob over the public channel. Then, Alice’s distilled
+    key is @xmath and Bob’s distilled key is @xmath respectively.
+
+The distilled key pair and Eve’s available information can be described
+by a @xmath -state, @xmath , where classical system @xmath consists of
+random variables @xmath , @xmath , and @xmath that describe the
+syndromes transmitted in Steps ( ii ) and ( v ) of the two-way IR
+procedure and random variable @xmath that describe the choice of the
+function in the PA procedure. Then, the security of the distilled key
+pair is defined in the same way as in Section 3.4.1 , i.e., the key pair
+is said to be @xmath -secure if Eq. ( 3.8 ) is satisfied.
+
+The following theorem gives a sufficient condition on @xmath , @xmath ,
+@xmath , and @xmath such that the distilled key is secure.
+
+###### Theorem 4.4.1
+
+For each sample sequence @xmath , assume that the IR procedure is @xmath
+-universally-correct for the class of distributions
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+in the six-state protocol, and for the class of distributions
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+in the BB84 protocol. For each @xmath , if we set
+
+  -- -------- -- -------- -------- -------
+     @xmath                        (4.4)
+                                   
+                 @xmath   @xmath   
+                          @xmath   
+  -- -------- -- -------- -------- -------
+
+then the distilled key is @xmath -secure, where @xmath .
+
+###### Proof.
+
+We only prove the statement for the six-state protocol, because the
+statement for the BB84 protocol is proved exactly in the same way by
+replacing @xmath with @xmath and some other related quantities. The
+assertion of the theorem is proved by using Corollary 2.2.14 , Lemma
+2.2.10 , Lemma 2.1.2 , and Eq. ( 3.4 ).
+
+For any @xmath , Eq. ( 3.4 ) means that @xmath with probability @xmath .
+When @xmath , the distilled key pair is @xmath -secure. For @xmath , we
+first assume (proved later) that the dummy key @xmath is @xmath -secret
+under the condition that Eve can access @xmath , i.e.,
+
+  -- -------- -- -------
+     @xmath      (4.5)
+  -- -------- -- -------
+
+The assumption that the two-way IR procedure is @xmath
+-universally-correct implies that @xmath , @xmath , and @xmath with
+probability at least @xmath . Since @xmath , @xmath , @xmath , @xmath ,
+and @xmath can be computed from @xmath , by using Lemma 2.1.2 , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since the trace distance does not increase by CP maps, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Therefore, the statement that the dummy key @xmath is @xmath -secret
+implies that the actual key @xmath is @xmath -secret as follows:
+
+  -- -- -------- -------- --
+                          
+                          
+        @xmath   @xmath   
+                 @xmath   
+                 @xmath   
+  -- -- -------- -------- --
+
+where the first term is upper bounded by @xmath , the second term is
+upper bounded by @xmath , and the third term is also upper bounded by
+@xmath because @xmath . The assumption that the two-way IR procedure is
+@xmath -universally-correct also implies that the distilled key pair
+@xmath is @xmath -universally-correct. Thus, the key pair is @xmath
+-secure if @xmath . Averaging over the sample sequence @xmath , the
+distilled key pair is @xmath -secure.
+
+One thing we have left is to prove Eq. ( 4.5 ). According to Lemma
+2.2.10 , the inequality
+
+  -- -------- -- -------- --
+     @xmath               
+                          
+                 @xmath   
+  -- -------- -- -------- --
+
+implies the inequality
+
+  -- -------- -- -------- --
+     @xmath               
+                          
+                 @xmath   
+  -- -------- -- -------- --
+
+Thus, Corollary 2.2.14 implies that the dummy key @xmath is @xmath
+-secret.
+
+Since the syndrome @xmath is computed from the sequence @xmath , if the
+dummy key @xmath is @xmath -secret in the case that Eve can access the
+sequence @xmath , then the dummy key @xmath must be @xmath -secret in
+the case that Eve can only access the syndrome @xmath instead of @xmath
+. According to Lemma 2.2.10 , the inequality
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+implies the inequality
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Thus, Corollary 2.2.14 implies that the dummy key @xmath is @xmath
+-secret.
+
+Combining above two arguments, we have the assertion of the theorem. ∎
+
+###### Remark 4.4.2
+
+The maximization in Eq. ( 4.4 ) is very important. If either of them is
+omitted, the key generation rate of the postprocessing can be
+underestimated, as will be discussed in Section 4.5 .
+
+###### Remark 4.4.3
+
+By switching the role of Alice and Bob, we obtain a postprocessing with
+the reverse two-way IR procedure. For the postprocessing with the
+reverse two-way IR procedure, we can show almost the same statement as
+Theorem 4.4.1 by replacing @xmath with @xmath , and by using the @xmath
+-universally-correct for the reverse two-way IR procedure.
+
+#### 4.4.2 Asymptotic Key Generation Rates
+
+In this section, we derive the asymptotic key generation rate formula
+for the postprocessing with the two-way IR procedure. First, we consider
+the six-state protocol. Since the ML estimator is a consistent
+estimator, in a similar arguments as in Sections 3.4.1 and 3.4.3 , we
+can set the sequence of the key generation rates so that it converges to
+the asymptotic key generation rate formula
+
+  -- -------- -- -- -------- -------
+     @xmath                  (4.6)
+                             
+                    @xmath   
+                    @xmath   
+  -- -------- -- -- -------- -------
+
+in probability as @xmath . We can also derive the asymptotic key
+generation formula for the postprocessing with the reverse two-way IR
+procedure as
+
+  -- -------- -- -- -------- -------
+     @xmath                  (4.7)
+                             
+                    @xmath   
+                    @xmath   
+  -- -------- -- -- -------- -------
+
+Next, we consider the BB84 protocol. Since the ML estimator is a
+consistent estimator, in a similar arguments as in Sections 3.4.1 and
+3.4.4 , we can set the sequence of the key generation rates so that it
+converges to the asymptotic key generation rate formula
+
+  -- -------- -- -- -------- -------
+     @xmath                  (4.8)
+                             
+                    @xmath   
+                    @xmath   
+  -- -------- -- -- -------- -------
+
+in probability as @xmath .
+
+We can also derive the asymptotic key generation rate formula for the
+postprocessing with the reverse two-way IR procedure as
+
+  -- -------- -- -- -------- -------
+     @xmath                  (4.9)
+                             
+                    @xmath   
+                    @xmath   
+  -- -------- -- -- -------- -------
+
+The following propositions are useful to calculate the minimizations in
+Eqs. ( 4.8 ) and ( 4.9 ).
+
+###### Proposition 4.4.4
+
+For two density operator @xmath and a probabilistically mixture @xmath ,
+Eve’s ambiguities are convex, i.e., we have
+
+  -- -------- -------- -------- --
+     @xmath                     
+                                
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+and
+
+  -- -------- -------- -------- --
+     @xmath                     
+                                
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where @xmath is the density operator derived from a purification @xmath
+of @xmath .
+
+###### Proof.
+
+The statement of this proposition is shown exactly in the same way as
+Proposition 3.4.7 . ∎
+
+###### Proposition 4.4.5
+
+For the BB84 protocol, the minimization in Eqs. ( 4.8 ) and ( 4.9 ) is
+achieved by Choi operator @xmath whose components @xmath , @xmath ,
+@xmath , @xmath , and @xmath , are all @xmath .
+
+###### Proof.
+
+The statement of this proposition is shown exactly in the same way as
+Proposition 3.4.9 by using Proposition 4.4.4 . ∎
+
+###### Remark 4.4.6
+
+By using the chain rule of von Neumann entropy, we can rewrite Eq. ( 4.6
+) as
+
+  -- -------- -- -- -------- --------
+     @xmath                  (4.10)
+                             
+                    @xmath   
+  -- -------- -- -- -------- --------
+
+We can interpret this formula as follows. If Bob’s ambiguity @xmath
+about bit @xmath is smaller than Eve’s ambiguity @xmath about @xmath ,
+then Eve cannot decode sequence @xmath [ SW73 , DW03 ] , and there
+exists some remaining ambiguity about bit @xmath for Eve. We can thus
+distill some secure key from bit @xmath . On the other hand, if Bob’s
+ambiguity @xmath about bit @xmath , i.e., the amount of transmitted
+syndrome per bit, is larger than Eve’s ambiguity @xmath about @xmath ,
+then Eve might be able to decode sequence @xmath from her side
+information and the transmitted syndrome [ SW73 , DW03 ] . Thus, there
+exists the possibility that Eve can completely know bit @xmath , and we
+can distill no secure key from bit @xmath , because we have to consider
+the worst case in a cryptography scenario. Consequently, sending the
+compressed version (syndrome) of sequence @xmath instead of @xmath
+itself is not always effective, and the slope of the key rate curves
+change when Eve becomes able to decode @xmath (see Figs. 4.1 , 4.2 , 4.3
+, 4.4 , 4.5 ).
+
+A similar argument also holds for the BB84 protocol.
+
+###### Remark 4.4.7
+
+If we take the functions @xmath and @xmath as
+
+  -- -------- -- --------
+     @xmath      (4.11)
+  -- -------- -- --------
+
+and
+
+  -- -------- -- --------
+     @xmath      (4.12)
+  -- -------- -- --------
+
+Then, the postprocessing proposed in this thesis reduces to the
+postprocessing proposed in [ WMUK07 ] .
+
+###### Remark 4.4.8
+
+The asymptotic key generation rate (for the six-state protocol) of the
+postprocessing with the advantage distillation is given by
+
+  -- -------- -- --------
+     @xmath      (4.13)
+  -- -------- -- --------
+
+where the auxiliary random variables @xmath are defined as in Section
+4.2 , or they are defined by using the functions @xmath given in Eqs. (
+4.11 ) and ( 4.12 ). From Eqs. ( 4.6 ) and ( 4.13 ), we can find that
+the asymptotic key generation rate of the proposed postprocessing is at
+least as high as that of the postprocessing with the advantage
+distillation if we employ appropriate functions @xmath .
+
+A similar argument also holds for the BB84 protocol.
+
+###### Remark 4.4.9
+
+In [ GA08 ] , Gohari and Anantharam proposed ² ² 2 It should be noted
+that they consider the classical key agreement problem instead of the
+postprocessing of the QKD protocol. However, as we mentioned in Chapter
+1 , they are essentially the same. a two-way postprocessing which is
+similar to our proposed two-way postprocessing. They derived the
+asymptotic key generation rate formula of their proposed postprocessing.
+Although their postprocessing seems to be a generalization of our
+proposed postprocessing, the asymptotic key generation rate (Eq. ( 4.6
+)) of our proposed postprocessing cannot be derived by their asymptotic
+key generation rate formula. By modifying their formula for the QKD
+protocol, we can only derive the asymptotic key generation rate
+
+  -- -------- -- -- -------- --------
+     @xmath                  (4.14)
+                             
+                    @xmath   
+                    @xmath   
+                    @xmath   
+  -- -------- -- -- -------- --------
+
+For a Pauli channel, since @xmath is independent from @xmath and @xmath
+, Eq. ( 4.14 ) is strictly smaller than Eq. ( 4.6 ).
+
+The underestimation of the asymptotic key generation rate comes from the
+following reason. In Gohari and Anantharam’s postprocessing, a syndrome
+of @xmath is transmitted over the public channel, and the length of the
+syndrome is roughly @xmath . When the syndrome is transmitted over the
+public channel, Eve cannot obtain more information than @xmath itself.
+The lack of this observation results into Eq. ( 4.14 ).
+
+### 4.5 Comparison of Asymptotic Key Generation Rates for Specific
+Channels
+
+In this section, we compare the asymptotic key generation rates of the
+proposed postprocessing, the postprocessing with the advantage
+distillation, the one-way postprocessing for representative specific
+channels.
+
+#### 4.5.1 Pauli Channel
+
+When the channel between Alice and Bob is a Pauli channel, the Stokes
+parameterization of the corresponding density operator @xmath is
+
+  -- -------- -- --------
+     @xmath      (4.15)
+  -- -------- -- --------
+
+for @xmath . The Choi operator of the Pauli channel is a Bell diagonal
+state:
+
+  -- -------- -- --------
+     @xmath      (4.16)
+  -- -------- -- --------
+
+where @xmath is a distribution on @xmath defined by
+
+  -- -------- -- --------
+     @xmath      (4.17)
+  -- -------- -- --------
+
+and
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+We occasionally abbreviate @xmath as @xmath . Note that the Pauli
+channel is a special class of the unital channel discussed in Section
+3.6.2 .
+
+The following lemma simplify the calculation of Eq. ( 4.8 ) for a Pauli
+channel.
+
+###### Lemma 4.5.1
+
+For a Bell diagonal Choi operator @xmath , the minimizations in Eqs. (
+4.8 ) ( 4.9 ) are achieved by a Bell diagonal operator @xmath .
+
+###### Proof.
+
+This lemma is a straightforward corollary of Proposition 4.4.4 . ∎
+
+###### Lemma 4.5.2
+
+For Bell diagonal state @xmath , the asymptotic key generation rate is
+maximized when we employ the functions @xmath given by Eqs. ( 4.11 ) and
+( 4.12 ).
+
+###### Proof.
+
+Since @xmath and @xmath , @xmath should be discarded if @xmath .
+Similarly, @xmath should be discarded if @xmath . Since the Bell
+diagonal Choi operator is symmetric with respect to Alice and Bob’s
+subsystem, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Furthermore, we have
+
+  -- -------- -- --------
+     @xmath      (4.18)
+  -- -------- -- --------
+
+Therefore, the functions given by Eqs. ( 4.11 ) and ( 4.12 ) are
+optimal. Note that Eq. ( 4.18 ) means that we should not keep @xmath if
+we keep @xmath . ∎
+
+By Lemmas 4.5.1 and 4.5.2 , it suffice to consider the functions given
+by Eqs. ( 4.11 ) and ( 4.12 ) if the channel is a Pauli channel.
+Therefore, we employ the functions given by Eqs. ( 4.11 ) and ( 4.12 )
+throughout this subsection. Furthermore, we can find that the asymptotic
+key generation rates for the direct and the reverse IR procedure
+coincide, because @xmath and @xmath . Therefore, we only consider the
+asymptotic key generation rate for the direct IR procedure throughout
+this subsection.
+
+###### Theorem 4.5.3
+
+For a Bell diagonal state @xmath , we have
+
+  -- -------- -- -------- -------- --------
+     @xmath                        (4.19)
+                                   
+                          @xmath   
+                          @xmath   
+                 @xmath   @xmath   
+                          @xmath   
+                          @xmath   
+  -- -------- -- -------- -------- --------
+
+where
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+and
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+The theorem is proved by a straightforward calculation, and the proof is
+presented at the end of this section.
+
+Combining Lemma 4.5.1 , Theorem 4.5.3 , and Eq ( 4.17 ), it is
+straightforward to calculate the asymptotic key generation rate for a
+Pauli channel. As a special case of the Pauli channel, we consider the
+depolarizing channel. The depolarizing channel is parameterized by one
+real parameter @xmath , and the Bell diagonal entries of the Choi
+operator are given by @xmath , @xmath . For the six-state protocol, it
+is straightforward to calculate the asymptotic key generation rate,
+which is plotted in Fig. 4.1 . According to Lemma 4.5.1 , it is
+sufficient to take the minimization over the subset @xmath that consists
+of all Bell diagonal operators in @xmath . For the depolarizing channel,
+the set @xmath consists of Bell diagonal state @xmath satisfying @xmath
+, @xmath , and @xmath for @xmath . We can calculate the asymptotic key
+generation rate by taking the minimum with respect to the one free
+parameter @xmath , which is plotted in Fig. 4.2 .
+
+It should be noted that the asymptotic key generation rate of the
+standard one-way postprocessing [ SP00 , Lo01 ] is @xmath for the
+six-state protocol and @xmath for the BB84 protocol. Therefore, Eq. (
+4.19 ) analytically clarifies that the asymptotic key generation rate of
+our postprocessing is at least as high as that of the standard
+postprocessing.
+
+Proof of Theorem 4.5.3
+
+Let
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+be a purification of @xmath , where we set
+
+  -- -- --
+        
+  -- -- --
+
+and where @xmath is a marginal distribution. Then, let
+
+  -- -------- -------- -------- --
+     @xmath                     
+                                
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where
+
+  -- -- --
+        
+  -- -- --
+
+for @xmath and @xmath .
+
+Note that @xmath for the Pauli channel. Let @xmath be a random variable
+defined by @xmath . Then, for the Pauli channel, we have @xmath .
+
+Noting that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+we have
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Using these formulas, we can write
+
+  -- -------- --
+     @xmath   
+     @xmath   
+  -- -------- --
+
+for @xmath , where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath and a matrix @xmath , and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath .
+
+Since supports of rank @xmath matrices @xmath are orthogonal to each
+other, @xmath for @xmath is already eigen value decomposed. Applying
+Lemma 4.5.4 for @xmath and @xmath , we can eigen value decompose @xmath
+for @xmath as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where we follow the notations in Lemma 4.5.4 for @xmath .
+
+Thus, we have
+
+  -- -------- -- -------- -------- --------
+     @xmath                        (4.20)
+                                   
+                 @xmath   @xmath   
+                          @xmath   
+                 @xmath   @xmath   
+                          @xmath   
+  -- -------- -- -------- -------- --------
+
+Taking the partial trace of @xmath over systems @xmath , we have
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+                       @xmath   
+  -- -------- -------- -------- --
+
+Thus, we have
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (4.21)
+                                @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+Combining Eqs. ( 4.20 ) and ( 4.21 ), we have
+
+  -- -------- -------- -------- --
+     @xmath                     
+                                
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+On the other hand, by taking partial trace of @xmath over the system
+@xmath , we have
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+                       @xmath   
+  -- -------- -------- -------- --
+
+Thus, we have
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+                       @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Combining Eqs. ( 4.20 ) and ( LABEL:entropy-uwe2 ), we have
+
+  -- -------- -------- -------- --
+     @xmath                     
+                                
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+∎
+
+###### Lemma 4.5.4
+
+Let @xmath be a linear subspace of @xmath . Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and @xmath . Let @xmath be a set of coset representatives of the cosets
+@xmath , and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+be conditional probability distributions on @xmath . Then, for any
+@xmath , we have
+
+  -- -- -- --------
+           (4.23)
+  -- -- -- --------
+
+where
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+                       @xmath   
+  -- -------- -------- -------- --
+
+###### Remark 4.5.5
+
+If @xmath , obviously we have @xmath . Thus, the right hand side of
+Eq. ( 4.23 ) is an eigen value decomposition. Moreover, if @xmath , then
+we have @xmath .
+
+###### Proof.
+
+For any @xmath and @xmath , we can rewrite
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+                       @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Then, we have
+
+  -- -------- -------- -------- --
+     @xmath                     
+                                
+              @xmath   @xmath   
+                       @xmath   
+              @xmath   @xmath   
+                       @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where @xmath is the standard inner product on the vector space @xmath ,
+and we used the following equality,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath . ∎
+
+#### 4.5.2 Unital Channel
+
+In this section, we calculate the asymptotic key generation rates for
+the Unital channel. Although we succeeded to show a closed formula of
+the asymptotic key generation rate for the Pauli channel, which is a
+special class of the unital channel, in Section 4.5.1 , we do not know
+any closed formula of the asymptotic key generation rate for the unital
+channel in general.
+
+For the six-state protocol, it is straightforward to numerically
+calculate the asymptotic key generation rate. For the BB84 protocol,
+owing to Proposition 4.4.5 , the asymptotic key generation rate can be
+calculated by taking the minimization over one free parameter @xmath .
+
+As an example of non Pauli but unital channel, we numerically calculated
+asymptotic key generation rates for the depalarizing channel whose axis
+is rotated by @xmath , i.e., the channel whose Stokes parameterization
+is given by
+
+  -- -------- -- --------
+     @xmath      (4.24)
+  -- -------- -- --------
+
+For this channel, since the Choi operator is symmetric with respect to
+Alice and Bob’s subsystem, we can also show that the asymptotic key
+generation rate is maximized when we employ the functions @xmath given
+by Eqs. ( 4.11 ) and ( 4.12 ) in a similar manner as Lemma 4.5.2 .
+Therefore, we employ the functions given by Eqs. ( 4.11 ) and ( 4.12 )
+throughout this subsection. Furthermore, we can find that the asymptotic
+key generation rates for the direct and the reverse IR procedure
+coincide, because @xmath and @xmath . Therefore, we only consider the
+asymptotic key generation rate for the direct IR procedure throughout
+this subsection.
+
+For the BB84 protocol and the six-state protocol, the asymptotic key
+generation rate of the postprocessing with the two-way IR procedure and
+that of the postprocessing with the one-way IR procedure are compared in
+Fig. 4.3 and Fig. 4.4 respectively. We find that the asymptotic key
+generation rates of the postprocessing with our proposed two-way IR
+procedure is higher than those of the one-way postprocessing, which
+suggest that our proposed IR procedure is effective not only for the
+Pauli channel, but also for non-Pauli channels. It should be noted that
+the asymptotic key generation rates of the postprocessing with the
+direct one-way IR procedure and the reverse one-way IR procedure
+coincide for this example.
+
+#### 4.5.3 Amplitude Damping Channel
+
+In this section, we calculate the asymptotic key generation rates (for
+the direct two-way IR procedure and the reverse two-way IR procedure)
+for the amplitude damping channel. Although we succeeded to derive a
+closed formulae of the asymptotic key generation rates of the one-way
+postprocessing in Section 3.6.1 , we do not know any closed formula of
+the asymptotic key generation rates of the postprocessing with the
+two-way IR procedure for the amplitude damping channel. Furthermore, it
+is not clear whether the asymptotic key generation rate is maximized
+when we employ the functions given by Eqs. ( 4.11 ) and ( 4.12 ).
+Therefore, we (numerically) optimize the choice of the functions @xmath
+so that the asymptotic key generation rate is maximized.
+
+Since the set @xmath consists of only @xmath itself for both the BB84
+protocol (refer Section 3.6.1 ), we can easily conduct the numerical
+calculation of the asymptotic key generation rates for the six-state
+protocol and the BB84 protocol. The asymptotic key generation rates of
+the postprocessing with the direct two-way IR procedure, the reverse
+two-way IR procedure, the direct one-way IR procedure, and the reverse
+one-way IR procedure are compared in Fig. 4.5 . It should be noted that
+the asymptotic key generation rates for the BB84 protocol and the
+six-state protocol coincide in this example. We numerically found that
+the functions given by @xmath and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+maximizes the asymptotic key generation rates for both the direct
+two-way IR procedure and the reverse IR procedure.
+
+### 4.6 Relation to Entanglement Distillation Protocol
+
+As is mentioned in Chapter 1 , the security of the QKD protocols have
+been studied by using the quantum error correcting code and the
+entanglement distillation protocol (EDP) since Shor and Preskill found
+the relation between them [ SP00 ] . The crucial point in Shor and
+Preskill’s proof is to find an EDP that corresponds to a postprocessing
+of the QKD protocols. Indeed, the security of the QKD protocols with the
+two-way classical communication [ GL03 ] was proved by finding the
+corresponding EDPs.
+
+We will explain the EDP proposed by Vollbrecht and Vestraete [ VV05 ] in
+this section. Then, we present the postprocesing ³ ³ 3 The
+postprocessing presented in this section is a modified version of the
+postprocessing presented in [ MFD @xmath 06 , WMU06 ] so that it fit
+into the notations in this thesis. of the QKD protocols that corresponds
+to Vollbrecht and Vestraete’s EDP. Furthermore, we compare the
+posptocessing (corresponding to Vollbrecht and Vestraete’s EDP) and the
+postprocessing shown in Section 4.4 , and clarify the relation between
+them, where we employ the functions given by Eqs. ( 4.11 ) and ( 4.12 ).
+The comparison result suggests ⁴ ⁴ 4 Renner et al . suggested that there
+exist no EDP which corresponds to the noisy preprocessing (see Remark
+3.4.6 ) proposed by themselves. that there exists no EDP that
+corresponds to the postprocessing shown in Section 4.4 .
+
+Suppose that Alice and Bob share @xmath pairs bipartite qubits systems,
+and the state of each bipartite system is a Bell diagonal state ⁵ ⁵ 5
+There is an entanglement distillation protocol that works for bipartite
+states that are not necessarily Bell diagonal states [ DW05 ] . However,
+we only consider EDPs for the Bell diagonal states.
+
+  -- -------- -- --------
+     @xmath      (4.25)
+  -- -------- -- --------
+
+The EDP is a protocol to distill the mixed entangled state @xmath into
+the maximally entangled state @xmath by using the local operation and
+the classical communication [ BDSW96 ] .
+
+Vollbrecht and Vestraete proposed the following EDP [ VV05 ] , where it
+is slightly modified (essentially the same) from the original version
+because we want to clarify the relation among this EDP, the
+corresponding postprocessing, and the postprocessing shown in Section
+4.4 .
+
+1.  Alice and Bob divide @xmath pairs of the bipartite systems into
+    @xmath blocks of length @xmath , and locally carry out the
+    controlled-NOT (CNOT) operation on each block, where the @xmath th
+    pair is the source and the @xmath th pair is the target.
+
+2.  Then, Alice and Bob undertake the breeding protocol [ BBP @xmath 96
+    ] to guess bit-flip errors in the @xmath th pair for all @xmath .
+    The guessed bit-flip errors can be described by a sequence @xmath
+    (Note that two-way classical communication is used in this step).
+
+3.  According to @xmath , Alice and Bob classify indices of blocks into
+    two sets @xmath and @xmath .
+
+4.  For a collection of @xmath th pairs such that @xmath , Alice and Bob
+    conduct the breeding protocol to correct bit-flip errors.
+
+5.  For a collection of @xmath th pairs such that @xmath , Alice and Bob
+    perform measurements in the @xmath -basis, and obtain measurement
+    results @xmath and @xmath respectively.
+
+6.  Alice sends @xmath to Bob.
+
+7.  Alice and Bob correct the phase errors for the remaining pairs by
+    using information @xmath , @xmath , and the bit-flip error @xmath .
+
+The yield of this EDP is given by
+
+  -- -------- -- --------
+     @xmath      (4.26)
+  -- -------- -- --------
+
+We can find by the concavity of the binary entropy function that the
+first argument in the maximum of the r.h.s. of Eq. ( 4.19 ) is larger
+than the value in Eq. ( 4.26 ).
+
+If we convert this EDP into a postprocessing of the QKD protocols, the
+difference between that postprocessing and ours is as follows. In the
+postprocessing converted from the EDP [ VV05 ] , after Step ( iv ),
+Alice reveals the sequence, @xmath , which consists of the second bit,
+@xmath , of the @xmath th block such that the parity of discrepancies
+@xmath is @xmath . However, Alice discards @xmath in the proposed IR
+protocol of Section 4.3 . Since sequence @xmath has some correlation to
+sequence @xmath from the view point of Eve, Alice should not reveal
+@xmath to achieve a higher key generation rate.
+
+In the EDP context, on the other hand, since the bit flip error, @xmath
+, has some correlation to the phase flip errors in the @xmath -th pair
+with @xmath , Alice should send the measurement results, @xmath , to
+Bob. If Alice discards measurement results @xmath without telling Bob
+what the result is, then the yield of the resulting EDP is worse than
+Eq. ( 4.26 ). Consequently, there seems to be no correspondence between
+the EDP and our proposed classical processing.
+
+### 4.7 Summary
+
+The results in this chapter is summarized as follows: In Section 4.2 ,
+we reviewed the advantage distillation. In Section 4.3 , we proposed the
+two-way IR procedure. In Section 4.4 , we derived a sufficient condition
+on the key generation rate such that a secure key agreement is possible
+with our proposed postprocessing (Theorem 4.4.1 ). We also derived the
+asymptotick key generation rate formulae.
+
+In Section 4.5 , we investigated the asymptotic key generation rate of
+our proposed postprocessing. Especially in Section 4.5.1 , we derived a
+closed form of the asymptotic key generation rate for the Pauli channel
+(Theorem 4.5.3 ), which clarifies that the asymptotic key generation
+rate of our proposed postprocessing is at least as high as the
+asymptotic key generation rate of the standard postprocessing. We also
+numerically clarified that the asymptotic key generation rate of our
+proposed postprocessing is higher than the asymptotic key generation
+rate of any other postprocessing for the Pauli channel (Section 4.5.1 ),
+the unital channel (Section 4.5.2 ), and the amplitude damping channel
+(Section 4.5.3 ) respectively.
+
+Finally in Section 4.6 , we clarified the relation between our proposed
+postprocessing and the EDP proposed by Vollbrecht and Vestraete [ VV05 ]
+.
+
+## Chapter 5 Conclusion
+
+In this thesis, we investigated the channel estimation phase and the
+postprocessing phase of the QKD protocols. The contribution of this
+thesis is summarized as follows.
+
+For the channel estimation phase, we proposed a new channel estimation
+procedure in which we use the mismatched measurement outcomes in
+addition to the samples from the matched measurement outcomes. We
+clarified that the key generation rate decided according to our proposed
+channel estimation procedure is at least as high as the key generation
+rate decided according to the conventional channel estimation procedure.
+We also clarified that the former is strictly higher than the latter for
+the amplitude damping channel and the unital channel.
+
+For the postprocessing phase, we proposed a new kind of postprocessing
+procedure with two-way public communication. For the Pauli channel, we
+clarified that the key generation rate of the QKD protocols with our
+proposed postprocessing is higher than the key generation rate of the
+QKD protocols with the standard one-way postprocessing. For the Pauli
+channel, the amplitude damping channel, and the unital channel, we
+numerically clarified that the QKD protocols with our proposed
+postprocessing is higher than the key generation rate of the QKD
+protocols with any other postprocessing.
+
+There are some problems that should be investigated in a future.
+
+-   To show the necessary and sufficient condition on the channel for
+    that the (asymptotic) key generation rate decided according our
+    proposed channel estimation procedure is strictly higher than that
+    decided according to the conventional channel estimation procedure
+    for the six-state protocol.
+
+-   To analytically show that the (asymptotic) key generation rate of
+    our proposed two-way postprocessing is at least as high as that of
+    the standard one-way postprocessing, or to find a counter example.
+
+## Appendix A Notations
+
+### Notations first appeared in Chapter 2
+
+### Notations first appeared in Chapter 3
+
+### Notations first appeared in Chapter 4
+
+## Appendix B Publications Related to This Thesis
+
+### Articles in Journals
+
+-   S. Watanabe, R. Matsumoto, T. Uyematsu, and Y. Kawano, ”Key rate of
+    quantum key distribution with hashed two-way classical
+    communication,” Phys. Rev. A , vol. 76, no. 3,pp. 032312-1–7,
+    Sep. 2007.
+
+-   S. Watanabe, R. Matsumoto, and T. Uyematsu, ”Tomography increases
+    key rate of quantum-key-distribution protocols,” Phys. Rev. A ,
+    vol. 78, no. 4, pp. 042316-1–11, Oct. 2008.
+
+### Peer-Reviewed Articles in International Conferences
+
+-   S. Watanabe, R. Matsumoto, and T. Uyematsu, ”Security of quantum key
+    distribution protocol with two-way classical communication assisted
+    by one-time pad encryption,” in Proc. Asian Conference on Qauntum
+    Information Science 2006, Beijing, China, September 2006.
+
+-   S. Watanabe, R. Matsumoto, T. Uyematsu, and Y. Kawano, ”Key rate of
+    quantum key distribution with hashed two-way classical
+    communication,” in Proc. 2007 IEEE Int. Symp. Inform. Theory , Nice,
+    France, June, 2007.
+
+### Non-Reviewd Articles in Conferences
+
+-   S. Watanabe, R. Matsumoto, T. Uyematsu, and Y. Kawano, ”Key rate of
+    quantum key distribution with hashed two-way classical
+    communication,” in Proc. QIT 16 , Atsugi, Japan, May, 2006.
+
+-   S. Watanabe, R. Matsumoto, and T. Uyematsu, ”Tomography increases
+    key rate of quantum-key-distribution protocols,” presented at recent
+    result session in 2008 IEEE Int. Symp. Inform. Theory , Toronto,
+    Canada, July, 2008.
+
+-   S. Watanabe, R. Matsumoto, and T. Uyematsu, ”Tomography increases
+    key rate of quantum-key-distribution protocols,” in Proc. SITA 2008
+    , Kinugawa, Japan, Oct., 2008.
+
+-   S. Watanabe, R. Matsumoto, and T. Uyematsu, ”Tomography increases
+    key rate of quantum-key-distribution protocols,” presented at GSIS
+    Workshop on Quantum Information Theory, Sendai, Japan,
+    November 2008.

@@ -1,0 +1,2729 @@
+# Résumé
+
+La notion de complexité de communication a d’abord été introduite par
+Yao [ Yao79 ] . Les travaux fondateurs de Babai et al. [ BFS86 ] ont
+dévoilé une riche structures de classes de complexité de communication
+qui permettent de mieux comprendre la puissance de divers mod les de
+complexité de communication. Ces résultats ont fait de la complexité de
+communication une sorte de maquette petite chelle du monde de la
+complexit . Dans ce mémoire, nous étudions la place des langages
+réguliers dans cette maquette. Plus précisément, nous chercherons
+déterminer la complexité de communication non-déterministe de ces
+langages.
+
+Nous montrons qu’un langage régulier a une complexité de communication
+soit @xmath , soit @xmath . Nous établissons de plus des bornes
+inférieures linéaires sur la complexité non-déterministe d’une vaste
+classe de langages. Celles-ci fournissent également des conditions
+suffisantes pour qu’un langage donné n’appartienne pas la variété
+positive @xmath .
+
+Nos résultats se basent sur des techniques algébriques. Dans l’étude des
+langages réguliers, le point de vue algébrique, développé initialement
+par Eilenberg [ Eil74 ] s’est révélé comme un outil central. En effet,
+on peut voir un semigroupe fini comme une machine capable de reconnaître
+des langages et cette perspective a permis des avancées tant en théorie
+des semigroupes qu’en théorie des langages formels. Dans ce mémoire,
+nous établissons de nouveaux exemples de ce mutualisme.
+
+## Acknowledgments
+
+First, I would like to express my deepest gratitude to Prof. Denis
+Thérien. I thank him for trusting me and accepting me as his student.
+His enthusiasm for complexity theory and mathematics was highly
+contagious and is one of the reasons I am in this field. I also thank
+him for supporting me financially.
+
+I am indebted to my co-supervisor Prof. Pascal Tesson for many things. I
+thank him for introducing me to the subject of this thesis. I am
+grateful for the extremely useful discussions we had, which taught me a
+lot of things. I also thank him for his constructive comments on the
+earlier drafts of the thesis.
+
+I am very fortunate to have met Arkadev Chattopadhyay, László Egri,
+Navin Goyal and Mark Mercer in the complexity theory group. Thanks to my
+office mate László for discussions about mathematics and many other
+topics. I thank Arkadev for discussing the thesis problem with me and
+for sharing his keen insight on various things. Thanks to Navin and Mark
+for generously sharing their knowledge. I have learned a lot from all of
+them.
+
+I thank the academic and administrative staff of the computer science
+department. I have met many wonderful people over the years and I feel
+privileged to be a part of this family.
+
+I would also like to thank all my friends in Montréal for making life
+fun for me here.
+
+Finally, biggest thanks go to my parents. Their love and support never
+wavered and this has made everything possible.
+
+###### Contents
+
+-    1 Introduction
+    -    1.1 Computational Complexity Theory
+    -    1.2 Communication Complexity
+    -    1.3 Algebraic Automata Theory
+    -    1.4 Outline
+-    2 Communication Complexity
+    -    2.1 Deterministic Model
+        -    2.1.1 Definition
+        -    2.1.2 Lower Bound Techniques
+    -    2.2 Non-Deterministic Model
+        -    2.2.1 Definition
+        -    2.2.2 Power of Non-Determinism
+        -    2.2.3 Lower Bound Techniques
+    -    2.3 Other Models
+    -    2.4 Communication Complexity Classes
+    -    2.5 Summary
+-    3 Algebraic Automata Theory
+    -    3.1 Monoids - Automata - Regular Languages
+        -    3.1.1 Monoids: A Computational Model
+        -    3.1.2 The Syntactic Monoid
+        -    3.1.3 Varieties
+    -    3.2 Ordered Monoids
+        -    3.2.1 Recognition by Ordered Monoids
+        -    3.2.2 The Syntactic Ordered Monoid
+        -    3.2.3 Varieties
+-    4 Communication Complexity of Regular Languages
+    -    4.1 Algebraic Approach to Communication Complexity
+    -    4.2 Complexity Bounds for Regular Languages and Monoids
+-    5 Conclusion
+-    A Facts About @xmath
+
+## Chapter 1 Introduction
+
+### 1.1 Computational Complexity Theory
+
+The theory of computation is one of the fundamental branches of computer
+science that is concerned with the computability and complexity of
+problems in different computational models. Computability theory focuses
+on the question of whether a problem can be solved in a certain
+computational model. On the other hand, complexity theory seeks to
+determine how much resource is sufficient and necessary for a computable
+problem to be solved in a computational model.
+
+Simply put, a computing device is a machine that performs calculations
+automatically: it can be as complicated as a personal computer and as
+simple as an automatic door. In theoretical computer science, a
+computational model is a pure mathematical definition which models a
+real-world computing device. This abstraction is necessary in order to
+rigorously study computation, its power and limitations. The most
+studied computational model (which physically corresponds to the
+everyday computers we use) is the Turing Machine. The most studied
+resources are time and space (memory) measured with respect to the input
+size. Based on these resources, different complexity classes can be
+defined. For instance, @xmath and @xmath are classes of problems that
+can be solved in polynomial (in the input size) time using a
+deterministic and a non-deterministic Turing Machine respectively.
+Whether these classes are equal or not is without a doubt one of the
+biggest open questions in computer science and mathematics.
+
+There are various interesting computational models including (but not
+limited to) Turing Machines, finite automata, context-free grammars,
+boolean circuits and branching programs. Their countless applications
+span computer science. For instance, when designing a new programming
+language one would find grammars useful. Finite automata and regular
+languages have applications in string searching and pattern matching.
+When trying to come up with an efficient algorithm, the theory of
+NP-completeness can be insightful. Many cryptographic protocols rely on
+theoretical principles. All these applications aside, the mathematical
+elegance and aesthetic inherent in theory of computation is enough to
+attract many minds around the world. And perhaps the main reason that
+computer science is called a “science” is because of the study of
+theoretical foundations of computer science.
+
+Despite the intense efforts of many researchers, our understanding and
+knowledge of computational complexity is quite limited. Similar to the
+@xmath versus @xmath question, there are many other core questions (in
+different computational models) that beg to be answered. The focus of
+research in complexity theory is twofold. Given a certain problem, a
+computational model and a resource:
+
+-   What is the maximum amount of resource we need to solve the problem
+    in the computational model?
+
+-   What is the minimum amount of resource we need to solve the problem
+    in the computational model?
+
+The ultimate goal is to find matching upper and lower bounds. The first
+question can be answered by depicting a method ¹ ¹ 1 In the Turing
+Machine computational model, the method is called an algorithm . of
+solving the problem and analyzing the amount of resource this method
+consumes. Almost always, the more challenging question is the second
+one. Proving results of the form “Problem @xmath requires at least
+@xmath resource.” requires us to argue against all possible methods that
+solve the problem. In most computational models, this is intrinsically
+hard. Yet it should be also noted that complexity theory is a relatively
+new field and therefore can be considered as an amenable discipline of
+mathematics.
+
+### 1.2 Communication Complexity
+
+In this thesis, we will be studying a computational model which emulates
+distributed computing: communication protocols. In this model, there are
+usually two computers that are trying to collaboratively evaluate the
+value of a given function. The difficulty is that the input is
+distributed among the two computers in a predetermined adversarial way
+so that neither computer can evaluate the value of the function by
+itself. Therefore, in order to determine the value of the function,
+these computers need to communicate over a network. The communication
+will be carried out according to a protocol that has been agreed upon
+beforehand. The resource we are interested in is the number of bits that
+is communicated i.e. we would like to determine the communication
+complexity of a given function.
+
+As an example, consider two files that reside in two computers. Suppose
+we wanted to know if these two files were copies of each other. How many
+bits would the computers need to communicate in order to conclude that
+the files are the same or not? What is the best protocol for the
+computers to accomplish this task?
+
+Note that the scenario here is quite different from information theory .
+In information theory, the goal is to robustly transmit a predetermined
+message through a noisy channel and there is no function to be computed.
+In the communication complexity setting, the channel of communication is
+not noisy. What is sent through the channel is determined by the
+protocol and it usually changes according to the inputs of the computers
+and the communication history.
+
+There are various models for communication complexity. The first defined
+was the 2-player deterministic model. Since then, non-deterministic,
+randomized, multi-party, distributional, simultaneous and many more
+models have been defined and analyzed.
+
+Although the mathematical theory of communication complexity was first
+introduced in light of its applications to parallel computers ( [ Yao79
+] ), it has been shown to have many more applications where the need for
+communication is not explicit. These applications include time/space
+lower bounds for VLSI chips ( [ KN97 ] ), time/space tradeoffs for
+Turing Machines ( [ BNS92 ] ), data structures ( [ KN97 ] ), boolean
+circuit lower bounds ( [ Gro92 ] , [ HG91 ] , [ Nis93 ] , [ RM97 ] ),
+pseudorandomness ( [ BNS92 ] ), separation of proof systems ( [ BPS07 ]
+) and lower bounds on the size of polytopes representing @xmath
+-complete problems ( [ Yan91 ] ).
+
+### 1.3 Algebraic Automata Theory
+
+One of the fundamental (and simplest) computational models is the finite
+automaton and it is usually the first model in theory of computation
+that computer science students are introduced to. The word “finite”
+refers to the memory of the machine and finite automata are models for
+computers with an extremely limited amount of memory (for example an
+automatic door). Even though it is a quite limited model, its well-known
+applications include text processing, compilers and hardware design.
+
+In a nutshell, finite automata are abstract machines such that given a
+word over some alphabet as an input, it either accepts or rejects the
+word after processing each letter of the word sequentially. The set of
+all words that a finite automaton accepts is called the language
+corresponding to the finite automaton and we say that the language is
+recognized by this automaton. A language recognized by some finite
+automaton is called a regular language .
+
+Algebra has always been an important tool in the study of computational
+complexity. In the study of regular languages, semigroup theory ² ² 2 A
+semigroup is a set equipped with a binary associative operation. has
+been the dominant tool. It should be mentioned that semigroups have shed
+new light not only on regular languages but on computational theory in
+general. On top of this, it is also true that computational theory has
+led to advances in the study of semigroup theory ( [ TT04 ] ).
+
+The link between semigroups and regular languages has been established
+by viewing a semigroup as a computational machine that accepts/rejects
+words over some alphabet. In this context, it is not difficult to prove
+that the family of languages that finite semigroups recognize is exactly
+the regular languages. In fact, the connection between finite automata
+and semigroups is much more profound. There are several reasons why this
+point of view is beneficial. First of all, the semigroup approach to
+regular languages allows one to use tools from semigroup theory while
+investigating the properties of these languages. Eilenberg showed that
+there is a one to one correspondence between certain robust and natural
+classes of languages and semigroups. This has organized and heightened
+our understanding of regular languages. Furthermore, in certain
+computational models, the complexity of a regular language can be
+parametrized by the complexity of the corresponding semigroup and so
+this provides us alternate avenues to analyze the complexity of regular
+languages. Often the combinatorial descriptions of regular languages
+suffice to obtain upper bounds on their complexity. The algebraic point
+of view proves to be useful when proving hardness results. Communication
+complexity is one of the computational models where this is the case.
+
+### 1.4 Outline
+
+In this thesis, we study the non-deterministic communication complexity
+of regular languages. The ultimate goal is to find functions @xmath such
+that each regular language has @xmath non-deterministic communication
+complexity for some @xmath . Furthermore, we would like a
+characterization of the languages with @xmath complexity for all @xmath
+. In [ TT03 ] , this goal was reached for the following communication
+models: deterministic, simultaneous, probabilistic, simultaneous
+probabilistic and Mod @xmath -counting. Obtaining a similar result for
+the non-deterministic model requires a refinement of the techniques used
+in [ TT03 ] .
+
+The study of the non-deterministic communication complexity of regular
+languages from an algebraic point of view is important for several
+reasons. We can summarize it by stating that it increases our
+understanding of regular languages and non-deterministic communication
+complexity.
+
+From regular languages perspective, our results yield sufficient
+algebraic conditions for not being in a certain class of languages. This
+is an interesting result within algebraic automata theory. Furthermore,
+given the fact that communication complexity has many ties with other
+computational models, understanding the communication complexity of
+regular languages helps us understand the power of regular languages in
+different computational models and where they stand within the
+complexity theory frame.
+
+From a communication complexity perspective, there are several
+interesting consequences. In [ TT03 ] , it was shown that in the regular
+languages setting, @xmath probabilistic communication complexity
+coincides with @xmath simultaneous communication complexity. Results
+about the non-deterministic communication complexity leads to further
+such correspondences which allows us the compare different communication
+models within the regular languages framework. Even though regular
+languages are “simple” with respect to Turing Machines for example, they
+provide a non-trivial case-study of non-deterministic communication
+complexity since there are both “hard” and “easy” regular languages with
+respect to this model. Therefore, a complete characterization of regular
+languages in this model is likely to force one to develop new lower
+bound techniques and study functions (for example promise functions)
+other than the commonplace ones which have been intensively studied.
+
+Through the notion of programs over monoids ( [ Bar86 ] ), a connection
+between algebraic automata theory and circuit complexity has been
+formed. For example algebraic characterizations of some of the most
+studied circuit classes @xmath , @xmath and @xmath have been obtained (
+[ BT87 ] ). The connection between communication complexity and circuit
+complexity is well known. Currently, techniques from communication
+complexity provide one of the most powerful tools for proving circuit
+lower bounds ( [ Gro92 ] , [ HG91 ] , [ Nis93 ] , [ RM97 ] ). Algebraic
+characterization of regular languages with respect to communication
+complexity completes a full circle and further strengthens our
+understanding of the three fields.
+
+[]
+
+[]
+
+The breakdown of the thesis is as follows. In Chapter 2, we give an
+introduction to communication complexity and present the fundamental
+techniques in this field. Chapter 3 is devoted to the basics of
+algebraic automata theory. The main purpose of these two chapters is to
+deliver the background material needed for Chapter 4. In Chapter 4, we
+present the results obtained about the non-deterministic communication
+complexity of regular languages. Finally we conclude in Chapter 5.
+
+## Chapter 2 Communication Complexity
+
+In this chapter, we present the notion of communication complexity as
+introduced by Yao in [ Yao79 ] . We start in Section 2.1 with the
+deterministic model in which we look at the fundamental concepts. In
+Section 2.2, we move to the non-deterministic model which is the model
+of interest for this work. In Section 2.3, we briefly mention other
+popular communication models. In Section 2.4, we introduce the notion of
+a reduction which plays a key role in our arguments in Chapter 4. We
+also define communication complexity classes and see a beautiful analogy
+between these classes and Turing Machine classes. Finally we summarize
+this chapter in Section 2.5.
+
+We refer the reader to the much celebrated book by Kushilevitz and Nisan
+[ KN97 ] for an in depth survey of the subject. One can also find and
+excellent introduction in the lecture notes by Ran Raz [ Raz04 ] . We
+mostly use the notation used in [ KN97 ] .
+
+### 2.1 Deterministic Model
+
+#### 2.1.1 Definition
+
+In the two-party communication complexity model, we have two players
+(usually referred to as Alice and Bob) and a function @xmath . Alice is
+given @xmath and Bob is given @xmath . Both know the function @xmath and
+their goal is to collaboratively compute @xmath i.e. they both want to
+know the value @xmath . In order to do this they have to communicate
+(for most functions) since neither of them see the whole input. We are
+only interested in the number of bits that they need to communicate to
+compute @xmath . Thus the complexity of their individual computations
+are irrelevant and we assume that both Alice and Bob have unlimited
+computational power.
+
+The communication of Alice and Bob is carried out according to a
+protocol @xmath that both players have agreed upon beforehand. The
+protocol @xmath specifies in each step the value of the next bit
+communicated as a function of the input of the player who sends it and
+the sequence of previously communicated bits by the two players. The
+protocol also determines who sends the next bit as a function of the
+bits communicated thus far.
+
+More formally, a protocol is a 5-tuple of functions @xmath such that:
+
+-   At each step of the communication, @xmath takes as input the
+    communication history thus far and the input for Alice and returns
+    the bit that Alice will communicate (similarly for @xmath and Bob).
+
+-   @xmath takes as input the communication history thus far and decides
+    whether the communication is over or not. If not, it decides who
+    speaks next.
+
+-   After the communication is over, @xmath takes as input the
+    communication history and the input for Alice and returns one bit
+    (similarly for @xmath and Bob). This bit is the output of the
+    protocol and the values of @xmath and @xmath should be the same.
+
+Unless stated otherwise, the functions we consider in this chapter are
+of the form @xmath . Since the output of the function is just one bit,
+we can assume that the last bit communicated is this value.
+
+Let @xmath be the output of the protocol @xmath , i.e. the last bit
+communicated. Then we say that @xmath is a protocol for @xmath if for
+all @xmath , @xmath . The cost of @xmath is defined as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The deterministic communication complexity of a function @xmath ,
+denoted as @xmath , is defined as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Example 2.1.
+
+Define the EQUALITY function as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+An obvious upper bound for @xmath is @xmath since one of the players,
+say Alice, can just send all her bits to Bob and Bob can simply compare
+the string he has with the string Alice has sent. If the strings are
+equal he can send 1 to Alice and otherwise he can send 0. In fact, this
+protocol gives an upper bound for any boolean function. Once one of the
+players knows all the input, s/he can compute the value of the function
+and send this value to the other player. The number of bits communicated
+is @xmath .
+
+Intuitively, one expects that @xmath , i.e. @xmath is also a lower bound
+for @xmath . Although this intuition is correct, how can one rigorously
+prove this lower bound?
+
+#### 2.1.2 Lower Bound Techniques
+
+As in any other computational model, proving tight lower bounds for the
+complexity of explicit functions in the communication model is usually a
+non-trivial task. Nevertheless, there are a number of effective
+techniques one can use to accomplish this. Now we explore three of these
+methods: the disjoint cover method, the rectangle size method and the
+fooling set method.
+
+For a function @xmath , define the input matrix by @xmath where the rows
+are indexed by @xmath and the columns are indexed by @xmath . We say
+that @xmath is a rectangle if @xmath for some @xmath and @xmath . This
+is equivalent to saying that @xmath and @xmath together imply @xmath .
+We say that @xmath is monochromatic with respect to @xmath if for some
+@xmath we have @xmath for all @xmath (see Figure 2.1 ).
+
+Given @xmath , let @xmath be a protocol for @xmath . For simplicity let
+us assume that the players send bits alternately. Also without loss of
+generality we can assume Alice (who has the input @xmath ) sends the
+first bit. Thus at step 1, the protocol partitions @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+At the second step it is Bob’s turn to send a bit so the protocol
+partitions both @xmath and @xmath . Here, if the first communicated bit
+was a 0, then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and if the first communicated bit was a 1, then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In general, if it is Alice’s turn to speak and the bits communicated
+thus far are @xmath , then Alice partitions @xmath into @xmath and
+@xmath . A protocol partitioning tree nicely illustrates what happens
+(see Figure 2.2 ).
+
+Observe that each node in the protocol partitioning tree is a rectangle
+and two nodes intersect if and only if one is the ancestor of the other.
+In particular, the leaves of the tree are disjoint rectangles. The same
+bits are communicated for all the inputs in a leaf so @xmath is the same
+for all these inputs, i.e. the leaves are monochromatic. The height of
+the tree is equal to @xmath . Thus we have proved the following lemma
+which is a key combinatorial property of a protocol.
+
+###### Lemma 2.1.
+
+A protocol @xmath for @xmath with @xmath partitions the input matrix
+@xmath into at most @xmath monochromatic rectangles.
+
+A monochromatic disjoint cover is a partition of a matrix into disjoint
+monochromatic rectangles. We denote by @xmath , the minimum number of
+rectangles in any monochromatic disjoint cover of @xmath . With this
+definition and the previous lemma at hand, we can present the first
+lower bound technique.
+
+###### Corollary 2.2 (Disjoint Cover Method).
+
+For a function @xmath we have @xmath .
+
+With this tool it is now easy to show a linear lower bound for @xmath .
+Observe that the input matrix for EQUALITY is a @xmath by @xmath
+identity matrix. No 1-monochromatic rectangle can contain more than one
+1. Thus any monochromatic disjoint cover has @xmath 1-monochromatic
+rectangles and at least one 0-monochromatic rectangle. So @xmath as
+predicted.
+
+Although every protocol for a function induces a monochromatic disjoint
+cover of the input matrix, simple examples show that the converse is not
+true. So if some of the monochromatic disjoint covers do not correspond
+to any protocol, how good can the disjoint cover method be? The next
+theorem states that the gap is not very large.
+
+###### Theorem 2.3.
+
+For a function @xmath , we have @xmath .
+
+###### Proof.
+
+For any function @xmath , we present a protocol for it with complexity
+@xmath . The protocol consists of at most @xmath rounds and in each
+round at most @xmath bits are communicated. The basic idea is as
+follows:
+Alice and Bob agree upon an optimal disjoint monochromatic cover
+beforehand. They try to figure out whether @xmath lies in a
+0-monochromatic rectangle or a 1-monochromatic rectangle. The protocol
+proceeds in rounds. If @xmath then in each round they successfully
+eliminate at least half of the 0-monochromatic rectangles. At the end,
+all 0-monochromatic rectangles are eliminated and they conclude @xmath .
+If on the other hand @xmath , then in one of the rounds they are not
+able to eliminate at least half of the 0-monochromatic rectangles. At
+this point they conclude @xmath .
+Before giving the details of a round, we make two crucial observations.
+The first observation implies the second one. The correctness of the
+protocol follows from the second observation.
+Observation 1: Suppose @xmath is a 0-monochromatic rectangle and @xmath
+is a 1-monochromatic rectangle. Then either @xmath and @xmath are
+disjoint in rows or they are disjoint in columns, i.e. either @xmath and
+@xmath are disjoint or @xmath and @xmath are disjoint.
+Observation 2: Let @xmath be any collection of 0-monochromatic
+rectangles and @xmath any 1-monochromatic rectangle. Then either
+
+-   @xmath intersects with at most half of the rectangles in @xmath in
+    rows or
+
+-   @xmath intersects with at most half of the rectangles in @xmath in
+    columns.
+
+Otherwise there is at least one rectangle @xmath in @xmath such that
+@xmath and @xmath intersect both in rows and columns. This contradicts
+the first observation.
+Now we can describe how a round is carried out. Initially @xmath
+contains all the 0-monochromatic rectangles.
+
+-   If @xmath then Alice communicates to Bob that @xmath and the
+    protocol ends. Otherwise, Alice tries to find a 1-monochromatic
+    rectangle @xmath such that @xmath and @xmath intersects with at most
+    half of the rectangles in @xmath in rows. If such a rectangle
+    exists, then Alice sends its name ( @xmath bits) to Bob and they
+    both update @xmath so it contains all the rectangles that intersect
+    with @xmath in rows (the other rectangles cannot contain @xmath ).
+    At this point the round is over since they successfully eliminated
+    at least half of the rectangles in @xmath . If Alice is unable find
+    such a rectangle then she communicates this to Bob.
+
+-   At this point we know Alice could not find a 1-monochromatic
+    rectangle to end the round so Bob tries to end the round by finding
+    a 1-monochromatic rectangle @xmath such that @xmath and @xmath
+    intersects with at most half of the rectangles in @xmath in columns.
+    If he finds such a rectangle, he communicates its name to Alice and
+    they both update @xmath so it contains all the rectangles that
+    intersect with @xmath in columns. After this point the round is
+    over. If he cannot find such a rectangle this means both Alice and
+    Bob failed and therefore he communicates to Alice that @xmath
+    because by the second observation, he knows that there is no
+    1-monochromatic rectangle containing @xmath .
+
+∎
+
+In most cases it is hard to exactly determine @xmath . So the natural
+next step is to find lower bounds on @xmath which in turn gives lower
+bounds on @xmath . (This is actually what we did for the EQUALITY
+function.)
+
+An obvious way of bounding (from below) the number of monochromatic
+rectangles needed in a monochromatic disjoint cover is to bound (from
+above) the size of every monochromatic rectangle. In other words, if
+every monochromatic rectangle in the input matrix has size less than or
+equal to @xmath , then we need at least @xmath monochromatic rectangles
+in a monochromatic disjoint cover of the matrix. Here ‘size’ refers to
+the number of pairs @xmath in the rectangle and we can interpret this as
+a measure @xmath . The above actually generalizes to any kind of
+measure.
+
+###### Proposition 2.4 (Rectangle Size Method).
+
+Let @xmath be a measure defined on the space @xmath . If all
+monochromatic rectangles @xmath (with respect to @xmath ) are such that
+@xmath , then @xmath .
+In particular, if @xmath is a probability and every monochromatic
+rectangle @xmath satisfies @xmath , then @xmath .
+
+###### Example 2.2.
+
+Let us see an application of the rectangle size method by proving a
+linear lower bound for the communication complexity of the DISJOINTNESS
+function. We define DISJOINTNESS as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath and @xmath are viewed as subsets of @xmath ( @xmath if
+@xmath contains the element @xmath ). We claim that any 1-monochromatic
+rectangle @xmath has size at most @xmath . It is easy to show that the
+number of @xmath ’s such that @xmath is @xmath . Now if for all @xmath
+and @xmath that intersect we set @xmath and for all @xmath and @xmath
+that are disjoint we set @xmath then @xmath and the above claim together
+with Proposition 2.4 imply @xmath .
+Proof of claim: Suppose @xmath and @xmath . Then clearly @xmath . Also
+@xmath since every set in @xmath must be disjoint from every set in
+@xmath . Thus the size of the rectangle is @xmath .
+
+The last lower bound technique we look at in this section is the
+well-known fooling set technique. It is a direct consequence of the
+disjoint cover method and in fact it is a special case of Proposition
+2.4 . First we make the formal definition of a fooling set.
+
+###### Definition 2.5.
+
+A set @xmath is a fooling set for @xmath if the following conditions are
+satisfied.
+
+1.  For all @xmath , @xmath for some @xmath .
+
+2.  For all distinct @xmath either @xmath or @xmath .
+
+By the definition of a fooling set, no two elements in @xmath can be in
+the same monochromatic rectangle. Therefore there must be at least
+@xmath many monochromatic rectangles in any monochromatic disjoint cover
+of the input matrix. So by Corollary 2.2 we get the following fact.
+
+###### Lemma 2.6 (Fooling Set Method).
+
+If @xmath is a fooling set for @xmath then @xmath .
+
+To see that the fooling set method is indeed a special case of
+Proposition 2.4 , for a fooling set @xmath , let @xmath for every @xmath
+and for every @xmath set @xmath . Then any monochromatic rectangle
+@xmath satisfies @xmath and therefore
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Example 2.3.
+
+Define the LESS-THAN function as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath and @xmath are viewed as binary numbers. We can show that
+@xmath has linear deterministic communication complexity by the fooling
+set technique. Let @xmath . It is easy to see that @xmath is a fooling
+set. Clearly @xmath and this proves our claim. In fact @xmath is also a
+fooling set for the EQUALITY function.
+
+From our discussion in this section, it is clear that we can exploit the
+nice combinatorial structure of protocols to prove tight lower bounds
+for explicit functions. In the next section, we see that most of the
+techniques seen in this section can be applied to the non-deterministic
+model as well.
+
+### 2.2 Non-Deterministic Model
+
+#### 2.2.1 Definition
+
+The definition of the non-deterministic communication model is analogous
+to the non-deterministic model in the Turing Machine world. There are
+several ways of defining non-determinism, all of which are equivalent.
+Here we will present the one that best suits our needs.
+
+Intuitively, non-determinism can be viewed as a certificate verification
+process ¹ ¹ 1 Equivalently one can view it as a communication game in
+which the players are allowed to take non-deterministic steps. : A third
+player (referred to as God) gives a proof (bit string) that @xmath to
+both Alice and Bob. If indeed @xmath , then Alice and Bob must be able
+to convince themselves that this is the case by communicating with each
+other. If on the other hand @xmath , then the verification process
+should fail and Alice and Bob should be able to conclude that the proof
+was wrong. We consider the bits sent by God as a part of the
+communicated bits.
+
+More formally, in the non-deterministic setting, Alice and Bob
+communicate according to a non-deterministic protocol @xmath . This
+protocol differs from the deterministic one as follows. @xmath takes
+three inputs, @xmath and @xmath , where @xmath and @xmath are perceived
+as the inputs for Alice and Bob respectively, and @xmath is some bit
+string which we think of as the “proof string”. @xmath specifies in each
+step the value of the next bit communicated as a function of the input
+of the player who sends it, the sequence of previously communicated bits
+as well as @xmath . It also determines who will send the next bit as a
+function of the communicated bits thus far. So it differs from a
+deterministic protocol because what a player sends also depends on the
+string @xmath . We will denote the output of the protocol by @xmath .
+
+We say that @xmath is a non-deterministic protocol for @xmath if for all
+@xmath such that @xmath , there exists a string @xmath such that @xmath
+, and for all @xmath such that @xmath we have @xmath for any @xmath .
+
+The the cost of @xmath is defined as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We define the non-deterministic communication complexity of @xmath as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The co-non-deterministic communication complexity of @xmath is defined
+similarly and is denoted by @xmath .
+
+###### Example 2.4.
+
+Let us show @xmath by exhibiting a proof and a verification protocol.
+God can prove @xmath by telling Alice and Bob the index @xmath in which
+@xmath and @xmath intersect. This proof is @xmath bits long and Alice
+and Bob can convince themselves that the proof is correct by exchanging
+the bits @xmath and @xmath . If @xmath , then given any index as a
+proof, Alice and Bob can detect that the proof is wrong. (Any other kind
+of proof is considered as a wrong proof.)
+
+Unlike the deterministic communication complexity, we can get an exact
+characterization of non-deterministic communication complexity in terms
+of monochromatic rectangles. We denote by @xmath the minimum number of
+@xmath -monochromatic rectangles in any monochromatic cover of the
+@xmath -inputs of @xmath (observe that here we dropped the word
+“disjoint” since we allow the rectangles to intersect). This quantity
+exactly determines @xmath .
+
+###### Proposition 2.7.
+
+@xmath .
+
+###### Proof.
+
+-   @xmath
+    We have seen in the deterministic case that a certain communication
+    pattern corresponds to a certain monochromatic rectangle. This
+    situation is not much different in the non-deterministic model. In
+    this case, what Alice and Bob send in each step also depends on the
+    proof bits. So for every fixed proof string, there corresponds a
+    protocol partitioning tree as in Figure 2.2 .
+
+    Now observe that for this particular proof, every communication
+    pattern that convinces Alice and Bob leads to a @xmath
+    -monochromatic rectangle. (Other communication patterns may not lead
+    to a monochromatic rectangle since the proof we fixed may not be a
+    proof for all @xmath with @xmath .) So each convincing communication
+    pattern (including the proof) corresponds to a @xmath -monochromatic
+    rectangle. Since for every @xmath such that @xmath there must be a
+    proof that convinces Alice and Bob, all the convincing communication
+    patterns together correspond to a covering of the @xmath -inputs.
+    Here the rectangles are allowed to intersect since for some @xmath
+    with @xmath , there might be more than one proof that leads Alice
+    and Bob to be convinced. There are at most @xmath communication
+    patterns and therefore @xmath .
+
+-   @xmath
+    Fix any optimal monochromatic cover of the @xmath -inputs. If God
+    sends Alice and Bob the name of a monochromatic rectangle @xmath
+    that @xmath lies in, then Alice can check that @xmath and if so, she
+    can send 1 to Bob. Bob can similarly check if @xmath and send 1 to
+    Alice if this is the case.
+
+∎
+
+#### 2.2.2 Power of Non-Determinism
+
+A natural question that arises in this context is: how much power does
+non-determinism give? Non-determinism in the finite automaton
+computational model does not give extra power with respect to the class
+of languages recognized. In the Turing Machine model, it is not known
+whether non-determinism provides significantly more power. In the
+communication complexity model we can answer this question and prove
+that non-determinism is strictly more powerful. First we observe that
+the gap between determinism and non-determinism cannot be more than
+exponential.
+
+###### Proposition 2.8.
+
+For any @xmath , @xmath .
+
+###### Proof.
+
+Alice and Bob agree on an optimal cover of the @xmath -inputs. Alice
+communicates to Bob the @xmath -monochromatic rectangles that @xmath
+lies in (this requires @xmath bits of communication). Bob, with this
+information, can determine if there is a @xmath -monochromatic rectangle
+that @xmath lies in and send the answer to Alice. ∎
+
+The above is actually tight. For example the EQUALITY function satisfies
+@xmath and @xmath (similar protocol to the one in Example 2.4 ).
+
+Can it be the case that both @xmath and @xmath are exponentially smaller
+than @xmath ? The answer to this question is given by the next theorem.
+
+###### Theorem 2.9.
+
+For every function @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The proof of this theorem is the same as the proof of Theorem 2.3 . It
+was shown in [ Fur87 ] that this bound is tight.
+
+Observe that there are two reasons why non-determinism is more powerful
+than determinism:
+
+1.  non-determinism is one sided in the sense that we only need to cover
+    the @xmath -inputs,
+
+2.  the @xmath -monochromatic rectangles in the cover are allowed to
+    overlap.
+
+From our discussion above it should be clear that the ultimate power
+comes from the first point. In the EQUALITY example we see that it is
+“easy” to cover the 0-inputs in the sense that we do not need
+exponentially many 0-monochromatic rectangles to cover the 0-inputs. The
+hardness lies in covering the 1-inputs. The exponential gap is a product
+of this fact. The power of a cover against a disjoint cover is only
+quadratic as implied by Theorem 2.9 .
+
+#### 2.2.3 Lower Bound Techniques
+
+In the deterministic model, we saw the rectangle size method as a lower
+bound technique. It is clear that the same approach gives a lower bound
+for the non-deterministic communication complexity as well. If every
+@xmath -monochromatic rectangle has size less than or equal to @xmath
+and there are @xmath @xmath -inputs, then we need at least @xmath many
+rectangles to cover these inputs. The non-deterministic version of
+Proposition 2.4 is as follows.
+
+###### Proposition 2.10.
+
+Let @xmath be the set of all @xmath -inputs and let @xmath be a measure
+defined on the space @xmath . If all @xmath -monochromatic rectangles
+@xmath satisfy @xmath , then @xmath .
+
+It can be shown that the rectangle size method in the non-deterministic
+case is almost tight. Suppose we choose the best possible measure @xmath
+(i.e. the one that gives the best bound) and the maximum size (with
+respect to @xmath ) of a @xmath -monochromatic rectangle is @xmath .
+Then we have:
+
+###### Theorem 2.11 (see [Kn97]).
+
+@xmath .
+
+There are examples that show that we cannot do better than this.
+
+The fact that we can use the rectangle size method here implies that we
+can also use the fooling set method. However, as the next proposition
+shows, the quality of the fooling set method is questionable.
+
+###### Proposition 2.12 (see [Kn97]).
+
+Almost all functions @xmath satisfy @xmath but the size of their largest
+fooling set is @xmath .
+
+We finish off this section by looking at the non-deterministic
+communication complexity of the PROMISE-DISJOINTNESS function. This
+function is defined the same way as the DISJOINTNESS function but the
+input space is different: it is the union of the following two sets
+@xmath and @xmath .
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In other words Alice and Bob are promised that if they get an input that
+intersects, then the size of the intersection is exactly 1.
+
+Now we show that the PROMISE-DISJOINTNESS ( @xmath ) function has linear
+non-deterministic complexity. This fact is used in Chapter 4 to prove
+linear lower bounds for the complexity of certain regular languages. To
+show the linear lower bound, we use a result that implies a linear lower
+bound on the randomized communication complexity of the DISJOINTNESS
+function. Before we can state this result, we first need to define two
+measures on @xmath .
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Lemma 2.13 (see [Raz04]).
+
+For any rectangle @xmath , if
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+(for @xmath large enough).
+
+In particular, if @xmath then @xmath contains elements from both @xmath
+and @xmath . Therefore to cover the inputs in @xmath with
+1-monochromatic rectangles ² ² 2 In this setting 1-monochromatic
+rectangles can contain any element from @xmath , we need exponentially
+many rectangles. This shows @xmath .
+
+### 2.3 Other Models
+
+In this section, we mention some of the most interesting and
+well-studied communication complexity models.
+
+##### Randomized Communication Complexity
+
+In the randomized setting, Alice and Bob both have access to random bit
+strings that are generated according to some probability distribution.
+These random strings are private to them and are independent. What Alice
+and Bob communicate depends on these random strings as well as their
+input and the previously communicated bits. We say that @xmath is a
+protocol for @xmath with @xmath error if the following holds.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The cost of @xmath is defined as the maximum number of bits communicated
+where the maximum is taken over all possible random strings and all
+inputs @xmath . The randomized communication complexity of @xmath is
+
+  -- -- --
+        
+  -- -- --
+
+One can also define the one sided error randomized complexity. We say
+that @xmath is a protocol for @xmath with one sided @xmath error if the
+following holds.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then the one sided randomized communication complexity of @xmath is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+There are also variations of the randomized model in which Alice and Bob
+have access to one public random string. (For a comparison see [ New91 ]
+.)
+
+##### Distributional Communication Complexity
+
+In this setting, the definition of the cost of a protocol and the
+communication complexity of a function are the same as the deterministic
+model. The difference is that we relax the condition
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+to
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for a given probability distribution @xmath on the input space @xmath
+and a constant @xmath . The distributional communication complexity of a
+function is denoted by @xmath .
+
+##### Multiparty Communication Complexity
+
+A natural way of generalizing the two player model to @xmath -players is
+as follows. @xmath -players try to compute a function @xmath where
+player @xmath gets @xmath and communication is established by
+broadcasting (every player receives the communicated bit). Observe that
+as the number of players increases, the power of the model decreases.
+
+Another way of generalizing the two party model to @xmath players was
+proposed in [ CFL83 ] . This model is referred to as “number on the
+forehead” model because here each player @xmath sees every input but
+@xmath . This can be viewed as each player having their input on their
+forehead and not being able to see it. The power of this model increases
+as the number of players increases. In this setting, coming up with
+lower bounds is considerably harder. However, these lower bounds imply
+lower bounds in other computational models such as circuits and
+bounded-width branching programs. This is one of the reasons why this
+model has attracted more interest than the natural generalization
+mentioned previously. There are applications in time-space tradeoffs for
+Turing Machines ( [ BNS92 ] ), length-width tradeoffs for branching
+programs ( [ BNS92 ] ), circuit complexity ( [ HG91 ] , [ Gro92 ] , [
+Nis93 ] , [ Gro98 ] ), proof complexity ( [ BPS07 ] ) and pseudorandom
+generators ( [ BNS92 ] ), to cite only a few.
+
+### 2.4 Communication Complexity Classes
+
+It is possible to define complexity classes with respect to
+communication complexity once we settle what it means to be “easy” or
+“tractable”. Communication complexity classes were introduced in [ BFS86
+] in which “tractable” was defined to be @xmath complexity. That is, a
+function is tractable if its complexity is @xmath for some constant
+@xmath . From this foundation, one can build communication complexity
+classes analogous to @xmath and many more. For example @xmath . The
+correspondence between some of the complexity classes and the complexity
+measures can be summarized as follows.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The relationship between these classes are much better known than their
+Turing Machine counterparts since proving lower bounds for explicit
+functions is easier in the communication world. We have seen that the
+function NOT-EQUALITY satisfies @xmath and @xmath . This proves @xmath .
+Since @xmath , we have @xmath . Theorem 2.9 shows that @xmath . It can
+also be shown that @xmath and @xmath .
+
+###### Remark.
+
+It is also possible to define analogs of the polynomial hierarchy.
+
+Reducibility and completeness are fundamental concepts in the Turing
+Machine computational model so it is natural to define the communication
+complexity analogs.
+
+The idea of reduction is as follows. Given two functions @xmath and
+@xmath , @xmath reduces to @xmath if Alice and Bob can privately convert
+their inputs @xmath and @xmath to @xmath and @xmath such that @xmath if
+and only if @xmath . Suppose @xmath reduces to @xmath and that the
+inputs of length @xmath are converted into inputs of length @xmath .
+Then it is clear that if the communication complexity of @xmath is
+@xmath then the communication complexity of @xmath is @xmath . If the
+communication complexity of @xmath is @xmath then the communication
+complexity of @xmath is @xmath .
+
+Reductions of particular interest with respect to the communication
+complexity classes are those with @xmath for some constant @xmath . The
+formal definition as given in [ BFS86 ] is as follows.
+
+###### Definition 2.14.
+
+Let @xmath for some constant @xmath . A rectangular reduction from a
+function @xmath to a function @xmath is a pair of functions @xmath and
+@xmath such that @xmath if and only if @xmath .
+
+From this definition it is clear that if there is a rectangular
+reduction from @xmath to @xmath and @xmath then @xmath . The same is
+true for @xmath (and in fact for every level of the polynomial
+hierarchy).
+
+###### Example 2.5.
+
+For a fixed constant @xmath , define the INNER-PRODUCT function as
+follows.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We exhibit a reduction from @xmath to @xmath such that an input of
+length @xmath is converted into an input of length @xmath . Since @xmath
+is a constant, this proves that @xmath .
+Given @xmath and @xmath , Alice and Bob each append @xmath 1’s at the
+end of their inputs to obtain @xmath and @xmath . If @xmath then clearly
+@xmath . If on the other hand @xmath , then we know that @xmath and
+@xmath intersect only at one position and therefore @xmath and @xmath
+will intersect in @xmath positions. This implies @xmath .
+
+Having established the definition of a reduction, we can define the
+notion of completeness. For a class of functions @xmath , we say @xmath
+is complete in @xmath if there is a rectangular reduction from every
+function in @xmath to @xmath . In [ BFS86 ] , a complete function is
+found in every level of the polynomial hierarchy.
+
+### 2.5 Summary
+
+In this chapter we took a glimpse at the mini-world within complexity
+theory: communication complexity. The main focus in this area has been
+proving tight lower bounds for specific functions. We showed three lower
+bound techniques for the deterministic model. These were the disjoint
+cover method, rectangle size method and the fooling set method. We
+introduced the non-deterministic model and saw that the
+non-deterministic communication complexity of a function was essentially
+the number of @xmath -monochromatic rectangles needed to cover the
+@xmath -inputs. We saw that the rectangle size method, and therefore the
+fooling set method were also applicable in this setting. We looked at
+the power of non-determinism and observed that the possible exponential
+gap between the deterministic and the non-deterministic complexity arose
+from the fact that non-determinism was one sided. Later we touched on
+some other communication models: randomized complexity, distributional
+complexity and multiparty complexity. Finally we defined some of the
+communication complexity classes, @xmath , by considering @xmath
+complexity as tractable. Natural definitions of reducibility and
+completeness were also introduced.
+
+The deterministic and the non-deterministic communication complexities
+of the functions seen in this chapter are summarized with the following
+table.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+## Chapter 3 Algebraic Automata Theory
+
+In this chapter, we introduce the reader to algebraic automata theory by
+presenting the fundamental concepts in this area. The heart of this
+theory is viewing a monoid as a language recognizer. Therefore we begin
+this chapter in Section 3.1 by explaining how a monoid can be viewed as
+a computational machine. Later we define the syntactic monoid of a
+language which is analogous to the minimal automaton. Then we define
+varieties and state the variety theorem which establishes a one to one
+correspondence between varieties of finite monoids and varieties of
+regular languages. This conveys the intimate relationship between finite
+monoids and regular languages. In Section 3.2, we extend the theory to
+ordered monoids since (as we see in Chapter 4) this provides the proper
+framework to analyze the non-deterministic communication complexity of
+regular languages.
+
+We assume that the reader has basic knowledge in automata theory. For
+more details on the subjects covered in this chapter, see [ Pin86 ] and
+[ Pin97 ] for the ordered case.
+
+### 3.1 Monoids - Automata - Regular Languages
+
+#### 3.1.1 Monoids: A Computational Model
+
+Before we can present how a monoid can be viewed as a computational
+machine, we first need to formally define a monoid and a morphism
+between monoids. A semigroup ( @xmath , @xmath ) is a set @xmath
+together with an associative binary operation defined on this set. A
+monoid ( @xmath , @xmath ) is a semigroup that has an identity: @xmath
+which satisfies @xmath for any @xmath . We denote a monoid by its
+underlying set and write @xmath instead of @xmath when there is no
+ambiguity about the operation. Observe that a group is just a monoid in
+which each element has an inverse.
+
+Given two monoids @xmath and @xmath , a function @xmath is a morphism if
+@xmath and if @xmath preserves the operation, i.e. @xmath for any @xmath
+.
+
+We assume that the monoids we are dealing with are finite, with the
+exception of the free monoid @xmath which consists of all words
+(including the empty word @xmath ) over the alphabet @xmath , with the
+underlying operation being concatenation. Observe that any function
+@xmath extends uniquely to a morphism @xmath .
+
+One branch of algebraic graph theory studies the connection between
+groups and corresponding Cayley graph representations of the groups.
+Similarly, monoids also have graph representations. Given a monoid
+@xmath , we can construct a labeled multidigraph @xmath as follows. Let
+@xmath be the underlying set of the monoid and let @xmath with label
+@xmath if @xmath . See Figure 3.1 for an example.
+
+Now the correspondence between monoids and automata should be clear
+since we can easily view the graph of @xmath as an automaton which
+recognizes a language over the alphabet @xmath . All we need to do is
+declare the vertex @xmath as the initial state and agree upon a set of
+accepting vertices @xmath . Observe that the graph of a monoid accepts a
+word @xmath iff @xmath . In fact, once we fix a function @xmath , the
+graph of @xmath recognizes a language over the alphabet @xmath : replace
+each arc’s label by its preimage under @xmath (now an arc can have more
+than one label). A word @xmath is accepted iff @xmath .
+
+If we allow the set of accepting states to vary and the function @xmath
+to vary (for fixed @xmath and @xmath ) then by viewing the monoid’s
+graph as an automaton, we see that a single monoid can be used to
+recognize a family of languages over @xmath . Each language in the
+family corresponds to a fixed set of accepting states and a fixed
+function @xmath . This leads to the more formal definition of
+recognition by a monoid. We say that a language @xmath is recognized by
+a finite monoid @xmath if there exists a morphism @xmath and an
+accepting set @xmath such that @xmath . Similarly, we say that @xmath
+recognizes @xmath if there exists @xmath such that @xmath . See Figure
+3.2 for an alternative way of viewing @xmath as a language recognizer.
+
+Given any monoid morphism @xmath , the nuclear congruence with respect
+to @xmath is denoted by @xmath and is defined by @xmath if @xmath . We
+say that a set of words is homogeneous with respect to @xmath if either
+every word in the set is in @xmath or none of the words is in @xmath .
+Now observe that @xmath recognizes @xmath if and only if the nuclear
+congruence classes of @xmath are homogeneous. This fact is used in the
+upcoming proofs.
+
+From the earlier discussion, we can conclude that if @xmath is
+recognized by a finite monoid, then it is recognized by a finite
+automaton (the graph of the monoid) and therefore it is regular. In
+fact, the converse is also true.
+
+###### Theorem 3.1.
+
+@xmath is regular if and only if a finite monoid recognizes @xmath .
+
+###### Proof.
+
+If @xmath is regular then it is recognized by a finite automaton. The
+definition of an automaton includes the transition function @xmath where
+@xmath is the set of states. This function can be naturally extended to
+@xmath . In other words, every word in @xmath defines a function from
+@xmath to @xmath . Let @xmath , @xmath , be the function corresponding
+to the word @xmath . Then it is easy to see that the set @xmath is a
+monoid with the operation being composition of functions. Furthermore
+@xmath is finite since @xmath is finite. We call @xmath the
+transformation monoid of the automaton.
+
+We claim that the transformation monoid @xmath recognizes @xmath . To
+see this let @xmath be the canonical mapping: @xmath . @xmath is a
+morphism since
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If @xmath then @xmath iff @xmath so the nuclear congruence classes are
+homogeneous and thus @xmath recognizes @xmath , which means @xmath
+recognizes @xmath . ∎
+
+Theorem 3.1 constitutes the foundation of algebraic automata theory. It
+shows that finite monoids and finite automata have the same
+computational power with respect to the class of languages recognized.
+The proof reveals the strong link between monoids and automata. In fact,
+this link can be seen to be much stronger via the relation between the
+combinatorial properties ¹ ¹ 1 Regular languages are definable by
+regular expressions which are combinatorial descriptions of the
+language. of @xmath and the algebraic properties of a monoid recognizing
+@xmath . With the purpose of exploring this relation, we define the
+syntactic monoid of a regular language.
+
+#### 3.1.2 The Syntactic Monoid
+
+For every regular language there is a minimal automaton that recognizes
+it. Similarly, every regular language has a “minimal” monoid that
+recognizes it. We call this monoid the syntactic monoid and it is
+unique.
+
+The syntactic congruence associated with a language @xmath is denoted by
+@xmath and @xmath if for all @xmath we have @xmath iff @xmath . It is
+straightforward to check that this relation is indeed a congruence. The
+syntactic monoid of @xmath is the quotient monoid @xmath and is denoted
+by @xmath . Let @xmath represent the congruence class of @xmath with
+respect to the syntactic congruence. There is a well-defined operation:
+@xmath , so the canonical surjective mapping @xmath , @xmath , is a
+morphism. Observe that any congruence class of @xmath is homogeneous
+(i.e. the nuclear congruence classes are homogeneous) so @xmath
+recognizes @xmath . We call @xmath the syntactic morphism .
+
+It is quite easy to verify the following fact.
+
+###### Proposition 3.2.
+
+@xmath is regular if and only if its syntactic monoid is finite.
+
+We say that a monoid @xmath divides a monoid @xmath (denoted by @xmath )
+if there exists a surjective morphism from a submonoid ² ² 2 A submonoid
+is a subset that contains the identity and is closed under the
+operation. of @xmath onto @xmath . Intuitively, this means that the
+multiplicative structure of @xmath is embedded in @xmath . The syntactic
+monoid of @xmath recognizes @xmath and is the minimal monoid with this
+property with respect to division.
+
+###### Proposition 3.3.
+
+@xmath recognizes @xmath and divides any other monoid that also
+recognizes @xmath .
+
+###### Proof.
+
+We have already proved that @xmath recognizes @xmath so we prove the
+second statement.
+
+Let @xmath be any monoid that recognizes @xmath . So there exists a
+morphism @xmath recognizing @xmath . Let @xmath be the syntactic
+morphism. To show @xmath divides @xmath , we find a surjective morphism
+@xmath from a submonoid @xmath of @xmath onto @xmath .
+
+Before defining @xmath we first prove the following claim: if @xmath
+then @xmath . Suppose not, so there exists @xmath such that @xmath but
+@xmath . By the definition of @xmath this means that without loss of
+generality, there exists @xmath such that @xmath but @xmath . We have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+so @xmath maps @xmath and @xmath to the same element. Since nuclear
+congruence classes (with respect to @xmath ) must be homogeneous and
+@xmath but @xmath , we get a contradiction.
+
+Now let @xmath . So @xmath is a submonoid of @xmath . Define @xmath ,
+@xmath , i.e. @xmath .
+
+  -- -- --
+        
+  -- -- --
+
+By claim @xmath is well-defined. Since @xmath is surjective, @xmath is
+surjective. Furthermore,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and so @xmath is a morphism. ∎
+
+If @xmath and @xmath then @xmath is isomorphic to @xmath . So as claimed
+before, for every regular language there is a unique (up to isomorphism)
+canonical monoid, the syntactic monoid, attached to it. An interesting
+property of @xmath is that it is isomorphic to the transformation monoid
+of the minimal automaton recognizing @xmath .
+
+In the next subsection, we introduce the notion of language and monoid
+varieties. The combinatorial properties of a language are reflected on
+the algebraic properties of @xmath and varieties are the proper
+framework to formalize this.
+
+#### 3.1.3 Varieties
+
+We first give a brief overview of varieties and how monoid varieties and
+language varieties relate to each other.
+
+A variety of languages is a family of languages that satisfy certain
+conditions. Similarly a variety of monoids is a family of monoids
+satisfying certain conditions. The variety theorem states that there is
+a one to one correspondence between varieties of regular languages and
+varieties of finite monoids: a variety of monoids @xmath corresponds to
+the variety of regular languages @xmath consisting of all the languages
+whose syntactic monoid is in @xmath . Consequently, we are able to state
+results of the form:
+
+“A regular language belongs to the language variety @xmath if and only
+if its syntactic monoid belongs to the monoid variety @xmath .”
+
+Many classes of languages that are defined combinatorially form language
+varieties and many classes of monoids that are defined algebraically
+form monoid varieties. So from above we can hope to reach results of the
+form:
+
+“A regular language has the combinatorial property @xmath if and only if
+its syntactic monoid has the algebraic property @xmath .”
+
+Schützenberger was the first to establish such a result: A regular
+language is star-free ³ ³ 3 A language is star-free if it can be defined
+by a extended regular expression without the Kleene star operation. if
+and only if its syntactic monoid is finite and aperiodic ⁴ ⁴ 4 A monoid
+is aperiodic if no subset of it forms a non-trivial group. ( [ Sch65 ]
+). Several important classes of regular languages admit a similar
+algebraic characterization. This often yields decidability results which
+are not known to be obtainable by other means. For instance, by a result
+of McNaughton and Papert ( [ MP71 ] ), we know that regular languages
+definable by a first-order formula are exactly the star-free languages.
+This implies that we can decide if a regular language is first-order
+definable by checking if its syntactic monoid is aperiodic and this is
+the only known way of doing this. These types of algebraic
+characterizations of regular languages also provide one with powerful
+algebraic tools when analyzing and proving results about regular
+languages.
+
+##### Varieties of Finite Monoids
+
+A variety of finite monoids is a family of finite monoids @xmath that
+satisfies the following two conditions:
+
+-   @xmath is closed under division: if @xmath and @xmath then @xmath ,
+
+-   @xmath is closed under direct product: if @xmath then @xmath .
+
+###### Example 3.1.
+
+The following are some examples of varieties of monoids:
+
+-   @xmath is the trivial variety consisting of only the trivial monoid
+    @xmath .
+
+-   @xmath is the variety containing all finite monoids.
+
+-   @xmath is the variety of all commutative monoids.
+
+-   @xmath is the variety of groups.
+
+-   @xmath is the variety of aperiodic monoids.
+
+-   @xmath is the variety of monoids @xmath that satisfy @xmath . We
+    call these monoids @xmath -trivial.
+
+There is a convenient way of defining varieties of monoids through
+identities . The notion of identities can be presented in two ways. One
+involves topological semigroups (see [ Pin97 ] ), which we wish to
+avoid. Therefore we use the presentation which we think is more
+intuitive.
+
+Let @xmath be a countable alphabet and @xmath two words in @xmath . We
+say that a monoid @xmath satisfies the identity @xmath if for all
+morphisms @xmath we have @xmath . This means that if we replace the
+letters of @xmath and @xmath with arbitrary (but consistent) elements of
+@xmath then we will arrive at an equality in @xmath . For example a
+monoid is commutative if and only if it satisfies the identity @xmath .
+
+It can be shown that the family of finite monoids consisting of the
+monoids that satisfy the identity @xmath forms a variety. This variety
+is denoted by @xmath .
+
+Now let @xmath be a sequence of pair of words in @xmath . Define
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Observe that @xmath if and only if there exists an @xmath such that for
+every @xmath , @xmath satisfies @xmath . Here we say that @xmath is
+ultimately defined by the sequence of identities @xmath .
+
+###### Theorem 3.4 (see [Pin86]).
+
+Every variety of monoids is ultimately defined by some sequence of
+equations.
+
+For example the variety of commutative monoids is ultimately defined by
+the constant sequence @xmath . A less trivial example is the variety of
+aperiodic monoids. It can be shown that a finite monoid is aperiodic if
+and only if for each @xmath there exists @xmath such that @xmath .
+Consequently, the variety of aperiodic monoids is ultimately defined by
+the sequence @xmath . The variety of commutative aperiodic monoids is
+ultimately defined by the sequence
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In such a case, for clarity, we say that the variety is ultimately
+defined by two sequences.
+
+An element @xmath of a monoid is called idempotent if @xmath . In finite
+monoids, idempotents play a key role. For instance, every non-empty
+monoid contains an idempotent. Indeed, if we take any element @xmath of
+the monoid, then there exists a number @xmath such that @xmath is an
+idempotent (in fact this is the unique idempotent generated by @xmath ).
+This implies that for any finite monoid, there is a number @xmath such
+that for every element @xmath in the monoid, we have that @xmath is an
+idempotent. We call @xmath an exponent of @xmath . Observe that if
+@xmath is an exponent of @xmath then for any @xmath , @xmath is also an
+exponent of @xmath .
+
+We use @xmath in many sequences of identities that ultimately define
+varieties of monoids. For example, the sequence @xmath ultimately
+defines the variety of locally trivial monoids . From this, it should be
+clear that a monoid @xmath is locally trivial if and only if for every
+idempotent @xmath and every element @xmath we have @xmath . As a
+convention, a sequence of equations involving @xmath is written by
+replacing @xmath with @xmath . So for example we use @xmath as an
+abbreviation for @xmath . It is easy to see that the variety of groups
+@xmath is ultimately defined by @xmath .
+
+Given a sequence of identities @xmath , we denote by @xmath the variety
+that is ultimately defined by @xmath . So for example we have @xmath and
+the variety of locally trivial monoids is @xmath .
+
+##### Varieties of Regular Languages
+
+Before we can define a variety of regular languages we need some
+preliminary definitions.
+
+A class of regular languages is a function @xmath that maps every
+alphabet @xmath to a set of regular languages in @xmath .
+
+A set of languages in @xmath that is closed under finite intersection,
+finite union and complementation is called a boolean algebra .
+
+Now a variety of regular languages is a class of regular languages
+@xmath that satisfies the following conditions:
+
+-   For any alphabet @xmath , @xmath is a boolean algebra.
+
+-   @xmath is closed under inverse morphisms: given any alphabets @xmath
+    and @xmath , for any morphism @xmath , if @xmath then @xmath .
+
+-   @xmath is closed under left and right quotients: for @xmath and
+    @xmath , we have @xmath and @xmath are in @xmath .
+
+###### Example 3.2.
+
+The following are some examples of varieties of regular languages:
+
+-   The trivial variety: @xmath .
+
+-   The variety of all regular languages (each alphabet is mapped to all
+    the regular languages over this alphabet).
+
+-   The variety of star-free languages.
+
+-   The variety of piecewise testable languages: A language is called
+    piecewise testable if there exists a @xmath such that membership of
+    any word in the language depends on the set of subwords ⁵ ⁵ 5 A word
+    @xmath is a subword of a word @xmath if @xmath for some words @xmath
+    . of length at most @xmath occurring in that word.
+
+##### The Variety Theorem
+
+For a given finite monoid variety @xmath , let @xmath be the set of
+languages in @xmath whose syntactic monoid belongs to @xmath .
+Alternatively, we can define @xmath as follows.
+
+###### Proposition 3.5.
+
+Let @xmath be the set of languages over @xmath that is recognized by a
+monoid in @xmath . Then @xmath .
+
+###### Proof.
+
+@xmath If @xmath then @xmath . @xmath recognizes @xmath so @xmath .
+@xmath If @xmath then there exists @xmath recognizing @xmath . @xmath
+and @xmath is closed under division so @xmath . Therefore @xmath . ∎
+
+Now we can state the variety theorem due to Eilenberg ( [ Eil74 ] ).
+
+###### Theorem 3.6 (The Variety Theorem).
+
+@xmath is a variety of languages and the mapping @xmath is one to one.
+
+In light of this theorem, one can hope to explicitly make such
+correspondences. Two important correspondence results are the following.
+
+###### Theorem 3.7 ([Sch65]).
+
+The monoid variety @xmath corresponds to the variety of star-free
+languages. Equivalently, a regular language is star-free if and only if
+its syntactic monoid is aperiodic.
+
+###### Theorem 3.8 ([Sim75]).
+
+The monoid variety @xmath corresponds to the variety of piecewise
+testable languages. Equivalently, a regular language is piecewise
+testable if and only if its syntactic monoid is @xmath -trivial.
+
+Furthermore we can restate Theorem 3.1 as follows.
+
+###### Theorem 3.9.
+
+The monoid variety @xmath corresponds to the variety of all regular
+languages. Equivalently, @xmath is regular if and only if its syntactic
+monoid is finite.
+
+### 3.2 Ordered Monoids
+
+In the previous section, we have seen that we can classify regular
+languages in terms of the monoids that recognize them. We were able to
+obtain algebraic characterizations for certain classes of languages:
+varieties of languages. Many interesting combinatorially defined classes
+of languages form varieties. But there are other combinatorially defined
+classes of languages that do not form a variety. Of particular interest
+are families of languages that are not necessarily closed under
+complementation but satisfy the other properties of a variety. We call
+such families “positive varieties of languages”. Is it possible to get a
+similar algebraic characterization for these languages as well? In
+particular, is there a result similar to Eilenberg’s variety theorem
+that permits us to treat positive varieties?
+
+Fortunately the answers to the above questions are “yes”. The idea is to
+attach an order on the monoids and adapt the definition of recognition
+by monoids to ordered monoids. This point of view is a generalization of
+the unordered case and allows us to make a one to one correspondence
+between varieties of ordered monoids and positive varieties of
+languages. This extension was introduced in [ Pin95 ] .
+
+Intuitively speaking, the syntactic monoid has less information than the
+minimal automaton. One reason for this is that in the minimal automaton
+the accepting states are predetermined, but in the syntactic monoid the
+accepting set is not. As we see in the next subsection, the order on the
+monoid restricts the way we can choose the accepting set and
+consequently the ordered syntactic monoid recovers some of the missing
+information. This restriction lets us analyze classes of languages that
+are not closed under complementation.
+
+In this section, we go over the definitions and the results seen thus
+far, and present the analogous ordered counterparts. We start with the
+notion of recognition by ordered monoids. Then we define the syntactic
+ordered monoid. Later we look at varieties of ordered monoids, positive
+varieties of languages and the variety theorem that establishes a one to
+one correspondence between these ordered monoid varieties and positive
+language varieties.
+
+#### 3.2.1 Recognition by Ordered Monoids
+
+An order relation on a set @xmath is a relation that is reflexive,
+anti-symmetric and transitive and it is denoted by @xmath . We say that
+@xmath is a stable order relation on a monoid @xmath if for all @xmath ,
+@xmath implies @xmath and @xmath .
+
+An ordered monoid @xmath is a monoid @xmath together with a stable order
+relation @xmath that is defined on @xmath . A morphism of ordered
+monoids @xmath is a morphism between @xmath and @xmath that also
+preserves the order relation, i.e. for all @xmath , @xmath implies
+@xmath .
+
+The free monoid @xmath will always be equipped with the equality
+relation. Observe that any morphism @xmath is also a morphism of ordered
+monoids @xmath for any stable order @xmath and vice versa.
+
+A subset @xmath is called an order ideal if for any @xmath , @xmath
+implies @xmath . Observe that every order ideal @xmath in a finite
+monoid @xmath has a generating set @xmath such that @xmath .
+
+Now the concept of recognizability is very similar to the unordered
+case. We say that a language @xmath is recognized by an ordered monoid
+@xmath if there exists a morphism of ordered monoids @xmath and an order
+ideal @xmath such that @xmath . Equivalently, @xmath is recognized by
+@xmath if there exists a morphism @xmath and an order ideal @xmath such
+that @xmath . Observe that this is a generalization of the unordered
+case in the sense that any monoid is an ordered monoid with the equality
+order (the trivial order) and any subset of the monoid is an order ideal
+with respect to equality. Also note that in the unordered case, if
+@xmath is recognized by @xmath , then so is the complement of @xmath .
+In the ordered case, since we require the accepting set to be an order
+ideal, this statement is no longer true. This restriction on the
+accepting set allows the ordered monoid to keep more information about
+the automaton recognizing @xmath . In this sense, one can think of the
+ordered case as a refinement of the unordered case.
+
+#### 3.2.2 The Syntactic Ordered Monoid
+
+The definition of the syntactic congruence with respect to @xmath is as
+exactly as before: @xmath if for all @xmath we have @xmath iff @xmath .
+Also the syntactic monoid is the quotient monoid @xmath . To be able to
+get a similar variety theorem for classes of languages not closed under
+complementation, we need to define a stable order on @xmath that allows
+us to obtain an ordered counterpart of the variety theorem.
+
+First, break up @xmath : Let @xmath if for all @xmath , @xmath . So
+@xmath if and only if @xmath and @xmath . Now @xmath induces a
+well-defined stable order @xmath on @xmath given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+It is straightforward to check that this is indeed a well-defined stable
+order. The ordered monoid @xmath is the syntactic ordered monoid of
+@xmath .
+
+We say that an ordered monoid @xmath divides an ordered monoid @xmath if
+there exists a surjective morphism of ordered monoids from a submonoid ⁶
+⁶ 6 A submonoid of @xmath is a submonoid of @xmath with the order being
+the restriction of @xmath to the submonoid. of @xmath onto @xmath .
+
+Now we state and prove the analog of Proposition 3.3 . We give the proof
+to demonstrate that slight modifications to the original proof suffices
+to obtain the proof for the ordered counterpart.
+
+###### Proposition 3.10.
+
+@xmath recognizes @xmath and is the minimal ordered monoid with this
+property.
+
+###### Proof.
+
+Let @xmath be the surjective canonical mapping: @xmath , i.e. @xmath is
+the syntactic morphism. We already know that the congruence classes are
+homogeneous so all we need to show is that the accepting set @xmath is
+an order ideal, i.e. we need to show that if @xmath and @xmath , then
+@xmath . Since @xmath , we have @xmath and so for all @xmath , @xmath .
+In particular @xmath . Since @xmath , @xmath and therefore @xmath and so
+@xmath as required.
+
+Let @xmath be any monoid that recognizes @xmath . So there exists a
+morphism @xmath and an order ideal @xmath such that @xmath . Let @xmath
+be defined as above. To show @xmath divides @xmath we find a surjective
+morphism of ordered monoids @xmath from a submonoid of @xmath onto
+@xmath .
+
+We let @xmath so @xmath is a submonoid of @xmath . Define @xmath to be
+the same function as the one we defined in the proof of Proposition 3.3
+, so @xmath is such that @xmath , @xmath , i.e. @xmath . As shown
+before, @xmath is a well-defined surjective morphism. What remains to be
+shown is that @xmath is a morphism of ordered monoids. For this, we need
+to show @xmath , i.e. @xmath .
+
+Suppose the above is not true. So there exists @xmath and @xmath such
+that @xmath but @xmath . This means that @xmath and therefore there
+exists @xmath such that @xmath but @xmath . On the other hand, since
+@xmath is a stable order we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+@xmath implies that @xmath and by above and the fact that @xmath is an
+order ideal we must have that @xmath . This is a contradiction since
+@xmath . ∎
+
+#### 3.2.3 Varieties
+
+The definition of an ordered monoid variety is identical to the
+unordered case. We say that a family of ordered monoids @xmath is a
+variety of ordered monoids if it is closed under division of ordered
+monoids and finite direct product ⁷ ⁷ 7 The order in a finite direct
+product @xmath is given by @xmath iff @xmath . .
+
+Similar to unordered monoid varieties, varieties of ordered monoids can
+be defined using identities. We say that @xmath satisfies the identity
+@xmath if and only if for every morphism @xmath we have @xmath . Let
+@xmath be the variety of ordered monoids that satisfy the identity
+@xmath . Then given a sequence of pair of words @xmath , @xmath is said
+to be ultimately defined by this sequence.
+
+###### Theorem 3.11 ([Pw96]).
+
+Every variety of ordered monoids is ultimately defined by some sequence
+of identities.
+
+Now we define positive variety of languages. A set of languages in
+@xmath that is closed under finite intersection and finite union is
+called a positive boolean algebra . So it differs from a boolean algebra
+because we do not require the set to be closed under complementation. A
+class of languages @xmath is called a positive variety of languages if
+it is a positive boolean algebra, is closed under inverse morphisms and
+is closed under left and right quotients.
+
+For a given variety of finite ordered monoids @xmath , let @xmath be the
+set of languages over @xmath whose syntactic ordered monoid belongs to
+@xmath . As before, this is equivalent to saying that @xmath is the set
+of languages over @xmath that are recognized by an ordered monoid in
+@xmath .
+
+###### Theorem 3.12 (The Variety Theorem [Pin95]).
+
+@xmath is a positive variety of languages and the mapping @xmath is one
+to one.
+
+Now we give two explicit correspondences. The interested reader can find
+the proofs in [ Pin95 ] .
+
+Let @xmath be a subset of the alphabet @xmath . Define @xmath as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+This is equivalent to saying that @xmath is the set of words that
+contain at least one occurrence of each letter in @xmath .
+
+A monoid is idempotent if every element in the monoid is idempotent.
+
+###### Theorem 3.13.
+
+A language in @xmath is a finite union of languages of the form @xmath
+for @xmath if and only if it is recognized by a finite commutative
+idempotent ordered monoid @xmath in which the identity is the greatest
+element with respect to the order.
+
+A language @xmath is a shuffle ideal if it satisfies the following
+property: if a word @xmath has a subword in @xmath , then @xmath is in
+@xmath .
+
+###### Theorem 3.14.
+
+A language is a shuffle ideal if and only if it is recognized by a
+finite ordered monoid in which the identity is the greatest element.
+
+We conclude this chapter by pointing out that our main interest is in
+positive varieties of languages (and consequently in ordered monoids)
+because regular languages having @xmath non-deterministic communication
+complexity form a positive variety of languages (see next chapter). For
+the communication models studied in [ TT03 ] , regular languages having
+@xmath communication complexity form a variety of languages and so the
+theory of ordered monoids is not necessary. From now on, we abandon
+unordered monoids and work with the more general theory of ordered
+monoids.
+
+## Chapter 4 Communication Complexity of Regular Languages
+
+The main goal of this chapter is to prove upper and lower bounds on the
+non-deterministic communication complexity of regular languages. In
+Section 4.1, we formally define the communication complexity of finite
+ordered monoids and regular languages. We prove two theorems that
+establish the soundness of an algebraic approach to the communication
+complexity of regular languages. In Section 4.2, we present a form of
+the definition of rectangular reductions and introduce local rectangular
+reductions. Then we present upper and lower bound results for regular
+languages in which the lower bounds are established using rectangular
+reductions from three functions we have seen in Chapter 2. We also state
+an intriguing conjecture that gives an exact characterization of the
+non-deterministic communication complexity of regular languages.
+
+### 4.1 Algebraic Approach to Communication Complexity
+
+In Chapter 2, we studied the communication complexity of functions that
+have 2 explicit inputs, each being an @xmath -bit string. In order to
+define the communication complexity of a monoid and a regular language,
+we need to generalize the definition of communication complexity to
+include functions that have a single input string. Suppose a function
+@xmath has one @xmath -bit string @xmath as input and let @xmath be a
+partition of @xmath . Then the communication complexity of @xmath with
+respect to this partition is the communication complexity of @xmath when
+Alice receives the bits @xmath for all @xmath and Bob receives the bits
+@xmath for all @xmath . For instance, in the non-deterministic model we
+denote this by @xmath . In this case, the non-deterministic
+communication complexity of @xmath is defined as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where the maximum is taken over all possible partitions of @xmath . The
+partition that achieves this maximum is called a worst case partition .
+
+Note that the communication complexity definitions and results seen thus
+far apply to functions that have inputs that are strings of length
+@xmath over any fixed alphabet. That is, the requirement of bit strings
+as inputs can be relaxed.
+
+We define the communication complexity of a finite ordered monoid using
+the worst-case partitioning notion. The communication complexity of a
+pair @xmath where @xmath is a finite ordered monoid and @xmath is an
+order ideal in @xmath is the communication complexity of the monoid
+evaluation problem corresponding to @xmath and @xmath : Alice is given
+@xmath and Bob is given @xmath such that each @xmath . They want to
+decide if the product @xmath is in @xmath . The communication complexity
+of @xmath is the maximum communication complexity of @xmath where @xmath
+ranges over all order ideals in @xmath . Observe that if for example
+Alice were to receive @xmath and @xmath , then she could multiply these
+monoid elements and treat them as one monoid element. This is why for a
+worst-case partition, Alice and Bob should not get consecutive monoid
+elements.
+
+Similarly, we define the communication complexity of a regular language
+@xmath as the communication complexity of the language problem
+corresponding to @xmath : Alice is given @xmath and Bob is given @xmath
+such that each @xmath where @xmath represents the empty word in @xmath
+(also referred to as the empty letter). They want to determine if @xmath
+. The way the input is distributed corresponds to the worst-case
+partition since we allow @xmath to be empty letters.
+
+As mentioned in Chapter 1, our aim is to find functions @xmath such that
+each regular language has @xmath non-deterministic communication
+complexity for some @xmath . We would also like a characterization of
+the languages with @xmath complexity for all @xmath . The next two
+results show that such a characterization can be obtained by looking at
+the algebraic properties of regular languages.
+
+###### Theorem 4.1.
+
+Let @xmath be a regular language with @xmath . We have @xmath .
+
+###### Theorem 4.2.
+
+For any increasing function @xmath , the class of ordered monoids @xmath
+such that each monoid @xmath satisfies @xmath forms a variety of ordered
+monoids.
+
+These two theorems together with the variety theorem imply that the
+class of languages @xmath such that for any @xmath we have @xmath forms
+a positive variety of languages. So a characterization in terms of
+positive varieties is possible. Furthermore, observe that communication
+complexity of monoids parametrize the communication complexity of
+regular languages. Bounds on monoids yield bounds on regular languages
+and vice versa. When proving such bounds, carefully choosing between the
+two directions can considerably simplify the analysis. Usually we find
+that upper bound arguments are easier to establish with the
+combinatorial descriptions of a language whereas lower bound arguments
+are easier to establish with the algebraic descriptions of the
+corresponding syntactic monoid.
+
+###### Proof of Theorem 4.1.
+
+First we show that @xmath . For this, we present a non-deterministic
+protocol for @xmath . Suppose Alice is given @xmath and Bob is given
+@xmath . Let @xmath be the syntactic morphism and let @xmath be the
+accepting order ideal. The protocol is as follows: Alice computes @xmath
+and Bob computes @xmath . Using the protocol for the monoid evaluation
+problem of @xmath , they can decide at @xmath cost if
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+This determines if @xmath is in @xmath or not.
+
+Now we show that @xmath . We present a protocol for @xmath where @xmath
+is some order ideal in @xmath . Before presenting the protocol, we first
+fix some notation and definitions. Again let @xmath be the syntactic
+morphism. For each monoid element @xmath , fix a word that is in the
+preimage of @xmath under @xmath , and denote it by @xmath . Let @xmath .
+Recall that @xmath if for all @xmath , @xmath . So
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+For each @xmath and @xmath with @xmath , pick @xmath such that @xmath
+but @xmath . Let @xmath be the set of all these @xmath . One can think
+of @xmath as containing a witness for @xmath for each such pair. Note
+that @xmath is finite. Now pad each @xmath and each word appearing in a
+pair in @xmath with the empty letter @xmath so that each of these words
+have the same length. Observe that this length is a constant that does
+not depend on the length of the input that Alice and Bob will receive.
+
+Now assuming that Alice and Bob have agreed upon the definitions made
+thus far, the protocol is as follows. Suppose Alice is given @xmath and
+Bob is given @xmath . For each @xmath they want to determine if @xmath .
+This is equivalent to determining if @xmath , and this is equivalent to
+@xmath . If this is not the case, then @xmath and so there will be a
+witness of this in @xmath , i.e. there exists @xmath such that @xmath
+but @xmath . If indeed @xmath then for each @xmath with @xmath , we will
+have @xmath . Using the protocol for @xmath , Alice and Bob can check
+which of the two cases is true. The following shows how Alice and Bob’s
+inputs look like before running the protocol for @xmath . Note that each
+block has the same constant length.
+
+[]
+
+[]
+
+∎
+
+The proof of Theorem 4.2 follows from the following two lemmas. The
+first lemma shows that @xmath is closed under finite direct product. The
+second lemma shows that @xmath is closed under division of monoids.
+
+###### Lemma 4.3.
+
+Let @xmath and @xmath be ordered monoids. Then @xmath .
+
+###### Proof.
+
+Any order ideal in @xmath will be of the form @xmath where @xmath is an
+order ideal in @xmath and @xmath is an order ideal in @xmath . Therefore
+testing whether a product of elements in @xmath is in an order ideal
+@xmath or not can be done by testing if the product of the first
+coordinate elements is in @xmath and testing if the product of the
+second coordinate elements is in @xmath . ∎
+
+###### Lemma 4.4.
+
+Let @xmath and @xmath be ordered monoids such that @xmath . Then @xmath
+.
+
+###### Proof.
+
+Since @xmath , there is a surjective morphism @xmath from a submonoid
+@xmath of @xmath onto @xmath . Denote by @xmath a fixed element from the
+preimage of @xmath .
+
+Let @xmath be an order ideal in @xmath . A protocol for @xmath is as
+follows. Alice is given @xmath and Bob is given @xmath . They want to
+decide if @xmath . This is equivalent to deciding if
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+It can be easily seen that @xmath is an order ideal in @xmath so Alice
+and Bob can use the protocol for @xmath to decide if the above is true.
+Therefore we have @xmath . It is straightforward to check that @xmath
+and so @xmath as required. ∎
+
+### 4.2 Complexity Bounds for Regular Languages and Monoids
+
+In this section, we present upper and lower bounds for the
+non-deterministic communication complexity of certain classes of
+languages. Upper bounds are established by presenting an appropriate
+protocol whereas lower bound arguments are based on rectangular
+reductions from the following functions: LESS-THAN,
+PROMISE-DISJOINTNESS, INNER-PRODUCT. In Chapter 2, we have seen that
+each of these functions require linear communication in the
+non-deterministic model. We have also seen the definition of a
+rectangular reduction. We give here a form of this definition which
+specifically suits our needs in this section.
+
+###### Definition 4.5.
+
+Let @xmath , @xmath a finite ordered monoid and @xmath an order ideal in
+@xmath . A rectangular reduction of length @xmath from @xmath to @xmath
+is a sequence of @xmath functions @xmath with @xmath and @xmath and such
+that for every @xmath we have @xmath if and only if the product @xmath
+is in @xmath .
+
+Such a reduction transforms an input @xmath of the function @xmath into
+a sequence of @xmath monoid elements @xmath where the odd-indexed @xmath
+are obtained as a function of @xmath only and the even-indexed @xmath
+are a function of @xmath .
+
+We write @xmath to indicate that @xmath has a rectangular reduction of
+length @xmath to @xmath . When @xmath we omit the superscript @xmath .
+It should be clear that if @xmath and @xmath has communication
+complexity @xmath , then @xmath has communication complexity @xmath .
+
+Most of the reductions we use here are special kinds of rectangular
+reductions. We call these reductions local rectangular reductions . In a
+local rectangular reduction, Alice converts each bit @xmath to a
+sequence of @xmath monoid elements @xmath by applying a fixed function
+@xmath . Similarly Bob converts each bit @xmath to a sequence of @xmath
+monoid elements @xmath by applying a fixed function @xmath . @xmath if
+and only if
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We often view the above product as a word over @xmath . The reduction
+transforms an input @xmath into a sequence of @xmath monoid elements.
+Let @xmath denote the @xmath coordinate of the tuple @xmath . We specify
+this kind of local transformation with a @xmath matrix:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+It is convenient to see what happens for all possible values of @xmath
+and @xmath and the following table shows the word that corresponds to
+these possibilities. For simplicity let us assume @xmath is even.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Now we are ready to present the upper and lower bound results.
+
+###### Lemma 4.6.
+
+If @xmath is commutative then @xmath .
+
+###### Proof.
+
+Let @xmath be an order ideal in @xmath . Suppose Alice is given @xmath
+and Bob is given @xmath . They want to decide if @xmath . Since @xmath
+is commutative, this is equivalent to determining if @xmath . So Alice
+can privately compute the product @xmath and send the result @xmath to
+Bob. Observe that this requires a constant number of bits to be
+communicated since the size of @xmath is a constant. Bob can check if
+@xmath and send the outcome to Alice. ∎
+
+###### Lemma 4.7.
+
+If @xmath is not commutative then for any order on @xmath we have @xmath
+.
+
+###### Proof.
+
+Since @xmath is not commutative, there must be @xmath such that @xmath .
+Therefore either @xmath or @xmath . Without loss of generality assume
+@xmath . Let @xmath . We show that @xmath . Alice gets @xmath and
+constructs a sequence of @xmath monoid elements in which @xmath is in
+position @xmath and @xmath is in everywhere else. Bob gets @xmath and
+constructs a sequence of @xmath monoid elements in which @xmath is in
+position @xmath and @xmath is in everywhere else. If @xmath then the
+product of the monoid elements will be @xmath which is in @xmath . If
+@xmath then the product will be @xmath which is not in @xmath . ∎
+
+Denote by @xmath the positive language variety corresponding to the
+variety of commutative monoids @xmath . The above two results show that
+regular languages that have constant non-deterministic communication
+complexity are exactly those languages in @xmath .
+
+The next step is to determine if there are regular languages outside of
+@xmath that have @xmath non-deterministic complexity. For this, we first
+need the definition of a polynomial closure.
+
+The polynomial closure of a set of languages @xmath in @xmath is a
+family of languages such that each of these languages are finite unions
+of languages of the form
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath , @xmath and @xmath . If @xmath is a variety of languages,
+then we denote by @xmath the class of languages such that for every
+alphabet @xmath , @xmath is the polynomial closure of @xmath . @xmath is
+a positive variety of languages ( [ PW95 ] ).
+
+###### Lemma 4.8.
+
+If @xmath is a language of @xmath then @xmath .
+
+###### Proof.
+
+Suppose @xmath is a union of @xmath languages of the form @xmath . Alice
+and Bob know beforehand the value of @xmath and the structure of each of
+these @xmath languages. So a protocol for @xmath is as follows.
+
+Assume Alice is given @xmath and Bob is given @xmath . God communicates
+to Alice and Bob which of the @xmath languages the word @xmath resides
+in. This requires a constant number of bits to be communicated since
+@xmath is a constant. Now that Alice and Bob know the @xmath the word is
+in, God communicates the positions of each @xmath . This requires @xmath
+bits of communication where @xmath is a constant. The validity of the
+information communicated by God can be immediately checked by Alice and
+Bob. All they have to do is check if the words in between the @xmath ’s
+belong to the right languages. Since these languages are in @xmath ,
+this can be done in constant communication as proved in Lemma 4.6 .
+Therefore in total we require only @xmath communication. ∎
+
+From the above proof, we see that we can actually afford to communicate
+@xmath bits to check that the words between the @xmath ’s belong to the
+corresponding language. In other words, we could have @xmath . Note that
+this does not matter since @xmath .
+
+Denote by @xmath the number of factorizations of the word @xmath as
+@xmath with @xmath . When the @xmath and the @xmath are such that for
+any @xmath we have @xmath , then we say that the concatenation @xmath is
+unambiguous . We denote by @xmath the variety of languages that is
+disjoint unions of the unambiguous concatenations @xmath with @xmath (in
+some sense, there is only one witness for @xmath in @xmath ). Similarly
+we denote by @xmath the language variety generated by the languages
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for some @xmath and @xmath . Observe that for @xmath we have @xmath
+unrestricted.
+
+Denote by @xmath the subclass of @xmath in which the number of accepting
+paths (or number of witnesses) is exactly one. We know that @xmath ( [
+Yan91 ] ). From we know that regular languages having @xmath
+deterministic communication complexity are exactly those languages in
+@xmath and regular languages having @xmath Mod @xmath counting
+communication complexity are exactly those languages in @xmath .
+Furthermore, it was shown that any regular language outside of @xmath
+has linear deterministic complexity and any regular language outside of
+@xmath has linear Mod @xmath counting complexity. So with respect to
+regular languages, @xmath and @xmath . Similarly we conjecture that with
+respect to regular languages @xmath .
+
+###### Conjecture 4.9.
+
+If @xmath is a regular language that is not in @xmath , then @xmath .
+Thus we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+As mentioned in Chapter 2, the gap between deterministic and
+non-deterministic communication complexity of a function can be
+exponentially large. However, it has been shown that the deterministic
+communication complexity of a function @xmath is bounded above by the
+product @xmath for a constant @xmath (Theorem 2.9 ), and that this bound
+is optimal. The above conjecture, together with the result of [ TT03 ]
+implies the following much tighter relation for regular languages.
+
+###### Corollary 4.10 (to Conjecture 4.9).
+
+If @xmath is a regular language then @xmath .
+
+For any variety @xmath , we have that @xmath ( [ Pin97 ] ). This implies
+that @xmath and @xmath iff @xmath , proving a special case of the above
+corollary.
+
+An important question that arises in this context is the following. What
+does it mean to be outside of @xmath ? In order to prove a linear lower
+bound for the regular languages outside of @xmath , we need a convenient
+algebraic description for the syntactic monoids of these languages since
+(ignoring the exceptions) lower bound arguments rely on these algebraic
+properties. One such description exists based on a result of [ PW95 ]
+that describes the ordered monoid variety corresponding to @xmath .
+Before stating this description, we fix some notation.
+
+If @xmath is a monoid, we write @xmath to indicate that @xmath has the
+presentation @xmath where @xmath is the generating set and @xmath is the
+set of relations. For instance, a cyclic group of order @xmath has the
+presentation @xmath and the dihedral group of order @xmath has the
+presentation @xmath . For any @xmath , we denote by @xmath the element
+of @xmath that @xmath corresponds to. Observe that the transformation
+monoid corresponding to an automaton has a presentation in which the
+generating set consists of the letters of the alphabet. The relations
+depend on the particular automaton and can be determined by analyzing
+the state transition function each word induces.
+
+###### Lemma 4.11.
+
+Suppose @xmath is not in @xmath and @xmath is the syntactic ordered
+monoid of @xmath with exponent @xmath . Then there exists @xmath such
+that
+
+1.   for any monoid @xmath and any morphism @xmath , we have @xmath and
+    @xmath ,
+
+2.  @xmath .
+
+Although we cannot yet prove the conjecture, we can still show linear
+lower bounds for certain classes of regular languages outside of @xmath
+. Our first lower bound captures regular languages that come very close
+to the description given in the previous lemma.
+
+A word @xmath is a shuffle of @xmath words @xmath if
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with @xmath and @xmath is a partition of @xmath into subwords for @xmath
+.
+
+###### Lemma 4.12.
+
+If @xmath and @xmath is such that
+
+1.  @xmath for @xmath ,
+
+2.  @xmath is a shuffle of @xmath and @xmath ,
+
+3.  @xmath is an idempotent,
+
+4.  @xmath ,
+
+then @xmath .
+
+Observe that the conditions of this lemma imply the conditions of Lemma
+4.11 : since @xmath is idempotent, for any monoid @xmath and any
+morphism @xmath , we have @xmath and since @xmath is a shuffle of @xmath
+and @xmath we have @xmath . Also, since @xmath is idempotent, @xmath ,
+and in this case @xmath is equivalent to @xmath .
+
+###### Proof of Lemma 4.12.
+
+We show that @xmath where @xmath . Since @xmath is a shuffle of @xmath
+and @xmath , there exists @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The reduction is essentially linear and is given by the following matrix
+when @xmath . The transformation easily generalizes to any @xmath .
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+After @xmath and @xmath have been transformed into words, Alice prepends
+her word with @xmath and appends it with @xmath many @xmath ’s, where
+@xmath denotes the length of the word @xmath . Bob prepends his word
+with @xmath many @xmath ’s and appends it with @xmath . Let @xmath be
+the word Alice has and let @xmath be the word Bob has after these
+transformations. Observe that if @xmath , then there exists @xmath such
+that @xmath . By the transformation, this means that @xmath is of the
+form @xmath and since @xmath is idempotent, @xmath . On the other hand
+if @xmath , then by the transformation, @xmath is of the form @xmath and
+so
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+∎
+
+The above result gives us a corollary about the monoid @xmath which is
+defined to be the syntactic ordered monoid of the regular language
+recognized by the automaton in Figure 4.1 . The unordered syntactic
+monoid of the same language is denoted by @xmath and is known as the
+Brandt monoid (see [ Pin97 ] ).
+
+###### Corollary 4.13.
+
+@xmath .
+
+###### Proof.
+
+It is easy to verify by looking at the transformation monoid of the
+automaton that @xmath . The only thing we need to know about the order
+relation is that @xmath is greater than any other element. This can be
+derived from the definition of the syntactic ordered monoid (Subsection
+3.2.2) since for any @xmath and @xmath , @xmath is not in @xmath . So
+@xmath trivially holds for any word @xmath . Let @xmath and @xmath .
+These @xmath and @xmath satisfy the four conditions of the previous
+lemma. The last condition is satisfied because @xmath and @xmath .
+Therefore @xmath . ∎
+
+Denote by @xmath the syntactic ordered monoid of the regular language
+@xmath , and denote by @xmath the unordered syntactic monoid. Also let
+@xmath be the syntactic ordered monoid of the complement of @xmath .
+Observe that @xmath since all we need to do is check if there are two
+consecutive @xmath ’s. By an argument similar to the one for Corollary
+4.13 , one can show that @xmath .
+
+Our next linear lower bound result is for non-commutative groups.
+
+###### Lemma 4.14.
+
+If @xmath is a non-commutative group then @xmath .
+
+###### Proof.
+
+Since @xmath is non-commutative, there exists @xmath such that the
+commutator @xmath . This means that @xmath has order @xmath . Let @xmath
+be such that there is no @xmath with @xmath and @xmath . Denote by
+@xmath the order ideal that just contains @xmath . There is a reduction
+from @xmath to @xmath . The reduction is essentially local. Alice and
+Bob will apply the transformation given by the following matrix.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+After, Alice will append @xmath to her transformed input and Bob will
+append @xmath to his. Observe that the product of the monoid elements
+evaluates to @xmath if and only if @xmath i.e. the product is @xmath if
+and only if @xmath . ∎
+
+To obtain our last linear lower bound result, we need the following
+fact.
+
+###### Proposition 4.15.
+
+Any stable order defined on a group @xmath must be the trivial order
+(equality).
+
+###### Proof.
+
+Suppose the claim is false. So there exists @xmath such that @xmath and
+@xmath . This implies @xmath . If @xmath then @xmath , @xmath and so on.
+Therefore we have @xmath . This can only be true if @xmath , i.e. @xmath
+. ∎
+
+We say that @xmath is a @xmath monoid if there exists idempotents @xmath
+such that @xmath but @xmath when @xmath does not divide @xmath .
+
+###### Lemma 4.16.
+
+If @xmath is a @xmath monoid for @xmath then @xmath .
+
+###### Proof.
+
+Observe that @xmath forms a subgroup with identity @xmath because since
+@xmath is idempotent, we have @xmath . Therefore any order on @xmath
+must induce an equality order on this set. Let @xmath . We show @xmath
+via the following local reduction.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Observe that the product of the monoid elements evaluates to
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which is equal to @xmath if and only if @xmath . ∎
+
+Combining our linear lower bound results together with Lemma 4.4 , we
+can conclude the following.
+
+###### Theorem 4.17.
+
+If @xmath is a @xmath monoid for @xmath or is divided by one of @xmath ,
+@xmath or a non-commutative group, then @xmath .
+
+We underline the relevance of the above result by stating a theorem
+which we borrow from [ TT05 ] .
+
+###### Theorem 4.18.
+
+If @xmath is such that @xmath then @xmath is either a @xmath monoid for
+some @xmath or is divided by one of @xmath , @xmath or a non-commutative
+group.
+
+The three linear lower bound results imply the following result, which
+gives us three sufficient conditions for not being in @xmath .
+
+###### Theorem 4.19.
+
+Let @xmath be a regular language with syntactic ordered monoid @xmath .
+If one of the following holds, then @xmath is not in @xmath .
+
+1.   There exists @xmath such that @xmath , @xmath is a shuffle of
+    @xmath and @xmath , @xmath is an idempotent and @xmath .
+
+2.  @xmath is divided by a non-commutative group.
+
+3.  @xmath is a @xmath monoid for @xmath .
+
+In particular, if @xmath is a @xmath monoid or is divided by one of
+@xmath , @xmath or a non-commutative group, then @xmath is not in @xmath
+.
+
+## Chapter 5 Conclusion
+
+The focus of this thesis has been the non-deterministic communication
+complexity of regular languages. Regular languages are, in some sense,
+the simplest languages with respect to the usual time/space complexity
+framework, but in the communication complexity model, they require a
+non-trivial study as there are complete regular languages for every
+level of the communication complexity polynomial hierarchy. This fact
+can be derived from the results in [ Bar86 ] and [ BT87 ] . In [ TT03 ]
+, a complete characterization of the communication complexity of regular
+languages was established in the deterministic, simultaneous,
+probabilistic, simultaneous probabilistic and Mod @xmath -counting
+models. In order to get a similar algebraic characterization for the
+non-deterministic model, one needs the notion of ordered monoids, a more
+general theory than the one used in [ TT03 ] , to be able to deal with
+classes of languages that are not closed under complementation. This
+thesis presents the fundamentals of communication complexity, monoid
+theory as well as ordered monoid theory and obtains bounds on the
+non-deterministic communication complexity of regular languages.
+
+Our results constitute the first steps towards a complete classification
+for the non-deterministic communication complexity of regular languages.
+We know exactly which regular languages have constant non-deterministic
+communication complexity. We know that there is a considerable
+complexity gap between those languages having constant non-deterministic
+complexity and the rest of the regular languages since if a regular
+language does not have constant complexity than it has @xmath
+complexity. We also obtain three linear lower bound results and the
+importance of these results are highlighted by Theorem 4.18 . These
+results also provide us with several sufficient conditions for not being
+in the variety @xmath , which is a result very interesting from an
+algebraic automata theory point of view. This result also exemplifies
+how computational complexity can be used to make progress in semigroup
+theory.
+
+Our ultimate objective is to get a complete characterization of the
+non-deterministic communication complexity of regular languages. We
+conjecture that regular languages in @xmath are the only languages that
+have @xmath complexity and any other regular language must have @xmath
+complexity. The linear lower bound argument presents a real challenge. A
+natural next step to take is to explicitly find a regular language that
+is not in @xmath for which our current linear lower bound arguments do
+not apply and try to either prove a linear lower bound for this specific
+language or show that it requires @xmath complexity for a constant
+@xmath (which would disprove our conjecture). A linear lower bound
+argument for this language is likely to apply to some other languages
+outside of @xmath , if not all. The regular language recognized by the
+automaton in Figure 5.1 is an example of a regular language that is
+outside of @xmath and for which we cannot get a linear lower bound nor a
+sublinear upper bound. We call this language @xmath . In the Appendix,
+we prove that @xmath is not in @xmath and various other facts about
+@xmath .
+
+An interesting property of @xmath is that it belongs to @xmath where
+@xmath denotes the variety of languages that correspond to the variety
+of nilpotent groups of class 2. Nilpotent groups of class 2 are usually
+considered as “almost” commutative groups. In some sense, this says that
+even though @xmath is not in @xmath , it is very “close” to it.
+
+We propose several intuitive reasons of why proving a linear lower bound
+for this regular language can be challenging (assuming that the linear
+lower bound is indeed true). We also suggest possible approaches to
+overcome the difficulties. All of these tie with the importance of the
+problem we are studying from a communication complexity point of view as
+well as from a semigroup theory point of view.
+
+First of all, from Chapter 2 we know that the best lower bound technique
+we have for non-determinism is the rectangle size method. Inherent in
+this method is the requirement to find the best possible distribution.
+Needless to say, this can be quite hard. And even if the best
+distribution was known, bounding the size of any 1-monochromatic
+rectangle can be a non-trivial task. Putting these two things together,
+the rectangle size method does not seem to considerably simplify our
+task of bounding the size of the optimum covering of the 1-inputs.
+
+Consider the set @xmath of all functions having @xmath non-deterministic
+communication complexity. Define an equivalence relation on these
+functions: @xmath if there is a rectangular reduction of length @xmath
+from @xmath to @xmath and from @xmath to @xmath . We can turn @xmath
+into a partially ordered set (poset) by defining the order @xmath if
+there is a rectangular reduction of length @xmath from @xmath to @xmath
+. It certainly would not be surprising if there were regular languages
+appearing in the lower levels of a chain in this poset and this would
+suggest that obtaining a lower bound for these languages can be
+difficult.
+
+If the above is indeed true, then what can be done about this? A natural
+step would be to find functions that are at the same level or below the
+regular language at hand, and try to get a reduction that would prove
+the language has linear non-deterministic complexity. This raises our
+interest in promise functions.
+
+Let @xmath be a boolean function with the domain @xmath . A promise
+function @xmath is a function that has a domain @xmath that is a strict
+subset of @xmath ’s domain and is such that for any @xmath , @xmath . An
+example of a promise function is the PROMISE-DISJOINTNESS function,
+@xmath . Promise functions are interesting because through a promise, we
+can define functions that reside in the lower levels of a chain. This in
+return can make a reduction possible from the promise function to the
+regular language of interest. For instance, @xmath is a promise function
+which lies below @xmath and @xmath (Example 2.5 ). Of course an
+important point when defining a promise function is that we need the
+promise function to have @xmath complexity. In some sense, through the
+promise, we would like to eliminate the easy instances and keep the
+instances that make the function hard. At first, there might be no
+reason to believe that obtaining a linear lower bound for the promise
+function is any easier than obtaining a lower bound for the regular
+language. Nevertheless, the purpose of this line of attack is the
+following. By putting a promise on a well-known, well-studied function
+(that makes a reduction possible), we may be able to utilize (or
+improve) the various techniques and ideas developed for the analysis of
+the original function to prove a lower bound on the promise function.
+
+Now we define a promise function, PROMISE-INNER-PRODUCT ( @xmath ), such
+that there is a reduction from this function to @xmath (see Appendix).
+@xmath is the same function as @xmath but has a restriction on the
+@xmath for which @xmath . We only allow the 0-inputs which satisfy the
+following two conditions:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+It remains an open problem to prove a linear lower bound, or a sublinear
+upper bound on @xmath .
+
+The fact is that little is known about promise functions. One promise
+function we know of is @xmath . As a consequence of the celebrated work
+of Razborov ( [ Raz92 ] ), which shows that the distributional
+communication complexity of the DISJOINTNESS function is @xmath , we
+know that @xmath as well. Given the description of regular languages
+outside of @xmath (Lemma 4.11 ), @xmath is one of the first functions
+one tries to get a reduction from, where the reduction is as in the
+proof of Lemma 4.12 . This hope is hurt by the fact that such a
+reduction does not exist from @xmath to @xmath (see Appendix).
+
+We believe that more attention should be given to promise functions
+since the study of these functions is likely to force us to develop new
+techniques in communication complexity and give us more insight in this
+area. Furthermore, given the connection of communication complexity with
+many other areas in computer science, promise functions are bound to
+have useful applications. For instance, in a very recent work of Gál and
+Gopalan ( [ GG07 ] ), communication complexity bounds for a promise
+function is used to prove bounds on streaming algorithms.
+
+We have looked at our question from a communication complexity
+perspective. Now we look at it from a semigroup theory perspective. The
+key to making progress on our question can be finding a more convenient
+description of what it means to be outside of @xmath . The description
+that we have (Lemma 4.11 ) actually applies to @xmath for any variety
+@xmath , and it is based on a complicated result of [ PW95 ] that makes
+use of a deep combinatorial result of semigroup theory ( [ Sim89 ] , [
+Sim90 ] , [ Sim92 ] ). Since we are only interested in @xmath where
+@xmath is a relatively simple variety, it may be possible to obtain a
+more useful description that allows us to show communication complexity
+bounds.
+
+We conclude that, in any case, the resolution of our question will
+probably lead to advances in either communication complexity or
+semigroup theory, if not both.
+
+## Appendix A Facts About @xmath
+
+[]
+
+[]
+
+In this appendix, we prove some of the facts about the regular language
+@xmath that we mentioned in Chapter 5. We start with the fact that
+@xmath is not in @xmath . For this, we need a result that describes the
+ordered monoid variety corresponding to @xmath . This description
+involves the Mal’cev product and topological issues which we choose to
+avoid for simplicity. The interested reader can find the necessary
+information about these in [ Pin97 ] . Here we will state a restricted
+version of this result which suffices for our needs.
+
+###### Lemma A.1.
+
+Let @xmath be a language in @xmath and let @xmath be the syntactic
+ordered monoid of @xmath with exponent @xmath . Then for any @xmath with
+the property that any monoid @xmath and any morphism @xmath satisfies
+both @xmath and @xmath , we must have @xmath .
+
+###### Proposition A.2.
+
+@xmath is not in @xmath .
+
+###### Proof.
+
+Consider the transformation monoid of @xmath , which is the syntactic
+monoid. Let @xmath and @xmath . Observe that @xmath is an idempotent and
+this @xmath and @xmath satisfy the condition in the lemma. We show
+@xmath . Observe that @xmath so we want to show @xmath . If the opposite
+was true, then by the definition of the syntactic ordered monoid
+(Subsection 3.2.2), we must have for any @xmath and @xmath , @xmath . In
+particular, for @xmath and @xmath , we would have @xmath . It is true
+that @xmath but @xmath . ∎
+
+Now we show that the PROMISE-INNER-PRODUCT function that we defined in
+Chapter 5 reduces to @xmath .
+
+###### Proposition A.3.
+
+@xmath
+
+###### Proof.
+
+The reduction is linear and is given by the following matrix.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+After this transformation is applied, Alice appends her word with @xmath
+and Bob appends his word with @xmath . Now if @xmath then the
+transformed word must end up at state 5. This is because, from state 1,
+we either enter state 5 and stay there forever, or we go to state 3 when
+@xmath . If we were in state 3 already, @xmath takes us back to state 1.
+@xmath implies that there are an odd number of indices for which @xmath
+. So after the linear transformation, assuming we do not end up in state
+5, we would end up in state 3. The @xmath appended at the end of the
+transformed word would ensure that we end up in state 5. If @xmath ,
+then we do not want to end up at state 5. Observe that the promise
+ensures we never enter state 5 and since there are even number of
+indices for which @xmath , we must end up at state 1. The @xmath
+appended at the end of the word just takes us from state 1 to 2. ∎
+
+Observe that we can restrict the 1-inputs of @xmath the same way we
+restricted the 0-inputs and the reduction would trivially work for this
+case as well. Putting a promise on both the 0-inputs and the 1-inputs
+may help analyzing the complexity of @xmath .
+
+###### Proposition A.4.
+
+There is no local reduction from @xmath to @xmath such that the
+reduction is of the form
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath and @xmath satisfy the conditions of Lemma 4.11 .
+
+###### Proof.
+
+(Sketch). Since @xmath is an idempotent, it must induce a state
+transition function in which either
+1. @xmath , @xmath and other states are sent to 5, or
+2. @xmath and other states are sent to 5, or
+3. every state is sent to 5.
+Observe that it cannot be the case that @xmath is a partial identity on
+more than two states. If @xmath satisfies condition 2, then we cannot
+have @xmath . Suppose this is the case. Then there exists @xmath such
+that @xmath and @xmath . Since the latter is true, it must be the case
+that @xmath takes state 1 to @xmath and @xmath must take @xmath to a
+state other than 5. These @xmath and @xmath do not satisfy @xmath , so
+we get a contradiction. This shows we cannot have condition 2.
+Similarly, one can show that @xmath cannot satisfy condition 3, which
+leaves us with condition 1. This means @xmath is either @xmath or @xmath
+for some @xmath . We assume it is @xmath . The argument for @xmath is
+very similar.
+
+Given @xmath , and the fact that we want to satisfy @xmath , one can
+show that the state transition function induced by @xmath must be one of
+the following.
+1. @xmath and any other state is sent to 5.
+2. @xmath and any other state is sent to 5.
+3. @xmath and @xmath and any other state is sent to 5.
+
+Suppose @xmath satisfies condition 1.
+Case 1: @xmath for @xmath . Consider the matrix representation of the
+local reduction. In this matrix @xmath , we count the parity of the
+@xmath ’s in two ways and get a contradiction. First we count it by
+looking at the rows. The first row must produce the word @xmath and the
+second row must produce the word @xmath so in total we have odd number
+of @xmath ’s. Now we count the parity of @xmath ’s by looking at @xmath
+and @xmath . Both of these must produce the word @xmath so in total we
+must have an even number of @xmath ’s.
+Case 2: @xmath for @xmath . Let @xmath be the column where we find the
+second @xmath in the second row. Give value 1 to entries of @xmath which
+are @xmath and give value -1 to entries of @xmath . Other entries (the
+@xmath ’s) get value 0. In terms of these values we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Adding the two sums, we get a negative value. Now we count the same
+total in a different order. Assuming @xmath is even we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The total is positive. This is a contradiction.
+Case 3: @xmath for @xmath . Similar argument as above.
+
+Same ideas show that @xmath cannot satisfy neither conditions 2 nor 3. ∎
