@@ -1,4 +1,566 @@
-#### 1.2.1 Linear algebra
+###### Contents
+
+-    1 Introduction
+    -    1.1 Overview
+        -    1.1.1 Quantum strategies
+        -    1.1.2 Local operations with shared entanglement
+    -    1.2 Mathematical preliminaries
+        -    1.2.1 Linear algebra
+        -    1.2.2 Convexity
+        -    1.2.3 Quantum information
+-    I Quantum Strategies
+    -    2 Introduction to Quantum Strategies
+        -    2.1 Operational formalism
+            -    2.1.1 Formal definitions
+            -    2.1.2 Immediate observations
+        -    2.2 New formalism
+            -    2.2.1 Formal definitions
+            -    2.2.2 Immediate observations
+    -    3 Three Important Properties
+        -    3.1 Interaction output probabilities
+        -    3.2 Characterization of strategies
+        -    3.3 Maximum output probabilities
+            -    3.3.1 Proof by convex polarity
+            -    3.3.2 Proof by semidefinite optimization duality
+        -    3.4 Other properties of strategies
+    -    4 Applications
+        -    4.1 Theory of zero-sum quantum games
+            -    4.1.1 Min-max theorem for zero-sum quantum games
+            -    4.1.2 Efficient algorithm to compute the value
+        -    4.2 Quantum interactive proofs
+        -    4.3 Kitaev’s bound for strong coin-flipping
+    -    5 Distance Measures
+        -    5.1 A new norm for strategies
+        -    5.2 Distinguishing convex sets of strategies
+        -    5.3 The dual of the diamond norm
+-    II Local Operations with Shared Entanglement
+    -    6 Introduction to Local Operations
+    -    7 Ball Around the Completely Noisy Channel
+        -    7.1 General results on separable operators
+        -    7.2 Ball around the completely noisy channel
+    -    8 Recognizing LOSE Operations is NP-hard
+        -    8.1 Co-operative quantum games with shared entanglement
+        -    8.2 Strategies and weak validity
+        -    8.3 The Yudin-Nemirovskiĭ Theorem and weak membership
+    -    9 Characterizations of Local Operations
+        -    9.1 Characterization of local operations with shared
+            randomness
+        -    9.2 Characterization of local operations with shared
+            entanglement
+    -    10 No-Signaling Operations
+        -    10.1 Formal definition of a no-signaling operation
+        -    10.2 Two characterizations of no-signaling operations
+        -    10.3 A separable no-signaling operation that is not a LOSE
+            operation
+    -    11 Conclusion
+        -    11.1 Quantum strategies
+        -    11.2 Local operations with shared entanglement
+
+#### Errata
+
+(March 14, 2012)
+
+The proofs of Lemma 5.7 and Theorem 5.16 in Chapter 5 assume that if
+@xmath is a projection and @xmath is positive semidefinite then @xmath .
+This assumption is false and hence the proofs that employ it are
+invalid.
+
+Nevertheless, the important claims of Chapter 5 such as Proposition 5.6
+(Unit ball of the strategy @xmath -norms) and Theorem 5.10
+(Distinguishability of convex sets of strategies) are true. Corrected
+proofs of these claims can be found in a recent publication of the
+author [ Gut12 ] .
+
+### Chapter 1 Introduction
+
+This thesis investigates two distinct topics of interest within the
+discipline of quantum information theory: quantum strategies and local
+operations with shared entanglement. The discussion on quantum
+strategies is contained in Part I , while the discussion on local
+operations with shared entanglement is given in Part II .
+
+This introductory chapter provides a broad overview of the results of
+the thesis in Section 1.1 . A review of relevant background material
+from linear algebra, convex analysis, and quantum information is
+provided in Section 1.2 .
+
+#### 1.1 Overview
+
+In this section we provide a summary of the main contributions of the
+present thesis. Mathematics and quantum formalism are invoked only
+informally so as to facilitate a broad description of results without
+getting bogged down in detail.
+
+Except where otherwise noted, the content of this thesis is drawn from
+existing literature as follows:
+
+-   Part I , excluding Chapter 5 , first appeared in preliminary form in
+    Ref. [ GW07 ] .
+
+-   Chapter 5 is otherwise unpublished and due solely to the present
+    author.
+
+-   Part II first appeared in Ref. [ Gut09 ] .
+
+##### 1.1.1 Quantum strategies
+
+In Part I of this thesis we propose a new mathematical formalism for
+quantum strategies, prove several fundamental properties of this
+formalism, and provide several applications.
+
+Informally, a quantum strategy is a complete specification of the
+actions of one party in any multi-party interaction involving the
+exchange of one or more quantum messages among the parties. Due to the
+generality of this notion, the potential for application of this
+formalism is very broad. Indeed, our formalism should in principle apply
+to any framework that incorporates the exchange of quantum information
+among multiple entities, such as quantum cryptography, computational
+complexity, communication complexity, and distributed computation.
+
+In this introductory section concerning quantum strategies, it is
+convenient to avoid cluttering discussion with historical background and
+citations. Instead, the necessary background and references for each
+topic are covered in detail as they appear in the main body of the
+thesis.
+
+###### Three properties of the new formalism
+
+Chapter 2 is devoted to formal definitions of quantum strategies and a
+discussion thereof. Under our new formalism, such a strategy is
+represented by a positive semidefinite operator @xmath , the dimensions
+of which depend only upon the size of the messages exchanged in the
+interaction and not upon the size of any memory workspace maintained by
+the strategy between messages. (This distinction is important, as it
+permits us to consider strategies that call for an arbitrarily large
+memory workspace.) We prove in Chapter 3 that the set of all positive
+semidefinite operators which are valid representations of quantum
+strategies is characterized by a simple and efficiently-verifiable
+collection of linear equality conditions.
+
+In order to extract useful classical information from such an
+interaction, a strategy will often call for one or more quantum
+measurements throughout the interaction. In this case, the strategy is
+instead represented by a set @xmath of positive semidefinite operators
+indexed by all the possible combinations of outcomes of the
+measurements. These strategies are called measuring strategies and
+satisfy @xmath for some ordinary (non-measuring) strategy @xmath . (By
+comparison, an ordinary POVM-type quantum measurement @xmath satisfies
+@xmath .)
+
+We also prove in Chapter 3 that the relationship between measuring
+strategies and other strategies is analogous to that between ordinary
+quantum measurements and quantum states. In particular, basic quantum
+formalism tells us that for any ordinary quantum measurement @xmath with
+outcomes indexed by @xmath and any quantum state @xmath it holds that
+the probability with which the measurement @xmath yields a particular
+outcome @xmath when applied to a quantum system in state @xmath is given
+by the inner product
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Similarly, we show that the probability with which a measuring strategy
+@xmath yields outcome @xmath after an interaction with a compatible
+quantum strategy @xmath is given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Finally, we establish a convenient formula for computing the maximum
+probability with which a given measuring strategy @xmath can be forced
+to produce a given outcome @xmath . This probability is given by the
+minimum real number @xmath for which there exists an ordinary
+(non-measuring) strategy @xmath with the property that the operator
+@xmath is still positive semidefinite.
+
+###### Applications
+
+These three properties of quantum strategies—their linear
+characterization, inner product relationship, and formula for maximum
+output probability—open the door to a variety of new applications,
+several of which are presented in Chapter 4 .
+
+First and foremost, these properties pave the way for the first fully
+general theory of two-player zero-sum quantum games. In particular, we
+prove a quantum analogue of von Neumann’s famous 1928 Min-Max Theorem
+for zero-sum games. We also show that the value of such a game can be
+expressed as the value of a semidefinite optimization problem and can
+therefore be efficiently approximated to arbitrary precision by standard
+algorithms for semidefinite optimization.
+
+We then apply this newfound algorithm to computational complexity
+theory, establishing that the fundamental class @xmath of decision
+problems that admit deterministic exponential-time classical solutions
+coincides with the exotic class @xmath of decision problems that admit a
+quantum interactive proof with two competing provers. That is,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+This equivalence is a rare characterization of a fundamental classical
+complexity class by a purely quantum complexity class. As problems in
+@xmath also admit classical interactive proofs with competing provers,
+we obtain as a corollary the fact that quantum interactive proofs with
+competing provers provably contain no additional expressive power beyond
+that of classical interactive proofs with competing provers. By
+contrast, it is widely believed, but not proven, that polynomial-time
+quantum computers are strictly more powerful than polynomial-time
+classical computers.
+
+Elsewhere within the domain of complexity theory, we employ our new
+formalism to prove that many-message quantum interactive proofs with one
+prover or with two competing provers may be repeated multiple times in
+parallel so as to decrease the probability of error without increasing
+the number of messages exchanged among the parties in the interaction.
+
+Finally, the aforementioned properties of quantum strategies are applied
+to yield an alternate and simplified proof of Kitaev’s bound for strong
+quantum coin-flipping protocols. Coin-flipping is a fundamental
+primitive arising in the study of cryptography in the context of secure
+two-party computation. A coin-flipping protocol is an interaction
+between to mutually untrusting parties who wish to agree on a random bit
+(a coin flip) via remote communication. A strong coin-flipping protocol
+with bias @xmath has the property that two honest parties always produce
+a perfectly random coin toss, yet a dishonest party who attempts to
+force a given outcome upon an honest party can succeed with probability
+no more than @xmath . Kitaev showed that any strong coin-flipping
+protocol in which the parties exchange and process quantum information
+must have bias at least @xmath . Kitaev’s original proof of this fact
+relied upon the powerful machinery of semidefinite optimization duality.
+In our proof, the complication of semidefinite optimization duality is
+successfully encapsulated in the properties of quantum strategies; what
+remains is a simple calculation that fits easily into half of a page.
+
+It is noteworthy that a fourth application of the formalism of quantum
+strategies—beyond quantum game theory, complexity theory, and
+coin-flipping—appears in Chapter 8 of Part II of this thesis. In
+particular, the inner product relationship for quantum measuring
+strategies is employed to establish the @xmath -hardness of weak
+membership testing for local operations with shared entanglement.
+
+In addition to our results, other authors have used the formalism of
+quantum strategies in other areas, as we now describe.
+
+###### Independent development of the new formalism
+
+Our formalism and some of its properties were independently
+re-discovered by Chiribella, D’Ariano, and Perinotti [ CDP08d , CDP09b ]
+. What we call a “quantum strategy,” they call a “quantum comb.” In
+their initial publication on the subject, these authors prove an
+analogue of our Theorem 3.2 (Characterization of strategies). Moreover,
+our Theorem 3.1 (Interaction output probabilities) is established in
+Refs. [ CDP08a , CDP09a ] .
+
+These and other authors have provided several additional applications of
+quantum strategies to such problems as optimization of quantum circuits
+architecture [ CDP08d ] , cloning and learning of unitary operations [
+CDP08b , BCD @xmath 09a ] , and an impossibility proof for quantum bit
+commitment [ CDP @xmath 09c ] , among others [ CDP08c , BCD @xmath 09b ]
+.
+
+###### Distance measures
+
+After establishing useful properties of quantum strategies in Chapter 3
+and then applying those properties in Chapter 4 , we return in Chapter 5
+to basic formalism for quantum strategies. We define a new norm that
+captures the distinguishability of quantum strategies in the same sense
+that the trace norm for operators captures the distinguishability of
+quantum states or the diamond norm for super-operators captures the
+distinguishability of quantum operations. Whereas the trace norm @xmath
+for quantum states @xmath is given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+we define the strategy @xmath -norm @xmath for quantum strategies @xmath
+by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Here the subscript @xmath denotes the number of rounds of messages in
+the protocol for which @xmath are strategies. In particular, each
+positive integer @xmath induces a different strategy norm. Our choice of
+notation is inspired by the fact that this norm is shown to coincide
+with the diamond norm for the case @xmath .
+
+Our primary application of the strategy norm is a generalization of a
+result of Ref. [ GW05 ] , which states that for any two convex sets
+@xmath of quantum states there exists a fixed quantum measurement that
+distinguishes any two states chosen from these sets with probability
+that varies according to the minimal trace norm distance between the
+sets @xmath and @xmath . In other words, this measurement can be used to
+distinguish any choices of states from @xmath at least as well as any
+measurement could distinguish the two closest states from those sets.
+
+Accordingly, our new result states that for any two convex sets @xmath
+of @xmath -round quantum strategies, there exists a fixed measuring
+strategy that distinguishes any choices of strategies from those sets
+with probability according to the minimal distance between the sets
+@xmath and @xmath as measured by the new strategy @xmath -norm.
+
+We conclude Chapter 5 with a discussion of the dual of the diamond norm
+for super-operators and its relation to the strategy norms. The dual of
+the diamond norm @xmath of a super-operator @xmath is defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for some appropriate notion of inner product between super-operators.
+
+While the diamond norm plays a fundamental role in the theory of quantum
+information, its dual has never been studied. Hence, we establish
+several basic facts about this norm. For example, the maximum in the
+definition of @xmath is achieved by a Hermitian-preserving
+super-operator whenever @xmath is Hermitian-preserving, and by a
+completely positive super-operator whenever @xmath is completely
+positive. These facts are employed to show that a variant of the
+strategy 1-norm coincides with the dual of the diamond norm. Thus, the
+strategy @xmath -norms are shown to generalize both the diamond norm and
+its dual.
+
+##### 1.1.2 Local operations with shared entanglement
+
+In Part II we prove several properties of local operations with shared
+entanglement or randomness. Informally, a local operation is a quantum
+operation that can be implemented by distinct parties, each acting only
+upon his or her own portion of an overall quantum system.
+
+In a local operation with shared randomness (LOSR) , the parties are
+permitted to share random bits—say, common knowledge of an integer
+sampled at random according to some fixed probability distribution. The
+parties may use their knowledge of this shared randomness to correlate
+their distinct operations.
+
+In a local operation with shared entanglement (LOSE) , rather than
+randomness, the parties are permitted to share among them distinct
+portions of some quantum system, the overall state of which may be
+entangled across the different parties. The existence of such a shared
+state permits the parties to achieve correlations among their local
+operations that could not otherwise be achieved with randomness alone.
+
+By contrast with Section 1.1.1 , it is expedient to include a discussion
+of historical background and citations in this introductory section
+concerning local operations with shared entanglement.
+
+###### Background
+
+LOSE operations are of particular interest in the quantum information
+community in part because any physical operation jointly implemented by
+spatially separated parties who obey both quantum mechanics and
+relativistic causality must necessarily be of this form. Moreover, it is
+notoriously difficult to say anything meaningful about this class of
+operations, despite its simple definition.
+
+One source of such difficulty stems from the fact that there exist
+two-party LOSE operations with the fascinating property that they cannot
+be implemented with any finite amount of shared entanglement [ LTW08 ] .
+This difficulty has manifested itself quite prominently in the study of
+two-player co-operative games: classical games characterize @xmath , ¹ ¹
+1 As noted in Ref. [ KKM @xmath 08 ] , this characterization follows
+from the PCP Theorem [ ALM @xmath 98 , AS98 ] . whereas quantum games
+with shared entanglement are not even known to be computable. Within the
+context of these games, interest has focused largely on special cases of
+LOSE operations [ KM03 , CHTW04 , Weh06 , CSUU08 , CGJ09 , KRT08 ] , but
+progress has been made recently in the general case [ KKM @xmath 08 ,
+KKMV08 , LTW08 , DLTW08 , NPA08 , IKM09 ] . In the physics literature,
+LOSE operations are often discussed in the context of no-signaling
+operations [ BGNP01 , ESW02 , PHHH06 ] .
+
+In the present thesis some light is shed on the general class of
+multi-party LOSE operations, as well as the sub-class of LOSR
+operations. Several distinct results are established, many of which
+mirror some existing result pertaining to separable quantum states. What
+follows is a brief description of each result together with its analogue
+from the literature on separable states where appropriate.
+
+###### Ball around the identity
+
+    Prior work on separable quantum states. If @xmath is a Hermitian
+    operator acting on a @xmath -dimensional bipartite space and whose
+    Frobenius norm at most 1 then the perturbation @xmath of the
+    identity represents an (unnormalized) bipartite separable quantum
+    state. In other words, there is a ball of (normalized) bipartite
+    separable states with radius @xmath in Frobenius norm centred at the
+    completely mixed state @xmath [ Gur02 , GB02 ] .
+
+    A similar ball exists in the multipartite case, but with smaller
+    radius. In particular, there is a ball of @xmath -partite separable
+    @xmath -dimensional states with radius @xmath in Frobenius norm
+    centred at the completely mixed state [ GB03 ] . Subsequent results
+    offer some improvements on this radius [ Sza05 , GB05 , Hil05 ] .
+
+    Present work on local quantum operations. An analogous result is
+    proven in Chapter 7 for multi-party LOSE and LOSR operations.
+    Specifically, if @xmath is a Hermitian operator acting on an @xmath
+    -dimensional @xmath -partite space and whose Frobenius norm scales
+    as @xmath then @xmath is the Choi-Jamiołkowski representation of an
+    (unnormalized) @xmath -party LOSR operation. As the unnormalized
+    completely noisy channel
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    is the unique quantum operation whose Choi-Jamiołkowski
+    representation equals the identity, it follows that there is a ball
+    of @xmath -party LOSR operations (and hence also of LOSE operations)
+    with radius @xmath in Frobenius norm centred at the completely noisy
+    channel @xmath . (Here the normalization factor @xmath is the
+    dimension of the output system.)
+
+    The perturbation @xmath must lie in the space spanned by
+    Choi-Jamiołkowski representations of the no-signaling operations.
+    Conceptual implications of this technicality are discussed in the
+    concluding remarks of Chapter 7 . No-signaling operations are
+    discussed in Chapter 10 of the present thesis, as summarized below.
+
+    Comparison of proof techniques. Existence of this ball of LOSR
+    operations is established via elementary linear algebra. By
+    contrast, existence of the ball of separable states was originally
+    established via a delicate combination of
+
+    1.  the fundamental characterizations of separable states in terms
+        of positive super-operators (described in more detail below),
+        together with
+
+    2.  nontrivial norm inequalities for these super-operators.
+
+    Moreover, the techniques presented herein for LOSR operations are of
+    sufficient generality to immediately imply a ball of separable
+    states without the need for the aforementioned characterizations or
+    their accompanying norm inequalities. This simplification comes in
+    spite of the inherently more complicated nature of LOSR operations
+    as compared to separable states. It should be noted, however, that
+    the ball of separable states implied by the present work is smaller
+    than the ball established in prior work by a factor of @xmath .
+
+###### Weak membership problems are @xmath-hard
+
+    Prior work on separable quantum states. The weak membership problem
+    for separable quantum states asks,
+
+      “Given a description of a quantum state @xmath and an accuracy
+      parameter @xmath , is @xmath within distance @xmath of a separable
+      state?”
+
+    This problem was proven strongly @xmath -complete under oracle
+    (Cook) reductions by Gharibian [ Gha08 ] , who built upon the work
+    of Gurvits [ Gur02 ] and Liu [ Liu07 ] . In this context, “strongly
+    @xmath -complete” means that the problem remains @xmath -complete
+    even when the accuracy parameter @xmath is given in unary as @xmath
+    .
+
+    @xmath -completeness of the weak membership problem was originally
+    established by Gurvits [ Gur02 ] . The proof consists of an @xmath
+    -completeness result for the weak validity problem—a decision
+    version of linear optimization over separable states—followed by an
+    application of the Yudin-Nemirovskiĭ Theorem [ YN76 , GLS88 ] ,
+    which provides an oracle-polynomial-time reduction from weak
+    validity to weak membership for general convex sets.
+
+    As a precondition of the Yudin-Nemirovskiĭ Theorem, the convex set
+    in question (in our case, the set of separable quantum states) must
+    contain a sufficiently large ball. In particular, this @xmath
+    -completeness result relies crucially upon the existence of the
+    aforementioned ball of separable quantum states.
+
+    For strong @xmath -completeness, it is necessary to employ a
+    specialized “approximate” version of the Yudin-Nemirovskiĭ Theorem
+    due to Liu [ Liu07 , Theorem 2.3] .
+
+    Present work on local quantum operations. In Chapter 8 it is proved
+    that the weak membership problems for LOSE and LOSR operations are
+    both strongly @xmath -hard under oracle reductions. The result for
+    LOSR operations follows trivially from Gharibian (just take the
+    input spaces to be empty). But it is unclear how to obtain the
+    result for LOSE operations without invoking the contributions of the
+    present thesis.
+
+    The proof begins by observing that the weak validity problem for
+    LOSE operations is merely a two-player quantum game in disguise and
+    hence is strongly @xmath -hard [ KKM @xmath 08 ] . The hardness
+    result for the weak membership problem is then obtained via a
+    Gurvits-Gharibian-style application of Liu’s version of the
+    Yudin-Nemirovskiĭ Theorem, which of course depends upon the
+    existence of the ball revealed in Section 7.2 .
+
+###### Characterization in terms of positive super-operators
+
+    Prior work on separable quantum states. A quantum state @xmath of a
+    bipartite system @xmath is separable if and only if the operator
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    is positive semidefinite whenever the super-operator @xmath is
+    positive. This fundamental fact was first proven in 1996 by
+    Horodecki et al. [ HHH96 ] .
+
+    The multipartite case reduces inductively to the bipartite case: the
+    state @xmath of an @xmath -partite system is separable if and only
+    if @xmath is positive semidefinite whenever the super-operator
+    @xmath is positive on @xmath -partite separable operators [ HHH01 ]
+    .
+
+    Present work on local quantum operations. In Chapter 9 it is proved
+    that a multi-party quantum operation @xmath is a LOSE operation if
+    and only if
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    whenever the linear functional @xmath is “completely” positive on a
+    certain cone of separable Hermitian operators, under a natural
+    notion of complete positivity appropriate to that cone. A
+    characterization of LOSR operations is obtained by replacing
+    complete positivity of @xmath with mere positivity on that same
+    cone. Here @xmath denotes the Choi-Jamiołkowski representation of
+    the super-operator @xmath .
+
+    The characterizations presented in Chapter 9 do not rely upon any of
+    the prior discussion in this thesis. This independence contrasts
+    favorably with prior work on separable quantum states, wherein the
+    existence of the ball around the completely mixed state (and the
+    subsequent @xmath -hardness result) relied crucially upon the
+    characterization of separable states in terms of positive
+    super-operators.
+
+###### No-signaling operations
+
+A quantum operation is no-signaling if it cannot be used by spatially
+separated parties to violate relativistic causality. By definition,
+every LOSE operation is a no-signaling operation. Moreover, there exist
+no-signaling operations that are not LOSE operations. Indeed, it is
+noted in Chapter 10 that the standard nonlocal box of Popescu and
+Rohrlich [ PR94 ] is an example of a no-signaling operation that is
+separable (in the sense of Rains [ Rai97 ] ), yet it is not a LOSE
+operation.
+
+Two characterizations of no-signaling operations are also discussed in
+Chapter 10 . These characterizations were first established somewhat
+implicitly for the bipartite case in Beckman et al. [ BGNP01 ] . The
+present thesis generalizes these characterizations to the multi-party
+setting and recasts them more explicitly in terms of the
+Choi-Jamiołkowski representation for quantum super-operators.
+
+#### 1.2 Mathematical preliminaries
+
+In this section we summarize the background mathematical knowledge upon
+which the work in this thesis rests. While extensive, by no means is
+this summary intended to be comprehensive. Instead, the purpose of this
+section is only to review existing concepts so that we may fix
+terminology and notation throughout the thesis.
+
+##### 1.2.1 Linear algebra
 
 ###### Vectors, operators, and inner products
 
