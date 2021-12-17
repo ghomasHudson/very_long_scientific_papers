@@ -1,88 +1,24 @@
-efforts to make the system effective it should still be easy to use in
-programs.
-
-To achieve the aims of low overhead for unused severity levels and ease
-of use, a combination of C preprocessor macros, C++ class methods, and
-overloaded operators has been chosen, partly hidden from users. The
-first important part is the macro definition for the LOG call, shown in
-Fig. 4.4 , that hides an if -statement and a method call executed when
-the condition in the if -statement is true. This if -statement is mainly
-responsible for achieving the required effectiveness. In the if
-condition it is tested whether the bit corresponding to the message’s
-severity is set in the gLogLevel variable. gLogLevel is a global
-variable specifying the activated severity levels in a program. If the
-respective severity bit is not set, the rest of the logging statement
-will not be executed at all. For disabled severity levels the overhead
-of a logging call thus amounts to an if -statement with a test for a set
-bit. On Intel compatible processors the GNU C Compiler (gcc) (Version
-2.95.3) translates this into the four processor instructions for an i686
-(Pentium-Pro or later) processor shown in Fig. 4.5 .
-
-The gLog object used in the LOG macro is not an object itself but a
-global reference. It points to an instance of the MLUCLog class, the
-actual interface to the logging system. This object also handles the
-dispatching of logged messages to the different message present
-destinations. By using a reference instead of the MLUCLog instance
-directly it is possible to transparently change the log message
-interface. For reasons of brevity the global MLUCLog instance will be
-referred to as the gLog object .
-
-In the gLog object’s LogMsg method, called in the macro when a message
-is logged, the message is prepared. Four preprocessor macros are passed
-to the function in addition to the three parameters passed to the LOG
-macro: The name of the code’s originating file together with the line
-number in the file, and the time and date when it was compiled.
-Additionally the current date and time as well as the name of the host
-on which the program runs are stored. To ensure thread safety a mutual
-exclusion semaphore (mutex) is locked so that only one thread at a time
-can access the logging system. As the locking is only performed for
-messages actually logged, the impact on a running system should be
-minimal. The message content streamed into the logging system is stored
-in the gLog object until the ENDLOG identifier has been streamed. This
-causes the full message to be assembled and passed to the active logging
-destinations. After this has been done the logging mutex is unlocked
-again, releasing the logging system for access by other threads.
-
-To achieve the final goal of multiple transparent logging destinations
-for the logging system, it has been divided into multiple classes: The
-MLUCLog class as the primary interface, the MLUCLogServer class as the
-abstract interface for message destinations, and classes derived from
-MLUCLogServer with the actual destination implementations. This division
-is shown in Fig. 4.6 .
-
-The global gLog object contains a list with pointers to instances of
-MLUCLogServer derived classes. Each of these derived classes is
-responsible for delivering log messages to a certain destination,
-examples of which are the standard output channel of programs, sets of
-files, or the syslog facility present on Unix computers. Instances of
-the classes corresponding to desired log destinations are registered
-with the gLog object, which enters them in its list of destinations.
-When the program makes a call to the logging system the complete message
-is assembled in the gLog object. Having received the message the object
-iterates over its list of registered MLUCLogServer destination classes,
-dispatching the message to each of them. After this the destination
-classes are responsible for delivering the message, e.g. by printing it
-to the standard output or writing it to a file. The interface to the
-destinations, the MLUCLogServer class, is hidden inside the logging
-system. Only when a class for a new destination has to be written has it
-to be used directly.
-
-A sample sequence of a logging call is shown in Fig. 4.7 . In this
-sequence an application makes a logging call for a message to the global
-gLog object. Two instances of MLUCLogServer derived classes are
-registered in the gLog object: an MLUCStdoutLogServer , printing
-messages to the program’s standard output, and an MLUCFileLogServer ,
-writing the messages to a file. The gLog object sends the received
-message first to the MLUCFileLogServer object and then to the
-MLUCStdoutLogServer object. After the message has been dispatched to
-both registered MLUCLogServer objects the logging call returns control
-to the application’s code.
-
-Depending on the implementation of the logging servers used logging a
-message might block a program, e.g. when a disk is full or when a
-network error for a log target node occurs. The currently provided
-servers will block in such situations, corresponding to their respective
-destination. To avoid blocking a log server implementation could make
-use of a background thread to for sending or writing of the data. Such a
-solution however could require the discarding of log messages when this
-background thread is blocked for too long.
+The High Level Trigger (HLT) of the future ALICE heavy-ion experiment
+has to reduce its input data rate of up to 25 GB/s to at most 1.25 GB/s
+for output before the data is written to permanent storage. To cope with
+these data rates a large PC cluster system is being designed to scale to
+several 1000 nodes, connected by a fast network. For the software that
+will run on these nodes a flexible data transport and distribution
+software framework, described in this thesis, has been developed. The
+framework consists of a set of separate components, that can be
+connected via a common interface. This allows to construct different
+configurations for the HLT, that are even changeable at runtime. To
+ensure a fault-tolerant operation of the HLT, the framework includes a
+basic fail-over mechanism that allows to replace whole nodes after a
+failure. The mechanism will be further expanded in the future, utilizing
+the runtime reconnection feature of the framework’s component interface.
+To connect cluster nodes a communication class library is used that
+abstracts from the actual network technology and protocol used to retain
+flexibility in the hardware choice. It contains already two working
+prototype versions for the TCP protocol as well as SCI network adapters.
+Extensions can be added to the library without modifications to other
+parts of the framework. Extensive tests and measurements have been
+performed with the framework. Their results as well as conclusions drawn
+from them are also presented in this thesis. Performance tests show very
+promising results for the system, indicating that it can fulfill ALICE’s
+requirements concerning the data transport.
