@@ -1,4 +1,1298 @@
-## 3.2 The function @xmath
+###### Contents
+
+-    1 Introduction
+-    2 Sparse @xmath Processes — The Simple Model
+    -    2.1 Introduction
+    -    2.2 Basic equations
+    -    2.3 Averaging over atom positions
+    -    2.4 The averaged signal and lineshape
+        -    2.4.1 The Laplace and Fourier transforms
+        -    2.4.2 Inverting the Laplace transform
+        -    2.4.3 A numerical method using Eq. ( 2.25 )
+        -    2.4.4 Comparison of the three methods
+        -    2.4.5 Plots and discussion
+    -    2.5 Averaging more complicated interaction potentials
+        -    2.5.1 Interaction potential of aligned dipoles
+        -    2.5.2 Effect of a different radial dependence on the
+            initial rise
+    -    2.6 Summary
+-    3 Localization in the Simple Model
+    -    3.1 Introduction
+    -    3.2 The function @xmath
+        -    3.2.1 Computation of the Laplace transform of @xmath
+        -    3.2.2 Inverting the Laplace transform
+        -    3.2.3 A check on the result for @xmath
+        -    3.2.4 Plots
+    -    3.3 The moments of @xmath
+        -    3.3.1 Computation of @xmath
+        -    3.3.2 Inverting the Laplace transform
+        -    3.3.3 A more convenient form for @xmath
+        -    3.3.4 A check on the result for @xmath
+        -    3.3.5 Plots
+    -    3.4 Summary
+-    4 Sparse @xmath Processes with @xmath Interaction
+    -    4.1 Introduction
+    -    4.2 The Cayley tree approximation
+        -    4.2.1 Justification of the Cayley tree approximation
+        -    4.2.2 Cayley tree approximation with the @xmath process
+            only
+        -    4.2.3 Cayley tree approximation with @xmath and @xmath
+            processes in the absence of @xmath
+        -    4.2.4 Cayley tree approximation with @xmath and @xmath
+            processes in the presence of @xmath
+    -    4.3 The Hubbard approximation
+        -    4.3.1 Computation of @xmath
+        -    4.3.2 Computation of @xmath
+        -    4.3.3 Computation of @xmath with the @xmath process only at
+            resonance
+    -    4.4 The coherent potential approximation
+        -    4.4.1 Computation of @xmath
+        -    4.4.2 Computation of @xmath
+    -    4.5 Comparison of the Cayley, Hubbard, and CPA approximations
+    -    4.6 Plots
+        -    4.6.1 The averaged amplitude @xmath as a function of time
+        -    4.6.2 The averaged amplitude @xmath as a function of
+            frequency
+    -    4.7 Summary
+-    5 Analogy With Spin Glasses
+    -    5.1 Introduction
+    -    5.2 The rubidium system as a spin glass
+        -    5.2.1 Spin glass Hamiltonian and equations of motion
+        -    5.2.2 Reduction to the sparse limit
+        -    5.2.3 Another spin glass Hamiltonian for the rubidium
+            system
+    -    5.3 Spin glass model for the cesium system
+    -    5.4 Summary
+-    6 The Effect of Spin
+    -    6.1 Introduction
+    -    6.2 Matrix elements for the @xmath and @xmath processes
+        -    6.2.1 The dipole-dipole interaction
+        -    6.2.2 Dipolar matrix elements
+        -    6.2.3 A change of basis
+        -    6.2.4 The @xmath and @xmath matrix elements
+    -    6.3 Determining the potential
+        -    6.3.1 States and probability amplitudes with spin included
+        -    6.3.2 Equations of motion
+        -    6.3.3 Dirac matrices
+        -    6.3.4 Separability
+        -    6.3.5 Averaging the @xmath process when @xmath for the
+            @xmath atom
+    -    6.4 Summary
+-    7 Numerical Simulations
+    -    7.1 Introduction
+    -    7.2 Review of theoretical model
+    -    7.3 Description of method
+    -    7.4 The effect of many @xmath atoms
+        -    7.4.1 The chemical argument
+        -    7.4.2 Extrapolation to many @xmath atoms
+    -    7.5 Results of simulations for the signal
+    -    7.6 Results of simulations for the width
+    -    7.7 Comparison with experimental data
+    -    7.8 Summary
+-    8 Final Thoughts
+
+###### List of Figures
+
+-    1.1 The @xmath , @xmath , @xmath , and @xmath energy levels of Rb
+    as a function of electric field
+-    1.2 Illustration of the @xmath and @xmath processes
+-    1.3 Experimental signal as a function of time
+-    1.4 Experimental lineshape as a function of detuning
+-    2.1 Signal as a function of time
+-    2.2 Resonance width as a function of time
+-    2.3 Saturation lineshape
+-    3.1 The quantity @xmath as a function of @xmath for several values
+    of @xmath
+-    3.2 The moments @xmath for @xmath , @xmath , @xmath , and @xmath
+-    3.3 The moments @xmath for @xmath , @xmath , @xmath , and @xmath
+-    3.4 The moments @xmath for @xmath , @xmath , @xmath , and @xmath
+-    3.5 The localization lengths @xmath for @xmath , @xmath , @xmath ,
+    and @xmath
+-    3.6 The localization lengths @xmath for @xmath , @xmath , @xmath ,
+    and @xmath
+-    3.7 The localization lengths @xmath for @xmath , @xmath , @xmath ,
+    and @xmath
+-    4.1 Averaged signal as a function of time for the Hubbard
+    approximation
+-    4.2 Real part of @xmath for @xmath
+-    4.3 Real part of @xmath for @xmath
+-    4.4 Real part of @xmath for @xmath
+-    4.5 Real part of @xmath for @xmath
+-    4.6 Real part of @xmath
+-    4.7 Imaginary part of @xmath
+-    4.8 Real part of @xmath for @xmath — comparison with simulation
+-    4.9 Real part of @xmath for @xmath — comparison with simulation
+-    4.10 Real part of @xmath for @xmath — comparison with simulation
+-    4.11 Real part of @xmath for @xmath — comparison with simulation
+-    7.1 Comparison of simulation with exact results
+-    7.2 Averaged signal as a function of time for @xmath
+-    7.3 Averaged signal as a function of time for @xmath
+-    7.4 Averaged signal as a function of time for @xmath
+-    7.5 Averaged signal as a function of time for @xmath
+-    7.6 Width as a function of time for @xmath
+-    7.7 Width as a function of @xmath
+-    7.8 Experimental signal as a function of time — larger density
+-    7.9 Experimental signal as a function of time — smaller density
+-    7.10 Experimental width as a function of time
+
+###### List of Tables
+
+-    6.1 Decomposition of @xmath and @xmath states
+-    6.2 Matrix elements for the @xmath process ( @xmath )
+-    6.3 Matrix elements for the @xmath process ( @xmath )
+-    6.4 Matrix elements for the @xmath process
+-    6.5 The @xmath matrix for the @xmath process @xmath
+-    6.6 The @xmath matrix for the @xmath process @xmath
+-    6.7 The @xmath matrix for the @xmath process
+-    6.8 Projections of @xmath onto the Dirac matrices for the @xmath
+    process @xmath
+-    6.9 Projections of @xmath onto the Dirac matrices for the @xmath
+    process @xmath
+-    6.10 Projections of @xmath onto the Dirac matrices for the @xmath
+    process
+
+## Chapter 1 Introduction
+
+Frozen gases are a new and in many ways ideal laboratory to test our
+understanding of quantum theory in a complex system. With present
+technology one can manipulate and detect electronic processes with an
+extraordinary selectivity and precision. Furthermore, the translational
+temperature of the gas can be lowered to the point where it can be
+ignored when discussing electronic processes. Frozen Rydberg gases have
+the added advantages that their states are well understood and many
+processes occur on a microsecond time scale, easily allowing for
+time-resolved spectroscopy.
+
+Pioneering experiments on resonant processes in these gases have been
+carried out by Anderson et al. [ 5 , 6 ] and Mourachko et al. [ 45 , 44
+] . The present work was motivated by the desire to understand those
+experiments and the subsequent work of Lowell et al. [ 40 ] highlighting
+the dynamic aspects of these resonant, many particle systems. The
+measurements of Anderson et al. and Lowell et al. are performed on
+mixtures of cold (about @xmath @xmath K) @xmath atoms initially prepared
+in the @xmath and @xmath states, henceforth to be called the @xmath and
+@xmath states respectively. There are initially @xmath atoms in the
+@xmath state and @xmath atoms in the @xmath state. A dipole matrix
+element @xmath connects the state @xmath to the state @xmath , and
+another dipole matrix element @xmath connects the state @xmath to the
+state @xmath , where @xmath refers to the @xmath state and @xmath refers
+to the @xmath state. Dipole-dipole interactions cause @xmath
+interactions to occur, and then @xmath and @xmath flippings become
+possible. ¹ ¹ 1 Although the @xmath process is present, it is smaller
+than the @xmath process by a factor of @xmath in this case and can
+therefore be neglected to a first approximation, except when @xmath .
+The number of @xmath states is measured after a given time has elapsed,
+up to about 5 @xmath s. As a function of time, the number of @xmath
+states rises rapidly at first and then slowly saturates. The energy of a
+@xmath pair can be swept through resonance with an @xmath pair, where
+@xmath , via the Stark effect by the application of an electric field. ²
+² 2 For a discussion of the Stark effect in hydrogenic atoms, see pages
+228–241 of Ref. [ 9 ] or pages 164–171 of Ref. [ 19 ] . At any one time
+the resonance lineshape can be obtained as a function of the detuning
+@xmath , which is a known function of the applied electric field.
+
+Figure 1.1 shows the @xmath , @xmath , @xmath , and @xmath energies as a
+function of the applied electric field. This figure is a slightly
+modified version of Fig. 3.1 on page 54 of Ref. [ 40 ] . Because the
+@xmath state is in the @xmath state, there are actually two resonances.
+One corresponds to the two @xmath states, and the other corresponds to
+the two @xmath states. To a first approximation the two resonances can
+be treated separately.
+
+Figure 1.2 is a schematic of the @xmath and @xmath processes. In this
+illustration the circles represent atoms in an @xmath state and the
+ovals represent atoms in a @xmath state. In addition, the black shapes
+represent primed states, while the grey shapes represent unprimed
+states. The first panel shows a single atom in the @xmath state
+surrounded by atoms in the @xmath state. In going from the first to the
+second panel an @xmath pair has made the @xmath transition via an
+interaction potential @xmath . In the third panel an @xmath pair has
+made the @xmath transition via an interaction potential @xmath . In the
+final panel the @xmath pair has made the @xmath transition, and the
+system has returned to the initial state of the first panel.
+
+Several features of the experimental data present a challenge to
+theorists and are investigated in this thesis. The first feature we wish
+to understand is the rapid rise followed by slow approach to saturation
+of the signal. This behavior can be seen in Fig. 1.3 , which is a plot
+of the experimental data taken from Fig. 3.8 on page 71 of Ref. [ 40 ]
+with all the data points shown. Each individual interaction between
+pairs of atoms leads to a coherent oscillatory behavior, but as we will
+see in Chapter 2 , averaging the @xmath interaction over the random
+positions of the atoms greatly smooths out the signal. The effective
+incoherence brought about by the @xmath process (the “walking away”
+discussed by Mourachko et al. [ 45 , 44 ] ) completes the smoothing out
+of the on-resonance signal but has less effect on the off-resonance
+signal.
+
+We also want to understand the width of the lineshape in the detuning
+@xmath as a function of time. Fig. 1.4 shows a plot of the experimental
+data for the lineshape as a function of detuning for an interaction time
+of @xmath @xmath s. These data are taken from Fig. 3.9 on page 74 of
+Ref. [ 40 ] . We note the presence of two resonances, which as was
+stated before correspond to the @xmath and @xmath states of the @xmath
+atom. The behavior of the collisional resonance width as a function of
+temperature for hot (i.e., roughly room temperature) Rydberg gases is
+known to be
+
+  -- -------- -- -------
+     @xmath      (1.1)
+  -- -------- -- -------
+
+as can be found in Ref. [ 21 ] or on page 293 of Ref. [ 22 ] . This
+result agrees quite well with experiments on such gases, ³ ³ 3 See, for
+example, pages 309–310 of Ref. [ 22 ] . and is obtained by considering
+only two-body collisions. Simply plugging the temperature @xmath @xmath
+K into this result gives a width that is smaller than the room
+temperature width by a factor of about @xmath . The experimental
+results, however, show a reduction in the width of only a factor of ten.
+Thus we can conclude that the resonance effects of the frozen gas are
+not determined by two-body interactions alone.
+
+It was surmised by Anderson et al. [ 6 ] that the linewidth must be of
+the order of the average interaction energy. This interaction splits the
+@xmath – @xmath degeneracy and the subsequent migration of the @xmath
+state to other atoms broadens the energy of this “elementary excitation”
+into a band, as appropriate to an amorphous solid. Cluster calculations
+were performed to illustrate this band formation [ 40 ] , but averaging
+over atom positions was done by order-of-magnitude arguments only.
+Mourachko et al. [ 45 , 44 ] pointed out, in connection with their
+experiments on a different system, that the “walking away” of the @xmath
+excitation from its original location should be regarded as a diffusion
+process, and dynamical equations for the resonance transition in the
+presence of this diffusion were written down [ 3 , 44 ] .
+
+The present work builds on these earlier insights, but goes considerably
+further in the process of accurately averaging over atomic positions. It
+turns out that this averaging (effectively, a phase averaging) itself
+produces an @xmath dependence at large times, characteristic of a
+diffusive process [ 18 ] . We discuss in detail in Chapter 2 a
+particular case that cleanly shows the effects of randomness and phase
+averaging. In this simple case, the averaging process can be carried out
+exactly. For the practically important @xmath interaction potential, one
+can proceed in a mathematically elegant way and obtain closed formulas
+that can be evaluated by a computer package such as Mathematica , or in
+some cases by hand. It appears to be a fortunate coincidence that the
+@xmath potential accurately describes the dipole-dipole interactions
+that are so prevalent in nature. Some aspects of this approach are
+easily extended to more general interactions; however, the @xmath
+dependence has special properties which, when coupled with the
+assumption of a random distribution of atoms, lead to relatively simple
+results.
+
+Although this work was stimulated by experiments on Rydberg atoms, it is
+generally applicable to resonances induced by dipole-dipole
+interactions. These may be common in highly excited gases and in
+molecular systems. Frozen, resonant gases may even exist in interstellar
+clouds.
+
+First, in Chapter 2 , we discuss a single @xmath atom interacting
+resonantly with a surrounding gas of @xmath atoms, without any
+possibility for the @xmath atom to interact with @xmath atoms through an
+@xmath process. When the result is averaged over the positions of the
+@xmath atoms, it corresponds to a “sparse” system of @xmath atoms,
+i.e. a system where @xmath . We do not know of an existing experiment to
+which this treatment applies, so this section can be viewed as a
+theoretical prediction of the outcome of a possible experiment. Our
+purpose here is also one of exposition, since this example allows us to
+introduce in the simplest context some of the mathematical techniques
+used throughout the rest of this thesis. Some plots of the results are
+presented, and in the final sections of this chapter we consider the
+effect of interaction potentials more complicated than just a simple
+@xmath potential.
+
+In Chapter 3 we continue with our discussion of the simple model of
+Chapter 2 by examining the issue of localization. We study localization
+in this system because we need to have some idea of the relative
+importance of close pairs of atoms, as well as some idea of the
+effective range of the @xmath interaction. Naively, it seems that the
+close pairs are dominant and that the range of the @xmath potential is
+infinite because @xmath diverges at @xmath and yet the integral @xmath
+over all space diverges at both limits.
+
+In Chapter 4 we come one step closer to the actual system used in the
+experiments by allowing the @xmath process to take place. This renders
+the problem analytically insoluble but we consider several
+approximations, each of which allows us to make some progress. When
+compared with the results of numerical simulations, we see that the
+coherent potential approximation compares most favorably.
+
+In Chapter 5 , we introduce an effective spin Hamiltonian which fully
+models the Rb system of Anderson et al. [ 5 , 6 ] and Lowell et al. [ 40
+] for all values of @xmath and @xmath , as well as for any strength of
+the resonant process @xmath and of the mixing processes @xmath and
+@xmath . This Hamiltonian corresponds to a system of two
+interpenetrating spin glasses. We show its equivalence to the results of
+Chapter 4 in the sparse limit @xmath . We then derive an entirely
+equivalent but seemingly more cumbersome Hamiltonian to describe this
+system. This second derivation embodies a more general technique, which
+we demonstrate by constructing a spin Hamiltonian that describes the
+cesium system studied by Mourachko et al. [ 45 , 44 ] .
+
+In Chapter 6 we take into account fully the complication introduced by
+the consideration of spin, and we determine exactly what the
+spin-dependent interatomic potentials are for the @xmath and @xmath
+processes in the experiment we are modeling [ 6 , 40 ] .
+
+In Chapter 7 we discuss numerical simulations of the system we are
+considering. We start by describing in detail how the simulations are
+carried out, then we present the results, including comparisons of the
+simulations with the experimental data.
+
+The limitations of the present theory and some of the many possible
+extensions are discussed in Chapter 8 .
+
+## Chapter 2 Sparse @xmath Processes — The Simple Model
+
+### 2.1 Introduction
+
+In this chapter we discuss a single @xmath atom interacting resonantly
+with a surrounding gas of @xmath atoms, without any possibility for the
+@xmath atom to interact with @xmath atoms through an @xmath process. In
+Section 2.2 we write down and solve the Schrödinger equation for a given
+spatial configuration of the @xmath atoms. Then in Section 2.3 this
+result is averaged over the positions of the @xmath atoms, so that it
+corresponds to a sparse system of @xmath atoms where @xmath . In Section
+2.4 we compute the averaged signal and the lineshape. Specifically, in
+Sections 2.4.1 and 2.4.2 we start from the Laplace transform of the
+signal and develop series expansions for the signal as a function of
+time. We also discuss the use of the fast Fourier transform to obtain
+the signal as a function of time. In Section 2.4.3 we develop a
+numerical method to compute the averaged signal and lineshape that works
+exceedingly well, and in Section 2.4.4 we discuss the good and bad
+points of the three methods. Next, in Section 2.4.5 we present plots of
+the averaged signal and lineshape. In Section 2.5 we consider the effect
+of interaction potentials more complicated than just a simple @xmath
+potential. Finally, we summarize the results of this chapter in Section
+2.6 .
+
+### 2.2 Basic equations
+
+We consider one atom at the origin, initially in the state @xmath , in
+interaction with a gas of @xmath randomly distributed @xmath atoms
+through an @xmath process. Like Mourachko et al. [ 45 ] , we describe
+the system by the equations
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (2.1a)
+     @xmath   @xmath   @xmath      (2.1b)
+  -- -------- -------- -------- -- --------
+
+Here @xmath is the amplitude of the state in which the atom at the
+origin is in state @xmath and all other atoms are in state @xmath ,
+while @xmath (with @xmath running from @xmath to @xmath ) is the
+amplitude of the state in which the atom at the origin is in state
+@xmath and the atom at @xmath is in state @xmath , while all the others
+remain in state @xmath . The quantity @xmath is the interaction
+potential and @xmath is the detuning from resonance. For simplicity, we
+will assume for now that @xmath is of the dipole-dipole form
+
+  -- -------- -- -------
+     @xmath      (2.2)
+  -- -------- -- -------
+
+and we will discuss later in Section 2.5 what happens when the
+interaction potential has a different dependence on @xmath or contains
+an angular dependence. Furthermore, the atoms are sufficiently cold that
+during the time scale of interest they move only a very small fraction
+of their separation, and therefore @xmath can be taken to be independent
+of time. As the temperature increases one approaches the opposite limit,
+where binary collisions control the resonant process [ 57 ] .
+
+The set of differential equations ( 2.1a ) and ( 2.1b ) can easily be
+solved with the initial condition @xmath and @xmath for all @xmath ,
+yielding
+
+  -- -------- -- -------
+     @xmath      (2.3)
+  -- -------- -- -------
+
+with
+
+  -- -------- -- -------
+     @xmath      (2.4)
+  -- -------- -- -------
+
+Eq. ( 2.1b ) then gives
+
+  -- -------- -- -------
+     @xmath      (2.5)
+  -- -------- -- -------
+
+The experiment detects transitions to any one of the @xmath states (or,
+equivalently, to any one of the @xmath states), and is thus a measure of
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (2.6)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- -------
+
+We see that the signal @xmath exhibits Rabi oscillations.
+
+We apply this result to a system of @xmath atoms, initially in state
+@xmath , randomly dispersed among a much larger number, @xmath , of
+@xmath atoms. In this sparse limit, the experimental signal is
+proportional to @xmath times the sample average of @xmath , and the
+sample average is equivalent to an ensemble average over the atomic
+positions @xmath that are hidden in @xmath (see Eq. ( 2.8 ) below). In
+general, averaging is more easily done on the Laplace transform of the
+signal, which in this case is
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (2.7)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- -------
+
+This Laplace transform can also be found as Eq. (5.9) on page 28 of Ref.
+[ 51 ] .
+
+### 2.3 Averaging over atom positions
+
+To compute ensemble averages we use the following result, valid in the
+limit @xmath , for a random distribution of the variables @xmath : ¹ ¹ 1
+The procedure here is, in effect, that used in the derivation of the
+second virial coefficient. See, for example, page 421 of Ref. [ 49 ] .
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (2.8)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- -------
+
+where @xmath is the volume of the gas in the trap and
+
+  -- -------- -- -------
+     @xmath      (2.9)
+  -- -------- -- -------
+
+In particular, for the dipolar interaction @xmath , we have
+
+  -- -------- -- --------
+     @xmath      (2.10)
+  -- -------- -- --------
+
+leading to
+
+  -- -------- -- --------
+     @xmath      (2.11)
+  -- -------- -- --------
+
+where
+
+  -- -------- -- --------
+     @xmath      (2.12)
+  -- -------- -- --------
+
+For the typical densities in the experiments of Anderson et al. [ 6 ]
+and Lowell et al. [ 40 ] , @xmath is on the order of MHz. Since @xmath
+has the units of an energy, it must be of order @xmath on dimensional
+grounds. It is still remarkable, however, that Eq. ( 2.12 ) gives simply
+and exactly the quantity @xmath that will enter in all the averaged
+quantities in this section. ² ² 2 In this section we perform an average
+over many configurations of randomly positioned atoms. The corresponding
+dipolar sums for regular lattices are discussed in Refs. [ 13 ] and [ 20
+] .
+
+Using Eq. ( 2.11 ), we can evaluate the average of any function @xmath .
+We simply need to determine the probability distribution of the variable
+@xmath , which we will denote as @xmath . By definition, we have
+
+  -- -------- -- --------
+     @xmath      (2.13)
+  -- -------- -- --------
+
+We proceed by writing the delta function as a Fourier transform over the
+dummy variable @xmath . This leads to
+
+  -- -------- -- --------
+     @xmath      (2.14)
+  -- -------- -- --------
+
+The average can now be performed using Eq. ( 2.11 ), and we have
+
+  -- -------- -- --------
+     @xmath      (2.15)
+  -- -------- -- --------
+
+The remaining integral requires a little finesse to evaluate. First, we
+split the integral into two parts, so that
+
+  -- -------- -- --------
+     @xmath      (2.16)
+  -- -------- -- --------
+
+and
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.17)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+Now we note that
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.18)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+Changing variables to @xmath , we see that @xmath and hence
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.19)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+This can be rewritten as
+
+  -- -------- -- --------
+     @xmath      (2.20)
+  -- -------- -- --------
+
+and the remaining integral is easily looked up in tables, such as Ref. [
+25 ] . One finds that
+
+  -- -------- -- --------
+     @xmath      (2.21)
+  -- -------- -- --------
+
+and hence we have
+
+  -- -------- -- --------
+     @xmath      (2.22)
+  -- -------- -- --------
+
+When the derivative is evaluated we are left with
+
+  -- -------- -- --------
+     @xmath      (2.23)
+  -- -------- -- --------
+
+It is interesting to note that @xmath is not Gaussian, and the central
+limit theorem does not apply, because @xmath does not have a root mean
+square value. In fact, @xmath is not even normalizable.
+
+Therefore, using Eq. ( 2.23 ) we can compute the average of any function
+@xmath as
+
+  -- -------- -- --------
+     @xmath      (2.24)
+  -- -------- -- --------
+
+We can further define @xmath , and then by a simple change of variable
+the average of @xmath can be written in the form
+
+  -- -------- -- --------
+     @xmath      (2.25)
+  -- -------- -- --------
+
+which agrees with the result derived by an alternative method in Ref. [
+18 ] .
+
+This last set of relations implies that we can average a function @xmath
+over the positions of the interacting dipoles (atoms in our case) by
+replacing @xmath with @xmath and integrating over the kernel @xmath .
+This trick is not always useful as such, because it can lead to highly
+oscillatory integrals. However, if the function @xmath has suitable
+analytic properties, then the integration path of Eq. ( 2.25 ) can be
+shifted in the complex @xmath plane in such a way that the oscillations
+are damped out and the integral is rather easy to evaluate numerically.
+An example of this procedure is discussed in detail in Section 2.4.3 .
+
+### 2.4 The averaged signal and lineshape
+
+The average over atomic positions can be obtained in closed form for the
+Laplace transform of the signal, @xmath . Starting from Eq. ( 2.7 ) in
+the form
+
+  -- -------- -- --------
+     @xmath      (2.26)
+  -- -------- -- --------
+
+and using Eq. ( 2.11 ), we obtain
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.27)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+where @xmath . For the sake of completeness, and because it will be used
+later on, we note that a similar result can be obtained for @xmath by
+applying the same method to Eq. ( 2.5 ). One finds
+
+  -- -- -- --------
+           (2.28)
+  -- -- -- --------
+
+The problem is then to invert the Laplace transform of Eq. ( 2.27 ). As
+is shown in Section 2.4.1 , it is possible in this case to convert the
+Laplace transform to a Fourier transform, which can then be inverted
+numerically by a fast Fourier transform algorithm. A more convenient
+inversion method was presented in Ref. [ 18 ] and is described in more
+detail in Section 2.4.2 . It leads to an expression for @xmath in terms
+of generalized hypergeometric functions, which can be conveniently
+handled by Mathematica .
+
+A third method to obtain @xmath is to apply Eq. ( 2.25 ) directly to
+@xmath as given by Eq. ( 2.6 ). The remaining integral is difficult to
+perform numerically, as we already noted, but this difficulty can be
+circumvented as is shown in Section 2.4.3 . The advantages and
+limitations of the three numerical methods for evaluating @xmath are
+compared in Section 2.4.4 .
+
+Plots of @xmath are presented and discussed in Section 2.4.5 . Readers
+who are not interested in mathematical methods can proceed directly to
+Section 2.4.5 .
+
+#### 2.4.1 The Laplace and Fourier transforms
+
+We see from Eq. (7.1.6) on page 297 of Ref. [ 2 ] that
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.29)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+Now we use the fact that
+
+  -- -------- -- --------
+     @xmath      (2.30)
+  -- -------- -- --------
+
+and we find
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.31)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+Therefore Eq. ( 2.27 ) gives
+
+  -- -- -- --------
+           (2.32)
+  -- -- -- --------
+
+This equation shows that @xmath can be analytically continued to complex
+@xmath with @xmath , although it has a branch cut ending at essential
+singularities located at @xmath and @xmath . In particular, the Fourier
+transform is obtained by putting @xmath . We have obtained @xmath by
+inverting this Fourier transform numerically using a fast Fourier
+transform routine. However, the following method of inverting the
+Laplace transform is much more convenient, for reasons that are
+explained in Section 2.4.4 .
+
+#### 2.4.2 Inverting the Laplace transform
+
+According to Eq. (2.66) of Ref. [ 51 ] , the inverse Laplace transform
+of
+
+  -- -------- -- --------
+     @xmath      (2.33)
+  -- -------- -- --------
+
+is
+
+  -- -------- -- --------
+     @xmath      (2.34)
+  -- -------- -- --------
+
+where the function @xmath is a generalized hypergeometric function, and
+is defined on pages 750–751 of Ref. [ 62 ] to be
+
+  -- -------- -- --------
+     @xmath      (2.35)
+  -- -------- -- --------
+
+Hence we find that the inverse Laplace transform of @xmath is
+
+  -- -------- -- --------
+     @xmath      (2.36)
+  -- -------- -- --------
+
+Expanding @xmath using Eq. ( 2.35 ) yields
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.37)
+                                @xmath   
+                       @xmath   @xmath   
+                                @xmath   
+                       @xmath   @xmath   
+                                @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+which can also be obtained directly by expanding Eq. ( 2.27 ) in @xmath
+and then taking the inverse Laplace transform term by term.
+
+For some purposes, it is convenient to rearrange Eq. ( 2.37 ) in the
+form of a series in powers of the detuning squared. To achieve this, we
+use the second line of this equation and find
+
+  -- -------- -- --------
+     @xmath      (2.38)
+  -- -------- -- --------
+
+where
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.39)
+                       @xmath   @xmath   
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+Again using Eq. ( 2.30 ), we see that
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.40)
+                                @xmath   
+                       @xmath   @xmath   
+                                @xmath   
+                       @xmath   @xmath   
+                                @xmath   
+                       @xmath   @xmath   
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+Thus the expression for the signal becomes
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.41)
+                                @xmath   
+                                @xmath   
+                       @xmath   @xmath   
+                                @xmath   
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+If we consider the signal at resonance, then the expression in Eq. (
+2.41 ) simplifies considerably. We note that only the @xmath term
+contributes when @xmath . Thus we have
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.42)
+                                @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+We further note that
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.43)
+                                @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+Thus the signal at resonance can be written as
+
+  -- -------- -- --------
+     @xmath      (2.44)
+  -- -------- -- --------
+
+which agrees perfectly with Eq. (19) of Ref. [ 18 ] .
+
+#### 2.4.3 A numerical method using Eq. (2.25)
+
+We have from Eq. ( 2.25 ) that the averaged signal can be written as
+
+  -- -- -- --------
+           (2.45)
+  -- -- -- --------
+
+Then, using Eq. ( 2.6 ), we have
+
+  -- -------- -- --------
+     @xmath      (2.46)
+  -- -------- -- --------
+
+We can rewrite this as
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.47)
+                       @xmath   @xmath   
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+If @xmath , then we have
+
+  -- -------- -- --------
+     @xmath      (2.48)
+  -- -------- -- --------
+
+where
+
+  -- -------- -- --------
+     @xmath      (2.49)
+  -- -------- -- --------
+
+We can change the path of integration from the positive real axis to a
+path where we start from the origin and proceed along the negative
+imaginary axis to the point @xmath , then proceed to the point @xmath
+along the line @xmath . Then we have
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.50)
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+Clearly the integral over @xmath is purely real, and so
+
+  -- -------- -- --------
+     @xmath      (2.51)
+  -- -------- -- --------
+
+Mathematica is quite adept at quickly evaluating this integral for any
+value of @xmath .
+
+The case where @xmath is only slightly more complicated. We have from
+Eq. ( 2.47 ) that
+
+  -- -------- -- --------
+     @xmath      (2.52)
+  -- -------- -- --------
+
+where
+
+  -- -------- -- --------
+     @xmath      (2.53)
+  -- -------- -- --------
+
+The path we used in the resonant case will still work well for small
+@xmath , but will fail for @xmath . This is clear because the radicand
+@xmath will change sign as @xmath goes from zero to @xmath . By analogy
+with the resonant case and through a bit of trial and error, however,
+one finds that for @xmath the path where we start from the origin and
+proceed along the positive imaginary axis to the point @xmath , then
+proceed to the point @xmath along the line @xmath works well. Using this
+path we have
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.54)
+                                @xmath   
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+It is again the case that the @xmath integral gives zero, and we have
+that
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.55)
+                                @xmath   
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+Mathematica is again fairly adept at evaluating this expression
+numerically for any values of @xmath and @xmath , although the
+computation time increases with increasing @xmath . In practice, we have
+used Eq. ( 2.51 ) for @xmath and Eq. ( 2.55 ) for @xmath .
+
+Note that, using this method, it is possible to obtain a plot of the
+resonance width versus time by solving numerically for a value of @xmath
+such that
+
+  -- -------- -- --------
+     @xmath      (2.56)
+  -- -------- -- --------
+
+at many values of @xmath .
+
+We can also use this method to obtain asymptotic expressions for the
+signal @xmath . Consider the resonant case. We see from Eqs. ( 2.48 )
+and ( 2.49 ) that we want to obtain an asymptotic expression for the
+integral
+
+  -- -------- -- --------
+     @xmath      (2.57)
+  -- -------- -- --------
+
+where
+
+  -- -------- -- --------
+     @xmath      (2.58)
+  -- -------- -- --------
+
+We can simply apply the method of steepest descent to this integral, as
+discussed on pages 82–90 of Ref. [ 43 ] . We see that
+
+  -- -------- -- --------
+     @xmath      (2.59)
+  -- -------- -- --------
+
+and
+
+  -- -------- -- --------
+     @xmath      (2.60)
+  -- -------- -- --------
+
+Thus we find that @xmath vanishes when @xmath . To ensure convergence,
+we want to pick the root closest to the original integration path in the
+lower half plane, and so we choose the root
+
+  -- -------- -- --------
+     @xmath      (2.61)
+  -- -------- -- --------
+
+We then have
+
+  -- -------- -- --------
+     @xmath      (2.62)
+  -- -------- -- --------
+
+Proceeding carefully we find that
+
+  -- -------- -- --------
+     @xmath      (2.63)
+  -- -------- -- --------
+
+and
+
+  -- -------- -- --------
+     @xmath      (2.64)
+  -- -------- -- --------
+
+Finally there is only a Gaussian integral to do, and one easily finds
+that
+
+  -- -------- -- --------
+     @xmath      (2.65)
+  -- -------- -- --------
+
+for large @xmath .
+
+The same procedure can be applied when @xmath , although this situation
+is somewhat more complicated because in order to determine the position
+of the saddle point one must first solve a cubic equation. This is best
+done numerically, and one finds that the result is qualitatively the
+same as Eq. ( 2.65 ).
+
+#### 2.4.4 Comparison of the three methods
+
+Each of the three methods we have discussed has its drawbacks.
+
+In order for the fast Fourier transform method of Section 2.4.1 to be
+practical, we must first subtract off certain parts of the Fourier
+transform that are not well behaved. For instance, we must subtract off
+the part of the Fourier transform that goes as @xmath at small @xmath .
+Because we must sample points over a wide range of values of @xmath in
+Fourier space in order to obtain an accurate picture of the signal in
+@xmath space, however, we must also ensure that the Fourier transform
+falls off suitably fast as @xmath increases. We actually subtract off
+the quantity
+
+  -- -------- -- --------
+     @xmath      (2.66)
+  -- -------- -- --------
+
+so that the coefficient of @xmath at large @xmath also vanishes. The
+parts that are subtracted off must have a known inverse transform, which
+at the end is added to the remaining part that is transformed by a fast
+Fourier transform algorithm. Finding a suitable subtraction is a rather
+cumbersome process. In addition, because the fast Fourier transform
+method is a numerical method (as opposed to an analytical method), we do
+not obtain an explicit form for @xmath .
+
+The series obtained using the method of Section 2.4.2 , on the other
+hand, do give an explicit form for @xmath . Unfortunately, however, they
+have the very serious limitation that they do not always converge for
+larger values of @xmath unless @xmath is small.
+
+The method discussed in Section 2.4.3 shares a drawback with the fast
+Fourier transform method, namely that unless the integral can be done
+analytically, an explicit form for @xmath cannot be obtained. This
+method is, however, superior to the fast Fourier transform method
+because it does not require the cumbersome subtractions.
+
+As a general rule, the series method of Section 2.4.2 is best when it
+converges, and the integral method of Section 2.4.3 is the best
+otherwise.
+
+#### 2.4.5 Plots and discussion
+
+Plots of @xmath for several values of @xmath are shown in Fig. 2.1 .
+Notice that the initial slope of the signal is independent of @xmath .
+This feature translates into resonance widths that vary as @xmath for
+small @xmath – the so-called transform broadening discussed by Thomson
+et al. [ 60 , 59 ] . With @xmath on the order of MHz, this initial rise
+occurs in a fraction of a @xmath s. We will see later that when the
+@xmath process is included, the initial rise is independent of both the
+detuning @xmath and the strength of the @xmath interaction. Another
+point of interest is that the averaging is much more effective at
+smoothing out the oscillations for @xmath than it is for @xmath .
+
+We can construct a measure of the width from the first two terms in the
+@xmath -expansion, Eq. ( 2.41 ). If
+
+  -- -------- -- --------
+     @xmath      (2.67)
+  -- -------- -- --------
+
+and we define
+
+  -- -------- -- --------
+     @xmath      (2.68)
+  -- -------- -- --------
+
+then @xmath would be the FWHM if the lineshape were Lorentzian. We note
+that the functions @xmath and @xmath are easily obtained in closed form,
+since they are essentially just the @xmath and @xmath terms in the sum
+of Eq. ( 2.41 ), respectively. The quantity @xmath is plotted in Fig.
+2.2 as the dashed curve. For small @xmath , we have explicitly @xmath .
+While the @xmath behavior follows from the transform broadening
+argument, or even simply from dimensional analysis, the coefficient
+@xmath is a prediction of the detailed theory.
+
+The solid curve in Fig. 2.2 is the exact half width, as determined using
+Eq. ( 2.56 ) of Section 2.4.3 . We see that the width of Eq. ( 2.68 ) is
+a good approximation to the exact result only at small times.
+
+The lineshape at saturation ( @xmath ) can be obtained directly from the
+first line of Eq. ( 2.47 ). For large times the cosine term averages to
+zero, giving
+
+  -- -------- -- --------
+     @xmath      (2.69)
+  -- -------- -- --------
+
+which can also be extracted from the small @xmath behavior of Eq. ( 2.27
+). This lineshape is plotted in Fig. 2.3 . The FWHM is approximately
+@xmath . Also plotted is a Lorentzian lineshape with the same height and
+FWHM. Notice that this lineshape is sharper than the Lorentzian for
+small @xmath and falls off more slowly for large @xmath .
+
+### 2.5 Averaging more complicated interaction potentials
+
+In Section 2.3 we averaged the quantity @xmath , where @xmath and @xmath
+. In this section we consider the problem of averaging a more
+complicated interaction potential. Here we perform the averaging
+procedure for a potential that varies as
+
+  -- -------- -- --------
+     @xmath      (2.70)
+  -- -------- -- --------
+
+where @xmath is a constant and @xmath , @xmath , and @xmath are the
+spherical coordinates corresponding to @xmath . We have seen that we can
+evaluate the average of the signal if we can compute the average of the
+quantity @xmath . A careful look at Eq. ( 2.8 ) shows that the steps do
+not make any assumptions on how @xmath depends on @xmath , so this
+equation still holds and we have
+
+  -- -------- -- --------
+     @xmath      (2.71)
+  -- -------- -- --------
+
+Thus we are left with the task of evaluating the integral
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+We can define the variable @xmath , and then
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.73)
+                       @xmath   @xmath   
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+The remaining integrals over @xmath and the angular variables can now be
+looked up in tables or done numerically.
+
+It is very important to note that the introduction of an angular
+dependence into the potential does not affect the averaging process
+except to change the definition of the scaling parameter @xmath by a
+constant factor. This means that we can, for simplicity, use a simple
+potential that contains no angular dependence to get an answer, and then
+take into account any angular dependence by simply changing the
+definition of @xmath in the formulas.
+
+#### 2.5.1 Interaction potential of aligned dipoles
+
+The induced dipoles in the magneto-optical trap become aligned when the
+applied electric field is sufficiently large that the Stark effect has
+passed from the quadratic to the linear regime. The aligned dipole case
+is the one considered in Refs. [ 32 ] and [ 54 ] , for example. It is
+also the potential we use in performing the numerical simulations
+discussed in Chapter 7 , for reasons that are explained fully in Section
+7.2 . Specifically, we have
+
+  -- -------- -- --------
+     @xmath      (2.74)
+  -- -------- -- --------
+
+Thus we need to evaluate the integral
+
+  -- -- -- -------- -------- --------
+           @xmath            (2.75)
+           @xmath   @xmath   
+           @xmath   @xmath   
+  -- -- -- -------- -------- --------
+
+We see that the additional angular dependence changes @xmath by a factor
+of @xmath .
+
+#### 2.5.2 Effect of a different radial dependence on the initial rise
+
+In this section, we want to determine the effect of a different radial
+dependence in the interaction potential on the initial rise. We saw that
+if the potential goes as @xmath , then the signal starts linearly with
+@xmath , with a slope that is independent of the detuning @xmath . We
+will see that if the interaction potential goes as @xmath , then the
+initial rise will go as @xmath , with a coefficient that is again
+independent of the detuning.
+
+Consider again Eq. ( 2.26 ) in the form
+
+  -- -------- -- --------
+     @xmath      (2.76)
+  -- -------- -- --------
+
+We noted previously that any angular dependence in the interaction
+potential will only change the scale factor @xmath , and will not change
+the functional form of the signal. Therefore we can simply consider a
+potential of the form
+
+  -- -------- -- --------
+     @xmath      (2.77)
+  -- -------- -- --------
+
+Of course, we can incorporate the effect of an angular contribution by
+simply rescaling @xmath .
+
+It follows, then, from Eqs. ( 2.71 ) and ( 2.73 ) that
+
+  -- -------- -- --------
+     @xmath      (2.78)
+  -- -------- -- --------
+
+where
+
+  -- -------- -- --------
+     @xmath      (2.79)
+  -- -------- -- --------
+
+If we define @xmath , then
+
+  -- -------- -- --------
+     @xmath      (2.80)
+  -- -------- -- --------
+
+We want the behavior at small times, which corresponds to large @xmath .
+Therefore we can replace @xmath with @xmath and expand the second
+exponential, finding
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.81)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+It immediately follows that
+
+  -- -------- -- --------
+     @xmath      (2.82)
+  -- -------- -- --------
+
+Thus we see that if the interaction potential goes as @xmath , then the
+initial rise is independent of the detuning, @xmath , and is
+proportional to @xmath . As a check, we note that if @xmath , then we
+have
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.83)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+where
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.84)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+and so
+
+  -- -------- -- --------
+     @xmath      (2.85)
+  -- -------- -- --------
+
+which agrees perfectly with the @xmath , @xmath term of Eq. ( 2.37 ).
+
+### 2.6 Summary
+
+In this chapter we discussed the case of a single @xmath atom
+interacting resonantly with a surrounding gas of @xmath atoms, without
+the possibility of any @xmath – @xmath interaction. The results, when
+averaged over the positions of the @xmath atoms, are applicable to a
+sparse distribution of @xmath atoms among the @xmath atoms (or vice
+versa, with the appropriate changes). This case is important to study
+for several reasons. First, exact analytical results can be obtained.
+This not only provides an excellent means for testing the validity of
+the numerical simulations discussed in Chapter 7 , but it also provides
+a simpler arena for the development of the techniques that are used
+again and again in the more complicated models of the later chapters.
+Two key examples of the latter are the averaging technique of Sections
+2.3 and 2.5 , and the writing of sums as generalized hypergeometrics, as
+was done in Section 2.4.2 .
+
+The averaging is non-trivial because the interaction potential itself,
+being proportional to @xmath , does not have an average value.
+Nevertheless, an effective average potential @xmath given by Eq. ( 2.12
+) appears naturally in the theory. The basic averaging equation is Eq. (
+2.11 ), which enables the computation of averages of functions that
+depend on the sum of the squares of the interaction potentials in terms
+of @xmath . This is equivalent to the distribution of Eq. ( 2.23 ) for
+the quantity @xmath , where @xmath is the dipole-dipole interaction
+potential defined by Eq. ( 2.2 ). The initial rate of conversion from
+@xmath to @xmath is given by Eq. ( 2.37 ) or Eq. ( 2.85 ) to be @xmath ,
+and is independent of the detuning @xmath . As we will see later, this
+initial rate remains the same even when the @xmath – @xmath interaction
+is switched on.
+
+## Chapter 3 Localization in the Simple Model
+
+### 3.1 Introduction
+
+In this chapter we continue with our discussion of the simple model of
+Chapter 2 by examining the issue of localization. We want to determine
+the effective range, or localization length, of the disturbance caused
+by the presence of an @xmath atom in the frozen gas of @xmath atoms.
+Since the @xmath interaction does not have a length scale, it follows
+that the localization length must be of the form @xmath , where @xmath
+is the density of @xmath atoms, @xmath is the time, @xmath is the
+detuning from resonance, and @xmath is defined in Eq. ( 2.12 ), or more
+generally in Eq. ( 2.73 ). The task, then, is to give a precise
+definition of the localization length and to compute the function @xmath
+.
+
+First, in Section 3.2 we compute a distribution function @xmath , which
+describes the contribution to the @xmath process due to @xmath atoms at
+position @xmath when the @xmath atom is at the origin. We begin by
+computing the Laplace transform of this function in Section 3.2.1 , then
+we invert this Laplace transform in Section 3.2.2 . In Section 3.2.3 we
+perform a check on the results of Section 3.2.1 and 3.2.2 by using them
+to rederive the result for the signal that was found in Chapter 2 . In
+Section 3.2.4 we present plots of the distribution @xmath .
+
+In Section 3.3 we compute the moments of the distribution @xmath . We
+again start by computing the Laplace transform of the moments in Section
+3.3.1 , then we invert this Laplace transform in Section 3.3.2 . The
+result of Section 3.3.2 is rearranged in Section 3.3.3 to obtain a more
+convenient form, and in this section we also define localization lengths
+in terms of the moments in the usual way. The end result for the moments
+is checked in Section 3.3.4 by seeing that the zeroth moment agrees with
+the result for the signal as a function of time that was found in
+Chapter 2 . In Section 3.3.5 we present plots of the results.
+
+The summary and conclusions are given in Section 3.4 . It is possible to
+go to this section directly and refer back to final formulas and the
+plots of Section 3.3.5 , skipping the intervening mathematics.
+
+### 3.2 The function @xmath
 
 In order to study localization in the simple model of Chapter 2 , we
 consider the quantity
