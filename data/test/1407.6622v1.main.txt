@@ -1,4 +1,680 @@
-# Chapter 2 Many-body Green’s functions
+###### Table of contents
+
+-    1 Introduction
+    -    1.1 The nuclear many-body problem
+    -    1.2 The nuclear interaction
+    -    1.3 Program of the thesis
+-    2 Many-body Green’s functions
+    -    2.1 Green’s functions formalism with three-body forces
+    -    2.2 The Galistkii-Migdal-Koltun sum rule
+    -    2.3 Dyson’s equation and self-consistency
+        -    2.3.1 The self-consistent propagator
+-    3 Three-body forces in the SCGF approach
+    -    3.1 Interaction-irreducible diagrams
+        -    3.1.1 Self-energy expansion up to third order
+    -    3.2 Hierarchy of equations of motion
+        -    3.2.1 Interaction vertices: the @xmath
+        -    3.2.2 Interaction vertices truncations
+    -    3.3 Ladder and other approximations
+-    4 Effective two-body chiral interaction
+    -    4.1 Density-dependent potential at N2LO
+    -    4.2 Partial-wave matrix elements
+        -    4.2.1 The six terms of the density-dependent 2NF at N2LO
+        -    4.2.2 The effect of correlations on the density-dependent
+            2NF
+        -    4.2.3 The effect of the regulator function
+        -    4.2.4 Partial waves in neutron matter
+        -    4.2.5 Non-diagonal momentum matrix elements
+-    5 Nuclear and Neutron matter with three-body forces
+    -    5.1 The self-energy
+    -    5.2 Spectral function and momentum distribution
+    -    5.3 Nuclear matter
+    -    5.4 Neutron matter and the symmetry energy
+-    6 Summary and Conclusions
+-    A Feynman rules
+-    B Interaction-irreducible diagrams
+-    C Complete expressions for the density-dependent force
+    -    C.1 Numerical implementation
+
+## Chapter 1 Introduction
+
+The quantum many-body problem is an everlasting challenge for
+theoretical physics. The aim sought is to analyze, at the quantum level,
+the observables arising from a group of @xmath interacting particles. If
+the @xmath particles in the many-body system are non-interacting, the
+system is ideal and can be solved as the sum of @xmath one-body (1B)
+problems. If the system is interacting, the only analytically solvable
+system is the two-body (2B) one. This can be recast in the form of two
+1B problems, one for the center of mass and the other for the relative
+coordinate of the two particles. The three-body (3B) problem is already
+not solvable analytically, but an exact solution could be obtained by
+solving the Faddeev equations. As the number of particles increases, one
+is forced to resort to approximate solutions. The objective of many-body
+physics has constantly been that of dealing with systems formed from few
+to many interacting particles, from finite systems, such as nuclei,
+atoms or molecules, to the infinite ones, such as the electron gas or
+nuclear matter present in the interior of stars. The quest is to provide
+the best description of the system via the application of consistent
+approximations, with the aim of achieving results to be contrasted with
+the experimental ones.
+
+In the specific case of nuclear physics, the study and understanding of
+interacting nuclear systems has spanned from the finite nuclei to the
+infinite nuclear matter case. In order to characterize such systems, the
+interactions which govern the behavior of nucleons in their interior
+need to be sorted out. The nucleon-nucleon (NN) interactions devised to
+do so can be divided into two categories: microscopic and
+phenomenological . The microscopic potentials are models constructed to
+fit experimental data of NN scattering and properties of the deuteron.
+All microscopic potentials have a common one-pion exchange (OPE)
+long-range part and usually differ in the treatment of the intermediate
+and especially short-range part. Due to the strong repulsive short-range
+part, and the presence of tensor components, these potentials cannot be
+used directly in perturbative calculations and need to be renormalized
+through the use of many-body methods. Phenomenological potentials are
+simpler, and are constructed fitting a number of coupling constants to
+empirical saturation properties of nuclear matter and observables of
+ground states of nuclei. For this reason their validity far from these
+conditions can be questionable. These potentials can be of a
+relativistic or nonrelativistic kind and are used directly in mean-field
+calculations, such as relativistic mean field theory or the Hartree-Fock
+(HF) approximation.
+
+In the present thesis we will focus our study on infinite nuclear
+matter, analyzing the properties of the two systems which stand at the
+extremes in terms of isospin asymmetry: symmetric nuclear matter (SNM),
+with an equal number of neutrons and protons, and pure neutron matter
+(PNM), with only neutrons. We will base our approach on the use of
+realistic microscopic potentials, hence we will need to choose a
+many-body technique in order to treat the potential. We choose to
+perform our calculations in the framework of the self-consistent Green’s
+function’s (SCGF) theory. This approach is based on a diagrammatic
+expansion of the single-particle (SP) Green’s function, or propagator .
+This method was devised to treat the correlated, i.e. beyond mean-field,
+behavior of strongly interacting systems, such as nuclear matter.
+
+Unfortunately, it is a well established fact that whatever microscopic
+two-nucleon forces (2NFs) are used in the many-body calculation,
+empirical saturation properties of nuclear matter fail to be reproduced.
+Saturation densities appear at high values, with energies which are too
+attractive, overbinding nuclear matter. This discrepancy with empirical
+values bears some similarities to the case of light nuclei where, on the
+contrary, the 2NF based theory underbinds experimental data. The
+inclusion of three-nucleon forces (3NFs) has been the indispensable
+strategy to cure this deficiency. Hence, microscopic 3NFs have been
+mostly devised to provide attraction in light finite systems, small
+densities, and repulsion in infinite systems, high densities. However,
+phenomenological ingredients have often been chosen to model these 3NFs.
+To bypass the need to adjust the potential with ad hoc contributions, an
+alternative has been provided by chiral effective effective field theory
+( @xmath EFT).
+
+Featuring the consistent Hamiltonian at the 2B and 3B level provided by
+@xmath EFT, in this thesis we will present calculations including both
+2NFs and 3NFs. This will be dealt within an extended SCGF formalism,
+specifically formulated to include consistently 3B forces (3BFs).
+
+In the next section we present an overview of the different many-body
+approaches which have been used to solve the infinite nuclear matter
+many-body problem. These approaches can treat the particles either
+relativistically or non-relativistically. The non-relativistic
+assumption seems reasonable, given that the energies involved in nuclear
+matter provide Fermi velocities which are less than one third the speed
+of light. All these approaches try to deal with the strong short-range
+force which acts in between nucleons. We will then focus, in the second
+section of this introduction, on the variety of microscopic potentials
+which, through the decades, have been devised to describe this kind of
+interactions. Finally, we will outline the general program of the
+thesis.
+
+### 1.1 The nuclear many-body problem
+
+In theoretical nuclear physics, the goal to describe from an ab initio
+point of view the basic properties of nuclear systems in terms of
+realistic interactions, has pushed the development of a variety of
+many-body methods. The quest to solve the nuclear many-body problem from
+first principles, i.e. starting from the Schrödinger equation, is
+appealing and very challenging. In the specific case of infinite nuclear
+matter, this aim is confronted with the lack of experimental results
+needed to constrain the construction of the theory from its building
+blocks, i.e. the Hamiltonian. However, the infinite system of nucleons
+interacting via the strong force, in spite of being ideal, is
+characterized by well-known empirical properties. These properties can
+be obtained extrapolating experimental results from finite nuclei. In
+this sense, the semi-empirical mass formula of Bethe and Weizsäcker (
+Weizs1935 ; Bethe1936 ) , provides a way to quantify these empirical
+properties:
+
+  -- -------- -- -------
+     @xmath      (1.1)
+  -- -------- -- -------
+
+The formula models the nucleus as an incompressible quantum drop (
+Baym1971 ) formed by a number @xmath of neutrons and @xmath of protons,
+with mass number @xmath . Each term in Eq. ( 1.1 ) captures a specific
+physical property of the nucleus. The first two contributions, the
+volume and surface terms, define respectively the binding energy in the
+interior and the correction due to the existence of the surface of the
+nucleus. The third contribution accounts for the Coulomb repulsion in
+between protons. The next term is known as symmetry energy, and shows
+how the nuclei which are isospin symmetric, i.e. @xmath , are
+energetically favored. The last term in Eq. ( 1.1 ) takes into account
+pairing effects and depends on wether the nuclei are even or odd in
+number of nucleons. All coefficients in Eq. ( 1.1 ), as well as @xmath ,
+are fitted to reproduce the properties of nuclei along the nuclear
+chart.
+
+Via experiments of electron scattering on nuclei, it has been tested
+that the charge distribution in the interior of heavy nuclei reaches a
+constant value. This charge density is proportional to the density
+inside the nucleus. The extrapolated value for very large mass number
+@xmath defines the empirical saturation density of nuclear matter,
+@xmath fm @xmath . In this limit, @xmath , the binding energy per
+nucleon of a symmetric nucleus, @xmath , can be obtained from the
+semi-empirical mass formula, Eq. ( 1.1 ), providing the value @xmath
+MeV. The empirical saturation properties of nuclear matter can then be
+defined as ( Mackie1977 ) :
+
+  -- -------- -- -------
+     @xmath      (1.2)
+  -- -------- -- -------
+
+Any ab initio many-body theory aims at reproducing these values in the
+energy curve of SNM. Furthermore, from Eq. ( 1.1 ), the value for the
+symmetry energy of nuclear matter can be obtained. In the case where the
+number of nucleons is taken to infinity, but the density @xmath is kept
+at a fixed value, we can rewrite the semi-empirical mass formula as
+
+  -- -------- -- -------
+     @xmath      (1.3)
+  -- -------- -- -------
+
+where we have neglected the Coulomb term which would drive the drop
+model unstable. In Eq. ( 1.3 ), the isospin asymmetry parameter is
+identified with @xmath . The symmetry energy accounts for the loss in
+binding energy for the system going from the symmetric to the asymmetric
+isospin case. The value of the symmetry energy in infinite matter cannot
+be directly inferred from the parameter @xmath ( Ste2005 ) . However,
+when the energy per nucleon of the system is known for different isospin
+asymmetries, the symmetry energy can be calculated as (note that @xmath
+:
+
+  -- -------- -- -------
+     @xmath      (1.4)
+  -- -------- -- -------
+
+The accepted value for this quantity at saturation density @xmath is
+@xmath MeV ( Tsang2012 ) . This value is fairly well constrained from
+both experimental results on nuclei and theoretical models which try to
+predict its value. This quantity impacts various aspects in nuclear
+physics, from phenomena in nuclear astrophysics, all the way to nuclear
+structure and nuclear reactions. However, even though the value at
+saturation density can be considered as reliable, the density dependence
+of the symmetry energy remains up to today not completely known (
+Horowitz2014 ) .
+
+It is customary to characterize the density dependence behavior of the
+energy in symmetric nuclear matter with a Taylor expansion ( Vid2009 ;
+Piek2009 ) :
+
+  -- -------- -- -------
+     @xmath      (1.5)
+  -- -------- -- -------
+
+The quantity @xmath is known as the compressibility modulus of nuclear
+matter and can be considered as a further empirical value to constrain
+the many-body theory under hand. Its formal expression is:
+
+  -- -------- -- -------
+     @xmath      (1.6)
+  -- -------- -- -------
+
+the compressibility characterizes in some sense the behavior of the
+energy of SNM around saturation density. Its value can be estimated from
+the study of giant monopole resonances, and it falls between a narrow
+band of @xmath MeV ( Piek2009 ) .
+
+A reliable many-body formalism is such if it can reproduce these
+empirical properties for an infinite nuclear system.
+
+The simplest approach to the nuclear many-body problem is the mean-field
+or HF approximation ( Hartree1928 ; Fock1930 ; Slater1930 ) . The idea
+underlying this kind of approximation is that the interacting system of
+fermions may be described in terms of a single Slater determinant. In
+other words, each particle is restated as a quasi particle feeling a
+mean-field potential which accounts for its interaction with all the
+other particles of the system. This procedure can yield good results if
+used together with the phenomenological potentials, such as Skyrme or
+Gogny interactions, which are constructed as to fit empirical saturation
+properties of nuclear matter or finite nuclei observables ( Ventura1992
+; Rikov2003 ) . The strength of these mean-field theories lies in the
+fact that they can be recast in terms of functionals of the energy.
+Nuclear Density Functional Theory (DFT) is built on theorems showing the
+existence of universal energy functionals for many-body systems, which
+include, in principle, the energy effect of all many-body correlations (
+lalazis2004 ) .
+
+However, in the case of using realistic potentials, the HF method
+drastically fails leading to unbound nuclei and nuclear matter. The
+strong short-range part of the potential, to which particles are exposed
+in the mean-field approximation, induces correlations in between the
+particles which cannot be solved within this kind of approach. Over the
+last 50 years, many-body formalisms capable to deal with the solution of
+this problem have been devised.
+
+Several approaches have been based on the variational principle to
+obtain the energy of the many-body ground state. To evaluate the
+Hamiltonian expectation value, a trial wave function, typically of a
+Jastrow kind ( Jastrow1955 ) , is built to incorporate the effects of
+correlations. This is done by the definition of correlation operators on
+top of the uncorrelated Slater determinant wave function. These Jastrow
+factors suppress the short-range and tensor components present in the
+wave function of two-close particles. If the correlated trial basis is
+close enough to the exact one, one can perform perturbation theory in
+the frame of the so called Correlated Basis Function (CBF) theory (
+Clark1966 ; Fantoni1998 ) . Alternatively, further variational
+techniques have been devised to compute the energy from the trial wave
+function. The energy evaluation using the correlated basis can be
+performed by solving the Fermi-Hyper-Netted-Chain (FHNC) equations (
+Pand1976 ) , which are obtained via a diagrammatic cluster expansion (
+Fantoni1974 ; Fantoni1975 ) . In solving the FHNC equations, the
+operatorial structure of the Hamiltonian can lead to additional
+approximations to be considered, such as the Single Operator Chain (SOC)
+one ( Pand1979 ) . This approximation is implemented to deal with the
+non-commutativity of the correlation functions, when solving the set of
+integral equations. If the variational method is exactly performed,
+results should provide an upper bound to the total energy per particle.
+
+Quantum Monte Carlo (QMC) approaches have also been widely used to
+provide solution to the nuclear many-body problem. On a first step, one
+can compute the expectation value of the ground state by means of the
+Variational Monte Carlo (VMC) calculation. A VMC calculation uses Monte
+Carlo integration to minimize the expectation value of the Hamiltonian
+using a variational trial wave function ( McMillan1965 ) . Subsequently,
+the output configurations of this calculation can be used as an input to
+more extensive approaches. According to the different samplings of the
+spin/isospin configuration space performed, these approaches exist in
+different versions. By treating the Schrödinger equation as a diffusion
+equation, these methods work by projecting out the exact lowest energy
+eigenstate from a trial wave function which is stochastically evolved.
+Whereas the Green’s Functions Monte Carlo (GFMC) method ( Ceperley1979 )
+sums over all possible spin/isospin states of the system to build the
+trial wave function, the Auxiliary Field Diffusion Monte Carlo (AFDMC)
+method ( Schmidt1999 ) relies on the Hubbard-Stratonovich transformation
+which reduces the number of states to be sampled. This allows the AFDMC
+method to be performed in systems with a higher number of nucleons to
+ensure that finite size effects are small.
+
+The Coupled Cluster (or exp @xmath ) approach is also based on the use
+of a trial wave function, where the Slater determinant for the
+uncorrelated basis is multiplied by an exponential factor ( Coester1958
+; Coester1960 ) . The operator @xmath is formed by a set of
+creation-destruction operators that respectively add particles and holes
+on top of the Fermi sea to induce the correlated behavior on the wave
+function. The exponential @xmath ansazt, used in the coupled cluster
+equations, proves to be preferable with respect to other
+parametrizations of the trial wave function. In solving the energy
+expectation value, the coupled cluster equations can sum series of
+hole-hole and particle-particle scatterings, in some sense similar to
+the ladder approximation which we will use in the SCGF method (
+Baardsen2013 ; Hag2013 ) .
+
+A much implemented many-body method, which has gained high popularity in
+the field of nuclear many-body theory, is the one which was initiated by
+Brueckner in the mid-50’s ( Brueckner1954 ; Brueckner1955a ;
+Brueckner1955b ) . This approach, known as the Brueckner-Goldstone
+theory, is based on the Goldstone expansion ( Goldstone1957 ) , which
+uses Feynman diagrams ( Feynman1949 ) to define a linked-diagram
+perturbation series for the ground-state energy of the many-body system.
+Most of the advances in the understanding of this theory were
+subsequently brought forward by Bethe and his collaborators ( Bethe1956
+; Rajaraman1967 ) , and for this reason one usually refers to this
+approach as the Bethe-Brueckner-Goldstone theory. The diagrams appearing
+in the perturbation series give rise to the hole-line expansion, which
+in principle could be performed up to an arbitrary number of hole-lines
+( Day1967 ; Day1981 ) . In practice, only calculations up to the two-
+and three-hole lines expansions have been performed up to now, which
+have proved the convergence of the series ( Baldo2001 ) . The
+Brueckner-Hartree-Fock (BHF) approach corresponds to the lowest order in
+this Bethe-Brueckner-Goldstone expansion. In the BHF approximation, only
+the sum of two-hole-line diagrams is considered, which is what accounts
+for the correlations present in the system. The potential is
+renormalized into an effective one, the @xmath -matrix, which
+corresponds to the simultaneous particle-particle propagation on top of
+the Fermi momentum, iterated to all orders. The BHF method can be seen
+as a kind of mean-field approach, in that each SP momentum state is
+associated with a single SP energy, sum of a kinetic and a potential
+part obtained from the renormalized interaction. As far as the hole-line
+expansion goes, the contribution to the energy coming from the
+three-hole line diagrams has been computed ( Song1998 ) . This has
+proved the convergence of this kind of expansion, validating the
+calculations performed in the lowest-order (two hole-line) BHF
+approximation. Furthermore, a relativistic version of the BHF is also
+available, known as the Dirac-Brueckner-Hartree-Fock approach (
+Dalen2007 ) , in which the relativistic structure of the Dirac spinors
+is corrected to take into account the presence of the nuclear medium.
+
+In the past decade, many-body approaches for the study of infinite
+nuclear matter have also been devised in the frame of chiral
+perturbation theory ( Lutz2000 ; Kaiser2002 ) . Observables are
+calculated with the help of an Effective Field Theory formulated in
+terms of the Goldstone bosons, pions, and the low-lying baryons,
+nucleons. The energy per particle results in an expansion in terms of
+the Fermi momentum @xmath which, being twice the mass of the pion at
+saturation density, requires the pions to be kept as explicit degrees of
+freedom.
+
+An innovative method was brought forward less than ten years ago which,
+by means of regularized potentials, avoids the problem related to strong
+correlations in the many-body wave function. This approach paved the way
+for the treating of nuclear matter with the use of Perturbation Theory (
+Bogner2005 ) . In these calculations, a potential obtained from @xmath
+EFT is evolved to low-momentum via regularization techniques ( Nog2004 ;
+Bog2007 ) , preserving all the way the observables up to the cutoff
+value implemented in the regularization. Given the universality of
+low-momentum potentials, many different potentials, other than chiral
+ones, could be implemented in this approxiamation. Based on EFT
+insights, the concept which has been strongly stressed all along, in
+this kind of approaches, is that many-body forces are inevitable and
+must not be neglected in order to keep the calculation consistent (
+Heb2011 ; Kru2013 ) .
+
+As already stressed in the introduction to this chapter, in this thesis
+we will perform calculations by means of the nonperturbative SCGF
+theory. The SCGF approach has been continuously improved through the
+past decades to study infinite nuclear matter. This method is
+self-consistent in that the Green’s function, which describes the
+propagating particle, is determined by the interaction of this particle
+with the surrounding ones. In turn this same interaction is described by
+the Green’s function itself. An iterative self-consistent procedure is
+then due to find a stable solution for the propagator. In this approach,
+correlations are taken into account by summing up multiple
+particle-particle and hole-hole scatterings in the medium by means of
+the @xmath -matrix. This treatment for nuclear matter is known as ladder
+approximation . A diagrammatic approach by means of Feynman diagrams is
+the preferred path to follow, to have a direct interpretation of the
+self-consistent equations one has to deal with.
+
+The first approach to many-particle systems from a Green’s functions
+point of view was presented by the authors of Ref. ( Mart1959 ) . A
+primitive attempt to carry out calculations for the ground-state
+properties of nuclear matter was presented not long after ( Puf1961 ;
+Rey1963 ) , with the use of simple separable potentials. First
+implementations with a hard-core realistic potential were performed by (
+Foster1971 ; Fiset1972 ) . Later on, calculations with the use of
+certain realistic potentials were also presented by ( Web1985 ) . At
+this stage, the problem was solved only at the Hartree-Fock level.
+Subsequently, high improvements in the numerical implementation were
+introduced by the Barcelona and St. Louis groups ( Ram1988PhD ) . With
+the use of realistic potentials, the problem was analyzed at zero
+temperature considering an all-order summation of particle-particle and
+hole-hole propagations. The calculations were performed in a
+quasi-particle approximation, meaning that the energy dependence of the
+spectral function was approximated to a delta-peak at the quasiparticle
+energy, and self-consistency was demanded only at the on-shell level (
+Ramos1989a ; Ram1989 ) . In addition, a careful analysis of the effects
+of short-range and tensor correlations on the SP self-energy and
+spectral function were analyzed in subsequent publications (
+Vonderfecht1991a ; Vonderfecht1991b ; Vonderfecht1993 ) . Similar
+studies were presented at finite temperature by the Rostock group (
+Alm1995 ; Sch1996 ) . Attention was especially drawn on the analysis of
+the occurrence of pairing instability, which appears below a critical
+temperature when the propagation of holes is considered ( Alm1993 ;
+Alm1996 ) . A substantial improvement was provided by the first attempts
+to consider fully dressed SP propagators, including the off-shell
+dependence of the spectral function. These were introduced by
+parametrizing the off-shell part with a set of Gaussian functions (
+Dic1999 ) . The Ghent group tried to achieve a similar objective, using
+a discrete number of Dirac peaks ( Dew2002 ; Dew2003 ) . At the same
+time, complete off-shell results where presented both at zero and finite
+temperature by the Krakow group. First implementations in the off-shell
+part of the spectral function were done with simple separable potentials
+( Bozek1999 ; Boz2001 ) and then, as an innovation, with separable
+versions of realistic NN potentials ( Boz2002 ; Boz2003 ) . The full
+off-shell dependency of the spectral function was then computed by the
+Krakow group with realistic potentials including both two- and, for the
+first time, three-body forces ( Som2008 ; Som2009 ; Som2009PhD ) . A
+milestone of the Tübingen and Barcelona groups has been that of
+achieving a detailed and extensive study of infinite matter at finite
+temperature. At zero temperature the @xmath -matrix undergoes the so
+called pairing instability , in which the formation of Cooper pairs in
+the hole-hole propagation part is favored and a superconducting phase
+appears. The definition of anomalous Green’s functions would be
+necessary to solve this problem ( Dic2008 ) . Finite but low temperature
+automatically solves the problem related to this instability. A
+numerical procedure to calculate full off-shell structure of all
+relevant quantities at finite temperature was devised by Frick et al. (
+Fri2003 ; Fri2004PhD ) . The effect of short range correlations was
+analyzed both for symmetric and asymmetric matter ( Frick2004 ; Fri2005
+; Rios2006 ) . Thermodynamical properties from a self-consistent Green’s
+function approach were largely investigated using different kinds of
+realistic potentials ( Rio2006 ; Rio2007PhD ; Rio2009Feb ) . The effect
+of correlations on the depletion of the SP momentum distribution is also
+still broadly investigated ( Rio2009Apr ; Car2012 ; Rios2013 ) .
+Recently, a SCGF calculation of the nucleon mean-free path has been
+presented ( Rios2012 ) .
+
+### 1.2 The nuclear interaction
+
+To solve the nuclear many-body problem, by means of any of the different
+approaches presented in the previous section, one needs to choose a
+specific definition of the strong interaction.
+
+A potential is said to be realistic if it is able to reproduce NN
+scattering data. After very primitive attempts of static local
+potentials ( Gammel1957 ) with additional spin-orbit terms included (
+Eisenbud1941 ) , the most widely used potentials in the 60’s were the
+Hamada-Johnston ( Hamada1962 ) and Yale ( Lassila1962 ) potentials. An
+improvement over these was presented later on by the authors of Ref. (
+Reid1968 ) . However, the Reid potential was mainly fit to reproduce the
+available @xmath (proton-proton) data at the time. In a similar way, the
+Nijmegen ( Nagels1978 ) and Paris ( Lacombe1980 ) potentials were also
+built to reproduce @xmath phase shifts, and hence provided a poor fit of
+the @xmath (neutron-proton) data. Fundamentally this problem was related
+to the charge-independence breaking that affects the strong interaction.
+Charge-independent potentials often implemented in calculations were the
+Argonne @xmath ( Wiringa1984 ) , Urbana @xmath ( Lag1981 ) and the Bonn
+potentials ( Machleidt1987 ; Machleidt1989 ) . The first high-precision
+NN microscopic potentials which were able to fit both @xmath and @xmath
+scattering data up to an energy @xmath MeV ( Sto1993 ) , were the
+Nijm93, Reid93 ( Sto1994 ) and Argonne @xmath potentials ( Wir1995 ) .
+The Nijm93 and Reid93 potentials were built in momentum and spin/isospin
+space, while Argonne @xmath was constructed in configuration space.
+These potentials were expanded in terms of all operators which respected
+the symmetries of the underlying behavior of the NN force. An extension
+of the Bonn potentials to include charge dependency was similarly
+presented a few years later, known as the CdBonn potential ( Mac2001 ) .
+Unlike other potentials, the Bonn and CdBonn forces were boson exchange
+kind potentials built in momentum space.
+
+Along with the formulation of realistic 2B potentials, 3BFs were
+constructed to be included in nuclear many-body calculations ( Coon1979
+; Day1978 ; Lag1981 ) . The first modern meson-exchange 3B potential was
+proposed by Fujita and Miyazawa ( Fuj1957 ) . It contained only a @xmath
+exchange three nucleon interaction. This interaction was due to the
+scattering of a pion, which is exchanged between two nucleons, and a
+third nucleon via the @xmath -wave @xmath resonance. Other theoretical
+models, proposed later on, were the Tucson-Melbourne ( Coon1979 ) and
+Brazil ( Coelho1983 ) potentials, which furthermore included @xmath
+-wave scattering. This @xmath exchange interaction was attractive in
+both nuclei and nuclear matter. While in nuclei this term would help to
+solve the underbinding obtained by the sole use of 2B forces (2BFs), it
+would increase the (already far too large) overbinding in nuclear
+matter. A phenomenological repulsive term, added to the Fujita-Miyazawa
+one, was introduced in the Urbana ( Pud1995 ) and Illinois ( Pie2001Jun
+) models for the 3B potential. This repulsive term mainly prevented
+nuclear matter from being too bound at high densities.
+
+Another approach, which we will follow in this work, is inspired by
+chiral perturbation theory. It exploits the structures of the
+spontaneous and explicit chiral symmetry breaking in quantum
+chromo-dynamics (QCD) ( Weinberg1990 ; Weinberg1991 ) . The theory of
+QCD describes the strong interaction within the standard model. Its
+degrees of freedom are elementary particles, the quarks and gluons,
+whose coupling constant @xmath runs to lower values as the energy
+increases. Perturbation theory is however inapplicable to a system
+described in terms of these fundamental particles, and for this reason
+one relies on the low-energy effective theory applied to QCD, chiral
+effective field theory , @xmath EFT. The separation of energy scales
+divides the family of quarks into two different sectors, the light
+sector with the u, d, s quarks and the heavy sector with the c, b , t
+quarks. This is exploited to integrate out the heavy degrees of freedom
+and define a low-energy theory which is based only on the light sector,
+where low refers to a typical hadronic scale of @xmath GeV. In this new
+low-energy theory, the remaining particles can be considered as massless
+and the Lagrangian describing it exhibits an invariance under global
+transformations of the left- and right-hand quark fields, which goes
+under the name of chiral symmetry .
+
+This invariance is spontaneously broken by the ground state of the
+theory. This breakdown is unveiled by the appearance of massless
+particles, the Goldstone bosons. In the specific sector that we are
+considering now, formed only by the @xmath and @xmath quarks, there are
+three Goldstone bosons with spin 0 and negative parity and they
+correspond to pions @xmath .
+
+Chiral symmetry is also explicitly broken due to the non-zero mass of
+the light quarks. Nevertheless the effects of the explicit chiral
+symmetry breaking can still be analyzed in terms of @xmath EFT. A
+further symmetry related to the @xmath and @xmath quark mass terms is
+observed in that hadrons appear in isospin multiplets, characterized by
+a splitting in their mass of a few MeV. This is generated by the small
+mass difference @xmath , and in the limit of @xmath we can define the
+theory as invariant under isospin transformations.
+
+In terms of @xmath EFT, the nuclear force is constructed using nucleons
+and pions as degrees of freedom. Other light degrees of freedom, such as
+the @xmath , could be also taken into account. By construction, chiral
+nuclear forces are consistent with all symmetries of the underlying
+interaction. As long as the energy @xmath of the process lies below the
+hard scale @xmath at which @xmath EFT breaks down, the low-energy
+behavior of nuclear systems can be described in a perturbative
+expansion. This is done in orders of @xmath , where @xmath is the
+counting index which defines the so-called power counting ( Weinberg1990
+; Weinberg1991 ) . This counting allows to identify all contributions at
+a given order of expansion. The contributions with the lowest possible
+value of @xmath define the leading-order LO contribution; the first
+corrections with the second smallest allowed value of @xmath define the
+next-to-next-to-leading-order NLO terms, and so on. One sees a
+consistent appearance of 2B, 3B and up to many-body terms, according to
+the order in the perturbative expansion. The appearance of higher body
+interacting terms with the increasing of the order in the chiral
+expansion can be clearly seen in Fig. 1.1 . The unknown high-energy
+physics is incorporated in low-energy constants (LECs) which necessarily
+have to be determined by a fit to experimental data. In order to exclude
+contributions of high-momentum components in intermediate states, the
+chiral potential is multiplied by a regulator, which suppresses momenta
+larger than a certain cut-off @xmath , which is usually set at the
+@xmath mass value, 700 MeV.
+
+The original approach based on this power counting was defined by
+Weinberg ( Weinberg1990 ; Weinberg1991 ) . Pioneering work was presented
+shortly after by authors in Ref. ( Ord1994 ; Ord1996 ) . Here the NLO
+contributions to the 2N potential were first considered. We must
+highlight that Weinberg’s power counting is not necessarily the only way
+to evaluate the chiral expansion ( Kap1996 ; Kap1998Apr ; Kap1998May ;
+Nog2005 ; Epe2009May ; Epe2009Oct ) .
+
+Presently, the complete chiral 2NFs force have been presented up to the
+fourth order in Weinberg’s power counting (N3LO). A @xmath MeV cutoff
+N3LO potential has been provided by authors in Ref. ( Ent2003 ) . This
+is the potential which will be used in the 2B sector in this thesis. A
+2NF potential at both third order, N2LO, and at N3LO in the chiral
+expansion has been presented by authors in Refs. ( Epe2002Dec1 ; Epe2005
+) . In this formulation, a variation on the cutoff value has been
+applied, usually in ranges of @xmath MeV. Recently, an optimized version
+of the 2B chiral force at N2LO has been devised by authors in Ref (
+Eks2013 ) . In this thesis we will also present results using this force
+in the 2B sector.
+
+The chiral 3NFs has been derived up to fifth order in the chiral
+expansion (N4LO). The N2LO 3NFs was first performed by author in Ref. (
+vKol1994 ) and then completed in Ref. ( Epe2002Dec2 ) . This potential
+is the one we will be using in the 3B sector of our calculations. The
+N3LO 3NFs have been computed by authors in Refs. ( Ishikawa2007 ;
+Bernard2008 ; Bernard2011 ) . A calculation of the 3NFs at N4LO has been
+also recently provided in Ref. ( Krebs2012 ) . Evaluations of four
+nucleon forces (4NFs) at N3LO has been presented in Refs. ( Epelbaum2006
+; Epelbaum2007 ) .
+
+In conclusion, @xmath EFT provides a consistent set of hamiltonians at
+the two-, three- and four-body level which can be systematically
+improved by including higher orders in an expansion of momenta over a
+large chiral scale. Furthermore, theoretical errors on observables
+estimations are expected to decrease as one increases the order in the
+chiral expansion. Benchmarking results testing the convergence of chiral
+interactions have been very recently presented by means of QMC methods (
+Gezerlis2013 ; Roggero2014 ) .
+
+### 1.3 Program of the thesis
+
+Following this brief overview of the different many-body approaches
+which have been used to solve the problem for the infinite nuclear
+matter system, in the next chapter we introduce the formalism for the
+many-body Green’s functions theory at zero temperature ( Ram1988PhD ;
+Dic2008 ) . As we have already discussed, at zero temperature the @xmath
+-matrix undergoes the pairing instability. The specific formalism which
+we present in Chap. 2 does not take into account this instability. For
+this reason, the results that we present in Chap. 5 will be performed at
+finite but low temperature, to avoid the occurrence of this kind of
+instability. Nevertheless, by means of a simple extrapolation method, we
+provide an estimation of the zero temperature results.
+
+After revising the general formalism of the Green’s functions approach,
+in Chap. 2 we analyze the sum rule used to calculate the total energy of
+the many-body ground state. We will see how the Galistkii-Migdal-Koltun
+sum rule changes when 3BFs are included in the Hamiltonian.
+Subsequently, we describe the self-consistency approach achieved in the
+SCGF theory via solution of the Dyson equation, focusing especially on
+the use of specific classes of diagrams in the construction of the SP
+self-energy.
+
+In Chap. 3 we extensively describe how the SCGF equations are altered
+with the inclusion of 3BFs. The full expansion of the SP self-energy up
+to third order will be presented. We introduce the concept of effective
+interactions, as it simplifies the expansion of the self-energy when
+including 3B interactions. We then solve the hierarchy of equations of
+motion (EOMs) up to the two-body propagator and perform specific
+truncations of the interacting vertex functions, putting special
+emphasis on the ladder approximation for the @xmath -matrix. We then
+also prove the up-to-third-order SP self-energy via a perturbative
+expansion of the interacting vertex functions.
+
+We subsequently discuss in Chap. 4 the construction of a 2NF
+density-dependent (2NFdd). This is built by averaging over the third
+particle in the 3NFs appearing at N2LO in the chiral expansion. This is
+one of the crucial steps in order to incorporate 3BFs in the many-body
+calculations. We explore several strategies to perform the average,
+considering both a correlated and a free in-medium nucleon propagator.
+Moreover, the use of different regulator functions in the averaging
+procedure is also investigated. Finally, the partial wave matrix
+elements will be studied in detail, focusing on the effects of 3NFs and
+on the modifications due to the different types of averages.
+
+In Chap. 5 we present bulk properties for symmetric nuclear and pure
+neutron matter. We compare the energy obtained with the sole use of the
+2BF at N3LO ( Ent2003 ) with the one resulting from the inclusion of
+3BFs. Discrepancies in the energy values due to the different averaging
+procedures are also presented. We then analyze the spread in results due
+to the use of different LECs in the 3B part for the case of SNM.
+Moreover, in the case of PNM, bands due to uncertainties in the LECs
+coming from the 2B part will be studied. By means of a newly optimized
+version of the 2B N2LO force ( Eks2013 ) , results using consistently 2N
+and 3N forces at the same order in the chiral expansion will be
+presented. As a conclusion to the chapter, we analyze the symmetry
+energy, focusing mostly on the different values obtained at saturation
+density.
+
+A summary and conclusions drawn from the results obtained in the thesis
+will be outlined in the concluding Chap. 6 .
+
+Moreover, three appendices are included at the end of the thesis. App. A
+reports the Feynman rules for diagrams. App. B provides the
+demonstration of the effective operators defined in Chap. 3 . App. C
+gives complete details on the construction of the density-dependent
+potential from the 3NFs contributions at N2LO.
+
+## Chapter 2 Many-body Green’s functions
 
 Green’s functions (GFs) or propagators can be considered as the heroes
 of the many-body problem ( Mat1992 ) . These mathematical tools
