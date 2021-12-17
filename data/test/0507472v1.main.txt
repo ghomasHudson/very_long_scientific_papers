@@ -1,4 +1,621 @@
-## 1.3 Fluid Equations
+## Chapter 1 Smoothed Particle Hydrodynamics
+
+70
+
+### 1.1 Introduction
+
+The standard approach to solving the equations of fluid dynamics
+numerically is to define fluid quantities on a regular spatial grid,
+computing derivatives using finite difference or finite volume schemes.
+This is an extremely well studied approach and most ‘state of the art’
+methods for fluid dynamics have been developed in this manner. In
+astrophysical fluid dynamics problems frequently involve changes in
+spatial, temporal and density scales over many orders of magnitude.
+Thus, adaptivity is an essential ingredient which is absent from a
+fixed-grid approach. Progress in this area has been rapid in recent
+years with the development of procedures for adaptive mesh refinement
+(AMR). The implementation of such procedures is far from trivial,
+although the availability of libraries and toolkits for grid-based codes
+eases this burden somewhat. However, a further constraint is that
+astrophysical problems are frequently asymmetric which can result in
+substantial numerical diffusion when solving on (fixed or adaptive)
+Cartesian grids. Other approaches to this problem are to use
+unstructured grids (where typically the grid is reconstructed at each
+new timestep) or Lagrangian grid methods, where the grid shape deforms
+according to the flow pattern.
+
+An alternative to all of these methods is to remove the spatial grid
+entirely, resulting in methods which are inherently adaptive. In this
+approach fluid quantities are carried by a set of moving interpolation
+points which follow the fluid motion. Since each point carries a fixed
+mass, the interpolation points are referred to as ‘particles’.
+Derivatives are evaluated either by interpolation over neighbouring
+particles (referred to as particle methods), or via a hybrid approach by
+interpolation to an overlaid grid (referred to as particle-mesh methods,
+typified by the particle-in-cell (PIC) method used extensively in plasma
+physics.
+
+Smoothed Particle Hydrodynamics (SPH) is a particle method introduced by
+Lucy ( 1977 ) and Gingold and Monaghan ( 1977 ) . It has found
+widespread use in astrophysics due to its ability to tackle a wide range
+of problems involving complex, asymmetric phenomena with relative ease.
+Since these features are highly desirable in many non-astrophysical
+applications, it is unsurprising that SPH is currently finding many
+applications in other fields such as geophysics and engineering (and
+even film-making ¹ ¹ 1 for example many of the graphics involving fluids
+in the film ‘Tomb Raider’ were computed using SPH ).
+
+The advantages of SPH over standard grid based approaches can be
+summarised as follows: Firstly, SPH is conceptually both simple and
+beautiful. All of the equations can be derived self-consistently from
+physical principles with a few basic assumptions. As a result complex
+physics is relatively simple to incorporate. Its simplicity means that
+for the user it is a very intuitive numerical method which lends itself
+easily to problem-specific modifications. Secondly, adaptivity is a
+built-in feature. The Lagrangian nature of the method means that changes
+in density and flow morphology are automatically accounted for without
+the need for mesh refinement or other complicated procedures. As a
+result of its adaptivity, SPH is also very efficient in that resolution
+is concentrated on regions of high density, whilst computational effort
+is not wasted on empty regions of space. Thirdly, free boundaries,
+common in astrophysical problems, are simple and natural in SPH but
+often present difficulties for grid-based codes (such as spurious
+heating from the interaction with a low density surrounding medium).
+This means that no portions of fluid can be lost from the simulation,
+unlike in a grid based code where fluid which has left the grid cannot
+return (this has been dubbed the ‘Columbus effect’ by Melvyn Davies,
+since fluid can fall off the edge of the world). Fourthly, a significant
+advantage in an astrophysical context is that SPH couples naturally with
+widely used N-Body codes and techniques, for which there exists a vast
+amount of literature. Finally (although perhaps many more advantages
+could be given) visualisation and analysis is also somewhat easier with
+Lagrangian techniques, since it is a simple matter to track and
+visualise portions of the flow.
+
+SPH also has a number of disadvantages when compared to finite
+difference codes. The first of these is that, unlike grid-based codes,
+SPH involves the additional computational cost of constructing the
+neighbour lists. This is offset somewhat in that N-Body techniques used
+to calculate the gravitational force (namely via tree-codes) can also be
+used in constructing the neighbour lists. Secondly, SPH suffers from a
+lack of algorithm development, since a vast amount of research effort is
+focussed on finite difference or finite volume techniques. This often
+means that such techniques, although often applicable in an SPH context,
+can be slow to filter into mainstream use. Thirdly, although not a
+disadvantage as such but a point which is often overlooked, is that the
+setup of initial conditions is often more complicated and requires much
+greater care. Since particles can be laid down in an infinite variety of
+ways, choosing an appropriate setup for a given problem requires some
+experience and usually some experimentation. Inappropriate particle
+setups can lead to poorer simulation results than might otherwise be
+expected (we give some examples of this in § 1.7.5 ). Finally, in the
+case of magnetohydrodynamics and other problems involving anisotropic
+stresses (as we will discuss in chapter LABEL:chap:spmhd ), numerical
+stability can become an issue which must be dealt with appropriately.
+
+In this chapter we provide an overview of the SPH method, including
+several improvements to the basic method which have been made since the
+review article of Monaghan ( 1992 ) was published (such as improvements
+in shock-capturing techniques and the treatment of terms related to the
+use of a variable smoothing length). In particular we focus on those
+aspects of the algorithm that are relevant in an MHD context. The
+chapter is organised as follows: In section § 1.2 we present the basic
+formalisms inherent to SPH; in § 1.3 we derive the SPH equations for
+compressible hydrodynamics using a variational principle. Formulations
+of dissipative terms used to capture shocks are presented and discussed
+in § 1.5 . In § 1.3.4 we discuss the incorporation of terms relating to
+the spatial variation of the smoothing length and in § 1.4 alternative
+formulations of SPH are examined within the variational framework.
+Timestepping is discussed in § 1.6 . Finally, we present numerical tests
+in § 1.7 in support of the previous sections and as preliminaries for
+the MHD tests described in Chapters LABEL:chap:spmhd and LABEL:chap:divb
+.
+
+### 1.2 Basic formalisms
+
+#### 1.2.1 Interpolant
+
+The basis of the SPH approach is given as follows (Monaghan, 1992 ) . We
+begin with the trivial identity ² ² 2 It is interesting to note that
+this equation, with @xmath is used to define the density of the fluid in
+terms of the Lagrangian co-ordinates in the Hamiltonian description of
+the ideal fluid (eq. (94) in Morrison, 1998 ) . Similarly the SPH
+equivalent of this expression, ( 1.42 ), forms the basis for the
+Hamiltonian description of SPH (see § 1.3.2 ).
+
+  -- -------- -- -------
+     @xmath      (1.1)
+  -- -------- -- -------
+
+where @xmath is any variable defined on the spatial co-ordinates @xmath
+and @xmath refers to the Dirac delta function. This integral is then
+approximated by replacing the delta function with a smoothing kernel
+@xmath with characteristic width @xmath , such that
+
+  -- -------- -- -------
+     @xmath      (1.2)
+  -- -------- -- -------
+
+giving
+
+  -- -------- -- -------
+     @xmath      (1.3)
+  -- -------- -- -------
+
+The kernel function is normalised according to
+
+  -- -------- -- -------
+     @xmath      (1.4)
+  -- -------- -- -------
+
+Finally the integral ( 1.3 ) is discretised onto a finite set of
+interpolation points (the particles) by replacing the integral by a
+summation and the mass element @xmath with the particle mass @xmath ,
+ie.
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (1.5)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- -------
+
+where the subscript @xmath refers the quantity evaluated at the position
+of particle @xmath . This ‘summation interpolant’ is the basis of all
+SPH formalisms. The errors introduced in this step are discussed in §
+1.2.2 . Gradient terms may be calculated by taking the analytic
+derivative of ( 1.5 ), giving
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (1.6)
+              @xmath   @xmath      (1.7)
+  -- -------- -------- -------- -- -------
+
+where we have assumed that the gradient is evaluated at another particle
+@xmath (ie. @xmath ), defining @xmath and @xmath .
+
+#### 1.2.2 Errors
+
+The errors introduced by the approximation ( 1.3 ) can be estimated by
+expanding @xmath in a Taylor series about @xmath (Benz, 1990 ; Monaghan,
+1992 ) , giving
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (1.8)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- -------
+
+where @xmath ; @xmath and @xmath are indices denoting co-ordinate
+directions (with repeated indices implying a summation) and we have used
+the normalisation condition ( 1.4 ). The odd error terms are zero if
+@xmath is an even function of @xmath (ie. depending only on its
+magnitude), which, since @xmath is always less than the smoothing radius
+( @xmath in most cases), results in an approximation to @xmath . In
+principle it is also possible to construct kernels such that the second
+moment is also zero, resulting in errors of @xmath (discussed further in
+§ 1.2.7 ). The disadvantage of such kernels is that the kernel function
+becomes negative in some part of the domain, resulting in a potentially
+negative density evaluation. The errors in the summation interpolant
+differ slightly since the approximation of integrals by summations over
+particles no longer guarantees that these terms integrate exactly.
+Starting from the summation interpolant evaluated on particle @xmath ,
+we expand @xmath in a Taylor series around @xmath , giving
+
+  -- -------- -- -------
+     @xmath      (1.9)
+  -- -------- -- -------
+
+From this we see that the summation interpolation is exact for constant
+functions only when the interpolant is normalised by dividing by the
+interpolation of unity. In practical calculations the summation
+interpolant is only used in the density evaluation (§ 1.3.1 ), resulting
+in a slight error in the density value. More important are the errors
+resulting from the SPH evaluation of derivatives, since these are used
+throughout in the discretisation of the fluid equations (§ 1.3 ).
+
+The errors resulting from the gradient evaluation ( 1.6 ) may be
+estimated in a similar manner by again expanding @xmath in a Taylor
+series about @xmath , giving
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (1.10)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+where we have used the fact that @xmath for even kernels, whilst the
+second term integrates to unity for even kernels satisfying the
+normalisation condition ( 1.4 ). The resulting errors in the integral
+interpolant for the gradient are therefore also of @xmath . The errors
+in the summation interpolant for the gradient ( 1.7 ) are given by
+expanding @xmath in a Taylor series around @xmath , giving
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (1.11)
+                       @xmath   @xmath   
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+where the summations represent SPH approximations to the integrals in
+the second line of ( 1.10 ).
+
+#### 1.2.3 First derivatives
+
+From ( 1.11 ) we immediately see that a straightforward improvement to
+the gradient estimate ( 1.7 ) can be obtained by a simple subtraction of
+the first error term (i.e. the term in ( 1.11 ) that is present even in
+the case of a constant function), giving (Monaghan, 1992 )
+
+  -- -------- -- --------
+     @xmath      (1.12)
+  -- -------- -- --------
+
+which is an SPH estimate of
+
+  -- -------- -- --------
+     @xmath      (1.13)
+  -- -------- -- --------
+
+Since the first error term in ( 1.11 ) is removed, the interpolation is
+exact for constant functions and indeed this is obvious from the form of
+( 1.12 ). The interpolation can be made exact for linear functions by
+dividing by the summation multiplying the first derivative term in (
+1.11 ), ie.
+
+  -- -------- -- --------
+     @xmath      (1.14)
+  -- -------- -- --------
+
+where @xmath . This normalisation is somewhat cumbersome in practice,
+since @xmath is a matrix quantity, requiring considerable extra storage
+(in three dimensions this means storing @xmath extra quantities for each
+particle) and also since calculation of this term requires prior
+knowledge of the density. However, for some applications of SPH (e.g.
+solid mechanics) it is desirable to do so in order to retain angular
+momentum conservation in the presence of anisotropic forces (Bonet and
+Lok, 1999 ) .
+
+A similar interpolant for the gradient follows by using
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (1.15)
+              @xmath   @xmath      (1.16)
+  -- -------- -------- -------- -- --------
+
+which again is exact for a constant @xmath . Expanding @xmath in a
+Taylor series, we see that in this case the interpolation of a linear
+function can be made exact using
+
+  -- -------- -- --------
+     @xmath      (1.17)
+  -- -------- -- --------
+
+which has some advantages over ( 1.14 ) in that it can be computed
+without prior knowledge of the density.
+
+An alternative gradient interpolant is given by
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (1.18)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+which is commonly used in the SPH evaluation of the pressure gradient
+since it guarantees conservation of momentum by the pairwise symmetry in
+the gradient term. It is also the formulation of the pressure gradient
+which follows naturally in the derivation of the SPH equations from a
+variational principle (§ 1.3.2 ). Expanding @xmath in a Taylor series
+about @xmath we have
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (1.19)
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+from which we see that for a constant function the error is governed by
+the extent to which
+
+  -- -------- -- --------
+     @xmath      (1.20)
+  -- -------- -- --------
+
+Although a simple subtraction of the first term in ( 1.19 ) from ( 1.18
+) eliminates this error, the symmetry in the gradient necessary for the
+conservation of momentum is lost by doing so. Retaining the exact
+conservation of momentum therefore requires that such error terms are
+not eliminated. In applications of SPH employing anisotropic forces
+(such in the MHD case), these error terms can be sufficient to cause
+numerical instabilities (§ LABEL:sec:mhdstability ).
+
+Derivatives of vector quantities follow in a similar manner. For example
+the divergence of a vector quantity @xmath can be estimated using
+
+  -- -------- -- --------
+     @xmath      (1.21)
+  -- -------- -- --------
+
+or
+
+  -- -------- -- --------
+     @xmath      (1.22)
+  -- -------- -- --------
+
+whilst the curl is given by (e.g.)
+
+  -- -------- -- --------
+     @xmath      (1.23)
+  -- -------- -- --------
+
+#### 1.2.4 Second derivatives
+
+Second derivatives are slightly more complicated since for kernels with
+compact support a straightforward estimation using the second derivative
+of the kernel proves to be very noisy and sensitive to particle
+disorder. For this reason it is better to use approximations of the
+second derivative which utilise only the first derivative of the kernel
+(Brookshaw, 1985 ; Monaghan, 1992 ) . For a scalar quantity the second
+derivative may be estimated using the integral approximation
+
+  -- -------- -- --------
+     @xmath      (1.24)
+  -- -------- -- --------
+
+giving the SPH Laplacian
+
+  -- -------- -- --------
+     @xmath      (1.25)
+  -- -------- -- --------
+
+where @xmath . This formalism is commonly used for heat conduction in
+SPH (e.g. Brookshaw 1985 ; Cleary and Monaghan 1999 and more recently
+Jubelgas et al. 2004 ). The integral approximation ( 1.24 ) can be
+derived by expanding @xmath to second order in a Taylor series about
+@xmath , giving
+
+  -- -------- -- --------
+     @xmath      (1.26)
+  -- -------- -- --------
+
+Expanding this expression into ( 1.24 ), the integral is given by
+
+  -- -------- -- --------
+     @xmath      (1.27)
+  -- -------- -- --------
+
+The first integral is zero for spherically symmetric kernels, whilst the
+second term integrates to a delta function, giving @xmath . A
+generalisation of ( 1.25 ) is derived for vector quantities by Español
+and Revenga ( 2003 ) . In three dimensions the integral approximation is
+given by
+
+  -- -------- -- --------
+     @xmath      (1.28)
+  -- -------- -- --------
+
+which in SPH form becomes
+
+  -- -- -- --------
+           (1.29)
+  -- -- -- --------
+
+#### 1.2.5 Smoothing kernels
+
+The smoothing kernel @xmath must by definition satisfy the requirement
+that it tends to a delta function as the smoothing length @xmath tends
+to zero ( 1.2 ) and the normalisation condition ( 1.4 ). In addition the
+kernel is usually chosen to be an even function of @xmath to cancel the
+first error term in ( 1.8 ) and may therefore be written in the form
+
+  -- -------- -- --------
+     @xmath      (1.30)
+  -- -------- -- --------
+
+where @xmath and @xmath is the number of spatial dimensions. Written in
+this form the normalisation condition ( 1.4 ) becomes
+
+  -- -------- -- --------
+     @xmath      (1.31)
+  -- -------- -- --------
+
+where @xmath and the volume element @xmath or @xmath in one, two and
+three dimensions. The simplest kernel with this property is the Gaussian
+
+  -- -------- -- --------
+     @xmath      (1.32)
+  -- -------- -- --------
+
+where @xmath and @xmath in [1,2,3] dimensions. This has the advantage
+that the spatial derivative is infinitely smooth (differentiable) and
+therefore exhibits good stability properties (Figure 1.2 ). For
+practical applications, however, using a Gaussian kernel has the
+immediate disadvantage that the interpolation spans the entire spatial
+domain (with computational cost of @xmath ), despite the fact that the
+relative contribution from neighbouring particles quickly become
+negligible with increasing distance. For this reason it is far more
+efficient to use kernels with finite extent (ie. having compact
+support), reducing the calculation to a sum over closely neighbouring
+particles which dramatically reduces the cost to @xmath where @xmath is
+the number of contributing neighbours (although there is also the
+additional cost of finding the neighbouring particles). Kernels which
+are similar to the Gaussian in shape generally give the best performance
+(see, e.g. Fulk and Quinn, 1996 ) . Of these the most commonly used
+kernel is that based on cubic splines (Monaghan and Lattanzio, 1985 ) ,
+given by
+
+  -- -------- -- --------
+     @xmath      (1.33)
+  -- -------- -- --------
+
+with normalisation @xmath . This kernel satisfies the basic requirements
+( 1.2 ) and ( 1.4 ), is even, has continuous first derivatives and
+compact support of size @xmath . Smoother kernels can be introduced by
+increasing the size of the compact support region (which correspondingly
+increases the cost of evaluation by increasing the number of
+contributing neighbours) and by using higher order interpolating spline
+functions. To this end the quartic spline kernel
+
+  -- -------- -- --------
+     @xmath      (1.34)
+  -- -------- -- --------
+
+with normalisation @xmath and quintic spline kernel
+
+  -- -------- -- --------
+     @xmath      (1.35)
+  -- -------- -- --------
+
+with normalisation @xmath can be used (e.g. Morris, 1996 ) . The higher
+order polynomials have the advantage of smoother derivatives which, in
+combination with the increased size of compact support, decreases the
+sensitivity of the kernel to disorder in the particle distribution (§
+1.2.7 ).
+
+Note that it is entirely possible to construct kernels based on smoother
+splines but which retain compact support of size @xmath . We derive a
+class of such kernels and compare their stability properties with the
+kernels given in this section in § 1.2.6 . In principle it is also
+possible to construct higher order kernels where the second error term
+in ( 1.8 ) is also zero. Monaghan ( 1992 ) demonstrates that such higher
+order kernels may be constructed from any lower order kernel such as (
+1.33 ) by the simple relation
+
+  -- -------- -- --------
+     @xmath      (1.36)
+  -- -------- -- --------
+
+where the parameters @xmath and @xmath are chosen to cancel the second
+moment and to satisfy the normalisation condition ( 1.4 ). The
+disadvantage of all such kernels is that the kernel becomes negative in
+part of the domain which could result in a negative density evaluation.
+Also it is not clear that such kernels actually lead to significant
+improvements in accuracy in practical situations (since the kernel is
+sampled at only a few points).
+
+From time to time various alternatives have been proposed to the kernel
+interpolation at the heart of SPH, such as the use of Delaunay
+triangulations (Pelupessy et al., 2003 ) and normalisations of the
+kernel interpolant (involving matrix inversion) which guarantee exact
+interpolations to arbitrary polynomial orders (Maron and Howes, 2003 ;
+Bonet and Lok, 1999 ) . It remains to be seen whether any such
+alternative proposals are viable in terms of the gain in accuracy versus
+the inevitable increase in computational expense and algorithmic
+complexity.
+
+Finally we note that in most SPH codes, the kernel is evaluated by
+linear interpolation from a pre-computed table of values, since kernel
+evaluations are computed frequently. The computational cost involved in
+calculating the kernel function is therefore the same whatever the
+functional form. In the calculations given in this thesis, the kernel is
+tabulated as @xmath and @xmath , where the table is evenly spaced in
+@xmath to give a better interpolation in the outer edges.
+
+#### 1.2.6 A general class of kernels
+
+In this section we consider the possibility of constructing kernels
+based on smoother splines than the cubic but which retain compact
+support of size @xmath . A general class of such kernels may be derived
+by considering kernels of the form
+
+  -- -------- -- --------
+     @xmath      (1.37)
+  -- -------- -- --------
+
+where @xmath is the order, @xmath is the compact support size (in this
+case @xmath ), @xmath and @xmath are parameters to be determined and
+@xmath and @xmath are the two matching points (with @xmath ), although
+an arbitrary number of matching points could be added. The formulation
+given above guarantees that the kernel and its derivatives are
+continuous at the matching points and zero at the compact support radius
+@xmath . To determine the parameters @xmath and @xmath we require two
+further constraints on the form of the kernel. For the kernels to
+resemble the Gaussian, we constrain the kernel gradient to be zero at
+the origin and also that the second derivative be minimum at the origin
+(this also constrains @xmath ), ie.
+
+  -- -------- -- --------
+     @xmath      (1.38)
+  -- -------- -- --------
+
+For the moment we leave the matching points as free parameters. From the
+conditions ( 1.38 ), the parameters @xmath and @xmath are given in terms
+of the matching points by
+
+  -- -- -- --------
+           (1.39)
+  -- -- -- --------
+
+In one dimension the normalisation constant is given by
+
+  -- -------- -- --------
+     @xmath      (1.40)
+  -- -------- -- --------
+
+As an example we can construct a quintic ( @xmath ) kernel that closely
+resembles the cubic spline kernel ( 1.33 ) in all but the continuity of
+the second derivative. An example of such a kernel is given by the
+choice @xmath , @xmath . This was chosen by constraining the second
+derivative to be equal to that of the cubic spline at the origin (ie.
+@xmath ) and the turning point in the second derivative to be located as
+close as possible to the that of the cubic spline ( @xmath ; note that
+an exact match is not possible under the constraints given). This kernel
+is shown in Figure 1.1 (‘cubic-like quintic’). The stability properties
+are discussed in § 1.2.7 .
+
+However, it would be more interesting to investigate whether other
+kernels with even better stability properties can be constructed. To
+this end we have performed a survey of parameter space for quintic (
+@xmath ) kernels, from which we find that the most stable kernels are
+those with matching points in the range @xmath with @xmath or @xmath
+with @xmath . These two kernels (‘New Quintic(1)’ and ‘New Quintic (2)’)
+are shown in Figure 1.1 . The stability properties are discussed below.
+
+#### 1.2.7 Kernel stability properties
+
+The accuracy of the kernels given in § 1.2.5 and § 1.2.6 may be compared
+via a stability analysis of the SPH equations. Detailed investigations
+of the stability properties of SPH have been given elsewhere (e.g.
+Morris 1996 ) and for this reason we refer the details of the stability
+analysis to appendix A (although as for the fluid equations, the
+linearised form of the SPH equations are derived from a variational
+principle). The result for one-dimensional SPH (for any equation of
+state) is the dispersion relation
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (1.41)
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+where @xmath is the sound speed. Figure 1.2 shows contours of the
+(normalised) square of the numerical sound speed @xmath as a function of
+wavenumber and smoothing length (both in units of the average particle
+spacing). The sums in ( 1.41 ) are calculated numerically assuming an
+(isothermal) sound speed and particle spacing of unity (both wavelength
+and smoothing length are calculated in units of the particle spacing).
+The quintic spline (top, centre) and the Gaussian (top right) show
+increasingly better stability properties over the standard cubic spline
+(top left) although at increased computational expense.
+
+The stability properties of the ‘cubic-like’ quintic kernel derived in §
+1.2.6 (bottom left) are very similar to that of the cubic spline, except
+that the ‘trough’ in the contours of @xmath observed at @xmath (where
+the closest neighbour crosses the discontinuity in the second
+derivative) is much smoother. However, the accuracy of this kernel
+appears to degrade for small smoothing lengths ( @xmath ) where the
+cubic spline retains a reasonable accuracy. Of the remaining two kernels
+derived in § 1.2.6 (bottom centre and bottom right), the second example
+(‘New Quintic (2)’) in particular appears to give slightly better
+accuracy than the cubic spline over the range @xmath although both
+kernels show the rapid decline in accuracy for small smoothing lengths (
+@xmath ) observed in the cubic-like quintic. It is worth noting that
+most multidimensional calculations use smoothing lengths in the range
+@xmath .
+
+In summary the new kernels appear to give a small gain in accuracy over
+the cubic spline kernel, provided @xmath . However, the gain in accuracy
+from the use of these alternative kernels is very minor compared to the
+substantial improvements in accuracy gained by the incorporation of the
+variable smoothing length terms (§ 1.3.4 ), which effectively act as a
+normalisation of the kernel gradient.
+
+### 1.3 Fluid Equations
 
 #### 1.3.1 Continuity equation
 
