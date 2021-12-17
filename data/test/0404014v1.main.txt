@@ -1,4 +1,2550 @@
-#### Multi-Threading Classes
+###### Contents
+
+-    1 Introduction
+-    2 Background
+    -    2.1 Computing Background
+    -    2.2 Applications for a Data Transport Framework
+        -    2.2.1 High-Energy and Heavy-Ion Physics Experiment Trigger
+            Systems
+        -    2.2.2 The ALICE Detector and the ALICE High Level Trigger
+        -    2.2.3 CBM Project
+        -    2.2.4 PANDA Project
+        -    2.2.5 Relation To Other Experiments
+        -    2.2.6 Online Video Processing & Image Generation
+-    3 Overview of the Framework
+    -    3.1 Introduction to the Framework
+    -    3.2 Framework Design Considerations
+    -    3.3 Components Overview
+    -    3.4 Software Architecture
+-    4 Utility Software
+    -    4.1 PCI and Shared Memory Software
+    -    4.2 The Utility Class Library
+        -    4.2.1 Function Encapsulation Classes
+        -    4.2.2 Functionality Replacement Classes
+-    5 The Communication Class Library
+    -    5.1 Overview
+    -    5.2 Communication Paradigms
+        -    5.2.1 General Design Features
+        -    5.2.2 Message Communication Design Features
+        -    5.2.3 Blob Communication Design Features
+    -    5.3 Auxiliary Classes
+        -    5.3.1 Data Format Translation
+        -    5.3.2 Address Classes
+        -    5.3.3 Message Classes
+        -    5.3.4 Error Callbacks
+        -    5.3.5 Address URL Functions
+    -    5.4 Communication Classes
+        -    5.4.1 The Basic Interface Classes
+        -    5.4.2 The TCP Communication Classes
+        -    5.4.3 The SCI Communication Classes
+-    6 The Publisher-Subscriber Framework Interface
+    -    6.1 The Publisher-Subscriber Interface Principle
+    -    6.2 Auxiliary Data Types
+        -    6.2.1 Flat Types
+        -    6.2.2 Structure Types
+    -    6.3 The Interface Definition Classes
+        -    6.3.1 The Publisher Interface
+        -    6.3.2 The Subscriber Interface
+    -    6.4 The Proxy Classes
+        -    6.4.1 The Pipe Proxy Classes
+        -    6.4.2 The Shared Memory Proxy Classes
+        -    6.4.3 The Subscription Loop Function
+    -    6.5 The Publisher Implementation Classes
+        -    6.5.1 The Sample Publisher Class
+        -    6.5.2 The Detector Publisher Class
+        -    6.5.3 The Detector RePublisher Class
+        -    6.5.4 The Processing Component Publisher Class
+        -    6.5.5 The Publisher Bridge Head Class
+    -    6.6 The Subscriber Implementation Classes
+        -    6.6.1 The Detector Subscriber Class
+        -    6.6.2 The Processing Component Subscriber Class
+        -    6.6.3 The Subscriber Bridge Head Class
+-    7 The Framework Components
+    -    7.1 Data Flow Components
+        -    7.1.1 Event Merger Component
+        -    7.1.2 Event Scatterer Component
+        -    7.1.3 Event Gatherer Component
+        -    7.1.4 Bridge Components
+        -    7.1.5 Trigger Filter Component
+    -    7.2 Application Component Templates
+        -    7.2.1 Data Source Template
+        -    7.2.2 Data Processor Template
+        -    7.2.3 Data Sink Template
+    -    7.3 Generic Worker Components
+        -    7.3.1 Random Trigger Decision Component
+        -    7.3.2 Block Comparer Component
+        -    7.3.3 Event Dropper Component
+        -    7.3.4 Event Keeper Component
+        -    7.3.5 Event Supervisor Component
+        -    7.3.6 File Publisher Component
+        -    7.3.7 Dummy Load Component
+        -    7.3.8 Data Writer Component
+        -    7.3.9 Event Rate Component
+    -    7.4 TPC Analysis Components for the ALICE High Level Trigger
+        -    7.4.1 The ADC Unpacker
+        -    7.4.2 The Cluster Finder
+        -    7.4.3 The Vertex Finder
+        -    7.4.4 The Tracker
+        -    7.4.5 The Patch Internal Track Merger
+        -    7.4.6 The Patch Track Merger
+        -    7.4.7 The Slice Track Merger
+        -    7.4.8 Future Steps
+        -    7.4.9 The Whole Chain
+    -    7.5 Fault Tolerance Components
+        -    7.5.1 Framework Fault Tolerance Concept Overview
+        -    7.5.2 Control and Monitoring Communication Classes
+        -    7.5.3 Fault Tolerance Detection Subscriber
+        -    7.5.4 Fault Tolerance Supervisor
+        -    7.5.5 Bridge Fault Tolerance Manager
+        -    7.5.6 Fault Tolerant Event Scatterer
+        -    7.5.7 Fault Tolerant Event Gatherer
+        -    7.5.8 Fault Tolerant Bridge Components
+-    8 Benchmarks and System Tests
+    -    8.1 Micro-Benchmarks
+        -    8.1.1 Logging Overhead
+        -    8.1.2 Cache and Memory Reference Tests
+    -    8.2 CPU Usage Measurements
+    -    8.3 Network Reference Tests
+        -    8.3.1 TCP Network Reference Throughput
+        -    8.3.2 TCP Network Reference Latency
+        -    8.3.3 Network Reference Summary
+    -    8.4 Communication Class Benchmarks
+        -    8.4.1 TCP Message Class Throughput
+        -    8.4.2 TCP Message Class Latency
+        -    8.4.3 TCP Message Benchmark Summary
+        -    8.4.4 TCP Blob Class Throughput with On-Demand Allocation
+        -    8.4.5 TCP Blob Class Throughput with Preallocation
+        -    8.4.6 TCP Blob Class Latency with On-Demand Allocation
+        -    8.4.7 TCP Blob Class Latency with Preallocation
+        -    8.4.8 TCP Blob Benchmark Summary
+        -    8.4.9 TCP Communication Class Benchmark Summary
+    -    8.5 Publisher-Subscriber Interface Benchmarks
+        -    8.5.1 Timing Measurements
+        -    8.5.2 Scaling Behaviour
+        -    8.5.3 Future Optimization Options
+    -    8.6 Framework System Tests
+        -    8.6.1 ALICE HLT Proton-Proton Performance Test
+        -    8.6.2 Framework Fault Tolerance Test
+        -    8.6.3 System Tests Summary
+-    9 Conclusion and Outlook
+-    A Benchmark Supplement
+    -    A.1 Microbenchmark Programs
+        -    A.1.1 Logging Overhead
+    -    A.2 Minimal Benchmark Process List
+-    B Benchmark Result Tables
+    -    B.1 Micro-Benchmarks
+        -    B.1.1 Cache and Memory Reference Tests
+    -    B.2 Network Reference Tests
+        -    B.2.1 TCP Network Reference Throughput
+        -    B.2.2 TCP Network Reference Latency
+    -    B.3 Communication Class Benchmarks
+        -    B.3.1 TCP Message Class Throughput
+        -    B.3.2 TCP Message Class Latency
+        -    B.3.3 TCP Blob Class Throughput with On-Demand Allocation
+        -    B.3.4 TCP Blob Class Throughput with Preallocation
+        -    B.3.5 TCP Blob Class Latency with On-Demand Allocation
+        -    B.3.6 TCP Blob Class Latency with Preallocation
+    -    B.4 Publisher-Subscriber Interface Benchmarks
+        -    B.4.1 Scaling Behaviour
+-    C Obsolete Framework Components
+    -    C.1 ALICE DAQ Interface Components
+        -    C.1.1 The DATE Subscriber Base Class
+        -    C.1.2 The Direct DATE Subscriber
+        -    C.1.3 The Triggered DATE Subscriber
+-    D Glossar
+
+###### List of Figures
+
+-    2.1 The ALICE experiment.
+-    2.2 Sample architecture and topology of the HLT.
+-    2.3 The CBM Detector.
+-    3.1 Principle of a data driven architecture.
+-    3.2 Example of persistent and transient subscribers.
+-    3.3 Sample HLT Component Configuration.
+-    3.4 The modules making up the framework and their dependencies.
+-    4.1 The virtual device tree structure of the PSI driver.
+-    4.2 The strings for the PSI driver region types.
+-    4.3 A sample usage of the logging system.
+-    4.4 The definition of the main logging macro.
+-    4.5 Processor instructions generated for the log severity level
+    test.
+-    4.6 The classes used in the logging system.
+-    4.7 Sample sequence of calls in the logging system.
+-    4.8 Dispatching principle in the fault tolerance handler class.
+-    4.9 Event distributions of the fault tolerance handler class.
+-    5.1 Sample data type declaration using the BCL type definition
+    language.
+-    5.2 Data structure generated from the sample vstdl data type.
+-    5.3 A sample UML hierarchy of data types for data transformation.
+-    5.4 vstdl types for basic, SCI, and TCP addresses.
+-    5.5 The vstdl type defining the basic message header.
+-    5.6 UML diagram of the BCLErrorCallback class.
+-    5.7 The three error callback classes in the library.
+-    5.8 TCP and SCI address URL format.
+-    5.9 The UML class hierarchy of the primary communication class.
+-    5.10 UML class diagram of BCLCommunication’s main features.
+-    5.11 UML class diagram of BCLMsgCommunication’s main features.
+-    5.12 UML class diagram of BCLBlobCommunication’s main features.
+-    6.1 Hierarchy of the classes making up the publisher-subscriber
+    interface.
+-    6.2 Publisher-subscriber principle of communication.
+-    6.3 Publisher-subscriber principle of communication UML sequence
+    diagram.
+-    6.4 Definition of the AliHLTSubEventDataBlockDescriptor datatype.
+-    6.5 Definition of the AliHLTSubEventDataDescriptor datatype.
+-    6.6 UML class diagram of AliHLTPublisherInterface .
+-    6.7 UML class diagram of AliHLTSubscriberInterface .
+-    6.8 UML class diagram of the two proxy interface classes.
+-    6.9 The memory block read and write functions of the pipe
+    communication class.
+-    6.10 The header structure read and write functions of the pipe
+    communication class.
+-    6.11 Publisher pipe proxy interface and pipe communication class
+    UML diagram.
+-    6.12 Subscriber pipe proxy interface and pipe communication class
+    UML diagram.
+-    6.13 The memory block interface of the shared memory communication
+    class.
+-    6.14 The block header read interface of the shared memory
+    communication class.
+-    6.15 The direct access interface of the shared memory communication
+    class.
+-    6.16 Shared memory publisher proxy and communication classes UML
+    diagram.
+-    6.17 Shared memory subscriber proxy and communication classes UML
+    diagram.
+-    6.18 UML class diagram of the publisher implementation classes.
+-    6.19 AliHLTSamplePublisher external API functions.
+-    6.20 AliHLTSamplePublisher configurable functions.
+-    6.21 AliHLTSamplePublisher callback functions.
+-    6.22 AliHLTDetectorPublisher abstract callback functions.
+-    6.23 Sample calling sequence for the processing subscriber and
+    republisher classes.
+-    6.24 UML class diagram of the subscriber implementation classes.
+-    6.25 Processing subscriber object event done sequence 1.
+-    6.26 Processing subscriber object event done sequence 2.
+-    7.1 The relation of the different classes in the EventMerger
+    component.
+-    7.2 A sample calling sequence for the different classes in the
+    EventMerger component.
+-    7.3 The relation of the different classes in the EventScatterer
+    component.
+-    7.4 A sample calling sequence for the different classes in the
+    EventScatterer component.
+-    7.5 Interface functions provided by the AliHLTEventScatterer class.
+-    7.6 The relation of the different classes in the EventGatherer
+    component.
+-    7.7 A sample calling sequence for the different classes in the
+    EventGatherer component.
+-    7.8 AliHLTBaseEventGatherer functions and EventGathererData
+    structure.
+-    7.9 The classes in the bridge components.
+-    7.10 Calling sequence in the bridge components.
+-    7.11 Sequence diagram for a TriggeredFilter component.
+-    7.12 The classes in the trigger filter component.
+-    7.13 The three application component template types.
+-    7.14 BlockComparer component sample setup.
+-    7.15 TPC analysis component sequence.
+-    7.16 Sample fault tolerance component setup.
+-    7.17 The six main classes for monitoring and control of components.
+-    7.18 The main classes used in the EventScatterer component.
+-    7.19 The main classes used in the EventGatherer component.
+-    8.1 733 MHz cache and memory subsystem measurement plots.
+-    8.2 800 MHz cache and memory subsystem measurement plots.
+-    8.3 933 MHz cache and memory subsystem measurement plots.
+-    8.4 The measured network reference sending rates as a function of
+    the block count.
+-    8.5 The measured network reference sending rates (plateau).
+-    8.6 The application level network reference throughput (plateau).
+-    8.7 CPU usage during TCP reference sending (plateau).
+-    8.8 CPU usage divided by the sending rate during TCP reference
+    sending (plateau).
+-    8.9 CPU usage per MB/s network throughput during TCP reference
+    sending (plateau).
+-    8.10 The measured network reference sending rates (peak).
+-    8.11 The application level network reference throughput for TCP
+    sending (peak).
+-    8.12 CPU usage during TCP reference sending (peak).
+-    8.13 CPU usage divided by the sending rate during TCP reference
+    sending (peak).
+-    8.14 CPU usage per MB/s network throughput during TCP reference
+    sending (peak).
+-    8.15 Network reference average latency measurements.
+-    8.16 The measured message sending rates as a function of the
+    message count.
+-    8.17 The measured message sending rates (plateau).
+-    8.18 The application level network throughput for TCP message
+    sending (plateau).
+-    8.19 CPU usage during TCP message sending (plateau).
+-    8.20 CPU usage divided by the sending rate during TCP message
+    sending (plateau).
+-    8.21 CPU usage per MB/s network throughput during TCP message
+    sending (plateau).
+-    8.22 The measured message sending rates (peak).
+-    8.23 The application level network throughput for TCP message
+    sending (peak).
+-    8.24 CPU usage during TCP message sending (peak).
+-    8.25 CPU usage divided by the sending rate during TCP message
+    sending (peak).
+-    8.26 CPU usage per MB/s network throughput during TCP message
+    sending (peak).
+-    8.27 Message latency measurements.
+-    8.28 The blob sending rates in dependence of the number of blocks
+    (on-demand alloc.).
+-    8.29 The measured blob sending rates (plateau, on-demand alloc.).
+-    8.30 The application level network throughput for TCP blob sending
+    (plateau, on-demand alloc.).
+-    8.31 CPU usage during TCP blob sending (plateau, on-demand alloc.).
+-    8.32 CPU usage divided by the sending rate during TCP blob sending
+    (plateau, on-demand alloc.).
+-    8.33 CPU usage per MB/s network throughput during TCP blob sending
+    (plateau, on-demand alloc.).
+-    8.34 The measured blob sending rates (peak, on-demand alloc.).
+-    8.35 The application level network throughput for TCP blob sending
+    (peak, on-demand alloc.).
+-    8.36 CPU usage during TCP blob sending (peak, on-demand alloc.).
+-    8.37 CPU usage divided by the sending rate during TCP blob sending
+    (peak, on-demand alloc.).
+-    8.38 CPU usage per MB/s network throughput during TCP blob sending
+    (peak, on-demand alloc.).
+-    8.39 The blob sending rates in dependence of the number of blocks
+    (prealloc.).
+-    8.40 The measured blob sending rates (plateau, prealloc.).
+-    8.41 The application level network throughput for TCP blob sending
+    (plateau, prealloc.).
+-    8.42 CPU usage during TCP blob sending (plateau, prealloc.).
+-    8.43 CPU usage divided by the sending rate during TCP blob sending
+    (plateau, prealloc.).
+-    8.44 CPU usage per MB/s network throughput during TCP blob sending
+    (plateau, prealloc.).
+-    8.45 The measured blob sending rates (peak, prealloc.).
+-    8.46 The application level network throughput for TCP blob sending
+    (peak, prealloc.).
+-    8.47 CPU usage during TCP blob sending (peak, prealloc.).
+-    8.48 CPU usage divided by the sending rate during TCP blob sending
+    (peak, prealloc.).
+-    8.49 CPU usage per MB/s network throughput during TCP blob sending
+    (peak, prealloc.).
+-    8.50 Minimum blob latency times (on-demand alloc.).
+-    8.51 Minimum blob latency times (prealloc.).
+-    8.52 Publisher Announce Event compute time distributions.
+-    8.53 Publisher Announce Thread compute time distributions.
+-    8.54 Publisher Event Done compute time distributions.
+-    8.55 Subscriber Event Done compute time distributions.
+-    8.56 Scaling behaviour of the publisher-subscriber interface as
+    well as the cache and memory systems.
+-    8.57 The 19 node setup used in the proton-proton performance test.
+-    8.58 Fault tolerance test setup.
+-    8.59 Results of the fault tolerance test.
+-    C.1 Classes used in the DATE interface components.
+
+###### List of Tables
+
+-    8.1 Unoptimized logging test program results.
+-    8.2 Optimized logging test program results.
+-    8.3 Cache and memory access times for the reference PCs.
+-    8.4 Network reference sending rate as a function of block count
+    results.
+-    8.5 TCP reference plateau measurements summary.
+-    8.6 TCP reference peak measurements summary.
+-    8.7 Minimum message latency times.
+-    8.8 TCP reference and message class plateau measurements.
+-    8.9 TCP reference and message class peak measurements.
+-    8.10 Minimum blob latency times in on-demand allocation mode.
+-    8.11 Minimum blob latency times in preallocation mode.
+-    8.12 TCP reference and blob class plateau measurements.
+-    8.13 TCP reference and blob class peak measurements.
+-    8.14 Times and scaling properties of different parts of the
+    framework.
+-    8.15 Global average event rates and resulting time overheads.
+-    B.1 733 MHz cache and memory test access times from 16 B to 2 kB.
+-    B.2 733 MHz cache and memory test access times from 4 kB to 512 kB.
+-    B.3 733 MHz cache and memory test access times from 1 MB to 32 MB.
+-    B.4 800 MHz cache and memory test access times from 16 B to 2 kB.
+-    B.5 800 MHz cache and memory test access times from 4 kB to 512 kB.
+-    B.6 800 MHz cache and memory test access times from 1 MB to 32 MB.
+-    B.7 933 MHz cache and memory test access times from 16 B to 2 kB.
+-    B.8 933 MHz cache and memory test access times from 4 kB to 512 kB.
+-    B.9 933 MHz cache and memory test access times from 1 MB to 32 MB.
+-    B.10 TCP reference measurement plateau determination.
+-    B.11 Maximum reference sending rate (plateau).
+-    B.12 Reference network throughput (plateau).
+-    B.13 Reference sender CPU usage (plateau).
+-    B.14 Reference receiver CPU usage (plateau).
+-    B.15 Reference sender CPU usage divided by rate (plateau).
+-    B.16 Reference receiver CPU usage divided by rate (plateau).
+-    B.17 Reference sender CPU usage divided by throughput (plateau).
+-    B.18 Reference receiver CPU usage divided by throughput (plateau).
+-    B.19 Maximum reference sending rate (peak).
+-    B.20 Reference network throughput (peak).
+-    B.21 Reference sender CPU usage (peak).
+-    B.22 Reference receiver CPU usage (peak).
+-    B.23 Reference sender CPU usage divided by rate (peak).
+-    B.24 Reference receiver CPU usage divided by rate (peak).
+-    B.25 Reference sender CPU usage divided by throughput (peak).
+-    B.26 Reference receiver CPU usage divided by throughput (peak).
+-    B.27 Average network reference sending latency.
+-    B.28 TCP message measurement plateau determination.
+-    B.29 Maximum message sending rate (plateau).
+-    B.30 Message sending network throughput (plateau).
+-    B.31 Message sending sender CPU usage (plateau).
+-    B.32 Message sending receiver CPU usage (plateau).
+-    B.33 Message sending sender CPU usage divided by rate (plateau).
+-    B.34 Message sending receiver CPU usage divided by rate (plateau).
+-    B.35 Message sending sender CPU usage divided by throughput
+    (plateau).
+-    B.36 Message sending receiver CPU usage divided by throughput
+    (plateau).
+-    B.37 Maximum message sending rate (peak).
+-    B.38 Message sending network throughput (peak).
+-    B.39 Message sending sender CPU usage (peak).
+-    B.40 Message sending receiver CPU usage (peak).
+-    B.41 Message sending sender CPU usage divided by rate (peak).
+-    B.42 Message sending receiver CPU usage divided by rate (peak).
+-    B.43 Message sending sender CPU usage divided by throughput (peak).
+-    B.44 Message sending receiver CPU usage divided by throughput
+    (peak).
+-    B.45 Average message sending latency.
+-    B.46 TCP blob measurement plateau determination (on-demand alloc.).
+-    B.47 Maximum blob sending rate (plateau, on-demand alloc.).
+-    B.48 Blob network throughput (plateau, on-demand alloc.).
+-    B.49 Blob throughput sender CPU usage (plateau, on-demand alloc.).
+-    B.50 Blob throughput receiver CPU usage (plateau, on-demand
+    alloc.).
+-    B.51 Blob throughput sender CPU usage divided by rate (plateau,
+    on-demand alloc.).
+-    B.52 Blob throughput receiver CPU usage divided by rate (plateau,
+    on-demand alloc.).
+-    B.53 Blob throughput sender CPU usage divided by throughput
+    (plateau, on-demand alloc.).
+-    B.54 Blob throughput receiver CPU usage divided by throughput
+    (plateau, on-demand alloc.).
+-    B.55 Maximum blob sending rate (peak, on-demand alloc.).
+-    B.56 Blob network throughput (peak, on-demand alloc.).
+-    B.57 Blob throughput sender CPU usage (peak, on-demand alloc.).
+-    B.58 Blob throughput receiver CPU usage (peak, on-demand alloc.).
+-    B.59 Blob throughput sender CPU usage divided by rate (peak,
+    on-demand alloc.).
+-    B.60 Blob throughput receiver CPU usage divided by rate (peak,
+    on-demand alloc.).
+-    B.61 Blob throughput sender CPU usage divided by throughput (peak,
+    on-demand alloc.).
+-    B.62 Blob throughput receiver CPU usage divided by throughput
+    (peak, on-demand alloc.).
+-    B.63 TCP blob measurement plateau determination (prealloc.).
+-    B.64 Maximum blob sending rate (plateau, prealloc.).
+-    B.65 Blob network throughput (plateau, prealloc.).
+-    B.66 Blob throughput sender CPU usage (plateau, prealloc.).
+-    B.67 Blob throughput receiver CPU usage (plateau, prealloc.).
+-    B.68 Blob throughput sender CPU usage divided by rate (plateau,
+    prealloc.).
+-    B.69 Blob throughput receiver CPU usage divided by rate (plateau,
+    prealloc.).
+-    B.70 Blob throughput sender CPU usage divided by throughput
+    (plateau, prealloc.).
+-    B.71 Blob throughput receiver CPU usage divided by throughput
+    (plateau, prealloc.).
+-    B.72 Maximum blob sending rate (peak, prealloc.).
+-    B.73 Blob network throughput (peak, prealloc.).
+-    B.74 Blob throughput sender CPU usage (peak, prealloc.).
+-    B.75 Blob throughput receiver CPU usage (peak, prealloc.).
+-    B.76 Blob throughput sender CPU usage divided by rate (peak,
+    prealloc.).
+-    B.77 Blob throughput receiver CPU usage divided by rate (peak,
+    prealloc.).
+-    B.78 Blob throughput sender CPU usage divided by throughput (peak,
+    prealloc.).
+-    B.79 Blob throughput receiver CPU usage divided by throughput
+    (peak, prealloc.).
+-    B.80 Average blob sending latency (on-demand alloc.).
+-    B.81 Average blob sending latency (prealloc.).
+-    B.82 Scaling Properties.
+
+## Chapter 1 Introduction
+
+In high-energy and heavy-ion physics, as in many other scientific and
+academic applications, compute clusters made up of standard PCs using
+the Linux operating system have emerged as one of the predominant type
+of computer systems for data analysis and other tasks requiring large
+amounts of processing capabilities. The primary reason for this is their
+very good price vs. performance ratio, owing to the usage of widely
+available and cheap mass market components. In newest developments, such
+as the experiments for the future Large Hadron Collider (LHC) at CERN,
+large clusters will not only be used for offline data analysis but also
+for online data processing and acquisition. In these types of systems
+large amounts of data of up to tens of gigabytes per second will be
+transported through clusters in a data flow fashion, passing through
+several stages in the processing chain. Due to the flexibility afforded
+by the building-block like construction of such systems from basically
+identical components and taking into account the insecurity in the
+predictions for the future development of that market, a similar
+flexibility in the software architecture and configuration of these
+systems is highly desirable. A further prime requirement for these
+systems is that the transport of the data in a system, both in each node
+as well as from one node to another, has to be as efficient as possible.
+The necessity for this requirement arises from the fact that the purpose
+of these systems is the processing of data from the experiments, for
+which massive amounts of CPU power are needed. Any CPU cycles used just
+for transport of the data, without producing any analysis results,
+increase the total number of CPUs and consequently also PCs in the
+system needed for the analysis, causing a higher cost. Some overhead for
+the transport of data is unavoidable but it should obviously be kept to
+a minimum. Next to the flexibility and efficiency, the reliablity of
+such a system is a natural third primary requirement. Since the single
+PCs as elements of a cluster do not possess the reliability necessary
+for such a system, mainly due to their low cost, a system as a whole
+must be tolerant with regard to the fault of at least a number of its
+elements. Also, measures must be taken to ensure that the system either
+has no parts whose failure disables the whole system, called single
+points of failure, or that these points consist of especially reliable
+and thus more expensive components.
+
+This thesis describes a framework that has been developed to be used in
+the type of online data processing systems described above. It has been
+designed to consist of a number of independent software components that
+communicate via a specified interface. They can thus be plugged together
+as needed to form a data processing chain conforming to the requirements
+and boundary conditions presented through other characterics of the
+system, either from detector properties or from the hardware
+configuration. During the framework’s design and development the focus
+has been on an architecture and implementation to minimize the
+processing overhead from the communication of the components and the
+transfer of the data for a minimum impact on the processing capability
+of a system as a whole, as described above. Utilizing the dynamic
+reconfiguration ability inherent in the pluggable component concept
+together with a number of specialized components, the framework can
+support setups able to tolerate faults in its software components or
+hardware parts of nodes as well as even the failures of complete cluster
+nodes.
+
+The following Chapter 2 provides an overview of computing technology
+background, helpful in understanding design decisions made for the
+framework. Also contained in this chapter are a number of sample
+applications for which the framework can or will be used. Chapter 3
+details some of the higher level design decisions and choices made for
+the framework and gives an architectural overview of it. In the
+following chapters classes contained in modules of the framework are
+presented in more detail. Chapter 4 presents utility classes providing
+basic functionality for the framework. The next chapter describes
+classes for communication between the nodes in a cluster. These
+communication classes are based on an abstract interface with
+implementations available for two different networking technologies and
+they are used to connect framework components on different nodes. Main
+parts of the framework, consisting of the interface between the
+components and a number of components and templates, are detailed in
+Chapter 6 and 7 respectively. The following chapter 8 presents
+benchmarks and system tests of the framework and some of its constituent
+parts, while the final chapter 9 contains the conclusions from the
+development and tests as well as an outlook for future development
+possibilities. Additional information for the benchmarks from chapter 8
+is contained in appendix A . Tables with results presented in chapter 8
+are located in appendix B . Descriptions of a number of developed
+components which became obsolete later can be found in appendix C . A
+glossar of frequently used abbreviations can be found in appendix D .
+
+I would like to say many thanks to several people without whom this
+thesis would not exist as it does:
+
+-   My supervisor Volker Lindenstruth for giving me the opportunity to
+    work on this thesis and the HLT project as well as many valuable
+    suggestions, information, and advices.
+
+-   My second referee Peter Bastian for his willingness to read and
+    assess my dissertation and take part in my exam.
+
+-   Markus Schulz for many informational and fruitful discussions, the
+    good cooperation, as well as his assistance and advice.
+
+-   Arne Wiebalck and Heinz Tilsner for much help, discussions, the good
+    cooperation during our common time at the institute, and in
+    particular for proof-reading parts of the thesis.
+
+-   The whole group at the Chair for Computer Science in Heidelberg for
+    the comfortable atmosphere and cooperation in the group. It was and
+    is a fun time.
+
+-   My parents in general for supporting me during my time of studies
+    and for allowing me to pursue this career, and in particular my
+    father for proof-reading this complete work.
+
+-   But most particular and deeply I want to thank my wife Heike for
+    supporting and helping me during the whole time of work on the
+    thesis, especially during the last few months of writing. Without
+    her love, endurance, and support I would not have been able to do
+    this.
+
+## Chapter 2 Background
+
+### 2.1 Computing Background
+
+##### Overview
+
+Due to the continuously increasing use of clusters made up of commodity
+PC hardware in high-energy and nuclear physics, for offline as well as
+for online purposes, the characteristics of this architecture play an
+increasingly important role in computer architecture for that field. In
+the following section an overview of the computer technology and
+architecture in the PC cluster area is given to detail the
+characteristics and pecularities that influence the design of cluster
+systems as well as the development of software to be run on them.
+Emphasis is given to clusters used for scientific tasks, particularly in
+the use as online data analysis farms for the readout and triggering of
+high-energy physics experiments, the focus of the software framework
+described in this thesis. Components of such a system come predominantly
+from the PC mass market due to the good price-performance ratio present
+there. On the other hand this necessity for low prices often induces
+compromises in technology compared to custom solutions, which have to be
+taken into account when designing a cluster system’s hardware and
+software.
+
+##### Introduction to Cluster Technology
+
+Data analysis and other scientific applications have used and relied on
+computers for a long time and the amount of processing power needed has
+been rising steadily. Stimulated by recent increases in available
+computer speed the applications have become more sophisticated, raising
+in turn the demands for processing power required by those applications.
+Many of these scientific problems are too large to be handled
+efficiently by one single processor and thus parallel computers are
+needed to run these problems efficiently. Prices for most commercially
+available parallel computers, most of which fall into the high
+performance computing (HPC) category, are typically rather high for
+academic budgets. Many institutions have therefore turned to assembling
+comparatively low cost networks or clusters of workstations [ 1 ] , [ 2
+] (NOWs or COWs) or clusters of PCs, frequently called Beowulfs [ 3 ] ,
+running Linux [ 4 ] , [ 5 ] , [ 6 ] or another of the free Unix flavors.
+These clusters mostly consist of a number of computers made up of
+commodity-off-the-shelf (COTS) components, and are typically connected
+either via Fast or GigaBit Ethernet [ 7 ] , [ 8 ] , [ 9 ] , [ 10 ] , [
+11 ] , [ 12 ] or via a dedicated System-Area-Network (SAN), like the
+Scalable Coherent Interface (SCI) [ 13 ] , Myrinet from Myricom [ 14 ] ,
+or the future ATOLL [ 15 ] , [ 16 ] , [ 17 ] . These SAN technologies
+typically have one or more of the following characteristics compared to
+lower cost technology such as Ethernet: lower communication latencies,
+higher bandwidth, and smaller processing overhead. The last point can be
+of particular importance, as more CPU time is available for doing actual
+processing instead of being used to transfer data.
+
+##### CPU and Memory Development
+
+The above mentioned COTS components have a very competitive and
+advantageous price to performance ratio due to their mass market nature.
+In addition they also allow to take direct advantage of the quickly
+developing increases in absolute performance in this market. The
+increases seen here closely follow Moore’s law [ 18 ] , which in its
+original form states that the density of circuits on chips will increase
+by a factor of 2 every year. Derived forms state that the same behavior,
+with different factors, applies not only to the density but also to the
+performance of the chips. The most visible aspects for mass market PCs
+are the increase in CPU clock frequency, which by now roughly doubles
+every 18 months, as well as the increase in memory size.
+
+The usage of mass market components however has some disadvantages as
+well. While processor performance and memory size closely follow Moore’s
+law and thus increase by 60 % every year, the memory access time only
+increases by 2 % per year. Special purpose high-performance computing
+hardware can implement more elaborate measures to work around this
+problem than commodity hardware, as the latter is typically optimized
+for a low cost. This causes the gap between raw processor performance
+and the speed of accessing data in memory to widen every year [ 19 ] .
+As a result it is increasingly costly when a processor cannot access
+data in its cache but has to load it from memory. The processor has to
+perform several wait cycles, during which it cannot perform any
+processing. The cost of memory access is most obvious in applications
+that access large memory blocks in irregular patterns, which mitigates
+the utility of caches.
+
+##### Busses and Networks
+
+A similar situation arises concerning extension busses and network
+interfaces. The bandwidth and latency of these parts also have been
+unable to keep up with the advances in CPU speed. In the bus area the
+Peripheral Component Interconnect (PCI) bus [ 20 ] , [ 21 ] with 64 bit
+and 66 MHz has only become established in the high end PC
+server/workstation market. PCI-X with up to 133 MHz is just starting to
+appear there. The bandwidth of the 64 bit/66 MHz version of this bus
+reaches a theoretical peak performance of 528 MB/s, with the slower
+64 bit/33 MHz and 32 bit/33 MHz versions reaching 264 MB/s and 132 MB/s
+respectively. Even though the 64 bit/66 MHz bus has a factor of 4
+advantage over the 32 bit/33 MHz version still dominant in the home PC
+segment, its peak performance is still at least a factor of 4 lower
+compared to contemporary memory interfaces. The current predominant
+network technology in the PC market is 100 Mb/s Fast Ethernet with
+Gigabit Ethernet establishing itself especially for servers. In cluster
+systems SANs are used for interconnects as well, sometimes coupled with
+proprietary network protocols. But as these technologies can be several
+orders of magnitude more expensive compared to Ethernet, especially the
+100 Mb/s variety, many clusters are constructed using the more
+cost-effective interface choice. The communication protocol used on
+these Ethernet adapters is practically always the standard Internet
+TCP/IP protocol suite [ 22 ] . This network protocol/interface
+combination has the advantage of being widely available, cheap, and
+reliable. However, neither of its parts was designed for the task of a
+cluster interconnect or SAN. Next to the obvious disadvantages of
+relatively low bandwidth and high latency, this combination is not the
+optimal solution for this task because of another drawback. The TCP/IP
+protocol consists of a protocol stack with several layers of protocols
+inside the operating system kernel. Data sent from a user application
+first has to be copied from the user level memory into the privileged
+kernel space (or system) memory. It then passes through the protocol
+layers where the data is often copied from layer to layer. These copy
+stages have to be done by the computer’s CPU, preventing it from
+executing actual processing tasks. Additionally the CPU needs to access
+memory twice (read and write) to copy the data. These memory accesses
+first slow the CPU down as it now has to wait for the memory while
+copying and second they take up much of the already precious memory
+bandwidth in the system. For systems sending large amounts of data this
+can have a quite detrimental effect on other applications running at the
+same time. These influences are due to several factors: the memory
+bandwidth being used by copying processes, the filling up of cache space
+with the copied data, and the pure CPU usage itself. But even on better
+TCP/IP implementations where the data is not copied between the layers,
+the first copy stage is practically always present, and the protocol
+stages with their required processing have to be passed as well. So in
+addition to being a comparatively slow network, both as far as latency
+and bandwidth are concerned, coupled with the most widely used protocol
+Ethernet also uses up more precious system resources than other
+technologies for connecting clusters. A rule of thumb is that for every
+Megabyte of data transferred per second with TCP/IP over Ethernet
+depending on block size at least 1 % CPU usage is incurred.
+
+##### Commodity-Off-The-Shelf and High-Performance-Computing Hardware
+
+As the COTS market relies on interoperability of its components,
+especially in the area of memory and extension busses with their
+respective add-on cards, the technological advances in this area and the
+market acceptance are comparably slow. HPC system vendors on the other
+hand, have no such compatibility constraints and are free to use
+tailored and tuned interfaces and components in their systems. These
+special purpose components give them a performance advantage compared to
+the cheaper clusters and earn them the classification of high
+performance computers. Despite these technological and economical
+differences a lot of recent HPC and cluster-type systems share a
+principal similarity. Both are composed of relatively cheap and
+standardized building blocks connected by a network. But whereas for
+clusters the nodes are single PCs, sometimes even dual CPU PCs, HPC
+systems are often composed of Symmetric Multi Processor (SMP) systems,
+sometimes with more than 100 CPUs. Similiarly, where most clusters are
+connected via Fast or Gigabit Ethernet and some with specialized SANs,
+many HPC systems feature specially developed interconnects between the
+nodes with bandwidths comparable to the internal busses in PCs.
+
+Comparing the price/performance ratio of typical clusters and HPC
+systems for a single CPU, clusters rank much better than their more
+expensive counter-part. For easily parallelized problems which feature a
+high ratio of computation on each node to communication between the
+nodes, a cluster offers much better overall performance for the same
+price or a comparable performance for a much lower price. Most problems
+in high-energy and nuclear physics are of that type and are thus well
+suited for clusters.
+
+##### Cluster Software
+
+On the software side the widespread use of clusters has been primarily
+made possible by the rise in popularity and support of the Linux (or
+GNU/Linux) [ 4 ] operating system. This clone of the Unix operating
+system, freely available in source code, has begun its life on PC
+systems and is now available for a wide range of hardware. Due to its
+popularity a wide spectrum of PC hardware extensions, e.g. network
+adapters or graphics cards, is supported with drivers. Also due to its
+widespread use coupled with the source code availability many people
+have been able to search for errors in it. As a result bugs are usually
+found quickly and Linux thus has a reputation as a very stable and
+reliable system. Since the scientific and especially the academic area
+has for a long time been involved with Unix and has been using it
+widely, Linux has enjoyed an especially quick acceptance in this area.
+Coupled with other software freely available in source code, and thus
+adaptable, it has established itself as a well suited operating system
+companion for cost-effective clusters made up of PC components. Recently
+other free Unix like systems, e.g. FreeBSD [ 23 ] or OpenBSD [ 24 ] ,
+some of them actually older than Linux, have also gained popularity, but
+Linux was the starting point for cheap Unix like cluster systems and is
+still the most widespread operating system there.
+
+Motivated by the increase in cluster usage a number of software packages
+have been developed to ease the administration of a cluster. Most of
+these packages follow the principle of allowing the administration of
+the cluster as a single system and not as a collection of systems. The
+most extreme of these systems like Mosix [ 25 ] , [ 26 ] , [ 27 ] and
+its derivative openMosix [ 28 ] treat the whole cluster as a single
+system by allowing process migration over a network between the nodes
+for a cluster-wide load-balancing. Other systems support the creation of
+batch-queue systems for separate jobs, to be dispatched to available
+cluster nodes for processing, or monitor the cluster nodes from a
+central location. Examples of such packages are the open source Compaq [
+29 ] (now Hewlett-Packard (HP) [ 30 ] ) Single System Image (SSI)
+Clusters (SSIC) package [ 31 ] , the Load Sharing Facility (LSF) [ 32 ]
+from Platform Computing [ 33 ] , and the Condor package [ 34 ] , [ 35 ]
+, [ 36 ] .
+
+A number of packages also exist for communication inside a cluster. The
+most well-known of these are the two Message Passing Interface (MPI) [
+37 ] , [ 38 ] , [ 39 ] , [ 40 ] implementations MPICH [ 41 ] and LAM/MPI
+[ 42 ] and the Parallel Virtual Machine (PVM) [ 43 ] . These three
+packages are designed for parallel applications that run distributed on
+multiple PCs and frequently exchange data with each other. Data
+exchanges are primarily done between iterative calculations, processed
+data is sent to other processes and received data is used as the basis
+for new calculations. These packages therefore are typically not
+optimized for an efficient communication but rather one with a low
+latency. Fault tolerance also is not one of the prime foci of these
+packages, as calculations can easily be restarted with the same input
+data.
+
+##### Interfaces to Readout Hardware
+
+Another important segment for computers in sciences is the readout of
+data from experiment setups. For a long time computers in this area have
+been equipped with the busses used for the connection of instruments,
+e.g. VMEbus [ 44 ] , [ 45 ] , [ 46 ] or CAMAC [ 47 ] , [ 48 ] . These
+computers are typically based on CPUs used in the desktop market, e.g.
+Intel x86 or PowerPC, and often run real-time operating system like
+VxWorks [ 49 ] or LynxOS [ 50 ] . Both hardware and software are very
+specialized and as a result have a small market, making them relatively
+expensive compared to common desktop hardware and operating systems. For
+this reason, a trend similar to the cluster tendency for parallel
+computing has set in to replace these special systems with standard PCs
+as well. Where instrument connections are needed interface cards for PC
+busses (mostly PCI) provide the necessary connections to other
+equipment. In other cases special hardware is being developed to
+interface experiment equipment with read-out computers with PCI or
+another of the PC system standard busses on the computer side. Despite
+its age and comparably low performance the old Industry Standard
+Architecure (ISA) bus introduced with the first IBM PCs still enjoys
+some popularity here, especially in industry applications. But for new
+developments in the scientific area PCI is now very often used, enabling
+the use of COTS systems for readout as well as for calculation.
+
+As these special hardware readout devices have to be accessed and are in
+general not supported by operating systems due to their custom nature,
+specific software for them has to be provided as well. Development of
+device drivers for them is often too complicated and due to the
+frequently required rapid development not feasible as well. Therefore
+mostly normal programs are used that require some special features or
+privileges to gain direct access to the readout hardware. To faciliate
+the development of these programs, packages or drivers exist that
+provide generic and easy access to any hardware in a system. With this
+principle, development of a driver is required only once. It can be
+utilized in user-space programs afterwards.
+
+### 2.2 Applications for a Data Transport Framework
+
+#### 2.2.1 High-Energy and Heavy-Ion Physics Experiment Trigger Systems
+
+A major area of application for a data flow framework are readout and
+especially trigger systems for experiments in high-energy and heavy-ion
+physics, as these are inherently of a data driven nature. Data arrives
+in chunks, the detector’s events, which have to be processed. Often one
+event arrives in multiple parts, which have to be assembled before,
+after, or as a part of processing. Depending on the exact nature of the
+experiment the analysis might have to be executed in a number of steps.
+Each step requires the data from previous ones, mostly the directly
+preceeding. Data is thus passed or flows from station to station,
+possibly being merged with data from other stations, until the desired
+result is obtained or it is written to permanent storage. Due to the
+high rates required most often in the lower levels of such trigger
+systems, a relatively generic software framework is not very well suited
+there. Instead more specialized software or even hardware is required
+for these levels.
+
+Concerning the upper level trigger systems very high data rate
+requirements are currently found in the new generation of (relativistic)
+heavy-ion physics experiments. With their high occupancies, the
+resulting large event sizes coupled with still considerable event rates
+of at least several hundred Hertz, and consequently very high data
+rates, they present one of the biggest challenges in online data
+processing for PC clusters. Among these one of the most advanced is the
+ALICE experiment planned for the heavy-ion running mode of the future
+Large Hadron Collider (LHC) at CERN in Geneva. Two other projects, not
+progressed as far as ALICE, are the future Compressed-Baryonic-Matter
+(CBM) and Proton-ANtiproton-at-DArmstadt (PANDA) projects at the
+Gesellschaft für Schwerionenforschung (GSI) in Darmstadt.
+
+#### 2.2.2 The ALICE Detector and the ALICE High Level Trigger
+
+##### The ALICE Detector and the Quark-Gluon-Plasma
+
+The primary application for which the framework has been developed is
+the ALICE experiment’s [ 51 ] , [ 52 ] , [ 53 ] , [ 54 ] last trigger
+stage, the High Level Trigger (HLT). ALICE, shown in Fig. 2.1 , is a
+detector for relativistic heavy-ion collisions currently being developed
+and built for the future Large Hadron Collider (LHC) [ 55 ] at CERN [ 56
+] . The LHC will be operated in two modes: proton-proton (pp) mode and
+heavy-ion (HI) mode. In the primary proton-proton mode LHC will collide
+bunches of protons every 25 ns corresponding to a collision rate of
+40 MHz. In heavy-ion mode bunches of lead or calcium nuclei will collide
+every 100 ns or at 10 MHz respectively. ALICE will operate both in pp
+and HI mode although the detector is primarily designed for heavy-ions,
+where its main purposes are the search for and investigation of
+quark-gluon-plasma (QGP). QGP is a new state of matter in which quarks
+and gluons can move freely in a volume and are not subject to the usual
+confinement for strongly interacting particles. Overviews of QGP can be
+found in [ 57 ] to [ 62 ] . The temperature or energy density in the
+corresponding volume has to be high enough to enable this state to be
+established. The minimum required energy density is predicted to be
+around @xmath , roughly 7 times the density of normal nuclear matter.
+Comparable energy densities have existed during the first few
+microseconds after the Big Bang. It is expected that by colliding highly
+energetic lead nucleons it will be possible to reproduce conditions
+which feature high enough energy densities to allow the formation of
+quark-gluon-plasma. When the highly energetic fireball produced by the
+collision expands, it simultaneously cools down and the energy density
+decreases again. The quarks and gluons in the plasma then have to
+recombine again to hadrons undergoing the normal color confinement. From
+these hadrons and additionally produced leptons observed in the
+detector, one has to extract information about the system that existed
+during the collision. The number of particles produced in these
+collisions is very large. For ALICE of the order of @xmath particles are
+expected for a collision in the covered pseudo-rapidity range of @xmath
+. The minimum bias collision rate at the LHC heavy-ion design luminosity
+of @xmath is several 10 kHz. Combining event rate and particle
+multiplicity leads to a very high amount of data produced. Together with
+the preceeding trigger stages the HLT’s task is to reduce that data
+volume to a rate more manageable for mass storage and also to make the
+most efficient use of the available output bandwidth by storing only the
+most interesting events and compressing each event’s data to reduce its
+size.
+
+##### ALICE’s Subdetectors
+
+The detector consists of a number of sub-detectors, most of them
+arranged in a layered shell structure around the beam pipe covering a
+solid angle of almost @xmath and a pseudorapidity range of @xmath .
+Closest to the beam pipe is the Inner Tracking System (ITS) [ 63 ] ,
+whose primary purpose is the detection and reconstruction of the primary
+and secondary vertices and track-finding for charged particles with a
+low transversal momentum that do not enter the Time Projection Chamber
+(TPC) (see below). In addition it will also be used to improve the
+momentum resolution of particles with high momentum as well as for the
+reconstruction of low energy particles and their @xmath identification.
+Six cylindrical layers of detectors make up the ITS with a high enough
+space point resolution to cope with the expected high particle
+densities. The layers will be placed at radii from 3.9 cm to 45 cm and
+will extend from the interaction point (IP) where the collisions occur
+in both directions along the beam pipe. They extend from 12.25 cm for
+the innermost layer to 50.4 cm for the outermost one. For the two
+innermost layers, where the particle tracks are most dense, silicon
+pixel detectors (SPDs) have been chosen as they provide the best
+possible granularity and resolution at these small radii. Furthermore,
+they can be operated at high rates and will be used to determine an
+event’s vertex together with the muon spectrometer. The two middle
+layers have a lower track density due to their larger distance from the
+IP. Silicon drift detectors (SDDs) are used here as they are cheaper
+than SPDs and have the ability to provide additional @xmath information
+for particle identification. In the two outermost layers silicon strip
+detectors (SSDs) are sufficient to satisfy the less severe resolution
+requirements and the comparatively large area here makes it desirable to
+use this proven, reliable, and especially cheaper technology.
+
+Outside of the ITS is the Time Projection Chamber (TPC) [ 64 ] , [ 65 ]
+, [ 66 ] , [ 67 ] , both ALICE’s physically largest sub-detector as well
+as the one producing the largest amount of data. It is the primary
+detector used for track finding and momentum measurements as well as for
+identification of particles by their specific energy loss @xmath . The
+TPC is a cylinder around the beam pipe measuring 5 m in length with a
+central high voltage plane. Its inner and outer radii are 88 cm and
+2.5 m respectively. At the endcaps are readout chambers consisting of
+Multi Wire Proportional Chambers (MWPCs) to amplify and read out the
+signals of the particle tracks. Most of the TPC’s characteristics are
+results of the expected high particle multiplicity and the resulting
+problems of distinguishing separate particle tracks. Its inner radius
+has been chosen so that the expected particle density on the inner
+surface is around @xmath . For the outer radius the criterion was to
+obtain a length of tracks inside the TPC that will allow a @xmath
+measurement with a precision of 6 - 7 %. The length finally is
+determined by ALICE’s design coverage of @xmath with a drifttime chosen
+to be @xmath . Due to the high particle multiplicity a very fine
+granularity of @xmath pixels has been chosen to achieve a good two track
+separation ability. This fine granularity is the reason why the data
+volume produced by the TPC is the largest part in ALICE. Expected event
+sizes for the TPC, already zero-suppressed and runlength encoded, are
+about 60 - 70 MB for central HI events. The readout chambers are
+arranged in 159 pad-rows in each slice, with pad sizes of @xmath ,
+@xmath , and @xmath .
+
+Directly adjacent around the TPC and primarily designed to complement
+its electron identification capability is the Transition Radiation
+Detector (TRD) [ 68 ] , [ 69 ] . Its primary purpose is to provide
+electron identification capabilities for the central barrel region for
+momenta beyond @xmath . Additionally, the TRD should enable a thorough
+research of the dilepton continuum found in the central barrel region.
+As the TRD is a fast detector and especially a fast tracker it also
+contributes an effective triggering capability for particles,
+particularly electrons, with a high transverse momentum ( @xmath ).
+Another trigger type of the TRD is the selection of hadronic jets with a
+high transversal energy. With the tracking information being available a
+few microseconds after each event, it becomes possible to select events
+with high @xmath particles and activate the TPC’s gating grid for
+readout only for those events. To optimally cooperate with the TPC the
+TRD has been designed to have the same acceptance of @xmath . It
+consists of six layers of chambers between radii of 2.9 m and 3.7 m.
+Each layer is divided into five segments along the beam axis and 18
+segments around the detectors circumference. The total number of
+chambers is thus 540 with each chamber consisting of a combination of
+foil stacks to produce transition photons, Xenon filled MWPCs to detect
+them, and front end electronics for readout. A chamber uses between 12
+and 16 pad rows in the direction of the beam axis and each pad row
+consists of about 144 pads read out. The total number of channels in the
+TRD is about @xmath , making the TRD the second largest producer of data
+among the ALICE detectors.
+
+Outside of the TRD is a large Time-Of-Flight (TOF) array dedicated to
+provide particle identification information for particles of average
+momentum [ 70 ] . It is designed to have a large acceptance and covers a
+barrel area of about @xmath . Momentum coverage for hadrons is between
+about @xmath and @xmath . @xmath is the upper limit for which the TPC is
+still able to separate Kaons and Pions based on its @xmath information
+and @xmath is the limit for sufficient particle statistics in single
+event analysis. The overall timing resolution of the system is designed
+to be around 100 ps, which would allow @xmath separation of Kaons and
+Pions up to @xmath momentum. For electrons the momentum range to be
+covered is between @xmath and @xmath , where @xmath information is not
+sufficient to distinguish electrons and pions. In this application the
+timing resolution is of a lesser significance. As the overall
+inefficiency of the TOF is to be below 20 %, the occupancy of the
+detector is required to be less than 10 % at the highest particle
+multiplicities expected, resulting in more than @xmath channels being
+used in the TOF. The baseline technology choice for the TOF are Pestov
+spark counters, which have a number of advantageous features. Foremost
+among these is their very good time resolution reaching up to 25 ps. In
+addition they feature a lifetime corresponding to a running time of more
+than 20 years as well as an intrinsic efficiency of more than 96 % and
+do not require preamplifiers due to their high signal output. Major
+drawbacks, however, are a lack of experience with systems on a similarly
+large scale and a time comparable to the projected operation of ALICE.
+Therefore a fallback solution of Parallel Plate Counters (PPCs) is
+intended, an established technology that would have a lower resolution
+but would still fulfill the requirements from the physics goals.
+
+Complementing the identification capabilities for particles outside of
+the momentum range covered by the TOF is the High Momentum Particle
+Identification (HMPID) detector [ 70 ] , a Ring Image Čerenkov (or
+Cherenkov) Counter (RICH). Its area is small compared to the TOF, only
+@xmath and it is placed at the top of the detector at a radius of 4.7 m
+where the particle density is low. As the particle density of @xmath and
+event rate of around 10 kHz expected to be encountered are nonetheless
+still high for a detector of this type, a fast-RICH layout
+implementation is used. Another advantage of this technology is the
+ability to operate at much higher rates than the ones intended for
+heavy-ion operations at the LHC so that it can be used in pp-mode as
+well. The drawback of this techology is a cathode segmented into many
+small pads which requires a pixel like readout with highly integrated
+electronics and a large number of readout channels.
+
+Located opposite of the HMPID on the bottom side of the detector is the
+Photon Spectrometer (PHOS) [ 71 ] whose primary purpose is the search
+for direct photons produced during heavy-ion collisions, which reflect
+to a high degree the initial conditions found in these collisions. As a
+secondary task the PHOS also has to measure the production of the
+neutral mesons @xmath and @xmath , for which the momentum resolution at
+@xmath is approximately an order of magnitude better than what the
+tracking detectors can achieve for charged particles. Unfortunately,
+there is a large background of photons being produced in decays of
+hadrons with a ratio of direct to decay photons of approximately 5 %.
+Due to the required detector sensitivity of about 5 % it becomes
+necessary to measure the rates and transversal momentum spectra of
+photons as well as @xmath and @xmath mesons in the same detector. The
+resulting very high multiplicity in turn necessitates a fine
+segmentation of the calorimeter, a large distance from the vertex, and a
+material with a small Molière radius to reduce the transversal extension
+of the produced showers. To achieve the intended particle occupancy of
+less than 3 % in heavy-ion collisions at a radius of 4.6 m @xmath has
+been chosen as the material for the PHOS because of its Molière radius
+of about 2 cm. In order to prevent charged hadrons from producing
+unwanted signals in the PHOS, a veto-detector will have to be placed in
+front of the PHOS to reject them. Similarly a system of applying
+time-of-flight cuts is considered to suppress the signals from neutral
+hadrons other than @xmath and @xmath .
+
+One of the most promising signatures for the production of the
+quark-gluon-plasma is the suppression of the heavy quarkonium
+resonances, whose decays can be well detected by muon-pair production.
+To distinguish the signature for QGP from other processes that could
+also cause this suppresion, it becomes necessary to measure the relative
+suppression of the different states as well as the ratios to
+unsuppressed reference processes such as the inclusive heavy quark
+production. In addition the suppression has to be measured as a function
+of the transversal momentum spectrum down to its low regions. The search
+for the produced muon pairs will be done only in the forward direction
+of ALICE, along the beam pipe, and outside of the normal barrel
+construction for a number of reasons. Because of the shielding required
+for the background photons and hadrons only muons with a momentum of at
+least @xmath can be detected and the muons in forward direction will
+have a higher momentum due to Lorentz-boosting. The pion and kaon
+background is also reduced in that direction due to the higher momenta
+required to penetrate the absorbers and the generally lower particle
+multiplicity per rapidity unit.
+
+The first part of the dimuon arm [ 72 ] , [ 73 ] , [ 74 ] , [ 75 ] after
+the detector barrel are the absorbers already described. They are needed
+to reduce the particle background consisting especially of photons and
+hadrons coming from the vertex to acceptable levels, resulting in the
+momentum cut for muons at @xmath . But even with the absorbers in place
+the main problem for the dimuon arm is still the particle multiplicity
+in each event rather than the event rate. To cope with this problem the
+tracking system after the absorbers uses a high granularity so that the
+maximum expected occupancy is around 5 %. The tracking system is made up
+of five stations consisting of two chamber planes per station. Each
+chamber plate in turn has two cathode planes read out to provide two
+dimensional track information. Intermixed with the tracking stations is
+a large dipole magnet, with two stations each in front and behind it and
+one inside the magnet. After the fifth tracking station is another
+passive muon filter wall in front of four planes of Resistive Plate
+Chambers (RPCs) as muon identification and trigger detectors. The RPCs
+are arranged in two stations, each one providing @xmath and @xmath
+coordinates. Coordinate differences of the two chambers are used to
+determine the muons’ transversal momentum for the trigger decision. The
+whole muon arm covers an angle range from 2° to 9°, a compromise between
+detector acceptance and cost. It is shielded from the beam pipe by an
+inner shield for protection from particles produced at large rapidities.
+
+One of the pieces of information needed to determine the collision types
+that occured is the impact parameter of a collision, a measure for the
+distance between the centers of colliding nuclei. The observable
+allowing the best conclusion to the actual impact parameter is the
+energy carried away by spectator nucleons from the beam that did not
+take part in the collision. Spectator neutrons and protons have a
+different charge to mass ratio compared to the ions in the beam.
+Therefore they will be separated from the beam by the same LHC dipole
+magnet that also separates the two colliding beams after the interaction
+point. Detection of the spectator nucleons will be done in two Zero
+Degree Calorimeters (ZDCs) [ 76 ] on each side of the interaction point
+at a distance of 92 m. Each of the two neutron calorimeters (ZN) will be
+placed between two beam pipes and will have to fit in the free space
+between them. The ZN transversal dimensions are therefore restricted by
+this free space and have been set at @xmath . Their depth of @xmath
+corresponds to 10 interaction lengths @xmath of the chosen shower
+material, which must have a high density to place enough absorption
+capability in the restricted space. By contrast the two proton
+calorimeters (ZP) are placed to the side of one of the beam pipes and do
+not suffer from such tight space restrictions. Less denser and cheaper
+materials can be used in them and the dimensions selected here are
+@xmath , the chosen depth also corresponding to @xmath . Quartz fibres
+have been chosen as the active material both for ZN and ZP in which
+shower particles produce Čerenkov light read out by photo-multipliers.
+The primary reason why quartz will be used instead of conventional
+scintillators is its radiation hardness. In addition, it also provides a
+good energy resolution even with small calorimeters, like the ZN, and is
+insensitive to radioactive background whose particles do not produce
+Čerenkov light. Nonetheless to avoid unnecessary radiation exposure that
+might damage them, the ZDCs will be removed from the beam pipe during
+proton-proton mode, when their operation is not required
+
+Another detector covering the forward direction outside of the barrel is
+the Forward Multiplicity Detector (FMD) [ 76 ] , measuring the @xmath
+distribution of particles per unit of pseudo-rapidity outside the
+central acceptance region of the barrel detectors. Additionally, it will
+provide information for the Level 0 (L0) and Level 1 (L1) triggers (see
+below) after an event as early as possible. Currently two possible
+choices exist for the FMD, either Micro Channel Plate (MCP) or Silicon
+multipad detectors. To determine the multiplicity in a pp event using
+the MCP one would simply read out and count the number of digital hits,
+while in heavy-ion mode it would be necessary to sum up the analogue
+information of the charge collected on each of the anode pads. MCPs have
+the advantage of very good timing properties with a resolution of about
+50 ps. With this resolution MCPs could provide multiple types of
+information for the TOF and trigger systems, like event time @xmath , a
+first z-coordinate measurement of the event vertex, identification of
+beam-gas reactions, as well as a measure of pile-up protection for
+slower detectors, like the TPC. By contrast, the Si multi-pad detectors
+feature a time resolution of about 20 ns to 40 ns compared to less than
+100 ps required. Advantageous for the Si detectors is the fact that they
+are well suited to multiplicity measurements in heavy-ion collisions and
+are often used for that purpose already. One possible approach therefore
+is the use of a combination of MCP and Si detectors. The FMD consists of
+seven disks arranged around the beam pipe at distances from the vertex
+from 42 cm to 225 cm. Inner radii of the disks range from 42 cm to 80 cm
+and outer ones from 105 cm to 175 cm. Together the disks cover the
+pseudo-rapidity ranges of 1.6 to 3.6 on the side where the muon arm is
+located and 1.4 to 4.7 on the opposite side. Each of the disks will be
+divided into several pad segments with the total number of pads on all
+seven disk being about 780. Due to the analogue summation for the MCPs
+and the general Si characteristics it will not be necessary to have a
+high granularity to cope with the high multiplicity.
+
+Contrary to most other detectors ALICE does not feature any large
+calorimeter detector in the central barrel region. Due to the large
+radii that the tracking detectors need to handle the high particle
+multiplicities, any such calorimeter would have to cover a very large
+surface and be very expensive as a result. Instead ALICE relies on
+multiplicity measurements of charged particles which on average show a
+good correlation with the transversal energies in events. To provide
+some additional information about the transversal energies the Photon
+Multiplicity Detector (PMD) [ 76 ] has been added to ALICE. The PMD is a
+preshower detector that distinguishes photons from charged particles,
+especially hadrons, and measures the energy depositions of transversing
+particles. While the energies deposited by individiual photons show
+large fluctuations, these are considerably reduced when the depositions
+of a large number of particles are added for each event. In this way the
+PMD takes advantage of the high multiplicities that present a problem
+for most of the other detectors. The forward region was chosen for the
+PMD as the photon energies are higher in that direction, again due to
+the rapidity boost, and the area that needs to be covered is comparably
+small and manageable. It will be mounted on the door of the L3 magnet
+(see below) at a distance of 5.8 m from the vertex and covers the
+pseudo-rapiditiy range @xmath .
+
+For the magnetic field ALICE will reuse the magnet [ 77 ] of the L3
+detector [ 78 ] , [ 79 ] , [ 80 ] . This detector will have been
+dismantled by the time the LHC will start to operate and ALICE will
+actually be assembled and operated in the same underground cavern as L3.
+The magnet’s coil has an inner radius of 5390 mm while the yoke’s outer
+radius reaches 7900 mm and its length 14100 mm and the magnet’s total
+weight is about 7800 t. 168 separate octagonal turns make up the
+solenoidal coil, each with a conducting section of @xmath . At the
+intended magnetic field strength of 0.6 T the magnet will draw several
+Megawatt of electrical power. After its operation in the L3 detector
+concerns exist about its continued operation in ALICE, primarily
+regarding the magnet’s cooling system. Investigations of the current
+state are in progress and a number of possible modifications for the
+cooling systems are already under discussion to assure the magnet’s
+continued functioning during ALICE’s operation.
+
+##### The ALICE Trigger System
+
+One major problem of high enery and nuclear physics experiments is that
+the different types of events as well as the respective underlying
+physical processes occur statistically distributed. Processes with a
+higher probability therefore produce events more often than rarer
+processes and are better researched and understood already. As a result
+rare events are of much more interest to current experiments like ALICE.
+To increase the number of events available for analysis, trigger systems
+are used to select events indicated by certain signatures to belong to
+interesting rare processes. ALICE’s trigger system [ 81 ] before the HLT
+is made up of three stages: Trigger Level 0 (L0), Level 1 (L1) and Level
+2 (L2). The system will be active both in pp as well as in HI mode. The
+primary objective of ALICE is the study of the hot dense matter created
+during central collisions of heavy-ions. Correspondingly the main
+emphasis of the trigger system’s design has been on these collisions of
+ions with relatively small impact parameters. The impact parameter can
+be determined to a given extent from the particle multiplicity in the
+FMD and the energy deposited in the ZDC. As central collisions occur
+relatively frequently the trigger does not need to be very selective and
+the most common event types can even be scaled down so that only a
+subset of them is processed.
+
+Dimuon events with particles in the mass range to be observed on the
+other hand occur very rarely and are therefore processed with a high
+priority. The first trigger for these events signals that two particle
+tracks above a specific momentum threshold have reached the dimuon RPC
+trigger chambers. For these events it is desirable to read out the full
+data to perform correlations with other observables. In case of pile-up
+for a dimuon event it will be tried to read a reduced subset of
+detectors with usable event data. Readout time for such a subset will be
+about @xmath compared to about 2 ms for a full set of detectors.
+
+The purpose of the first trigger stage L0 is to signal an event as soon
+as possible after occurance using exclusively data from the FMD. The
+latency of this signal is fixed to @xmath . To verify that an event
+occured three items are checked:
+
+-   Whether the interaction point reported is close to the nominal
+    collision point.
+
+-   Whether the forward/backward distribution of particles in both
+    directions of the beam pipe is consistent with a beam collision.
+
+-   Whether the multiplicity reported from the FMD is above a given
+    threshold.
+
+To prevent non-central events with a muon pair being discarded at this
+stage the L0’s requirements on centrality are not very strict. A
+positive L0 signal is used by some of the detectors, amongst them the
+RICH and the PHOS, to strobe their front end electronics for readout.
+
+The L1 trigger’s decision latency time is fixed to @xmath [ 69 ] after
+an event has taken place. Its decision is based on FMD and ZDC
+information about the centrality of the event, TRD data about high
+momentum electrons and information from the dimuon system. Since more
+complex correlations have to be examined for the dimuon system its data
+is only available at this stage. Any event for which the dimuon trigger
+reports two particles with a high transversal momentum is then
+classified as a priority event. An L1 accept signal is issued in that
+case to all detectors, in order to activate the readout of all
+detectors’ front end electronics. For the TPC the gating grid is
+activated, its maximum gating rate is 200 Hz for HI and 1 kHz for pp
+mode.
+
+After the gating has been activated, the drifttime of @xmath has to pass
+before the TPC can be read out. During this time further processing of
+data already available from fast detectors can be performed in the L2
+trigger stage. Among the possibilties for processing are a mass cut on
+the dimuon system or fast analysis of data from the FMD. Unlike the
+first two stages L2 does not have a fixed latency but an upper bound as
+defined by the drifttime given above. Due to the variable latency the
+decisions cannot be synchronous anymore. After a positive L2 decision
+the data from all detectors’ Front End Electronics (FEE) will be read
+out.
+
+Another part of ALICE’s trigger is a past-future protection system
+keeping track of pile-ups of overlapping events in each sub-detector.
+Readout of data is then restricted by the system to a subset of
+detectors with non-piled-up data. Using the output of the past-future
+protection unit, an identifier describing the class of event that
+occured is generated. This is distributed to each of the sub-detectors
+which then decide what to do with their data for this event.
+
+##### The Data Acquisition System in ALICE
+
+As the trigger system the Data Acquisition system (DAQ) of ALICE, DATE,
+[ 82 ] , [ 83 ] , [ 84 ] will have to run both in proton-proton as well
+as in heavy-ion mode. As the data rate in pp-mode will be only one fifth
+of what is expected for HI the main requirements on the DAQ system are
+given by heavy-ion operation, although this will only be active for a
+few weeks every year. In general the DAQ system will have to cope with
+two types of events in this mode. The first will contribute most of the
+total data stream and consists of central events at a relatively low
+rate but with a large event size. In contrast, the second type of events
+contains a muon pair that has been reported by the trigger and is read
+out with a reduced detector subset, including the dimuon arm. Events of
+this type can occur at a rate of up to 1 kHz. These two requirements of
+a large data stream and a rather high event rate will both have to be
+handled by the DAQ system. In summary the system will have to cope with
+an aggregate data stream to the permanent data storage (PDS) of
+1.25 GB/s.
+
+The Architecture of the system is based on PCs connected by TCP over
+Gigabit Ethernet. Local Data Concentrator nodes (LDCs) are connected to
+the detector Front End Electronics (FEE) via optical links, the Detector
+Data Links (DDL). Each DDL link ends in a PCI Read-Out Receiver Card
+(RORC) located inside an LDC. One or more RORCs can be placed into each
+LDC and data from each sub-detector may be read out over several DDLs so
+that data from one event can be scattered over multiple RORCs and LDCs.
+Subevent data read out from the detectors in the LDCs is sent to Global
+Data Concentrator nodes (GDCs) for global event building. A GDC
+destination for a particular event is determined by the Event
+Destination Manager (EDM) which communicates this decision to the LDCs.
+Fully assembled events are shipped to permanent storage for archiving
+and later offline analysis.
+
+##### The ALICE High Level Trigger
+
+Together with the preceeding trigger stages the task of the High Level
+Trigger (HLT) [ 85 ] , [ 86 ] is to maximize the physics output that can
+be attained by ALICE with the specified bandwidth to tape. To achieve
+this goal two approaches of online filtering and analysis are possible,
+which may also be used in combination. The first approach is the
+customary selection of the most interesting events as described already
+for the other trigger stages. In the HLT this selection will be
+performed by an online analysis of events to determine the amount and
+type of particles that passed through the detector. Among the detectors
+whose data will be analysed at this time are the ITS, TPC, TRD, and
+dimuon arm. The second possibility is to compress the events so that a
+greater number of them can be written to tape. Best compression results
+are achieved by this approach if the compression method used is adapted
+to the underlying data. This is similar to the approach taken for MP3 [
+87 ] , [ 88 ] or Ogg Vorbis [ 89 ] audio files, where the results
+achieved when sound is compressed adapted to human hearing
+characteristics are much better than the results from general purpose
+compression algorithms. For the TPC data for example the underlying data
+model consists of tracks of charged particles passing through the
+detector and being curved by the magnetic field in the detector. A very
+good compression ratio should thus be possible to achieve if online
+tracking is performed on an event and only the parameters of the found
+tracks are stored. For a better offline analysis capability one would
+also store the space point coordinates of clusters of deposited charges
+in the TPC’s gas volume in addition to the tracks. To minimize the
+amount of additional data, the space point coordinates would be stored
+as distances from their associated tracks and the charges deposited
+would also be stored as differences from calculated averages for the
+corresponding particle.
+
+For both of the presented data reduction approaches it is necessary to
+perform online tracking and charge clustering of the data read out. The
+two different methods could then be combined by storing the
+compressed/analysed data of the most interesting events. To properly
+analyse all the events it becomes necessary that the High Level Trigger
+has access to the complete data from each event or at least to the
+complete data from the sub-detectors whose data is needed for the HLT
+decision. It is the first subsystem where all this data can be available
+fully, allowing a global view of an event if desired.
+
+To perform the necessary processing for online analysis of all events’
+data, the HLT is planned to consist of a large PC cluster farm with a
+number of nodes of the order of several hundred up to about a thousand.
+The connection between the nodes has to be made by a high performance
+network, possibly with a network topology adapted to the necessary flow
+of data through the system. Candidates for the networking technology to
+be used are not yet fixed, but for the required bandwidth at least
+Gigabit Ethernet (GbE) or a System Area Network (SAN) dedicated to
+communication between systems in a cluster is necessary. Possible
+choices for this may be the ATOLL [ 15 ] , [ 16 ] , [ 17 ] networking
+technology currently being developed at the University of Mannheim, the
+shared memory (ShM) interconnect Scalable Coherent Interface (SCI) [ 13
+] from Dolphin Systems [ 90 ] or Myrinet [ 14 ] . All of these
+technologies are available as high performance PCI cards. If GbE is used
+then it is very likely that a protocol other than the default TCP/IP is
+used to avoid the problems related to its use for high performance
+applications described in section 2.1 .
+
+Similar to the DAQ’s LDCs a number of HLT nodes will be equipped with
+RORCs in which the DDLs coming from the detector’s front end electronics
+end. DDLs are connected to the RORCs via mezzanine daughter cards that
+contain the interface to the optical link. These RORC equipped nodes,
+designated Front End Processors (FEPs), are the first place where ALICE
+data arrives in the HLT. As for the LDCs one or more RORCs may be placed
+in each FEP and apart from the addition of the RORCs, the FEPs are in no
+respect different from the other nodes in the cluster. The RORCs in the
+HLT FEP node themselves, however, may well differ from the ones used in
+the DAQ LDCs. In addition to the DAQ baseline funtionality the HLT RORCs
+will be equipped with additional co-processor functionality to already
+perform (pre-) processing of data. The intention of this preprocessing
+performed by the RORCs is to take load off the HLT nodes’ CPUs by
+performing analysis steps well suited to such hardware co-processing.
+For the processing the HLT-RORCs will be equipped with FPGAs on which
+different analysis tasks, e.g. a Hough transformation [ 91 ] , [ 92 ]
+for cluster finding, can be loaded as necessary.
+
+To detail an example of the amount of RORCs needed for the TPC, it will
+be divided into 36 sectors called slices. Each of these slices is again
+subdivided into six patches. One DDL will thus be used to read out the
+data from one patch. Due to the size of the data transferred from the
+TPC each RORC attached to a patch DDL will end in its own FEP. So for
+the TPC alone there will be 216 FEPs, each receiving the data from one
+of its 216 patches.
+
+Data that has been passed via DDL and RORC from the detector into an
+FEP’s main memory may undergo some further local processing on that node
+in addition to any processing done on the RORC itself. After this
+processing the data is shipped to a node of the next group, that
+consists of as many nodes as are necessary to be able to perform the
+analysis of the data in real time. The output data produced by each
+group of nodes is again shipped to the corresponding next group of nodes
+for the next processing step up to the final stage. Each of the
+processing stages in the system may also receive the output data from
+multiple groups of the next lower level, performing some additional
+merging or only merging the groups’ input data without any additional
+processing. After the data has passed through the system and has been
+successively processed and merged in this way, a synopsys of the whole
+analysed event is received by the final stage. Using this fully analysed
+event it is able to make the trigger decision about the event, whether
+to read it out and depending on the mode of operation also which parts
+to read out. This decision and the corresponding data is then passed to
+the DAQ for readout and storage. The interface between the DAQ and the
+HLT will consist of 10 DDL links between a set of HLT event merger nodes
+and a number of DAQ LDCs. To the DAQ the HLT will therefore appear as
+another detector, simplifying the interface between the two systems. In
+the HLT event merger nodes PCI DDL output cards have to be used. These
+cards are functionally different from the RORCs but will use the same
+board type with just another FPGA configuration and a different DDL
+daugher card.
+
+The exact processing sequence with the distribution of data and workload
+has to be kept flexible. The design of the data flow and processing also
+determines much of the architecture and network topology used for the
+system. It drives the requirements on the communication between each
+pair of nodes, which has a very strong effect on the networking topology
+that can be used. In the case of switching networks the most easy and
+flexible approach would be to use a topology where every node can
+communicate simultaneously at full bandwidth with every other node.
+However, as this would require an enormous amount of unnecessary
+bandwidth in the switch(es) it would also make this topology probably
+the most expensive one. If each group of nodes only sends their data to
+a specific other group of nodes, then switches could be used that
+connect only those respective groups of nodes. The switches required in
+this case would have a much smaller number of ports and require much
+less internal bandwidth and should be cheaper as a result. As the
+necessary hardware components, i.e. the PC nodes and networking
+hardware, are basically of the commodity type, it is no problem to
+postpone the decision about the workload distribution and network
+topology. Because of the continuously decreasing prices it is desirable
+to buy these components as late as possible in any case. With the
+flexibility built into the framework presented in this thesis, for this
+exact purpose, the software configuration and architecture can be
+specified at a late point in time, before the start of ALICE’s
+operation.
+
+A sample architecture based on the assumption that all the analysis will
+be executed in software is shown in Fig. 2.2 for data from the TPC
+alone. The assumptions made for the amount of CPUs required for each
+step of processing are based on one hand on interpolations [ 93 ] from
+data of the Level 3 trigger at the Solenoidal Tracker at RHIC (STAR) [
+94 ] detector at the Relativistic Heavy-Ion Collider (RHIC) [ 95 ]
+accelerator at Brookhaven National Lab (BNL) [ 96 ] . On the other hand
+they are based on detailed simulations of the expected detector response
+in ALICE [ 97 ] . As can be seen in the figure, the cluster’s topology
+is built in a tree-like structure where successively larger parts of an
+event are processed and merged as one approaches the tree’s root. At the
+root of the tree the trigger decision is made based on the derived
+physics quantities of the given event. This tree structure is a natural
+choice given the segmentation of the TPC and the hierarchical nature of
+the analysis, which can easily be divided in multiple separate steps.
+
+At the top one can see the FEPs for two slices with the DDLs and RORCs
+for the 12 patches needed. Two processing steps are performed on the
+FEPs. The run length encoded raw data is unpacked and then
+cluster-finding is done on the unpacked data to determine space-points
+of charge cluster depositions along particle tracks. This spacepoint
+data is then transported over a network to the next processing stage. On
+these next nodes an analysis is made to find track segments in each
+patch’s spacepoints that describe the particle tracks going through the
+TPC. For fault tolerance reasons with regard to the failure of nodes the
+spacepoints from one patch are distributed among the four nodes in the
+tracking group. Segments of tracks produced by six neighbouring tracking
+groups are then distributed to the next group of eight nodes. In this
+group the track segments from the six groups are merged to longer track
+segments over the respective six slices in the TPC. The data produced
+from the six groups of track merging nodes is sent to one last group of
+eight nodes where the data from all track merger groups is again merged
+to form the data of the complete event in the TPC. Based on this data
+these global mergers can make the HLT trigger decision. In this setup
+216 FEPs would be present with an additional 144 nodes for tracking. Six
+additional groups of eight nodes are needed for track merging of a slice
+sextett and a final group of eight nodes for global event merging. In
+total this setup would thus require 416 nodes for the HLT.
+
+All data from ALICE sub-detectors is read out upon an L2 trigger accept
+decision and is subsequently present in both the DAQ and the HLT. There
+is thus no need for a fixed latency or an upper bound on it for the HLT
+decision. The main memory of the FEPs will be used as derandomizing
+buffers for the events and event fragments. With memory sizes of several
+gigabytes expected for PCs when ALICE and the HLT will be activated, one
+PC will be able to store several thousands of event fragments read out
+from a TCP patch via one RORC/DDL. Nonetheless an average latency over
+all events will be enforced, determined by the event buffers, the
+average processing time, and the input data rates.
+
+The HLT will consist of a farm with a large number of commodity PCs.
+Each of these individual PCs must be regarded as a relatively unreliable
+component and can fail at any moment. Experience with a small cluster in
+Heidelberg and elsewhere [ 98 ] [ 99 ] suggests a failure of one node at
+least once a week in a system of that size. Therefore the HLT needs a
+fault tolerant architecture that can cope with the loss of any node and
+still continue working. For the processing nodes a good approach is to
+distribute each task among a group of several nodes. An example for this
+are the track finding nodes in the sample setup in Fig. 2.2 . Each FEP
+distributes its data among multiple nodes in the track finding group by
+sending incoming events on a round-robin basis to them. If one of the
+nodes fails this is noticed by a supervising instance informing the
+FEPs, which then can distribute data sent to that node among the
+remaining target nodes. Any new incoming data would also be distributed
+among the remaining nodes only, until the FEPs are notified that the
+failed node is available again. This node failure would thus cause no
+total system failure of the system but just a higher load on the
+remaining tracker nodes and maybe a slightly reduced event rate
+corresponding to the loss in processing power of the failed node. The
+capabilities of the HLT system as a whole would not be significantly
+influenced.
+
+For the FEPs a different approach is necessary as each DDL ends in
+exactly one FEP. One simple solution to this problem is a kind of
+standby node equipped with RORCs, into which DDLs from failing nodes can
+be plugged. This of course would have to be done by manual intervention
+by a technician. But this approach would not prevent the loss of the raw
+data on the FEP at the time of the failure. An extension of the previous
+approach is to copy the raw data from an FEP immediately after it has
+been received to one of the other nodes in its patch group. In principle
+it would even be possible to use a device-to-device copy in which the
+RORC directly communicates with the networking adapter connected to the
+second node. The viability of this and other approaches will have to be
+analysed before a decision is made regarding this. But one major feature
+of any architecture chosen for the HLT must be the tolerance with
+respect to the failure of single nodes in the system and the lack of
+single points of failure in it.
+
+The transport of the data through the HLT will be orchestrated by the
+software framework presented in this thesis. Due to the flexibility
+necessary with regard to different setups and changing analysis
+requirements, the framework must be very flexible and should allow easy
+changes in its configuration of the data flow. Similarly it should take
+into account the unreliable nature of the single nodes and be prepared
+to recover from the loss of any of them as detailed above. Furthermore,
+as the task of the system is the analysis of large amounts of data that
+will require large amounts of CPU power, the framework should be as
+efficient as possible and not use up too much CPU time for just the
+transport of data through the system.
+
+#### 2.2.3 CBM Project
+
+The Compressed-Baryonic-Matter experiment [ 100 ] is a detector intended
+for the future High-Energy-Storage-Ring [ 101 ] (HESR) accelerator at
+the Gesellschaft für Schwerionenforschung (GSI) in Darmstadt [ 102 ] .
+Its primary research goal is the investigation of highly compressed
+nuclear matter, that can be found for example in neutron stars and
+supernova explosion cores. The HESR is designed to provide a dedicated
+heavy-ion accelerator with a number of parameters exceeding those of
+existing dedicated HI accelerators, like beam intensity, quality, and
+energy. The aim is to investigate new regions in the
+baryon-phase-diagram such as the quark-gluon-plasma and the areas of
+higher baryon densities. For this purpose the energy range between
+@xmath to @xmath per nucleon is investigated for a number of criteria,
+like exotic states of matter or the critical point indicating a phase
+transition from the quark-gluon-plasma to higher densities.
+
+For the CBM detector the general HESR research goals are addressed by
+the simultaneous measurement of several observables sensitive to high
+baryon density effects and phase transitions. Amongst others particular
+attention is given to the following areas:
+
+-   The parameters of penetrating probes, like light, short lived vector
+    mesons decaying into electron-positron pairs, able to carry
+    undistorted information from the dense hadronic fireball
+
+-   Strange particles
+
+-   The collective flow of all event observables
+
+-   Event-by-event fluctuations of particle multiplicities, particle
+    phase-space distributions, the collision centrality, and the
+    reaction plane
+
+The CBM detector will basically consist of a magnet, silicon pixel and
+strip detectors, a RICH detector, TRD detectors, and an RPC
+Time-Of-Flight (TOF) wall detector, placed in line behind a fixed target
+in the beam as shown in Fig. 2.3 . Unlike ALICE CBM is a fixed target
+experiment and thus does not need to provide a @xmath coverage around
+the collision point. The setup is designed to measure hadrons as well as
+electrons for beam energies up to @xmath per nucleon with a large
+acceptance. Particle tracking and momentum determination will be
+performed by the seven layers of silicon strip and pixel detectors
+inside the magnetic field located close to the target. In the remaining
+three detectors (RICH, TRD, RPC TOF) located downstream of the magnet,
+particle identification will take place, with the RICH and the TRD being
+used for general electron and high-energy electron identification
+respectively.
+
+For the CBM readout a high level trigger or event filter farm using
+similar principles as for ALICE (PCI readout, a large Linux PC-cluster)
+may be used. In such a setup the use of the framework presented in this
+thesis is a possibility due to the framework’s generic design and the
+flexibility of its “pluggable” component approach.
+
+#### 2.2.4 PANDA Project
+
+The Proton-ANtiproton-at-DArmstadt (PANDA) experiment [ 103 ] at GSI is
+designed to study collisions of protons ( @xmath ) and anti-protons (
+@xmath ) with three primary physics goals:
+
+1.  To study the behaviour of the strong force binding gluons and quarks
+    together in hadrons, the @xmath collisions will be monitored for
+    charmonium and other short-lived particles. A detailed spectroscopic
+    analysis will then be performed on these particles with the aim of
+    obtaining new results for the characteristics of the strong force at
+    medium and longer distances as well as the origin of the quark and
+    gluon confinement in hadrons.
+
+2.  By studying high-energetic @xmath collisions it is expected to
+    generate new data to determine the origin of the hadron masses, of
+    which only a small part, e.g. 2 % in the nucleon, can be attributed
+    to the valence quarks in each hadron.
+
+3.  The third main goal is the search for exotic new forms of matter
+    predicted by strong force theories, such as glueballs that consist
+    only of gluons or hybrids that contain two valence quarks and one
+    gluon.
+
+For the PANDA readout the same statement for a potential high level
+trigger or event filter use and architecture applies as for CBM. This
+includes a corresponding use of the presented framework in such a
+system. One specific application could be searching for and selecting
+events in an online analysis that contain a charmonium particle.
+
+#### 2.2.5 Relation To Other Experiments
+
+Other high-energy and heavy-ion experiments also use a system providing
+high level trigger functionality. The ones most related to ALICE are the
+ATLAS [ 104 ] , [ 105 ] , [ 106 ] , CMS [ 107 ] , [ 108 ] , [ 109 ] ,
+and LHCb [ 110 ] , [ 111 ] , [ 112 ] detectors, currently also being
+built for operation at the LHC [ 55 ] , and the STAR [ 94 ] heavy-ion
+detector at RHIC [ 95 ] .
+
+STAR is in operation at RHIC since 2000 and therefore belongs to a
+different generation of detectors compared to ALICE. It is, however, the
+newest heavy-ion detector currently in operation. The architecture of
+its Level 3 Trigger [ 113 ] [ 114 ] is characterized by a separation
+into Intel i960 processors on receiver boards and a PC farm with Alpha
+CPUs, all connected by Myrinet. Cluster finding is performed already on
+the i960 processors, and tracking is performed on Alpha PCs using the
+clusters received from the i960s. The L3 trigger’s task is to reduce the
+raw events of approximately 15 MB occuring with a rate of about 100 Hz
+to a rate of roughly 1 Hz.
+
+ATLAS and CMS are two general purpose detectors whose main task is the
+search for the Higgs particle and signatures of physics beyond the
+Standard Model of particle physics. The ATLAS High Level Trigger [ 115 ]
+is separated into a Level 2 trigger and an Event Filter farm, both
+consisting of standard PCs. Together these two systems have to reduce
+the HLT input rate of 100 kHz events to the order of 100 Hz. A full
+event is between 1 MB and 5 MB in size, resulting in an output data
+stream of a few hundred MB/s. Data rate into the Event Filter is between
+about 600 Hz and 3.3 kHz, depending on the details of operation. An
+event switching network is located between the Level 2 trigger and the
+detector’s front end electronics so that a Level 2 node can request any
+fragment of an event needed. Between the front end electronics and the
+Event Filter farm an event building network is present so that the Event
+Filter farm operates on completely assembled events and does not have to
+perform any event merging itself. The disadvantage of this approach is
+the requirement of a high bisection bandwidth between the front end
+electronics and the Level 2 and Event Filter farms. As the network
+technology Ethernet has already been chosen for most parts of the
+system.
+
+Expected event sizes for CMS are also about 1 MB. Input and output event
+rates for its HLT [ 116 ] are 100 kHz and 100 Hz, similar to ATLAS. An
+event builder network is used here as well to connect approximately 700
+modules attached to the detector’s front end electronics with the HLT
+nodes. The HLT therefore will operate also on completely assembled
+events and will not perform any event merging or building itself. For
+the network technology the focus at the moment lies on Ethernet or
+Myrinet, both of which are investigated more closely.
+
+The last of the three other LHC experiments, LHCb, operates with very
+small event sizes of around 100 kB. Its High Level Trigger [ 117 ] has
+to reduce the event rate from 40 kHz to 200 Hz. Since the output of the
+HLT are raw event data as well as event summary data the resulting
+output data rate is 40 MB/s, relatively low compared to the other three
+LHC experiments.
+
+As can be seen from the above descriptions, these four experiments’ HLTs
+differ in at least one crucial parameter (required input or output data
+rates, event rate, or architecture) from what is required for the ALICE
+HLT.
+
+#### 2.2.6 Online Video Processing & Image Generation
+
+Next to the use in high-energy and nuclear physics trigger systems other
+applications for the presented framework are also possible. Tasks that
+can be split up into sequences of parts which can be processed in
+parallel and/or in a pipelined manner are areas where the software is
+well suited to be used. Examples of such applications are online video
+processing and image generation, with four major uses:
+
+1.  Decompression of a received, highly compressed video stream for
+    display
+
+2.  Compression of a video stream before transmission or storage
+
+3.  Application of one or more filters to a video data stream before it
+    is displayed
+
+4.  On-the-fly rendering of 3D graphics into video streams for display
+    or transmission
+
+The general principle for the use of the framework follows a similar
+pattern for all of these four applications. A node receives data from an
+external origin and acts as a data source for the required number of
+processing units by distributing the data among them. Each of these
+processing units sends the output data resulting from its operation to
+one data destination. This destination node collects the data, assembles
+it into the correct order, and performs the desired action with it. It
+would even be a possibility to use two processing nodes for each
+sub-task, one of which performs a lower quality form of the operation
+that can be completed in a significantly shorter time. If the normal,
+higher quality data is not received on time at the destination the
+low-quality backup version can be used instead.
+
+##### Video Decompression
+
+In the first of these applications, online video decompression, the data
+input is the compressed video stream, received in the data source either
+by a specialized or commodity network or a specific readout device. The
+produced output data takes the form of a sequence of images, to be
+displayed on an output media.
+
+##### Video Compression
+
+For video compression the input is a raw video stream received most
+likely by a special purpose video readout device or receiver adapter.
+Output is a compressed video stream that can be written to disc,
+broadcast, or sent over a network to a number of receivers.
+
+##### Video Filter Application
+
+In the application of filters to a video stream input and output can
+both be a stream of either compressed or uncompressed video data. This
+stream is received and (re-)transmitted in the corresponding form as
+described for the previous two entries.
+
+##### 3D Image Generation
+
+For image generation the source data are 3D scene descriptions either
+stored and read from a file or received from a generator system, either
+based upon a preset programm or following an operator’s input. The
+output is a video stream for storage or immediate display.
+
+## Chapter 3 Overview of the Framework
+
+### 3.1 Introduction to the Framework
+
+This thesis describes a framework that has been written for distributed
+online data processing in clusters as described in the previous chapter.
+One of its main characteristics is the focus on data driven
+architectures and applications in which elements can receive input data
+from other preceeding elements and produce output data for consumption
+by succeeding ones, as depicted in Fig. 3.1 . Further emphasis during
+the framework’s development has been placed on efficiency, flexibility,
+and fault tolerance. For efficiency in this context the focus is
+primarily set on the reduction of CPU cycles used in the framework for
+the transport of data, to keep as much CPU power available for
+processing of data according to an application’s requirements. The
+requirement for flexibility is implemented such that the framework
+consists of a number of independent software components that can be
+connected together, without recompilation and even during runtime of the
+system, supporting a high adaptability in its configurations. Finally,
+fault tolerance of the software means that the framework has to be able
+to handle and recover from errors as autonomously as possible and that
+it should not contain any single points of failure. Instead the
+framework should be able to reconfigure itself during runtime to work
+around the faulty spot, aided by the dynamic connection ability
+described previously. In the following three sections of this chapter
+the most central design decisions and emphasises of the framework are
+detailed, followed by overviews of the components making up the
+framework and its software architecture.
+
+### 3.2 Framework Design Considerations
+
+A major point of attention and optimization during the design and
+implementation of the framework has been to avoid unnecessary overhead,
+mainly usage of too much CPU time and memory bandwidth. The suppression
+of these effects as far as possible is important since the framework is
+basically a means of getting data to the right place at the right time
+for its first intended use in the ALICE High Level Trigger. Considering
+the HLT’s purpose, i.e. the analysis of that data, and the size of the
+data involved, any amount of processing saved can substantially reduce
+the size of the whole system needed to process the required quantity of
+data, and a reduction of a system’s size also implies a reduction of its
+cost.
+
+Furthermore the software has been optimized for a high throughput rate
+of events in a system. It has not been optimized for latency, i.e. the
+time elapsed between the event’s entering of the system and the HLT’s
+trigger decision for that event. The reason for this decision is that
+the HLT will be operated in a stream mode where new events will come in
+continuously. In such a system latency can be balanced by sufficiently
+large buffers to hold events that have been processed by one stage while
+the next stage processes preceeding events. This argument is made with
+the background that the recent and projected future development of
+memory size shows a steady increase following Moore’s Law. The increase
+in size is accompanied by a development of memory cost so that the price
+of the doubled amount of memory is at most only slightly more than the
+price for the original amount. Memory bandwidth in contrast can be
+scaled by the same amount, but this comes at a much increased cost and
+is not easily available for COTS PCs.
+
+Another important point that has to be considered for such a system is
+the available memory bandwidth. As described in section 2.1 , the
+available bandwidth of memory in PCs has not increased by the same
+factor as the CPU power. In theory CPUs are able to operate much faster
+than in reality where they are slowed down waiting for memory accesses.
+Caches have helped to resolve the situation partially and, depending on
+a program’s memory access pattern, effects may be more or less
+pronounced. In order to partially compensate for and work around the
+problem, trade-offs have been made in the framework that sacrifice
+amount of memory used over memory bandwidth. The motivation for this is
+the same as in the previous paragraph, memory size is cheap while memory
+bandwidth is not.
+
+To allow a flexible and easy operation and configuration of a system
+using the framework as well as an easy customization, the framework
+should be composed of relatively small components, that can be connected
+together using a defined common communication interface between
+components. As such a system has to run distributed over the nodes in a
+cluster, a mechanism to allow components to communicate across nodes is
+needed as well. For efficiency reasons the communication between
+components has not been generalized to use a communication mechanism
+that would also work between nodes. Instead an efficient communication
+mechanism has been chosen that works only locally and special bridging
+components have been developed to connect components across nodes.
+
+For the interface between the components a number of requirements have
+been specified:
+
+-   A data producer should be able to feed multiple consumers to allow
+    easy monitoring of both the framework’s and the analysis code’s
+    correct functionality.
+
+-   For efficiency reasons, only data descriptors should be exchanged
+    between local processes, with the data itself kept in shared memory.
+    As the data is potentially very large, especially in the case of the
+    ALICE HLT, this requirement serves the purpose of preventing copy
+    steps of the data between components.
+
+-   Two kinds of data consumers should be supported:
+
+    -   Blocking consumers, called persistent subscribers, which need to
+        access the input data until they have finished processing it.
+        These are the actual analysis components that need to work on
+        event data until the analysis is finished.
+
+    -   Monitoring consumers, called transient subscribers, that do not
+        need to process every event and have to tolerate overriding
+        event releases by the producer. These components can be attached
+        as taps at any point in the data stream, statically as well as
+        dynamically. An example of this is shown in Fig. 3.2 .
+
+-   Where possible producers and consumers should be identifiable by
+    name rather than by numbers to ease setting up and debugging.
+
+-   The design should be object-oriented to make use of the advantages
+    of object-oriented software development like reuse and
+    encapsulation.
+
+-   Actual communication between processes should be hidden behind an
+    abstract interface to allow an easy exchange of the underlying
+    communication mechanism without having to change the upper layers.
+
+-   It should run at least on the Linux operating system on Intel
+    compatible CPUs as a baseline.
+
+Since there is currently much development in the area of cluster
+interconnect and networking technology suitable for a system using the
+developed framework, such as the ALICE HLT, no decision has been made
+yet for a specific networking technology to be supported. Instead it has
+been decided that any inter-node communication is to be hidden behind an
+abstract communication interface that supports communication
+implementations using different networking technologies and protocols.
+This approach is also desirable with respect to flexibility, as it
+allows to setup a cluster for the framework with any supported network
+technology. It also allows easily to write implementations for new
+additional network interfaces that can be used by any system using this
+framework without changing the framework components.
+
+Concerning the usage of network communication in the framework, two
+separate types can be distinguished. The first of these two types, the
+transport of the actual data to be processed, in general produces the
+bigger data volume. For ALICE this is the event data and the minimum
+block size for TPC raw data would be of the order of several hundred
+kilobytes. The second type of communication consists of small messages
+being exchanged for control, setup, and handshaking purposes, with a
+typical size from several tens of bytes up to a few hundreds of bytes.
+Taking this distinction between the two communication types into
+account, the abstract communication interface has been designed to
+provide optimized functions for the transfer of small data, like
+messages, as well as large blocks of data.
+
+### 3.3 Components Overview
+
+The framework consists of a number of separate components, that can be
+combined into a running system to allow maximum flexibility in its
+configuration. This flexibility necessitates that the components
+communicate via a defined interface that supports connection during
+runtime. To allow a maximum communication efficiency and usability, this
+interface is based on shared memory for the data exchange, as described
+above, and named pipes for control messages, like the exchange of
+descriptors. Named pipes make it possible to address each process by a
+unique name without the need to construct and manage a separate
+namespace. Instead the operating system file namespace is used. At the
+same time pipes provide an efficient operating system mechanism for a
+process to wait for incoming data without polling and thus without
+consuming CPU cycles while waiting. Two major kinds of components
+currently exist in the framework, generic components, not specific for a
+particular task, and components developed for use in the ALICE High
+Level Trigger.
+
+With the generic components one can again distinguish four types: data
+flow components, worker component templates, worker, and fault tolerance
+components. Data flow components do not modify the data passing through
+a system but are responsible for routing the flow of data in it. These
+include components to merge parts of events into one part, to scatter
+and gather data among multiple nodes, e.g. for load-balancing purposes,
+and to transport data between nodes over a connecting network. Worker
+component templates are provided in the form of three sample programs
+that can easily be extended for components which respectively produce
+data (data sources), receive data (data sinks), and receive, process,
+and produce new data (data processing or analysis components). The
+generic worker components are a number of components, partly based on
+the template components, that act as data source, sink, or processing
+components. Finally, the set of fault tolerance components is
+responsible for making a framework system tolerant against faults of
+framework components, hardware parts, or even complete nodes. Some
+overlap exists between the fault tolerance and data flow components as a
+number of the fault tolerance components are extended versions of data
+flow components, performing the same tasks with added functionality.
+
+ALICE specific components are analysis components that execute the
+different stages of the detector data processing. Starting at the raw
+data read out from the detector, each component represents one step in
+the analysis process and accepts a specific type of input data. This
+input data is processed and another type of output data is produced. The
+new ouput data is in turn made available to the next step in the chain
+for further processing. After the last step has been executed, a fully
+reconstructed event is available as the base for the trigger decision.
+
+Fig. 3.3 shows a number of the framework’s components in a possible
+setup as it might be used in the ALICE High Level Trigger for the
+processing of TPC data. The figure shows two nodes in the central two
+hierarchy levels (HL) of an HLT configuration with several components
+running on each of them. A detailed description of the components is
+provided later in chapter 7 . Components shown in blue are generic data
+flow components, while red ones are ALICE HLT processing components. One
+can see the data flow components that connect multiple nodes (SBH and
+PBH), merge parts of the same event (EM), and that scatter and regather
+event streams for load balancing (ES, EG). The two types of processing
+components in the figure perform different levels of merging, the first
+(PM) on the level of the subsector patches and the second (SM) merges a
+number of the sector slices. On the following hierarchy levels more
+merging components are present to reach a fully merged event at the end
+of the processing chain. As can be seen, the configuration makes use of
+the inherent structure and hierarchy in the TPC and its data analysis to
+arrive at a natural decomposition and distribution of the different
+processing tasks.
+
+### 3.4 Software Architecture
+
+From the software architectural side, the framework is divided into a
+number of distinct packages or modules, some of which are dependent on
+others. The relationship between the modules is shown in UML notation in
+Fig. 3.4 .
+
+At the top of the figure are two basic modules, MLUC and PSI, that
+provide basic functionality and do not rely on any other module. The
+More or Less Useful Class library (MLUC) package is a C++ class library
+providing generic classes used in the other packages. One of the classes
+provided by MLUC is a thread class to encapsulate operating system
+functionality for creating multi-threaded programs. Also included is a
+string class, that actually provides less functionality compared to the
+string class present in the standard C++ library available with the GNU
+C++ (g++) compiler. The GNU class however is not thread safe and as all
+but the most trivial programs in the framework are multi-threaded it
+could not be used. Another major class in the package to be included
+here is a new vector class for handling of dynamic arrays. In most cases
+where the vector class is used, it is used in an almost queue like
+functionality, with items being added at the end and removed from near
+the beginning. With the Standard Template Library (STL) vector class,
+also distributed with the g++ compiler, this access pattern causes all
+elements after the one removed to be copied one element forward. Already
+for moderately large arrays this copying process takes up a lot of CPU
+time and obviously also uses up a lot of memory bandwidth. To change
+that situation the new dynamic array class was written, that trades off
+memory size used for the array for a reduction in used memory bandwidth,
+as outlined in the previous design section 3.2 . The last major
+functionality contained in the MLUC library is a logging facility for
+programs. This logging facility is designed to have multiple severity
+levels of log messages and to have a negligible overhead when a severity
+level is turned off. Furthermore it features a modular system of logging
+targets to which messages are dispatched, that can be configured
+completely at runtime.
+
+The second basic module, the PCI and Shared memory Interface (PSI),
+provides user level access to PCI bus devices as well as a shared memory
+interface. PCI devices that need to be accessed can be special readout
+hardware while shared memory is used to exchange data between framework
+components. The module consists of a library providing an Application
+Programmer’s Interface (API) together with a driver that performs the
+actual hardware accesses and operating system interactions. As the name
+suggests PSI’s primary purpose is to provide access to PCI adapter cards
+and other devices from normal user space programs. More specifically it
+allows to access the Configuration Space Registers (CSRs) of any PCI
+device, including bridges, as well as access to the memory and I/O
+regions described by the Base Address Registers (BARs) of PCI devices.
+Memory BARs as well as arbitrary physical memory addresses can be mapped
+into the address space of user space programs and can then be used like
+any normal program memory. Shared memory access is possible to two kinds
+of shared memory, the first of which is ordinary shared memory that can
+be located anywhere in the physical memory of the computer and does not
+need to be physically contiguous. The second type of shared memory is
+located in a memory area obtained by using the big physical area memory
+patch [ 118 ] . This patch reserves a single large physical memory
+region on system start and can allocate chunks of this memory to
+programs and drivers. The special characteristic provided by this patch
+is that any memory allocated from it is actually contiguous in the
+physical memory, making it ideally suited for streaming access and for
+access by Direct-Memory-Access (DMA) capable PCI devices. This last
+point is especially important, as many SAN adapters are actually DMA
+capable and could transfer data from and to this memory without using
+the CPU. A tool library also contained in the package makes use of the
+basic functions in the driver to provide more complex higher level
+functionality together with a number of utility programs.
+
+At the left side of the figure is the Basic Communication Library (BCL)
+module providing the abstract interface for communication outlined in
+the preceding section. This module is also a C++ class library, which
+contains an abstract base class defining general communication
+functionality. Function names in the library have been chosen to follow
+the widely known and used socket API of the POSIX [ 119 ] or Single Unix
+specification [ 120 ] , [ 121 ] , [ 122 ] where appropriate. The base
+class provides functions for performing a bind to an address that remote
+programs can connect to as well as functions for connecting to remote
+program’s addresses. Two further abstract classes are derived from this
+class, one for each of the two communication patterns from section 3.2 ,
+transfers of small message-like data or large blocks of data. Each of
+the two classes provides its own API adapted to its specific task. The
+message like API has functions for directly sending and receiving small
+structures to any address. With the block API a user first has to
+request memory in the remote buffer to store the data before it can
+actually be sent. From these two base classes in turn the classes are
+derived that contain the implementations of the APIs for actual network
+protocols. Currently both communication types are supported for the TCP
+protocol [ 22 ] as the most widely available baseline and for the shared
+memory SCI interface [ 13 ] as an example of a low latency and low
+overhead SAN technology. More details about this module can be found in
+chapter 5 .
+
+While the previous three packages provide functionality that can be used
+in many projects, the remaining four packages, covered in chapters 6 and
+7 , contain the code of the actual data flow framework itself. Utilized
+by the other three modules, the Publisher-Subscriber-Interface module
+contains the implementation of the interface used by the framework
+components for communicating locally on one node. The interface is based
+on shared memory to hold the data to be transported between components
+and named pipes to send descriptors holding the location of the data to
+be exchanged as well as its size and type. It makes use of the
+publisher-subscriber pattern [ 123 ] , also known as producer-consumer
+principle. The Publisher-Subscriber-Interface package provides a set of
+classes that encapsulate the interface and that can be easily used in
+programs that want to communicate with components in the framework or in
+components themselves. Components using this interface are supplied by
+the remaining three modules. Of these modules the Data Flow Components
+module also relies upon the BCL module. Components in this module are
+used to shape the flow of data through a system built with the
+framework. One component merges data streams containing different
+fragments of the same event so that one event stream with larger
+fragments or complete events is produced. Two other components can be
+used to split up a stream of events evenly into a number of streams of
+lower rates and to later reunite them into one large stream. This can be
+used for load balancing purposes with each of the smaller streams being
+handled by a separate node or CPU. The final pair of components is used
+to form a bridge between two nodes to transparently connect components
+on the nodes using the publisher-subscriber interface. For this purpose
+the first of these components uses the common interface for component
+communication to obtain the data to be sent. This received data is then
+transmitted to its counterpart component on the peer node, using
+communication classes from the BCL library. Data received by the
+component running on this node is again made available to other
+components, also by way of the component interface.
+
+The second module using the Publisher-Subscriber-Interface module is the
+Application Components Template module that provides templates for
+application specific or user components. These components are needed so
+that a user building a system with the framework can incorporate
+components with functionality specific to the setup and tasks of that
+system. Three basic types of these user components can be distinguished:
+data sources, data sinks, and analysis or processing components. Data
+sources are components that accept or read out data from a source
+external to the framework. Sources can be simple files, network daemons,
+or special hardware such as the ALICE RORCs. This data is made available
+to further framework components, these data source components thus feed
+a system with data to be processed. Data sinks in analogy are components
+that only accept data from the framework to perform a specific task with
+it. Possible tasks are writing data to files on disk or a database or
+sending it via a network to another system. Sinks and sources are in
+principle the opposite endpoints for data in the framework. Analysis
+components in contrast are located in the middle of the framework. They
+receive data from other components and process it, either producing and
+outputting new data or just outputting the same data again. Its output
+data can again be used as the input for other components. In the
+Application Components Template module templates for all of these three
+types of application components are contained, providing most of the
+functionality needed to include specific components in a system. A user
+only has to add custom code to provide the data for sources, handle the
+received data for sinks, and produce new output data from received one
+for analysis components.
+
+The Application Components package is making use of the Template module
+and supplies a number of working user components based on the templates.
+Some of these components can be used directly in production systems
+while others are intended for development and testing. An example of the
+second category is a data source file publisher component that uses a
+set of files specified on the command line and publishes them
+round-robin into a system’s data flow chain. A contained component that
+can be used in a production system is a data sink that accepts events
+and, after a configurable number of events have been received,
+calculates the average rate of received events and reports that rate
+using the logging facility of the MLUC package.
+
+## Chapter 4 Utility Software
+
+### 4.1 PCI and Shared Memory Software
+
+There are two types of applications requiring a special device driver in
+the context of a data flow framework: Access to specific readout
+hardware, including prototype and development boards, and use of large
+shared memory areas for interprocess exchange of data. For the last
+usage the operating system supplied shared memory, such as System V
+Shared Memory [ 120 ] , [ 121 ] , [ 122 ] , [ 124 ] , could in principle
+also be used. However, under Linux at least there seems to be a
+restriction to a maximum segment size of about 32 MB. This restriction
+makes the approach unfeasible for the use in the desired application,
+where buffer sizes of several hundreds of megabytes are needed to store
+a sufficiently large number of data blocks. As far as the first
+application is concerned, programming a separate device driver for every
+piece of hardware is the more elegant approach, but is the most
+undesired too, due to the complexities and overhead involved in the
+programming of device drivers compared to ordinary user space programs.
+
+The PCI and Shared memory Interface (PSI) software described in this
+section is used to provide the handling of shared memory for the
+publisher-subscriber interface and the framework components described in
+chapters 6 and 7 respectively. For the ALICE HLT the module will
+additionally be used for the development of programs accessing the RORC
+readout cards. An item that at the moment is not supported by the
+software is interrupt handling.
+
+To provide a background for the explanations of PSI software functions,
+parts of this section contain a brief overview of some characteristics
+of the PCI bus. For more in-depth explanations or specifications please
+refer to e.g. [ 21 ] or [ 125 ] .
+
+One consequence associated with the interface are the security risks it
+presents, since it allows any user of a system who has privileges to
+access the driver unrestricted access to any memory area of the system,
+even operating system memory. This memory access could be used to gain
+full access privileges to the system and access any desired data. One
+way to prevent or restrict this, is to make the device node used to
+access the driver available only to a trusted group of users and
+regulate access in this way. At a later stage, the driver might be
+modified in such a way, that it allows access only to a certain set of
+devices and shared memory segment areas. This set of PCI devices might
+be specified with the PCI vendor and device id, unique to each PCI
+device. Both restriction sets, memory and devices, could be either
+compiled into the driver itself or for somewhat greater flexibility
+could be specified as parameters when the driver is loaded.
+
+The interface operates on the principle of regions and a virtual device
+tree. A region corresponds to each type of access one wants to perform
+and is analogous to a file handle. It is necessary to open a region
+before being able to access any device or memory area. Each region
+allows access to only one device or area of memory associated with it.
+Which device or memory area has to be opened is specified using a string
+that describes a node in the virtual device tree. A graphical sketch of
+the tree structure is shown in Fig. 4.1 . Fig. 4.2 shows the strings
+used to specify the corresponding device regions.
+
+PCI devices that have to be addressed can be specified in two ways,
+logically and physically. Logical addressing is done using a device’s
+vendor and device ID, unique 16 bit numbers. The vendor ID is assigned
+by the PCI group and the device ID is assigned by a device’s vendor so
+that each manufacturer and each device have its unique ID. With the
+combination of vendor and device ID it is ensured that no two types of
+devices in a PCI bus can be mixed up. But it is of course still possible
+that multiple cards of the same type are inserted into a system. For
+such a case a card index is available to specify which of the present
+cards should be used. This is the format shown in the first two lines of
+Fig. 4.2 .
+
+Physical addressing, also called geographical addressing, of a card
+makes use of the architecture of the PCI bus. A system can actually
+contain multiple PCI busses, up to a maximum of 16, numbered starting at
+0. Each bus in turn can have a number of slots for plug-in cards, also
+numbered from 0 up to a maximum of 32 slots. Fixed built-in devices are
+still assigned a number in the same range, called slot/device number.
+Finally, each device can contain multiple functions, it can basically be
+divided into multiple sub-devices up to a maximum of 8. Addressing a
+device with these three parameters is done using the syntax shown in the
+third and fourth lines in the figure.
+
+Once a certain device or card is specified, the part of the device that
+has to be accessed must be specified. A PCI device’s configuration can
+be written or read through its configuration space, a 64 byte region
+present for each device’s separate function or sub-device. In addition
+to this configuration space, each device’s function can offer up to six
+address regions for accessing its specific functions. These address
+regions can be either memory mapped regions, addressed like computer’s
+RAM, or they can be I/O regions. As the I/O address range is very
+limited many devices use memory mapped address regions. The six
+accessible address ranges of each device are specified in registers in
+the device’s configuration space called Base Address Registers (BARs).
+Frequently the term BAR is also used to specify the actual address areas
+that a register points to. For both of the above methods of addressing a
+PCI device, it is possible to either specify the configuration space to
+be accessed, shown in the first of each pair of lines, or to access the
+area pointed to by one of the available BARs.
+
+Next to PCI hardware, the interface allows also access to shared memory
+areas. Two different types of shared memories are supported: Ordinary
+shared memory and memory accessible using the big physical area patch [
+118 ] . Ordinary shared memory does not differ much from other
+interprocess memory, like e.g. System V ShM. It is located in normal RAM
+and is available on every system without modifications to the operating
+system kernel. A shared memory region of this type is opened by using
+the syntax of the /dev/psi/mem line in Fig. 4.2 . The shared memory ID
+in this line can be any string, unique for each shared memory region to
+be opened. To share a memory range programs have to open a region using
+the same ID. One drawback of this shared memory type however is that it
+can be limited in the maximum size possible for a segment. System V
+shared memory for example has failed to be allocated beyond a size of
+around 32 MB in tests. Another potential disadvantage is the fact that
+although this type of shared memory appears contiguous in the virtual
+address space of a user program it may be scattered in the actual
+physical RAM.
+
+Bigphys shared memory in contrast does not suffer from these two
+problems. It is in principle similar to the standard shared memory and
+its regions are also identified using a string ID. The major difference
+is that bigphys shared memory is allocated via a kernel patch, the big
+physical memory area patch. This patch allocates a specified number of
+memory pages at the start of the system, with the advantage that the
+allocated memory actually exists as one large block in physical memory.
+Other drivers, in this case the PSI driver, can request a certain amount
+from that allocated memory. If this request can be fulfilled the
+returned memory range will be contiguous as well and will neither be
+swapped out nor removed by the system from its physical address for any
+other reason. The continuity of that type of memory has the advantage of
+being well suited for data streaming purposes and for accesses from
+Direct-Memory-Access (DMA) capable hardware. DMA capable hardware
+typically receives a pointer to a memory area and then either reads data
+from or writes data into that location. One example of DMA capable
+hardware is the ALICE RORC, that receives a pointer to a large data
+buffer in the computers RAM and copies received event data into that
+buffer on its own without copying being done by the system’s CPU.
+
+Immediate physical memory addresses that can be anywhere inside the
+system’s memory address space — 32 bit for typical PCs — are the last
+type of region that the PSI driver can access. The driver performs no
+check on the presence of actual hardware accessible at that address.
+Write accesses to unused addresses will succeed, without the data being
+written anywhere. Data read attempts will return invalid data, in most
+cases data with all bits set.
+
+After a region has been opened, its size needs to be set for the region
+types where this cannot be determined automatically. This is the case
+for the three memory region types, normal shared, bigphys shared, and
+physical memory. PCI BAR regions and configuration space regions are
+sized automatically. The respective BAR size to be used is determined
+conforming to the PCI specification from the device’s configuration
+space. Configuration space regions are sized to the default value of
+64 bytes. For a sized region it is possible to read data from and write
+data to it. These read and write accesses can be done in units of 1, 2,
+or 4 bytes and can be any arbitrary multiple of the unit size. For all
+memory types, including memory BAR regions, it is also possible to map
+them into the user program’s address space. The mapping returns a
+pointer to the program that can be used like a normal pointer variable
+in a C program. It provides a very direct and fast access to the memory
+region concerned, as there is no operating system call associated with
+each region access, making this the most effective and easiest way of
+hardware access.
+
+Built on top of the basic functions provided by the PSI library is a
+further library, the PSI Tool Library, that makes some higher level
+functions available. Included functions address various tasks associated
+with PCI configuration spaces. The most basic ones of these are for
+reading out configuration spaces directly into data structures with
+variables corresponding to the decoded elements of the configuration
+space. These structures can be printed out in a human readable form
+using further available functions. Other functions in this higher level
+library deal with the sizes of regions pointed to by PCI devices’ BARs,
+which can be determined by specific read and write accesses to a
+device’s configuration space. These BAR region sizes, together with
+flags that can be set for a BAR, can be read out and printed by another
+set of functions. Defined flag values can specify whether two 32 bit BAR
+addresses have to be combined to a 64 bit address and whether a certain
+memory BAR is prefetchable (cacheable) or not.
+
+In addition to determining the size of a region pointed to by a BAR it
+is also possible to configure a device’s BAR by assigning an address
+under which that region will be accessible. This assigned address has to
+point to a free memory region of a size large enough to accomodate the
+needed window in order to avoid conflicts. In order to ensure this the
+library function first determines the sizes of the memory regions needed
+and scans all devices on the system’s PCI bus(ses) to determine the
+address ranges already in use by other devices. If the device is located
+behind one or more PCI bridge devices, the library will take further
+steps to configure the region so that it will be inside the address
+window passed by the bridges to devices behind it. Once the used address
+ranges are determined, the remaining free ones will be scanned for the
+best fitting window, the smallest one still large enough to take up a
+region of the necessary size. During this process the necessary
+alignment of the address according to the PCI specification is also
+taken into account. Finally, when the device itself is properly
+configured, the function will again scan the bus for bridges in front of
+the device and configure their window sizes accordingly so that accesses
+to the device will pass through them.
+
+Another function contained in this library can be used to test open
+regions by writing a number of patterns to it, reading back the data,
+and comparing it with the written data. If the data read back does not
+correspond to the data written, it is read a second time to get an
+indication of whether an error occured on reading or on writing. Four
+patterns can be written by this function:
+
+-    Walking Ones , where one set bit is shifted once for each word
+    written, e.g. 0x00000001, 0x00000002, …, 0x80000000, to each 32 bit
+    memory location.
+
+-    Walking Zeroes , where one unset bit is shifted once for each word
+    written, e.g. 0xFFFFFFFE, 0xFFFFFFFD, …, 0x7FFFFFFF, to each 32 bit
+    memory location.
+
+-    Full Bits , where alternatingly data words with all bits set and
+    all bits unset are written, e.g. 0x00000000 and 0xFFFFFFFF, to each
+    32 bit memory location.
+
+-    Flipping Bits , where alternating data words with every odd or even
+    bit set are written, e.g. 0xAAAAAAAA and 0x55555555, to each 32 bit
+    memory location.
+
+The final part of the PCI and Shared Memory software is a set of small
+user programs for access to most of the region types described above
+from a command line shell. This avoids the necessity of writing separate
+programs for small infrequent accesses, e.g. basic testing. The type of
+region to be accessed, the parameters required for that region type, and
+the data to be written are all specified via command line parameters.
+Data to be read is printed out normally. The first program in this set
+allows read and write accesses to a PCI device’s configuration space or
+its BARs as well as to physical memory addresses. Data read can be
+dumped in a format suitable for input as write data so that it can be
+written to a file and later to the same or another region. A second
+program can perform the test routine described in the previous
+paragraphs on the same region types as the read/write program. The final
+utility program reads an arbitrary data file and dumps it into a format
+that can be used as write data input for the read/write program. This
+allows any file, for example configuration data, to be written directly
+into a specified region.
+
+### 4.2 The Utility Class Library
+
+During the development of the framework the necessity arose for a number
+of utility classes with a sufficiently generic functionality to place
+them into a separate library, the More or Less Useful Class library
+(MLUC), so that they can be used in other projects as well. Some of
+these classes encapsulate existing system functionality with an object
+oriented (OO) interface while others encapsulate and supply new
+functionality. A third set of classes was written to replace or enhance
+classes from standard libraries either for performance reasons or
+because the standard library class did not work in a multi-threaded
+environment.
+
+#### 4.2.1 Function Encapsulation Classes
+
+##### The Logging System
+
+The first set of classes is designed to offer a fast logging system for
+programs to easily and flexibly dispatch informative messages to one or
+more destinations. Different levels of severity for messages are
+supported by the classes, ranging from fatal errors to debugging aids.
+Three main criteria have been set for the development of these classes:
+Normal operation of a system should be influenced by the logging system
+as little as possible, therefore the overhead of a message with a
+deactivated severity level has to be very low. Secondly, the system
+should support multiple message destinations in a manner transparent to
+the code performing the actual logging. Destinations should also be
+changeable at runtime, again transparently to the code using the logging
+system. The last requirement for the system was that the severity levels
+should be selectable independently of each other. In many systems of
+this kind deactivating a severity level causes all less severe levels to
+be deactivated as well.
+
+A code example of a logging message is shown in Fig. 4.3 . The first
+parameter to the LOG call specifies the severity of the given message,
+in this case debugging severity, a list of the available levels follows
+below. Following the severity are two strings, the first specifying the
+origin of the message, the second holding keywords categorizing the
+message. After the LOG call the C++ stream operator << is used to pass
+the actual contents of the message to the system. To signal the end of
+the log message the ENDLOG constant is streamed into the system.
+
+The requirement for individually selectable severity levels of the
+system has been implemented by using a single bit in a 32 bit number for
+each level, restricting the number of levels to 32. Currently six levels
+are used in the system. In order of decreasing severity these are fatal
+, error , warning , informational , debug , and benchmark . As these six
+levels should cover most of the occuring applications, the remaining 26
+allow enough extension possibilities. Bits and thus levels can be set,
+unset, or queried using the standard bit operations in the C/C++
+language. Most of these operations can be translated directly to one or
+two low-level machine instructions so that especially the frequently
+used query operation can be executed effectively.
+
+As stated in the first paragraph, the first design criterion of the
+system was a very low overhead for logging calls with deactivated
+severity levels. The rationale for this requirement comes from the fact
+that the less severe messages, like debugging messages, are frequently
+used and as a result can occur very often during the runtime of the
+system. These message levels are typically activated only during the
+development and testing of a system or in case of errors, and not during
+normal production, as logging a message is generally very slow on the
+typical timescales of such systems. But to retain the ability to
+diagnose runtime problems it is not desirable to remove them from a
+production system completely, and so one takes the compromise of
+deactivating the severity levels concerned. In case of a problem they
+can be activated again during the running of the system. Although it
+will be impossible to completely eliminate any impact of messages with
+deactivated levels on system performance, it still should be kept as low
+as possible. This includes even the avoidance of a function call in such
+a situation if possible. The overheads resulting from various methods of
+calling a logging system are presented later in section 8.1.1 . In a
+preceeding summary it can be stated that function calls have a much
+higher overhead than the method chosen here. However, despite all these
+efforts to make the system effective it should still be easy to use in
+programs.
+
+To achieve the aims of low overhead for unused severity levels and ease
+of use, a combination of C preprocessor macros, C++ class methods, and
+overloaded operators has been chosen, partly hidden from users. The
+first important part is the macro definition for the LOG call, shown in
+Fig. 4.4 , that hides an if -statement and a method call executed when
+the condition in the if -statement is true. This if -statement is mainly
+responsible for achieving the required effectiveness. In the if
+condition it is tested whether the bit corresponding to the message’s
+severity is set in the gLogLevel variable. gLogLevel is a global
+variable specifying the activated severity levels in a program. If the
+respective severity bit is not set, the rest of the logging statement
+will not be executed at all. For disabled severity levels the overhead
+of a logging call thus amounts to an if -statement with a test for a set
+bit. On Intel compatible processors the GNU C Compiler (gcc) (Version
+2.95.3) translates this into the four processor instructions for an i686
+(Pentium-Pro or later) processor shown in Fig. 4.5 .
+
+The gLog object used in the LOG macro is not an object itself but a
+global reference. It points to an instance of the MLUCLog class, the
+actual interface to the logging system. This object also handles the
+dispatching of logged messages to the different message present
+destinations. By using a reference instead of the MLUCLog instance
+directly it is possible to transparently change the log message
+interface. For reasons of brevity the global MLUCLog instance will be
+referred to as the gLog object .
+
+In the gLog object’s LogMsg method, called in the macro when a message
+is logged, the message is prepared. Four preprocessor macros are passed
+to the function in addition to the three parameters passed to the LOG
+macro: The name of the code’s originating file together with the line
+number in the file, and the time and date when it was compiled.
+Additionally the current date and time as well as the name of the host
+on which the program runs are stored. To ensure thread safety a mutual
+exclusion semaphore (mutex) is locked so that only one thread at a time
+can access the logging system. As the locking is only performed for
+messages actually logged, the impact on a running system should be
+minimal. The message content streamed into the logging system is stored
+in the gLog object until the ENDLOG identifier has been streamed. This
+causes the full message to be assembled and passed to the active logging
+destinations. After this has been done the logging mutex is unlocked
+again, releasing the logging system for access by other threads.
+
+To achieve the final goal of multiple transparent logging destinations
+for the logging system, it has been divided into multiple classes: The
+MLUCLog class as the primary interface, the MLUCLogServer class as the
+abstract interface for message destinations, and classes derived from
+MLUCLogServer with the actual destination implementations. This division
+is shown in Fig. 4.6 .
+
+The global gLog object contains a list with pointers to instances of
+MLUCLogServer derived classes. Each of these derived classes is
+responsible for delivering log messages to a certain destination,
+examples of which are the standard output channel of programs, sets of
+files, or the syslog facility present on Unix computers. Instances of
+the classes corresponding to desired log destinations are registered
+with the gLog object, which enters them in its list of destinations.
+When the program makes a call to the logging system the complete message
+is assembled in the gLog object. Having received the message the object
+iterates over its list of registered MLUCLogServer destination classes,
+dispatching the message to each of them. After this the destination
+classes are responsible for delivering the message, e.g. by printing it
+to the standard output or writing it to a file. The interface to the
+destinations, the MLUCLogServer class, is hidden inside the logging
+system. Only when a class for a new destination has to be written has it
+to be used directly.
+
+A sample sequence of a logging call is shown in Fig. 4.7 . In this
+sequence an application makes a logging call for a message to the global
+gLog object. Two instances of MLUCLogServer derived classes are
+registered in the gLog object: an MLUCStdoutLogServer , printing
+messages to the program’s standard output, and an MLUCFileLogServer ,
+writing the messages to a file. The gLog object sends the received
+message first to the MLUCFileLogServer object and then to the
+MLUCStdoutLogServer object. After the message has been dispatched to
+both registered MLUCLogServer objects the logging call returns control
+to the application’s code.
+
+Depending on the implementation of the logging servers used logging a
+message might block a program, e.g. when a disk is full or when a
+network error for a log target node occurs. The currently provided
+servers will block in such situations, corresponding to their respective
+destination. To avoid blocking a log server implementation could make
+use of a background thread to for sending or writing of the data. Such a
+solution however could require the discarding of log messages when this
+background thread is blocked for too long.
+
+##### Multi-Threading Classes
 
 Most of the programs used in the framework consist of multiple threads
 for two reasons. Primarily, the motivation is to prevent programs from
@@ -8073,863 +10619,3 @@ the framework by users not involved in its development. With these
 enhancements in place, the framework will provide a toolbox from which
 cluster applications, in particular trigger related ones, can be
 constructed easily.
-
-## Appendix A Benchmark Supplement
-
-### a.1 Microbenchmark Programs
-
-#### a.1.1 Logging Overhead
-
-    #include <sys/time.h>
-    #include <stdio.h>
-
-    #define COUNT 1000000000
-
-    void test_function1( int* a )
-        {
-        (*a)++;
-        }
-
-    void test_function2( unsigned long flags, int* a )
-        {
-        if ( flags & 1 )
-            (*a)++;
-        }
-
-    unsigned long long calc_tdiff( struct timeval* start, struct timeval* stop )
-        {
-        unsigned long long tmp;
-        tmp = (stop->tv_sec - start->tv_sec);
-        tmp *= 1000000;
-        tmp += (stop->tv_usec - start->tv_usec);
-        return tmp;
-        }
-
-    int main( int argc, char** argv )
-        {
-        struct timeval start, stop;
-        unsigned long i;
-        int n;
-        int *p = &n;
-        unsigned long flags = 1;
-        unsigned long long loopoverhead;
-        unsigned long long loop_if;
-        unsigned long long loop_iffunc;
-        unsigned long long loop_func;
-        unsigned long long loop_funcif;
-
-        gettimeofday( &start, NULL );
-        for ( i = 0; i < COUNT; i++ )
-            {
-            (*p)++;
-            }
-        gettimeofday( &stop, NULL );
-        loopoverhead = calc_tdiff( &start, &stop );
-        printf( "Loop overhead:          %Lu us\n", loopoverhead );
-
-        gettimeofday( &start, NULL );
-        for ( i = 0; i < COUNT; i++ )
-            {
-            if ( flags & 1 )
-                (*p)++;
-            }
-        gettimeofday( &stop, NULL );
-        loop_if = calc_tdiff( &start, &stop );
-        printf( "Loop with if:           %Lu us\n", loop_if );
-
-        gettimeofday( &start, NULL );
-        for ( i = 0; i < COUNT; i++ )
-            {
-            test_function1( &n );
-            }
-        gettimeofday( &stop, NULL );
-        loop_func = calc_tdiff( &start, &stop );
-        printf( "Loop with func:         %Lu us\n", loop_func );
-
-        gettimeofday( &start, NULL );
-        for ( i = 0; i < COUNT; i++ )
-            {
-            if ( flags & 1 )
-                test_function1( &n );
-            }
-        gettimeofday( &stop, NULL );
-        loop_iffunc = calc_tdiff( &start, &stop );
-        printf( "Loop with if and func:  %Lu us\n", loop_iffunc );
-
-        gettimeofday( &start, NULL );
-        for ( i = 0; i < COUNT; i++ )
-            {
-            test_function2( flags, &n );
-            }
-        gettimeofday( &stop, NULL );
-        loop_funcif = calc_tdiff( &start, &stop );
-        printf( "Loop with func with if: %Lu us\n", loop_funcif );
-
-        return 0;
-        }
-
-### a.2 Minimal Benchmark Process List
-
-      PID TTY      STAT   TIME COMMAND
-        1 ?        S      0:05 init [3]
-        2 ?        SW     0:00 [keventd]
-        3 ?        SWN    0:00 [ksoftirqd_CPU0]
-        4 ?        SW     0:00 [kswapd]
-        5 ?        SW     0:00 [bdflush]
-        6 ?        SW     0:00 [kupdated]
-       34 ?        SW     0:00 [kreiserfsd]
-      229 ?        S      0:00 /sbin/syslogd
-      233 ?        S      0:00 /sbin/klogd -c 1
-      264 ?        SW     0:00 [khubd]
-      508 tty1     S      0:00 login -- root
-      509 tty2     S      0:00 /sbin/mingetty tty2
-      510 tty3     S      0:00 /sbin/mingetty tty3
-      511 tty4     S      0:00 /sbin/mingetty tty4
-      512 tty5     S      0:00 /sbin/mingetty tty5
-      513 tty6     S      0:00 /sbin/mingetty tty6
-      965 tty1     S      0:00 -bash
-     1259 tty1     R      0:00 ps x
-
-## Appendix B Benchmark Result Tables
-
-The following tables were generated automatically. Layout and number
-formats may therefore not be optimal. Errors are given as standard
-deviations where present.
-
-### b.1 Micro-Benchmarks
-
-#### b.1.1 Cache and Memory Reference Tests
-
-### b.2 Network Reference Tests
-
-#### b.2.1 TCP Network Reference Throughput
-
-##### Plateau Determination
-
-##### Plateau Throughput Measurement
-
-##### Peak Throughput Measurement
-
-#### b.2.2 TCP Network Reference Latency
-
-### b.3 Communication Class Benchmarks
-
-#### b.3.1 TCP Message Class Throughput
-
-##### Plateau Determination
-
-##### Plateau Throughput Measurement
-
-##### Peak Throughput Measurement
-
-#### b.3.2 TCP Message Class Latency
-
-#### b.3.3 TCP Blob Class Throughput with On-Demand Allocation
-
-##### Plateau Determination
-
-##### Plateau Throughput Measurement
-
-##### Peak Throughput Measurement
-
-#### b.3.4 TCP Blob Class Throughput with Preallocation
-
-##### Plateau Determination
-
-##### Plateau Throughput Measurement
-
-##### Peak Throughput Measurement
-
-#### b.3.5 TCP Blob Class Latency with On-Demand Allocation
-
-#### b.3.6 TCP Blob Class Latency with Preallocation
-
-### b.4 Publisher-Subscriber Interface Benchmarks
-
-#### b.4.1 Scaling Behaviour
-
-## Appendix C Obsolete Framework Components
-
-### c.1 ALICE DAQ Interface Components
-
-For a previous software only version of an interface between the ALICE
-High Level Trigger and the ALICE Data Acquisition system DATE for the
-recording of events two data sink components have been created. Both
-interfaces contain a subscriber object of a class derived from the
-common AliHLTDATEBaseSubscriber parent class. This class contains
-functionality to initialize a DATE interface library, pass events for
-recording to DATE, and query already recorded events that can be
-released.
-
-#### c.1.1 The DATE Subscriber Base Class
-
-Basic functionality for interfacing from the publisher-subscriber
-interface framework to the DATE system is defined in the
-AliHLTDATEBaseSubscriber class. It is derived from
-AliHLTSubscriberInterface but defines none of the functions needed to
-implement the interface, which has to be done by its own derived
-classes, DirectDATESubscriber and TriggeredDATESubscriber . In the class
-four primary and one auxiliary functions are provided for the interface
-with the DAQ system. Fig. C.1 shows the relation of the classes, more
-detailed explanations are contained in the following paragraphs.
-
-The first of the primary functions is Run , which has the purpose of
-initializing the library provided by DATE and starting the background
-thread that runs the DATEEventsDone function described later. It also
-interacts with the DATE run-control to inform it about the activation of
-a recording program. Run ’s counterpart is the Stop method called at the
-end of a program. It terminates the started background thread, informs
-the run-control about the program’s end, and deinitializes the DATE
-library. To pass an event to the DATE system for recording the third
-function, SendEventToDATE , has to be called. Its main parameters are
-the ID of the event concerned, its corresponding sub-event descriptor,
-and a 32 bit unsigned integer containing additional event flags to pass
-to DATE.
-
-In the current version this function imposes one restriction on the
-event data. The program is currently only able to create one type of
-DATE events, called streamlined events, in which the event data has to
-be prefixed directly by the DATE event header. As a consequence space
-has to be available in front of the data in shared memory for the
-appropriate amount of bytes so that an event header can be created
-there. In addition to the event ID the header contains the number of the
-GDC node where the event will be assembled as well as the additional
-flags that have been passed in the function’s parameter. The GDC ID is
-obtained by calling the class’s GetGDCID helper function. After calling
-the DATE function to record the event described by the constructed
-header, the function updates the run-control’s event and byte counters
-appropriately.
-
-Running as a continuous loop in a background thread the DATEEventsDone
-function’s task is to query DATE via its library periodically for events
-that have already been recorded. For these finished events the publisher
-proxy’s EventDone function is called to allow the event’s original
-publisher to release it. This polling is done in configurable intervals,
-by default in half a seconds intervals. Next to the periodic check for
-recorded events the loop also queries run-control status flags to
-determine whether the program should continue running or whether it
-should terminate.
-
-GetGDCID is a helper function to encapsulate the determining of the GDC
-ID to be used for an event. For tests the function currently implements
-a round-robin scheme based on an event’s ID and the number of active
-GDCs.
-
-#### c.1.2 The Direct DATE Subscriber
-
-In the DirectDATESubscriber component each event received by the
-components’s subscriber object is directly passed to DATE for recording.
-The NewEvent method implemented by the DirectDATESubscriber class
-directly calls the SendEventToDATE method provided by its
-AliHLTDATEBaseSubscriber parent class. Apart from setting up all
-necessary objects there is not much more functionality contained in this
-component.
-
-#### c.1.3 The Triggered DATE Subscriber
-
-Unlike the previous DirectDATESubscriber , the TriggeredDATESubscriber
-component does not forward each event to DATE immediately. Instead it
-uses an approach similar to the TriggeredFilter component from section
-7.1.5 . A new received event is entered into a list, and only upon
-receipt of event done data for it a decision is made which parts of the
-event are to be passed to DATE. It is possible that an event is not
-announced at all or only as an empty event with no data. Event done data
-for an event is received from another subscriber via the publisher
-component. The event trigger decision is made using an object of the
-AliHLTTriggerEventFilter class, also described in 7.1.5 . In the
-EventDoneData function implemented by TriggeredDATESubscriber the filter
-object’s FilterEventDescriptor function is called to determine the data
-blocks to record. Similar to the trigger filter component the triggered
-DATE subscriber can also be configured to either forward untriggered
-events as empty events with no data blocks or to simply release them
-without invoking DATE.
-
-## Appendix D Glossar
-
-  ACM  
-
-    Association for Computing Machinery
-
-  ADC  
-
-    Analog to Digital Converter
-
-  ALICE  
-
-    A Large Ion Collider Experiment — Future heavy-ion experiment at
-    CERN’s LHC Collider
-
-  API  
-
-    Application Programmer’s Interface
-
-  ATLAS  
-
-    A Toroidal LHC ApparatuS — Future general purpose experiment at
-    CERN’s LHC Collider
-
-  ATOLL  
-
-    ATOmically Low Latencies — A SAN for the PCI bus being developed at
-    the University of Mannheim
-
-  BAR  
-
-    Base Address Register
-
-  BCL  
-
-    Basic Communication Library — C++ communication class library
-    covered in this thesis
-
-  BLOB  
-
-    Binary Large OBject
-
-  BNL  
-
-    Brookhaven National Laboratory
-
-  C  
-
-    Procedural programming language well suited to system programming
-
-  C++  
-
-    Programming language based on C with object-oriented extensions
-
-  CAMAC  
-
-    Computer Automated Measurement and Control — Industry standard
-    instrumentation bus
-
-  CBM  
-
-    Compressed-Baryonic-Matter — Planned experiment at the future HESR
-    accelerator at GSI
-
-  CERN  
-
-    European Organisation for Nuclear Research in Geneva, Switzerland
-
-  CMS  
-
-    Compact Muon Solenoid — Future general purpose experiment at CERN’s
-    LHC Collider
-
-  COTS  
-
-    Commodity-Off-The-Shelf
-
-  COW  
-
-    Cluster Of Workstations
-
-  CRC  
-
-    Cyclic Redundancy Check
-
-  CSMA/CD  
-
-    Carrier Sense Multiple Access with Collision Detection — Ethernet
-    technology for regulating access to physical transmission medium
-
-  CSR  
-
-    Configuration Space Register
-
-  DAQ  
-
-    Data AcQuisition
-
-  DARPA  
-
-    Defense Advanced Research Projects Agency
-
-  DATE  
-
-    ALICE Data Acquisition and Test Environment
-
-  DCS  
-
-    Detector Control System
-
-  DDL  
-
-    Detector Data Link
-
- @xmath 
-
-    Specific energy loss of charged particles per distance travelled
-
-  DMA  
-
-    Direct Memory Access
-
- @xmath 
-
-    Distribution of particles per unit of pseudo-rapidity
-
-  EDM  
-
-    Event Destination Manager
-
-  EG  
-
-    Event Gatherer
-
-  EM  
-
-    Event Merger
-
-  ES  
-
-    Event Scatterer
-
-  FE  
-
-    Fast Ethernet or Front End
-
-  FEE  
-
-    Front End Electronics
-
-  FEP  
-
-    Front End Processor
-
-  FIFO  
-
-    First-In-First-Out
-
-  FMD  
-
-    Forward Multiplicity Detector — One of ALICE’s detectors
-
-  FPGA  
-
-    Field Programmable Gate Array
-
-  FSM  
-
-    Finite State Machine
-
-  FT  
-
-    Fault Tolerance
-
-  gcc  
-
-    GNU C Compiler or GNU Compiler Collection
-
-  GDC  
-
-    Global Data Concentrator
-
-  GNU  
-
-    GNU’s Not Unix — Project to provide a freely available version of a
-    Unix like operating system
-
-  GSI  
-
-    Gesellschaft für Schwerionenforschung in Darmstadt, Germany
-
-  GbE  
-
-    Gigabit Ethernet
-
-  HADES  
-
-    High Acceptance Di-Electron Spectrometer — Detector at GSI
-
-  HESR  
-
-    High Energy Storage Ring — Future Accelerator at GSI
-
-  HI  
-
-    Heavy-Ion
-
-  HL  
-
-    Hierarchy Level
-
-  HLT  
-
-    High Level Trigger
-
-  HMPID  
-
-    High Momentum Particle IDentification — One of ALICE’s detectors
-
-  HPC  
-
-    High Performance Computing
-
-  I/O  
-
-    Input & Output
-
-  IEEE  
-
-    Institute of Electrical and Electronics Engineers, Inc.
-
-  IETF  
-
-    Internet Engineering Task Force
-
-  IIS-A  
-
-    Fraunhofer-Institut für Integrierte Schaltungen
-
-  IP  
-
-    Internet Protocol
-
-  ISA  
-
-    Industry Standard Architecture — PC extension bus
-
-  ITS  
-
-    Inner Tracking System — One of ALICE’s detectors
-
-  k  
-
-    As a prefix usually @xmath , however in this thesis when used as
-    prefix for bits or bytes or when used for counts of multiples of 2
-    (e.g. 32 or 128), means @xmath
-
-  kB  
-
-    @xmath Bytes
-
-  L0  
-
-    Level 0 Trigger
-
-  L1  
-
-    Level 1 Trigger
-
-  L2  
-
-    Level 2 Trigger
-
-  L3  
-
-    Level 3 Trigger
-
-  LAM  
-
-    Look At Me — An interrupt signal
-
-  LAM/MPI  
-
-    MPI implementation
-
-  LDC  
-
-    Local Data Concentrator
-
-  LHC  
-
-    Large Hadron Collider — Future accelerator at CERN
-
-  LHCb  
-
-    Large Hadron Collider beauty experiment — Future experiment
-    dedicated to b-physics at CERN’s LHC Collider
-
-  LSF  
-
-    Load Sharing Facility
-
-  M  
-
-    As a prefix usually @xmath , however in this thesis when used as
-    prefix for bits or bytes or when used for counts of multiples of 2
-    (e.g. 32 or 128), means @xmath
-
-  MB  
-
-    @xmath Bytes
-
-  MCP  
-
-    Micro Channel Plate — A technology for particle detectors
-
-  MLUC  
-
-    More or Less Useful Class Library — C++ utility class library
-    covered in this thesis
-
-  MP3  
-
-    MPEG Audio Layer 3 — Compressed audio file format
-
-  Molière radius  
-
-    Material characteristic used to describe the transversal dimension
-    of electromagnetic particle showers
-
-  MPEG  
-
-    Motion Picture Experts Group
-
-  MPI  
-
-    Message Passing Interface – Standard for parallel program
-    communication
-
-  MPICH  
-
-    MPI implementation
-
-  MTU  
-
-    Maximum Transmission Unit
-
-  Mutex  
-
-    Mutual Exclusion Semaphore
-
-  MWPC  
-
-    Multi Wire Proportional Chamber — A technology for particle
-    detectors
-
-  NOW  
-
-    Network Of Workstations
-
-  Ogg Vorbis  
-
-    Compressed audio file format
-
-  OO  
-
-    Object Oriented
-
-  OOP  
-
-    Object Oriented Programming
-
-  PANDA  
-
-    Proton-ANtiproton-at-DArmstadt — Planned experiment at the future
-    HESR accelerator at GSI
-
-  PBH  
-
-    Publisher Bridge Head
-
-  PC133  
-
-    Specification for SDRAM modules with 133 MHz clock frequency
-
-  PCI  
-
-    Peripheral Component Interconnect — PC extension bus
-
-  PCISIG  
-
-    Peripheral Component Interconnect Special Interest Group — PCI
-    standardization body
-
-  PDS  
-
-    Permanent Data Storage
-
-  PHOS  
-
-    PHOton Spectrometer — One of ALICE’s detectors
-
-  PID  
-
-    Particle IDentification
-
-  PIO  
-
-    Programmed I/O
-
-  PM  
-
-    Patch Merger
-
-  PMD  
-
-    Photon Multiplicity Detector — One of ALICE’s detectors
-
-  PPC  
-
-    Parallel Plate Counters — A technology for particle detectors
-
-  Pseudo-rapidity  
-
-    Variable for particles in a collision. Defined as @xmath , where
-    @xmath is the angle between the particle and the direction of the
-    undeflected beam. Approximates the relativistic rapidity of a
-    particle.
-
-  PSI  
-
-    PCI and Shared memory Interface — Driver and library for PCI
-    hardware and shared memory access covered in this thesis
-
- @xmath 
-
-    Transversal Momentum
-
-  PVM  
-
-    Parallel Virtual Machine — Library for parallel program
-    communication
-
-  QGP  
-
-    Quark-Gluon Plasma
-
-  RFC  
-
-    Request For Comment — Informal Internet standard
-
-  RHIC  
-
-    Relativistic Heavy Ion Collider — Accelerator at BNL
-
-  RICH  
-
-    Ring Image Čerenkov (or Cherenkov) Counter — A technology for
-    particle detectors
-
-  RORC  
-
-    Read Out and Receiver Card
-
-  RPC  
-
-    Resistive Plate Chamber — A technology for particle detectors (In
-    computing also Remote Procedure Call , but not used as such in this
-    thesis)
-
-  SAN  
-
-    System Area Network
-
-  SBH  
-
-    Subscriber Bridge Head
-
-  SCI  
-
-    Scalable Coherent Interface — SAN technology
-
-  SDD  
-
-    Silicon Drift Detector — A technology for particle detectors
-
-  SI95  
-
-    SpecInt95 — Unit to measure computing speed
-
-  SISCI  
-
-    Software Infrastructure for SCI — SCI programming API
-
-  SM  
-
-    Slice Merger
-
-  SMP  
-
-    Symmetric Multi-Processor system - A system with multiple processors
-    (CPUs) accessing the same memory
-
-  SPD  
-
-    Silicon Pixel Detector — A technology for particle detectors
-
-  SPS  
-
-    Super Proton Synchrotron — Accelerator at CERN
-
-  SSD  
-
-    Silicon Strip Detector — A technology for particle detectors
-
-  SSI  
-
-    Single System Image
-
-  SSIC  
-
-    Single System Image Cluster
-
-  STAR  
-
-    Solenoidal Tracker at RHIC — Detector at the RHIC accelerator at BNL
-
-  STL  
-
-    Standard Template Library
-
-  ShM  
-
-    Shared Memory
-
-  Si  
-
-    Silicon
-
-  TCP  
-
-    Transmission Control Protocol
-
-  TDR  
-
-    Technical Design Report
-
-  TOF  
-
-    Time Of Flight — One of ALICE’s detectors
-
-  TPC  
-
-    Time Projection Chamber — A technology for particle detectors as
-    well as one of ALICE’s detectors
-
-  TRD  
-
-    Transition Radiation Detector — A technology for particle detectors
-    as well as one of ALICE’s detectors
-
-  UML  
-
-    Unified Modelling Language
-
-  VITA  
-
-    VMEbus International Trade Association
-
-  VMEbus  
-
-    VERSAmodule Eurocard extension bus — Industry standard
-    instrumentation bus
-
-  WAN  
-
-    Wide Area Network
-
-  ZDC  
-
-    Zero Degree Calorimeter — One of ALICE’s detectors
-
-  ZN  
-
-    Zero degree Neutron calorimeters
-
-  ZP  
-
-    Zero degree Proton calorimeters
