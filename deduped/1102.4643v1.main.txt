@@ -1,0 +1,1194 @@
+##### Contents
+
+-    Introduction
+-    1 CDT model of quantum gravity
+    -    1.1 Path integral for gravitation
+    -    1.2 Method of dynamical triangulations
+    -    1.3 EDT and their failure
+    -    1.4 Imposing causality on DT
+-    2 Monte Carlo simulations and the semiclassical solution
+    -    2.1 Numerical setup of CDT
+    -    2.2 The semiclassical limit
+-    3 The single slice structure
+    -    3.1 Expansion of the semiclassical action
+    -    3.2 Form of the discrete action
+-    4 The double slice structure
+    -    4.1 Evidence for the double structure
+    -    4.2 The double discrete action
+    -    4.3 Reduction to the single slice structure
+-    Summary
+-    A The triple slice structure
+
+## Introduction
+
+In spite of numerous efforts, based on the most diverse assumptions,
+quantisation of gravitational field remains an elusive task. Regarding
+our standard approach to quantum field theory, perturbative
+nonrenormalisability is considered the fundamental obstacle here.
+Therefore attempts to formulate a nonperturbative theory of quantum
+gravity have gained a lot of interest. Probably the most intuitive path
+in this direction is founded on Feynman path integral defined for the
+geometry of spacetime (see Sec. 1.1).
+One of the approaches to quantum gravity with such a starting point is
+known by the name of causal dynamical triangulations (CDT). It is a
+modification (Sec. 1.4) of earlier Euclidean dynamical triangulations
+(EDT) (Sec. 1.2, 1.3) and consists in replacing the gravitational path
+integral with a weighted sum over piecewise linear manifolds assembled
+from simplices (i.e. triangulations), every of which must preserve
+causality and admit a global proper time foliation. Such an approach is
+background independent, as it does not favour any particular geometry.
+CDT can be naturally Wick rotated and becomes then a statistical system
+of random geometry. As a result, it is suited to be investigated
+numerically using Monte Carlo methods, in particular in @xmath
+dimensions (Sec. 2.1). The corresponding program has been written by J.
+Jurkiewicz and A. Görlich and improved only recently by J.
+Gizbert-Studnicki, who also set up the latest simulations. Hence one
+should refer to [ 19 ] for more details concerning numerics. The
+following thesis is an analysis of the obtained data and its point of
+departure is confirmation of the existence of a physically relevant
+semiclassical limit of CDT, being the discretised mini-superspace model
+(Sec. 2.2).
+In subsequent chapters I examine this effective, semiclassical solution
+of CDT employing two kinds of observables: average distributions of the
+number of simplices and the analogical (inverse) covariance matrices.
+Particularly, I seek in the form of the discrete effective action. In
+Chapter 3 I consider only so-called @xmath simplices, extend the
+description to @xmath simplices in Chapter 4 and sketch out the
+possibility of separate inclusion of @xmath and @xmath simplices in
+Appendix A. The whole analysis has been conducted with Mathematica and
+all graphs have been plotted with gnuplot.
+
+## Chapter 1 CDT model of quantum gravity
+
+### 1.1 Path integral for gravitation
+
+Classical field theory of gravitation, known as general relativity is
+specified by the Einstein-Hilbert action, which for a differentiable
+manifold @xmath of @xmath dimensions has the form
+
+  -- -------- -- -------
+     @xmath      (1.1)
+     @xmath      
+  -- -------- -- -------
+
+where @xmath is a metric @xmath -form field, @xmath a Ricci scalar,
+@xmath denotes the gravitational constant and @xmath the cosmological
+constant while the integral in brackets, appearing only when @xmath has
+boundary, is the Gibbons-Hawking-York term with an induced metric @xmath
+and trace of an extrinsic curvature @xmath .
+Formally, one defines Feynman path integral for gravitational field,
+which actually is a grand canonical partition function for quantum
+gravity, as
+
+  -- -------- -- -------
+     @xmath      (1.2)
+  -- -------- -- -------
+
+where @xmath denotes the equivalence class of metrics with respect to
+diffeomorphisms – a geometry. In particular, the partition function for
+manifold with spatial boundaries at proper times @xmath , @xmath ,
+
+  -- -------- -- -------
+     @xmath      (1.3)
+  -- -------- -- -------
+
+where @xmath , @xmath are induced boundary geometries, is called the
+propagator by analogy with Feynman path integral for a single particle
+and can be regarded as a transition amplitude between an initial and
+final spatial geometry. (Which is illustrated in Fig. 1.1 .)
+
+Unfortunately, there is a number of mathematical problems associated
+with ( 1.2 ), ( 1.3 ), let alone the physical interpretation (cf. [ 1 ]
+, [ 2 ] ). First and foremost, as always in quantum field theory one has
+to take care of convergence of a functional integral. This can not be
+circumvented here by applying a perturbative expansion, therefore a
+suitable (non-violating diffeomorphism invariance) regularisation and
+renormalisation of the path integral itself is necessary. Secondly,
+since there is no absolute parametrisation of the space of geometries
+@xmath we do not know what we are integrating over. Especially, how the
+diffeomorphism-covariant (because of the integral having to be
+diffeomorphism-invariant) measure @xmath should be defined. As a result,
+one has to start with gauge-covariant (i.e. diffeomorphism-covariant in
+this case) fields and fix the gauge afterwards but this gives rise to
+Faddeev-Popov determinants, which are exceptionally difficult to be
+computed nonperturbatively. Another issue is the very existence of the
+measure. Thirdly, for any choice of variables the action ( 1.1 ) is
+quadratic in fields, which hinders evaluation of integrals in ( 1.2 ), (
+1.3 ). Furthermore, integrands of those are complex and therefore, a
+kind of Wick rotation i.e. an analytic continuation such that @xmath is
+required. Due to the dependence of all metric components on time as well
+as non gauge-invariant nature of the above straightforward Wick rotation
+it is not so obvious what it should look, however. Were all these
+problems tackled, for @xmath there is yet another, known as the
+conformal factor problem. Briefly speaking, it consists in unboundness
+(from below) of the action ( 1.1 ), triggered by the conformal mode of
+metric. This makes the Wick-rotated path integral still potentially
+divergent. Going beyond this section, in the context of causal dynamical
+triangulations the issue was addressed and probably resolved [ 1 ] (see
+also [ 2 ] ).
+Last but not least, in the partition function ( 1.2 ) (as well as in (
+1.3 )) the topology of spacetime @xmath is fixed . In principle, one
+might consider an extension of ( 1.2 ) including a sum over topologies
+
+  -- -------- -- -------
+     @xmath      (1.4)
+  -- -------- -- -------
+
+Although this makes the situation even more complicated, it is argued by
+some (see for instance [ 3 ] ) to be necessary from a point of view of
+the theory of quantum gravity. Nevertheless, there is still no
+experimental/observational evidence for the possibility of topology
+fluctuations which would arise then. In any case, this issue will be
+left out here.
+
+### 1.2 Method of dynamical triangulations
+
+There are several approaches [ 4 ] to fix the first of the above
+mentioned problems with the gravitational path integral i.e. finding a
+suitable regularisation and renormalisation. (Which – hopefully – should
+also help to resolve the other issues.) Inspiration has been coming
+especially from lattice gauge theory and its successes in quantum
+chromodynamics. In this way so-called quantum Regge calculus appeared [
+6 ] , originating from Regge calculus [ 5 ] – a method of approximating
+solutions of classical gravitational theory with piecewise linear
+manifolds. It is characterised by the fact that one introduces a lattice
+regularisation in the form of a discretisation of geometries and the
+path integral is over discretised geometries only. It ought to be noted
+that in contrast with (classical) Regge calculus it is not an arbitrary
+continuous manifold that is to be approximated here but the integral
+over all such manifolds. Hence, discretisation of geometries does not
+need to be arbitrarily fine. For example, a quite limited number of
+lattice plaquettes can be considered. Nevertheless, it should be taken
+to infinity along with a plaquette size taken to zero in the limit of a
+presumable renormalised – i.e. continuum – theory.
+Dynamical triangulations (DT) constitute a distinct variant of such a
+scheme (see [ 4 ] ). They are characterised by the integration over
+piecewise linear manifolds assembled from polytopes (a generalisation of
+polyhedra) which have fixed lengths of the edges, functioning as a
+gauge-invariant ultraviolet cutoff. Polytopes are traditionally regarded
+as being intrisically Minkowskian (i.e. in a sense flat – which makes
+manifolds piecewise linear ), although this assumption may require a
+change for causal dynamical triangulations. (Generally, there is no
+extrinsic geometry, since manifolds assembled from polytopes are not
+embedded anywhere – the same as in the case of continuous ones.)
+More explicitly, in the method of dynamical triangulations the
+continuous partition function ( 1.2 ) is replaced with the discrete
+
+  -- -------- -- -------
+     @xmath      (1.5)
+  -- -------- -- -------
+
+where @xmath , @xmath denote coupling constants of the regularised
+theory, corresponding to the inverse of gravitational constant @xmath
+and cosmological constant @xmath (divided by @xmath , to be precise),
+respectively (cf. ( 1.9 ) here below); the sum, to which the integral
+reduces, goes over all ”polytopialisations” (e.g. triangulations,
+cubulations) @xmath of a fixed topology, weighted by the exponential of
+the regularised action @xmath and normalised by the factor @xmath (rank
+of the automorphism group of @xmath ). The latter replaces the measure
+@xmath and does not allow for overcounting of geometries, which would
+violate diffeomorphism invariance. Such a description of geometry is
+stripped of the use of coordinates, though in principle a coordinate
+system might be assigned to each polytope. This is absolutely
+unnecessary, however, because all geometric properties are contained in
+the connectivity of a polytopialisation (the set of neighbouring
+relations between polytopes), as it will be discussed below.
+Furthermore, thus we obtain a gauge-invariant parametrisation of the
+regularised @xmath , a desire for which was expressed in the previous
+section.
+
+Since ( 1.5 ) should be (and – as it was e.g. explicitly shown [ 7 ] for
+@xmath – is indeed) independent of a polytopialisation usually the
+simplest and most convient choice is made by taking only simplicial
+manifolds (i.e. built from simplices), called triangulations, into
+consideration. Moreover, the simplices are assumed to be equilateral (in
+Minkowskian sense). This is exactly what will be done in all the
+following. Hence the symbol @xmath above as well as @xmath , denoting
+the Regge action (see ( 1.9 ) here below), and the very name of
+dynamical triangulations.
+The detailed way of encoding of geometry in a simplicial manifold is as
+follows (cf. [ 2 ] , [ 8 ] ). Actually, it is enough to consider
+curvature alone. In general, for @xmath sectional curvature on a
+manifold coincides with so-called Gaussian curvature and Ricci scalar is
+equal @xmath times the latter. The Gaussian curvature can be determined
+from the parallel transport of a vector around a closed loop. On a
+simplicial manifold such a loop has to circle a vertex, otherwise no
+effect will be ever observed (since simplices are flat). A vector will
+then change its orientation if and only if a sum of the adjacent angles
+@xmath . A difference is called the deficit angle @xmath . This is
+exemplified in Fig 1.2 . For @xmath one has to sum over all @xmath
+-dimensional submanifolds dual to a certain @xmath -dimensional
+subsimplex to obtain the nontrivial Ricci scalar, localised at this
+subsimplex. Hence, curvature is associated with @xmath -subsimplices and
+expressed by deficit angles @xmath around them, which – by generalising
+a notion for @xmath – are defined through sums
+
+  -- -------- -- -------
+     @xmath      (1.6)
+  -- -------- -- -------
+
+where @xmath are ditopial (a generalisation of dihedral) angles adjacent
+to a given @xmath -subsimplex @xmath . Deficit angles, as can be
+observed, are determined by the manner in which simplices are glued
+together – their connectivity.
+From the above discussion, there is the following correspondence between
+terms of the non-regularised (formula ( 1.1 )) and regularised
+Einstein-Hilbert action
+
+  -- -------- -- -------
+     @xmath      (1.7)
+     @xmath      (1.8)
+  -- -------- -- -------
+
+where @xmath denotes the volume of a simplex/subsimplex (cf.
+Section 1.4). Consequently, the Regge action amounts to
+
+  -- -------- -- -------
+     @xmath      (1.9)
+  -- -------- -- -------
+
+Its precise form for @xmath will be given in Section 1.4 (in the
+Wick-rotated version, yet for the modified regularisation, as will
+become clear soon).
+
+### 1.3 EDT and their failure
+
+The model whose regularisation scheme was outlined in the previous
+section is called Euclidean dynamical triangulations (EDT).
+Unfortunately, there are severe problems (cf. [ 2 ] , [ 8 ] ) with
+moving further in EDT, towards a certain nontrivial and physically
+relevant continuum limit, which is the ultimate aim of the framework.
+Everything starts with the absence of a prescription for Wick rotation
+of the partition function ( 1.5 ),
+
+  -- -- -- --------
+           (1.10)
+  -- -- -- --------
+
+where @xmath is the Euclidean (Wick-rotated) action. Therefore, the ad
+hoc Wick rotation is applied, in which Lorentzian geometries are
+replaced with Euclidean ones just by hand. As a result, the summation
+has to go over simplicial manifolds devoid of the notion of time and
+causal structure. It is not known how to retrieve the latter afterwards.
+Almost certainly, it can not be done by straightforward inverse of the
+Wick rotation, also because of the occurrence of Euclidean geometries
+anomalous from the perspective of causality. Namely, the problem
+consists in changing of the topology [ 3 ] between @xmath -dimensional
+submanifolds, especially by events of splitting of such a submanifold
+into at least two disconnected ones, as it is exemplified in Fig. 1.3 .
+For a Lorentzian manifold this amounts to disintegrating of space during
+its time evolution, in other words, branching of spacetime into
+so-called baby universes. (Obviously, the time inverse of the process in
+the form of joining of the disconnected space components should be
+identically likely yet it is excluded by the requirement of the fixed
+spacetime topology.) A consequence is the degeneration of light cones;
+causality is violated because at a branching point there is more than
+one possibility for further course of a test particle’s world line.
+Moreover, the above phenomenon turns out to be generic and highly
+degenerate geometries are dominating in the Wick-rotated (formula ( 1.10
+)) counterpart of the sum ( 1.5 ).
+Hence, we are stuck in the Euclidean theory and this is where the very
+name of EDT derives from. Bad news has been confirmed by results (see [
+4 ] , [ 2 ] ) from numerical simulations. Namely, there is no relevant
+continuum limit for @xmath . Rather than that, the space of coupling
+constants @xmath , @xmath for the model of @xmath (and probably any
+@xmath ) contains a critical line @xmath (where the continuum limit
+exists), at which there are two extreme, unphysical phases, separated by
+a bicritical point. A useful tool to study them is a standard notion of
+(effective – in the continuum limit sense) dimensionality, called
+Hausdorff dimension, which works well also on discretised manifolds. In
+the phase of small @xmath ’s, called the crumpled phase, simplicial
+spacetimes (or rather Euclidean spaces) of a tiny size are produced.
+Moreover, there exist several vertices to which almost all simplices are
+connected. Therefore distances between the latter are small and in the
+continuum Hausdorff dimension of space is going to @xmath . On the
+contrary, in the phase of large @xmath ’s, known as the branched polymer
+phase, generation of baby universes is the dominating process. Therefore
+every simplex has only a limited number of neighbours and in the
+continuum Hausdorff dimension approaches @xmath , which enhances
+interpretation of spaces in this phase as a particular kind of fractals
+– namely branched polymers. Neither of the phases yields Hausdorff
+dimension equal or at least close to the expected @xmath .
+
+### 1.4 Imposing causality on DT
+
+Causal (or Lorentzian) dynamical triangulations (CDT) were invented [ 9
+] as a response to the failure of EDT and constitute their modification
+[ 10 ] , [ 11 ] . The essential idea behind this approach is to consider
+from the outset only causally well-behaving simplicial manifolds. More
+precisely, a triangulation must admit a global proper-time foliation. It
+is only when it is built from layers of simplices to which a proper time
+variable can be assigned – hence space globally evolves in time
+(spacetime is globally hiperbolic). Consequently, the topology of space
+is conserved, which means the exclusion of spacetimes branching into
+baby universes. However, it ought to be stressed that changes of spatial
+topology are not excluded from consideration in principle . Individual
+geometries in the integral ( 1.2 )/sum ( 1.5 ) are in general highly
+nonclassical, as it is always in quantum physics, and possibly could
+also include fluctuations of spatial topology. Causality which would be
+lost in such a case might as well be restored for a superposition of
+quantum spacetimes, corresponding to a classical solution of
+gravitational theory. On the other hand, we do not even know whether the
+restriction on topology survives in the continuum limit of the CDT
+model. Nevertheless, the failure of EDT has shown that in the method of
+dynamical triangulations variability of spatial topology has to be
+treated exceptionally (see [ 8 ] ) if at all (and its total rejection is
+worth trying). The same concerns variability of topology of the entire
+spacetime, discussed at the end of Section 1.1, which leads to the
+super-exponential growth of the number of geometries in ( 1.5 ).
+
+Due to the layered structure of simplicial manifolds in CDT there is a
+limited number of allowed building blocks from which they are
+constructed – simplices placed differently with respect to the time
+direction. Specifying the statement from the previous paragraph, a
+proper time variable is assigned to simplicial vertices and @xmath
+-dimensional surfaces spanned between such at a given time (which
+obviously are forbidden to intersect). As can be seen, time is discrete.
+As a result, we have @xmath types of simplicial building blocks, denoted
+by numbers of their vertices lying at times @xmath and @xmath (where
+@xmath is arbitrary). In the most interesting, lowest dimensions we have
+the following ones. For @xmath there are simplices of types @xmath (
+@xmath vertices at a time @xmath , joined by a spatial link and one at
+@xmath ; the other two links are timelike) and @xmath , which is just
+time inverse of @xmath (I call them dual to each other). Types for
+@xmath are depicted in Fig. 1.4 . For @xmath there is a pair of dual
+types of simplices, @xmath , @xmath (with a spatial triangle) and type
+@xmath (with two spatial links only). For @xmath there are two dual
+pairs: @xmath , @xmath (with a spatial tetrahedron) and @xmath , @xmath
+(with a spatial triangle and a spatial link). In all the following I
+will be denoting collectively the latter as @xmath and @xmath ,
+respectively.
+The next step in construction of the CDT model (discussed extensively in
+[ 12 ] ) is the introduction of anisotropy between time and space.
+Squared lengths of timelike and spacelike simplicial links are set as,
+respectively,
+
+  -- -------- -- --------
+     @xmath      (1.11)
+  -- -------- -- --------
+
+where @xmath is the cutoff size and @xmath the anisotropy parameter.
+Hence simplices are generally no longer equilateral in the sense of the
+Wick-rotated model (in EDT we had @xmath ). Now according to the
+correspondence ( 1.7 ), ( 1.8 ) one has to calculate volumes of timelike
+and spacelike simplices and subsimplices as well as values of ditopial
+angles – all as functions of @xmath . (Different conventions may be
+used.) Irrespective of what might seem, all Lorentzian volumes are real
+and @xmath but angles in general are complex. Yet it is not a problem,
+as we eventually obtain a real regularised action. Its form without
+substituted volumes and angles (for simplicity) – an incarnation of (
+1.9 ) – for @xmath is
+
+  -- -------- -- --------
+     @xmath      
+     @xmath      (1.12)
+  -- -------- -- --------
+
+where by @xmath I denoted spacelike triangles and by @xmath timelike
+ones. What is essential is that the action ( 1.4 ) can be naturally
+Wick-rotated. The analytic continuation, such that @xmath , goes through
+the lower half of the complex plane and in the lowest dimensions can be
+defined: for @xmath always, for @xmath if @xmath , for @xmath if @xmath
+. The bounds on @xmath originate from the form of ditopial angles. Next,
+we perform sums in ( 1.4 ) and use topological identities (by Dehn and
+Sommerville), such as the Euler identity, for the numbers of simplices
+and subsimplices of all types. Finally, for @xmath and the assumed
+spacetime topology @xmath (the periodic boundary condition in proper
+time) where @xmath is @xmath -dimensional and compact we get the Regge
+action which has the Euclidean form
+
+  -- -------- -- --------
+     @xmath      
+     @xmath      (1.13)
+  -- -------- -- --------
+
+where @xmath denotes the number of @xmath -simplices (vertices), @xmath
+, @xmath the numbers of @xmath -simplices of the corresponding type and
+@xmath , @xmath , @xmath are coupling constants and quite complicated
+functions of @xmath , @xmath and @xmath . However, their dominating
+behaviour is determined by single variables – @xmath , @xmath and @xmath
+, respectively, and in particular @xmath . Consequently, the overall
+form of the (Wick-rotated here) partition function ( 1.5 ) is slightly
+altered into
+
+  -- -------- -- --------
+     @xmath      (1.14)
+  -- -------- -- --------
+
+Phase structure of the CDT model for @xmath , which can be inferred from
+numerical simulations (whose technique will be brought up in Chapter 2),
+differs widely from that of EDT. Actually, there is a disparate
+continuum limit already for @xmath [ 9 ] but I will not discuss this
+fact here. Three coupling constants instead of two amount to the @xmath
+-dimensional space, containing a critical surface @xmath (where the
+continuum can be approached) i.e. the phase space of the model. As Fig.
+1.5 indicates, we observe [ 13 ] , [ 14 ] three phases: A, B and C. They
+have the following characteristics. Spacetimes in phase A (of large
+@xmath ’s) consist of numerous small, disconnected universes, lying
+along the time direction and as such they are physically irrelevant.
+This phase is considered a remnant of the branched polymer phase from
+EDT. Spacetimes in phase B (of small @xmath ’s) are no more useful,
+being very short in time and having at each temporal end a vertex of a
+very large order – the same as in the crumpled phase from EDT. Therefore
+phase B can be regarded as a remnant of the latter. Fortunately, there
+is an additional phase C, in which relevant spacetimes – extending both
+in time and space – are observed. Its existence has been a promising
+result of the CDT model. It was shown [ 15 ] that a universe from phase
+C has indeed Hausdorff dimension @xmath . Furthermore, recently it
+turned out [ 14 ] the above phase structure is related to so-called
+Hořava-Lifshitz gravity.
+
+One remark has to be added. All along, from the very beginning we are
+dealing with gravitational field in vacuum i.e. without any matter
+fields. This is the work on pure quantum gravity (or quantum geometry).
+However, the inclusion of other fields in the gravitational path
+integral has always been considered and also in CDT is subject to
+ongoing research.
+
+## Chapter 2 Monte Carlo simulations and the semiclassical solution
+
+### 2.1 Numerical setup of CDT
+
+To solve the model of causal dynamical triangulations, as it is
+formulated in the previous chapter, one has to compute the sum ( 1.14 ).
+Thus far, it was carried out analytically only for @xmath [ 9 ] (see
+also [ 11 ] ) and there is little hope for moving towards higher
+dimensions. However, like every lattice gauge theory CDT (as well as
+EDT) is well-suited to be investigated numerically , provided one can
+ensure the regularised version of space @xmath is sampled thoroughly in
+simulations. Hence in this context the problem with the regularisation
+may be described as twofold: not only has the space of all possible
+triangulations to be appropriately dense in the @xmath but also
+numerical simulations enable us to approach every element (in the
+certain class) of the latter. The first issue is so far assumed, the
+same as the fact that @xmath in ( 1.14 ) is the measure. To address the
+second one, Monte Carlo methods are applied [ 12 ] . More specifically,
+to approximate ( 1.14 ) we generate some number of simplicial manifolds,
+which are obtained consecutively from the previous ones – starting from
+a certain ad hoc constructed, very simple triangulation – by local
+transformations called moves. Factor @xmath is automatically included
+there. Now, the moves are hoped to be ergodic in the sense of the
+possibility of reaching every triangulation from any other – in a
+certain class – by the successive application of them. What I mean by
+the ”certain class” will become clear below. Concerning Monte Carlo
+moves, they consist in replacing of a complex built from some number of
+simplices with another complex, in general constructed from a different
+number of building blocks yet respecting the topological and causal
+structure of a triangulation, in conformity with the assumptions of CDT.
+For @xmath there is a set of @xmath such moves, for @xmath there are
+@xmath of them and for @xmath there are @xmath – their detailed
+description (omitting @xmath ) is contained in [ 12 ] .
+From now on the discussion will be restricted to @xmath , which I
+actually studied. Regarding the argument from Section 1.4, the topology
+in the regularised path integral ( 1.14 ) is fixed. For convenience one
+may consider a topology with a periodic boundary condition in proper
+time, @xmath where @xmath is @xmath -dimensional and compact, as it is
+in the case of the action ( 1.4 ). This is exactly what we do in the
+discussed Monte Carlo simulations, choosing @xmath (thus far – as the
+simplest case). Hence the topology is @xmath , which is the first
+constraint characterising the class of triangulations which I
+investigated, refering to what was said in the previous paragraph.
+Another possible condition is the fixed number of simplicial temporal
+layers, in other words, the number of discrete proper times @xmath ,
+which in the discussed Monte Carlo simulations is set as @xmath . The
+parametrisation of time I will be using here is such that @xmath and
+@xmath (the periodic boundary condition). Furthermore, with the aim of
+keeping the number of @xmath -simplices in a triangulation roughly
+within a certain range, in the case considered here we modify the action
+( 1.4 ),
+
+  -- -------- -- -------
+     @xmath      (2.1)
+  -- -------- -- -------
+
+where @xmath is the average total number of @xmath -simplices of type
+@xmath (see the next section), @xmath is a small constant and @xmath
+(some other values were also studied – as one can check in [ 15 ] , [ 16
+] , [ 17 ] , [ 18 ] – yet for the modification of the action different
+from ( 2.1 )). It ought to be noted that in the considered topology the
+@xmath is exactly the same as the @xmath , because only those types of
+@xmath -simplices contain spatial tetrahedra (cf. Fig. 1.4 ) and hence
+every @xmath simplex has its counterpart @xmath , sharing a spatial
+tetrahedron with it. On the other hand, the @xmath is by construction
+related to the @xmath . Thus the number of all @xmath -simplices
+fluctuates in a certain range of values. Last but not least, concerning
+the discussion of the phase structure of CDT presented in Section 1.4,
+in order to find ourselves at the critical surface we have to fine-tune
+@xmath . This is done here using the requirement @xmath i.e. the average
+number of @xmath (as well as @xmath ) simplices is kept fixed.
+Consequently, @xmath characterises fluctuations of @xmath around @xmath
+.
+All what follows concerns numerical results from the Monte Carlo
+simulations carried out in the physically relevant phase C. I conducted
+the most extensive analysis for values of the coupling constants @xmath
+, @xmath but all what will be said in this and subsequent chapters is
+true at least for a certain range of @xmath and @xmath in phase C. All
+of the presented graphs will be given for @xmath yet @xmath alter them
+only slightly. Furthermore, the results are practically the same also
+for the variant of ( 2.1 ) with @xmath (i.e. all simplices) instead of
+@xmath , with @xmath . The number of statistically independent (which
+means separated by a sufficient number of moves) Monte Carlo
+configurations (i.e. triangulations) generated in each of the above
+cases was about @xmath .
+
+### 2.2 The semiclassical limit
+
+From now on I will be using the notation @xmath (and blank indices will
+mean an undefined type of simplices). The most fundamental observable in
+numerical simulations of CDT is the average number of simplices of a
+given type at a given time
+
+  -- -------- -- -------
+     @xmath      (2.2)
+  -- -------- -- -------
+
+where @xmath is the number of configurations we average over. For the
+already mentioned total number of @xmath simplices @xmath one simply has
+to sum over all times @xmath . The above expression is an estimate of a
+grand canonical observable for the system fluctuating around @xmath ,
+provided all configurations are typical i.e. of large probability.
+Actually, calculating ( 2.2 ) one has to take one more thing into
+account. (I restrict myself to @xmath simplices at the moment – which is
+the same as restricting to @xmath – but cf. Section 3.1 and Appendix A.)
+Namely, looking at an arbitrary temporal distribution @xmath in phase C
+we observe two regions: one where a universe is well extended in spatial
+directions and one where it is almost not at all (since @xmath simplices
+correspond to spatial tetrahedra). In other words, the extended universe
+is localised in a certain range of discrete times @xmath . Since CDT is
+a priori symmetric with respect to translation in the time direction, we
+reparametrise time for every triangulation in such a way that the
+so-called center of volume of @xmath lies at @xmath . (However, as it
+will be seen below, the effective center of volume is between @xmath and
+@xmath , at @xmath .) More precisely, the center of volume @xmath is
+defined here as @xmath for which
+
+  -- -------- -- -------
+     @xmath      (2.3)
+  -- -------- -- -------
+
+reaches a minimum; if there is more than one, @xmath must be the
+greatest among them. (There are alternatives to ( 2.3 ) but they all
+yield the same results up to a difference of @xmath .) Now we may
+calculate the average distribution @xmath . The result is shown in Fig.
+2.1 , along with the average fluctuations of @xmath (see Section 3.1).
+One can distinguish three regions in time evolution: the ”stalk”, where
+the spatial extension of the universe is very small, consisting of only
+several spatial tetrahedra (but not less than @xmath , which is the
+minimal number for a simplicial @xmath ), the ”blob”, where the universe
+is well spatially-extended (with the double maximum at @xmath ) and the
+intermediate ”tail” (see below). Moreover, the calculated @xmath up to a
+very small deviation. It has yet to be added that @xmath should be
+invariant under time inversion. Therefore, it is additionally
+symmetrised with respect to the effective maximum @xmath , which
+corresponds just to doubling of the number of configurations we average
+over (and this is justified by the fact @xmath is very symmetric even
+without that).
+
+It turns out [ 17 ] that the blob region of our spacetime can be fitted
+surprisingly well with a function
+
+  -- -------- -- -------
+     @xmath      (2.4)
+  -- -------- -- -------
+
+where @xmath and @xmath , @xmath are certain constants. This is
+illustrated in Fig. 2.1 . As one can see, at least in magnification, the
+fit starts to deteriorate close to the stalk and this is one of the
+symptoms of being in the transition region called the tail above.
+Furthermore, taking the dependence on @xmath into consideration, ( 2.4 )
+has the form with explicit scaling
+
+  -- -------- -- -------
+     @xmath      (2.5)
+  -- -------- -- -------
+
+where @xmath , @xmath are certain constants. Hence it is a limit of the
+CDT model, an effective solution. What is crucial in this statement is
+that eventually the limit may be called semiclassical [ 16 ] – the
+semiclassical solution of CDT – because it is [ 17 ] , [ 18 ] the
+(classical) solution of the Wick-rotated mini-superspace model, whose
+action
+
+  -- -------- -- -------
+     @xmath      (2.6)
+  -- -------- -- -------
+
+where @xmath (where @xmath denotes the scale factor of a homogeneous,
+isotropic universe) is the spatial @xmath -volume, @xmath and @xmath is
+a Lagrange multiplier fixing
+
+  -- -------- -- -------
+     @xmath      (2.7)
+  -- -------- -- -------
+
+where @xmath is a certain @xmath -volume of spacetime. The solution of (
+2.6 ) is a geometrical @xmath -sphere, which amounts to the Euclidean de
+Sitter universe, the maximally symmetric spacetime in the case of a
+positive cosmological constant. This comes as a great surprise, since
+individual triangulations – as it was stressed before – are highly
+nonclassical and a priori devoid of any symmetry, except the one with
+respect to a time translation. What is even more important is that also
+dynamics of the model i.e. in particular (quantum) fluctuations of
+@xmath can be described in that framework – by the effective,
+semiclassical action ( 2.6 ) itself [ 16 ] . This is what I will deal
+with – to some extent – in the remaining chapters.
+
+## Chapter 3 The single slice structure
+
+### 3.1 Expansion of the semiclassical action
+
+By construction, simplicial building blocks in temporal layers of a
+triangulation have to be connected in an appropriate order. Namely, in
+the simplest case, between a @xmath simplex at a time @xmath and another
+one at @xmath one has to put consecutively a @xmath , a @xmath and a
+@xmath , with successive simplices sharing a face (i.e. a tetrahedron),
+as it was already said for the case of @xmath and @xmath simplices,
+which share a spatial tetrahedron. (Generally, each of the above
+mentioned five simplices may occur multiple times there.) Hence the
+layer has some internal structure. However, in this chapter I will
+restrict the discussion to spatial hypersurfaces formed by common faces
+of @xmath and @xmath building blocks – forgetting for a while about the
+other types of simplices – in accordance with Section 2.2. This is what
+I call the single slice structure: the structure in which a temporal
+layer is contained between two spatial slices (hypersurfaces) at times
+@xmath and @xmath , the second of which belongs already to the next
+layer and there is nothing else, @xmath (alternatively @xmath and @xmath
+) simplices are in some sense integrated out. As it will be shown in the
+next chapter and sketched out in Appendix A, actually there is a
+nontrivial structure emerging from @xmath simplices, as well as @xmath
+and @xmath considered separately, compatible with that of @xmath .
+According to Section 2.2, the average distribution @xmath is well
+described in the blob by the semiclassical solution ( 2.5 ), resulting
+from the classical, continuous action ( 2.6 ). Since time @xmath is
+discrete @xmath actually corresponds to a discrete version of ( 2.5 ).
+Therefore we expect that in the analysed semiclassical limit CDT can be
+described (at least in the blob) by the discretised mini-superspace
+action @xmath , whose explicit form will be discussed in the next
+section. More specifically, to take the quantum effects – fluctuactions
+around the effective, semiclassical geometry – into account we make the
+expansion of @xmath around the distribution @xmath , which should
+extremise the action, with an increment @xmath :
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (3.1)
+  -- -------- -- -------
+
+which in particular implies
+
+  -- -------- -- -------
+     @xmath      (3.2)
+  -- -------- -- -------
+
+vanishing of first derivative of the action.
+The second most fundamental observable in our Monte Carlo simulations of
+CDT is the covariance matrix of the number of simplices of a given type,
+whose element – the correlation between given times @xmath and @xmath –
+is defined as
+
+  -- -- -- -------
+           (3.3)
+  -- -- -- -------
+
+(cf. 2.2 ). Quantities @xmath , included in Fig. 2.1 for @xmath , are
+the average fluctuations around the expectation values @xmath . Now, let
+us again restrict ourselves to @xmath simplices. Analogically with
+@xmath , @xmath are centered at @xmath ’s and @xmath is additionally –
+but on the justified basis – symmetrised with respect to @xmath , which
+corresponds to doubling of the number of configurations. In our
+numerical setup matrix @xmath is invertible and hence the inverse (of
+the) covariance matrix
+
+  -- -------- -- -------
+     @xmath      (3.4)
+  -- -------- -- -------
+
+can be found. What is essential is that there is the relation
+
+  -- -------- -- -------
+     @xmath      (3.5)
+  -- -------- -- -------
+
+where I introduce the notation @xmath for matrix elements (since time
+@xmath ). As a result, from analysis of matrix @xmath one can infere, at
+least to some extent, the exact form of the action @xmath . It turns out
+the inverse covariance matrix has only simple, tridiagonal structure
+
+  -- -------- -- -------
+     @xmath      (3.6)
+  -- -------- -- -------
+
+with two additional elements at the antidiagonal resulting from the
+periodic boundary condition in time (neglecting numerical noise, denoted
+by the asterisks) and @xmath , @xmath . It is also by construction
+symmetric with respect to both the diagonal and antidiagonal ( @xmath ,
+@xmath ).
+
+### 3.2 Form of the discrete action
+
+The discretised action, with the modification ( 2.1 ) taken into
+account, has the general form
+
+  -- -------- -- -------
+     @xmath      (3.7)
+  -- -------- -- -------
+
+where @xmath , @xmath are respectively its kinetic and potential part,
+corresponding to the terms @xmath and @xmath in the continuous action (
+2.6 ) and @xmath denotes a coupling constant proportional to the inverse
+of @xmath . In all the following I call @xmath , @xmath the kinetic and
+potential term, respectively. I assume that the potential term @xmath
+and has the form
+
+  -- -------- -- -------
+     @xmath      (3.8)
+  -- -------- -- -------
+
+where @xmath , @xmath are coupling constants proportional to @xmath and
+@xmath , respectively. The kinetic term is more involved. However, from
+( 3.5 ), ( 3.6 ) one immediately infers that @xmath . Consequently, the
+diagonal of @xmath depends on both the kinetic and potential part of the
+action @xmath , whereas its super-/subdiagonal on the kinetic one alone.
+I assume that the kinetic term
+
+  -- -------- -- -------
+     @xmath      (3.9)
+  -- -------- -- -------
+
+and satisfies the relation
+
+  -- -------- -- --------
+     @xmath      
+     @xmath      (3.10)
+  -- -------- -- --------
+
+which obviously happens at least for every @xmath that is a quotient of
+combinations of power functions. According to ( 3.5 ) I may define the
+analogue of ( 3.2 ):
+
+  -- -------- -- --------
+     @xmath      (3.11)
+  -- -------- -- --------
+
+which – keeping in mind the form of ( 3.8 ) and ( 3.9 ) – in the
+relevant region i.e. at least in the blob, should be equivalent to the
+non-eliminated @xmath . Hence I can check the potential term ( 3.8 )
+independently of the explicit form of @xmath i.e. form of the function
+@xmath (Fig. 3.1 ). (In figures I use the abbreviated notation @xmath ,
+@xmath .) The obtained @xmath exhibits in the blob the considerable
+numerical noise. As it will become more evident below, the underlying
+reason is a small magnitude of the potential term.
+
+The simplest form of the kinetic term ( 3.9 ) one can consider is
+
+  -- -------- -- --------
+     @xmath      (3.12)
+  -- -------- -- --------
+
+Now, regarding the form of the semiclassical action ( 3.7 ), the
+extremum condition ( 3.2 ) in the expansion ( 3.1 ) yields
+
+  -- -------- -- --------
+     @xmath      (3.13)
+  -- -------- -- --------
+
+and I may examine the validity of ( 3.1 ), ( 3.2 ) by fitting first
+derivative of the potential term ( 3.8 ) to first derivative of the
+kinetic one ( 3.12 ) (Fig. 3.2 ). This clearly does not work in the
+stalk. In the blob and perhaps the tail, making the use of ( 3.5 ), for
+the superdiagonal of @xmath it should be
+
+  -- -------- -- --------
+     @xmath      (3.14)
+  -- -------- -- --------
+
+(a choice of the subdiagonal would obviously imply the same). However,
+the kinetic term ( 3.12 ) starts to fail there. I analysed different
+functions @xmath and something like @xmath turns out to behave much
+better. Alternatively, one may consider a modification of ( 3.12 ) in
+the form of a series with coefficients @xmath ,
+
+  -- -------- -- --------
+     @xmath      
+     @xmath      (3.15)
+  -- -------- -- --------
+
+Thus far, our numerical precision is sufficient to find only @xmath and
+hence constraints @xmath are assumed. ( @xmath corresponds then to an
+approximation of @xmath and @xmath is obviously equivalent to ( 3.12 ).)
+I have examined ( 3.14 ) with the above kinetic term fitting
+simultaneously @xmath and @xmath (Fig. 3.3 ) and obtained a value of the
+latter @xmath , closer to @xmath than to @xmath . Concerning the
+relation ( 3.13 ), presented in Fig. 3.2 , its behaviour is practically
+unchanged by the modified kinetic term ( 3.2 ). Therefore, I do not show
+the corresponding version of the graph. At last, taking the values of
+@xmath and @xmath from Fig. 3.3 I can investigate the potential term (
+3.8 ) at the diagonal of @xmath , since
+
+  -- -------- -- --------
+     @xmath      (3.16)
+  -- -------- -- --------
+
+which results from ( 3.5 ) (Fig. 3.4 ). Now, I may compare the values of
+the constant @xmath obtained in Fig. 3.1 and Fig. 3.4 . They amount
+respectively to @xmath and @xmath . Furthermore, I may compare the value
+of @xmath from Fig. 3.2 (or rather its variant with the modified kinetic
+term) with the one that I can calculate from Fig. 3.4 . They amount
+respectively to @xmath and @xmath . The presented uncertainties include
+only the accuracy of fits and do not contain estimates of the systematic
+errors.
+
+## Chapter 4 The double slice structure
+
+### 4.1 Evidence for the double structure
+
+According to Section 3.1, @xmath simplices bond together the adjacent
+temporal layers of @xmath building blocks. Furthermore, refering to Fig.
+1.4 , one can observe that @xmath simplices contain – apart from a
+spatial tetrahedron – only @xmath timelike tetrahedra, while @xmath
+simplices possess both @xmath (two) and @xmath (three) tetrahedra. Hence
+every @xmath simplex has to share a face with three others. Numerical
+simulations confirm that this type of building blocks forms closed
+hypersurfaces in the sense of the dual lattice and thus we may speak
+about layers of @xmath simplices. Therefore I extend my description to
+what I call the double slice structure – characterised by the inclusion
+of remaining @xmath simplicial building blocks, which implies additional
+spatial slices between those of the @xmath i.e. an effective second
+slice in every temporal layer, being a spatial section of the @xmath .
+Nevertheless, either @xmath or @xmath building blocks are still in some
+sense integrated out, as both types are considered collectively. As it
+was already mentioned, Appendix A makes the outline of their separate
+treatment.
+I begin with a computation of the average temporal distribution of the
+number of @xmath simplices, using formula ( 2.2 ). In agreement with
+what one might expect, an arbitrary distribution @xmath turns out to
+have two regions: the spatialy extended and spatialy unextended.
+Therefore, according to the case of @xmath simplices, it requires a
+translation in time of the ”center of volume”. However, since I
+investigate the double structure , distributions @xmath are to be
+reparametrised also and obviously with respect to the same centers of
+volume. I have found that @xmath ’s (defined in Section 2.2) for @xmath
+and @xmath building blocks are identical or at most different by @xmath
+and hence decided to consider @xmath ’s found for @xmath simplices
+alone. I obtain the average distribution @xmath having the same three
+regions as @xmath : the stalk (with @xmath simplices at least, which
+results from the minimal number of @xmath @xmath building blocks), the
+blob (with the single maximum at @xmath ) and the tail. Hence I assume
+@xmath and fulfilling the condition of invariance under time inversion I
+symmetrise the distribution with respect to @xmath , which corresponds
+to doubling of the number of configurations. Now, it turns out in the
+blob @xmath is proportional to @xmath in the interpolated sense i.e. I
+can find a scaling factor @xmath such that @xmath , where @xmath denotes
+the interpolating distribution i.e. @xmath symmetrised with respect to
+@xmath . The joint distribution of @xmath and @xmath is shown in Fig.
+4.1 , along with the average fluctuations, also appropriately rescaled
+in the case of @xmath simplices. Furthermore, the smoothed distribution
+can automatically be fitted with the semiclassical solution ( 2.5 ) and
+this is done indeed in Fig. 4.1 , up to even smaller deviation than in
+Fig. 2.1 . The average total number of @xmath simplices @xmath .
+Consequently, the average total number of all simplices (both @xmath and
+@xmath ) @xmath (cf. Section 2.1).
+
+Using formula ( 3.3 ) one may also calculate the covariance matrix of
+@xmath simplices number @xmath and in particular obtain the average
+fluctuations around @xmath , which are included above in Fig. 4.1 .
+Further, I find the inverse covariance matrix @xmath and it turns out to
+have the same simple structure as @xmath (cf. ( 3.6 )), enhancing the
+notion of the double slice structure. However, the analysis such as in
+Section 3.2 will not be carried out here. Rather than that, in the next
+section I will focus on the joint, double structure of @xmath and @xmath
+simplices.
+
+### 4.2 The double discrete action
+
+Since the semiclassical solution ( 2.5 ) works well in the blob also in
+the case of the double slice structure I expect that the expansion ( 3.1
+) (as well as the condition ( 3.2 )) remains valid for the extended
+discretised action @xmath , which includes the dynamics of @xmath
+simplices. More specifically,
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (4.1)
+  -- -------- -- -------
+
+and
+
+  -- -------- -- -------
+     @xmath      (4.2)
+  -- -------- -- -------
+
+where @xmath , @xmath and @xmath , @xmath go over the set @xmath i.e. in
+particular there are four combinations of derivatives @xmath in the
+second term of the expansion.
+The corresponding ”double” covariance matrix is defined as the joint
+covariance matrix of both types of simplices i.e. ( 3.3 ) is extended to
+
+  -- -------- -- -------
+     @xmath      (4.3)
+  -- -------- -- -------
+
+Hence @xmath may be arranged into four blocks, two of which are the
+(”single”) covariance matrices @xmath , @xmath and two mix both types of
+simplices and which will be denoted by superscripts @xmath , @xmath ,
+@xmath and @xmath , respectively. (Obviously @xmath .) Each of them is
+appropriately symmetrised with respect to @xmath . Matrix @xmath is
+invertible and the double inverse covariance matrix @xmath . Now, ( 3.5
+) generalises to
+
+  -- -------- -- -------
+     @xmath      (4.4)
+  -- -------- -- -------
+
+where blocks of @xmath , denoted by superscripts, correspond to those of
+@xmath . Like @xmath (cf. ( 3.6 )), the double inverse covariance matrix
+is very simple
+
+  -- -------- -- -------
+     @xmath      (4.5)
+  -- -------- -- -------
+
+with blocks having band structure (neglecting numerical noise, denoted
+by the asterisks) – except additional elements at their antidiagonals,
+resulting from the periodic boundary condition in time – and @xmath ,
+@xmath . Blocks @xmath , @xmath are also by construction symmetric with
+respect to both the diagonal and antidiagonal and the entire @xmath is
+symmetric with respect to the diagonal ( @xmath , @xmath but @xmath
+merely).
+
+Generalising ( 3.7 ), the double discrete action has the general form
+
+  -- -------- -- -------
+     @xmath      (4.6)
+  -- -------- -- -------
+
+In accordance with ( 4.4 ) and the structure of @xmath , I consider the
+following (probably the simplest possible) kinetic term
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (4.7)
+  -- -------- -- -------
+
+and the potential one
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (4.8)
+  -- -------- -- -------
+
+where @xmath , @xmath , @xmath , @xmath , @xmath , @xmath (as well as
+@xmath ) are the ”double” coupling constants and a value of @xmath is
+taken from the previous section. Consequently, all elements of @xmath
+depend on the kinetic part of the action @xmath while the potential part
+influences merely the diagonal (of the blocks @xmath , @xmath ).
+
+The extremum condition ( 4.2 ) in the expansion ( 4.2 ) yields
+
+  -- -------- -- -------
+     @xmath      (4.9)
+  -- -------- -- -------
+
+Hence, similarly as in the case of Fig. 3.2 , I may fit first derivative
+of the potential term ( 4.2 ) to first derivative of the kinetic one (
+4.2 ) – for @xmath (Fig. 4.2 ) and @xmath (Fig. 4.3 ). (The abbreviated
+notation in figures is the same as in the previous chapter.) It is worth
+to be noted that the agreement between them (and hence validity of ( 4.2
+)) is good in the whole relevant region of the universe, almost right up
+to the stalk and hence much better than it was for the single slice
+structure. As a result, it is well justified to examine, making the use
+of ( 4.4 ) (analogically with Section 3.2), the substitution of the
+assumed kinetic and potential term into the second term of the expansion
+( 4.2 ). In particular, the suitability of the kinetic term and values
+of its coupling constants can be directly inferred from
+
+  -- -------- -- --------
+     @xmath      
+     @xmath      (4.10)
+  -- -------- -- --------
+
+Then, the potential term can be obtained through
+
+  -- -------- -- --------
+     @xmath      
+     @xmath      (4.11)
+  -- -------- -- --------
+
+However, fitting LHS’s of ( 4.2 ) to their RHS’s does not yield
+completely reliable results. Therefore I use another method and
+determine coupling constants one by one. I will not describe that in
+detail but the scheme is as follows. At the beginning I find @xmath from
+@xmath . Next – knowing the preceding – @xmath from the diagonal @xmath
+. At last, I find @xmath from the superdiagonal @xmath . Hence I get
+@xmath while @xmath , @xmath can be trivially calculated. Afterwards,
+the obtained LHS’s of ( 4.2 ) may be compared to RHS’s (Fig. 4.4 , Fig.
+4.5 ), with which they should agree. (The quite poor result for Fig. 4.4
+may indicate the modified @xmath .) Furthermore, LHS’s of ( 4.2 ) with
+@xmath , @xmath exchanged may be compared to RHS’s yet with second
+derivatives of @xmath neglected (Fig. 4.6 , Fig. 4.7 ). However, keeping
+in mind small magnitude of the latter, such a comparison as well gives
+an insight into the suitability of the kinetic term. At last, one may
+investigate the potential term ( 4.2 ) using ( 4.2 ) and obtaining the
+concurrent results but, for conciseness, I will not show this here.
+
+### 4.3 Reduction to the single slice structure
+
+Having two different descriptions of the CDT universe, the latter of
+which is intended to be an extension of the former, we would like to be
+able to go in the opposite direction and to reduce the broader framework
+to the narrower one. In other words, after ”integrating out” @xmath
+simplices we should obtain the single slice structure of @xmath
+simplices alone. For the average distribution of the number of simplices
+this is trivial – one just removes the second component from the joint
+distribution of @xmath and @xmath . The situation is the same in the
+case of the covariance matrix, where simply @xmath , as it was described
+in the previous section. However, for the inverse covariance matrix such
+a reduction is inevitably not so trivial and its existence is by no
+means obvious. Fortunately, it turns out that for an invertible
+rectangular matrix composed of four square blocks satisfying certain
+basic conditions there are useful algebraic relations between those
+blocks and blocks of the inverse matrix, which we may apply to @xmath
+and @xmath . The so-called Boltz-Banachiewicz inversion formula has
+version I,
+
+  -- -------- -- --------
+     @xmath      
+     @xmath      (4.12)
+  -- -------- -- --------
+
+and version II,
+
+  -- -------- -- --------
+     @xmath      
+     @xmath      (4.13)
+  -- -------- -- --------
+
+comparison of which yields additionally four algebraic equations.
+However, I will restrict myself to the statement that transforming ( 4.3
+) one can retrieve @xmath from @xmath :
+
+  -- -------- -- --------
+     @xmath      (4.14)
+  -- -------- -- --------
+
+where the transposition results from the symmetry of @xmath .
+The next and crucial step is a reduction of the double discrete action
+@xmath to the ”single” one @xmath . In the double slice structure I
+consider the kinetic term ( 4.2 ) and the potential one ( 4.2 ), the
+only ones which I have discussed in the previous section. Looking at
+their form one may suspect that in the single slice structure they
+correspond to the (simplest possible) kinetic term ( 3.12 ) and the
+potential one ( 3.8 ). In order to make the desired transition to @xmath
+I apply a Gaussian approximation to ( 4.2 ) i.e. I literally integrate
+out @xmath simplices, although in a specific way,
+
+  -- -------- -- --------
+     @xmath      
+     @xmath      (4.15)
+  -- -------- -- --------
+
+where @xmath , @xmath , @xmath and the denominators @xmath , @xmath
+(i.e. the approximation is made before the integration). For the
+potential term ( 4.2 ) I assume @xmath and take the rescaling of @xmath
+implied by ( 4.3 ) into account. As a result, the ”single” coupling
+constants are expressed through the double ones,
+
+  -- -------- -- --------
+                 (4.16)
+     @xmath      (4.17)
+     @xmath      (4.18)
+  -- -------- -- --------
+
+The actual investigation produce the following results. Values of the
+single coupling constants obtained directly from the single slice
+structure (embodied in Fig. 3.2 but not Fig. 3.3 , Fig. 3.4 , where the
+kinetic term is ( 3.2 )) are @xmath , @xmath and @xmath while values
+from the double slice structure, calculated using ( 4.16 ), ( 4.17 ), (
+4.18 ), amount to @xmath , @xmath and @xmath . The presented
+uncertainities include only the accuracy of fits and do not contain
+estimates of the systematic errors.
+
+## Summary
+
+I have verified the existence of the semiclassical limit of CDT in
+@xmath dimensions for spatial hypersurfaces formed by @xmath simplicial
+building blocks of spacetime. The blob region of the universe generated
+by the triangulated path integral turns out to behave effectively like a
+discrete mini-superspace model. This manifests not only in the average
+distribution of the number of @xmath simplices but also in the (quantum)
+dynamics of the system, governed by the discretised mini-superspace
+action, which is extremised by the average distribution. The latter can
+be investigated using the inverse covariance matrix of the number of
+@xmath simplices. Analysis of its exceptionally simple structure
+indicates an intuitive form of the potential part of the action and more
+complicated of the kinetic one.
+Furthermore, I have shown that there is an extension of the above
+semiclassical description – which I called the single slice structure –
+to the double slice structure, including spatial slices of both @xmath
+and @xmath simplices. After the rescaling of the number of @xmath
+simplices, the joint average distribution of the number of both types of
+simplices in the blob again corresponds to the discrete mini-superspace
+solution. Next, the ”double” discretised semiclassical action,
+extremised by the average distributions, can be examined using the
+inverse joint covariance matrix, which consists of four simple blocks.
+The only discussed form of the action turns out to work reasonably well.
+Last but not least, the double slice structure can be reduced to the
+single slice structure.
+The next step to make is splitting layers of @xmath building blocks into
+those of @xmath and @xmath simplices, which amounts to the triple slice
+structure. I argue for that in Appendix A yet this is a matter of
+further research, the same as e.g. consideration of other forms of the
+double action.
+
+## Appendix A The triple slice structure
+
+Below, I present some evidence that the description of the CDT universe
+from Chapters 3, 4 can be extended even more by replacing layers of
+@xmath building blocks with the separate treatment of @xmath and @xmath
+simplices. Such a framework would be the ultimate one because of the
+eventual inclusion of all types of simplices – since @xmath building
+blocks yield the single slice structure together with the @xmath and
+@xmath , which means @xmath simplices contain no additional information.
+I call it the triple slice structure, expecting @xmath and @xmath
+simplices to form their own effective spatial slices by splitting those
+of the @xmath , in such a way we will obtain three spatial slices in
+every temporal layer, beginning with spatial tetrahedra which belong to
+the @xmath . Such a split will be in agreement with construction of a
+causal triangulation i.e. the order of gluing of simplicial building
+blocks presented at the beginning of Section 3.1.
+In the first place, let us consider the average temporal distributions
+of the number of @xmath and @xmath simplices, using formula ( 2.2 ).
+Since by definition @xmath individual distributions @xmath , @xmath are
+reparametrised in the same manner as it was in the case of @xmath
+building blocks (see Section 4.1). This is justified by the fact that
+@xmath ’s for @xmath and @xmath simplices differ from those for the
+@xmath to the same degree as the @xmath . Unsurprisingly, I obtain the
+average distributions @xmath , @xmath having the already known three
+regions: the stalk (both with @xmath simplices at least), the blob (with
+single maxima at @xmath and @xmath , respectively) and the tail. Now,
+looking at their profiles, I assume @xmath and @xmath . Moreover,
+fulfilling the condition of invariance under time inversion (cf.
+Sections 2.2, 4.1), I carry out the appropriate procedures of
+symmetrisation of the distributions with respect to @xmath , which
+actually do not make them strictly symmetric for the obvious reason that
+sets @xmath and @xmath are asymmetric with respect to @xmath .
+Nevertheless, @xmath , @xmath are altered only slightly. The invariance
+under time inversion also implies @xmath and it is these
+almost-equalities that explain the obtained shape of the distributions.
+Consequently, in the blob @xmath , @xmath should be proportional to
+@xmath in the interpolated sense (see Section 4.1), with the scaling
+factor @xmath . They turn out to be indeed. The joint distribution of
+@xmath , @xmath and @xmath is shown in Fig. A.1 , along with the average
+fluctuations, rescaled in the case of @xmath and @xmath simplices.
+Furthermore, it is fitted with the semiclassical solution ( 2.5 ) up to
+yet smaller deviation than in Fig. 4.1 . The average total number of
+simplices @xmath .
+Secondly, very briefly, using formula ( 3.3 ) I calculate the covariance
+matrices @xmath , @xmath and their inverses @xmath , @xmath , which
+obviously turn out to have the same properties as @xmath and @xmath , up
+to a smaller symmetry. Thirdly, also very briefly, naturally extending
+the definition ( 4.3 ) I calculate the ”triple” covariance matrix @xmath
+and its inverse @xmath . The triple inverse covariance matrix @xmath has
+simple form analogical with @xmath (cf. ( 4.5 )) i.e. it consists of
+nine blocks having band structure. Thus we may expect that it will not
+be difficult to find the corresponding triple discrete action.

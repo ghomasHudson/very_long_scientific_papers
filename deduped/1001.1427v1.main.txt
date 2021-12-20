@@ -1,0 +1,3402 @@
+# Chapter 1 Introduction
+
+### 1.1 Background and motivation
+
+The field of numerical relativity has been a rich interplay of different
+disciplines throughout its relatively young life. Besides the advances
+in numerical methods applied to the theory of general relativity, eg.
+spectral methods [ 34 ] , finite-element methods [ 2 ] , [ 50 ] and
+multigrid methods [ 61 ] , [ 42 ] , diverse fields such as theoretical
+computational science, eg. adaptive mesh refinement algorithms and
+algebraic computation; fluid dynamics, eg. magnetohydrodynamical flows;
+the theory of partial differential equations; the theory of the global
+structure of spacetimes, eg. the study of the structure of singularities
+and the dynamics of the spacetimes surrouding it; theoretical
+astrophysics, eg. binary pulsars and black holes, rotating stars, and
+supernovae core collapses; cosmology, eg. galactic clusters and
+collisions; and astronomy, eg. gravitational radiation detection,
+gamma-ray burst modelling; have contributed to its development [ 28 ] ,
+[ 30 ] , [ 15 ] , [ 76 ] , [ 5 ] , [ 74 ] , [ 16 ] , [ 78 ] , [ 77 ] , [
+67 ] , [ 57 ] , [ 7 ] , [ 81 ] , [ 35 ] , and vice versa. An example is
+the application of the Godunov method in dealing with hydrodynamic
+shocks when solving the Einstein field equations on a numerical
+finite-differenced grid. Godunov first suggested this method in 1959 as
+a means to solve partial differential equations. In the application of
+his method in numerical relativistic hydrodynamics, the relativistic
+fluid is cast as a Riemann problem, which consists of a conservation law
+together with a piecewise constant data having a single discontinuity.
+The use of the Godunov method is now widespread and known to be highly
+effective in all state-of-the-art numerical general relativistic
+hydrodynamics simulations of astrophysical systems and phenomena [ 31 ]
+, [ 32 ] .
+
+In 1993, a phenomenon is found by Choptuik [ 20 ] in general
+relativistic simulations, analogous to phase transitions in condensed
+matter systems, thereby earning the name critical phenomenon. Critical
+phenomena are the first new phenomena discovered via numerical
+simulation in the theory of general relativity. The phenomena observed
+describes the existence of a threshold between distinct possible end
+states of a gravitational collapse scenario, and new behavior of the
+gravitating system on this threshold reflective of that undergone by
+condensed matter systems during phase transitions, eg. liquid-gas
+transitions and ferromagnetic phase transitions. The dominant features
+of this behavior include fine-tuning, universality and scale-invariance,
+where a term called order parameter is used to describe a physical
+quantity that follows a power-law behavior, and where the phase
+transitions are categorized according to whether the order parameter
+changes discretely or continuously. The scale-invariant feature of these
+condensed matter systems, eg. the dimensionless quality of the
+correlation length which causes the particle clusters to exhibit a
+fractal structure, and the renormalization group transformation
+performed on the correlation length, is carried over analogously to the
+gravitational collapse behavior on the threshold. As such, the discovery
+of critical phenomena in gravitational collapse became another prominent
+example where a separate field of physics has enriched the field of
+numerical relativity. In addition, it has sinced opened a new
+mathematical vista into the theory of relativity. In the first decade
+after this discovery, research has been focused on analytically
+establishing the existence and generality of critical phenomena in
+general relativity. Due to the complexity of Einstein’s field equations,
+such analytic analyses of the phenomena have all assumed spherical
+symmetry, and involved simplified matter or massless systems. Overview
+of these works has been covered comprehensively by Gundlach in his
+review [ 38 ] . Later works gradually ventured into more relaxed
+symmetry, ie. axisymmetry, and considered more complicated matter
+models. However, the field of critical gravitational collapse still
+dwells very much in the theoretical and mathematical arena, and has been
+used only as a tool to understand new and interesting aspects of the
+theory of general relativity, eg. the cosmic censorship conjecture and
+the emergence of fractality.
+
+In 2003, Noble and Choptuik [ 63 ] began looking into how critical
+phenomena could be triggered in static neutron star models in spherical
+symmetry. Neutron stars refer to stars with masses on the order of 1.5
+@xmath , radii of about 12 km, and central densities 5 to 10 times the
+nuclear equilibrium density of about 0.16 @xmath , thereby making them
+some of the densest massive objects found in the astrophysical realm [
+10 ] , [ 11 ] , [ 43 ] . They were first predicted by Baade and Zwicky
+in 1933 [ 8 ] in a study on the origins of supernovae, and discovered by
+Bell and Hewish in 1967 as a source of regular radio pulses in the Crab
+Nebula [ 44 ] . Neutron stars are now thought to be formed as an
+aftermath of the gravitational collapse of the core of a massive star of
+more than 8 @xmath at the end of its life [ 52 ] . They are also
+believed to be created from the accretion-induced collapse of massive
+white dwarfs. Their interiors, in particular their outer cores, consist
+of neutron superfluids with proton superconductors. These interiors lose
+energy at a rapid rate via neutrino emission. A standard neutrino
+cooling scenario called the Urca process [ 71 ] requires the proton to
+neutron ratio to exceed @xmath . Each reaction in this process produces
+a neutrino and antineutrino via alternate beta and inverse-beta decays,
+losing thermal energy in the process. The period whereby this occurs
+beginning from the explosion is about @xmath years old. In 1974, Hulse
+and Taylor discovered a binary neutron star system [ 45 ] , a system
+which is also termed as a binary pulsar, due to their emission of radio
+pulses as first observed by Bell and Zwicky. Two stars starting from
+large separations slowly inspiral into each other due to loss of angular
+momentum and energy. When their orbits shrink beneath the innermost
+stable circular orbit, they enter a coalescence phase, where they begin
+to plunge and merge. Even though this phase is characterized by very
+strong and dynamical gravitational and hydrodynamical processes, the
+plunging can be approximately described as two stars colliding head-on
+into each other. Due to the pervasiveness of such systems in galactic
+clusters as well as the dynamics of their orbital decrease and energy
+loss, coalescing binary neutron stars are also generally considered good
+candidates as sources of gravitational radiation detectable by both
+existing ground-based detectors such as LIGO, VIRGO, GEO600, and TAMA300
+and the proposed space-based detector LISA [ 26 ] .
+
+In current state-of-the-art numerical simulations of such processes,
+full general relativistic hydrodynamic is employed, where the standard
+Tolman-Oppenheimer-Volkoff models are solved together with a polytropic
+equation of state. The study of the time scales involved in
+gravitational collapses in colliding neutron stars was first considered
+by Miller, Suen and Tobias [ 58 ] using fully general relativistic
+hydrodynamics simulations. In this study, the neutron stars are modelled
+such that they infall into each other from infinity. As a result, a
+dividing line is found to exist between neutron star masses producing
+collapses that occur within a dynamical time scale, ie. prompt
+collapses, and those that occur after neutrino cooling settles in, ie.
+delayed collapses. As the problem is studied using a 3-dimensional code,
+the quest of determining the dividing line between these two scenarios
+becomes computationally expensive. This drove the need to construct a
+2-dimensional code capable of high resolutions in the
+finite-differencing scheme employed in the code (refer to Appendix A),
+which in turn can be employed to resolve the fine structure behavior at
+the dividing line. In 2007, such an axisymmetric construction was
+undertaken by Jin and Suen [ 47 ] in a study that explores this dividing
+line in fine detail. They report that critical phenomena is observed
+along this dividing line, characterizing an oscillatory threshold
+between the black hole and neutron star end states. Furthermore, the
+same phenomena is seen to occur when the equation of state of the
+neutron star system is made to vary infinitesimally. Although the same
+equation of state is used in both this study and in the study undertaken
+by Noble and Choptuik earlier, the former does not exhibit
+scale-invariance at the threshold. With all these considerations, this
+study poses a significant departure from previous works and approaches
+the realm of realistic astrophysical phenomena. Furthermore, the
+determination of the gravitational radiation signature of the unstable
+modes of such gravitational collapses of neutron star systems may
+provide insights to gravitational radiation emission data. However, at
+present, the dynamics of critical phenomena in such astrophysical
+gravitational collapse scenarios are still largely unknown.
+
+In addition, the study of non-rotating neutron stars is still a
+deviation from realistic systems typically formed in the universe. In
+particular, coalescences of binary neutron star inspirals produce
+hypermassive neutron stars that support themselves against gravitational
+collapse via differential rotation. These hypermassive neutron stars
+undergo diverse astrophysical mechanisms, eg. angular momentum
+transport, magnetic breaking, as well as gravitational radiation
+emission, before collapsing into black hole states. Rotating neutron
+stars are also formed from rotational core collapse of supernovae. With
+this in mind, Jin and Suen [ 48 ] recently incorporated angular momentum
+into the head-on colliding neutron star system. The axis of angular
+momentum is parallel to the axis of collision. In this recent study,
+they find similar critical phenomena in the simultaneously oscillating
+and rotating merger.
+
+Given this background, my thesis is motivated by a three-fold objective
+as follows:
+(1) understand the properties of neutron star critical collapses, (2)
+understand the properties of the threshold in the solution space of the
+Einstein field equations between the black hole and neutron star end
+states, and (3) clarify the implication of the results on realistic
+astrophysical scenarios.
+
+### 1.2 Overview of thesis
+
+In Chapter 2 of the thesis, the theoretical basis of numerical
+relativity is presented, namely detailed derivations of the 3+1 ADM
+formalism in solving the system of Einsteins field equations in the
+theory of general relativity. Chapter 3 presents the various constructs
+required in the implementation of the 3+1 formalism in neutron star
+simulations, where we see the coupling of the spacetime with the
+hydrodynamical matter equations adapted to the 3+1 formalism. It further
+explores in particular how conformal decomposition and the BSSN
+formalism is employed in the solution and evolution of the system of
+Einsteins field equations in the theory of general relativity coupled
+with hydrodynamically-described matter, the basis of the GRAstro-3D code
+[ 31 ] , [ 32 ] . We also present the main concepts behind the set-up
+and mechanism of the GRAstro-2D code. In Chapter 4, we study the
+Tolman-Volkoff-Oppeheimer spacetime and the ingredients of stellar
+perturbation theory as well as numerical observations in stellar phase
+transitions in order to enable us to understand the time scales involved
+in neutron star critical collapses. Chapter 5 in turn presents the basic
+concepts of critical gravitational collapse as well as some features of
+its implementation in numerical simulations of neutron stars. In this
+chapter, the dynamical systems picture is brought forward prominently as
+an important tool in understanding the structure of critical solutions.
+
+Chapter 6 contains the bulk of the analysis and simulation results in
+line with the three-fold objective mentioned above, utilizing all the
+ingredients presented in former chapters. In Section 6.1, curve fitting
+is employed in order to establish the time scales and oscillation
+frequencies exhibited by the critical solution and their universality
+across several crucial parameters in the critical solution. These
+results are compared with the values obtained from analytic perturbative
+analysis of equilibrium TOV configurations as presented in Chapter 4 of
+the thesis. The construction of a neutron star-like initial data is
+carried out and evolution of various sets of this new initial data is
+studied and analyzed in Sections 6.2 and 6.3 in order to provide
+evidence that the neutron star critical solution is a semi-attractor.
+The boundary of its attraction basin and the transition to a known set
+of non-critical fixed points is explored. In Section 6.4, the evolutions
+of the neutron star initial data sets obtained by Jin and Suen [ 47 ]
+are studied in detail in the aspects of its spacetime and matter
+properties. Convergence tests and various parameter searches for the
+construction of a phase diagram are also performed in this section. The
+power of the radiation emitted at the brink of critical collapse is
+examined using the quadrupole approximation in order to shed light on
+the structure of the semi-attractor, ie. on whether it is a limit cycle
+or a limit point. In Section 6.5, convergence tests are performed for
+the critical indices obtained from different sets of the new initial
+data in order to determine whether the neutron star critical index has a
+1-parameter or 2-parameter dependence. The mass dependence of the
+critical index is also studied.
+
+Chapter 7 summarizes the main conclusions drawn from the analyses and
+simulation results and propose interpretations of them in the framework
+of astrophysical relevance. Finally, the Appendix contains explanations
+of the finite-differencing scheme, of the basic geometric constructs of
+the pushforward and pullback operators used in the previous chapters,
+and of the derivation of geometric units used in this thesis.
+
+## Chapter 2 3+1 formalism in numerical relativity
+
+Throughout the past half century, the theory of general relativity has
+proven to be extremely successful in the understanding of phenomena of
+massive objects interacting under strongly dynamical gravitational
+fields. In particular, numerical advances within the field have made
+enormous headway in solving the celebrated two-body problem in
+geometrodynamics. As a result, we are now able to understand to a great
+extent the various physical phenomena observed in binary neutron star
+coalescences and binary black hole coalescences. This includes the
+understanding of the broader context of gravitational collapse of
+compact objects, the various mechanisms that trigger their occurence and
+their effects on the spacetime structure surrounding these systems via
+the emission of gravitational waves.
+
+Numerical advances in the theory are characterized by the success of
+fully coupled general relativistic simulations of the astrophysical
+systems as mentioned above. These simulations employ massive numerical
+algorithms that solve the Einstein field equations coupled with matter.
+Their theoretical basis is the 3+1 formalism which reduces the Einstein
+field equations to an initial-value problem [ 6 ] , [ 83 ] , [ 85 ] . In
+this chapter, we present this formalism as it is adapted to the
+simulations performed for the study in this thesis, ie. the study of
+critical phenomena in gravitational collapse of neutron stars.
+
+### 2.1 Hypersurfaces and foliations
+
+In the 3+1 formalism, the 4-dimensional spacetime is foliated by
+3-dimensional spatial hypersurfaces of constant coordinate time. We
+denote the spacetime by @xmath and the hypersurface by @xmath . The
+hypersurface @xmath is obtained by an embedding of a 3-dimensional
+manifold in the 4-dimensional spacetime via a 1-to-1 mapping that
+ensures that the hypersurface does not intersect itself. The embedding
+induces a push-forward mapping between vectors on @xmath to vectors on
+@xmath , and a pull-back mapping between linear forms on @xmath and
+those on @xmath (refer to Appendix B).
+
+As the hypersurfaces are labeled by constant coordinate time, @xmath ,
+the gradient 1-form @xmath is timelike and can be written in component
+form as @xmath . We denote the future-directed timelike unit vector
+normal to a hypersurface as @xmath . We also define as Eulerian
+observers a class of observers whose 4-velocity is collinear with this
+vector and thus whose worldlines are orthogonal to the hypersurface. The
+vector @xmath is collinear with the timelike normal evolution vector
+@xmath as follows:
+
+  -- -------- -- -------
+     @xmath      (2.1)
+  -- -------- -- -------
+
+whereas the 1-form, @xmath , which is dual to @xmath , is collinear with
+the gradient 1-form @xmath , as follows:
+
+  -- -------- -- -------
+     @xmath      (2.2)
+  -- -------- -- -------
+
+N is thus the lapse function that ensures the normalization relation:
+
+  -- -------- -- -------
+     @xmath      (2.3)
+  -- -------- -- -------
+
+On each hypersurface, we introduce a spatial coordinate system @xmath
+which constitutes a well-behaved 4-dimensional coordinate system on
+@xmath , @xmath when varied smoothly between neighboring hypersurfaces.
+The natural basis for this coordinate system is denoted by @xmath where:
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (2.4)
+  -- -------- -------- -------- -- -------
+
+@xmath is the time vector tangent to the lines of constant spatial
+coordinates, whereas @xmath are vectors tangent to the hypersurface. We
+define as ”coordinate observers” a class of observers whose 4-velocity
+is collinear with the time vector.
+
+The difference between the time vector @xmath and the timelike normal
+evolution vector @xmath is the shift vector @xmath , and the relation is
+as follows:
+
+  -- -------- -- -------
+     @xmath      (2.5)
+  -- -------- -- -------
+
+The shift vector thus enables the freedom to choose how the spatial
+coordinate system changes from hypersurface to hypersurface. Fig. 2.1
+shows the construction of an adapted coordinate system.
+
+The 4-metric @xmath can be written in terms of components @xmath with
+respect to the coordinates @xmath as follows:
+
+  -- -------- -- -------
+     @xmath      (2.6)
+  -- -------- -- -------
+
+Using Eq. ( 2.5 ), the @xmath -component of the 4-metric is thus given
+by:
+
+  -- -------- -- -------
+     @xmath      (2.7)
+  -- -------- -- -------
+
+whilst the @xmath -components are given by:
+
+  -- -------- -- -------
+     @xmath      (2.8)
+  -- -------- -- -------
+
+as the vector @xmath is tangent to the hypersurface. The 3-metric @xmath
+is thus induced on each hypersurface with respect to the adapted
+coordinate system via this relation:
+
+  -- -------- -- -------
+     @xmath      (2.9)
+  -- -------- -- -------
+
+The orthogonal projector that maps the 4-dimensional metric @xmath onto
+the 3-dimensional hypersurfaces is given in terms of components with
+respect to the coordinates @xmath by:
+
+  -- -------- -- --------
+     @xmath      (2.10)
+  -- -------- -- --------
+
+The operator acts on the normal timelike unit vector, as follows:
+
+  -- -------- -- --------
+     @xmath      (2.11)
+  -- -------- -- --------
+
+and on any vector tangent to the hypersurfaces, as follows:
+
+  -- -------- -- --------
+     @xmath      (2.12)
+  -- -------- -- --------
+
+### 2.2 The covariant and Lie derivatives
+
+The 4-dimensional spacetime @xmath with the metric @xmath possesses an
+associated connection, @xmath , denoted as the affine connection or
+covariant derivative, which enables the comparison between vectors
+evaluated at 2 different points along the congruence of curves generated
+by a vector field. We define the vector evaluated at a point @xmath ,
+with coordinates @xmath along the congruence, as @xmath and the vector
+evaluated at a point Q, with coordinates @xmath , as @xmath . This
+vector at point Q is given by a Taylor’s expansion as follows:
+
+  -- -------- -- --------
+     @xmath      (2.13)
+  -- -------- -- --------
+
+We further introduce another vector at point Q which is ’parallel’ to
+the vector at point P, and denote it as @xmath . @xmath is collinear
+with @xmath and @xmath and thus can be written as:
+
+  -- -------- -- --------
+     @xmath      (2.14)
+  -- -------- -- --------
+
+The connection or covariant derivative then evaluates the difference
+between @xmath and @xmath as follows:
+
+  -- -------- -- --------
+     @xmath      (2.15)
+  -- -------- -- --------
+
+where @xmath are thus denoted as the connection coefficients, also known
+as Christoffel symbols. The covariant derivative can be generalized to
+apply to the differentiation of a tensor @xmath of any rank in the
+4-dimensional spacetime @xmath , along a congruence generated by any
+vector field @xmath . The 3-dimensional covariant derivative, @xmath ,
+is thus obtained from the projection of the 4-dimensional covariant
+derivative, @xmath , onto the 3-dimensional hypersurfaces, as follows:
+
+  -- -------- -- --------
+     @xmath      (2.16)
+  -- -------- -- --------
+
+The connection coefficients components can be given in terms of the
+4-metric components as follows:
+
+  -- -------- -- --------
+     @xmath      (2.17)
+  -- -------- -- --------
+
+This can be written analogously for the 3-dimensional connection
+coefficients in terms of the 3-metric components, @xmath .
+
+The 4-dimensional Lie derivative for @xmath measures the distortion of
+the 4-dimensional coordinate system. As it is based solely on coordinate
+bases, the 4-dimensional Lie derivative is considered a more fundamental
+construct compared to the affine connection. The Lie derivative is given
+by the difference between the vector evaluated at point Q, @xmath , and
+the vector evaluated at point P that is ’dragged along’ to point Q,
+given by:
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.18)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+where @xmath is the affine parameter along the congruence of curves
+generated by the vector field @xmath . Therefore, the derivative is
+given by:
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.19)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+The 3-dimensional Lie derivative acts on vectors tangent to the
+hypersurfaces in the same way.
+
+### 2.3 The intrinsic and extrinsic curvatures
+
+The intrinsic curvature of the 4-dimensional spacetime @xmath is
+described by the non-vanishing of the commutator of any vector, @xmath
+in @xmath , @xmath as follows:
+
+  -- -------- -- --------
+     @xmath      (2.20)
+  -- -------- -- --------
+
+Again, this can be generalized to a tensor of any rank in @xmath . The
+contraction of the intrinsic curvature, also known as the Riemann tensor
+@xmath , gives the Ricci tensor @xmath . The contraction of the Ricci
+tensor in turn gives the Ricci scalar @xmath . This 4-dimensional Ricci
+scalar is independent of the ambient coordinate system of @xmath . The
+expressions for the 3-dimensional Riemann tensor, Ricci tensor and Ricci
+scalar take on analogous forms. We shall denote them as @xmath , @xmath
+and @xmath respectively. Similarly, the 3-dimensional Ricci scalar is
+independent of how the hypersurfaces are embedded in @xmath .
+
+Conversely, the extrinsic curvature describes how the hypersurfaces are
+embedded in @xmath , or more specifically, it measures the curvature of
+the hypersurfaces in the embedding. It is given by the orthogonal
+projection of the covariant derivative of the timelike normal unit
+vector @xmath along any vector @xmath tangent to the hypersurfaces, as
+follows:
+
+  -- -------- -- --------
+     @xmath      (2.21)
+  -- -------- -- --------
+
+By invoking the vanishing of the covariant derivative of the 4-metric as
+a direct result of Eq. ( 2.17 ), the covariant expression of the
+projection operator in Eq. ( 2.10 ), and the @xmath identity, the
+extrinsic curvature can also be expressed as the Lie derivative of the
+3-metric along @xmath as follows:
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.22)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                                @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+### 2.4 The Gauss-Codazzi relations
+
+The various contractions of the 4-dimensional Riemann tensor @xmath
+along the 3-dimensional hypersurfaces and the timelike unit normal
+vector @xmath are essential for the 3+1 formulation of the Einstein
+field equations. Solutions to the field equations can be obtained when
+the equations are cast in an initial value problem involving constraint
+equations on the initial hypersurface and evolution equations on
+subsequent hypersurfaces. Due to the fact that these contractions of
+@xmath do not involve any timelike derivatives of the metric tensor
+@xmath , they will be used to construct the constraint equations. In
+this section, we present how these contractions are obtained. Covariant
+derivatives of vectors and tensors will hereby be denoted by the
+subscripted semicolon, and the vectors and tensors along the
+hypersurface will use indices denoted with the alphabet instead of Greek
+letters.
+
+We begin by considering the full projection of @xmath onto a
+hypersurface. Using Eq. ( 2.10 ) and Eq. ( 2.21 ), we first calculate
+the commutator of the double covariant derivative of the projection
+tensor @xmath as follows:
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.23)
+                                @xmath   
+                                @xmath   
+                                @xmath   
+                       @xmath   @xmath   
+                                @xmath   
+                                @xmath   
+                       @xmath   @xmath   
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+Denoting analogously to @xmath , the 3-dimensional intrinsic curvature
+@xmath , in terms of vectors @xmath tangent to the hypersurface as
+follows:
+
+  -- -------- -- --------
+     @xmath      (2.24)
+  -- -------- -- --------
+
+the previous equation can be written as:
+
+  -- -------- -- --------
+     @xmath      (2.25)
+  -- -------- -- --------
+
+A further projection of this equation along the hypersurface yields the
+Gauss relation as follows:
+
+  -- -------- -- --------
+     @xmath      (2.26)
+  -- -------- -- --------
+
+The Gauss relation can be contracted in the @xmath and @xmath indices
+using again Eq. ( 2.10 ) to yield the following:
+
+  -- -------- -- --------
+     @xmath      (2.27)
+  -- -------- -- --------
+
+Further contraction in the @xmath and @xmath indices will yield the
+contracted Gauss relation as follows:
+
+  -- -------- -- --------
+     @xmath      (2.28)
+  -- -------- -- --------
+
+which will be used in the 3+1 formulation of the Einstein field
+equations.
+
+We now consider the projection of Eq. ( 2.26 ) along the timelike normal
+unit vector @xmath which results in the Codazzi relation:
+
+  -- -------- -- --------
+     @xmath      (2.29)
+  -- -------- -- --------
+
+The Codazzi relation can be similarly contracted in the @xmath and
+@xmath indices to yield the contracted Codazzi relation:
+
+  -- -------- -- --------
+     @xmath      (2.30)
+  -- -------- -- --------
+
+### 2.5 The Ricci relation
+
+The projection of @xmath twice along the hypersurface and twice along
+the timelike unit normal vector @xmath yields the Ricci relation which
+will be used to construct the evolution equations in the 3+1 formulation
+of the Einstein field equations. We obtain this by considering the
+projection of the commutator of the double covariant derivative of the
+timelike unit normal vector itself, and using the expression for @xmath
+in Eq. ( 2.22 ) and the component form of Eq. ( 2.21 ), as well as the
+projection onto the hypersurface of the Lie derivative of @xmath with
+respect to the timelike normal evolution vector @xmath , as follows:
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.31)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                                @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+### 2.6 Projections of the stress-energy tensor
+
+The various projections of the stress-energy tensor onto the
+3-dimensional hypersurface and along the timelike unit normal vector
+@xmath are needed to construct the matter sources for the 3+1
+formulation of the Einstein field equations.
+
+We first present the full projection of this tensor along @xmath . We
+recall from Section 2.1 that the 4-velocity of the Eulerian observers is
+definitionally the timelike normal unit vector @xmath . Therefore, the
+projection of the stress-energy tensor along @xmath is the matter energy
+density, which is a scalar measured by these Eulerian observers. We
+denote this matter energy density as @xmath .
+
+The mixed projection of the stress-energy tensor is called the matter
+momentum density, @xmath , which is a linear form tangent to the
+hypersurface. Its component form is given by:
+
+  -- -------- -- --------
+     @xmath      (2.32)
+  -- -------- -- --------
+
+The full projection of the stress-energy tensor along the hypersurface
+is called the matter stress tensor, @xmath , which is a bilinear form
+tangent to the hypersurface. Its componenet form is given by:
+
+  -- -------- -- --------
+     @xmath      (2.33)
+  -- -------- -- --------
+
+Using Eq. ( 2.10 ) in this component form of the matter stress tensor
+and taking the trace, we obtain the following relation:
+
+  -- -------- -- --------
+     @xmath      (2.34)
+  -- -------- -- --------
+
+### 2.7 3+1 decomposition of the Einstein field equations
+
+Armed with the various projections of the intrinsic curvature tensor
+@xmath and the stress-energy tensor @xmath , we are now ready to present
+the full 3+1 decomposition of the Einstein field equations. In the
+decomposition, we will utilize two forms of the field equations, namely:
+
+  -- -------- -- --------
+     @xmath      (2.35)
+  -- -------- -- --------
+
+and its equivalent:
+
+  -- -------- -- --------
+     @xmath      (2.36)
+  -- -------- -- --------
+
+where @xmath is the trace of the stress-energy tensor @xmath .
+
+To construct the Hamiltonian constraint components of the Einstein field
+equations, we apply the twice-contracted Gauss relation obtained in
+Section 2.4, into the twice-contracted Eq. ( 2.35 ) along the timelike
+normal unit vector @xmath , as follows:
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (2.37)
+  -- -------- -------- -------- -- --------
+
+The momentum constraint components of the field equations however will
+make use of the contracted Codazzi relation as obtained in Section 2.4,
+in the mixed projection of Eq. ( 2.35 ) once along @xmath and once along
+the hypersurface, as follows:
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (2.38)
+  -- -------- -------- -------- -- --------
+
+To construct the evolution components of the field equations, we first
+combine the Ricci relation (Section 2.5) with the once-contracted Gauss
+relation (Section 2.4):
+
+  -- -------- -- --------
+     @xmath      (2.39)
+  -- -------- -- --------
+
+We then substitute this into the equivalent form of the field equations
+Eq. ( 2.36 ) in this construction:
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            
+     @xmath                              
+     @xmath   @xmath   @xmath            
+     @xmath   @xmath   @xmath            (2.40)
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+## Chapter 3 Application of the 3+1 formalism in neutron star
+simulations
+
+### 3.1 3+1 decomposition of general relativistic hydrodynamics
+
+The conservation of the stress-energy tensor @xmath ensures that, as
+long as they are satisfied on the initial hypersurface, the Einstein
+field equations are satisfied for all time. The conservation is given
+as:
+
+  -- -------- -- -------
+     @xmath      (3.1)
+  -- -------- -- -------
+
+In neutron star simulations, the neutron star matter is characterized by
+a perfect fluid, where there is no presence of heat conduction and other
+stresses besides pressure. The stress-energy tensor for a perfect fluid
+is purely defined by the matter energy density and the pressure. In
+component form, the stress-energy tensor is given by:
+
+  -- -------- -- -------
+     @xmath      (3.2)
+  -- -------- -- -------
+
+To incorporate these equations into the 3+1 formalism, we decompose them
+into the 3+1 form by first writing them in a 1st order flux conservative
+form:
+
+  -- -------- -- -------
+     @xmath      (3.3)
+  -- -------- -- -------
+
+where @xmath , @xmath and @xmath are the evolved state vector, the flux
+vector and source vector respectively. The evolved state vector @xmath
+is written in terms of the primitive variables, ie. the matter density
+@xmath , fluid velocity vector @xmath , and specific internal energy
+density @xmath as follows:
+
+  -- -------- -- -------
+     @xmath      (3.4)
+  -- -------- -- -------
+
+where the fluid velocity vector is a 3-velocity related to the
+4-velocity @xmath as:
+
+  -- -------- -- -------
+     @xmath      (3.5)
+  -- -------- -- -------
+
+with @xmath representing the Lorentz factor @xmath , and @xmath is the
+specific enthalpy which can be written in terms of the specific internal
+energy density as follows:
+
+  -- -------- -- -------
+     @xmath      (3.6)
+  -- -------- -- -------
+
+The flux vector @xmath is defined as:
+
+  -- -------- -- -------
+     @xmath      (3.7)
+  -- -------- -- -------
+
+whilst the source vector @xmath is defined as:
+
+  -- -- -- -------
+           (3.8)
+  -- -- -- -------
+
+### 3.2 Conformal decomposition
+
+Conformal decomposition was introduced by Lichnerowicz in 1944 [ 33 ] to
+facilitate a more efficient resolution of the constraint equations in
+obtaining valid initial data for the initial value problem. In the
+decomposition, the 3-metric @xmath is written in terms of a conformal
+factor @xmath , which is a positive scalar field, and a conformal
+3-metric @xmath as follows:
+
+  -- -------- -- -------
+     @xmath      (3.9)
+  -- -------- -- -------
+
+where @xmath when Cartesian coordinates are used. The extrinsic
+curvature @xmath of the 3-dimensional hypersurface is decomposed into
+its trace @xmath and a traceless form @xmath as follows:
+
+  -- -------- -- --------
+     @xmath      (3.10)
+  -- -------- -- --------
+
+where @xmath . We recall that the expression of the extrinsic curvature
+can be written in terms of the Lie-derivative of the 3-metric, as shown
+in Eq. ( 2.22 ).
+
+We substitute the new form of @xmath as written in Eq. ( 3.10 ) and
+@xmath into this to obtain the following:
+
+  -- -------- -- --------
+     @xmath      (3.11)
+  -- -------- -- --------
+
+Taking the trace of this equation with respect to @xmath and applying
+the general law of variation of the determinant of an invertible matrix
+twice, we obtain the evolution equation for the conformal factor @xmath
+as follows:
+
+  -- -------- -- --------
+     @xmath      (3.12)
+  -- -------- -- --------
+
+Using the general law of variation of any invertible matrix, Eq. ( 3.11
+) also yields the evolution equation for the conformal metric @xmath as
+follows:
+
+  -- -------- -- --------
+     @xmath      (3.13)
+  -- -------- -- --------
+
+In order to obtain the conformally-decomposed evolution equation for the
+extrinsic curvature tensor @xmath , we recall the evolution component of
+the Einstein field equations in the 3+1 formalism as obtained in Chapter
+2, ie. Eq. ( 2.7 ), and substitute Eq. ( 3.10 ) into it. Also using
+Eq. ( 2.22 ), we obtain:
+
+  -- -------- -- --------
+     @xmath      (3.14)
+  -- -------- -- --------
+
+From the identity:
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (3.15)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+we thus obtain:
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (3.16)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+We now substitute this and Eq. ( 2.7 ) back into Eq. ( 3.14 ), employing
+again Eq. ( 3.10 ), to obtain:
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (3.17)
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+Eq.s ( 3.16 ) and ( 3.17 ) represent the trace part and the traceless
+part of the evolution equation for @xmath . We now conformally decompose
+the trace part, ie. Eq. ( 3.16 ) by subtituting Eq. ( 3.10 ) and @xmath
+into it to obtain the following:
+
+  -- -------- -- --------
+     @xmath      (3.18)
+  -- -------- -- --------
+
+Similarly, employing Eq. ( 3.12 ), the conformal connection @xmath and
+the resulting conformal Ricci tensor and conformal Ricci scalar, we
+conformally decompose the traceless part into:
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (3.19)
+                                @xmath   
+                                @xmath   
+                                @xmath   
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+We now present the conformal decomposition of the constraint part of the
+Einstein field equations in the 3+1 formalism as obtained in Chapter 2,
+ie. Eq.s ( 2.7 ) and ( 2.7 ). We substitute Eq. ( 3.10 ) and the
+conformal Ricci scalar, @xmath , into the 3+1 Hamiltonian constraint
+equation, ie. Eq. ( 2.7 ), to yield:
+
+  -- -------- -- --------
+     @xmath      (3.20)
+  -- -------- -- --------
+
+Similarly, the conformal decomposition of the momentum constraint
+equation, ie. Eq. ( 2.7 ), yields:
+
+  -- -------- -- --------
+     @xmath      (3.21)
+  -- -------- -- --------
+
+These six equations, ie. Eq.s ( 3.12 ), ( 3.13 ), ( 3.16 ), ( 3.19 ), (
+3.20 ) and ( 3.21 ), constitute the conformal 3+1 Einstein field
+equations. This set of equations is solved for the conformal 3-metric
+@xmath , the conformal traceless part of the extrinsic curvature @xmath
+, the conformal factor @xmath and the trace of the extrinsic curvature
+@xmath . We recover the physical 3-metric @xmath and the physical
+extrinsic curvature @xmath via the following:
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (3.22)
+  -- -------- -------- -------- -- --------
+
+However, in our neutron star simulations, we employ a modified form of
+the above conformal 3+1 Einstein field equations. This modified
+formulation is called the Baumgarte-Shapiro-Shibata-Nakamura (BSSN)
+formulation. In this formulation, a vector is introduced by Shibata and
+Nakamura as well as Baumgarte and Shapiro to restore the Laplacian
+nature of the conformal Ricci tensor that is written in terms of the
+conformal metric.
+
+In order to do this, the expression of the conformal Ricci tensor in
+terms of the conformal metric, @xmath , is considered as follows:
+
+  -- -------- -- --------
+     @xmath      (3.23)
+  -- -------- -- --------
+
+We introduce a new tensor field @xmath as follows:
+
+  -- -------- -- --------
+     @xmath      (3.24)
+  -- -------- -- --------
+
+where @xmath are the connection coefficients for the flat metric with
+respect to the coordinates @xmath . The components of this tensor field
+can also be written as:
+
+  -- -------- -- --------
+     @xmath      (3.25)
+  -- -------- -- --------
+
+where @xmath represents the covariant derivative associated with the
+flat metric.
+
+Using the expression ( 3.24 ) together with the fact that the Ricci
+tensor vanishes for a flat metric and the identity @xmath , we obtain:
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (3.26)
+                                @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+Using expression ( 3.25 ) on the previous result yields:
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (3.27)
+                       @xmath   @xmath   
+                                @xmath   
+                       @xmath   @xmath   
+                                @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+where @xmath
+
+The Ricci tensor as rendered in the previous expression can be viewed as
+a Laplace operator acting on the conformal metric @xmath yielding
+second-derivatives on the right hand side. However, the second and third
+terms on the previous expression spoils the elliptic character of the
+Ricci tensor operator. It is here that Baumgarte and Shapiro introduce
+the vector @xmath , which turns the previous expression into the
+following:
+
+  -- -------- -- --------
+     @xmath      (3.28)
+  -- -------- -- --------
+
+Taking the trace of this expression of the conformal Ricci tensor, as
+well as recalling the identity @xmath , the conformal Ricci scalar is
+thus:
+
+  -- -------- -- --------
+     @xmath      (3.29)
+  -- -------- -- --------
+
+where @xmath , which is a term that does not contain any second
+derivatives of @xmath and is quadratic in the first derivatives.
+
+Earlier, Shibata and Nakamura introduced the covector @xmath instead of
+the vector @xmath , which is related to the latter as follows:
+
+  -- -------- -- --------
+     @xmath      (3.30)
+  -- -------- -- --------
+
+However, the vector @xmath has an edge over the covector @xmath because
+it covers all the second derivatives of the conformal metric that do not
+contribute to the Laplacian operator.
+
+### 3.3 Gauge choices
+
+Looking at the set of conformally decomposed Einstein field equations
+obtained in the previous section, we note that there are no derivatives
+of either the lapse function @xmath or shift vector @xmath . This
+indicates that in the solution of the field equations, the lapse
+function and the shift vector can be freely chosen while yielding the
+same physical solution. We recall from Chapter 2 that the lapse function
+determines how the spacetime is sliced and the shift vector determines
+the choice of coordinates on these spacetime slices. The choice of the
+lapse and the shift thus changes the form of the Einstein field
+equations to be solved, making it either more hyperbolic or more
+elliptic in nature. As the success of numerical simulations in modeling
+neutron star systems depends crucially on the well-behavedness or
+non-singularity of the coordinate functions, the freedom of the lapse
+and shift choice gives us the privilege to adjust the hyperbolicity of
+the field equations based on the nature of the physical system to be
+studied. We will discuss in this section the common choices made
+particularly in neutron star simulations.
+
+The simplest lapse choice is called the geodesic slicing, which sets
+@xmath . Since the acceleration co-vector can be given by:
+
+  -- -------- -- --------
+     @xmath      (3.31)
+  -- -------- -- --------
+
+setting @xmath renders zero acceleration for the Eulerian observers, ie.
+they travel along geodesics of the spacetime, hence the name of this
+lapse choice. This choice permits only limited evolution of the
+spacetime due to its focusing property that results in coordinate
+singularities.
+
+A more popular choice is the maximal slicing which sets the extrinsic
+curvature scalar @xmath . This lapse choice maximizes the volume of the
+hypersurface. The volume enclosed within a closed 2-dimensional surface
+lying on a hypersurface is given by:
+
+  -- -------- -- --------
+     @xmath      (3.32)
+  -- -------- -- --------
+
+with @xmath is the determinant of the metric @xmath with respect to the
+coordinates @xmath on the hypersurface. The change of hypervolume can
+thus be written:
+
+  -- -------- -- --------
+     @xmath      (3.33)
+  -- -------- -- --------
+
+where @xmath is the domain at time @xmath . Using the identity @xmath
+that is derived from the evolution equation of the 3-metric, the
+variation of the hypervolume in the previous equation can be written as:
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (3.34)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+where @xmath is the unit normal to @xmath lying in the hypersurface,
+@xmath is the induced metric on @xmath with @xmath and @xmath are the
+coordinates on @xmath . Therefore, setting @xmath on the hypersurface
+renders the hypervolume extremal with respect to the variations in the
+domain bounded by @xmath . With a metric of a Lorentzian signature, this
+extremum is a maximum, hence the name of this lapse choice. Combining
+the maximal slicing condition with the evolution equation for the
+extrinsic curvature scalar @xmath , Eq. ( 3.16 ), as derived in the
+Section 3.2, we obtain:
+
+  -- -------- -- --------
+     @xmath      (3.35)
+  -- -------- -- --------
+
+an elliptic equation which imposes the condition on all subsequent
+hypersurfaces in the spacetime. Maximal slicing avoids the formation of
+coordinate singularities in the evolution of a physical system. As we
+recall from Chapter 2, the extrinsic curvature scalar is defined as the
+divergence of the unit normal vector @xmath , alternatively called the
+4-velocity field of the Eulerian observers. Fixing @xmath thus results
+in @xmath , which prevents the Eulerian observers from converging
+towards any coordinate singularity that forms due to the focusing effect
+of gravity. This happens when the lapse function and thus the proper
+time between two adjacent hypersurfaces tends to zero as the coordinate
+time tends to infinity.
+
+The next important category of lapse choice is called the @xmath
+slicing, which is a generalization of the harmonic slicing introduced by
+Bona, Massó, Seidel and Stela [ 14 ] . Harmonic slicing was introduced
+by Choquet-Bruhat and Ruggeri [ 21 ] in an attempt to write the 3+1
+Einstein field equations in a hyperbolic form, and sets @xmath , a
+harmonic condition for the time coordinate. Using the relation @xmath ,
+the expression for the 4-metric @xmath delineated in Chapter 2 and again
+the identity @xmath , this d’Alembertian becomes:
+
+  -- -------- -- --------
+     @xmath      (3.36)
+  -- -------- -- --------
+
+which is an evolution equation for the lapse function. The @xmath
+slicing thus generalizes this equation as follows:
+
+  -- -------- -- --------
+     @xmath      (3.37)
+  -- -------- -- --------
+
+where @xmath is an arbitrary function with @xmath corresponding to the
+harmonic slicing and @xmath corresponding to the geodesic slicing. Using
+the identity @xmath and employing normal coordinates where @xmath , this
+equation becomes:
+
+  -- -------- -- --------
+     @xmath      (3.38)
+  -- -------- -- --------
+
+which yields @xmath as one of its solutions, hence the name of @xmath
+slicing. The @xmath slicing produces foliations very similar the to
+maximal slicing and thus have strong singularity avoidance, its biggest
+advantage, making it another popular choice for neutron star
+simulations.
+
+We now move on to the gauge choices commonly made in the shift vector
+for neutron star simulations. Again, the simplest of these choices are
+the normal coordinates, which set @xmath , where the 4-velocity field
+@xmath or the unit normal vector field lines are parallel to the
+constant spatial coordinate field lines, hence the name normal
+coordinates. An advantage of this choice is its incapability in
+introducing any pathologies of its own. However, in rotating star
+spacetimes, the employment of this shift choice can result in coordinate
+shears due to the fact that the unit normal vector field lines are not
+parallel to the stationary Killing vector field @xmath lines.
+
+The minimal distortion shift was introduced by Smarr and York in 1978 [
+75 ] in an attempt to minimize the time derivative of the conformal
+3-metric, @xmath . The components of this time derivative are:
+
+  -- -------- -- --------
+     @xmath      (3.39)
+  -- -------- -- --------
+
+which are related to the distortion tensor components @xmath as follows:
+
+  -- -------- -- --------
+     @xmath      (3.40)
+  -- -------- -- --------
+
+which has 5 degrees of freedom, ie. 6 freely chosen components minus 1
+constraint requiring @xmath . The distortion tensor @xmath is a measure
+of the change of the shape of spatial domain @xmath within a fixed
+coordinate boundary from one hypersurface to the next. The minimal
+distortion shift hence seeks to minimize the change in the shape of the
+spatial domain @xmath . This can be done by choosing coordinates @xmath
+that set the distortion tensor @xmath identically equal to zero. Taking
+into account that the 3 degrees of freedom for the coordinate choice are
+insufficient to constrain the 5 degrees of freedom for the distortion
+tensor @xmath , we decompose the distortion tensor @xmath into a
+longitudinal part and a transverse-traceless part as follows:
+
+  -- -------- -- --------
+     @xmath      (3.41)
+  -- -------- -- --------
+
+where @xmath is the conformal Killing operator associated with the
+physical metric @xmath acting on some vector field @xmath . Taking the
+divergence of this relation, we obtain:
+
+  -- -------- -- --------
+     @xmath      (3.42)
+  -- -------- -- --------
+
+which possesses 3 degrees of freedom that can be constrained by the
+coordinate choice. Hence, the minimum distortion shift conditon becomes:
+
+  -- -------- -- --------
+     @xmath      (3.43)
+  -- -------- -- --------
+
+Using the evolution equation for the 3-metric @xmath , namely, @xmath ,
+the identity @xmath , and the expression for the traceless part of the
+extrinsic curvature tensor @xmath , Eq. ( 3.10 ), this condition yields:
+
+  -- -------- -- --------
+     @xmath      (3.44)
+  -- -------- -- --------
+
+Furthermore, we can employ the 3+1 momentum constraint equation, Eq.
+(2.38), to obtain the following elliptic equation of shift evolution
+resulting from the minimal distortion condition:
+
+  -- -------- -- --------
+     @xmath      (3.45)
+  -- -------- -- --------
+
+A more computationally-feasible shift choice based on the minimal
+distortion shift is the @xmath -freezing shift, introduced by Alcubierre
+and Brügmann [ 3 ] . This shift choice sets @xmath . The covariant
+derivative @xmath can be written in terms of the connection coefficients
+for the flat metric @xmath with respect to the coordinates @xmath as
+follows:
+
+  -- -------- -- --------
+     @xmath      (3.46)
+  -- -------- -- --------
+
+Hence, the @xmath -freezing shift condition sets @xmath . To apply this
+condition on the shift evolution, we write the Lie derivative of the
+conformal 3-metric @xmath in terms of the covariant derivative as
+follows:
+
+  -- -------- -- --------
+     @xmath      (3.47)
+  -- -------- -- --------
+
+the divergence of which, via the expression @xmath , the conformal 3+1
+momentum constraint equation, and the relationship between the conformal
+and flat covariant derivatives, becomes:
+
+  -- -------- -- --------
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      (3.48)
+  -- -------- -- --------
+
+The @xmath -freezing shift condition thus yields an elliptic equation
+for the shift. Alcubierre and Brügmann [ 3 ] turned it into a parabolic
+equation using the relation @xmath with @xmath being a positive
+constant. A modification of this is used in the neutron star simulations
+presented in this thesis, namely:
+
+  -- -------- -- --------
+     @xmath      (3.49)
+  -- -------- -- --------
+
+where we set @xmath .
+
+### 3.4 The initial value problem
+
+In Chapter 2, we see that the Einstein field equations are separated
+into the constraint part and the evolution part, such that their
+resolution amounts to solving an initial value problem using the
+constraint part to obtain initial data that will be propagated forward
+in time using the evolution part of the field equations. As the initial
+data is constrained, it is a non-trivial astrophysical problem common
+particularly in neutron star simulations, to ascertain that the solution
+to the constraint part of the field equations yields the physical system
+to be studied.
+
+In this section, we discuss the conformal transverse traceless method
+proposed by York [ 83 ] , [ 84 ] , [ 85 ] , a method that has been
+employed in our general relativistic hydrodynamics simulations of
+neutron star and neutron star-like systems. We recall that in Section
+3.2, we have obtained the conformally decomposed constraint part of the
+Einstein field equations. In 1973 and 1979, York solved this system of
+equations by further decomposing the trace part of the conformal
+extrinsic curvature @xmath into a longitudinal part and a transverse
+part, as follows:
+
+  -- -------- -- --------
+     @xmath      (3.50)
+  -- -------- -- --------
+
+where @xmath is both traceless and transverse with respect to the
+conformal metric, ie. @xmath and @xmath respectively, and @xmath is the
+conformal Killing operator associated with the conformal metric @xmath
+that acts on the vector field @xmath as follows:
+
+  -- -------- -- --------
+     @xmath      (3.51)
+  -- -------- -- --------
+
+and is also traceless, ie. @xmath .
+
+We incorporate this longitudinal/transverse decomposition and the
+identity @xmath into the conformally decomposed constraint part of the
+Einstein field equations, Eq.s  ( 3.20 ) and  ( 3.21 ) and obtain the
+following:
+
+  -- -------- -- --------
+     @xmath      (3.52)
+  -- -------- -- --------
+
+  -- -------- -- --------
+     @xmath      (3.53)
+  -- -------- -- --------
+
+where @xmath and @xmath .
+
+Eq.s ( 3.52 ) and ( 3.53 ) above show that in solving this system of
+equations, the conformal metric @xmath , the symmetric traceless and
+transverse tensor @xmath , the extrinsic curvature scalar @xmath , and
+the conformal matter variables @xmath , can be freely chosen, whilst the
+conformal factor @xmath and the vector @xmath will be determined as
+results of the initial value solve. We then construct the physical
+metric as @xmath , the physical extrinsic curvature tensor as @xmath ,
+the physical matter energy density as @xmath and the physical matter
+momentum density vector as @xmath , which form a set of initial data
+@xmath that satisfies the constraint part of the Einstein field
+equations, Eq.s ( 2.7 ) and ( 2.7 ).
+
+### 3.5 GRAstro-2D as an axisymmetric general relativistic hydrodynamics
+code
+
+The GRAstro-2D code is based on the Cactus Computational Toolkit [ 17 ]
+and the GRAstro-3D code [ 31 ] , [ 32 ] . Thus, similar to the
+GRAstro-3D code, it solves the full 3+1 Einstein field equations as
+presented in Chapter 2, using the BSSN scheme as presented earlier in
+Section 3.2. The evolution of the code is similarly unconstrained, ie.
+the constraint equations are only solved at the initial time and not
+throughout the evolution. As such, violation of the constraint equations
+are monitored throughout the evolution to determine convergence of the
+code. The code also employs the same initial value problem solver and
+finite-differencing scheme as used in GRAstro-3D. In this section, we
+present the basic concepts behind the modifications made by [ 47 ] on
+the GRAstro-3D code for the purpose of adapting the former to perform
+numerical simulations of axisymmetric systems. In both GRAstro-3D and
+GRAstro-2D, we use geometric units where we set @xmath (refer to
+Appendix C).
+
+The basic concepts are based on the Cartoon technique introduced by
+Alcubierre, Brandt, Brügmann, Holz, Seidel, Takahashi and Thornbug in
+2005 [ 4 ] . This technique is able to avoid the problems normally
+encountered in other axisymmetric techniques, eg. techniques that employ
+a cylindrical @xmath coordinate grids, where physically non-singular
+variables may become indeterminate @xmath forms along the @xmath -axis.
+Although these indeterminate forms can be regularized by L’Hospital’s
+rule, their evaluation becomes inaccurate in finite differencing schemes
+where the grid spacing is finite when its limit is required to go to
+zero to be consistent with its analytic counterpart. In addition to this
+problem, some of the variables in the 3+1 Einstein field equations are
+obtained in finite differencing schemes using a summation of terms that
+may include these indeterminate forms. Regularization of such variables
+require detailed analysis of the entire system of the 3+1 Einstein field
+equations in the axisymmetric coordinate system near the axis of
+symmetry, a difficult although not impossible undertaking.
+
+However, Cartesian coordinate grids do not introduce any such pathology,
+as the coordinate system is completely regular even at the grid origin.
+The Cartoon technique employs a 3-dimensional Cartesian @xmath
+coordinate grid that is restricted to the @xmath plane by only one
+finite-diffence-length. It uses continuous rotational symmetry to
+provide the boundary conditions for this thin 3-dimensional slab. Fig.
+3.1 shows the construction of this slab, where the @xmath axis is taken
+as the axis of symmetry. The solid dots represent grid points where
+variables take on the values calculated on the original 3-dimensional
+coordinate grid. The white dots represent grid points where the
+variables are calculated via the Cartoon boundary conditions. The white
+squares represent grid points where the variables are calculated by
+imposing a physical boundary. The Cartoon boundary condition is
+described by a rotational coordinate transformation @xmath . If we
+consider arbitrary tensor fields @xmath on the 3-dimensional coordinate
+grid, a rotation of such a tensor field by an angle @xmath about the
+axis of symmetry is equivalent to the rotation of the coordinate system
+by an angle @xmath . The coordinate transformation @xmath can thus be
+written as:
+
+  -- -------- -- --------
+     @xmath      (3.54)
+  -- -------- -- --------
+
+with @xmath , @xmath , and @xmath . It operates on the tensor field
+@xmath as follows:
+
+  -- -------- -- --------
+     @xmath      (3.55)
+  -- -------- -- --------
+
+This tranformation law applies to partial derivatives of tensors in the
+same way. A 1-dimensional interpolation will be needed to calculate
+fields at the points @xmath that are not part of the original
+3-dimensional coordinate grid. This interpolation may require points in
+the @xmath range, where the values are calculated via the same
+coordinate transformation Eq. ( 3.53 ) as shown by the dashed lines in
+Fig. 3.1.
+
+## Chapter 4 Stellar perturbations and phase transitions
+
+### 4.1 The TOV spacetime
+
+The TOV (Tolman-Oppenheimer-Volkoff) spacetime is an exact solution in
+general relativity modelling fluid balls such as isolated stars. It is
+the only known general relativistic static equilibrium configuration for
+spherical objects with matter. The line element of this spacetime is:
+
+  -- -------- -- -------
+     @xmath      (4.1)
+  -- -------- -- -------
+
+which contains no non-diagonal components. @xmath in this line element
+represents the coordinate radius of the fluid ball in question, which we
+will henceforth call the Schwarzschild radius, whereas @xmath and @xmath
+are purely functions of @xmath , indicating the time-independence of
+this spacetime. This line element is used to model neutron stars in this
+thesis. The connection coefficients, Ricci tensor and scalar that result
+from this line element are as follows:
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      
+     @xmath      (4.2)
+  -- -------- -- -------
+
+with all other components of the Einstein tensor @xmath being zero.
+
+Within the interior of the neutron star, the momentum-energy tensor
+@xmath is given by:
+
+  -- -------- -- -------
+     @xmath      (4.3)
+  -- -------- -- -------
+
+where @xmath here is the matter-energy density. Using GRTensorII on
+Mathematica, the Einstein field equations are computed to be as follows:
+@xmath :
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (4.4)
+  -- -------- -- -------
+
+@xmath :
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (4.5)
+  -- -------- -- -------
+
+@xmath :
+
+  -- -------- -- -------
+     @xmath      (4.6)
+  -- -------- -- -------
+
+Eq. ( 4.1 ) can be solved for the function @xmath when it is written as
+an integral as follows:
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (4.7)
+  -- -------- -------- -------- -- -------
+
+where
+
+  -- -------- -- -------
+     @xmath      (4.8)
+  -- -------- -- -------
+
+Employing Eq.s ( 4.1 ) and  ( 4.1 ) in Eq. ( 4.1 ) gives us:
+
+  -- -------- -- -------
+     @xmath      (4.9)
+  -- -------- -- -------
+
+We then use the former two equations together with the derivative of
+Eq. ( 4.1 ) to write Eq. ( 4.6 ) entirely in terms of @xmath and @xmath
+as follows:
+
+  -- -------- -- --------
+     @xmath      
+     @xmath      
+     @xmath      (4.10)
+  -- -------- -- --------
+
+Eq.s ( 4.8 ), ( 4.9 ) and  ( 4.1 ) form a set of ordinary differential
+equations that can be solved to yield our theoretical stellar models. In
+our simulations, we choose a value for @xmath with @xmath , employ an
+equation of state giving @xmath as a function of @xmath , and integrate
+the former equations from @xmath to a radius where the pressure @xmath
+vanishes. This radius defines the surface of the neutron star, which we
+will denote henceforth as @xmath . We employ an equation of state
+popularly used in neutron star simulations called the polytropic
+equation of state coupled with a @xmath law which sets @xmath for the
+initial data with @xmath and @xmath as arbitrary constants. These
+solutions give us models of the interior of the neutron stars.
+
+For the exterior region of the neutron star, @xmath and @xmath where
+@xmath is the gravitational mass of the star as evaluated at spatial
+infinity, which we will denote henceforth as the ADM
+(Arnowitt-Deser-Misner) mass. Therefore, Eq. ( 4.1 ) becomes:
+
+  -- -------- -- --------
+     @xmath      (4.11)
+  -- -------- -- --------
+
+and Eq. ( 4.9 ) yields:
+
+  -- -------- -- --------
+     @xmath      (4.12)
+  -- -------- -- --------
+
+The line element for the exterior region thus becomes:
+
+  -- -------- -- --------
+     @xmath      (4.13)
+  -- -------- -- --------
+
+which is the standard Schwarzschild line element.
+
+Since we perform these calculations within a 3-dimensional Cartesian
+grid framework, we use an alternative form of the Schwarzschild line
+element as follows:
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (4.14)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+where it can be computed that:
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (4.15)
+  -- -------- -------- -------- -- --------
+
+and:
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      
+              @xmath   @xmath      
+     @xmath   @xmath   @xmath      (4.16)
+  -- -------- -------- -------- -- --------
+
+Due to Eq. ( 4.11 ), the differential for the Schwarzschild radius in
+Eq. ( 4.1 ) for the stellar interior can be written analogously as:
+
+  -- -------- -- --------
+     @xmath      (4.17)
+  -- -------- -- --------
+
+The set of ordinary differential equations for the stellar interior thus
+becomes:
+
+  -- -------- -- --------
+     @xmath      
+     @xmath      
+     @xmath      (4.18)
+  -- -------- -- --------
+
+The solution in the stellar interior is matched to the solution in the
+exterior to obtain a global solution. These solutions were first
+considered by Tolman, Oppenheimer and Volkoff in 1939 [ 80 ] , [ 66 ] to
+model isolated stars, henceforth the name TOV spacetime.
+
+### 4.2 Perturbations on the TOV spacetime
+
+In this section, we present small amplitude perturbations to the TOV
+spacetime as first introduced by Thorne and Campolattaro in 1967 [ 79 ]
+. These perturbations are viewed as vector displacements of the fluid
+elements with respect to the coordinate system of the spacetime. In
+terms of the line element, the perturbation is introduced as follows:
+
+  -- -------- -- --------
+     @xmath      (4.19)
+  -- -------- -- --------
+
+where @xmath is the perturbed line element, @xmath is the original line
+element of the TOV spacetime as described in Eq.s ( 4.1 ) and ( 4.13 )
+and @xmath are the components of the perturbation metric. The components
+of the perturbation metric and the fluid element displacement vector can
+be categorized into quantities that transform as scalar fields, vectors
+or tensors under a rotational group. The quantities that transform as
+scalar fields are constants under a rotation group. They can be expanded
+in terms of scalar spherical harmonics @xmath and possess even parity.
+Those that transform as vectors, eg. @xmath , are expanded in terms of
+vector spherical harmonics @xmath in the even parity and @xmath in the
+odd parity where @xmath , @xmath and @xmath , whereas those that
+transform as tensors, eg. @xmath , are expanded in terms of tensor
+spherical harmonics @xmath , a covariant derivative with respect to the
+3-metric @xmath for the TOV spacetime, @xmath in the even parity and
+@xmath in the odd parity. @xmath , @xmath , @xmath and @xmath are
+quantities that transform as scalars; whereas @xmath , @xmath , @xmath
+transform as vectors, and @xmath with @xmath transform as tensors.
+Therefore, we can write the overall odd-parity harmonics as follows:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- -- --------
+     @xmath      (4.20)
+  -- -------- -- --------
+
+The overall even-parity harmonics can be written as follows:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- -- --------
+     @xmath      (4.21)
+  -- -------- -- --------
+
+Eq.s ( 4.20 ) and  ( 4.21 ) can be simplified via small coordinate
+tranformations @xmath on the perturbation metric components as follows:
+
+  -- -------- -- --------
+     @xmath      (4.22)
+  -- -------- -- --------
+
+where @xmath and @xmath for the odd-parity harmonics, and @xmath ,
+@xmath and @xmath for the even-parity harmonics. For the odd-parity
+harmonics, the simplification is performed by setting @xmath so as to
+annul the function @xmath , whereas for the even-parity harmonics,
+@xmath , @xmath and @xmath are chosen so as to annul @xmath , @xmath and
+@xmath . With these gauge simplications, the perturbation metric for the
+odd-parity harmonic with @xmath becomes:
+
+  -- -------- -- --------
+     @xmath      (4.23)
+  -- -------- -- --------
+
+with the corresponding fluid element displacement vector as follows:
+
+  -- -------- -- --------
+     @xmath      (4.24)
+  -- -------- -- --------
+
+The perturbation metric for the even-parity harmonics for @xmath
+becomes:
+
+  -- -------- -- --------
+     @xmath      (4.25)
+  -- -------- -- --------
+
+with the corresponding fluid element displacement vector as follows:
+
+  -- -------- -- --------
+     @xmath      (4.26)
+  -- -------- -- --------
+
+These general forms indicate that the odd-parity harmonics are described
+by differential rotations that do not change the profile of the star’s
+density, pressure and shape, whereas the even-parity harmonics are
+described by oscillations of the star’s density and pressure.
+
+Armed with the previous general forms, we now consider the most basic
+perturbation mode, ie. the @xmath mode. The odd-parity harmonics for
+this mode are:
+
+  -- -------- -- --------
+     @xmath      (4.27)
+  -- -------- -- --------
+
+and the even-parity harmonics are:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- -- --------
+     @xmath      (4.28)
+  -- -------- -- --------
+
+Eq. ( 4.27 ) indicates that the @xmath mode contains no odd-parity
+harmonics, and thus does not possess any differential rotations.
+However, the perturbation metric for even-parity harmonics for the
+@xmath mode becomes:
+
+  -- -------- -- --------
+     @xmath      (4.29)
+  -- -------- -- --------
+
+and the fluid element displacement vector becomes:
+
+  -- -------- -- --------
+     @xmath      (4.30)
+  -- -------- -- --------
+
+We can thus write the perturbed line element for the @xmath mode as
+follows:
+
+  -- -------- -- --------
+     @xmath      (4.31)
+  -- -------- -- --------
+
+The 4-velocity of the fluid elements corresponding to the aforementioned
+displacement vector is:
+
+  -- -------- -- --------
+     @xmath      (4.32)
+  -- -------- -- --------
+
+From the displacement vector, we also compute the Lagrangian change in
+the number density of baryons contained in a certain stellar volume, as
+follows:
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (4.33)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+where the subscripted colon indicates a covariant derivative with
+respect to the perturbed metric to first order in the perturbation
+functions. The corresponding Eulerian changes in the density and
+pressure of mass-energy of the star hence become:
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (4.34)
+  -- -------- -------- -------- -- --------
+
+where @xmath . We note that Eq.s ( 4.31 ) to  ( 4.2 ) constitute
+spacetime and fluid perturbations that do not violate the spherical
+symmetry of the equilibrium TOV background. Substituting these
+expressions into Einstein’s field equations and simplifying by
+neglecting higher orders of the perturbation functions, we now write the
+equations of motion for the @xmath mode perturbation as follows:
+@xmath :
+
+  -- -------- -- --------
+     @xmath      
+     @xmath      (4.35)
+  -- -------- -- --------
+
+@xmath :
+
+  -- -------- -- --------
+     @xmath      
+     @xmath      (4.36)
+  -- -------- -- --------
+
+@xmath , @xmath ::
+
+  -- -------- -- --------
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      (4.37)
+  -- -------- -- --------
+
+@xmath :
+
+  -- -------- -- --------
+     @xmath      (4.38)
+  -- -------- -- --------
+
+@xmath :
+
+  -- -------- -- --------
+     @xmath      (4.39)
+  -- -------- -- --------
+
+The Euler equation for this perturbation mode, which is the projection
+of @xmath along the direction orthogonal to the 4-velocity of the fluid
+@xmath , is as follows:
+
+  -- -------- -- --------
+     @xmath      (4.40)
+  -- -------- -- --------
+
+Eq.s ( 4.2 ) to  ( 4.40 ) can be solved to yield a first order ordinary
+differential equation for the perturbation function @xmath . To do this,
+we write the perturbation function in terms of a radial dependence and a
+harmonic time dependence, @xmath . We then substitute Eq.s ( 4.2 ), (
+4.2 ) and  ( 4.38 ) into  ( 4.40 ) to obtain the following:
+
+  -- -------- -- --------
+     @xmath      
+     @xmath      (4.41)
+  -- -------- -- --------
+
+We now consider the @xmath mode perturbations. The odd-parity harmonics
+for this mode are:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- -- --------
+     @xmath      (4.42)
+  -- -------- -- --------
+
+whereas the even-parity harmonics are:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- -- --------
+     @xmath      (4.43)
+  -- -------- -- --------
+
+In the spirit of Eq. ( 4.20 ) and performing a simplification via small
+coordinate transformations previously done for the @xmath mode, which
+sets @xmath , we can then write the metric for the odd-parity @xmath
+perturbation mode as follows:
+
+  -- -------- -- --------
+     @xmath      (4.44)
+  -- -------- -- --------
+
+where we include a harmonic term in the @xmath and @xmath components in
+order to simplify the resulting system of ordinary differential
+equations shown further on. Correspondingly, the fluid element
+displacement vector is:
+
+  -- -------- -- --------
+     @xmath      (4.45)
+  -- -------- -- --------
+
+where we see that @xmath is the perturbation function describing radial
+fluid oscillations whereas @xmath describes azimuthal fluid
+displacements. The perturbed line element for this perturbation mode is
+thus:
+
+  -- -------- -- --------
+     @xmath      (4.46)
+  -- -------- -- --------
+
+With this line element, the Lagrangian change in the baryonic number
+density becomes:
+
+  -- -------- -- --------
+     @xmath      (4.47)
+  -- -------- -- --------
+
+which results in the Eulerian changes in the pressure and matter-energy
+density as follows:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- -- --------
+     @xmath      (4.48)
+  -- -------- -- --------
+
+where @xmath . To first order in the perturbation functions, again using
+GRTensorII on Mathematica, we obtain the Einstein field equations as
+follows:
+@xmath :
+
+  -- -------- -- --------
+     @xmath      
+     @xmath      (4.49)
+  -- -------- -- --------
+
+@xmath :
+
+  -- -------- -- --------
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      (4.50)
+  -- -------- -- --------
+
+@xmath :
+
+  -- -------- -- --------
+     @xmath      
+     @xmath      (4.51)
+  -- -------- -- --------
+
+@xmath :
+
+  -- -------- -- --------
+     @xmath      (4.52)
+  -- -------- -- --------
+
+@xmath :
+
+  -- -------- -- --------
+     @xmath      (4.53)
+  -- -------- -- --------
+
+@xmath :
+
+  -- -------- -- --------
+     @xmath      (4.54)
+  -- -------- -- --------
+
+We write the perturbation functions in terms of a radial dependence and
+a harmonic time dependence, ie. @xmath , @xmath , @xmath , @xmath and
+@xmath . We then decouple Eq. ( 4.2 ) into two equations for @xmath and
+@xmath as follows:
+
+  -- -------- -- --------
+     @xmath      (4.55)
+  -- -------- -- --------
+
+  -- -------- -- --------
+     @xmath      (4.56)
+  -- -------- -- --------
+
+Eq. ( 4.54 ) however can be simplified to yield:
+
+  -- -------- -- --------
+     @xmath      (4.57)
+  -- -------- -- --------
+
+We also consider the perturbation of the energy-momentum conservation as
+follows:
+@xmath
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (4.58)
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+which can be decoupled into two equations for @xmath and @xmath as
+follows:
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (4.59)
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (4.60)
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+Eq.s ( 4.55 ), ( 4.56 ), ( 4.57 ), ( 4.59 ) and  ( 4.60 ) form a system
+of third order ordinary differential equations for the even parity
+@xmath perturbation mode and can be solved to obtain the mode frequency
+@xmath . To consider the effect of this perturbation on the exterior TOV
+background spacetime, we solve Eq.s ( 4.2 ), ( 4.54 ) and  ( 4.58 ) in
+the vacuum surrounding the star. Using Eq.s ( 4.11 ) to  ( 4.13 ), we
+obtain, as in [ 19 ] :
+
+  -- -------- -- --------
+     @xmath      (4.61)
+  -- -------- -- --------
+
+where @xmath and @xmath arbitrary function of the coordinate time.
+Considering infinitesimal coordinate transformations, we use Eq. ( 4.22
+) to obtain the following for the even-parity @xmath mode:
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (4.62)
+  -- -------- -------- -------- -- --------
+
+Eq.s ( 4.2 ) show that for the even-parity @xmath mode perturbation
+metric to preserve the same form, the following will have to hold true:
+
+  -- -------- -- --------
+     @xmath      (4.63)
+  -- -------- -- --------
+
+which entails:
+
+  -- -------- -- --------
+     @xmath      (4.64)
+  -- -------- -- --------
+
+Eq.s ( 4.64 ) can be solved to yield the following:
+
+  -- -------- -- --------
+     @xmath      (4.65)
+  -- -------- -- --------
+
+with @xmath and @xmath arbitrary function of the coordinate time.
+Substituting Eq. ( 4.65 ) back into the first three equations in  ( 4.2
+), we obtain:
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (4.66)
+  -- -------- -------- -------- -- --------
+
+Therefore, the perturbation functions @xmath , @xmath , @xmath , @xmath
+and @xmath are only unique up to the transformations shown in Eq. ( 4.2
+). Given Eq.s ( 4.2 ), the perturbations in the exterior background
+spacetime Eq.s ( 4.61 ) can be set to zero which then preserves its
+spherical symmetry. When @xmath , we obtain @xmath . Using this gauge
+not only guarantees that the exterior background spacetime is
+spherically symmetric but as a unique gauge, it also can be used to
+remove the gauge arbitrariness in the former perturbation functions.
+
+### 4.3 Non-radiative pulsations of neutron stars and their frequency
+modes
+
+In the previous section, we have delved into non-radiative perturbations
+on the TOV spacetime, ie. the @xmath and even parity @xmath modes. In
+this section, we will apply the formalism in our neutron star models to
+obtain their non-radial pulsation modes. By considering boundary
+conditions at the center and at the surface of the star, we employ a
+shooting method to solve the systems of ordinary differential equations
+in both the @xmath and even parity @xmath modes obtained in the previous
+section.
+
+For the @xmath mode, we follow Misner et al [ 60 ] as well as Kokkotas
+and Ruoff [ 49 ] in re-writing Eq. ( 4.2 ) as:
+
+  -- -------- -- --------
+     @xmath      (4.67)
+  -- -------- -- --------
+
+where:
+
+  -- -------- -- --------
+     @xmath      (4.68)
+  -- -------- -- --------
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- -- --------
+     @xmath      (4.69)
+  -- -------- -- --------
+
+Eq. ( 4.67 ) can itself be decoupled into a system of two ordinary
+differential equations as follows:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- -- --------
+     @xmath      (4.70)
+  -- -------- -- --------
+
+We now consider the boundary conditions for neutron star models. At the
+center of the star, the radial displacement of the fluid element
+vanishes, whilst at the surface of the star, the Eulerian change in the
+pressure of the star vanishes. These conditions translate respectively
+as:
+
+  -- -------- -- --------
+     @xmath      (4.71)
+  -- -------- -- --------
+
+  -- -------- -- --------
+     @xmath      (4.72)
+  -- -------- -- --------
+
+where @xmath denotes the radius and @xmath the ADM mass of the star [ 9
+] . [ 49 ] found that via a Taylor expansion, @xmath , and @xmath ,
+hence we obtain @xmath and @xmath as @xmath . We then employ a simple
+shoot and match method to solve the boundary value problem Eq.s ( 4.70 )
+to  ( 4.72 ) to obtain the normal modes of pulsation for the neutron
+star. We input a range of test @xmath values and for each of these
+values integrate Eq. ( 4.70 ) from @xmath to @xmath using a simple
+finite-differencing scheme and observe the difference between the
+integrated value and the value imposed by the boundary condition Eq. (
+4.72 ) at @xmath . The @xmath values that give us zero difference are
+the normal mode frequencies for the neutron star. We note that using
+this method, convergence is achieved very rapidly. We denote the lowest
+of these frequencies as the fundamental mode.
+
+For the even-parity @xmath mode, we similarly consider the boundary
+conditions at both the center and at the surface of the star for Eq.s (
+4.56 ), ( 4.57 ) and  ( 4.60 ). We note that at the center of the star,
+the perturbation functions @xmath , @xmath and @xmath must be finite
+whilst at the surface of the star, they must match with the values that
+preserve the spherical symmetry of the exterior background spacetime.
+These conditions thus translate as follows:
+
+  -- -------- -- --------
+     @xmath      (4.73)
+  -- -------- -- --------
+
+where @xmath and @xmath are arbitrary constants, and @xmath and @xmath
+are respectively the matter-energy density and pressure at the center of
+the star, and:
+
+  -- -------- -- --------
+     @xmath      (4.74)
+  -- -------- -- --------
+
+This boundary value problem Eq.s ( 4.56 ) to  ( 4.60 ), and Eq.s ( 4.73
+) to  ( 4.74 ) can then be similarly solved using a shoot and match
+method where test @xmath values are chosen and Eq.s ( 4.56 ) to  ( 4.60
+) are integrated from the center to the surface of the star until a
+match occurs with the boundary conditions at the surface of the star. In
+choosing the test @xmath values, we follow [ 56 ] in using a variational
+principle for the @xmath mode frequencies as obtained by Detweiler in
+1975 [ 27 ] :
+
+  -- -------- -- --------
+     @xmath      
+     @xmath      
+     @xmath      (4.75)
+  -- -------- -- --------
+
+We employ test functions @xmath and @xmath [ 56 ] and substitute Eq. (
+4.47 ), Eq. ( 4.55 ) and  ( 4.56 ) into Eq. ( 4.3 ) to obtain the test
+@xmath values for the neutron star. We note that the variational
+principle approach is able to give us a good estimate of the mode
+frequencies even without an exact knowledge of the perturbation
+functions.
+
+For these perturbation modes, when the fundamental @xmath obtained is
+negative, the star’s oscillation increases without bound and the star is
+said to be unstable. When the fundamental mode is zero, the star is at a
+critical point between a stable branch and unstable branch. The star
+will remain at this point unless perturbed. We shall delve into this in
+the following section.
+
+### 4.4 Equation of state change of neutron stars and its instability
+time scale
+
+In the previous sections, we present the formalism and the methods by
+which we obtain the time scales associated with non-radiative pulsation
+modes for non-rotating neutron stars. In this section, we consider the
+time scales involved when a non-rotating neutron star undergoes phase
+transitions induced by a change in its equation of state. Since an
+analytic result has not been established governing how the time scale of
+collapse of a neutron star varies with the speed of its phase
+transition, in this section, we shall consider numerical results.
+
+We consider isolated static neutron star models with a polytropic
+equation of state @xmath as mentioned in Section 4.1, with @xmath . The
+rest mass of these neutron stars are set to be at the maximum allowed
+for a static equilibrium star with the adiabatic index @xmath .
+According to Harrison et al [ 41 ] , the adiabatic index has the upper
+limit of @xmath imposed by the causality condition. It is a well-known
+Newtonian result that the speed of sound has the ultrarelativistic limit
+@xmath . Therefore, we set @xmath in order to allow a change of equation
+of state with @xmath increasing but not exceeding the upper limit of
+@xmath .
+
+Fig. 4.1 shows the variation of the rest mass and ADM mass with respect
+to the central matter density of stars modelled with equations of state
+with different adiabatic indices. As mentioned in the previous section,
+there is a maximum for each of the curves, which indicates a critical
+point between the stable branch on the left and the unstable branch on
+the right. We see that as @xmath increases, the curve moves further to
+the right with decreasing maximum. As the central matter density is less
+than 1 in the geometric units used, the pressure of the star as well as
+the number of baryons packed in the star decreases as @xmath increases.
+
+We set the rest mass of the stars to be equal to the maximum rest mass
+of a star with @xmath , ie. at @xmath . With this setup, the stars are
+thus set on the stable branch of the @xmath curve, with their phases
+allowed to transition with time to the maximum point of the @xmath
+curve. We utilize the GRAstro-2D code and use a finite-differencing
+resolution of @xmath . Convergence of the results with respect to
+resolution is verified by performing simulations using other
+resolutions, eg. @xmath . A slow change is imposed on the equation of
+state by slowly increasing @xmath at a constant rate @xmath ,
+simultaneously conserving baryonic mass, which is checked to be
+conserved to the level @xmath , shown in Fig. 4.2 . Two categories of
+cases are considered, namely:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In (a), @xmath increases to @xmath , reaching the critical point of the
+rest mass-matter density curve for @xmath at @xmath , thus becoming
+unstable for @xmath . In (b), @xmath increases to @xmath , overshooting
+the critical point beyond which there is no equilibrium configuration
+with the given rest mass, for @xmath . Within these two categories,
+neutron stars undergoing three rates of change of @xmath , are
+investigated, namely:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We determine the time scale of the collapse of these neutron stars as
+they cross the critical point by measuring @xmath , where @xmath is the
+central matter density of the star at the critical point of the rest
+mass-matter density equilibrium curve for @xmath , and by measuring the
+rate of change of @xmath and its acceleration.
+
+Fig. 4.3 shows the change of @xmath , @xmath and @xmath with time for
+each of the transition speeds (i),(ii) and (iii). From this figure, we
+observe that @xmath changes at a constant speed for each of the
+transition speeds, with @xmath .
+
+Fig.s 4.4 to 4.6 show the comparison of the @xmath , @xmath and @xmath
+changes with time, between scenario (a) and (b). From these figures, we
+observe that the changes of @xmath and their respective rates of change
+do not differ much between a neutron star that undergoes a phase
+transition up till the threshold point, and a neutron star that
+undergoes a phase transition past the threshold point reaching a state
+which cannot be described by an equilibrium configuration. Whilst a
+small difference is seen only toward the late stage of the collapse, the
+difference in the @xmath is negligible when the transition speed reaches
+the order of magnitude of @xmath .
+
+## Chapter 5 Critical gravitational collapse
+
+### 5.1 Critical phenomena in general relativity
+
+Critical phenomena in general relativity were discovered by Choptuik [
+20 ] in 1993 in numerical simulations of spherical scalar field
+collapses. The phenomena of universality, mass scaling and
+self-similarity observed in these gravitational collapses garnered the
+name of critical phenomena, analogous to phase transition phenomena
+observed in condensed matter systems.
+
+In particular, as a parameter of a set of general relativistic initial
+data is varied, the evolution of this initial data passes through a
+threshold between black hole formation and dispersion to infinity. They
+evolve toward a spacetime which can be stationary or scale-free [ 38 ] .
+We shall call this spacetime the critical set henceforth. These
+evolutions leave the threshold via the one unstable mode of the critical
+set, and the time scale of this departure is denoted as the critical
+index. In the present context, universality means that the critical
+index is independent of the initial data parameter that is varied.
+
+Mass scaling occurs when the black holes that form at this brink of
+collapse begin with infinitesimal masses that scale with respect to the
+distance of the initial data from the threshold, as follows:
+
+  -- -------- -- -------
+     @xmath      (5.1)
+  -- -------- -- -------
+
+where @xmath denotes the mass of the black hole, @xmath denotes the
+parameter of the initial data that is varied, @xmath the value of this
+parameter when the initial data evolution stays on the threshold as time
+goes to infinity, and @xmath the critical index. According to [ 38 ] ,
+an initial data set in general relativity can be denoted as a function
+of the spatial coordinates, eg. @xmath where we express it in a
+1-dimensional spatial coordinate system, and its evolution in the
+coordinate time can be denoted as @xmath . @xmath can be the density
+distribution of the matter configuration or the 3-metric of the
+spacetime, as mentioned in Section 3.4. Denoting the critical set itself
+as @xmath , a solution of the initial data @xmath that produces an
+evolution very near the critical set can be linearized in a small
+neighborhood of the critical set as follows:
+
+  -- -------- -- -------
+     @xmath      (5.2)
+  -- -------- -- -------
+
+where the @xmath ’s are eigenvalues of the critical set which can be
+purely real, complex or purely imaginary. As the critical set by
+definition possesses one unstable mode, as @xmath , all perturbations
+about the critical set vanish leaving one with positive real @xmath ,
+for which we denote the amplitude of the constant as @xmath . We can
+then further linearize in a small neighborhood about the critical set
+via a Taylor’s expansion as follows:
+
+  -- -------- -- -------
+     @xmath      (5.3)
+  -- -------- -- -------
+
+We can choose a @xmath where Eq. ( 5.3 ) still holds and denote:
+
+  -- -------- -- -------
+     @xmath      (5.4)
+  -- -------- -- -------
+
+where:
+
+  -- -------- -- -------
+     @xmath      (5.5)
+  -- -------- -- -------
+
+A black hole that forms in the solution @xmath starts with a mass that
+grows proportionately to @xmath , which, in line with Eq. ( 5.5 ), is in
+turn proportional to @xmath . From Eq. ( 5.5 ) too, we can calculate the
+critical index as:
+
+  -- -------- -- -------
+     @xmath      (5.6)
+  -- -------- -- -------
+
+where we have taken @xmath . Analogous to critical phase transitions in
+materials, ie. first and second phase transitions, with discontinuous
+and continuous order parameters, we can categorize critical
+gravitational collapse scenarios between those that exhibit mass scaling
+and those that do not. Scenarios that do exhibit mass scaling are called
+Type II scenarios and those that do not are called Type I. Type II
+scenarios occur when the system in question does not have a preferred
+scale, eg. in scalar field systems, whereas in Type I scenarios, there
+exists a scale that typifies the Einstein field equations for the system
+in question, and which cannot be neglected. Therefore, in Type I
+scenarios, the mass of the black holes formed start with finite value.
+The critical index in Type I collapse scenarios is similarly defined as
+in Eq. ( 5.6 ).
+
+The next feature seen in critical gravitational collapses reminiscent of
+phenomena seen in condensed matter systems is the feature of
+self-similarity. Self-similarity describes the symmetries of the
+critical set of the collapse scenario, where the system exhibits
+scale-free behavior. There are two types of self-similarity observed in
+collapse scenarios, namely discrete self-similarity (DSS) and continuous
+self-similarity (CSS). Cahill and Taub [ 18 ] first computed the
+equations for CSS of a spherically symmetric configuration of perfect
+fluid, as follows:
+
+  -- -------- -- -------
+     @xmath      (5.7)
+  -- -------- -- -------
+
+where @xmath is a homothetic Killing vector producing this
+self-similarity transformation, which in terms of the coordinate system
+@xmath , can be denoted as:
+
+  -- -------- -- -------
+     @xmath      (5.8)
+  -- -------- -- -------
+
+and @xmath is the 4-metric of the spacetime exhibiting CSS. Eq. ( 5.7 )
+reduces Einstein’s field equations to a set of ordinary differential
+equations. The resulting equations for the spacetime in such a collapse
+scenario are:
+
+  -- -------- -- -------
+     @xmath      (5.9)
+  -- -------- -- -------
+
+This leads to the following equation for the energy-momentum tensor:
+
+  -- -------- -- --------
+     @xmath      (5.10)
+  -- -------- -- --------
+
+which, coupled with Eq. ( 5.7 ), produces, in the case of a perfect
+fluid, the following for the matter variables:
+
+  -- -------- -- --------
+     @xmath      (5.11)
+  -- -------- -- --------
+
+Eq. ( 5.9 ) describe geometric self-similarity whereas Eq. ( 5.11 )
+describe physical self-similarity, which is equivalent to geometric
+self-similarity only in the case of perfect fluids. Eq.s ( 5.7 ) and  (
+5.11 ) can be viewed as a similarity transformation in general
+relativity whereby a spatial hypersurface is pushed forward into itself
+as depicted in Fig. 5.1 (refer to Appendix B). DSS is a more general
+form of self-similarity [ 25 ] and the 4-metric @xmath for the spacetime
+undergoing such a collapse scenario can be written in the form:
+
+  -- -------- -- --------
+     @xmath      (5.12)
+  -- -------- -- --------
+
+Due to the scale-invariance of Type II critical gravitational collapses,
+the self-similarity feature can only be observed in Type II scenarios.
+
+Since the first discovery of critical gravitational collapse by Choptuik
+in spherical scalar fields, universality, mass scaling and
+self-similarity have since been observed in a variety of other systems
+such as perfect fluids [ 29 ] , [ 62 ] , 2D sigma models [ 40 ] , [ 53 ]
+, [ 54 ] , SU(2) models [ 22 ] , [ 12 ] , [ 13 ] , [ 23 ] , [ 59 ] and
+primordial density fluctuations in cosmological models [ 64 ] , [ 65 ] ,
+[ 82 ] , [ 46 ] , [ 36 ] . However, these systems are largely restricted
+to spherical symmetry and require fine tuning of initial data and are
+therefore less prevalent in realistic astrophysical systems. Later on in
+2003, Choptuik and his collaborators ventured into the study of scalar
+fields in axisymmetry [ 24 ] . Abrahams and Evans studied axisymmetric
+collapse in vacuum gravity [ 1 ] and Lai [ 51 ] found Type I critical
+phenomena in boson star systems. Noble and Choptuik then reported Type
+II critical phenomena in spherically symmetric static neutron stars [ 63
+] . In 2007, Jin and Suen [ 47 ] produced evidence that Type I critical
+collapse occurs in axisymmetric neutron star systems. A crucial finding
+in the latter that differs from the previous ones is that when the
+adiabatic index of the equation of state is varied, the same Type I
+critical collapse is seen to occur in the neutron star system. This
+presents evidence that critical phenomena not only occur via fine-tuning
+of initial data, but can occur as the equation of state of realistic
+star systems softens and when this time scale of equation of state
+change is longer than the time scales involved in the critical collapse.
+
+### 5.2 Universality and the critical index
+
+In the previous section, we reviewed the basic concepts of critical
+gravitational collapse and the gravitational systems in which the
+phenomena has been observed. In this section, we focus on several
+aspects of the concept of universality, which drive the main analyses
+work in this thesis.
+
+As mentioned in the previous section, critical collapses are said to be
+universal as they produce the same critical index even when different
+parameters of the initial data are varied. This is seen to be the case
+due to Eq. ( 5.3 ) where only one growing mode survives in the critical
+solution carrying the system away from the critical set - the main
+criterion for a solution to be critical. Let us take a certain set of
+initial data that is tuned via variation of a certain parameter to form
+a critical solution. We then fix this parameter and vary another
+parameter to tune the initial data until it produces a critical
+solution. We note that these two initial data sets that produce the
+critical solution lie very close to each other. Therefore, even when the
+critical index extracted from these two sets of 1-parameter variations
+are the same, we cannot conclude that we observe universality in the
+strictest sense.
+
+Another aspect of universality is the characteristic of the critical
+solution whereby all details of the initial data, except for the
+distance of the initial data from the threshold, and its conserved
+geometric quantities, are washed away in the dynamical evolution, thus
+arriving at a universal configuration. In scale-invariant spacetimes
+where self-similarity is observed, universality in this aspect indicates
+that the system has entered a region of intermediate asymptotics which
+simultaneously ceases to depend on details of the initial data as well
+as being far away from equilibrium. In Type I collapses of neutron star
+systems where there exists a constant entropy in the evolution, it is
+especially unclear how dynamical processes drive the system toward a
+universal configuration [ 38 ] . In light of this, observing evolutions
+of initial data sets that are very close to each other does not enable
+us to strictly conclude universality.
+
+### 5.3 The dynamical systems picture
+
+Another approach in understanding critical gravitational collapse which
+proved to be very useful, is the dynamical systems picture. The theory
+of dynamical systems is generally employed in studying physical systems
+that evolve in time, where the state of the system at an instant in time
+is described by an element @xmath in a phase space @xmath , which can be
+finite or infinite-dimensional. The evolution of the system is described
+by an autonomous system of differential equations on @xmath as follows:
+
+  -- -------- -- --------
+     @xmath      (5.13)
+  -- -------- -- --------
+
+and:
+
+  -- -------- -- --------
+     @xmath      (5.14)
+  -- -------- -- --------
+
+where we see that the right hand sides do not have an explicit time
+dependence. When @xmath is finite-dimensional, Eq. ( 5.13 ) becomes an
+autonomous system of ordinary differential equations. When @xmath is
+infinite-dimensional, Eq. ( 5.13 ) becomes an autonomous system of
+partial differential equations. Eq. ( 5.14 ) is a smooth function which
+generates a flow @xmath . Given an initial condition @xmath , a solution
+@xmath is obtained and is denoted as the trajectory of Eq. ( 5.13 )
+based at @xmath . An important feature of this equation is the
+invariance of @xmath up to translations in time, which therefore enables
+the translation of solutions based at @xmath to that based at @xmath .
+Among the solutions to this system of differential equations, there
+exists an important class called fixed points , where the @xmath . A
+fixed point @xmath is said to be stable when every solution @xmath with
+@xmath lying in a neighborhood of @xmath approaches and remains close to
+@xmath as @xmath . The fixed point is further said to be
+asymptotically stable when @xmath as @xmath . Conversely, the fixed
+point is said to be unstable when every solution @xmath leaves @xmath as
+@xmath . Linearization of Eq. ( 5.13 ) in a small neighborhood of @xmath
+enables one to cast the system of equations into a characteristic form
+and obtain its eigenvalues and their corresponding eigenvectors, as
+follows:
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (5.15)
+  -- -------- -------- -------- -- --------
+
+where @xmath is the eigenvalue associated with the eigenvector @xmath .
+Solutions that lie in the linear subspaces spanned by the eigenvectors
+form what is called invariant sets . These invariant sets can be further
+and correspondingly categorized as stable and unstable depending on the
+directions of the trajectories. The eigenvalues are crucial in
+determining the nature of the fixed point as well as the trajectories in
+its neighborhood. If there exists more than one eigenvalue, and if all
+of them possess negative real parts, the fixed point is determined as
+asymptotically stable. If one of the eigenvalues have a positive real
+part, the fixed point is unstable. If all the eigenvalues have non-zero
+real parts, the fixed point is called hyperbolic . Eigenvalues that are
+all purely imaginary indicate that the fixed point is stable but not
+asymptotically stable. Different combinations of the eigenvalues also
+produce different trajectorial behaviors near the fixed point. We
+present here a 3-dimensional example where the eigenvalues consist of a
+conjugate pair of complex numbers, and a real number. Let us take the
+system of ordinary differential equations as follows:
+
+  -- -------- -- --------
+     @xmath      (5.16)
+  -- -------- -- --------
+
+which has the following solution:
+
+  -- -------- -- --------
+     @xmath      (5.17)
+  -- -------- -- --------
+
+The fixed point for Eq. ( 5.16 ) is the point @xmath . In this case, the
+trajectories of solutions in the small neighborhood about this fixed
+point form a spiral structure. As the radius @xmath of the trajectory
+shrinks, the @xmath component of it increases.
+
+Using the dynamical systems approach, general relativistic initial data
+sets that evolve and form a critical solution can be seen as points in
+an infinite-dimensional phase space. As shown in Section 5.1,
+linearization can be performed in a small neighborhood of the critical
+set, and its eigenvalues determine the nature of the trajectories of
+these initial data sets in the neighborhood of the critical set. The
+critical set is a semi-attractor that serves as a hyperbolic limit set
+possessing infinite decaying modes but one growing unstable mode in its
+neighborhood. Thus, trajectories are attracted to the critical set via
+decaying modes that are tangent to the trajectories in the phase space,
+but as they reach the critical set, they are repelled from the threshold
+via the one growing unstable mode (Fig. 5.2 ). The subspaces that are
+inhabited by these trajectories are manifolds. Manifolds that contain
+trajectories leaving the critical set are unstable while those that
+contain trajectories attracted to the critical set are stable. These
+manifolds are tangent to their corresponding linear subspaces which are
+obtained in the former linearization in the small neighborhood of the
+critical set, and are of the same dimension as the latter [ 37 ] . The
+nonlinearity of the system is what allows for the possiblity of the
+critical set being a closed or periodic orbit rather than just a point.
+In the case of a periodic orbit, the solution takes the form @xmath as
+@xmath . As mentioned in Section 5.1, the critical set in gravitational
+collapse scenarios can thus be either a limit cycle or a fixed point. In
+Type II collapses, the critical set is a limit cycle when the the system
+exhibits CSS, and a fixed point when it exhibits DSS. The stationarity
+of the critical set thus precludes any possibility of its emission of
+gravitational radiation by definition.
+
+Recalling Section 5.1, in critical gravitational collapses, 1-parameter
+variations of the initial data produce groups of initial data that
+arrive at different end states. These end states are separated by a
+threhold into two basins, ie. that of a black hole and that of
+dispersion into infinity or a stable compact object. The closer the
+initial data point is to the threshold, the longer its trajectory will
+stay parallel to the threshold and the easier it gets attracted to the
+critical set. As these initial data points are only very near but not
+directly on the threshold, their trajectories are repelled by the one
+unstable mode of the critical set and leave the threshold in a path
+perpendicular to the threshold even before it reaches the critical set
+(Fig. 5.2 ). The manifold that contains only trajectories leaving the
+critical set is called the unstable manifold of the critical set. Points
+that lie directly on the threshold by definition produce trajectories
+that never leave the threshold (Fig. 5.3 ). This is due to the fact that
+these trajectories will all lie within the stable manifold of the
+critical set. We thus note that the critical set defines an
+attraction basin , a region of the phase space near the threshold
+inhabited by initial data points that produce trajectories that are
+attracted to the critical set. The size of this basin can be described
+in terms of its width along the direction perpendicular to the
+threshold, and its breadth along the tangential direction. The
+threshold, on the other hand, is a plane of codimension one in the phase
+space separating between the black hole and dispersion/stable compact
+object attraction basins. We denote the region in the phase space
+situated between the stable and unstable manifolds as a hyperbolic
+region where trajectories are both moving toward the critical set and
+also moving away from the threshold. Strictly speaking, in the theory of
+dynamical systems, the trajectories in this region are sequences of
+points rather than a curve in the phase space.
+
+The critical set itself however is denoted as the center manifold, as
+all its eigenvalues have zero real parts, in contrast with the unstable
+manifold in its neighborhood whose eigenvalues have positive real parts
+and the stable manifold where the eigenvalues have negative real parts.
+In dynamical systems theory, the center manifold is where bifurcation
+occurs. Bifurcation describes the change in the qualitative structure of
+the solutions when parameters in the defining differential equations are
+varied and when they enter a range of values, called bifurcation values
+. The bifurcation point is the point where the qualitative behavior
+switches. The center manifold thus contains the bifurcation point, and
+is tangent to the center linear subspace. Codimension one bifurcations
+depend only on one parameter. We present here an example where a
+particular type of bifurcation occurs, called the Hopf bifurcation. Let
+us take the system of ordinary differential equations as follows:
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (5.18)
+  -- -------- -------- -------- -- --------
+
+which can be rewritten as follows:
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (5.19)
+  -- -------- -------- -------- -- --------
+
+The trajectories of solutions to Eq. ( 5.3 ) will be governed by the
+signs of @xmath in Eq. ( 5.3 ) for different ranges or @xmath . If the
+initial condition @xmath is such that @xmath , the solution @xmath
+approaches the value of 1 as @xmath . However, when @xmath , the
+solution goes to infinity as @xmath . Thus, the limit cycle where @xmath
+is a repelling set, with the direction of the trajectories changing with
+respect to the variation of the parameter @xmath in the initial
+condition. We note however, in numerical simulations of nonlinear
+infinite-dimensional systems where no exact solutions exist, bifurcation
+is never actually seen, due to the fact that the evolutions cannot in
+principle be carried out for @xmath . In effect, what we see is only a
+jumping back and forth of initial data points in a small neighborhood
+about the threshold. This is analogous to the introduction of a small
+number @xmath in Eq. ( 5.3 ). The trajectories are therefore seen to
+leave the threshold in either direction, never actually dwelling on the
+critical solution as @xmath .
+
+## Chapter 6 Critical gravitational collapse of neutron stars
+
+### 6.1 Time scale comparisons with non-radiative pulsation modes of
+neutron stars
+
+In this section, we shall seek to clarify the different time scales
+involved in axisymmetric neutron star critical collapse. Considering the
+results obtained by Jin and Suen [ 47 ] , we obtain the time scale of
+attraction of the system toward the critical solution and the dominant
+frequencies of the oscillations of the critical solution. Fig. 6.1 shows
+the evolution of the lapse, density and 4-scalar curvature at the center
+of collision. Via a Fourier analysis, the dominant frequencies of the
+oscillations of these three evolution variables are obtained. Fig. 6.2
+indicates two dominant frequencies, namely, @xmath and @xmath ,
+corresponding to the oscillation periods of @xmath and @xmath
+respectively. These values are in units of solar masses and all values
+henceforth in this chapter will be designated in these units. These
+frequencies are found to be similar across all three variables. Using
+the dominant frequencies, we then fit the critical solution with the
+following equations:
+lapse:
+
+  -- -------- -- -------
+     @xmath      (6.1)
+  -- -------- -- -------
+
+density:
+
+  -- -------- -- -------
+     @xmath      (6.2)
+  -- -------- -- -------
+
+4-scalar curvature:
+
+  -- -------- -- -------
+     @xmath      (6.3)
+  -- -------- -- -------
+
+where @xmath , @xmath , @xmath and @xmath are fit constants, @xmath ,
+@xmath and @xmath are respectively the averages of the lapse, density
+and 4-scalar curvature throughout the oscillation phase of the critical
+solution, @xmath , @xmath are the ratio of the amplitudes of @xmath over
+@xmath obtained from the Fourier transforms of the respective evolution
+variables. The fit results are shown in Fig. 6.3 . From the fit, we find
+that @xmath , which corresponds to the attraction time, @xmath , of the
+system toward the critical solution, is similar across the three
+evolution variables. We further observe that the attraction time is
+similar to the departure time found in [ 47 ] which indicates that the
+eigenvalues of the decaying mode and the unstable mode have degenerate
+real parts. We note that these time scales are of an order of magnitude
+smaller than the cooling time scales of neutron stars reported in the
+astronomy and astrophysics literature [ 68 ] , [ 69 ] , [ 70 ] .
+Therefore, there is a high possibility that real astrophysical systems
+of cooling neutron stars pass through the threshold of critical
+collapse. Further, systems that undergo slow accretion and angular
+momentum loss with time scales larger than that reported here for the
+neutron star critical solution may also pass through the threshold and
+exhibit critical behavior.
+
+In order to understand the time scales of the oscillation phase of this
+critical solution, we now seek to compare the frequencies to that
+obtained via a perturbative approach. We observe that the rest mass of
+the object undergoing critical collapse is higher than the maximum
+allowed mass for a TOV configuration with the same equation of state.
+Therefore, we consider a static non-rotating equilibrium TOV
+configuration having the same rest mass as the rest mass of the two TOV
+configurations producing the critical solution added together, namely at
+rest mass @xmath . We recall from Chapter 5 that the critical set is a
+stationary or self-similar spacetime. In the case of axisymmetric
+neutron star systems considered in [ 47 ] , black holes form with a
+finite mass, and scale-invariance is not seen, therefore the critical
+collapse is of Type I, and the critical set is thus a stationary
+spacetime. In light of this, the critical set of this solution is
+non-radiative in principle, and we can then employ the tools presented
+in Chapter 4, ie. the l=0 and even parity l=1 mode perturbations, to
+determine the non-radiative pulsations of a corresponding non-rotating
+TOV configuration. We obtain the finite-differenced TOV solution, namely
+the finite-differenced matter-energy density, the specific heat
+enthalpy, the pressure and the ADM mass function of the solution with
+respect to the isotropic radius of the configuration. We then manipulate
+these functions accordingly and insert them into Eq.s (4.70) to (4.72),
+and follow the rest of the procedure as mentioned in Section 4.3. Via
+this method, the fundamental @xmath frequency for a static equilibrium
+non-rotating TOV configuration is found to be @xmath . Similarly, for
+the even-parity @xmath mode, we insert the manipulated functions of the
+TOV solution into Eq. (4.75). The estimated fundamental frequency for
+this mode is found to be @xmath . We note that @xmath and @xmath are
+both one and two orders of magnitude smaller than @xmath and @xmath
+respectively. This is a confirmation that the oscillations of the
+critical set of the solution are not caused by non-radiative pulsations
+of an equilibrium TOV configuration. There therefore exists the need of
+performing perturbative analysis on non -equilibrium rather than
+equilibrium background spacetimes in order to ascertain the nature of
+the oscillations exhibited by the neutron star critical solution.
+
+### 6.2 The neutron star critical gravitational collapse solution as a
+semi-attractor
+
+In [ 47 ] , the critical index is seen to be similar across variations
+of different parameters of the initial data ie. the boost velocity,
+initial separation and equation of state. In line with the reasoning
+presented in Section 5.2, we acknowledge that via this method,
+universality cannot be strictly claimed for the neutron star critical
+solution. In this section, we present another method to prove
+universality. In this approach, we construct a neutron-star like initial
+data by solving the initial value problem where the matter field
+consists of two packets of matter whose densities are characterized by
+Gaussian distributions rotated about the axis of axisymmetry and follow
+a polytropic equation of state, @xmath with @xmath and @xmath . The
+Gaussian density distribution is as follows:
+
+  -- -------- -- -------
+     @xmath      (6.4)
+  -- -------- -- -------
+
+where @xmath , @xmath and @xmath are constants that can be adjusted to
+yield different spacetimes. The normal coordinate condition @xmath and
+the geodesic slicing condition @xmath are chosen for the initial data.
+The 3-metric @xmath for the spacetime of this initial data is
+approximately asymptotically flat. We shall comment further on how an
+approximately asymptotically flat spacetime differs from one that is
+exactly asymptotically flat in our analysis in Section 6.5. The tuning
+of the height and width of the Gaussian density distributions produce a
+new 1-parameter family of initial data. The evolution of these initial
+data sets are carried out using the same numerical setup as used in [ 47
+] , namely, using the @xmath -freezing shift and @xmath slicing
+condition. The BSSN scheme is also used in all our simulations as in [
+47 ] .
+
+We first set up this initial data set on the same numerical
+finite-differenced grid as that used in [ 47 ] , namely, on a thin slab
+of @xmath points in the @xmath and @xmath -directions and @xmath points
+along the @xmath direction. The Gaussian packets are then boosted to a
+head-on collision. The boost is performed via a coordinate
+transformation of the spacetime as follows:
+
+  -- -------- -- -------
+     @xmath      (6.5)
+  -- -------- -- -------
+
+where @xmath is the boost velocity vector, @xmath and @xmath .
+Therefore, the values of the boost velocity vector components do not
+possess intrinsic physical meaning. However, the variation of the boost
+velocity is non-degenerate and well-behaved, ie. we can say that the
+increase or the decrease of the value of the boost velocity does
+indicate the isomorphic increase or decrease in the physical boost
+velocity of the objects in the system. The behavior of the axisymmetric
+object formed is observed. We note that this initial data is in a
+non-equilibrium state at the initial time, although it satisfies the
+constraint equations. The constraint equations with the two Gaussian
+distributions of matter and their boost velocities are solved using
+York’s formulation (Section 3.4). Table 6.1 and Fig. 6.4 show the
+configurations that are constructed and their density distributions
+along the direction of collision respectively. These initial data sets
+are distinct from the neutron star configuration in terms of their
+spacetime and matter properties, as they are clearly not obtained by
+varying different parameters of the neutron star configuration, nor are
+bound by the TOV spacetime and matter configuration. They are also
+different from each other in terms of their matter configurations. We
+examine the evolutions of these initial data sets to see whether they
+are attracted to the same oscillatory critical set of the neutron star
+solution.
+
+In order to clearly present this behavior of the evolution of these
+initial data sets, we choose several variables, namely the trace of the
+extrinsic curvature @xmath at the coordinate @xmath , the @xmath
+-component of the momentum density at the matter density contour of
+@xmath , and the maximum matter density of the system. In Fig. 6.5, we
+draw the trajectories of these configurations using these variables.
+From this figure, we see that these variables correlate with each other
+such that they form bounded periodic orbits. In particular, we note that
+the correlation between the momentum density of a fluid element away
+from the center of collision and the matter density at the center of
+collision is analogous to that between the position and momentum of a
+simple pendulum. The oscillations of @xmath before reaching the critical
+set is caused by the fact that the geodesic slicing is used at initial
+time. As the slicing switches from geodesic to @xmath after the first
+time step, the value of the lapse at the grid boundary jumps
+discontinously from one value to another. We observe that these
+configurations are all attracted to the same critical set of the neutron
+star solution. This provides evidence that the neutron star critical
+solution is a semi-attractor.
+
+### 6.3 Phase space analysis on the neutron star critical gravitational
+collapse threshold
+
+In this section, we probe the structure of the critical solution in the
+framework of phase spaces. We note that Gaussian initial data sets
+possess additional degrees of freedom in the matter and in the spacetime
+as compared to the neutron star initial data. Using the additional
+degree of freedom in the matter configuration, we vary the boost
+velocity of the Gaussian packets together with the Gaussian heights and
+widths while maintaining the rest mass of the system at @xmath . In Fig.
+6.6, we plot boost velocity with respect to Gaussian height. In this
+phase space, we use the maximal slicing for the Gaussian packet initial
+data. We observe negligible deviation of the evolutions of these initial
+data sets with those of the Gaussian packet initial data sets in the
+previous section that were set with geodesic slicing. A main feature of
+the phase space depicted in Fig. 6.6 is that there is a turning point at
+approximately @xmath . This is an indication that for a certain
+compactness, the Gaussian packet system crosses two phase thresholds as
+the boost velocity is increased, ie. from a neutron star-like phase to a
+black hole phase and back to a neutron star-like phase. The cross from
+the neutron star-like phase to the black hole phase is expected as the
+boost velocity increases entails the increase of gravitational energy.
+However, we note that the cross from the black hole phase back to the
+neutron star-like phase when the boost velocity is increased further, is
+a surprising physical behavior.
+
+Given the limitation imposed by the grid size, we are unable to extend
+the curve further to the left of the phase space. An initial data
+configuration to the left of the critical surface collapses to a black
+hole and one to the right results in a neutron star-like object. The
+extent of this critical surface is indicative of the size of the
+attraction basin of the neutron star critical set with rest mass 1.6389.
+Beyond the right edge of the critical surface at this rest mass, no
+critical collapse behavior is observed, ie. configurations with Gaussian
+packets with compactness @xmath are not attracted to the critical
+surface at all. To further explore the extent of the attraction basin,
+we construct another phase space using the boost velocity and the
+separation distance between the Gaussian packets. Fig. 6.9 shows two
+critical surfaces of which the left is where the system at a fixed
+separation distance passes the threshold from the neutron star-like
+phase into the black hole phase and passes back into the neutron
+star-like phase through the right critical surface. Both the critical
+surfaces end at @xmath at the top of the phase space. The bottom extent
+of the right critical surface is limited when the separation distance
+between the two Gaussian packets decreases to the point that the packets
+merge to become one single packet. As the total rest mass of this single
+packet, ie. @xmath , is more than the maximum rest mass of an
+equilibrium neutron star configuration, ie. @xmath for configurations
+with @xmath , the system collapses into a black hole even when there is
+no implosion velocity. We thus set the rest mass of the system to be
+@xmath , which is below the maximum rest mass. As the maximum point of
+the rest mass-central density relation for equilibrium star
+configurations (Fig. 4.1) is not attracted to the critical set, we study
+the transition of the neutron star critical set attraction basin by
+increasing the central density of the Gaussian packets so that it
+approaches the maximum point, ie. @xmath . We find that the oscillations
+of the critical set decrease in amplitude. The average of the
+oscillations in the central lapse function @xmath shifts up whilst that
+of the central density shifts down. At @xmath , the threshold between
+the black hole and neutron star-like phases disappear. At central
+densities beyond this value, the system oscillates at the normal mode
+frequencies of its corresponding equilibrium star configuration not only
+when there is no implosion velocity but at all other values of the
+implosion velocity up till @xmath . However, we observe that the
+transition point across @xmath itself is characterized by a critical set
+between the black hole phase and the neutron star-like phase, namely,
+when the central density is more than this threshold value, the single
+Gaussian packet settles into an oscillating state about a corresponding
+equilibrium star configuration, while it collapses into a black hole
+when the central density is less.
+
+We also construct a phase space of the boost velocity and the rest mass
+to compare with the critical surface found with that for the neutron
+star initial data (Fig. 6.7 ). We note that there is also a turning
+point behavior in both critical surfaces, similar to that found in the
+boost velocity-Gaussian height phase space above. However, another
+striking feature of Fig. 6.7 is that the Gaussian packet critical
+surface is shifted to the bottom of the neutron star critical surface
+due to the fact that the spacetime for the Gaussian packet initial data
+is only approximately asymptotically flat, ie. the asymptotic value of
+the 3-metric is slightly less than 1. This difference in the spacetime
+causes the rest mass summed up over each hypervolume element of the
+Gaussian packet initial data, given by:
+
+  -- -------- -- -------
+     @xmath      (6.6)
+  -- -------- -- -------
+
+to be less by a scale with respect to that for the neutron star initial
+data. However, based on the similarity of their evolution trajectories,
+we emphasize that the critical solution represented by the Gaussian
+packet initial data point with @xmath is the same as that represented by
+the neutron star initial data point with @xmath , Gaussian @xmath the
+same as neutron star @xmath , and so on. This represents a scaling
+effect in the critical surface of the rest mass-boost velocity phase
+space caused by the difference in spacetime as mentioned earlier in this
+paragraph. We also vary the spacetime by changing the height and width
+of the metric function in the region occupied by the Gaussian packets.
+The black boxes in Fig. 6.7 represent critical solutions found when the
+metric function is varied in such a manner.
+
+To test universality, we set the spacetime of the Gaussian packet
+initial data back to asymptotic flatness. The Gaussian critical surface
+in this phase space shifts back up approaching that of the neutron star
+as the asymptotic behavior of the Gaussian packet initial data spacetime
+approaches that of the neutron star initial data (Fig. 6.8 ). We see a
+common rest mass range but not a common boost velocity range. The
+discrepancy in the boost velocity ranges is due to the fact that the
+Gaussian packet initial data possess different coordinate systems than
+the neutron star initial data. We observe that a critical surface with a
+common boost velocity range can also be obtained, indicating that the
+coordinate system of the initial data can be freely adjusted using the
+additional degrees of freedom in the Gaussian packet configuration. In
+fact, we are able to obtain a family of critical surfaces in the rest
+mass-boost velocity phase space with a common rest mass range and within
+the boost velocity range indicated in Fig. 6.6 for the rest mass of
+@xmath , ie. between @xmath and @xmath . As rest mass is conserved, the
+overlap in the rest mass range of both critical surfaces confirms that
+neutron star-like systems evolve toward the same critical sets as the
+neutron star system.
+
+Using the ADM mass in replacement of the boost velocity, we find similar
+critical surfaces with turning points (Fig. 6.10 and Fig. 6.11 ). The
+ADM mass is calculated in our numerical simulations using a volume
+integral as follows:
+
+  -- -------- -- -------
+     @xmath      (6.7)
+  -- -------- -- -------
+
+using the conformal variables that have been defined in Section 3.2 and
+the matter-energy density as mentioned in Section 4.1. In line with the
+definition that is also given in Section 4.1, this mass is the total
+gravitational energy of a system that is isolated at spatial infinity,
+and requires a quasi-isotropic gauge choice in which @xmath as @xmath [
+85 ] , a condition that is instantaneously realized by the initial data
+before it gravitationally radiates, even though in non-equlibrium
+states.
+
+In Fig. 6.10 , we also compare the rest mass-ADM mass critical surface
+between that of the Gaussian system and that of the neutron star system.
+Branch @xmath and branch @xmath of the critical surface in the rest
+mass-ADM mass phase space represent two different phase thresholds. In
+Section 6.5, we comment on the indices of these critical solutions and
+their comparisons between the Gaussian system and the neutron star
+system.
+
+Results of this section thus indicate that the neutron star critical
+solution is universal with respect to spacetime and matter configuration
+and reinforces the claim in the previous section that the neutron star
+critical solution is a semi-attractor. We will further support this
+evidence by analyzing the properties of their critical indices in
+Section 6.5.
+
+### 6.4 Spacetime and matter properties of the critical solution
+
+In this section, we explore the various spacetime and matter properties
+of the neutron star critical solution. For this purpose, we first ensure
+that our critical collapse simulations are converging with respect to
+the finite-differencing resolution up till the duration of the critical
+solution (refer to Appendix A). Fig. 6.12 shows the first-order
+convergence in the Hamiltonian constraint violation of our simulations
+using the GRAstro-2D code at @xmath , which is well into the fourth
+oscillation of the matter density and 4-scalar curvature of the critical
+solution at the center of collision.
+
+The anomaly at @xmath is an expected effect caused by the truncation in
+the finite-differencing at the center of symmetry which has been shifted
+(to @xmath for @xmath , @xmath for @xmath , and so on) by a staggered
+grid. We then measure the baryonic mass enclosed within different
+density contours throughout the merged object, the proper polar
+circumferences of these density contours, and their equatorial and
+proper radii, and observe their evolution throughout the critical set
+oscillation phase. The measure of the baryonic mass enclosed between
+different density contours throughout the merged object has the
+advantage of being a fully-geometric measure. In Fig. 6.13 , we observe
+that this measure exhibits oscillations that are correlated between
+different regions of the merged object, whereas the corresponding proper
+polar circumferences do not exhibit such well-defined oscillations
+throughout the critical set dynamics, ie. on the time scale of @xmath .
+The well-defined oscillations in the baryonic masses summed up between
+the density contours thus indicate the existence of matter fluxes or a
+slushing back and forth of the matter through the different density
+contours inside the object and are not due to any correlated changes in
+contour circumferences. The proper radii however exhibit prolonged
+oscillations only within the region bounded by a specific density
+contour. Fig. 6.14 shows the oscillations of these radii outside this
+region exhibiting damping into a stationary state. These oscillations
+are correlated between the polar and equatorial directions ie. the polar
+proper radius is in phase with the oscillation of the central density
+while the equatorial radius is out of phase. However, we note that the
+proper radii oscillations presented here have not eliminated the effect
+of the lapse at the outer limit of the proper radii integration. A good
+method to isolate this effect is to set a diagnostic spacetime with the
+normal coordinate choice and where the 11-component of the 3-metric is
+set to 1. With such a spacetime, the hypersurface will always be
+perpendicular to the timelike normal unit vector @xmath and the proper
+radius oscillation will reflect the real oscillation of the density
+contour of the neutron star [ 39 ] . In order to gauge the stationarity
+of the merged object, we also measure the power of gravitational
+radiation emission throughout the dynamical process leading to and that
+of the critical set itself. Fig. 6.15 shows the power that is calculated
+using the quadrupole formula ( [ 72 ] , [ 55 ] ), namely:
+
+  -- -------- -- -------
+     @xmath      (6.8)
+  -- -------- -- -------
+
+where @xmath . From this figure we see that the energy radiated
+gradually decreases as the system approaches the critical set at @xmath
+, which is the approximate time of merge of the two neutron stars. The
+power remains at values very close to zero until @xmath when it jumps up
+to positive values that increase with time. We note that these sharp
+jumps may be due to noise created by finite-differencing the time
+derivatives of @xmath [ 55 ] . The average of the power throughout the
+critical set dynamics remains very close to zero. This suggests that the
+oscillations of the critical set may not damp out with time thus
+pointing to the possibility that the critical set is a limit cycle
+rather than a limit point. Also, it shows that at @xmath , when the
+oscillation phase of the critical solution starts, the system has
+already settled down to a configuration that is stationary enough and
+therefore very near to an equilibrium state.
+
+### 6.5 Properties of the critical index
+
+As mentioned in Section 6.3, this section will contain further
+elaboration of the properties of the critical indices of the different
+Gaussian packet initial data configurations as compared to that of the
+neutron star.
+
+Analogous to Eq. (5.6), the critical index is calculated using two
+departure thresholds @xmath , where the departure threshold is taken as
+the time when the percent difference between the evolution variable of a
+solution leaving the critical set and that of the critical solution
+reaches a certain value [ 47 ] . In this case, we take the evolution of
+the lapse at the center of collision. We denote the departure thresholds
+as @xmath and so on according to the percent difference used. For each
+critical point, we find that @xmath is linearly proportionate to @xmath
+, where @xmath is any initial data parameter that we choose to vary
+while fixing all others. In the case of Fig. 6.16 , the initial data
+parameter varied is the boost velocity of the Gaussian packets. Straight
+best fit lines are therefore obtained and the standard deviations of
+their slopes are plotted as errorbars in this figure. We note that this
+errorbar only represents one type of error, ie. the error affecting how
+the evolution trajectories follow the power-law behavior characteristic
+of critical and near-critical solutions. Other errors that affect the
+numerical results include the error caused by the finite differencing
+scheme and the error affecting how the evolution trajectories leave the
+critical set in an exponential manner.
+
+We check the convergence of the critical index with respect to the
+finite-differencing resolution @xmath . Fig. 6.17 shows the critical
+indices for different departure thresholds at three different
+resolutions for a sample Gaussian system. At the departure threshold of
+0.2, Fig. 6.18 shows an approximate first order convergence with respect
+to the resolution. The grid boundary used for the simulations with
+resolution @xmath , namely, @xmath , is slightly larger than that with
+@xmath and @xmath , namely @xmath , due to the restrictions on the
+number of grid points imposed by the multigrid initial value problem
+solver, which accounts for the slightly larger than first order
+convergence demonstrated by the @xmath point in this figure.
+
+Fig. 6.19 shows the rest mass dependence of the Gaussian packet critical
+index compared with that of the neutron star, where we observe that the
+critical index for both the Gaussian packet and neutron star initial
+data increases with rest mass of the system. This indicates that the
+time scale of departure of a near-critical solution from the critical
+set decreases as the rest mass of the system increases. The overlapping
+of the critical indices of both the Gaussian and the neutron star
+systems shows that the neutron star critical set is universal with
+respect to different initial data, where for the same rest mass and
+within a small interval of ADM masses, the Gaussian initial data
+produces critical indices that are within the errorbars of those
+produced by the neutron star initial data. The universality of the
+neutron star critical index with respect to these different initial data
+configurations is a crucial point in establishing the quality of the
+neutron star critical set as a semi-attractor.
+
+To answer the question of the parameter dependence of the critical
+index, we consider the critical solutions represented by each point in
+the ADM mass-Gaussian height phase space and study how the critical
+indices change along this critical surface. Fig. 6.20 shows the
+variation of critical index along this critical surface with respect to
+the ADM mass fixing the rest mass at @xmath . The solid line is a fit of
+the average of the indices obtained at departure thresholds @xmath and
+@xmath . We note that the first order convergence of these critical
+indices with respect to resolution holds for different departure
+threshold regimes for configurations with different ADM masses. This is
+due to the fact that for configurations with higher compactness, and
+hence lower ADM mass, the grid boundary is further away from the
+physical system than for configurations with lower compactness, or
+higher ADM mass. Convergence is better achieved when the grid boundary
+is further away from the physical system as there is less interference
+in the spacetime due to gravitational radiation.
+
+In Fig. 6.10 , we take the rest mass of @xmath and extract the critical
+index for the critical points on both branches @xmath and @xmath of the
+critical surface. In accordance with Fig. 6.20 , we also find a
+discrepancy between these critical indices that goes beyond their
+errorbars, indicating that critical points on branches @xmath and @xmath
+of the critical surface represent two different phase thresholds
+respectively. On branch @xmath of the critical surface with this rest
+mass, the critical index obtained is @xmath at departure threshold
+@xmath and @xmath at departure threshold @xmath , whilst on branch
+@xmath , the critical index is found to be @xmath at departure threshold
+@xmath and @xmath at departure threshold @xmath .
+
+As mentioned in Section 6.3, the ADM mass of the initial data is
+evaluated using Eq. ( 6.7 ). The constancy of the ADM mass guarantees
+that Einstein’s field equations for the system are satisfied for all
+time [ 33 ] . Therefore, it is by definition a conserved quantity.
+However, when evaluated at a finite boundary for a system that
+gravitationally radiates, it is seen to decrease with time as
+gravitational energy is carried out of the finite computational grid by
+gravitational radiation. The mass that is evaluated using Eq. ( 6.7 ) in
+such a scenario does not have strict physical meaning although it can be
+used in an approximate conservation equation primarily to monitor the
+accuracy of @xmath numerical simulations [ 73 ] . The fact that the
+quantity lacks a strict physical meaning is because the hypersurface is
+not spatially isolated at a time after gravitational radiation. This is
+evident in that no matter how far one pushes the computational boundary
+spatially outward, one would encounter the gravitational radiation that
+is propagating to null infinity. In other words, the ADM mass
+measurement does not by construction separate the gravitational energy
+of the physical system that we are interested in and that of
+gravitational radiation. Even for Eq. ( 6.7 ) to hold approximately in
+the computational grid, the boundary of the computational grid has to be
+asymptotically flat and thus free from the presence of any gravitational
+radiation, the ambient spacetime has to be fully stationary and fulfil
+the right gauge conditions as mentioned earlier. Therefore, in order to
+employ this equation even in an approximate sense to evaluate the
+gravitational energy of a physical system after gravitational radiation
+leaves it into the ambient spacetime, one has to do the measurement at a
+very late time of the critical set dynamics when one is sure that
+gravitational radiation is no longer present inside the computational
+grid and is no longer interacting with the computational grid boundary
+in any way. However, none of the initial data in numerical simulations
+can be set directly on the critical threshold in principle, implying
+that they will either evolve into a neutron star-like object or collapse
+into a black hole at one point in time. Also, due to the accumulation of
+numerical errors, in practice, we are not able to accurately simulate
+the critical set dynamics until very late time. Intrinsically as well,
+even though by definition stationary and an initial data that dwells
+directly on the threshold will inevitably evolve into it, the critical
+set itself is not a TOV equilibrium configuration. A measurement that is
+based on a strict physical meaning however is the Bondi mass measurement
+which evaluates the gravitational mass of the system isolated at null
+infinity. This measurement puts any gravitational radiation to the past
+of the null surface of the evolving physical system as the radiation
+itself propagates to null infinity.
+
+Considering the question of the parameter dependence of the critical
+index on the above-mentioned conserved geometric quantities, we are
+basically asking a question of how many classes of neutron star
+semi-attractors exist according to the rest mass and ADM mass. A natural
+approach to this question that we have employed is to vary the rest mass
+and when the rest mass is fixed, to vary the ADM mass of the initial
+data or the intrinsic gravitational energy of the physical system minus
+the energy that will be radiated away during its evolution to the
+critical set. We recall that the neutron star-like initial data that we
+have constructed possess additional degrees of freedom in comparison to
+the neutron star initial data, that enables us to fix the rest mass and
+vary their intrinsic gravitational energies. This intrinsic
+gravitational energy consists of the binding energy inherent in the
+Gaussian packet system and in principle will not be radiated away unless
+there is a physical mechanism that diffuses this energy, eg. neutrino
+emissions, which is absent in our numerical simulations. Therefore, when
+we vary the compactness of the Gaussian packets, we are intrinsically
+providing different gravitational energies to these systems which will
+be conserved in time. This is evidenced in the fact that when we fix the
+boost velocity of the initial data sets and vary only the height of the
+Gaussian matter distribution, and correspondingly the compactness of the
+matter packets, by @xmath , we see a change in the ADM mass by @xmath .
+This change is free from the factor of the mechanical energy inherent in
+the boost velocity that can be radiated away by the gravitational
+radiation - a physical system does indeed radiate more when it is moving
+faster. If they are radiated away by some physical mechanism which we
+can choose to impose on our numerical simulations, or by numerical
+viscosity, and if we assume that the gravitational energies of the
+remnants which in our case is the semi-attractors, are all the same, our
+entire investigation of whether there exists a 2-parameter dependence of
+the critical index becomes a meaningless endeavor, as the motivation of
+the question depends on the premise that we are indeed able to
+manipulate the additional degrees of freedom in our initial data sets to
+vary the compactness and correspondingly the intrinsic gravitational
+energies of the physical system. In other words, the premise of our
+question in the first place is that the semi-attractors themselves can
+have differing gravitational energies for the same rest mass. Also, the
+critical index itself is a geometric quantity and is evaluated during
+the semi-attractor dynamics. The observation that they indeed differ
+even when we adopt the above assumption that the gravitational energies
+of the semi-attractors are all the same, would result in the observation
+that semi-attractors with the same gravitational energies have differing
+critical indices, a confounding observation that not only is unlikely,
+but throws this entire question of 2-parameter dependence meaningless.
+Considering realistic astrophysical systems where dissipative physical
+mechanisms which depletes the binding energies of the packets of matter
+do indeed occur, it is still very unlikely that a fine-tuned balance
+exists for the gravitational dynamics, where the gravitational energies
+are all depleted by nonlinear physical mechanisms in just such a way
+that they all end up the same for all the remnants. We cannot rule out
+such a scenario, which would be an interesting physical property for
+neutron star semi-attractors, but such a scenario would still violate
+the premise of the 2-parameter dependence question as mentioned above.
+In addition, we have to recall that the neutron star semi-attractor is
+not a TOV equilibrium configuration, which does not allow us to draw
+strict analogies with stable equilibrium TOV configurations which has a
+unique ADM mass for each of its rest masses.
+
+Fig. 6.21 shows the dependence of the critical indices with respect to
+the averages of the gravitational masses, @xmath , measured by Eq. ( 6.7
+) on the finite computational grid over the period of two oscillations
+in the lapse function at the center of collision of each configuration
+along the critical surface in Fig. 6.11 . Fig. 6.22 shows the evolution
+of this gravitational mass calculated using Eq. ( 6.7 ) on the finite
+computational grid, which we denote as just @xmath , for a sample
+Gaussian packet system that evolves toward the critical set and dwells
+there until @xmath for two differing resolutions and differing grid
+sizes. The observation that the time shift in the curves for the
+simulation with the boundary at @xmath from the one at @xmath , namely
+@xmath measured at the first dips of the curves, which is comparable to
+the spatial shift using @xmath , and that the oscillations do not
+converge away with resolution, shows that the oscillations in @xmath is
+caused by the interaction of gravitational radiation with the
+computational grid boundary. As mentioned above, this renders the
+measurement itself not only numerically inaccurate but without even an
+approximate physical meaning. Nonetheless, we still see a dependence of
+the critical index with respect to @xmath . As mentioned above, the fact
+that the critical indices do vary when we vary the compactness of the
+Gaussian packet systems, will not change whether we plot them with
+respect to either the ADM masses or with @xmath , unless all the @xmath
+values - assuming that they are even accurate and possess an approximate
+physical meaning - end up being the same up to numerical error, which is
+both physically unlikely and a violation of the premise of the question
+that we sought to answer. Therefore, even though we do not rule out the
+possibility that the premise of our question is unfounded, ie. that
+indeed, neutron star semi-attractors cannot in principle, even though
+they are not in a TOV equilibrium state, intrinsically possess differing
+gravitational masses for the same rest mass, we conjecture from our
+observations (Fig. 6.20 and Fig. 6.21 ) that there is still a high
+likelihood that there exist classes of semi-attractors that can be
+labeled by both the rest mass and the gravitational mass of the neutron
+star-like system, due to the fact it would be a very rare although
+interesting occurence that there exists a fine-tuned balance in the
+gravitational dynamics such that gravitational energies of physical
+systems with intrinsically different binding energies are dissipated by
+nonlinear physical mechanisms in the matter to end up at the same value.
+In addition, that there exist such classes of semi-attractors is also in
+line with our observation of two distinct phase thresholds for the
+critical surface in Fig. 6.10 at the same rest mass, where the distinct
+phase thresholds represent two differing semi-attractors with the same
+rest mass but with differing ADM masses.
+
+Fig. 6.23 shows the convergence of the critical indices for two
+configurations on the ADM mass-Gaussian height phase space, ie. the
+configurations with @xmath and @xmath respectively, whereas Fig. 6.24
+shows the convergence of the rest mass averaged over the period of the
+first two oscillations of the lapse function at the center of collision,
+which we will denote as @xmath , and Fig. 6.25 the convergence of @xmath
+. We see that @xmath and @xmath converge on a higher order for the
+configuration with higher compactness and vice versa, ie. for the
+configuration with higher compactness, the @xmath and @xmath converge in
+a fourth order manner and fifth order manner respectively, but for the
+less compact configuration, they both converge in a second order manner.
+However, the @xmath for both configurations converge to @xmath up to the
+numerical error caused by the finite differencing, whilst their @xmath
+values converge to different values on the order of @xmath respectively,
+ie. @xmath for the more compact configuration and @xmath for the less
+compact configuration, outside the error bars from the finite
+differencing. The convergence of the @xmath to the same value is
+expected due to the fact that the rest mass of the initial data have
+been set to the same up to the eleventh decimal, and the fact that rest
+mass is a conserved quantity even when evaluated on a finite
+computational grid. The variations in the twelfth and above decimals of
+the rest masses of the different initial data or in their @xmath values
+in the limit of infinite resolution are completely random. As for the
+critical indices, similar to @xmath , their values for both
+configurations are observed to converge to different values, where the
+more compact configuration exhibits first order convergence at a faster
+rate than the one for the less compact configuration, which is to be
+expected due to the different distances of the computational grid
+boundaries from the physical systems as mentioned previously. These
+observations imply that in the limit of infinite resolution, where a
+large portion of numerical errors is eliminated, even though putting
+aside the ambiguous physical meaning of @xmath , the critical index
+depends on both the compactness, with its corresponding binding energy
+present in the physical system, as well as the rest mass of the system,
+which is in line with the conjecture we make that is mentioned earlier
+in this section. Since we have seen that convergence of the critical
+index is achieved at an even faster rate when the computational grid
+boundary is located further away from the physical system, when the
+boundary of the computational grid is pushed further out for each
+configuration, we expect to obtain similar observations that point to
+the above-mentioned conjecture.
+
+## Chapter 7 Conclusion
+
+### 7.1 Conclusions
+
+In this chapter, we review the results obtained in this dissertation in
+accordance with the objectives we had in mind. In order to understand
+the time scales involved in non-rotating neutron star critical
+collapses, we first study the time scales of non-radiative pulsation
+modes of single static neutron stars. We find that these time scales are
+an order of magnitude higher than the time scales involved in the
+non-rotating neutron star critical collapses observed in simulations. We
+thus confirm that the pulsations exhibited by the quasi-stationary
+object during the critical collapse dynamics are not that of
+non-radiative pulsation modes of single static neutron stars. This
+points to the fact that the quasi-stationary object is not in a state of
+TOV equilibrium.
+
+Via curve fitting and Fourier transform, we determine the time scale of
+attraction of the neutron star system toward the neutron star critical
+set. This time scale is an order of magnitude smaller than that reported
+of neutron star systems undergoing slow cooling. We thus conjecture that
+dynamical neutron star systems with significant amount of kinetic energy
+undergoing slow cooling via formation processes and radiation transport
+or systems undergoing slow accretion and a gradual loss of angular
+momentum have a possibility of undergoing critical collapse.
+
+By constructing new neutron star-like initial data not restricted by the
+TOV equations and studying the behavior of their evolutions, we confirm
+that the neutron star critical set is a semi-attractor. We employ the
+freedom in the gauge choice and the matter configuration to construct
+different such neutron star-like initial data and by measuring their
+spacetime and matter ’flows’, we observe that these initial data evolve
+towards the neutron star critical set. The critical indices extracted
+from these evolutions are the same up to numerical error as that
+obtained from neutron star simulations with the same rest mass and ADM
+mass. We thus reinforce the claim that the neutron star critical set is
+universal with respect to initial data, going beyond the perturbative
+regime of the critical set.
+
+We further study the properties of the neutron star critical set
+dynamics itself. We observe that the oscillations of matter contained
+within different density thresholds of the object undergoing critical
+collapse exhibit phase differences across a certain density threshold,
+indicating the existence of matter fluxes across a certain density
+threshold within the object. We also find that there exists an outer
+envelope within the object that damps out at a rate higher than the
+central region. In addition, the proper circumferences of different
+density thresholds within object are nearly constant. To further shed
+light on whether the semi-attractor is a limit point or a limit cycle,
+we measure the power of the gravitational radiation emission throughout
+the critical collapse dynamics. It is observed that the average of this
+power during the critical collapse process is very close to zero,
+suggesting that the oscillations of the critical collapse object may not
+damp out with time and thus that the semi-attractor is a limit cycle.
+Combined with the possibility of realistic neutron star systems
+undergoing critical collapse based on the time scale study mentioned
+above, this characteristic of the neutron star critical solution, which
+is characterized mainly by the existence of a universal unstable mode
+and its specific gravitational radiation signature, may cause a
+queiscent effect on the gravitational radiation spectrum of realistic
+neutron star systems.
+
+Using the additional degrees of freedom available to us in the new
+neutron star-like initial data we construct, we also investigate the
+properties of the characteristic time scale of the neutron star critical
+set, which is the time scale of its unstable mode, describing the time
+scale of departure of a near-critical evolution from the critical set.
+We find that this critical index depends almost linearly on the rest
+mass of the system. We also observe that there is a possibility of a
+2-parameter dependence of the critical index, where the parameters can
+be taken as the rest mass and the ADM mass of the system, both of which
+are conserved quantities. This indicates that there exist classes of
+neutron star semi-attractors that can be labeled by both the rest mass
+and the gravitational mass of the system. This finding extends the
+observation that for a given rest mass, there exist two phase thresholds
+through one of which the system passes from the neutron star to the
+black hole phase at a lower ADM mass and through the other of which the
+system passes from the black hole phase back to the neutron phase at a
+higher ADM mass. We note that the observation of the existence of two
+phase thresholds for a given rest mass is similar to that obtained from
+the neutron star initial data.
+
+We then analyse the phase space properties of the neutron star critical
+set, by constructing phase spaces using the parameters of the rest mass,
+ADM mass and central density of the new system. For both the rest
+mass-ADM mass and ADM mass-central density phase spaces, we find turning
+point features with the aforementioned two-threshold feature. We note
+that the new system provides the additional degrees of freedom to
+construct the ADM mass-central density phase space. The extent of the
+critical surfaces in these phase spaces gives an indication of the size
+of the attraction basin of the neutron star critical set. For a certain
+rest mass, we determined the range of central densities and ADM masses
+of configurations that exhibit critical gravitational collapses, which
+helps us draw an approximation of the range of realistic neutron star or
+neutron star-like configurations that can exhibit critical phenomena.
+
+We further explore the boundaries of the attraction basin of the neutron
+star critical set by constructing a phase space using the separation
+distance and the boost velocity (which also corresponds to the ADM mass)
+of the new system. In decreasing the separation distance, we move toward
+an initial configuration that consists of a single neutron star-like
+object with a varying implosion velocity. Fixing the rest mass at a
+slightly lower value than the maximum rest mass allowable for a single
+equilibrium TOV configuration with @xmath , we find that there exists a
+boundary whereby the threshold disappears when we increase the central
+density towards the maximum rest mass point.
+
+### 7.2 Future work
+
+In order to further clarify the implications of the results of this
+dissertation on realistic astrophysical observations, we will extend the
+analysis on neutron star systems that possess angular momentum. To do
+this we intend to construct a similar neutron star-like initial data but
+with the additional incorporation of angular momentum, in both the
+irrotational and corotational orientations in accordance with the spin
+orientations that have so far been observed in realistic neutron star
+systems. This will also help us to see if an object that is
+simultaneously rotating and oscillating can undergo a dynamical process
+whereby the critical set is characterized by a limit cycle, which poses
+an interesting scenario in the theory of general relativity itself.

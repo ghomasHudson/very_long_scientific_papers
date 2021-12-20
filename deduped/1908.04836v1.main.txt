@@ -1,0 +1,2994 @@
+## Introduction
+
+In this Thesis we will present a work at the boundary between Physics
+and Biology. On the one hand we studied theoretically, on a newly
+defined class of random networks, a constraint satisfaction problem
+(CSP) devised to understand the capabilities of a metabolic network. On
+the other hand we showed that it is possible to apply the same
+techniques in real networks by obtaining preliminary results on the real
+metabolic network of E.Coli. We will thus show in this Thesis that it is
+possible to analyze biological problems on metabolic networks both
+theoretically and practically by computer simulations of a simplified
+model.
+
+Biological networks map out the complex set of interactions that may
+occur among different units (genes, proteins, signalling molecules,
+enzymes, etc.) in cells [ 1 , 2 ] . In recent years, the use of
+high-throughput sequencing and gene expression profiling techniques has
+allowed researchers to map the structure of different of these networks
+for several organisms (see [ 3 ] ). Their structure is thought to
+reflect, at least in part, the specific physiologic function(s) they are
+meant to control and many important questions can be formulated about
+the optimality, robustness and evolvability of these systems [ 4 , 5 , 6
+, 7 , 8 , 9 , 10 , 11 ] . Still the topology-to-function mapping remains
+unclear and it is not fully understood how to link the network’s
+architecture to the biological function it is meant to carry out.
+
+On the other hand, functional control in cells is achieved through the
+physical dynamics that takes place on the networks, which is usually
+much more complicated than the network structure by itself would
+suggest. To make an example, consider transcriptional regulatory
+networks. While their structure only encodes for the possible
+protein-DNA interactions by which the transcription of RNA can be turned
+on or off, regulation results from the reciprocal adjustment of
+transcriptional activity and protein levels. This process however
+involves a variety of regulated steps, like DNA-binding and unbinding
+events by multiple proteins (possibly preceded by the formation of
+protein complexes), RNA polymerization (by specifically recruited
+molecular machinery) and transport, post-transcriptional modification
+events and, finally, translation. Each node in this network therefore
+lumps together a number of molecular species and elementary processes,
+all of which are subject to noise. In such a complex interacting
+environment, the overall patterns of activity may be hard to uncover
+even if one is only interested in steady states.
+
+In Chapter 1 , we will show how using the available data it is possible
+to develop models to simulate a biological system and predict its
+behavior. This has been possible by using an holistic approach to
+biological problem e.g. a Systems biology point of view. In this
+approach, it is considered that it should be possible to understand the
+behavior of complex biological systems as a whole. These approaches have
+brought many insights on the functioning of biological systems (e.g. FBA
+for metabolism, see Section 1.2 ) and are still one of the most active
+field of research in computational biology. Interestingly the
+paradigmatic shift introduced by these new approaches in biology has
+many similarities to the ideas at the foundation of Statistical Physics.
+It is thus not surprising that many techniques developed in this field
+are suitable to study complex biological problems. In Chapter 3 we will
+briefly present the most important for our studies and show by some
+examples what has been understood of the characteristics of complex
+random systems in the last 30 years. Hopefully we will show in this
+Chapter that these approaches are suitable to describe and understand
+systems with an exponential number of states.
+
+In Chapter 2 we will present the coarse-grained approach to characterize
+the operation of biological networks through elementary feasibility
+constraints that we developed. This kind of approach has been widely
+used [ 12 , 13 , 14 , 15 , 16 , 17 ] and is especially suited (a) to
+identify robust attractors of the dynamics and/or groups of nodes that
+are likely to behave in a highly correlated way (viz. the emergence of
+network motifs discussed in [ 14 ] ), and (b) to evaluate ‘degrees of
+activity’ for the different nodes, by which one may, for example, guide
+more refined techniques that simulate the full dynamics of the system
+towards physiologically relevant states. Thus in Section 2.1 we will
+present the rationale behind the use of boolean variables in the case of
+metabolic networks. We will then define a novel Boolean
+constraint-satisfaction problem designed to represent minimal
+operational and stability requirements for the non-equilibrium steady
+states (NESS) of biochemical reaction networks. In essence, we shall
+enforce feasibility constraints that link enzyme activity to substrate
+and product availability, and vice-versa, similarly to the approach
+defined in [ 18 , 19 , 20 ] to characterize the productive capabilities
+of a metabolic network. From a physical viewpoint, the model describes,
+in different limits, different types of NESS, and therefore different
+physiological scenarios. The corresponding CSPs, on the other hand, turn
+out to be of a novel type, requiring ad hoc message-passing methods to
+be analyzed in detail. Then in Sections 2.2 and 2.3 we will define the
+networks we have studied: the random reaction network (RRN) and the
+metabolic network of Escherichia Coli (E.Coli). The RRN is a network we
+defined in order to have a random network that could represent a real
+metabolic network on which to test the properties of the equations we
+developed. Furthermore, we have chosen the metabolic network because it
+is one of the best known system and in the specific, the metabolic
+network of E.Coli is known to an impressive precision.
+
+Finally we will show in Chapter 4 the results of our analysis on RRNs,
+showing that the structure of the solution space is non trivial. Then in
+Chapter 5 we will show how to apply the equations on the real metabolic
+network of E.Coli showing what it has been so far possible to infer on
+this network.
+
+## Chapter 1 Biological background
+
+### 1.1 Metabolism: theory and modeling
+
+In this section we will briefly summarize the most important
+characteristics of metabolism, for a comprehensive approach of this
+argument see [ 22 ] .
+
+Metabolism is the combination of processes through which cells make and
+use the energy needed for all their physiological functions. It is
+generally divided in two parts: Catabolism and Anabolism. In the latter
+part, molecules used by the cell are synthesized while in the other part
+macromolecules (e.g. glucose) are broken down in smaller components.
+Furthermore, catabolic reactions produce energy that is then used for
+the anabolic reactions, for mechanical work inside the cell and for the
+active transport of molecules against the pressure gradient. The energy
+is transported and stored in the cell by the means of key metabolites as
+ATP or NADPH that form an active link between anabolism and Catabolism.
+Thus the cell can be considered as a “machine” that uses the energy
+produced by the catabolic part to accomplish cellular functions (e.g.
+homeostasis to maintain the cellular pressure) and to produce and
+maintain the biological structure of which it is made (e.g. production
+of amino acids).
+
+It is possible to divide reactions in metabolic pathways that are non
+overlapping functional groups of reactions (see Figure 1.1 for a
+schematic view of the typical pathways of cellular metabolism).
+Generally reactions inside a pathway work together in certain parts of
+the cell producing substrates needed by the cell. The main catabolic
+pathways are: the Glycolysis and the Krebs cycle (or TCA cycle) that we
+will detail further in the following. Whereas anabolic pathways can be
+divided in four main groups: the fatty acid metabolism , for the
+synthesis of the elements of the membrane of the cell, the nucleotide
+synthesis pathways , for the synthesis of the base elements of DNA and
+RNA, the pathways for amino acids synthesis (protein synthesis) and the
+penthose phosphate pathway that is an alternative to Glycolysis for the
+degradation of the glucose but without energy yield. Pathways are
+strongly interconnected between them also if not all the groups of
+reactions are localized in the same part of the cell.
+
+Glycolysis is the pathway by which the cell decomposes glucose in
+smaller molecules. The net energy yield of this pathway are two
+molecules of ATP per molecule of glucose as it uses two ATP molecules
+and produces four, see Figure 1.2 . Furthermore the by-product of the
+pathway is the pyruvate . This molecule is then used by the cell mainly
+in two ways: it can be reduced by fermentation or in aerobic respiration
+(Figure 1.1 ).
+
+In fermentation pyruvate is reduced in various types of fermentation
+products (in E.Coli the possible products are: Succinate , Ethanol ,
+Lactate , Formate , Acetate ,…). The common characteristic of all these
+processes of reduction is that NADH is oxidized back to @xmath , thus
+permitting the Glycolysis to continue. The combination of fermentation
+and Glycolysis is often called anaerobic respiration . In this setting,
+the only active catabolic reaction is the Glycolysis, hence anaerobic
+respiration has a net yield of 2 molecules of ATP per molecule of
+glucose that is a very low yield. Nevertheless in environments poor of
+oxygen this is the main source of energy.
+
+In presence of oxygen, it is possible to activate the The Krebs cycle by
+oxydating pyruvate into acetyl-CoA . This cycle produces an impressive
+net energy yield of 32 ATP molecules per molecule of glucose (Figure 1.3
+) being thus much more efficient from an energetic point of view than
+fermentation. The combination of Glycolysis and Krebs Cycle is called
+aerobic respiration . This is clearly the most efficient process to
+produce energy and it is the preferred pathway in environments with
+oxygen.
+
+Depending on the environment, the metabolism of microorganism like
+E.Coli can have various macroscopical “states”, the most studied of
+which is the growth state. When the medium is suitable for growth a
+population of E.Coli will, after a lag phase, first grow exponentially,
+then have a stationary state and finally die when all the resources are
+used, see Figure 1.4 . During the growth state, the cell is using the
+nutrients to produce all the elements necessary for the creation of new
+cells (amino acids, nucleotides, fatty acids,…). After @xmath such
+division, we can write:
+
+  -- -------- -- -------
+     @xmath      (1.1)
+  -- -------- -- -------
+
+where @xmath is the “generation” (number of division in the population
+of cells), @xmath is the initial number of cells and @xmath is the
+number of cells at population @xmath . Using this equation we can
+immediately write:
+
+  -- -------- -- -------
+     @xmath      (1.2)
+  -- -------- -- -------
+
+where @xmath . Thus after a growing time @xmath , we can define the
+generation time , @xmath , as the average time it takes the cell to
+divide. Another equivalent way of measuring growth is by finding the
+slope at which cells are growing in the exponential phase, obtaining the
+growth rate , @xmath (hence @xmath ). These quantities are
+characterizing properties of the microorganism, for E.Coli the typical
+generation time is of 15-20 minutes.
+
+In principle one could think of modeling metabolism using a
+comprehensive theoretical approach. This approach should then take into
+account all the elements involved in metabolism and in particular it
+should be possible to model reactions. This is generally done by
+considering it as thermodynamical processes, aided by enzymes, in which
+a free energy barrier is overcomed. Then assuming a Michaelis-Menten
+kinetic in which a kinetic constant is associated to a particular
+reaction it is possible to write equations that estimate the flux
+through a particular reaction. Nevertheless this constants may depend on
+many factors as temperature, enzymes or concentrations, making very
+difficult (if not impossible) to estimate it reliably. Furthermore not
+always the kinetic constant of a reaction will be the same when measured
+isolated or inside the cell. In principle it should be possible to
+measure it directly inside the cell but this is still an open problem in
+the experimental analysis of metabolism. Indirect measurements are
+possible via the isotopic labeling of the glucose [ 24 ] where the
+glucose given to the cell is labeled using the @xmath isotope. It is
+then possible, by measuring the final products of the cell, to
+reconstruct from which pathways the glucose has been processed.
+Nevertheless, as pointed out in [ 25 ] : “in general, the quality of
+flux estimates depends on: firstly the structure of the metabolic
+network model, secondly substrate labeling, thirdly isotopic labeling
+measurements, fourthly number of experiments performed, and finally to a
+lesser extent, the flux values”. Adding to these considerations the fact
+that the number of reactions involved increase very rapidly with the
+size of the organisms it is straightforward to understand that a
+reliable kinetic modeling for the analysis of the metabolism is nowadays
+still impossible.
+
+On the other hand, in recent years a new holistic approach has been
+introduced in biological and biomedical research, the concept of Systems
+Biology . In this approach it is considered that it is possible to
+understand a biological system without the need of a complete
+description of every single element of the system. In particular for
+metabolism, a common systems biology approach to overcome the
+theoretical limitations of a kinetic analysis has been to model
+metabolism as a bipartite network of reactions and metabolites or a
+metabolic network (see Figure 1.5 ). In this network, each reaction uses
+a set of reactants to produce a set of products and each metabolite is
+the reactant (or product) of one or more reactions. The topology of the
+network is encoded in the stoichiometric matrix of the system, @xmath ,
+with entries @xmath if reaction @xmath produces metabolite @xmath ,
+@xmath if reaction @xmath consumes metabolite @xmath , and @xmath if
+there is no link. The value of the stoichiometric matrix is the
+stoichiometric coefficient with which the metabolite is entering in the
+specific reaction. In general reactions are divided in three classes.
+Nutrient in-takes are defined as having @xmath : these processes serve
+the purpose of supplying an individual metabolite ( @xmath here) to the
+network. Out-takes are defined as having @xmath , and remove an
+individual metabolite ( @xmath here) from the network. Finally, core
+reactions are the reactions responsible of intracellular processes.
+
+Using the stoichiometric matrix it is possible to write the dynamical
+mass balance conditions for the concentrations of the metabolites:
+
+  -- -------- -- -------
+     @xmath      (1.3)
+  -- -------- -- -------
+
+where @xmath is the M dimensional vector of the concentrations and
+@xmath is the flux vector.
+
+In metabolic modeling it is often useful to represent the capacity of
+the cell to grow with a “biomass” reaction. This reaction has in input
+all the necessary elements to make one gram of another cell. The
+stoichiometry of this reaction is experimentally obtained by considering
+the average weight of metabolites in a cell. Thus it is possible to
+infer the amount of each metabolite needed for the production of a new
+cell (see Section 2.2 for the biomass reaction of E.Coli).
+
+In the following sections we will present two established approaches
+that have been used to study the metabolic network from a systems
+biology point of view: Flux Balance Analysis and Von Neumann approach.
+
+### 1.2 Flux Balance Analysis
+
+Flux Balance Analysis (FBA) is a computational method developed by
+Palsson [ 26 ] to find possible biological states of a metabolic
+network. In FBA it is assumed that the concentrations of the metabolites
+are in a steady state (constant), or in a homeostatic condition :
+
+  -- -------- -- -------
+     @xmath      (1.4)
+  -- -------- -- -------
+
+Note that this is a strong assumption but can be valid in some
+situations. Namely the steady state approximation can be considered
+generally valid because of the fast equilibration time of metabolite
+concentrations (seconds) with respect to the time scale of the genetic
+regulation (minutes). The convenience of this approach is that it is
+enough to find the solution of @xmath linear equations in @xmath
+variables instead of having to solve @xmath differential equations.
+
+The vectors of fluxes solving equation ( 1.4 ) satisfy the Kirchoff law:
+the sum of the fluxes of the reactions producing a metabolite equals the
+sum of the fluxes consuming this metabolites. Hence from a chemical
+point of view these equations are stating that all the intermediate
+metabolites produced by the network are also completely consumed.
+
+In a typical metabolic network, @xmath , and in this case the dimension
+of the solution space is an hyperplane of size @xmath . In principle all
+the solution inside this space should be sampled, but even by
+Monte-Carlo methods it becomes unaffordable as the dimension of the
+spaces exceed a few tens [ 27 ] .
+
+There has been some attempts to understand mathematically and
+computationally how this solution space is organized. The first and most
+straightforward attempt is to search for the basis of the solution space
+that are on the edges of the cones of the solutions, thus these vectors
+can be written as
+
+  -- -------- -- -------
+     @xmath      (1.5)
+  -- -------- -- -------
+
+where the vectors @xmath are called the extreme pathways [ 28 , 29 ] of
+the system. Clearly the decomposition in extreme pathway is not unique.
+In [ 29 ] , Singular Value Decomposition is used on the extreme pathways
+matrix to find the vectors that better describe the system. Another
+interesting attempt is the elementary mode analysis [ 30 , 31 ] . These
+elementary modes are minimal modes that satisfy basic thermodynamical
+constraints, in which the network can function. Contrary to the extreme
+pathways, the division in modes is unique and in [ 31 ] it is shown that
+some of these modes correspond to known biological pathways in the
+network of E.Coli. Still growing in scale the number of elementary modes
+grows very quickly and it becomes difficult to find it all. It thus
+seems that finding the extreme pathways is not simpler than sampling the
+configuration space.
+
+It is thus clear that also if the solution space has been greatly
+simplified by assuming ( 1.4 ), still a more direct and effective method
+for selecting the relevant biological solutions is needed. This has been
+done in FBA by imposing the maximization of an objective function,
+normally represented as a linear combination of fluxes, @xmath , where
+@xmath is a @xmath dimensional vector of coefficients. With this further
+assumption, the problem become a standard linear optimization problem
+or:
+
+  -- -------- -- -------
+     @xmath      (1.6)
+  -- -------- -- -------
+
+where @xmath and @xmath are are the lower and upper bound to the fluxes.
+These bounds can be chosen to model a certain environment (e.g. to
+represent the presence or not of a certain metabolite in the
+environment), to define known physiological limitations (e.g. the ATP
+maintenance flux has a specific value) or to define the direction in
+which reactions function (e.g. if @xmath and @xmath , reaction @xmath
+has to function reversibly).
+
+Under this kind of assumptions FBA amounts to maximize a linear function
+under a set of linear constraints. Hence each constraint is a plane in
+the variables space and the objective function is a line. It is then
+intuitive to understand that in order to maximize this function two
+cases are possible: the line and the surface defined by the constraints
+meet in one point or the line and the surface are parallel. In the first
+case there is only one solution while in the latter infinite.
+Furthermore in a real biological case it is highly unlikely that the
+line and the surface are parallel, thus in general in flux balance
+analysis only one solution is found [ 5 ] . A schematic representation
+of the procedure can be seen in Figure 1.6 .
+
+Clearly the main biological assumption in FBA is contained in @xmath and
+depending on the problem there can be many different choices for this
+function [ 33 ] . The most common and that has given the more
+interesting results is the biomass function. In this case the objective
+function is the biomass reaction and the problem is to find the
+configuration of the system that give the maximal biomass yield.
+
+In the last 10 years, FBA has become in computational biology a very
+important tool to study and understand the metabolic networks. In [ 35 ,
+34 ] the authors managed to correctly reproduce experimental measurement
+using the metabolic FBA model [ 36 ] . In particular, in [ 34 ] authors
+studied the dependence of the growth rate of E.Coli on the uptake of
+oxygen and the uptake of acetate both experimentally and
+computationally. This experiment was possible as uptakes are simple to
+measure because it is sufficient to measure the remaining metabolite in
+the environment at the end of growth. In Figure 1.7 the results of this
+article are shown. In this Figure, there is the plot of the growth rate
+versus the uptakes studied ( the phenotype phase plane ) and of the line
+of optimality (LO) that is the line of maximal growth. These results
+have also been reproduced using Succinate instead of acetate. It is thus
+clear from this article that the experimental results and the line of
+optimality are consistent, showing that the growth rates determined
+experimentally and the ones predicted by FBA are consistent.
+
+In [ 37 ] the authors used the same methods to show that after adaptive
+evolution the cells converge to the growth values expected by the FBA
+analysis, thus substantiating the idea that this solution is the optimum
+of the system. This is presented in Figure 1.8 where it is clear that
+the colony of bacteria undergoes an adaptive evolution in response to
+the environment they are in, finally converging (see C) to the line of
+optimality predicted by FBA.
+
+In [ 38 ] the authors extended FBA to deal with the mutations and knock
+outs of genes, developing a quadratic programming method named
+minimization of metabolic adjustment (MOMA). In this method, if a
+mutation occurs, the system will search for a point in the solution
+space that has a minimal distance from the original (non-mutated)
+optimal solution. Thus defining @xmath as the flux vector obtained in
+the wild type organism and @xmath the new flux vector after the
+mutation, it is possible to define a euclidean distance between the two:
+
+  -- -------- -- -------
+     @xmath      (1.7)
+  -- -------- -- -------
+
+Then the problem can be stated as: which is the vector @xmath , solution
+of FBA, such that the euclidean distance between @xmath and @xmath is
+minimal? This is clearly a quadratic problem and is more difficult than
+FBA to solve but it is still possible. In Figure 1.9 it is shown that
+using this procedure solutions that FBA could not find are sampled.
+Using this method, the authors compared the predictions of MOMA with
+experimental measurements of fluxes of the central carbon metabolism of
+E.Coli under a Pyruvate Kinase (pyk) knockout. The measurement of such
+fluxes has been done by combining NMR techniques and @xmath labeling [
+39 ] (see Section 1.1 ). The results are presented in Figure 1.10 where
+it is clear that MOMA outsmarts FBA in the prediction of fluxes for the
+mutated organism (second and third row). Nevertheless it is interesting
+to note for both the wild type and the mutant, none of the methods
+presented until now is capable of reproducing the results in the
+environment on the right (G, H and I).
+
+Other approaches have been dedicated to overcome some of the unrealistic
+assumptions made in FBA. A notable example is [ 40 ] where authors
+present the dilution-FBA (MD-FBA) method to overcome the limitations
+related to the steady state assumption. In this case, the metabolite
+dilution in growth is considered by changing the linear problem posed by
+FBA to a problem of the type:
+
+  -- -------- -- -------
+     @xmath      (1.8)
+  -- -------- -- -------
+
+where @xmath is a “dilution” vector for which @xmath if @xmath (taken
+from FBA) is non zero. Using this method it is possible to account for
+behaviours that in FBA are absent as shown in Figure 1.11 .
+
+After establishing the predictive power of FBA, this model was used to
+predict the capabilities and properties of real networks for various
+organisms. The robustness of the network to the deletion of chosen
+reactions was analyzed in [ 41 ] using a method called Flux Variability
+Analysis. In this method the solutions to the FBA problem are sampled
+changing the bounds on the reactions. Many works have been dedicated in
+the study of alternative classes of objective functions in order to
+describe the behaviour of the organism in other environment or
+physiological situations (for a comprehensive list of these works: [ 42
+] ).
+
+Another interesting extension of FBA is Energy Balance Analysis, [ 43 ]
+, that is an approach to impose the thermodynamical constraint on the
+solutions of FBA by making FBA results more physically realistic. This
+approach has been developed because in standard FBA, it is possible to
+obtain solutions in which there are unfeasible cycles or cycles of
+reactions that are unfeasible from a thermodynamical point of view [ 44
+] . Interestingly, in FBA solutions another type of cycle is present,
+the futile cycles , or cycles of reactions in which two metabolic
+pathways run simultaneously in opposite directions, having no effect
+other than to dissipate energy. Nevertheless, it is now believed that
+these cycles make part of a regulatory mechanism inside metabolism [ 45
+] .
+
+Even though FBA has been so successful, it is still difficult to imagine
+that all the complexity of a real metabolic network could be completely
+described by equations so simple as the one in FBA. But from the
+results, it is reasonable to imagine that during evolution the network
+optimized itself in some way. This is shown in [ 46 ] where authors
+explain that the growth state naturally recruit fewer reactions than
+typical state and in [ 47 ] where they show that this is mainly due to
+the presence of reversible reactions in the network. On the other hand,
+it is also reasonable to imagine that during evolution the network
+became robust to changes in the environment. Hence it is not possible
+that given the environment and the conditions on the reactions, the
+network can have only one way of arranging the fluxes in order to grow.
+This was experimentally observed in [ 48 ] where the phenomenon of
+“persistence” is observed in a population of E.Coli. In this experiment
+they observed that in a population of E.Coli provided with the optimal
+environment for growth, not every element of the population was growing.
+Furthermore if the population is presented with an antibiotic, the
+bacteria that where not growing survived while the other died. This is
+clearly indicating that given the same environment and condition, an
+organism can choose different behaviours. Furthermore it is indicating
+that each behaviour has his evolutionary advantages. This is clearly a
+situation that FBA cannot picture.
+
+This problem has been addressed in the FBA community , [ 49 ] , where
+the authors search for the upper and lower bound on the fluxes of the
+solutions of FBA. They thus observe that the variability can be high and
+that many possible solutions with the same objective function value are
+possible. Hence hinting that it is possible that many solutions with
+different values of the fluxes exist but all giving the same
+“macroscopical” value of the growth rate. In [ 50 ] they analyzed the
+correlation between reactions in different alternate optimal or
+suboptimal solutions showing that only a small subset of reaction have
+variable fluxes across optima, hence showing that optima is robust.
+
+Another interesting open problem in FBA is the harsh dependence on the
+objective function used to compute the solution. As we can see in Figure
+1.10 while for the first two environments the results of FBA (and MOMA)
+are consistent with data, in the third environment the data and the
+predictions are not consistent. Hence in this case another function to
+maximize should be found or the parameters should be changed to find a
+correct solution.
+
+### 1.3 Von Neumann
+
+The Von Neumann problem was first formulated to describe expansion in
+productive systems [ 51 ] as an autocatalytic process. The objective of
+this analysis was to determine the maximal production rate sustainable
+by a system composed of @xmath products connected to @xmath
+technologies, where the products are produced or consumed by the
+technologies. The analogy with the metabolic networks is striking and
+the biological states of a metabolic network based on this method were
+studied on random networks ( [ 52 ] ) and on real networks ( [ 53 , 54 ]
+). In this section we want to present this method, its results and its
+limitations.
+
+The stoichiometric matrix of a metabolic network can always be written
+as:
+
+  -- -------- -- -------
+     @xmath      (1.9)
+  -- -------- -- -------
+
+where @xmath are the coefficients of the products and @xmath are the
+coefficients of the reactants. Consider then the metabolic network of
+@xmath metabolites and @xmath chemical reactions, with fluxes that
+evolve in discrete time steps @xmath . Then define @xmath as the flux of
+reaction @xmath at time @xmath and assume that the total input and
+output of metabolite @xmath at time @xmath is:
+
+  -- -------- -- --------
+     @xmath      (1.10)
+     @xmath      (1.11)
+  -- -------- -- --------
+
+For a theoretical derivation we can assume that the system is
+autocatalytic, thus the input of a certain metabolite at time step
+@xmath must come from the output at time step @xmath and the system has
+to satisfy:
+
+  -- -------- -- --------
+     @xmath      (1.12)
+  -- -------- -- --------
+
+or in words: the input at time @xmath must be less or equal than the
+output at time @xmath .
+
+Thus the Von Neumann problem (VN) can be stated as: find the maximal
+production rate @xmath sustainable by the system assuming a dynamical
+rule, @xmath with constant production rate @xmath .
+
+Using ( 1.10 ) and the dynamical rule, we have that @xmath with constant
+@xmath . It is then possible to rewrite the linear constraint ( 1.12 )
+as:
+
+  -- -------- -- --------
+     @xmath      (1.13)
+  -- -------- -- --------
+
+Interestingly this equation is equal to ( 1.4 ) if @xmath and @xmath for
+every @xmath . Hence VN can be seen as a generalization of FBA, because
+only a subset of the possible solutions of VN satisfy the mass balance
+conditions. This assumption is reasonable in real systems where
+metabolites can be produced in excess because they can be used for other
+non metabolic cellular processes. Furthermore in VN no a priori decided
+objective function is needed in order to sample the fluxes. Thus in a
+nutshell, VN aims at recovering the production capability of a real
+metabolic system.
+
+In general if @xmath , the system is considered in expansion, as more
+elements are produced than consumed; if @xmath the system is in
+contraction and finally if @xmath the system is stationary and the
+fluxes are constant in time.
+
+The main underlying assumption in this model is that the network’s
+physical state @xmath corresponds to one of those for which the
+production rate attains its maximum possible value @xmath compatible
+with constraints ( 1.13 ). Hence, similarly to FBA, the main assumption
+of VN is to consider that the metabolic network has evolved into an
+“optimal” state in which the system undergoes the maximal possible
+expansion.
+
+This model has been fully characterized in random networks, [ 52 ] ,
+where a typical phase transition occurs varying the ratio @xmath . In
+this case the system crosses over from a contracting phase ( @xmath ) to
+an expanding phase ( @xmath ), passing through a stationary regime at
+@xmath . Computationally the problem is solved efficiently by a MinOver
+algorithm [ 55 ] that, as proved rigorously in [ 52 ] , converge to a
+solution at fixed @xmath if at least one solution exists. Moreover, when
+multiple solutions occur, the algorithm provides a uniform sampling of
+the solution space.
+
+In [ 53 ] this method was applied to the metabolic network of E.Coli as
+the metabolism of a real network can still be modeled as an
+autocatalytic system if uptake reactions are included in the
+stoichiometric matrix. Though contrary to FBA, this uptake reactions are
+only from the outside to the inside of the cell, because in VN it is
+possible to have an accumulation of metabolites inside the cell.
+
+In [ 53 ] it was observed that the fluxes resulting from the simulations
+using VN are consistent with the experimental ones (Figure 1.12 ) thus
+showing that with this approach it is possible to reproduce the
+behaviour of real networks. Furthermore it was observed that the maximal
+production rate of the network is @xmath , hence the network is in a
+stationary phase. However not all the @xmath are equal to @xmath (Figure
+1.13 ), thus the VN solutions differ from the ones of FBA.
+
+To characterize solution space of VN it is possible to define an overlap
+between the fluxes in solution @xmath and in solution @xmath :
+
+  -- -------- -- --------
+     @xmath      (1.14)
+  -- -------- -- --------
+
+Thus @xmath if @xmath , whereas @xmath if the value of the flux has
+changed for some (or all) the reactions passing from solution @xmath to
+solution @xmath . In Figure 1.14 it is shown that for the metabolic
+network of E.Coli the mean of overlap over the solutions at @xmath is
+different from @xmath and that the distribution is peaked in @xmath but
+many different values of @xmath are possible. Thus this is showing that
+in the real network there are many possible solutions to the VN problem.
+Furthermore from Figure 1.14 it is possible to say that only @xmath of
+the reactions are fixed to a given value (e.g. their state is frozen) in
+all solutions while the rest is free to fluctuate.
+
+The stoichiometry of the real metabolic network presents groups of
+metabolites that form a conserved metabolite pools . In the following we
+will see that taking into account these pools, it is possible to explain
+why in the metabolic network of E.Coli @xmath . A conserved pool is a
+group of metabolites, @xmath , for which:
+
+  -- -------- -- --------
+     @xmath      (1.15)
+  -- -------- -- --------
+
+We can also characterize this property defining @xmath as:
+
+  -- -------- -- --------
+     @xmath      (1.16)
+  -- -------- -- --------
+
+Hence for each metabolite pool @xmath , it is possible to write ( 1.15 )
+as:
+
+  -- -------- -- --------
+     @xmath      (1.17)
+  -- -------- -- --------
+
+Now we can rewrite equation ( 1.13 ) as:
+
+  -- -------- -- --------
+     @xmath      (1.18)
+  -- -------- -- --------
+
+The first term of the equation is @xmath due to the definition ( 1.17 )
+whereas the second term has only two solutions: @xmath and @xmath not
+constrained or @xmath and @xmath , where we referred to @xmath as the
+vector of fluxes of the reactions implied in the pool. The solution in
+which the fluxes are @xmath can be discarded for physical reasons if the
+pool is connected to the network. Hence the presence of metabolite pools
+imply that @xmath in real metabolic networks. This results has been
+generalized in [ 56 ] where conserved pools are studied rigorously in
+simplified reaction networks.
+
+In conclusion VN approach is a way to show that some reactions tend
+“naturally” to satisfy mass balance whereas a consistent subset of
+reactions is not. All this without imposing an a priori objective
+function, thus overcoming the problem of the choice of the function to
+maximize. With this approach it is possible to explain experimental
+data. Furthermore the existence of conserved metabolite pools was shown
+to be a very important property in the growth of the metabolite network.
+
+What is still not possible to do with this method is predict the growth
+rate of the organisms. An attempt has been done in [ 57 ] where it was
+observed that adding a biomass reaction VN naturally tend to switch it
+off, because the configuration of fluxes without this reaction was
+already a solution. Nevertheless it is possible to have values different
+from @xmath constraining the reaction with bounds, observing that the
+maximal @xmath sustainable by the system decrease as the bound increase.
+This clearly points out that in order to sustain the growth the system
+undergoes a stress. VN has also been compared with Network Expansion
+(next section), [ 54 ] , studying the metabolites that the network is
+producing in the VN solutions. Using principal component analysis it is
+possible to show that the principal mode is associated with the biomass
+production while the secondary mode contains the metabolites necessary
+for the survival of the cell. Also further generalizations have been
+considered, as the introduction of reversible processes in [ 58 ] .
+
+Being VN a relatively recent method, still many applications have to be
+made in order to understand its limitations or advantages compared to
+FBA.
+
+### 1.4 Network Expansion
+
+We will finally present a last method used to study the metabolic
+networks, Network Expansion (NE). This method, first introduced in [ 20
+] and then detailed in [ 18 ] , is a method to find how the information
+about the environment affect the metabolic network. In essence, NE
+procedure can be idealized as follows: start from an assignment of the
+state of a seed of metabolites @xmath (in Figure 4.10 , ON is black and
+OFF is white), propagate the information given by this condition
+(checking that all constraints are satisfied) until no further update is
+possible and check the final configuration. It is simple to understand
+that in real networks the propagation will stop after a small number of
+steps unless the availability of additional compounds is invoked.
+Indeed, when complemented with assumptions on the presence of important
+‘currency’ metabolites, like @xmath , with this method it is possible to
+switch ON a consistent fraction of metabolites. Though, since not all
+the compounds can be synthesized from arbitrary seeds, the expansion
+process will in general not lead to a network containing all of the
+initial seed. The set of metabolites present at convergence is called
+the scope of the seed, @xmath .
+
+NE has proved a very powerful method to analyze the relationship between
+structural and functional properties in real networks [ 18 , 59 ] . In
+particular in [ 59 ] , NE was applied to the complete set of reactions
+present in the KEGG database. Then the scope of all the compounds in
+this network was analyzed, using as initial seed this compound (plus
+water). The results show some functional properties of the network, such
+that some scope are more likely than other and that some compounds bring
+to the same scope. Furthermore it was analyzed the robustness of the
+scope size to deletion of reactions, finding the essential compounds
+inside the network. Finally the synthetic capabilities of various
+organisms was analyzed. Thus showing that with NE it is possible to
+analyze evolutionary differences between the organisms.
+
+In [ 60 ] , a metabolite @xmath is considered as producible given a seed
+@xmath if there exist a flux configuration @xmath such that:
+
+  -- -------- -- --------
+     @xmath      (1.19)
+  -- -------- -- --------
+
+or using equation ( 1.9 ) as:
+
+  -- -------- -- --------
+     @xmath      (1.20)
+  -- -------- -- --------
+
+Thus for a metabolite to be producible it has to be produced while
+consuming only the metabolites of the seed. The other metabolites,
+@xmath , can be also produced as a “by-product” but cannot be consumed.
+The set of all the producible metabolites from a seed @xmath is called
+@xmath .
+
+Hence if the fluxes inside the cell are stationary, the producible
+metabolites can increase their concentration while consuming only the
+nutrients. However if the fluxes are non-stationary this observation is
+not true anymore. For sure the concentration of all the metabolites that
+are not contained in @xmath will eventually decrease to @xmath if the
+cell is growing. It is though possible to define the set of sustainable
+metabolites ( @xmath ) which are the ones that the cell will continue to
+produce also if growing. This set is obtained by starting from the set
+of producible metabolites and keeping only metabolites for which all
+reactions producing it uses only metabolites of @xmath . If the
+resulting set is smaller, we repeat the procedure until convergence.
+Hence at convergence, metabolites contained in @xmath will satisfy
+equation ( 1.19 ) with the additional constraint that all the reactions
+that produce it use only metabolites contained in @xmath . As NE is an
+expanding procedure and @xmath is obtained by contracting @xmath we can
+safely say that:
+
+  -- -------- -- --------
+     @xmath      (1.21)
+  -- -------- -- --------
+
+Using these definition, in [ 60 ] the scope and the set of sustainable
+metabolites has been sampled in the metabolic network of E.Coli and
+Methanosarcina barkeri using one compound as seed (plus water). This
+sampling is computationally intensive as for some calculations, several
+hundred of linear programming problems have to be solved. It is though
+observed that in general the scope of the metabolites is equal to the
+set of sustainable metabolites for many compounds. Furthermore it was
+observed that adding some cofactors in the NE procedure greatly
+amplifies this similarity.
+
+NE can also be used to solve the problem: which seed are needed in order
+to obtain a set of target metabolites? This problem was treated in [ 61
+] where a computational procedure to study this type of “inverse”
+problem is defined. First a set of target metabolites, that identify a
+“universal” set of necessary metabolites is identified. Then the minimal
+seed necessary to synthesize this organisms is identified by sampling
+the space of seeds using NE to expand the seed information. Finally this
+method has been applied to various organisms present in the KEGG
+database, showing that the results were consistent with the biological
+knowledge on various organisms.
+
+## Chapter 2 Constraint Satisfaction Problems for metabolic networks
+
+### 2.1 The boolean version of the problem
+
+In order to define a Constraint Satisfaction Problem (CSP, for a
+definition see Section 3.1 ) embodying realistic operational
+constraints, we focus on the characterization of the NESS induced by
+non-zero in- and out-fluxes of nutrients and sinks, respectively [ 62 ,
+63 ] , following two different (but related) schemes already presented
+in Chapter 1 . In Flux-Balance-Analysis (FBA) it is assumed that fluxes
+in NESS ensure mass balance at each metabolite node in the network [ 42
+] , see Section 1.2 for further detail. (We do not consider here the
+optimization schemes that are typically coupled to such constraints in
+biological implementations of FBA [ 64 , 65 ] .) If we denote by @xmath
+the flux of reaction @xmath (with @xmath for an irreversible reaction),
+this amounts to solving the system
+
+  -- -------- -- -------
+     @xmath      (2.1)
+  -- -------- -- -------
+
+where @xmath is the stoichiometric coefficient of metabolite @xmath in
+reaction @xmath (such that @xmath ). One easily understands that the
+above conditions are equivalent to Kirchhoff’s node laws for the flow of
+matter through metabolite nodes and describe NESS with constant
+(time-independent) levels for each metabolite. A soft version of this
+model [ 52 , 66 ] assumes instead that intracellular concentrations may
+be allowed to increase linearly over time at constant rate, e.g. because
+some metabolites have to be available for processes outside of
+metabolism strictly defined. This simply leads to replacing ( 2.1 ) with
+
+  -- -------- -- -------
+     @xmath      (2.2)
+  -- -------- -- -------
+
+More formally, the above conditions can be seen to derive from Von
+Neumann’s optimal growth scenario [ 67 ] and provide a useful means of
+characterizing a reaction network’s production capabilities [ 68 , 53 ,
+54 ] , see Section 1.3 for further detail.
+
+The general problem posed by ( 2.1 ) and ( 2.2 ) consists, given the
+matrix @xmath , in retrieving the flux vectors @xmath satisfying the
+@xmath linear conditions. An interesting feature that is observed in the
+solutions of the above models is that a sizeable fraction of reactions
+carries a null flux in each solution [ 53 , 46 ] . This suggests that,
+to a first approximation, if one is interested in capturing certain
+aspects of NESS within a coarse-grained description it might suffice to
+just distinguish, for each reaction, the inactive state from the active
+one.
+
+We shall then introduce, for each reaction, a variable @xmath
+(inactive/active). Similarly, we shall link to every metabolite a
+variable @xmath that characterizes whether that particular chemical
+species is available ( @xmath ) or not ( @xmath ) to enzymes that
+process it. Our next task is to devise Boolean CSPs that embed the basic
+features underlied by ( 2.1 ) and ( 2.2 ), respectively.
+
+Starting from ( 2.1 ), it is simple to understand that a minimal
+necessary requirement that is encoded in the mass-balance conditions is
+that, for each metabolite which is produced by an active reaction, there
+must be at least one active reaction consuming it, and vice-versa. This
+means that, for each compound @xmath , all assignments of @xmath ’s are
+acceptable except those for which all active reactions either produce or
+consume it. We can therefore define the number of active reactions
+producing and consuming chemical species @xmath as
+
+  -- -------- -- -------
+     @xmath      (2.3)
+  -- -------- -- -------
+
+and, in turn, introduce an indicator function @xmath for every @xmath as
+
+  -- -------- -- -------
+     @xmath      (2.4)
+  -- -------- -- -------
+
+Given a configuration @xmath , metabolite @xmath will be said to be SAT
+when @xmath , i.e. when either no reaction in which it is involved is
+active ( @xmath and @xmath ) and the metabolite is unavailable ( @xmath
+), or when the metabolite is available ( @xmath ) and at least one
+reaction produces it ( @xmath ) and at least one reaction consumes it (
+@xmath ). Similarly, we define a reaction to be SAT when the indicator
+function @xmath , given by
+
+  -- -------- -- -------
+     @xmath      (2.5)
+  -- -------- -- -------
+
+with @xmath , equals 1. That is, @xmath can be active only if all its
+neighbouring metabolites (including both substrates and products) are
+available. We note that ( 2.5 ) can actually be re-cast as
+
+  -- -------- -- -------
+     @xmath      (2.6)
+  -- -------- -- -------
+
+according to which @xmath can be active only if all of its inputs are
+available: it is indeed clear that if a reaction is active but one (say)
+of its products is unavailable, then the constraint imposed on the
+metabolite will either be violated or force that metabolite to become
+available. Notice that @xmath does not imply that @xmath is active when
+all of its substrates are available.
+
+The CSP corresponding to ( 2.1 ) can then be formulated as follows: find
+a non-trivial assignment of @xmath ’s ( @xmath ’s not all zero) such
+that all reactions and all metabolites are SAT, i.e. @xmath and @xmath ,
+with @xmath and @xmath given by ( 2.4 ) and ( 2.6 ), respectively . We
+shall call this CSP Hard Mass Balance, or Hard-MB for brevity.
+
+In order to get a Boolean representation of ( 2.2 ), we note that the
+main difference between this case and that of ( 2.1 ) is that, because
+of the soft constraint, it is no longer necessary that production fluxes
+are balanced by consumption fluxes. Therefore, while constraint ( 2.6 )
+remains valid, ( 2.4 ) has to be replaced by
+
+  -- -------- -- -------
+     @xmath      (2.7)
+  -- -------- -- -------
+
+In other terms, metabolite @xmath can be available as soon as at least
+one reaction producing it is active ( @xmath ). It is convenient to
+re-write @xmath for this case as
+
+  -- -------- -- -------
+     @xmath      (2.8)
+  -- -------- -- -------
+
+so that the constraint at each metabolite node only includes incoming
+degrees of freedom, making the directionality inherent in the
+corresponding CSP explicit. It is straightforward to see that ( 2.7 ) or
+( 2.8 ), together with ( 2.6 ), which retains validity, return the same
+configurations.
+
+The CSP corresponding to ( 2.2 ) is then the following: find a
+non-trivial assignment of @xmath ’s such that all reactions and all
+metabolites are SAT, i.e. @xmath and @xmath , with @xmath and @xmath
+given by ( 2.8 ) and ( 2.6 ), respectively . We shall call this CSP Soft
+Mass Balance, or Soft-MB for brevity.
+
+Note that the constraints behind the two problems can be written
+compactly as
+
+  -- -------- -- --------
+     @xmath      (2.9)
+     @xmath      (2.10)
+  -- -------- -- --------
+
+where @xmath for Hard-MB and @xmath for Soft-MB.
+
+We shall be interested in solutions obtained upon fixing the probability
+that a nutrient is available, which we denote below as @xmath ( see
+Appendix A ).
+
+### 2.2 Real metabolic network
+
+In this thesis we will focus on Escherichia Coli (E.Coli), K-12 MG1655
+strain. This bacterium was first discovered in 1885 by a German
+pediatrician, Theodor Escherich (from which the name) and is commonly
+present in the intestine of warm blooded organisms. A pathogenic strain
+of E.Coli (O157:H7) can cause food poisoning in humans but most of the
+strains are harmless. A special strain (K-12 MG1655) is generally used
+in laboratories, constituting a typical benchmark in the theoretical
+study of metabolism.
+
+E.Coli is generally considered a model organism as it is inexpensive to
+grow in laboratory due to its little generation rate and to the fact
+that the K-12 strain is easily cultivated. Furthermore its metabolism is
+complete but enough simple to be studied by theoretical methods. From
+DNA sequencing [ 69 ] , experimental evidences and modeling predictions
+[ 70 ] it has been possible over the years to reconstruct the
+stoichiometric matrix that describe the metabolism of E.Coli to a very
+good precision. The minimal environment for the optimal growth of E.Coli
+is called the            M-9           minimal medium [ 71 ] : @xmath ,
+@xmath , @xmath , @xmath , @xmath , @xmath , @xmath , thiamine, carbon
+source (e.g. glucose) and @xmath . In the study of the metabolic network
+of E.Coli, this medium is equivalent to considering that 7 metabolites
+are present: @xmath , @xmath , @xmath , @xmath , @xmath , @xmath and
+@xmath .
+
+{longtabu}
+
+to |X[l]|X[c]|X[l]|X[c]| Reactant & Coeff. & Reactant & Coeff.
+L-Alanine & @xmath & L-Glutammate & @xmath
+L-Asparagine & @xmath & Water & @xmath
+L-Aspartate & @xmath & ATP & @xmath
+AMP & @xmath & L-Glutammine & @xmath
+L-valine & @xmath & FAD & @xmath
+NADH & @xmath & NAD & @xmath
+Acetile-CoA & @xmath & UDP glucose & @xmath
+NADP & @xmath & NADPH & @xmath
+Coenzime A & @xmath & Succinil-CoA & @xmath
+Putrescine & @xmath & L-Metionine & @xmath
+L-Arginine & @xmath & Spermidine & @xmath
+L-Proline & @xmath & L-Serine & @xmath
+CTP & @xmath & dTTP & @xmath
+L-Cisteine & @xmath & GTP & @xmath
+Glicine & @xmath & L-Tirosine & @xmath
+5-Methyltetrahydrofolate & @xmath & L-Treonine & @xmath
+Glycogen & @xmath & L-Istidine & @xmath
+dCTP & @xmath & dGTP & @xmath
+dATP & @xmath & L-Lisine & @xmath
+L-Fenilalanine & @xmath & L-Leucine & @xmath
+L-Isoleucine & @xmath & L-Triptofane & @xmath
+ADP & @xmath & Pi & @xmath
+H & @xmath & Ppi & @xmath
+Table of the values of the biomass reaction as used in this thesis,
+taken from [ 72 ] . If the coefficient is negative, it means that this
+metabolite is produced by the reaction while it is consumed otherwise.
+
+The topology of the network is very different between reactions and
+metabolites. As we can see from Figure ( 2.1 ), the degree of
+metabolites have a typical scale free distribution as opposed to the
+degree distribution of reactions that is peaked around two
+in-/out-metabolites. This is because some metabolites, (like water or h)
+contribute in many reactions while in average a reaction is using 2
+metabolites to produces 2 products.
+
+In order to write a network that is possible to treat theoretically but
+that is realistic, it is important to choose how to treat the externals.
+Conventionally in metabolic analysis, there are external metabolites
+that are brought inside the cell by uptakes and some metabolites can be
+expelled from the cell by means of outtakes . Generally uptakes and
+outtakes are represented by the same reversible reaction. It is commonly
+agreed that the metabolic network of E.Coli has 127 uptakes.
+
+As already introduced in Section 1.2 , another very important reaction
+that has to be added to the metabolic network is the biomass reaction
+from which it is possible to simulate growth. This reaction has the form
+as in Table 2.1 .
+
+### 2.3 Random Reaction Networks (RRNs)
+
+We define a random reaction network (RRN) to be a bipartite random graph
+with two types of nodes, representing respectively chemical species (or
+metabolites ) and enzymes (or reactions ). We shall denote by @xmath and
+@xmath , respectively, the number of reactions and that of metabolites.
+Both @xmath and @xmath will be taken to be large, i.e. @xmath . For the
+sake of simplicity, we shall assume here that each reaction has a well
+defined operational direction, so that the bipartite graph is directed.
+Its topology will be encoded in an adjacency matrix @xmath , with
+entries @xmath if reaction @xmath produces metabolite @xmath , @xmath if
+reaction @xmath consumes metabolite @xmath , and @xmath otherwise. We
+furthermore define @xmath (resp. @xmath ) as the set of reactions
+producing (resp. consuming) @xmath ; likewise, for each reaction @xmath
+, @xmath (resp. @xmath ) will denote the set of its substrates
+(resp. products).
+
+The topology of the RRN is specified by the probability distributions of
+the degrees of the two node types. For metabolite nodes we shall assume
+that the in- and out-degrees @xmath and @xmath are independent random
+variables, both distributed according to a Poissonian with parameter
+@xmath , i.e.
+
+  -- -------- -- --------
+     @xmath      (2.11)
+  -- -------- -- --------
+
+Metabolites having @xmath are disconnected from the network and will be
+ignored in what follows. We shall generically assume that @xmath (the
+percolation threshold), ensuring the existence of a ‘giant’ connected
+subgraph. Metabolites with @xmath represent the substrates that the
+reaction network derives from the environment (the ‘nutrients’), whereas
+metabolites with @xmath will be considered to be the final products or
+sinks (e.g. excreted compounds or molecules that are employed in
+processes other than chemical reactions) of the network. The fraction of
+such ‘leaves’ (nutrients or sinks) is given by @xmath for large enough
+@xmath . The dependence of the results on this external variables is one
+of the most interesting problem both in real and in random networks and
+this problem will be addressed in the following sections.
+
+For the reaction nodes, the quantities @xmath and @xmath will be assumed
+to be independent random variables, both distributed according to
+
+  -- -------- -- --------
+     @xmath      (2.12)
+  -- -------- -- --------
+
+where @xmath is a parameter. In other words, reactions can be of four
+different types according to their in- and out-degrees ( @xmath ) and
+@xmath weights the relative number of bi-component reactions (as inputs,
+outputs or both). The only structural control parameters that we shall
+use in the following are the mean degrees of metabolites ( @xmath ) and
+of reactions ( @xmath ). A sketch of the network is given in Fig. 2.2 .
+In order to construct the random network, it is important to notice that
+the parameters of the system and @xmath and @xmath are related by
+
+  -- -------- -- --------
+     @xmath      (2.13)
+  -- -------- -- --------
+
+or @xmath .
+
+In order to compute the equations for the system it is useful to refer
+to the factor graph corresponding to the problem under consideration. A
+factor graph is a representation of the bipartite network with two
+classes of nodes, one representing variables (reaction activities and
+metabolite availabilities, in our case) and the other representing
+constraints (the so-called factor nodes). (Fig. 2.3 displays a portion
+of the factor graph together with the messages that are exchanged
+between nodes in the message-passing procedure constructed below.)
+
+In the following we will use letters @xmath for the metabolite
+constraints and @xmath for the reaction constraints. Furthermore we
+introduce the condensed notations: if @xmath is the constraint of
+metabolite @xmath , then @xmath is the set of reactions involving
+metabolite @xmath ; if @xmath is the constraint of reaction @xmath ,
+then @xmath is the set of metabolites involved in reaction @xmath .
+Moreover by dividing in two groups reactions producing and consuming a
+given metabolite, we call @xmath the set of reactions in the same group
+as @xmath , excluding @xmath , and @xmath the opposite group.
+
+Using this notation it is possible to rewrite the constraints ( 2.6 )
+and ( 2.8 ) introduced in Section 2.1 for the Soft-MB case in a form
+taking into consideration the factor graph representation, that will be
+useful in the computation of the equations of the system:
+
+  -- -------- --
+     @xmath   
+     @xmath   
+  -- -------- --
+
+where we have substituted @xmath , with @xmath being the set of
+reactions producing the metabolite whose constraint is @xmath .
+
+In the same way, for the Hard-MB case, the constraints in the new
+notation can be written as:
+
+  -- -------- --
+     @xmath   
+     @xmath   
+  -- -------- --
+
+## Chapter 3 Statistical Mechanics methods
+
+### 3.1 Constraint Satisfaction Problem
+
+A constraint satisfaction problem (CSP) is a class of problems in which
+a set of variables have to satisfy constraints. In Statistical Physics
+and in Computer Science such problems are considered as a set of @xmath
+variables with states @xmath and a set of @xmath constraints @xmath ,
+where @xmath represent the variables involved in constraint @xmath and
+where @xmath if @xmath satisfy the constraint, 0 otherwise. It is
+possible to define also a “soft” version of the CSP where the
+constraints can be violated. In this case a weigth of the form @xmath
+can be defined. See Figure 3.1 for a factor graph representation of a
+generic CSP.
+
+In a CSP it is generally convenient to write the Hamiltonian of the
+system as @xmath and the partition function as:
+
+  -- -------- -- -------
+     @xmath      (3.1)
+  -- -------- -- -------
+
+that is equal to the number of solution at @xmath .
+
+When confronted with the study of a CSP the common approaches are:
+decision (understanding if one solution is possible), sampling (manage
+to sample the solutions according to a given distribution) or
+optimization (search for optimal configurations). In optimization the
+function that is generally optimized is the Hamiltonian defined above,
+thus finding a solution to an optimization problem in CSPs is equivalent
+to find the configurations for which all constraints are satisfied (for
+@xmath ) or the number of satisfied constraints is maximal (for finite
+@xmath ).
+
+In the theory of computational complexity [ 73 , 74 ] , CSPs are
+classified depending on the resources needed to study these problems.
+Problems for which the worst case can be solved in polynomial time are
+in @xmath , while problems for which the answer can be only verified in
+polynomial time are called @xmath (nondeterministic polynomial time).
+Then a problem is considered NP-complete if, taken a problem @xmath NP,
+any other NP problem can be transformed into @xmath in polynomial time.
+A long lasting problem is to understand if NP (or NP-complete) problems
+can be solved in polynomial time [ 75 ] . This is very important because
+as we saw, if a polynomial algorithm is able to find a solution of an
+NP-complete problem then all NP problems could be solved polynomially.
+Generally many problems can be P, NP or NP-complete depending on the
+value of the parameters of the system. For example two typical problems
+that are NP-complete only for @xmath or @xmath are:
+
+-   k-satisfiability (k-SAT). In a generic satisfiability problem,
+    variables take boolean values ( @xmath or @xmath ) and constraints
+    are formed as boolean expressions written using AND, OR and NOT (to
+    negate a variable). A @xmath -satisfiability is the same problem in
+    which all constraints involve exactly @xmath variables.
+
+-   q-coloring (q-COL). In this problem each variable can take one of
+    @xmath possible colors and the constraint assume that two
+    neighbouring vertices cannot take the same color.
+
+### 3.2 Random graphs
+
+A graph is a collection of nodes that are connected by links with its
+topology encoded in the adjacency matrix, @xmath , such that each
+element @xmath is @xmath if there is a link between node @xmath and node
+@xmath and @xmath otherwise. The graphs has no geometrical
+representation as the nodes are not spatially organized. Then a random
+graph is defined as a network whose topology is generated by a
+stochastic process. The concept of random graph has first been
+introduced by P. Erdös and A. Réyni [ 76 ] and independently by Gilbert
+[ 77 ] .
+
+For simplicity in the following we will restrict ourselves to the case
+of random graphs with a fixed number of vertices @xmath . Depending on
+the process chosen for the assignment of the links, each graph @xmath
+has a probability @xmath of being generated at the end of the process
+and these probabilities define an ensemble of random graphs. We will use
+in the following the notation @xmath for the ensemble of random graphs
+with @xmath vertices and @xmath links.
+
+The mean of a generic quantity @xmath on this ensemble is given by
+@xmath where the sum is intended as on all graphs with @xmath vertices.
+The number of graphs with @xmath vertices and @xmath links can be
+computed by considering that the number of possible links between @xmath
+vertices is @xmath and between these it is possible to choose @xmath
+links in @xmath ways.
+
+It is possible to construct a random graph in @xmath by starting with a
+network with @xmath vertices and no links and assigning each link
+randomly. The only rules to follow in this case are: each link must
+connect distinct vertices (no self-links) and any pair of vertices can
+be connected at most once (no repeated couples). It is important to
+notice that in the thermodynamic limit ( @xmath ) the ensemble @xmath is
+equivalent to the ensemble @xmath where each link has a probability
+@xmath of being present. We will thus in the following consider that
+@xmath is finite but @xmath (thus graphs in @xmath ) in order to compute
+the properties of random graphs as calculations are easier.
+
+The probability that a given vertex has a degree @xmath is given by:
+
+  -- -------- -- -------
+     @xmath      (3.2)
+  -- -------- -- -------
+
+where @xmath is the probability of choosing @xmath neighbouring vertices
+in the remaining @xmath , @xmath is the probability that @xmath vertices
+exist and @xmath is the one that the remaining @xmath vertices are not
+present. An interesting particular case of the @xmath ensemble is the
+case of random graphs with fixed mean degree @xmath . In this case we
+have @xmath , @xmath and
+
+  -- -------- -- -------
+     @xmath      (3.3)
+  -- -------- -- -------
+
+that is a Poissonian distribution. This type of distribution has the
+characteristic that the probability of having a vertex with degree
+@xmath decreases exponentially.
+
+In random graphs typical loops have size @xmath and this is simply
+showed by choosing a vertex @xmath on a random graph with fixed
+connectivity @xmath . Then it is possible to define a distance @xmath
+from this vertex as: the neighbours of @xmath are at @xmath , the
+neighbours of the neighbours of @xmath are at @xmath and so on. So the
+probability that a loop has size @xmath is equal to the probability that
+at distance @xmath , @xmath is extracted again or:
+
+  -- -------- -- -------
+     @xmath      (3.4)
+  -- -------- -- -------
+
+where @xmath as no self links exist. Thus the size of a typical loop in
+a random graph is equal the distance at which @xmath i.e. for which
+@xmath .
+
+The structure of random graphs has been thoroughly studied [ 77 , 76 ,
+78 ] : for @xmath the typical graph is a forest, i.e. a union of trees,
+then as @xmath grows some trees merge together but the typical graphs is
+acyclic, finally at @xmath the first cycles are formed and for @xmath a
+phase transition occurs in which a sizeable fraction of vertices is in
+the same connected component, hence called giant component .
+
+It is possible to derive formally all of these structural
+characteristics by studying the probability that a vertex belong to the
+giant component, @xmath . This will be done in the following trying to
+make an intuitive derivation more than a rigorous one. It is possible to
+write:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+because @xmath is the probability that the new vertex is not in the
+giant component, thus this is equal to the probability that this vertex
+has @xmath neighbours ( @xmath ) and that neither of these neighbours is
+in the giant component ( @xmath ). From this equation we obtain:
+
+  -- -------- -- -------
+     @xmath      (3.5)
+  -- -------- -- -------
+
+This equation admit always the solution @xmath but for @xmath there is
+also a solution for @xmath that suggest the presence of a giant
+component. This equation has no analytical solution but it is simple to
+find a numerical solution by searching the interesection points between
+@xmath and @xmath as shown in Figure 3.2 . From this graph it is clear
+that for @xmath no solution to this equation exist while for @xmath
+there is a giant component. Hence random graphs with fixed mean degree
+undergo a phase transition in the critical point @xmath .
+
+As random graphs are used to analyze more complicated systems, the
+topology of the graph can become substantially different from the one we
+presented. It is possible to construct a bipartite random graph, where
+there are two type of vertices and edges connect only vertices of a
+different type. Another type of graph generally used in CSPs is the
+factor graph, that in its simplest form is a bipartite graph where one
+vertex is a variable (with indexes @xmath ) and the other vertex is a
+function node (constraint, with indexes @xmath ) (for a detailed
+description see Section 2.3 ). A random factor graph is a factor graph
+in which the links between variables and constraints are assigned at
+random. It is though important to notice that the properties presented
+in this section hold also on these other types of random graphs.
+
+### 3.3 Cavity Method
+
+The cavity method is a method by which it is possible to estimate the
+free energy and the magnetization of a system [ 79 , 80 ] . Although
+introduced to study the Sherrington Kirkpatrick model [ 81 ] , this
+method has provided theoretical and practical tools to analyze many
+other problems. It is in principle equivalent to the replica method
+developed in the study of spin glasses [ 81 , 80 ] but it gives a more
+intuitive picture of which is the correlation structure in the system.
+
+In the following we will consider that the graph under study is a
+generic random factor graph. In general, for the following assumptions
+to be true, it is important that the graph is locally tree-like. Indeed
+this is always true in a random network where typical loops are of size
+@xmath (see Section 3.2 ). In the cavity method we imagine of removing a
+node, computing all the interesting quantities (“cavity” quantities) and
+then put the node back in. It is thus possible to use the “cavity”
+information to recover the complete information about the system.
+
+Another way of seeing this problem is by considering that each variable
+send to its neighbours a message that represent the “belief” that the
+variable has about the state of its neighbours. This is the typical
+picture in Computer Science and is known as Belief Propagation (BP) [ 82
+] . In [ 83 , 84 ] it has been shown the equivalence between the two
+approaches. Therefore in the following we will use equivalently cavity
+equations or BP equations.
+
+The cavity method can be represented formally considering that each
+variable send to its neighbours a “message”, @xmath , that is the
+marginal probability law (cavity marginal) of @xmath in a graph where
+the link @xmath is not present. In a generic factor graph two types of
+messages are possible @xmath (from variable to constraint) and @xmath
+(from constraint to variable). Nevertheless in a first part we will
+consider only one type of message and then we will generalize for
+generic factor graphs. In this case, @xmath (see Section 3.1 ) and it is
+possible to write (for a full derivation see Section 3.5 ):
+
+  -- -------- -- -------
+     @xmath      (3.6)
+  -- -------- -- -------
+
+where:
+
+  -- -------- -- -------
+     @xmath      (3.7)
+  -- -------- -- -------
+
+Clearly all variables with in or out degree @xmath (the leaves of the
+graph) have @xmath .
+
+From the cavity marginal it is straightforward to recover the marginal
+of the variable by adding back the removed link, obtaining
+
+  -- -------- -- -------
+     @xmath      (3.8)
+  -- -------- -- -------
+
+where @xmath . Furthermore the magnetization of the variables can be
+recovered as
+
+  -- -------- -- -------
+     @xmath      (3.9)
+  -- -------- -- -------
+
+It is also possible to compute the free energy of the system by
+understanding that the complete partition function of the system can be
+written as:
+
+  -- -------- -- --------
+     @xmath      (3.10)
+  -- -------- -- --------
+
+where we have defined:
+
+  -- -------- -- --------
+     @xmath      (3.11)
+  -- -------- -- --------
+
+Hence the free energy can be written as:
+
+  -- -------- -- --------
+     @xmath      (3.12)
+  -- -------- -- --------
+
+where @xmath and @xmath . Thus by this derivation it is clear that the
+free energy of a generic graph can be divided in two contributions:
+@xmath coming from the variables and @xmath coming from the links.
+
+It is instructive to compute the free energy at zero temperature on a
+Bethe lattice with fixed @xmath connectivity [ 79 ] as in this case the
+computation is simpler because the relevant variable is the internal
+energy @xmath . In this case one can define a “cavity” graph @xmath of
+@xmath randomly chosen spins that have only @xmath neighbours while the
+remaining @xmath spins all have @xmath neighbours (see Figure 3.3 ).
+Furthermore the @xmath cavity spins are fixed to values @xmath .
+
+The complete energy of the system correspond to the @xmath graph but we
+will see that it is possible to compute it by understanding the
+properties of the @xmath graphs. On these graphs it is possible to:
+
+-   (iteration) add a new cavity spin @xmath thus changing a @xmath
+    graph to a @xmath graph ( @xmath , @xmath )
+
+-   (link addition) add a link between two randomly chosen cavity spins
+    and then optimizing its spin value; in this case we are transforming
+    a @xmath graph to a @xmath graph ( @xmath and @xmath ).
+
+-   (site addition) add a new spin @xmath , connect it to @xmath cavity
+    spins and then optimizing the values of the @xmath spins; in this
+    case we are transforming a @xmath graph to a @xmath graph ( @xmath
+    and @xmath ).
+
+Thus if we start with a @xmath cavity graph, we can obtain a @xmath
+graph by doing @xmath link addition. Furthermore, starting from the same
+graph and doing @xmath site addition it is possible to obtain a @xmath
+cavity graph. Therefore the variation of the energy going from @xmath to
+@xmath spins is related to the average energy shift @xmath for a site
+addition and @xmath for link addition as:
+
+  -- -------- -- --------
+     @xmath      (3.13)
+  -- -------- -- --------
+
+Finally, using the fact that the total energy is asymptotically linear
+in N, the energy density for the ground state is:
+
+  -- -------- -- --------
+     @xmath      (3.14)
+  -- -------- -- --------
+
+### 3.4 A simple application: 1D Ising Model
+
+We would like to present now a straightforward application of the cavity
+method to the one-dimensional Ising model. This example should clarify
+how it is possible to apply the cavity method to practical cases.
+Consider a ferromagnetic Ising model on a line with @xmath spin
+variables, @xmath , such that @xmath , see Figure 3.4 . In this case, we
+can write:
+
+  -- -------- -- --------
+     @xmath      (3.15)
+  -- -------- -- --------
+
+In a model of this kind, the marginal of a variable @xmath is given by:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath . This marginal is easily rewritten as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where
+
+  -- -- -------- -------- --
+        @xmath   @xmath   
+                          
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+and @xmath (and the same for @xmath ).
+
+It is thus possible to interpret @xmath as the distribution of @xmath in
+a graphical model in which all factor nodes adjacent to @xmath except
+the one on its left are removed. It is now possible to write some
+recursive equations for the messages as
+
+  -- -------- -------- -- -- --------
+     @xmath   @xmath         (3.17)
+                             
+     @xmath   @xmath         
+  -- -------- -------- -- -- --------
+
+The boundaries have in this case @xmath . Thus starting from the
+boundary and evolving messages using equation ( 3.17 ) until convergence
+it is possible in linear time to compute the marginal @xmath . As all
+messages are distributions over binary variables, it is possible to
+parametrize it with a single real number
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+that can be seen as an local magnetic field as @xmath .
+
+As we have seen the one dimensional Ising model is simple to treat but
+contains most of the concept used in the cavity method. We saw that it
+is possible to write the marginal in function of cavity marginals @xmath
+and @xmath and that these quantities satisfy some recursive equations (
+3.17 ). From these equations it is thus possible to recover the marginal
+of each variable in the system. This approach can clearly be further
+refined, as it is possible to compute the free energy and the
+correlations inside the system, but this is probably out of the scope of
+this thesis.
+
+### 3.5 Bethe approximation and the cavity approach
+
+This paragraph is based on [ 85 ] where classical methods in Statistical
+Mechanics are presented from an interesting point of view for our
+purpose. Indeed in this paragraph we will show that the solutions to the
+cavity (BP) equations describe the system in the Bethe approximation [
+86 , 87 , 88 ] . Thus using this result it will be possible in Section
+3.7 to justify why and in which system the cavity method can fail.
+
+We want to find the probability distribution @xmath of a system of
+@xmath elements with states @xmath ( @xmath ). In this case, it is
+possible to write the Gibbs free energy as
+
+  -- -------- -- --------
+     @xmath      (3.18)
+  -- -------- -- --------
+
+where the internal energy, @xmath , and the entropy, @xmath can be
+computed as
+
+  -- -- -------- -------- -- --------
+        @xmath   @xmath      (3.19)
+        @xmath   @xmath      (3.20)
+  -- -- -------- -------- -- --------
+
+For a physical system in equilibrium, the Gibbs free energy is minimal.
+Hence using a Lagrangian in which the constraint on the probability
+@xmath is enforced via a lagrangian multiplier @xmath ,
+
+  -- -------- -- --------
+     @xmath      (3.21)
+  -- -------- -- --------
+
+it is possible to find the @xmath for which @xmath is minimum. This is
+
+  -- -------- -- --------
+     @xmath      (3.22)
+  -- -------- -- --------
+
+or the Boltzmann distribution as expected for a generic physical system.
+Furthermore substituting the value of @xmath in @xmath we see that at
+equilibrium the Gibbs Free energy is equal to the Helmotz free energy,
+@xmath .
+
+This is a trivial statement in Statistical Mechanics, but the procedure
+is useful: if the form of the energy and the correlation structure of
+the system are known (or assumed), then it is possible to compute the
+equations the probability has to satisfy. Hence with this procedure it
+is possible to compute the Gibbs free energy of a system using a
+reasonable approximation (the belief) to joint probability between the
+variables. Then minimizing the free energy it is possible to find the
+equations that the belief has to satisfy in this approximation.
+
+For example for an Ising model:
+
+  -- -------- -- --------
+     @xmath      (3.23)
+  -- -------- -- --------
+
+it is possible to find the equations that the system has to satisfy in
+Mean Field Approximation [ 89 , 90 ] in which the variables of the
+system are independent, or:
+
+  -- -------- -- --------
+     @xmath      (3.24)
+  -- -------- -- --------
+
+Given that the @xmath are bimodal, the only way to write the @xmath ’s
+is:
+
+  -- -------- -- --------
+     @xmath      (3.25)
+  -- -------- -- --------
+
+Therefore:
+
+  -- -------- -- --------
+     @xmath      (3.26)
+  -- -------- -- --------
+
+Minimizing with respect to @xmath one obtain the self consistency
+equations:
+
+  -- -------- -- --------
+     @xmath      (3.27)
+  -- -------- -- --------
+
+that are the classical equations for Ising in Mean Field.
+
+Finally it is possible to derive the equations in the Bethe
+Approximation [ 86 , 87 , 88 ] in which only the first neighbours are
+correlated (see sketch in Figure 3.5 ), hence:
+
+  -- -------- -- --------
+     @xmath      (3.28)
+  -- -------- -- --------
+
+this approximation is actually exact on a tree-like topology, where
+@xmath is the degree of node @xmath .
+
+Then again it is possible to write:
+
+  -- -------- -- --------
+     @xmath      (3.29)
+  -- -------- -- --------
+
+and
+
+  -- -------- -- --------
+     @xmath      (3.30)
+  -- -------- -- --------
+
+where the first term is the energy given by the links and the second
+term is the excess of energy consequence of the fact that each node is
+counted more than once. Having this it is straightforward to write the
+Gibbs Free Energy and using the lagrange multipliers, @xmath and @xmath
+, to enforce the conditions on the probabilities:
+
+  -- -- -------- -------- --
+        @xmath   @xmath   
+                          
+        @xmath   @xmath   
+                          
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+the equations that the beliefs should satisfy are obtained or
+
+  -- -- -------- -------- --
+        @xmath   @xmath   
+                          
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+where @xmath and @xmath are constants that enforce the normalization
+conditions and where @xmath and @xmath . Finally by using the
+normalization condition (3rd of equations ( 3.5 )) it is possible to
+write a self consistent equation for the lagrangian multipliers @xmath :
+
+  -- -- -- --------
+           (3.33)
+  -- -- -- --------
+
+Using this equation it is possible to find the @xmath that minimize the
+Gibbs Free Energy thus solving the problem. In [ 91 ] authors showed
+that
+
+  -- -------- -- --------
+     @xmath      (3.34)
+  -- -------- -- --------
+
+where @xmath is defined by:
+
+  -- -------- -- --------
+     @xmath      (3.35)
+  -- -------- -- --------
+
+where:
+
+  -- -------- -- --------
+     @xmath      (3.36)
+  -- -------- -- --------
+
+Thus we showed that solving the cavity (BP) equations is equivalent to
+search for the minimum of the Gibbs free energy in a system in which the
+Bethe approximation hold. This is a very important result as it can help
+to understand how and why these equations are failing in some systems.
+
+In cases in which it is not possible to make the simplification of
+removing the factor node (see Figure 3.6 ), equation ( 3.35 ) is written
+as
+
+  -- -- -------- -------- --
+        @xmath   @xmath   
+                          
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+As before it is possible to define the quantities @xmath , @xmath and
+@xmath .
+
+Using these definitions, the free energy ( 3.12 ) can be written as
+
+  -- -------- -- --------
+     @xmath      (3.38)
+  -- -------- -- --------
+
+where
+
+  -- -- -------- -------- --
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+Hence still the free energy is divided between a contribution given by
+the nodes (factor node @xmath and variable node @xmath ) and a
+contribution given by the links ( @xmath ).
+
+### 3.6 Algorithmic point of view
+
+From an algorithmic point of view, the cavity method can be solved by
+using a Belief Propagation (BP) algorithm. As already presented in
+Section 3.3 in the BP approach, cavity marginals are considered as the
+“beliefs” that a variable has about the state of its neighbours.
+Following this logic, it is possible to write an algorithm in which the
+beliefs satisfying the cavity equations (see Section 3.3 ) are computed
+iteratively until convergence. Thus at convergence it is possible to
+obtain the marginal on any variable of the system, @xmath . As presented
+in Section 3.5 , the BP picture is equivalent to what in physics is
+called the Bethe Approximation where neighbours to variable @xmath are
+considered indipendent between each other when @xmath is removed. Hence
+this approximation is valid until no long range correlation is present,
+i.e. in systems with few short loops or not undergoing a phase
+transition (this will be discussed in detail in Section 3.7 ).
+Nevertheless it has been observed that BP is able to converge also in
+systems in which these assumptions do not hold [ 92 ] . In these cases
+it has to be checked if the approximate results still are describing the
+properties of the system.
+
+In many problems in which BP is applied, it is observed that at
+convergence of the algorithm a fraction of the variables has a higly
+polarized marginal, thus being “frozen” variables. The size of this
+fraction depend on which part of the phase space we are exploring (see
+Section 3.8 for a better understanding). This property has been
+exploited to develop a Warning Propagation (WP) algorithm [ 93 ] in
+which each constraint sends to its variable a message @xmath if the
+variable has to be switched off, @xmath if the variable has to be on and
+@xmath if it cannot constrain the variable. This is equivalent of
+considering a cost function that counts the number of violated
+constraints. Using WP the information given by the variables frozen
+during BP iterations is propagated, thus using these two algorithms
+(WP+BP) together it is possible to improve the convergence of BP [ 94 ,
+95 ] .
+
+When it is important to recover the configurations of the system that
+satisfies the equations, it is possible to resort to a Decimation
+Procedure [ 94 ] . In this procedure first the BP marginals are
+computed, then the most biased marginals are set according to the
+marginal, thus the “hard” information is propagated by WP and finally
+the process is repeated until all variables are set or a contradiction
+is found.
+
+If one is interested in studying the solutions of the cavity equations
+for typical graphs extracted from a given ensemble, it is possible to
+use a Population Dynamics Algorithm (POPDYN). In this algorithm the
+network is constructed (following the degree distribution of the
+ensemble) while the algorithm is running. Thus in this way, it is
+possible to study the equations for a population of variables in the
+ensemble under study. Hence at convergence the marginal of the variables
+averaged over the ensemble, @xmath , is obtained, where @xmath denotes
+the average over the probability distribution of the degrees.
+
+All the algorithm used, specified to the CSPs presented in Section 2.1
+are presented in Appendix B .
+
+### 3.7 Failure of the cavity approach
+
+As already explained in Section 3.5 , the cavity equations are derived
+under a Bethe approximation. Clearly there are situations in which this
+approximation is strongly wrong and in these cases the equations can in
+principle have no solutions and the algorithm could not converge. In
+this Section we would like to revise the possible causes for which the
+algorithm will not work.
+
+As already presented in the latter Section, in the Bethe approximation
+it is assumed there is a unique state of the system or that if we remove
+variable @xmath from the system, its neighbours are indipendent between
+each other. This assumption do not hold in cases in which the topology
+of the graph has many short loops or when the phase space of the system
+can be divided in many “pure” states [ 80 ] . In these cases the
+messages that neighbours are sending are not independent hence the BP
+equations are not exact. Nevertheless in many cases in which these
+things are not true, BP algorithm reaches a fixed point.
+
+The problem of the division of the phase state in many pure states is
+well known in Statistical Physics as it has been treated in the study of
+spin glasses [ 80 ] . A spin glass is a system of spin variables where
+the interaction terms are assigned at random. The cavity method has been
+developed to deal with these problems and it is understood that the
+cavity equations correspond to the Replica Symmetric (RS) phase of the
+system. In this phase only one pure state exist and thus the cavity
+equations are valid. However this approximation is not always holding
+because in these systems it is possible to have what is called a Replica
+Symmetry Breaking (RSB). In this situation, an exponential number of
+pure states is present in the system, hence bringing to the failure of
+the RS approach. Nevertheless using a step by step breaking of the
+symmetry of the replicas it is possible to find the equations also in
+this part of the phase space. Following this ideas, the authors of [ 96
+] , developed a cavity method at 1-RSB step with which it is possible to
+find solutions (in population dynamics, see Section 3.6 ) also in the
+phase in which standard cavity equations do not hold.
+
+Another approach proposed to overcome this problem is the one in [ 91 ]
+. In this approach the authors search for a finer approximation of the
+Gibbs Free Energy using the Kikuchi approximation [ 97 ] . In this
+approximation the system is divided in overlapping clusters and then
+recombined trying to consider all the contributions given by the various
+clusters. Then using the ideas presented in 3.5 it is possible to find
+some “generalized” belief propagation equations that overcome some of
+the problems presented above.
+
+### 3.8 A complicated example: q-Col
+
+The q-coloring problem has already been introduced in 3.1 : in a
+nutshell, q-col is the problem of assigning a color to variables of a
+given graph using @xmath possible colors such that no two neighbouring
+variables have the same color. This problem has been widely studied in
+both Computer Science and Statistical Physics [ 78 , 98 , 99 , 100 ] .
+In this section we will briefly introduce the results obtained in [ 101
+] but we recommend the interested reader to read the article for a
+complete derivation. The problem for the purpose of this thesis is
+interesting because it presents the typical characteristics of complex
+systems like spin glasses still being a CSP.
+
+Consider a graph with @xmath vertices that can have states @xmath and
+@xmath edges, then it is possible to define an Hamiltonian in the form
+of a Potts model [ 102 ]
+
+  -- -------- -- --------
+     @xmath      (3.39)
+  -- -------- -- --------
+
+Hence this Hamiltonian give a positive contribution if neighbours have
+the same colors while no contribution is present when neighbours have
+different colours. From this Hamiltonian it is possible to derive a
+Gibbs measure over the configurations as
+
+  -- -------- -- --------
+     @xmath      (3.40)
+  -- -------- -- --------
+
+Using the cavity formalism presented in 3.3 , it is straightforward to
+derive the cavity equations:
+
+  -- -------- -- --------
+     @xmath      (3.41)
+  -- -------- -- --------
+
+It is also possible to derive the free energy for this system by
+recovering the free energy contribution for the variables:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and for the edges
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+thus obtaining:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+As already discussed all this derivation is made under the Bethe
+approximation (or RS approximation). Nevertheless the q-col problem
+present a very complex behaviour when the average connectivity of the
+graph, @xmath , varies. In Figure 3.7 the various phases in which the
+system undergoes are presented (taken from [ 101 ] ) where in black are
+represented the cluster of solutions with frozen variables (see Section
+3.6 ). From this Figure it is clear that for @xmath a large cluster of
+solutions exist and also if some cluster of solution appears, most of
+the solutions are still contained in the biggest one. This is the phase
+where BP converges without problem. Then in the region where @xmath ,
+many clusters of solutions are formed and also the giant cluster is
+divided in an exponential number of small one. In this region the BP
+algorithm starts to have problems, mainly due to the fact that messages
+coming from two neighbouring variables can be contradictory if in
+different clusters. From this point on the search for the solution
+become almost impossible (so far only the most probable unfrozen
+clusters have been sampled [ 103 ] ) and a condensed phase is formed
+where some cluster contain almost all of the solutions. When @xmath , a
+rigidity transition is happening, where most of the variables become
+frozen. Finally for @xmath no coloring is possible.
+
+### 3.9 References
+
+For this Chapter we used many standard references. From [ 104 ] the
+simplified description of the cavity method was taken, while from [ 105
+] we inspired ourselves for the example on the 1D Ising model. From [ 85
+] we derived the relationship between BP and Bethe approximation and
+from [ 106 ] we took the analysis on the q-Col. Throughout the Chapter
+we used [ 80 ] as a base reference for spin glasses, cavity and
+replicas.
+
+## Chapter 4 Results on random reaction networks
+
+### 4.1 Cavity equations
+
+As already explained in Chapter 3 , CSPs as Soft-MB or Hard-MB, can be
+solved efficiently on random networks by the belief propagation
+algorithm [ 82 ] or equivalently by the replica symmetric cavity method
+[ 79 ] . In this method, the marginal of a variable is computed by
+creating a “cavity” inside the system, removing a subpart of the
+network. Thus it is possible to obtain a “cavity marginal” and then
+reintroduce the variables removed. Finally the complete marginal of the
+variables follows directly from the cavity marginals.
+
+From an algorithmic point of view, it is possible to search for the
+solutions to the cavity equations by an iterative procedure, in which
+“messages” are exchanged between variable and function nodes (see
+Section 3.6 ). For the two CSPs defined in the latter Section, eight
+type of messages are required: @xmath , @xmath , @xmath , @xmath ,
+@xmath , @xmath , @xmath , @xmath . Each message represents the belief
+that a variable (function) has about its neighbouring function
+(variable) state. The messages can be divided in two classes: from
+function nodes to variable nodes and from variable nodes to function
+nodes. The first class of messages, e.g. @xmath , is the probability
+that metabolite @xmath is in state @xmath when there is only the
+function metabolite @xmath . While the second class, e.g. @xmath , is
+the probability that metabolite @xmath is in state @xmath when the edge
+@xmath is not present.
+
+The factor graph representation of our RRN is given in Figure 4.1 for
+Soft-MB and Hard-MB.
+
+Introducing a parameter @xmath to interpolate between Soft-MB ( @xmath )
+and Hard-MB constraints ( @xmath ), the equations to be satisfied by the
+messages in the two CSPs under study can be written as follows:
+
+  -- -- -------- --
+        @xmath   
+        @xmath   
+  -- -- -------- --
+
+  -- -- -------- --
+        @xmath   
+        @xmath   
+  -- -- -------- --
+
+The equations we have just written hold in Soft-MB or Hard-MB case, with
+the difference that in Soft-MB case reaction nodes are connected only to
+output metabolite functions, while in Hard-MB all metabolite functions
+are connected to reaction nodes. Another caution we have to take is that
+the reaction function node is connected only to the input metabolites
+[see equations ( LABEL:constraint_VN_final ) and (
+LABEL:constraint_FBA_final )] regardless of the constraints used.
+Writing explicitly the constraints we can compute the cavity equations
+obtaining, for the metabolite constraints,
+
+  -- -- -------- --
+        @xmath   
+        @xmath   
+        @xmath   
+        @xmath   
+  -- -- -------- --
+
+and, for the reaction constraints,
+
+  -- -- -------- --
+        @xmath   
+        @xmath   
+        @xmath   
+        @xmath   
+  -- -- -------- --
+
+Using these equations, we can iterate until convergence the algorithms
+presented in Appendix B.2 , finding solutions that satisfy the
+constraints and obtaining the cavity marginals. We can then compute the
+real marginals of the variable nodes as:
+
+  -- -- -------- --
+        @xmath   
+        @xmath   
+  -- -- -------- --
+
+where:
+
+  -- -- -------- --
+        @xmath   
+        @xmath   
+  -- -- -------- --
+
+The main assumption behind the cavity method is that the messages coming
+from two neighbouring nodes are independent. This clearly depends on the
+length of loops in the network: if the length of typical loops grows
+with the system size (as in RRN), then the above assumption can be
+valid, at least in the thermodynamic limit. As we can see clearly from
+Figure 4.1 short loops are not present in the Soft-MB, but they arise in
+the Hard-MB problem. If the assumption breaks down, then message passing
+algorithms may fail to converge. Though we will see in Section 4.4 that
+this is not the case here.
+
+### 4.2 Population dynamics
+
+In a nutshell, the setup presented in Chapter 2 aims at retrieving
+Boolean patterns of activity of reactions (or of metabolite
+availabilities) induced, on network architectures defined by @xmath and
+@xmath , by the fact that a certain set of metabolites (nutrients) is
+available from the outset, which happens with probability @xmath .
+Ideally, one would like to devise a method to sample configurations
+@xmath with a controlled probability given by
+
+  -- -------- -- -------
+     @xmath      (4.3)
+  -- -------- -- -------
+
+which forbids states that don’t satisfy all constraints. The ‘chemical
+potential’ @xmath appearing above can be tuned externally in order to
+concentrate the measure around configurations with a different average
+fraction @xmath of active reactions, where angular brackets represent
+the average with respect to the measure ( 4.3 ). In order to find the
+configurations of reaction and metabolite variables that solve the above
+CSPs one may resort to statistical mechanics techniques. In particular,
+we have used the cavity method to derive the belief propagation (BP)
+equations (see Section 3.6 for details) and then employed a population
+dynamics algorithm (see Appendix B.2 for details) in order to sample the
+corresponding solutions and, in turn, characterize the behaviour of the
+system in the typical case.
+
+We shall concentrate here on the scenario that emerges for different
+@xmath and @xmath upon varying two parameters, namely the chemical
+potential @xmath and the probability @xmath that nutrients are
+available. In specific, we have computed the average reaction activity
+and the average metabolite availability following two protocols: first,
+by gradually reducing @xmath starting from a large, positive value, and,
+second, by doing the reverse. Averages obtained in these ways will be
+denoted, respectively, by @xmath and @xmath . These averages (that we
+call magnetizations, using a statistical physics jargon) need not
+coincide, in which case the two quantities will display hysteresis when
+plotted against the chemical potential. Generally, the presence of
+hysteresis is a main characteristic of a discontinuous (first order)
+phase transition, while for continuous (second order) ones no hysteresis
+is observed, as also happens in cases where no phase transition takes
+place.
+
+#### 4.2.1 Soft Mass-Balance
+
+The average fractions of available compounds (metabolites) and active
+reactions obtained upon varying @xmath at fixed @xmath for Soft-MB is
+displayed in Fig. 4.2 . One sees that, expectedly, larger values of
+@xmath lead, on average, to larger fractions of available metabolites
+and of active reactions. For large enough values of @xmath and @xmath ,
+however, as the @xmath and @xmath averages become steeper functions of
+@xmath , the curves obtained by increasing and decreasing @xmath no
+longer coincide. Notice that, while for lower @xmath and @xmath
+solutions can be found over a broad range of values of the
+magnetizations, when @xmath and @xmath increase the average metabolite
+availability seems to concentrate in small ranges close to the extremes
+0 and 1, distinguishing solutions with few available metabolites from
+solutions with a large fraction of available compounds. This type of
+picture is however not observed for reactions (we shall return to this
+point later on).
+
+A simple way to quantify the onset of hysteresis is by measuring the
+quantity (we focus for simplicity on metabolites)
+
+  -- -------- -- -------
+     @xmath      (4.4)
+  -- -------- -- -------
+
+which vanishes when @xmath and generically differs from 0 in presence of
+hysteresis. A map of the values of @xmath in the parameter space @xmath
+is presented in Figure 4.3 for the limiting choices @xmath and @xmath .
+
+While hysteretic behaviour can be found practically all throughout the
+@xmath plane, it becomes stronger at high enough @xmath and @xmath ,
+where an abrupt jump in the magnetizations takes place. The presence of
+such a large hysteresis, and the coexistence of low and high
+magnetization solutions, signal a non trivial structure in the space of
+solutions to the CSP. Such a non-trivial structure appears also in many
+other well-known CSP, as the random k-XORSAT [ 107 ] and random k-SAT [
+108 , 95 ] , and is the origin of the onset of long range correlations,
+that have important consequences on the behavior of searching algorithms
+[ 109 ] . Away from the hysteretic portion, @xmath and @xmath vary
+smoothly with @xmath , allowing one to sample easily solutions with any
+magnetization not in the jump.
+
+On the other hand, the overall structure of the solutions (in terms of
+@xmath ) appears to vary weakly with @xmath . This strongly suggests
+that main observed effects (e.g. the jump and the hysteresis) are
+essentially due to topology of the network, rather than to the boundary
+conditions. It is interesting to observe that the hysteretic region
+shrinks as @xmath increases, suggesting that, within the constraints
+imposed by Soft-MB, a larger repertoire of available nutrients
+stabilizes the output by allowing to achieve higher values of the
+magnetization for smaller values of @xmath .
+
+#### 4.2.2 Hard Mass-Balance
+
+The @xmath -map for the Hard-MB case is displayed in Figure 4.4 . In
+contrast with the Soft-MB case, Hard-MB solutions display strong
+hysteresis for all choices of @xmath , @xmath and @xmath . Furthermore,
+comparing the results at @xmath and @xmath , it is clearly seen that,
+again, changing @xmath (i.e. increasing the number of available
+nutrients) has little influence on the overall structure of the phase
+space. Rather, its main effect is that of reducing the magnitude of
+hysteresis cycles. It is interesting to note that the maximum value of
+@xmath in Hard-MB is more than double than the one in Soft-MB.
+
+The presence of strong hysteresis markedly distinguishes the solution
+space of the two CSPs. A comparison between the behaviour of the
+magnetization obtained in the Soft- and Hard-MB cases for selected
+parameter values is displayed in Figs 4.5 and 4.6 . In first place, one
+sees that the limiting value of the average magnetization for @xmath in
+the Hard-MB problem is identical to that of the Soft-MB problem,
+suggesting that in specific cases the Hard-MB CSP may actually acquire a
+strong directional nature (like the Soft-MB case), despite the fact that
+in Hard-MB substrates and products are highly correlated between each
+other. Secondly, the increasing- @xmath protocol appears to be unable to
+identify active solutions in the Hard-MB case, suggesting that the
+Hard-MB constraints bias solutions towards activating a large fraction
+of metabolite nodes. In the Hard-MB case, it seems that it is possible
+to start from the all-on configuration and gradually switch off the
+network, but it is very difficult to switch on part of the network
+starting from the all-off configuration: for this reason the all-off
+solution is very stable in the Hard-MB case.
+
+Another way to visualize the hysteresis as a function of the parameters
+@xmath and @xmath is by plotting the spinodal points @xmath and @xmath ,
+i.e. the endpoints of the upper and lower branches of @xmath ,
+respectively. This is shown in Fig. 4.7 for both Soft-MB and Hard-MB.
+
+A more quantitative description of the stabililty of the null solution
+in the Hard-MB case is given in Fig. 4.8 , where we display the
+distribution of values of the magnetization for metabolites and
+reactions obtained for a value of @xmath at the transition.
+
+From the distribution of metabolite availabilities one clearly sees
+that, generically, fluctuations are larger in Soft-MB than in Hard-MB,
+implying that, while Soft-MB sustains non-trivial solutions over a wide
+range of values of the magnetizations, Hard-MB only admits solutions
+with a large and tightly constrained value of the average metabolite
+availability. Interestingly, the overall structure of the distributions
+changes when one considers reactions, for which both Soft- and Hard-MB
+can lead a large variability (much larger, in turn, than what occurs for
+metabolites). This is consistent with our constraints, which do not
+impose to activate a reaction even when all of its neighbouring
+metabolites are available. Note that both for reactions and metabolites
+Soft-MB allows for solutions with very low magnetization that are
+generically absent in Hard-MB.
+
+Finally, we notice that not all of the solutions to Hard-MB would be
+able to carry non-vanishing fluxes in the linear problem defined by (
+2.1 ), which is only possible if the number of available metabolites
+does not exceed that of active reactions. To see this, one can compare
+the quantities @xmath and @xmath , see Figure 4.9 (left panel), which
+are respectively the number of equations and the number of unknowns in
+the FBA problem.
+
+It is clear that only for sufficiently large values of @xmath will
+Boolean configurations correspond to realizable flux states in FBA. This
+confirms the intuition that redundant network structures (larger @xmath
+’s) confer flexibility (i.e. the possibility of operating in different
+states) to a reaction network. What looks counterintuitive in Figure 4.9
+(left panel) is that small @xmath values are also to be preferred. An
+explanation to this fact can be obtained by plotting @xmath versus
+@xmath (right panel in Figure 4.9 ), and noticing that data with
+different @xmath values fall on the same curve. Since the data in the
+left panel of Figure 4.9 are obtained by multiplying the @xmath values
+in the right panel by @xmath , large @xmath data are more keen to cross
+the line at the boundary of the feasible solutions region.
+
+In the right panel of Figure 4.9 we also notice that @xmath spans a
+rather limited range (roughly @xmath ) which is mostly independent on
+the topology (i.e., on @xmath ), while the range of valid @xmath values
+becomes very broad for redundant networks (i.e., for large values of
+@xmath ). In other words, solutions to the Boolean constrained problem
+on a RRN do exist only if a very large fraction of metabolites are
+present, while the fraction of active reactions can be made small only
+if the topology is redundant enough.
+
+### 4.3 Mean Field Theory: Network Expansion revisited
+
+#### 4.3.1 The problem
+
+The basic idea behind NE is that, given a seed compound (e.g. a
+nutrient), a reaction can (and will) activate when all its substrates
+are available (AND-like constraint), whereas a compound will be
+available if at least one of the reactions that produce it is active
+(OR-like constraint). The numerical procedure of NE transfers the
+information about the availability of certain metabolites across the
+network links, as explained pictorially in Fig. 4.10 . We shall term
+this type of process a Propagation of External Inputs (PEI).
+
+It is simple to understand that, as soon as the reaction network departs
+from a linear topological structure, the propagation will likely stop
+after a small number of steps unless the availability of additional
+compounds is invoked. Indeed, in Network Expansion PEI is aided by the
+assumption that highly connected metabolites like water are abundant.
+Because of its intuitive appeal, it is useful to analyze briefly the
+properties of PEI in somewhat more detail.
+
+Within a Mean-Field Approximation, one can write down equations for the
+probability @xmath that reaction @xmath will be active and for the
+probability @xmath that metabolite @xmath will be available by simply
+considering that, under PEI in a given network, a reaction can activate
+when all of its inputs are available and a metabolite becomes available
+when at least one reaction is producing it. This implies that
+
+  -- -------- -- -------
+     @xmath      (4.5)
+     @xmath      (4.6)
+  -- -------- -- -------
+
+where @xmath and @xmath denote the set of incoming links of nodes @xmath
+and @xmath , respectively. To prove the link between PEI and the CSPs
+defined above, note that, using the definition ( 4.3 ) one can easily
+compute the mean values
+
+  -- -------- -- -------
+     @xmath      (4.7)
+     @xmath      (4.8)
+  -- -------- -- -------
+
+Under the Mean Field Approximation, we can set
+
+  -- -------- -- --------
+     @xmath      (4.9)
+     @xmath      (4.10)
+  -- -------- -- --------
+
+which in turn implies
+
+  -- -------- -- --------
+     @xmath      (4.11)
+     @xmath      (4.12)
+  -- -------- -- --------
+
+In the limit @xmath we have
+
+  -- -------- -- --------
+     @xmath      (4.13)
+  -- -------- -- --------
+
+So that equations ( 4.5 ) and ( 4.6 ) are recovered. In other terms, PEI
+is Mean Field Approximation at @xmath of the CSPs considered in Section
+4.2 .
+
+It is simple to derive analytically the phase diagram of PEI in the
+ensemble of RRN defined in Section 4.2 . In this ensemble, the
+probability that a metabolite is available is
+
+  -- -------- -- --------
+     @xmath      (4.14)
+  -- -------- -- --------
+
+where the over-bar denotes an average over the network realizations.
+Using ( 4.5 ) and ( 4.6 ) one sees that
+
+  -- -- --
+        
+  -- -- --
+
+where we have assumed that nutrients (fractionally given by roughly
+@xmath nodes) have a fixed probability @xmath of being available and
+where @xmath is the distribution of metabolite in- (and out-)degrees. In
+turn, this gives
+
+  -- -------- -- --------
+     @xmath      (4.15)
+  -- -------- -- --------
+
+where @xmath is the probability that a reaction is active, which,
+recalling that the in- and out-degrees of reactions are distributed
+according to @xmath , satisfies (within a Mean-Field Approximation)
+
+  -- -------- -- --------
+     @xmath      (4.16)
+  -- -------- -- --------
+
+Putting things together, @xmath is seen to satisfy the condition
+
+  -- -------- -- --------
+     @xmath      (4.17)
+  -- -------- -- --------
+
+which can be solved for @xmath upon changing the values of @xmath ,
+@xmath and @xmath . The resulting phase diagram, based on the behaviour
+of the solution @xmath , is displayed in Figure 4.11 .
+
+Three regions can be distinguished in the @xmath plane. In region I,
+Equation ( 4.17 ) has a unique solution and @xmath is a monotonous
+function of @xmath (note that @xmath is always a solution when @xmath ).
+Outside region I, the curve @xmath vs @xmath displays an inflection
+point. If the point lies outside the interval @xmath (for both @xmath
+and @xmath ) then ( 4.17 ) has a unique non-zero solution for @xmath and
+two different solutions at @xmath (region II). In region III, instead, a
+range of values of @xmath exists where three distinct solutions (with
+different values of @xmath ) of ( 4.17 ) occur. This sector can be
+further divided according to the number of solutions found for @xmath
+and @xmath . The black dashed line marks the boundary between phases
+with, respectively, one and three solutions for @xmath while the dashed
+blue line separates the region with one and three solutions for @xmath .
+
+For any fixed @xmath , whenever solutions with different values of
+@xmath coexist, those with the smallest @xmath can be retrieved by
+straightforward PEI starting from a configuration where no metabolite is
+available except for nutrients. Solutions with larger @xmath , on the
+other hand, can be found by ‘reverse-PEI’. In this procedure a
+configuration where internal metabolites are all available and nutrients
+are fixed with probability @xmath is initially selected, and then a
+solution is found by enforcing the constraints in an iterative way. The
+results for both procedures are presented in Figure 4.12 for @xmath and
+@xmath (deep into region III in Figure 4.11 ).
+
+#### 4.3.2 Origin of the phase transition within the Mean-Field
+Approximation in PEI
+
+We show here that, from a physical viewpoint, the phase transitions
+occurring in PEI (see Figure 4.11 ) are, in essence, of a percolation
+type.
+
+To analyze the effectiveness of PEI, we start by identifying the
+so-called Propagation of External Regulation (PER) Core of the system [
+13 ] , that is the sub-network obtained by fixing the nutrient
+availability (with probability @xmath ) and then propagating this
+information inside the network. In this way, some variables will get
+fixed to either @xmath or @xmath . At convergence, a fraction @xmath
+(resp. @xmath ) of metabolites will be fixed to @xmath (resp. @xmath ),
+while a fraction @xmath (resp. @xmath ) of reactions will be fixed to
+@xmath (resp. @xmath ). One easily sees that, at the fixed point, the
+following equations hold:
+
+  -- -------- -- --------
+     @xmath      (4.18)
+     @xmath      (4.19)
+     @xmath      (4.20)
+     @xmath      (4.21)
+  -- -------- -- --------
+
+In turn, one obtains
+
+  -- -------- -- --------
+     @xmath      (4.22)
+     @xmath      (4.23)
+     @xmath      (4.24)
+     @xmath      (4.25)
+  -- -------- -- --------
+
+Unsurprisingly, the equations for @xmath and @xmath take us back to (
+4.17 ). On the other hand, the fraction of metabolites in the PER core
+is given by
+
+  -- -------- -- --------
+     @xmath      (4.26)
+  -- -------- -- --------
+
+Hence the fraction of metabolites that are not fixed by propagating
+nutrient availability is given by @xmath , and the maximum achievable
+magnetization for metabolites is given by @xmath . Figure 4.14 displays
+the different contributions for a specific choice of the parameters,
+together with the corresponding solution of Eq. ( 4.17 ).
+
+The excellent agreement of @xmath with the analytical line for the
+feasible values of the magnetization suggests that straightforward PEI
+will be able to recover solutions with lower magnetization when the
+latter coexist with high-magnetization solutions. On the other hand, the
+magnetization of the latter coincides, expectedly, with the largest
+achievable average metabolite availability. Finally, depending on the
+value of @xmath and @xmath , one obtains a single solution when no PER
+core exists, and two solutions (with magnetizations @xmath and @xmath )
+in presence of a PER core. Hence the transition is a typical percolation
+transition between a phase in which the internal variables are trivially
+determined by the nutrients (in absence of a PER core) to one in which
+the internal are not trivially determined (in presence of a PER core).
+
+### 4.4 Solutions on individual networks by Belief Propagation and
+decimation
+
+We turn now to the analysis of the Soft-MB and Hard-MB CSPs for general
+@xmath . In essence, we have derived the cavity equations for the CSPs,
+presented in Section 4.1 , and used the Belief Propagation (BP)
+algorithm discussed in Appendix B.1 to sample solutions on single
+instances of RRNs. Next, in order to obtain individual configurations of
+variables that satisfy our CSPs, we resorted to the decimation scheme
+presented in Appendix B.3 . Results are presented in Figures 4.15 and
+4.16 for Soft-MB ( @xmath ) and in Figures 4.17 and 4.18 for Hard-MB (
+@xmath ). BP results, labeled as ‘BP’, are compared with results
+retrieved by the population dynamics algorithm developed in Section 4.2
+(labeled ‘POP’ and corresponding to the ensemble average) and with the
+decimation results (labeled ‘DEC’). In Section 4.2 , the solution space
+was explored by two different protocols, which we also use here: by
+reducing @xmath starting from a large positive value ( @xmath in the
+Figure legends) and by doing the reverse ( @xmath in the Figure
+legends). If the decimation scheme does not converge, the corresponding
+point is absent.
+
+It is clear that decimation generically fails to converge close to the
+transitions both in the Soft-MB and, more severely, in the Hard-MB case.
+Apart from this, the three methods give results that are in remarkable
+qualitative agreement, including the ability to describe discontinuities
+in @xmath and @xmath upon varying @xmath . It is noteworthy that many
+different configurations appear to be feasible. These configurations are
+spread over a broad range of densities, especially in the Soft-MB case.
+So our method based on BP and decimation is able to sample the solution
+space by just varying a single parameter (the chemical potential @xmath
+in the present case), even in cases when only “extremal” solutions seem
+to satisfy the CSP for metabolite nodes (as e.g. in the left panel in
+Fig. 4.18 ) while the density of active reaction is varying in a more
+continuous manner (see the right panel in the same figure).
+
+As detailed in Appendix A , during decimation nutrients must be treated
+with special care. This is because the prior assignment of availability
+for each nutrient (which, as said above, follows a probabilistic rule
+with parameter @xmath ) does not always coincide, after decimation, with
+the frequency with which the nutrient is available in the final
+assignments (i.e. the actual solutions retrieved), which we denote as
+@xmath . We analyze the relation between the average magnetization of
+reactions and metabolites and both @xmath and @xmath in Figures 4.19 and
+4.20 . We first note that in this way we are able to obtain solutions at
+various @xmath clearly different from the corresponding values of @xmath
+. Moreover, solutions are rather stable against changes in @xmath , as
+is to be expected expected in random networks, at least for the Soft-MB
+problem. Hard-MB presents however more difficulties (not shown): because
+it typically admits solutions with either very high or very low
+magnetization, it turns out to be hard to obtain solutions with @xmath ,
+apart from the trivial case when the whole network is inactive.
+
+Finally we would like to compare the solutions of the complete problem
+to the solutions obtained using the Mean Field Approximation (MF)
+presented in the previous Section. Indeed Section 4.3.1 we showed how to
+obtain solutions for the MF problem at @xmath using the PEI or
+reverse-PEI procedure. However in order to compare the two approaches,
+the MF solutions at all @xmath have to be studied. This is possible by
+searching for solutions to the MF equations at finite @xmath ( 4.11 )
+and then using the same decimation procedure presented in Appendix B.3 .
+It is though important to notice that in the MF case both BP and
+decimation algorithm can be written in a simpler form as only one
+message per variable is needed, furthermore for @xmath BP and decimation
+together behave exactly as a Warning Propagation Algorithm [ 93 ] .
+
+Thus in Figure 4.21 we present the magnetizations @xmath and @xmath for
+solutions obtained using both MF and the complete problem for various
+@xmath . Here MF solutions are reported by crosses while by squares we
+presented the densities of the solutions obtained by the complete
+decimation algorithm. The @xmath density in the latter solutions seems
+to be always smaller than in MF. However we have to remind that our CSP
+allows configurations where a reaction is inactive even if all its
+neighbouring metabolites are present. In these cases the reaction can be
+switched on without violating any constraint. The data marked @xmath in
+Fig. 4.21 have been obtained by switching on all possible reaction
+without changing the configuration of metabolites. This is the upper
+bound for the reaction activity in the complete problem.
+
+From data shown in Figure 4.21 it is clear that the complete problem
+allows for a wider variability in the values of @xmath and @xmath .
+Moreover the solutions sampled in MF are a subpart of the solutions
+found in the complete problem. Nevertheless it could be useful on real
+networks because it is very simple to solve (hence sampling is much
+faster).
+
+## Chapter 5 Preliminary results on the metabolic network of E.Coli
+
+### 5.1 Our model in the real case
+
+In order to use the model we have developed in the latter Chapters on a
+real metabolic network we have to understand what we are interested in
+finding. Our main goal is to understand if with our method it is
+possible to find functional modules of the metabolic network. These
+modules should be functional in the sense that they do not represent an
+exact overlap of the biochemical pathways but they should represent ways
+in which the network can actually function. Another goal is to produce
+configurations of the network functioning that satisfy FBA requirements
+and that can grow. By doing this we could actually sample suboptimal
+configurations of the system and then check, using FBA, whether they are
+growing or not, thus reducing it to a possible biological space of
+solutions.
+
+In order to apply the model to real metabolic network, some adjustments
+have to be made. First of all it is important to understand that there
+is a huge quantity of external variables in E.Coli network. This is
+mainly due to the fact that E.Coli is a versatile bacteria that can live
+using many different substrates as main source of nutrition. For the
+purpose of this thesis we have decided to use the 7 metabolites that are
+essential for E.Coli to grow. Other choices could have been made but for
+the moment this one seemed the most interesting.
+
+It is interesting to note the fact that from an algorithmic point of
+view applying the model to the real system is a highly non trivial
+question. This is because in the real metabolic network many loops exist
+thus violating the independence of the neighbours (see Section 3.7 ).
+Another technical difficulty is connected to the fact that some
+metabolites participate in almost all reactions (as @xmath or @xmath )
+thus resulting in numerical precision errors when computing the
+messages. Nevertheless we will see that it is possible to overcome these
+problems and all the algorithms we presented in the previous Chapters
+function also in the real case.
+
+A very important characteristics of real networks that random network
+for sure don’t possess is the reversibility. It is possible for some
+reactions to function in either ways while other irreversible reactions
+are functioning only in one direction. This is clearly a very important
+aspect and it can be included in our model by adding an additional
+constraint between every two reversible reactions that makes it
+impossible for the two to function together. This clearly changes the
+form of the equations but as we can see in Section 5.2 not too much. It
+is though clear that it is impossible to add this additional constraint
+in the MF case for the same reason for which it is impossible to do a MF
+theory of the Hard-MB case: because it introduces too strong
+correlations to be analyzed in this way.
+
+We expect the solution space that we are sampling using our algorithms
+to be huge. This not only because the bacteria has evolved during
+millions of years to develop the behaviours useful for his survival, but
+also because we expect to sample a space bigger than the biological one.
+It is thus important to make some assumption on the solutions we will
+sample to restrict the possible outcome. We already enounced the most
+important assumption that is the request that the 7 nutrients and that
+the atpm reaction are present. Furthermore we will request in the
+following that a solution should also be a single connected component.
+This is to ensure that we are finding a solution that connects the
+inputs to the outputs of the system.
+
+### 5.2 Reversible reactions
+
+One of the most important features in real networks is the presence of
+reversible and irreversible reactions. The latter are reactions that can
+only function in one defined direction while for the others both
+directions are possible. In the metabolic network of E.Coli almost
+@xmath of reactions are reversible, hence this is a very important
+characteristic.
+
+To include this behaviour in the model we consider that each reversible
+reaction is represented in our network as a couple of reactions @xmath
+with reactants and products exchanged and whose states @xmath are
+coupled by a “reversible” constraint:
+
+  -- -------- -- -------
+     @xmath      (5.1)
+  -- -------- -- -------
+
+Asking for this constraint to be satisfied is equivalent to say: if
+direct (reversed) reaction is active, reversed (direct) reaction has to
+be inactive. But if direct (reversed) reaction is inactive, reversed
+(direct) reaction is not constrained.
+
+Hence the marginal of a reversible couple of reaction is given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath and @xmath is given by equation ( LABEL:proba_rel ). This
+can be written as:
+
+  -- -------- -- -------
+     @xmath      (5.2)
+  -- -------- -- -------
+
+Then the marginal at convergence is given by:
+
+  -- -------- -- -------
+     @xmath      (5.3)
+  -- -------- -- -------
+
+It is thus straightforward to understand that reversible reactions will
+send a message of the type:
+
+  -- -------- -- -------
+     @xmath      (5.4)
+  -- -------- -- -------
+
+where messages @xmath and @xmath are taken from Section 4.1 . Therefore
+it is possible to simulate a metabolic network with reversible reactions
+by modifying the equations introduced in Section 4.1 changing messages
+@xmath and @xmath .
+
+### 5.3 Mean Field Approximation
+
+As we already explained the MF case for @xmath is a different
+formulation of a better known problem called Network Expansion (NE) (see
+Section 1.4 ). We will thus present in a first part a comparison between
+the results obtained by our algorithm and the results it is possible to
+obtain in NE showing that our method and the previous method are
+consistent. In a second part we will focus on the study of the solution
+space of the expanded MF model where @xmath can be different from @xmath
+, showing that by analyzing the solutions, it is possible to recover
+meaningful dynamical modules of the network.
+
+#### 5.3.1 Comparison to Network Expansion
+
+As already presented in Section 4.4 , with our method it is possible to
+recover the probability that a metabolite is present (absent) or that a
+reaction is functioning (not functioning). Furthermore for @xmath the
+solution at convergence is also a configuration while for @xmath finite
+to obtain a configuration a decimation procedure is used.
+
+In Figure 5.1 we show the result of the decimation procedure for the
+network of E.Coli. To obtain the results in this Figure we used the
+method already presented in Section 1.4 . In this method water is always
+present and at turns each metabolite is used as seed (together with the
+water). As we can see from this Figure the size of the scopes grow in
+@xmath and reach a maximum at @xmath . This is as expected as @xmath
+regulates the number of active reactions. It is though interesting to
+note that the results found at @xmath reproduce the one in article [ 60
+] thus showing that with our method it is possible to recover known
+behaviours and generalize it.
+
+#### 5.3.2 The solution space
+
+We want to explore the solution space of the MF model (equations ( 4.11
+)) and understand if there is some interesting properties of the
+solution space. As we already explained, a good way to restrain the
+solution space to meaningful biological solutions is by requiring that
+the solution found at convergence is connected. Furthermore we will
+require in this part that the 7 nutrients necessary for E.Coli to grow
+(see Section 2.2 ) are present.
+
+The protocol that we will use in this part to sample the solutions will
+be to require that the internal metabolites are present with a
+probability @xmath little (ranging from @xmath to @xmath ) while the
+nutrients have to be present. This procedure is repeated @xmath times
+thus the total number of solutions will depend on this parameter. In
+Figure 5.2 we can see the results of this procedure for the network of
+E.Coli at @xmath where, inspired by NE, we defined the scope @xmath as
+the fraction of metabolites present at convergence given the seed @xmath
+present at time @xmath . It is interesting to notice that it is possible
+to arrive to a scope @xmath with as little @xmath metabolites ( @xmath
+of the total size) present at the beginning.
+
+By changing @xmath , it is possible to sample solutions with different
+numbers of reactions functioning obtaining Figure 5.3 . Here we see
+clearly that changing @xmath it is possible to sample solutions with
+bigger number of functioning reactions. Looking at the right part of
+Figure 5.3 , that is the cumulative histogram over all @xmath , it is
+clear that there is a part of the solution space for @xmath that it is
+easier to sample. We expect that these two parts, having different
+average number of active reactions, will have different properties. Thus
+in the following we will analyse these two parts independently and we
+will refer to @xmath for the right part ( @xmath ) and @xmath for the
+“left” part ( @xmath ).
+
+In the following we will focus on the reactions as they have already
+been divided in pathways (see Chapter 1 ) thus it will be easier to
+understand if the modules we are finding have an actual biological
+interpretation. But in order to find out if there exist an organization
+of the reactions for the solutions we are sampling, we have to decide in
+which way we want to analyze the correlation. In a boolean case, the
+definition of a useful correlation is not trivial at all. This is
+because with boolean variables it is possible that some variables are
+frozen thus it is not very interesting to use a correlation in which the
+fluctuation around the mean is used. Furthermore we are interested in
+recovering groups of reactions that are working together. Ideally if two
+reactions are inside the same functional module, they should always be
+working/not working together. Thus a good correlation matrix is one of
+the form:
+
+  -- -------- -- -------
+     @xmath      (5.5)
+  -- -------- -- -------
+
+where @xmath is the state of variable @xmath . Thus we computed the
+correlation matrix for both @xmath and the aggregated data for all
+@xmath together. Then using the correlation matrix, it is possible to
+cluster the reactions in modules. In order to do this we have first to
+choose a cutoff, @xmath such that @xmath if @xmath and @xmath otherwise.
+The @xmath that we obtain at the end of this process can be considered
+as an adjacency matrix of a “correlation graph”. It is thus possible to
+find the connected components of this graph, obtaining the modules of
+reactions that are correlated.
+
+Clearly all this process is highly dependent on the choice of @xmath as
+for @xmath , all reactions will be in the same module while for @xmath
+all reactions will be in separate modules. A method to choose the right
+cutoff is given in article [ 110 ] . Here authors consider that the
+right @xmath can be chosen by finding the maximum of @xmath versus
+@xmath , where @xmath can be seen as the entropy intrinsic in the sample
+and @xmath is the entropy of the particular choice of clustering made.
+Considering a choice @xmath one can define @xmath as the number of
+modules obtained by clustering and @xmath as the number of modules with
+size @xmath , thus @xmath . Using these definitions it is possible to
+write:
+
+  -- -------- -- -------
+     @xmath      (5.6)
+  -- -------- -- -------
+
+where we have written the probability that a reaction is in a cluster
+with size @xmath as @xmath . Furthermore @xmath can be written as:
+
+  -- -------- -- -------
+     @xmath      (5.7)
+  -- -------- -- -------
+
+It is thus possible to compute these quantities in our solutions as
+presented in Figure 5.4 and 5.5 for both @xmath on the left and for the
+cumulative result on all @xmath on the right.
+
+Thus using the value of the cutoff at the maximum of @xmath , it is
+possible to recover the modules that best represent the reaction
+interaction for both the “right” and the “left” part of the solution
+space. Results are presented in Figures 5.6 for the right part and in
+5.7 for the left part; in each Figure we plotted the percentage of a
+pathway that is contained in the 15 biggest modules of the network, for
+both @xmath (left) and all together (right). Thus if a pathway do not
+reach @xmath in this plot, this means that its reactions are not inside
+one of the biggest module. In Figure 5.6 we see that the modules on the
+right for @xmath contains all the necessary pathways for the aerobic
+respiration, considering then that the uptakes of the @xmath is always
+functioning (as it is one of the nutrients), we can be positive that
+this is the case. This is better represented in Figure 5.8 where the
+biggest pathway on the right is superposed to the metabolic map, to
+stress what this module function is. Clearly the whole respiration is a
+composition of many modules, but the biggest module is already taking
+most of the behaviour. The same is not true on the left part, where we
+have still not a good interpretation of what the function of these
+modules could be. It is interesting the fact that in each case, the
+modules that it is possible to find using all @xmath ’s or only @xmath
+can differ in some components but generally seem to represent the same
+biological function as the most important pathways are present.
+Furthermore, the fact that in Figure 5.7 the biggest module using all
+@xmath is much bigger than the one only at @xmath seems to suggest that
+part of the accuracy of the reconstruction of the modules is dependent
+on how many solutions are sampled in this part. It is also interesting
+that some modules take exactly a pathway and that some pathways are
+divided into two or three modules only.
+
+### 5.4 Soft and Hard Mass Balance
+
+In this section we want to review the main results obtained so far in
+the Soft- and Hard-MB case. First of all we would like to understand if
+the properties of these CSPs observed in random networks hold also in
+real networks. In order to do this, we developed a BP algorithm solving
+the cavity equations derived in Section 4.1 for the non reversible case.
+Furthermore it is also possible to apply the decimation procedure
+presented in Appendix B to obtain configurations of metabolites and
+reactions that satisfy our constraints. It is thus possible to sample
+the phase space using the same procedure presented in Chapter 4 finding
+the results presented in Figure 5.9 for Soft-MB and in Figure 5.10 for
+Hard-MB. In this plots we present the results for @xmath and using the
+E.Coli network in which all reversible reactions are written once.
+
+As already explained in Section 4.4 , in order to obtain configurations
+of the system using the decimation, the nutrients are decimated
+according to the internal marginal. This means that, as opposed to the
+MF case, it is possible that in the complete problem, not all of the 7
+nutrients are used together in a solution as the only compulsory
+requirement is that the solution is connected and that the ATPM is
+functioning. It is then possible to verify which solution is using which
+nutrient, to understand the organization of the solution space (work in
+progress).
+
+It is thus clear from these results that exactly as we found on the
+random network, Soft-MB seems to undergo a continuous transition while
+in Hard-MB the transition is discontinuous. In the random network, due
+to the presence of the giant components, in the Hard-MB case the only
+values of the magnetization possible where @xmath or @xmath . Instead
+here many possible states are reached during the transition, showing the
+complexity of the real network. We expect that each plateau of the
+magnetization represents a state of the system and that each time there
+is a transition, the system is switching from one state to another. This
+is seen in Figure 5.11 where we see the marginal of the reactions for
+all @xmath ’s. As we can see, the marginals are polarized and not all
+values of the marginal are possible.
+
+## Chapter 6 Conclusions and Outlook
+
+In this Thesis we presented a work on the metabolic network from both a
+theoretical and a practical point of view. We first recalled basic
+biological and statistical mechanics concept and theories in Chapters 1
+and 3 . Then we defined in Section 2.1 two novel types of Constraint
+Satisfaction Problems representing known biological approaches in the
+study of metabolic networks (FBA 1.2 and VN 1.3 ). In order to study
+this problem we presented the representation of the real metabolic
+network and its random equivalent the Random Reaction Network in
+Sections 2.2 and 2.3 . We thus studied the problem in the random system
+by deriving the cavity equations for the problem 4.1 finding a
+convenient notation to write both CSP problems in a common way. Then we
+studied the random problem in depth by studying both the RRN ensemble
+(using population dynamics) and the single RRNs (using BP) in Sections
+4.2 and 4.4 . We also showed that the Mean Field approximation of our
+model, Section 4.3 , correspond to the Network Expansion approach for
+metabolic network (see Section 1.4 ). Finally in Section 5 we showed
+preliminary results of applying our algorithm on real metabolic
+networks.
+
+We wanted by this study to understand the possibilities behind a
+theoretical approach in metabolic network analysis. Most of this Thesis
+was devoted to understand how to effectively model known biological
+approaches on random reaction networks. It was difficult to find how to
+formalize these approaches in terms of CSPs but we believe to have shown
+that the study of the properties of the Soft-MB (both MF and complete)
+and Hard-MB shows a highly non trivial organization of the phase space
+on random networks. Furthermore, we think that it is overall interesting
+to understand how the various approaches developed by biologists are
+related to them.
+
+If on the one hand, we believe our work to be a quite comprehensive
+study of the properties of the Soft-MB and Hard-MB problems on random
+networks, on the other hand the results presented on the real network
+are only a sketch of the potentiality of our method. Indeed in the real
+network we have encountered many difficulties as long as the algorithms
+are concerned. It is though conforting that the irreversible Soft-MB and
+Hard-MB problems give a interesting insights on the properties of the
+real network. Especially the behaviour of the magnetization on the
+Hard-MB problem show that with our approach it is possible to highlight
+properties of the structure of the real network. Furthermore we believe
+that the results on the functional modules using the MF approximation
+could be interesting from a practical point of view and could be used by
+biologist to better understand the metabolic network and its properties.
+
+In the near future, we will try to takle the most important issues. The
+first step will be to develop the reversible BP and decimation
+algorithm, applying the considerations of Section 5.2 . Then we would
+like to analyze the Soft-MB solutions by dividing them in classes of
+input and output usage. Thus it shoule be possible to divide these
+groups of solutions in modules of reactions, using the method presented
+in Section 5.3.2 , and understand which biological functions we are
+actually sampling. Hopefully the analysis in this case should extend the
+results on functional modules of the MF case. The second step will be to
+select the reactions in the Hard-MB case that have a polarized marginal.
+It should then be possible to use these informations about the reactions
+to sample solutions of FBA (by running a linear programming algorithm)
+that are growing less than the maximal growth rate.
+
+## Appendix A Nutrients and Outputs
+
+### a.1 Random case
+
+How to deal with the nutrients (metabolites with in-degree 0 and
+out-degree larger than 0) and the outputs (metabolites with in-degree
+larger than 0 and out degree 0) is probably the trickiest part of the
+network analysis. Indeed looking at the cavity equations derived in 4.1
+, we immediately see that nutrients and outputs are automatically
+switched off because in these cases @xmath , while in real systems these
+variables are usually active, as they represent the interaction with the
+environment. To overcome this limitation we will consider in the
+following that nutrients are external variables fixed by the environment
+and thus have a probability of being present @xmath . Furthermore these
+variables send a message to the neighbouring reaction-constraint of the
+type:
+
+  -- -------- -- -------
+     @xmath      (A.1)
+  -- -------- -- -------
+
+On the other hand the products are internal variables with no reaction
+constraint node associated, a probability of being present @xmath (taken
+from LABEL:proba_rel ) and send a message:
+
+  -- -------- -- -------
+     @xmath      (A.2)
+  -- -------- -- -------
+
+to the neighbouring metabolite-constraint node. Furthermore the
+metabolite-constraint has to be a Soft-MB constraint otherwise the
+outputs would be always off in the Hard-MB case. A schematic view of the
+form of the network for the external metabolites is presented in Figure
+A.1 .
+
+In principle for the outputs it is possible to define another parameter
+@xmath as:
+
+  -- -------- -- -------
+     @xmath      (A.3)
+  -- -------- -- -------
+
+to force the network to switch on a fraction of outputs. Nevertheless it
+is then required to check at convergence of the algorithm that this
+value is consistent with the value of @xmath . A simple way to check
+this is by measuring @xmath and checking if this value is consistent
+with the value of @xmath given as a parameter. In Figure A.2 this check
+is done for a particular case. In this Figure we see that there is only
+one value of @xmath consistent with @xmath (this result holds similarly
+for Soft-MB and Hard-MB, and for any @xmath and @xmath ). We then
+verified that this solution is exactly the same as the one obtained by
+using equation ( A.2 ), hence showing that the parameter @xmath is not
+necessary to explore all the possible solutions of the outputs.
+
+As a consequence of this setting on the inputs and outputs, the presence
+of the nutrients is determined by the parameter @xmath while the
+presence of the outputs is determined at convergence depending on the
+state of the network.
+
+### a.2 Real network
+
+In the real network the relationship nutrient and metabolite with in
+degree @xmath is not always satisfied. Furthermore in the real network
+it is possible to have reactions with in degree @xmath (the uptakes) and
+with out degree @xmath (outtakes). The simplest way to adapt the program
+functioning on random network for this case is by considering that
+
+-   Metabolites with in degree @xmath do not have a metabolite
+    constraint attached and that are not nutrients have @xmath .
+
+-   Nutrients have @xmath either if they have in degree @xmath or not.
+
+-   Reactions with in degree @xmath do not have a reaction constraint
+    attached and have @xmath .
+
+-   Reactions with out degree @xmath are not a problem as the equations
+    derived in Section 4.1 are still valid.
+
+## Appendix B Algorithms
+
+### b.1 Belief Propagation Algorithm
+
+In a nutshell, in BP it is considered that each variable sends a message
+to its neighbours. This message represents the belief that the variables
+has about the state of its neighbours. The outcome of this algorithm is
+the BP-marginal for variables, @xmath and @xmath .
+
+It is worth noting that while in the complete case many different
+messages exist between the variables (see Section 4.1 ), in PEI, that is
+in a Mean Field approximation, the messages are the same for all
+neighbours and correspond to @xmath and @xmath . Nevertheless the
+functioning of the algorithm is similar in the two cases: first we
+generate a RRN with a given @xmath and @xmath , then we initialize the
+messages (to a random value or to the last value computed) and we
+iterate the equations until convergence. Finally for the complete
+problem (in PEI the BP-marginal is equal to the marginal) at convergence
+it is possible to recover the marginals using equations (
+LABEL:proba_rel ) and ( LABEL:normalizations ). All networks used in
+this thesis have @xmath while @xmath .
+
+The simplest way to sample the solutions is by fixing one of the two
+free variables remained: @xmath or @xmath . By changing @xmath we can
+see how the configuration of the solutions changes when the nutrients
+have a probability @xmath of functioning. Whereas by changing @xmath we
+can observe what happens if we constrain the system to switch on (or
+off) the reactions. Each behaviour is interesting to understand how the
+system is organized. In each case the mean over the metabolites, @xmath
+, and the reactions, @xmath ( @xmath is the average over the measure
+@xmath , ( 4.3 )) has been computed.
+
+### b.2 Population dynamics
+
+BP equations presented in Section 4.1 are meant for inferring the
+marginal probabilities on a specific graph. However, when one is
+interested in the behavior of typical samples of the RRNs with given
+parameters @xmath and @xmath , then the equations presented in Section
+4.1 can be solved using population dynamics [ 79 ] . The idea behind
+this approach is that, instead of computing the messages on a given
+graph, one considers the probabilities, @xmath and @xmath , of having a
+message @xmath or @xmath in the system. Self-consistency equations for
+these probabilities can be written as follows:
+
+  -- -------- -- -------
+     @xmath      (B.1)
+     @xmath      (B.2)
+  -- -------- -- -------
+
+where the product is over the neighbours and the functions @xmath and
+@xmath are given by the equations in Section 4.1 . These population
+dynamics equations can be solved iteratively and once the fixed point
+has been reached, averages over the RRN ensemble can be directly
+computed.
+
+In the population dynamics algorithm, we start by initializing the
+system with a random population of messages and by fixing the parameters
+of the RRN, @xmath and @xmath . Then we iterate using the equations of
+Section 4.1 where the neighbours are extracted at random, using the
+distributions ( 2.11 ) and ( 2.12 ). This is done until convergence of
+the mean of the messages in the system. At convergence we can compute
+the mean value of the metabolites, @xmath , and reactions, @xmath , with
+respect to the ensemble of RRNs and over the measure ( 4.3 ).
+
+All the data shown in the present work have been obtained with a
+population with @xmath and @xmath derived from equation ( 2.13 ). We
+have checked that doubling the population has no relevant effects on the
+results obtained.
+
+### b.3 Decimation Procedure
+
+The BP algorithm is an efficient way for obtaining the probability that
+a variable take a certain state. Nevertheless one is generally
+confronted with the problem of obtaining actual configurations of
+variables that satisfy a CSP. In order to find it, we resorted to a
+decimation procedure already used in other cases [ 94 ] .
+
+In decimation, first BP is run and then the BP marginal is used as the
+real marginal of the variable, thus setting the variable to @xmath or
+@xmath according to the marginal . Hence during decimation, variables
+are set one at a time, starting from the most polarized (with
+BP-marginal near @xmath or @xmath ) then running BP to make sure that
+the constraints are satisfied and that no contradiction occurs. This
+procedure is then iterated until all variables are decimated or until
+some constraint is violated.
+
+Using this procedure it is thus possible to obtain a Boolean
+configuration that is a solution of the CSP problem under study. It is
+important to note that while BP is an unbiased way of sampling the
+solution space (at least for problems on random graphs), the decimation
+process is highly dependent on the procedure used to decimate.
+Nevertheless, if the procedure converges, the configuration found will
+be a solution of the CSP. Furthermore assuming BP marginals are unbiased
+for a RRN it is possible to understand whether we are sampling fairly
+well the solution space with decimation.
+
+In order to reproduce the behaviour presented in Section 4.2 , the
+algorithm that we used to obtain the results presented in Figures 4.15 -
+4.18 is an extension of the standard decimation procedure presented
+above. In our algorithm, for a given @xmath , first a BP solution is
+found and stored, then the system is decimated @xmath times each time
+starting from the same BP solution stored. Finally BP solution for the
+next @xmath is obtained by initializing the messages with the last
+stored BP solution. For each system under study we applied this
+procedure following the two protocols ( @xmath or @xmath ) presented in
+Section 4.2 . All the results in this article have been obtained with
+@xmath for the complete problem and @xmath for MF.

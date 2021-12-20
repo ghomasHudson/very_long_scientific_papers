@@ -1,0 +1,3255 @@
+## Chapter 1 Introduction
+
+### 1.1 Motivation
+
+Humans and other animals rely heavily on vision as a primary sensing
+modality for perceiving the world around them. Fundamentally, the brain
+makes sense of input from 2D retinal projections of the 3D physical
+world. These are sparse and incomplete, requiring the use of prior
+knowledge to infer scene structure and composition, and to recognize
+objects. As illustrated in Figure 1.1 , just by taking a single glance
+at a sofa, we can imagine what its likely 3D shape is, guiding how we
+could interact with it such as sitting on it or moving it closer to the
+table. In fact, we not only focus on the sofa in isolation, but
+simultaneously perceive the complex scene. For example, we can quickly
+identify the total number of seats available for our guests and localize
+the tables where we could serve the tea or coffee.
+
+A long-standing goal in computer vision is to build intelligent systems
+which have similar capabilities to infer the underlying 3D structure of
+individual objects as well as understand the composition of multiple
+objects within complex 3D scenes. These systems would inspire a wide
+range of applications in robotics and augmented reality (AR). For
+example, every family is likely to be equipped with an intelligent robot
+to provide daily services for people in the future. Given a single/few
+snapshot(s) of the kitchen from a camera or depth scanner, a robot is
+able to estimate the 3D shape of a mug, where the handle is, and then
+accurately pour hot coffee without spilling it or overfilling. Being
+able to understand the complex structure of the living room, the robot
+can naturally identify and localize all chairs, tables, couches, etc.,
+and smoothly navigate itself to deliver the coffee into our hands.
+
+However, building these intelligent systems is highly challenging for
+two fundamental reasons. Firstly, 2D visual projections theoretically
+have infinite possible 3D geometries, especially when the 2D projections
+are sparse ( e . g ., given a single or only a few views). Secondly,
+since real-world scenarios are usually a complex composition of objects
+and structures, many parts of the objects are occluded by one another,
+resulting in the sparsely observed scenes being incomplete and the
+individual objects fragmented. Overcoming these challenges requires the
+system to be able to effectively learn plausible geometric priors from
+visual inputs.
+
+Early methods to recover the 3D shape of an object mainly leveraged
+hand-crafted features or explicit priors [ Kanade1981 , Terzopoulos1988
+, Mukherjee1995 , Thrun2005 ] . However, these predefined geometric
+regularities are only applicable to limited shapes and also unable to
+estimate fine-grained geometric details. Prior attempts towards the more
+ambitious goal of understanding complex 3D scenes primarily focused on
+recovering a sparse 3D point cloud to represent the structure of scenes.
+These systems include the classic structure from motion (SfM) [
+Agarwal2009 , Sweeney2015 , Schonberger2016 , Ozyesil2017 ] and
+simultaneous localization and mapping (SLAM) [ Davison2007 ,
+Newcombe2011b , Newcombe2011a , Cadena2016 , Schops2019 ] pipelines, but
+they are unable to recognize and localize individual objects in the 3D
+space.
+
+The recent advances in the area of deep neural networks has yielded
+impressive results for a wide variety of tasks on 2D images, such as
+object recognition [ Krizhevsky2012b ] , detection [ Everingham2010 ]
+and segmentation [ He2017a ] , thanks in part to the availability of
+large-scale 2D datasets, e . g ., ImageNet [ Russakovsky2015 ] and COCO
+[ Lin2014 ] . In essence, these methods consist of multiple processing
+layers to automatically discover valuable representations from the raw
+data for classification or detection [ LeCun2015a ] . Applying this
+powerful data driven approach to tackle core tasks in 3D space has
+emerged as a promising direction, especially since the introduction of
+many large-scale real-world or synthetic datasets for 3D objects and
+scenes. For example, Wu et al . introduce the ModelNet dataset in [
+Wu2015 ] , Chang et al . present the ShapeNet dataset in [ Chang2015 ]
+and Koch et al . introduce the ABC dataset in [ Koch2018 ] . These are
+richly-annotated and large-scale repositories of 3D CAD models of
+objects. In addition to single objects, a variety of 3D indoor scenes
+with dense geometry and high dynamic range textures are collected in
+ScanNet [ Dai2017 ] , S3DIS [ Armeni2016 ] , SceneNN [ Hua2016 ] ,
+SceneNet RGB-D [ McCormac2017 ] and Replica [ Straub2019 ] , whereas
+large-scale 3D outdoor scenes are scanned by LiDAR in Semantic3D [
+Hackel2017 ] , SemanticKITTI [ Behley2019 ] and SemanticPOSS [ Pan2020 ]
+.
+
+However, the ability to unleash the full power of deep neural nets to
+learn rich 3D representations is still in its infancy, in spite of the
+availability of large datasets. This is primarily because 3D data are
+usually high-dimensional, irregular and incomplete. These issues serve
+as the main motivation of this thesis - to design novel neural networks
+to address core tasks for 3D perception such as object reconstruction
+and segmentation.
+
+### 1.2 Research Challenges and Objectives
+
+This thesis aims to design a vision system that is able to understand
+the geometric structure and semantics of the 3D visual world, from
+single or multiple scans of common sensors such as a camera, Kinect
+device or LiDAR. Instead of solving the entire task in one go, we
+instead approach it from a single object level to a more complex scene
+level. In particular, this thesis firstly aims to reconstruct the 3D
+shape of a single object from a sparse number of 2D images, and then
+focuses on interpreting more complex 3D scenes. However, learning to
+infer the object-level 3D shape and the scene-level semantics is
+non-trivial. More specifically, the challenges are three fold as
+discussed below.
+
+-    How to estimate the 3D full shape of an object when there is only a
+    single view. This is the extreme case where the sensed information
+    is limited and serves as a fundamental proof-of-principle for the
+    use of deep neural networks. The fundamental challenge is how best
+    to integrate the prior knowledge from the available datasets into
+    the deep network, since the single view itself is unable to recover
+    a full 3D shape.
+
+-    How to infer a better 3D shape when there are multiple views
+    available. Theoretically, given more input images, the 3D shape can
+    be estimated more accurately because more object parts are observed
+    from various angles and perspectives. However, to effectively
+    aggregate the useful information from different views is not easy.
+
+-    How to identify individual objects within complex 3D scenes. To
+    localize and recognize all 3D objects within a real-world scene is a
+    necessity for understanding the surrounding environment.
+    Nevertheless, 3D scenes such as point clouds are usually visually
+    incomplete and unordered, resulting in the existing neural
+    architectures being ineffective and inefficient.
+
+Motivated by these challenges, the thesis aims to achieve the
+corresponding three primary research objectives.
+
+-   The first objective is to recover the accurate 3D structure of
+    individual objects from a single view. Particularly, we aim at
+    estimating a dense and full 3D shape of an object from only one
+    depth image acquired by a Kinect scanner. Initially, a single depth
+    view together with camera parameters captures the partial shape of a
+    3D model. However, most object parts are occluded by the object
+    itself. In order to recover the full shape, the main objective is to
+    learn the prior geometric knowledge of possible object shapes, so as
+    to complete the occluded parts. This objective is achieved in
+    Chapter 3 .
+
+-   The second objective is to extend the single-view reconstruction
+    method to multi-view scenarios. Traditionally, the SfM and visual
+    SLAM pipelines usually fail when the multiple views are separated by
+    large baselines, because feature registration across views is prone
+    to failure. Ideally, the useful visual features across different
+    input views should be aggregated automatically, steadily improving
+    the estimated 3D shape as supplied with increasing information. This
+    objective is studied in Chapter 4 .
+
+-   The third objective is to identify all object instances from complex
+    3D scenes. In particular, given real-world 3D point clouds, obtained
+    from multiple images or LiDAR scans, we aim to precisely recognize
+    and segment all objects at the point level. This objective is
+    studied in Chapter 5 .
+
+### 1.3 Contributions
+
+In this section, the main contributions of each chapter in this thesis
+are summarized as follows.
+
+-   In Chapter 3 , we propose a deep neural architecture based on the
+    generative adversarial network (GAN) to learn a dense 3D shape of an
+    object from a single depth view. Compared with existing approaches,
+    our architecture is able to reconstruct a more compelling 3D shape
+    with fine-grained geometric details. In particular, the estimated 3D
+    shape is represented with a high resolution @xmath voxel grid,
+    thanks to our capable encoder-decoder and stable discriminator,
+    outperforming state-of-the-art techniques. Extensive experiments on
+    both synthetic and real-world datasets show the high performance of
+    our approach. The work is published in:
+
+    Bo Yang, Hongkai Wen, Sen Wang, Ronald Clark, Andrew Markham and
+    Niki Trigoni. 3D Object Reconstruction from a Single Depth View with
+    Adversarial Learning. International Conference on Computer Vision
+    Workshops (ICCVW), 2017 [ Yang2017b ] .
+
+    Bo Yang, Stefano Rosa, Andrew Markham, Niki Trigoni and Hongkai Wen.
+    Dense 3D Object Reconstruction from a Single Depth View. IEEE
+    Transactions on Pattern Analysis and Machine Intelligence (TPAMI),
+    2018 [ Yang2018 ] .
+
+-   In Chapter 4 , we propose a new neural module based on an attention
+    mechanism to infer better 3D shapes of objects from multiple views.
+    Compared with existing methods, our approach learns to attentively
+    aggregate useful information from different images. We also
+    introduce a two-stage training algorithm to guarantee the estimated
+    3D shapes being robust given an arbitrary number of input images.
+    Experiments on multiple datasets demonstrate the superiority of our
+    approach to recover accurate 3D shapes of objects. The work is
+    published in:
+
+    Bo Yang, Sen Wang, Andrew Markham and Niki Trigoni. Robust
+    Attentional Aggregation of Deep Feature Sets for Multi-view 3D
+    Reconstruction. International Journal of Computer Vision (IJCV),
+    2019 [ Yang2020 ] .
+
+-   In Chapter 5, we introduce a new framework to identify all
+    individual 3D objects within large-scale 3D scenes. Compared with
+    existing works, our framework is able to directly and simultaneously
+    detect, segment and recognize all object instances, without
+    requiring any heavy pre/post processing steps. We demonstrate
+    significant improvements over baselines on multiple large-scale
+    real-world datasets. The work is published in:
+
+    Bo Yang, Jianan Wang, Ronald Clark, Qingyong Hu, Sen Wang, Andrew
+    Markham and Niki Trigoni. Learning Object Bounding Boxes for 3D
+    Instance Segmentation on Point Clouds. Advances in Neural
+    Information Processing Systems (NeurIPS Spotlight), 2019 [ Yang2019d
+    ] .
+
+In addition to the above contributions which address the research
+challenges discussed in Section 1.2 , I have also made contributions to
+the following coauthored publications, which are related to my thesis,
+but will not be included.
+
+-   Bo Yang*, Zihang Lai*, Xiaoxuan Lu, Shuyu Lin, Hongkai Wen, Andrew
+    Markham and Niki Trigoni. Learning 3D Scene Semantics and Structure
+    from a Single Depth Image. Computer Vision and Pattern Recognition
+    Workshops (CVPRW), 2018 [ Yang2018b ] .
+
+-   Zhihua Wang, Stefano Rosa, Linhai Xie, Bo Yang, Niki Trigoni and
+    Andrew Markham. Defo-Net: Learning body deformation using generative
+    adversarial networks . In International Conference on Robotics and
+    Automation (ICRA), 2018 [ Wang2018a ] .
+
+-   Zhihua Wang, Stefano Rosa, Bo Yang, Sen Wang, Niki Trigoni and
+    Andrew Markham. 3D-PhysNet: Learning the intuitive physics of
+    non-rigid object deformations . In International Joint Conference on
+    Artificial Intelligence (IJCAI), 2018 [ Wang2018l ] .
+
+-   Shuyu Lin, Bo Yang, Robert Birke and Ronald Clark. Learning
+    Semantically Meaningful Embeddings Using Linear Constraints . In
+    Computer Vision and Pattern Recognition Workshops (CVPRW), 2019 [
+    Lin2018c ] .
+
+-   Wei Wang, Muhamad Risqi U Saputra, Peijun Zhao, Pedro Gusmao, Bo
+    Yang, Changhao Chen, Andrew Markham and Niki Trigoni. DeepPCO:
+    End-to-End Point Cloud Odometry through Deep Parallel Neural Network
+    . In International Conference on Robotics and Automation (ICRA),2019
+    [ Wang2019f ] .
+
+-   Qingyong Hu, Bo Yang*, Linhai Xie, Stefano Rosa, Yulan Guo, Zhihua
+    Wang, Niki Trigoni and Andrew Markham. RandLA-Net: Efficient
+    Semantic Segmentation of Large-Scale Point Clouds . Computer Vision
+    and Pattern Recognition (CVPR), 2020 [ Hu2020 ] .
+
+### 1.4 Thesis Structure
+
+The remainder of this thesis is organised as follows:
+
+-   Chapter 2 presents a comprehensive review of 3D perception of
+    objects and scenes.
+
+-   Chapter 3 introduces our 3D-RecGAN++ approach, a generative
+    adversarial network based method that predicts a dense 3D shape of
+    an object from a single view.
+
+-   Chapter 4 presents our AttSets module and FASet algorithm, an
+    attention based pipeline which steadily improves the estimated 3D
+    shapes given more input views.
+
+-   Chapter 5 presents our 3D-BoNet framework that simultaneously
+    recognizes, detects and segments all individual 3D objects in a
+    complex scene.
+
+-   The last Chapter 6 concludes the entire thesis and identifies a
+    number of future directions.
+
+## Chapter 2 Literature Review
+
+In this chapter, I discuss previous work related to 3D object
+reconstruction and segmentation. In particular, I will start reviewing
+existing efforts on 3D shape recovery from single and multiple views in
+Sections 2.1 and 2.2 , followed by deep neural algorithms designed for
+3D point clouds in Section 2.3 . Since the framework presented in
+Chapter 3 utilizes generative adversarial networks and the proposed
+neural module in Chapter 4 involves the attention mechanism and deep
+learning on sets, I therefore review generative adversarial frameworks
+in Section 2.4 , attention mechanisms in Section 2.5 and deep neural
+networks for sets in Section 2.6 . Lastly, Section 2.7 clarifies the
+relation and novelty of this thesis with regards to previous work.
+
+### 2.1 Single View 3D Object Reconstruction
+
+In this section, different pipelines for single-view 3D reconstruction
+or shape completion are reviewed. Both conventional geometry based
+techniques and state-of-the-art deep learning approaches are covered.
+
+(1) 3D Model/Shape Completion. Monszpart et al . use plane fitting to
+complete small missing regions in [ Monszpart2015a ] , while shape
+symmetry is applied in [ Mitra2006 , Pauly2008 , Sipiran2014 ,
+Speciale2016 , Thrun2005 ] to fill in voids. Although these methods show
+good results, relying on predefined geometric regularities fundamentally
+limits the structure space to hand-crafted shapes. Besides, these
+approaches are likely to fail when the missing or occluded regions are
+relatively large. Another similar fitting pipeline is to leverage
+database priors. Given a partial shape input, an identical or most
+likely 3D model is retrieved and aligned with the partial scan [ Kim2012
+, Li2015a , Nan , Shao2012 , Shi2016 , Rock2015 ] . However, these
+approaches explicitly assume the database contains identical or very
+similar shapes, thus being unable to generalize to novel objects or
+categories.
+
+(2) Single RGB Image Reconstruction. Predicting a complete 3D object
+model from a single view is a long-standing and extremely challenging
+task. When reconstructing a specific object category, model templates
+can be used. For example, morphable 3D models are exploited for face
+recovery [ Blanz2003 , Dou2017 ] . This concept was extended to
+reconstruct simple objects in [ Kar2015a ] . For general and complex
+object reconstruction from a single RGB image, recent works [ Gwak2017 ,
+Tulsiani2017 , Yan2016 ] aim to infer 3D shapes using multiple RGB
+images for weak supervision. Shape prior knowledge is utilized in [
+Kong2017 , Kurenkov2017 , Murthy2016 ] for shape estimation. To recover
+high resolution 3D shapes, Octree representation is introduced in [
+Tatarchenko2017 , Riegler2017 , Christian2017 ] to reduce computational
+burden, while an inverse discrete cosine transform (IDCT) technique is
+proposed in [ Johnston2017 ] along similar lines. Lin et al . [ Lin2017a
+] designed a pseudo-renderer to predict dense 3D shapes, whilst 2.5D
+sketches and dense 3D shapes are sequentially estimated from a single
+RGB image in [ Wu2017d ] .
+
+(3) Single Depth View Reconstruction. The task of reconstruction from a
+single depth view is to complete the 3D structure, where visible parts
+occlude other parts of the object. 3D ShapeNets [ Wu2015 ] is amongst
+some of the earliest work using deep neural nets to estimate 3D shapes
+from a single depth view. Firman et al . [ Firman2016 ] trained a random
+decision forest to infer unknown voxels. Originally designed for shape
+denoising, VConv-DAE [ B2016e ] can also be used for shape completion.
+To facilitate robotic grasping, Varley et al . proposed a neural network
+to infer the full 3D shape from a single depth view in [ Varley2017 ] .
+However, all these approaches are only able to generate low resolution
+voxel grids which are less than @xmath and unlikely to capture fine
+geometric details. Subsequent works [ Dai2017b , Song2017 , Han2017 ,
+Wang2017b ] can infer higher resolution 3D shapes. However, the pipeline
+in [ Dai2017b ] relies on a shape database to synthesize a higher
+resolution shape after learning a small @xmath voxel grid from a depth
+view, while SSCNet [ Song2017 ] requires voxel-level annotations for
+supervised scene completion and semantic label prediction. Both [
+Han2017 ] and [ Wang2017b ] were originally designed for shape
+inpainting instead of directly reconstructing the complete 3D structure
+from a partial depth view.
+
+(4) Different 3D Shape Representations. The works discussed above
+usually aim to reconstruct a 3D voxel grid to represent the object
+shape. Being concurrent to these approaches, the proposed neural
+algorithm in Chapter 3 is also based on voxel grids. Since 3D voxels are
+memory inefficient, more recent pipelines tend to learn point clouds,
+meshes, implicit surfaces and other intermediate representations for 3D
+shape reconstruction. In particular, PointSet [ Fan2017 ] is amongst the
+first works to learn a point-based 3D shape from a single image. A
+number of recent works further improve its performance using adversarial
+learning [ Jiang2018 ] , shape priors [ Li2019b ] and Silhouettes [
+Zou2020 ] , and some other works aim to recover denser point clouds as
+in [ Lin2017a , Lu2019 , Mandikal2019 , Peng2020 , Liu2020 ] . A number
+of unsupervised/weakly-supervised frameworks [ Insafutdinov2018 ,
+Cha2019 , L2019 ] are also proposed for point-based 3D reconstruction.
+To recover a 3D mesh from a single image, early works learn to deform a
+template mesh in [ Kato2017 , Wang2018f , Wen2019 , Tang2019 , Liu2019e
+, Pan2019 , Groueix2018 , Deprelle2019 ] , while a number of recent
+works learn to generate polygon meshes directly from images in [
+Chen2020 , Nash2020 ] . Instead of recovering explicit 3D shapes, a
+number of recent works learn implicit surfaces in [ Park2019 ,
+Mescheder2019 , Chen2019g ] . This pipeline is further improved by [
+Liu2019b , Niemeyer2019 , Sitzmann2019 ] in which the 3D supervision is
+no longer required. Some other intermediate representations , such as
+shape primitives [ Zou2017 ] and multi-layer depth [ Shin2019 ,
+Nicastro2019 ] , are also studied.
+
+### 2.2 Multi-view 3D Object Reconstruction
+
+In this section, both the classical SfM/SLAM pipelines and learning
+based approaches are reviewed, with a stronger focus towards recent work
+in learning based methods, for the purpose of multi-view 3D object
+recontruction.
+
+(1) Traditional SfM/SLAM. To estimate the underlying 3D shape from
+multiple images, classic SfM [ Ozyesil2017 ] and SLAM [ Cadena2016 ]
+algorithms firstly extract and match hand-crafted geometric features [
+Hartley2004 ] and then apply bundle adjustment [ Triggs2000 ] for both
+shape and camera motion estimation. Existing SfM strategies include
+incremental [ Agarwal2009 , Frahm2010 , Wu2013 , Schonberger2016 ] ,
+hierarchical [ Gherardi2010 ] , and global approaches [ Crandall2011 ,
+Sweeney2015 ] . Classic SLAM systems usually consist of feature-based [
+Davison2007 , Mur-Artal2015 , Mur-Artal2016 , Dai2017a ] and direct
+approaches [ Newcombe2011b , Newcombe2011a , Henry2012 ,
+Salas-Moreno2013 , Delaunoy2014 , Goldlucke2014 , Slavcheva2016 ,
+Schops2019 ] . These systems are recently integrated with deep neural
+networks in [ Bloesch2018 , McCormac2018 , Czarnowski2019 , Xu2019c ,
+Zhi2019 ] . Although they can reconstruct visually satisfactory 3D
+models, the recovered shapes are usually sparse point clouds and the
+occluded regions are unable to be estimated.
+
+(2) Learning to Integrate Multi-views. Recent deep neural net based
+approaches tend to recover dense 3D shapes through learnt features from
+multiple color images and achieve compelling results. To fuse the deep
+features from multiple images, 3D-R2N2 [ Chan2016 ] , LSM [ Kar2017 ]
+and 3D2SeqViews [ Han2019b ] apply the recurrent unit GRU, resulting in
+the networks being permutation variant and inefficient for aggregating a
+long sequence of images. SilNet [ Wiles2017 , Wiles2018a ] , DeepMVS [
+Huang2018 ] and 3DensiNet [ Wang2017i ] simply use max pooling to
+preserve the first order information of multiple images, while RayNet [
+Paschalidou2018 ] and [ Sridhar2019 ] apply average pooling to retain
+the first moment information of multiple deep features. MVSNet [ Yao2018
+] proposes a variance-based approach to capture the second moment
+information for multiple feature aggregation. These pooling techniques
+only capture partial information, ignoring the majority of the deep
+features. In addition, the geometric consistency is not explicitly
+considered. To overcome this, recent works [ Lin2019 , Wen2019 ,
+Ghosh2020 , Chen2019e , Xie2019 ] learn multi-view stereo by applying
+the multi-view consistency or taking the depth prior into account.
+
+Object shapes can also be recovered from multiple depth scans - the
+traditional volumetric fusion method [ Curless1996 , Cao2018 ]
+integrates multiple viewpoint information by averaging truncated signed
+distance functions (TSDF). The recent learning based OctNetFusion [
+Riegler2017 ] also adopts a similar strategy to integrate multiple depth
+information. However, this integration might result in information loss
+since TSDF values are averaged [ Riegler2017 ] . PSDF [ Dong2018 ] was
+recently proposed to learn a probabilistic distribution through Bayesian
+updating in order to fuse multiple depth images, but it is not
+straightforward to include the module into existing encoder-decoder
+networks.
+
+(3) Learning Two-view Stereos. SurfaceNet [ Ji2017b ] , SuperPixel Soup
+[ Kumar2017 ] and Stereo2Voxel [ Xie2019a ] learn to reconstruct 3D
+shapes from two images. Although demonstrating the viability of
+recovering the 3D models, they are unable to process an arbitrary number
+of input images.
+
+### 2.3 Segmentation for 3D Point Clouds
+
+To extract features from 3D point clouds, traditional approaches usually
+crafted features manually [ Chua1997 , Rusu2009a , Thomas2018a ] .
+However, these features are unable to adapt to more complex shapes and
+scenes. Recent learning based approaches mainly include
+projection-based, voxel-based [ Rusu2009a , Huang2016a , Tchapmi2017 ,
+Riegler2017a , Lea , Rethage2018 , Liu2017d , Meng2019 ] and point-based
+schemes [ Qi2016 , Klokov2017 , Hermosilla2018 , Hua2018 , Su2018 ] ,
+which are widely employed for the core tasks of 3D point cloud
+perception, such as object recognition, semantic segmentation, object
+detection and instance segmentation. Basically, these tasks are similar
+to that of 2D images. In particular, the task of object recognition aims
+to estimate the category of a small set of 3D points, whereas the
+semantic segmentation aims to predict the category of each 3D point of a
+large-scale point cloud. More than simply classifying individual points,
+both the tasks of object detection and instance segmentation seek to
+localize each object, but the object detection only infers a 3D bounding
+box for an object whereas the instance segmentation needs to precisely
+identify an object instance that each 3D point belongs to.
+
+(1) 3D Semantic Segmentation. Point clouds can be voxelized into 3D
+grids and then powerful 3D CNNs are applied as in [ Graham2018 , Lea ,
+Choy2019 , Meng2019 , Chen2019f ] . Although they achieve leading
+results on semantic segmentation, their primary limitation is the heavy
+computation cost, especially when processing large-scale point clouds.
+
+The recent point-based method PointNet [ Qi2016 ] shows leading results
+on classification and semantic segmentation, but it does not capture
+context features. To overcome this, many recent works introduced
+sophisticated neural modules to learn per-point local features. These
+modules can be generally classified as 1) neighbouring feature pooling [
+Qi2017 , Li2018 , Zhao2019a , Zhang2019c , Duan2019 ] , 2) graph message
+passing [ Wang2018c , Shen2017a , Wang2018e , Wang2019b , Chen2019c ,
+Jiang2019a , Liu2019f , Te2018 , Xu2020 , Wang2019e ] , 3) kernel-based
+convolution [ Su2018 , Xu2018a , Li2018f , Hua2018 , Wu2019 , Lei2019 ,
+Komarichev2019 , Lan2019 , Thomas2019 , Mao2019 , Rao2019 , Liu2019c ,
+Boulch2020 , He2020 , Lin2020 ] , 4) attention-based aggregation [
+Liu2018a , Zhang2019 , Yang2019b , Paigwar2019 , Wang2019e ] and 5)
+recurrent-based learning [ Liu2018g , Huang2018a , Ye2018 , Wu2019a ] .
+
+To further enable the networks to consume large-scale point clouds, the
+multi-scale methods [ Engelmann2017 , Guerrero2018 ] and graph-based SPG
+[ Landrieu2018 ] are introduced to preprocess the large point clouds to
+learn per super-point semantics. The recent FCPN [ Rethage2018 ] and PCT
+[ Chen2019 ] apply both voxel-based and point-based networks to process
+the massive point clouds. Although achieving promising results, these
+approaches also require extremely high computation and memory resources.
+To overcome this, the recent RandLA-Net [ Hu2020 ] is able to
+efficiently and effectively process large-scale point clouds by
+introducing a novel local feature aggregation module together with an
+efficient random point feature down-sampling strategy.
+
+(2) 3D Object Detection. The most common way to detect objects in 3D
+point clouds is to project points onto 2D images to regress bounding
+boxes [ Li2016f , Asvadi2017 , Vaquero2017 , Chen2017b , Ali2018 ,
+Yang2018d , Zeng2018 , Wu2017e , Beltran2018 , Minemura2018 , Simon2018
+, Hu2020a ] , by using existing 2D detectors. Detection performance is
+further improved by fusing RGB images in [ Chen2017b , Xu2018 , Ku2018 ,
+Qi2018 , Wang2018b , Meyer2019 , Rashed2019 , Qi2020 ] , which require
+the 2D images to be well aligned with the 3D point clouds within the
+field of view. Point clouds can be also divided into voxels for object
+detection [ Engelcke2016 , Li2017j , Zhou2018a , Yang2019c , Chen2019f ,
+Lang2019 , Chen2019h ] . The detection strategies usually follow the
+mature frameworks for object detection in 2D images. However, most of
+these approaches rely on predefined anchors and the two-stage region
+proposal network [ Ren2015a ] . It is inefficient to extend them to 3D
+point clouds. Without relying on anchors, the recent PointRCNN [ Shi2019
+] learns to detect via foreground point segmentation, and VoteNet [
+Qi2019 ] detects objects via point feature grouping, sampling and
+voting.
+
+(3) 3D Instance Segmentation. SGPN [ Wang2018d ] is the first neural
+algorithm to segment instances on 3D point clouds by grouping the
+point-level embeddings. The subsequent ASIS [ Wang2019 ] , JSIS3D [
+Pham2019 ] , MASC [ Liu2019 ] , 3D-BEVIS [ Elich2019 ] , MTML [
+Lahoud2019 ] , JSNet [ Zhao2020 ] , MPNet [ He2020a ] and [ Liang2019 ,
+Arase2019 ] use the same strategy to group point-level features for
+instance segmentation. Mo et al . introduce a segmentation algorithm in
+PartNet [ Mo2019 ] by classifying point features. However, the learnt
+segments of these proposal-free methods do not have high objectness as
+they do not explicitly detect object boundaries. In addition, these
+methods usually require a post-processing algorithm, e . g ., mean shift
+[ Comaniciu2002 ] , to cluster the learnt per-point features to obtain
+the final object instance labels, thereby resulting in an extremely
+heavy computation burden.
+
+Another set of approaches to learn the object instances from 3D point
+clouds are proposal-based methods. By drawing on the successful 2D RPN [
+Ren2015a ] and RoI [ He2017a ] , GSPN [ Yi2019 ] and 3D-SIS [ Hou2019 ]
+learn a large number of candidate object bounding boxes followed by
+per-point mask prediction. However, these approaches usually rely on
+two-stage training and a post-processing step for dense proposal
+pruning.
+
+### 2.4 Generative Adversarial Networks
+
+Generative Adversarial Networks (GANs) [ Goodfellow2014 ] are a novel
+framework to model complex, real-world data distributions. Inspired by
+game theory, GANs consist of a generator and a discriminator, which
+compete with each other. By transforming a source data distribution, the
+generator learns to synthesize a new data distribution to mimic the
+target distribution, while the discriminator learns to distinguish
+between the synthesized and the real target samples. GANs have achieved
+impressive success in image generation [ Radford2016 , Karras2017 ] ,
+natural language [ Yu2017c ] , and time-series synthesis [ Donahue2018 ]
+.
+
+GANs can be extended to a conditional model if either the generator or
+the discriminator is conditioned on some extra data distribution [
+Mirza2014 ] . Based on conditional GANs, images can be generated
+conditioned on class labels [ Odena2017 ] , text [ Reed2016 ] , and
+other information [ Reed2016a ] . Conditional GANs are also used for
+photo-realistic image synthesis [ Zhang2017e ] , image super-resolution
+[ Ledig2016 ] , and image translation between domains [ Zhu2017b ] .
+
+GANs and conditional GANs are also applied in [ Gadelha2016 , Smith2017
+, Soltani2017 , Wu2016a ] to generate low resolution 3D structures from
+noise or images. However, incorporating generative adversarial learning
+to estimate high resolution 3D shapes is not straightforward, as it is
+difficult to generate samples for high dimensional and complex data
+distributions. Fundamentally, this is because GANs are notoriously hard
+to train, suffering from instability issues [ Arjovsky2017a ,
+Arjovsky2017c ] .
+
+### 2.5 Attention Mechanisms
+
+The attention mechanism was originally proposed for natural language
+processing in [ Bahdanau2015 ] . In a nutshell, it learns to weight deep
+features by importance scores for a specific task, and then uses this
+weighting mechanism to improve that task. Compared with the traditional
+encoder-decoder RNN models, the attention-based approach is able to
+learn a more complicated dependency that ranges across a long input
+sequence. This dependency is not only important for the sequential
+domain of language processing, but also the spatial domain of many
+visual tasks. Being coupled with RNNs, the attention mechanism achieves
+compelling results in neural machine translation [ Bahdanau2015 ] ,
+image captioning [ Xu2015b ] , image question answering [ Yang2016 ] ,
+etc .. However, all these RNN-based attention approaches are permutation
+variant to the order of input sequences. In addition, they are
+computationally time-consuming when the input sequence is long due to
+the recurrent processing.
+
+Dispensing with recurrence and convolutions entirely and solely relying
+on attention mechanism, Transformer [ Vaswani2017 ] achieves superior
+performance in machine translation tasks. Similarly, being decoupled
+from RNNs, attention mechanisms are also applied for visual recognition
+[ JieHu2018 , Rodriguez2018 , Liu2018e , Sarafianos2018 , Zhu2018a ,
+Nakka2018 , Girdhar2017a ] , semantic segmentation [ Li2018a ] , long
+sequence learning [ Raffel2016 ] , multi-task learning [ Liu2019g ] ,
+and image generation [ Zhang2018b ] . Although the above decoupled
+attention modules can be used to aggregate variable sized deep feature
+sets, they are literally designed to operate on fixed sized features for
+tasks such as image recognition and generation. The robustness of
+attention modules in the context of dynamic deep feature sets has not
+been investigated yet.
+
+### 2.6 Deep Learning on Sets
+
+In contrast to traditional approaches operating on fixed dimensional
+vectors or matrices, deep learning tasks defined on sets usually require
+learning functions to be permutation invariant and able to process an
+arbitrary number of elements in a set.
+
+Zaheer et al . introduce general permutation invariant and equivariant
+models in [ Zaheer2017 ] , and they end up with a sum pooling for
+permutation invariant tasks such as population statistics estimation and
+point cloud classification. In the recent GQN [ Eslami2018 ] , sum
+pooling is also used to aggregate an arbitrary number of orderless
+images for 3D scene representation. Gardner et al . [ Gardner2017a ] use
+average pooling to integrate an unordered deep feature set for a
+classification task. Su et al . [ Su2015 ] use max pooling to fuse the
+deep feature set of multiple views for 3D shape recognition. Similarly,
+PointNet [ Qi2016 ] also uses max pooling to aggregate the set of
+features learnt from point clouds for 3D classification and
+segmentation. In addition, the higher-order statistics based pooling
+approaches are widely used for 3D object recognition from multiple
+images. Vanilla bilinear pooling is applied for fine-grained recognition
+in [ Lin2015 ] and is further improved in [ Lin2017b ] . Concurrently,
+log-covariance pooling is proposed in [ Ionescu2015 ] , and is recently
+generalized by harmonized bilinear pooling in [ Yu2018a ] . Bilinear
+pooling techniques are further improved in recent work [ Yu2018b ,
+Lin2018 ] . However, both first-order and higher-order pooling
+operations ignore a majority of the information of a set. In addition,
+the first-order poolings do not have trainable parameters, while the
+higher-order poolings have only a few parameters available for the
+network to learn. These limitations lead to the pooling based neural
+networks to be optimized with regards to the specific statistics of data
+batches during training, and therefore unable to be robust and
+generalize well to variable sized deep feature sets during testing.
+
+### 2.7 Novelty with Respect to State of the Art
+
+This section hightlights the novel aspects of this thesis compared with
+state of the art in the context of single/multi view 3D reconstruction
+and segmentation of 3D point clouds.
+
+(1) Single View 3D Reconstruction. To recover the 3D shape of an object
+from a single depth view, the 3D-RecGAN++ is proposed in Chapter 3 . The
+neural architecture consists of a generator which synthesizes a 3D shape
+conditioned on an input partial depth view, and a discriminator to
+distinguish whether the input 3D shape is synthesized or real. The
+overall pipeline extends from conditional GANs [ Mirza2014 ] as
+discussed in Section 2.4 . However the existing adversarial loss
+functions, such as the original GAN [ Goodfellow2014 ] , WGAN [
+Arjovsky2017a ] and WGAN-GP [ Arjovsky2017c ] , are unable to converge
+to synthesize a high dimensional 3D shape. To overcome this, the
+proposed 3D-RecGAN++ introduces a mean feature layer for the
+discriminator to stabilize the entire framework.
+
+There are many other neural algorithms to estimate the 3D shape from a
+single view as discussed in Section 2.1 . The most similar works to
+3D-RecGAN++ are 3D-EPN [ Dai2017b ] , 3D-GAN [ Wu2016a ] , Varley et al
+. [ Varley2017 ] and Han et al . [ Han2017 ] . However, all of them are
+only able to generate a low resolution 3D voxel grid, less than @xmath ,
+to represent the shape of an object. By contrast, the proposed
+3D-RecGAN++ directly generates a 3D shape within a @xmath voxel grid,
+which is able to recover fine-grained geometric details. Since
+3D-RecGAN++ uses a voxel grid to represent 3D shape, its memory
+consumption is generally less efficient than the latest approaches
+(published after 3D-RecGAN++) based on point clouds, meshes and implicit
+surfaces as discussed in Section 2.1 .
+
+(2) Multi-view 3D Reconstruction. In Chapter 4 , we propose an AttSets
+module together with a FASet algorithm to integrate a variable number of
+views for more accurate shape estimation. The AttSets module extends the
+general idea of attention mechanism discussed in Section 2.5 . Similar
+works include Transformer [ Vaswani2017 ] , SENet [ JieHu2018 ] and [
+Raffel2016 , Girdhar2017a ] . However, the existing attention mechanisms
+are only able to be applied to a fixed number of input elements. To
+integrate an arbitrary number of input images, we formulate this
+multi-view 3D reconstruction as an aggregation process and propose
+AttSets with a series of carefully designed neural functions.
+Fundamentally, our AttSets involves deep learning techniques for sets.
+In this regard, the recent works [ Zaheer2017 , Lee2019a , Wagstaff2019
+, Ilse2018 ] are similar to AttSets. However, these existing approaches
+neglect an important issue. In particular, the existing neural
+algorithms are not robust to a variable number of input elements, and
+their performance drops if the cardinality of testing sets is
+significantly different from that of training sets. To overcome this, we
+further propose the FASet algorithm to separately optimize the AttSets
+module and the base feature extractor, guaranteeing the robustness of
+the entire network with regards to a variable number of input images.
+
+As discussed in Section 2.2 , the common way to fuse multiple views for
+3D shape estimation leverages RNNs [ Chan2016 , Kar2017 ] or heuristic
+poolings such as max/mean/sum poolings [ Wiles2017 , Huang2018 ] .
+However, the RNN approaches formulate the multiple views as an ordered
+sequence and the reconstructed shape varies given a different order of
+the same image set. The heuristic poolings usually discard the majority
+of the information, thereby being unable to obtain better 3D shapes even
+if more images are given. By contrast, our AttSets and FASet are able to
+attentively aggregate useful information from an arbitrary number of
+views and guarantee the final recovered shape is robust to the number of
+input images.
+
+(3) Segmentation of 3D Point Clouds. Beyond recovering the 3D shape of a
+single object, we aim to identify all individual 3D objects from
+large-scale real-world point clouds in Chapter 5 . The proposed 3D-BoNet
+is a general framework to recognize, detect and segment all object
+instances simultaneously. The backbone of the framework extends the
+basic idea of shared MLPs invented by PointNet/PointNet++ [ Qi2016 ,
+Qi2017 ] .
+
+To recognize 3D objects, 3D-BoNet simply leverages any of the front-ends
+of existing point-based networks such as PointNet++ [ Qi2017 ] and
+SparseConv [ Graham2018 ] . To detect and segment individual objects,
+existing works either follow the idea of RPN [ Ren2015a ] to extensively
+localize objects in 3D space, or learn to directly cluster per-point
+features as discussed in Section 2.3 . However, these methods have a
+number of limitations. First, they usually require post-processing steps
+such as non-maximum suppression or mean shift clustering, which are
+extremely computationally heavy. Second, the learnt instances do not
+have high objectness as they do not explicitly learn object boundaries
+and the low-level point features are very likely to be incorrectly
+clustered. To overcome these shortcomings, our 3D-BoNet framework offers
+the following unique aspects: 1) the object bonding boxes are directly
+learnt from the global features of a point cloud via a carefully
+designed neural optimal association layer, guaranteeing high objectness
+of all detected instances; 2) each object is further precisely segmented
+within a bounding box via a simple binary classifier, without requiring
+any post-processing steps. The aspects above make 3D-BoNet simpler and
+more efficient than existing competing pipelines.
+
+## Chapter 3 Learning to Reconstruct 3D Object from a Single View
+
+### 3.1 Introduction
+
+To reconstruct the complete and precise 3D geometry of an object is
+essential for many graphics and robotics applications, from augmented
+reality (AR)/virtual reality (VR) [ B2016e ] and semantic understanding,
+to object deformation [ Wang2018a ] , robot grasping [ Varley2017 ] and
+obstacle avoidance. Classic approaches use off-the-shelf low-cost depth
+sensing devices such as Kinect and RealSense cameras to recover the 3D
+shape of an object from captured depth images. These approaches
+typically require multiple depth images from different viewing angles of
+an object to estimate the complete 3D structure [ Newcombe2011a ] [
+Niener2013 ] [ Steinbr2013 ] . However, in practice it is not always
+feasible to scan all surfaces of an object before reconstruction, which
+leads to incomplete 3D shapes with occluded regions and large holes. In
+addition, acquiring and processing multiple depth views require more
+computing power, which is not ideal in many applications that require
+real-time performance.
+
+We aim to tackle the problem of estimating the complete 3D structure of
+an object using a single depth view. This is a very challenging task,
+since the partial observation of the object ( i . e ., a depth image
+from one viewing angle) can be theoretically associated with an infinite
+number of possible 3D models. Traditional reconstruction approaches
+typically use interpolation techniques such as plane fitting, Laplacian
+hole filling [ Nealen2006 ] [ Zhao2007 ] , or Poisson surface estimation
+[ Kazhdan2006 ] [ Kazhdan2013 ] to infer the underlying 3D structure.
+However, they can only recover very limited occluded or missing regions,
+e . g ., small holes or gaps due to quantization artifacts, sensor noise
+and insufficient geometry information.
+
+Interestingly, humans are surprisingly good at solving such ambiguity by
+implicitly leveraging prior knowledge. For example, given a view of a
+chair with two rear legs occluded by front legs, humans are easily able
+to guess the most likely shape behind the visible parts. Recent advances
+in deep neural networks and data driven approaches show promising
+results in dealing with such a task.
+
+In this chapter, we aim to acquire the complete and high-resolution 3D
+shape of an object given a single depth view. By leveraging the high
+performance of 3D convolutional neural nets and large open datasets of
+3D models, our approach learns a smooth function that maps a 2.5D view
+to a complete and dense 3D shape. In particular, we train an end-to-end
+model which estimates full volumetric occupancy from a single 2.5D depth
+view of an object.
+
+While state-of-the-art deep learning approaches [ Wu2015 ] [ Dai2017b ]
+[ Varley2017 ] for 3D shape reconstruction from a single depth view
+achieve encouraging results, they are limited to very small resolutions,
+typically at the scale of @xmath voxel grids. As a result, the learnt 3D
+structure tends to be coarse and inaccurate. In order to generate higher
+resolution 3D objects with efficient computation, Octree representation
+has been recently introduced in [ Tatarchenko2017 ] [ Riegler2017 ] [
+Christian2017 ] . However, increasing the density of output 3D shapes
+would also inevitably pose a great challenge to learn the geometric
+details for high resolution 3D structures, which has yet to be explored.
+
+Recently, deep generative models achieve impressive success in modeling
+complex high-dimensional data distributions, among which Generative
+Adversarial Networks (GANs) [ Goodfellow2014 ] and Variational
+Autoencoders (VAEs) [ Kingma2014 ] emerge as two powerful frameworks for
+generative learning, including image and text generation [ Hu2017d ] [
+Karras2017 ] , and latent space learning [ Chen2016a ] [ Kulkarni2015 ]
+. In the past few years, a number of works [ B2016f ] [ Girdhar ] [
+Huang2015a ] [ Wu2016a ] applied such generative models to learn latent
+space to represent 3D object shapes, in order to solve tasks such as new
+image generation, object classification, recognition and shape
+retrieval.
+
+In this chapter, we propose 3D-RecGAN++, a simple yet effective model
+that combines a skip-connected 3D encoder-decoder with adversarial
+learning to generate a complete and fine-grained 3D structure
+conditioned on a single 2.5D view. In particular, our model firstly
+encodes the 2.5D view to a compressed latent representation which
+implicitly represents general 3D geometric structures, then decodes it
+back to the most likely full 3D shape. Skip-connections are applied
+between the encoder and decoder to preserve high frequency information.
+The rough 3D shape is then fed into a conditional discriminator which is
+adversarially trained to distinguish whether the coarse 3D structure is
+plausible or not. The encoder-decoder is able to approximate the
+corresponding shape, while the adversarial training tends to add fine
+details to the estimated shape. To ensure the final generated 3D shape
+corresponds to the input single partial 2.5D view, adversarial training
+of our model is based on a conditional GAN [ Mirza2014 ] instead of
+random guessing. The above network excels the competing approaches [
+Varley2017 ] [ Dai2017b ] [ Han2017 ] , which either use a single fully
+connected layer [ Varley2017 ] , a low capacity decoder without
+adversarial learning [ Dai2017b ] , or the multi-stage and ineffective
+LSTMs [ Han2017 ] to estimate the full 3D shapes.
+
+Our contributions are as follows:
+
+-   We propose a simple yet effective model to reconstruct the complete
+    and accurate 3D structure using a single arbitrary depth view.
+    Particularly, our model takes a simple occupancy grid map as input
+    without requiring object class labels or any annotations, while
+    predicting a compelling shape within a high resolution of @xmath
+    voxel grid. By drawing on both 3D encoder-decoder and adversarial
+    learning, our approach is end-to-end trainable with high level of
+    generality.
+
+-   We exploit conditional adversarial training to refine the 3D shape
+    estimated by the encoder-decoder. Our contribution here is that we
+    use the mean value of a latent vector feature, instead of a single
+    scalar, as the output of the discriminator to stabilize GAN
+    training.
+
+-   We conduct extensive experiments for single category and
+    multi-category object reconstruction, outperforming the state of the
+    art. Importantly, our approach is also able to generalize to
+    previously unseen object categories. Lastly, our model also is shown
+    to perform robustly on real-world data, after being trained purely
+    on synthetic datasets.
+
+-   To the best of our knowledge, there are no good open datasets which
+    have the ground truth for occluded/missing parts and holes for each
+    2.5D view in real-world scenarios. We therefore collect and release
+    our real-world testing dataset to the community.
+
+Our code and data are available at:
+https://github.com/Yang7879/3D-RecGAN-extended
+
+### 3.2 Method Overview
+
+Our method aims to estimate a complete and dense 3D structure of an
+object, which only takes an arbitrary single 2.5D depth view as input.
+The output 3D shape is automatically aligned with the corresponding 2.5D
+partial view. To achieve this task, each object model is represented by
+a high resolution 3D voxel grid. We use the simple occupancy grid for
+shape encoding, where @xmath represents an occupied cell and @xmath an
+empty cell. Specifically, the input 2.5D partial view, denoted as @xmath
+, is a @xmath occupancy grid, while the output 3D shape, denoted as
+@xmath , is a high resolution @xmath probabilistic voxel grid. The input
+partial shape is directly calculated from a single depth image given
+camera parameters. We use the ground truth dense 3D shape with aligned
+orientation as same as the input partial 2.5D depth view to supervise
+our network.
+
+To generate ground truth training and evaluation pairs, we virtually
+scan 3D objects from ShapeNet [ Chang2015 ] . Figure 3.1 is the t-SNE
+visualization [ Maaten2008 ] of partial 2.5D views and the corresponding
+full 3D shapes for multiple general chair and bed models. Each green dot
+represents the t-SNE embedding of a 2.5D view, whilst a red dot is the
+embedding of the corresponding 3D shape. It can be seen that multiple
+categories inherently have similar 2.5D to 3D mapping relationships.
+Essentially, our neural network is to learn a smooth function, denoted
+as @xmath , which maps green dots to red dots as close as possible in
+high dimensional space as shown in Equation 3.1 . The function @xmath is
+parametrized by neural layers in general.
+
+  -- -------- -- -------
+     @xmath      (3.1)
+  -- -------- -- -------
+
+After generating training pairs, we feed them into our network. The
+first part of our network loosely follows the idea of a 3D
+encoder-decoder with the U-net connections [ Ronneberger2015 ] . The
+skip-connected encoder-decoder serves as an initial coarse generator
+which is followed by an up-sampling module to further generate a higher
+resolution 3D shape within a @xmath voxel grid. This whole generator
+learns a correlation between partial and complete 3D structures. With
+the supervision of complete 3D labels, the generator is able to learn a
+function @xmath and infer a reasonable 3D shape given a brand new
+partial 2.5D view. During testing, however, the results tend to be
+grainy and without fine details.
+
+To address this issue, in the training phase, the reconstructed 3D shape
+from the generator is further fed into a conditional discriminator to
+verify its plausibility. In particular, a partial 2.5D input view is
+paired with its corresponding complete 3D shape, which is called the
+‘real reconstruction’, while the partial 2.5D view is paired with its
+corresponding output 3D shape from generator, which is called the ‘fake
+reconstruction’. The discriminator aims to discriminate all ‘fake
+reconstruction’ from ‘real reconstruction’. In the original GAN
+framework [ Goodfellow2014 ] , the task of the discriminator is to
+simply classify real and fake inputs, but its Jensen-Shannon
+divergence-based loss function is difficult to converge. The recent WGAN
+[ Arjovsky2017a ] leverages Wasserstein distance with weight clipping as
+a loss function to stabilize the training procedure, whilst the extended
+work WGAN-GP [ Gulrajani2017 ] further improves the training process
+using a gradient penalty with respect to its input. In our 3D-RecGAN++,
+we apply WGAN-GP as the loss function on top of the mean feature of our
+conditional discriminator, which guarantees fast and stable convergence.
+The overall network architecture for training is shown in Figure 3.2 ,
+while the testing phase only needs the well trained generator as shown
+in Figure 3.3 .
+
+### 3.3 Method Details
+
+#### 3.3.1 Network Architecture
+
+Figure 3.4 shows the detailed architecture of our proposed 3D-RecGAN++.
+It consists of two main networks: the generator as in Figure 3.3(a) and
+the discriminator as in Figure 3.3(b) .
+
+The generator consists of a skip-connected encoder-decoder and an
+up-sampling module. Unlike the vanilla GAN generator which generates
+data from arbitrary latent distributions, our 3D-RecGAN++ generator
+synthesizes data from 2.5D views. Particularly, the encoder has five 3D
+convolutional layers, each of which has a bank of @xmath filters with
+strides of @xmath , followed by a leaky ReLU activation function and a
+max pooling layer with @xmath filters and strides of @xmath . The number
+of output channels of max pooling layer starts with 64, doubling at each
+subsequent layer and ends up with 512. The encoder is lastly followed by
+two fully-connected layers to embed semantic information into a latent
+space. The decoder is composed of five symmetric up-convolutional layers
+which are followed by ReLU activations. Skip-connections between encoder
+and decoder guarantee propagation of local structures of the input 2.5D
+view. The skip-connected encoder-decoder is followed by the up-sampling
+module which simply consists of two layers of up-convolutional layers as
+detailed in Figure 3.3(a) . This simple up-sampling module directly
+upgrades the output 3D shape to a higher resolution of @xmath without
+requiring complex network design and operations. It should be noted that
+without the two fully connected layers and skip-connections, the vanilla
+encoder-decoder would be unable to learn reasonable complete 3D
+structures as the latent space is limited and the local structure is not
+preserved. The loss function and optimization methods are described in
+Section LABEL:sec:loss .
+
+The discriminator aims to distinguish whether the estimated 3D shapes
+are plausible or not. Based on the conditional GAN, the discriminator
+takes both real reconstruction pairs and fake reconstruction pairs as
+input. In particular, it consists of six 3D convolutional layers, the
+first of which concatenates the generated 3D shape ( i . e ., a @xmath
+voxel grid) and the input 2.5D partial view ( i . e ., a @xmath voxel
+grid), reshaped as a @xmath tensor. The reshaping process is done
+straightforwardly using Tensorflow ‘tf.reshape()’. Basically, this is to
+inject the condition information with a matched tensor dimension, and
+then leave the network itself to learn useful features from this
+condition input. Each convolutional layer has a bank of @xmath filters
+with strides of @xmath , followed by a ReLU activation function except
+for the last layer which is followed by a sigmoid activation function.
+The number of output channels of the convolutional layers starts with 8,
+doubling at each subsequent layer and ends up with 256. The output of
+the last neural layer is reshaped as a latent vector which is the latent
+feature of discriminator, denoted as @xmath .
+
+#### 3.3.2 Mean Feature for Discriminator
+
+At the early training stage of GAN, as the high dimensional real and
+fake distributions may not overlap, the discriminator can separate them
+perfectly using a single scalar output, which is analyzed in [
+Arjovsky2017c ] . In our experiments, due to the extremely high
+dimensionality ( i . e ., @xmath dimensions) of the input data pair, the
+WGAN-GP always crashes in the early 3 epochs if we use a standard
+fully-connected layer followed by a single scalar as the final output
+for the discriminator.
+
+To stabilize training, we propose to use the mean feature @xmath ( i . e
+., mean of a vector feature @xmath ) for discrimination. As the mean
+vector feature tends to capture more information from the input overall,
+it is more difficult for the discriminator to easily distinguish between
+fake or real inputs. This enables useful information to back-propagate
+to the generator. The final output of the discriminator @xmath is
+defined as:
+
+  -- -------- -- -------
+     @xmath      (3.2)
+  -- -------- -- -------
+
+Mean feature matching is also studied and applied in [ Bao2017b ] [
+Mroueh2017b ] to stabilize GAN. However, Bao et al . [ Bao2017b ]
+minimize the @xmath loss of the mean feature, as well as the original
+Jensen-Shannon divergence-based loss [ Goodfellow2014 ] , requiring
+hyper-parameter tuning to balance the two losses. By comparison, in our
+3D-RecGAN++ setting, the mean feature of discriminator is directly
+followed by the existing WGAN-GP loss, which is simple yet effective to
+stabilize the adversarial training.
+
+Overall, our discriminator learns to distinguish the distributions of
+mean feature of fake and real reconstructions, while the generator is
+trained to make the two mean feature distributions as similar as
+possible.
+
+#### 3.3.3 Loss Functions
+
+The objective function of 3D-RecGAN++ includes two main parts: an object
+reconstruction loss @xmath for the generator; the objective function
+@xmath for the conditional GAN.
+
+(1) @xmath For the generator, inspired by [ Brock2016 ] , we use
+modified binary cross-entropy loss function instead of the standard
+version. The standard binary cross-entropy weights both false positive
+and false negative results equally. However, most of the voxel grid
+tends to be empty, so the network easily gets a false positive
+estimation. In this regard, we impose a higher penalty on false positive
+results than on false negatives. Particularly, a weight hyper-parameter
+@xmath is assigned to false positives, with (1- @xmath ) for false
+negative results, as shown in Equation 3.3 .
+
+  -- -------- -- -------
+     @xmath      (3.3)
+  -- -------- -- -------
+
+@xmath @xmath is the target value {0,1} of a specific @xmath voxel in
+the ground truth voxel grid @xmath , and @xmath is the corresponding
+estimated value (0,1) in the same voxel from the generator output @xmath
+. We calculate the mean loss over the total @xmath voxels in the whole
+voxel grid.
+
+(2) @xmath For the discriminator, we leverage the state of the art
+WGAN-GP loss functions. Unlike the original GAN loss function which
+presents an overall loss for both real and fake inputs, we separately
+represent the loss function @xmath in Equation 3.4 for generating fake
+reconstruction pairs and @xmath in Equation 3.5 for discriminating fake
+and real reconstruction pairs. Detailed definitions and derivation of
+the loss functions can be found in [ Arjovsky2017a ] [ Gulrajani2017 ] ,
+but we modify them for our conditional GAN settings.
+
+  -- -------- -- -------
+     @xmath      (3.4)
+  -- -------- -- -------
+
+  -- -------- -- -------
+     @xmath      (3.5)
+  -- -------- -- -------
+
+@xmath @xmath , @xmath is the input partial depth view, @xmath is the
+corresponding output of the generator, @xmath is the corresponding
+ground truth. @xmath controls the trade-off between optimizing the
+gradient penalty and the original objective in WGAN.
+
+For the generator in our 3D-RecGAN++ network, there are two loss
+functions, @xmath and @xmath , to optimize. As we discussed in Section
+3.2 , minimizing @xmath tends to learn the overall 3D shapes, whilst
+minimizing @xmath estimates more plausible 3D structures conditioned on
+input 2.5D views. To minimize @xmath is to improve the performance of
+discriminator to distinguish fake and real reconstruction pairs. To
+jointly optimize the generator, we assign weights @xmath to @xmath and
+@xmath to @xmath . Overall, the loss functions for generator and
+discriminator are as follows:
+
+  -- -------- -- -------
+     @xmath      (3.6)
+  -- -------- -- -------
+
+  -- -------- -- -------
+     @xmath      (3.7)
+  -- -------- -- -------
+
+#### 3.3.4 Implementation
+
+We adopt an end-to-end training procedure for the whole network. To
+simultaneously optimize both the generator and discriminator, we
+alternate between one gradient descent step on the discriminator and
+then one step on the generator. For the WGAN-GP, @xmath is set as 10 for
+gradient penalty as in [ Gulrajani2017 ] . @xmath ends up as 0.85 for
+our modified cross entropy loss function, while @xmath is 0.2 for the
+joint loss function @xmath .
+
+The Adam solver [ Kingma2015a ] is used for both discriminator and
+generator with a batch size of 4. The other three Adam parameters are
+set to default values. Learning rate is set to @xmath for the
+discriminator and @xmath for the generator in all epochs. As we do not
+use dropout or batch normalization, the testing phase is exactly the
+same as the training stage. The whole network is trained on a single
+Titan X GPU from scratch.
+
+#### 3.3.5 Data Synthesis
+
+For the task of 3D dense reconstruction from a single depth view,
+obtaining a large amount of training data is an obstacle. Existing real
+RGB-D datasets for surface reconstruction suffer from occlusions and
+missing data and there is no ground truth of complete and high
+resolution @xmath 3D shapes for each view. The recent work [ Dai2017b ]
+synthesizes data for 3D object completion, but the object resolution is
+only up to a resolution of @xmath .
+
+To tackle this issue, we use the ShapeNet [ Chang2015 ] database to
+generate a large amount of training and testing data with synthetically
+rendered depth images and the corresponding complete 3D shape ground
+truth. Interior parts of individual objects are set to be filled, i . e
+., ‘1’, while the exterior to be empty, i . e ., ‘0’. A subset of object
+categories and CAD models are selected for our experiments. As some CAD
+models in ShapeNet may not be watertight, in our ray tracing based
+voxelization algorithm, if a specific point is inside more than 5 faces
+along the X, Y and Z axes, that point is deemed to be the interior of
+the object and set as ‘1’, otherwise set to ‘0’.
+
+For each category, to generate training data , around 220 CAD models are
+randomly selected. For each CAD model, we create a virtual depth camera
+to scan it from 125 different viewing angles, 5 uniformly sampled views
+for each of roll, pitch and yaw space ranging from @xmath individually.
+Note that, the viewing angles for all 3D models are the same for
+simplicity. For each virtual scan, both a depth image and the
+corresponding complete 3D voxelized structure are generated with regard
+to the same camera angle. That depth image is simultaneously transformed
+to a point cloud using virtual camera parameters [ Khoshelham2012 ]
+followed by voxelization which generates a partial 2.5D voxel grid. Then
+a pair of partial 2.5D view and the complete 3D shape is synthesized.
+Overall, around 26K training pairs are generated for each 3D object
+category.
+
+For each category, to synthesize testing data , around 40 CAD models are
+randomly selected. For each CAD model, two groups of testing data are
+generated. Group 1 , each model is virtually scanned from 125 viewing
+angles which are the same as used in training dataset. Around 4.5k
+testing pairs are generated in total. This group of testing dataset is
+denoted as same viewing (SV) angles testing dataset. Group 2 , each
+model is virtually scanned from 216 different viewing angles, 6
+uniformly sampled views from each of roll, pitch and yaw space ranging
+from @xmath individually. Note that, these viewing angles for all
+testing 3D models are completely different from training pairs. Around
+8k testing pairs are generated in total. This group of testing dataset
+is denoted as cross viewing (CV) angles testing dataset. Similarly, we
+also generate around 1.5k SV and 2.5k CV validation data split from
+another 12 CAD models, which are used for hyperparameter searching.
+
+As our network is initially designed to predict an aligned full 3D model
+given a depth image from an arbitrary viewing angle, these two SV and CV
+testing datasets are generated separately to evaluate the viewing angle
+robustness and generality of our model.
+
+Besides the large quantity of synthesized data, we also collect a
+real-world dataset in order to test the proposed network in a realistic
+scenario. We use a Microsoft Kinect camera to manually scan a total of
+20 object instances belonging to 4 classes {bench, chair, couch, table},
+with 5 instances per class from different environments, including
+offices, homes, and outdoor university parks. For each object we acquire
+RGB-D images of the object from multiple angles by moving the camera
+around the object. Then, we use the dense visual SLAM algorithm
+ElasticFusion [ Whelan2015 ] in order to reconstruct the full 3D shape
+of each object, as well as the camera pose in each scan.
+
+We sample 50 random views from the camera trajectory, and for each one
+we obtain the depth image and the relative camera pose. In each depth
+image the 3D object is segmented from the background, using a
+combination of floor removal and manual segmentation. We finally
+generate ground truth information by aligning the full 3D objects with
+the partial 2.5D views.
+
+It should be noted that, due to noise and quantization artifacts of
+low-cost RGB-D sensors, and the inaccuracy of the SLAM algorithm, the
+full 3D ground truth is not 100% accurate, but can still be used as a
+reasonable approximation. The real-world dataset highlights the
+challenges related to shape reconstruction from realistic data: noisy
+depth estimates, missing depth information, depth quantization. In
+addition, some of the objects are acquired outdoors ( e . g ., @xmath ),
+which is challenging for the near-infrared depth sensor of the Micorsoft
+Kinect. However, we argue that a real-world benchmark for shape
+reconstruction is necessary for a thorough validation of future
+approaches. Figure 3.5 shows an example of the reconstructed object and
+camera poses in ElasticFusion.
+
+### 3.4 Experiments
+
+In this section, we evaluate our 3D-RecGAN++ with comparison to the
+state of the art approaches and an ablation study to fully investigate
+the proposed network.
+
+#### 3.4.1 Metrics
+
+To evaluate the performance of 3D reconstruction, we consider two
+metrics. The first metric is the mean Intersection-over-Union (IoU)
+between predicted 3D voxel grids and their ground truth. The IoU for an
+individual voxel grid is formally defined as follows:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+@xmath @xmath is an indicator function, @xmath is the predicted value
+for the @xmath voxel, @xmath is the corresponding ground truth, @xmath
+is the threshold for voxelization, @xmath is the total number of voxels
+in a whole voxel grid. In all our experiments, @xmath is searched using
+the validation data split per category for each approach. Particularly,
+@xmath is searched in the range @xmath with a step size @xmath using the
+validation datasets. The higher the IoU value, the better the
+reconstruction of a 3D model.
+
+The second metric is the mean value of standard Cross-Entropy loss (CE)
+between a reconstructed shape and the ground truth 3D model. It is
+formally defined as:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+@xmath @xmath , @xmath and @xmath are the same as defined in above IoU.
+The lower CE value is, the closer the prediction to be either ‘1’ or
+‘0’, the more robust and confident the 3D predictions are.
+
+We also considered the Chamfer Distance (CD) or Earth Mover’s Distance
+(EMD) as an additional metric. However, it is computationally heavy to
+calculate the distance between two high resolution voxel grids due to
+the large number of points. In our experiments, it takes nearly 2
+minutes to calculate either CD or EMD between two @xmath shapes on a
+single Titan X GPU. Although the @xmath dense shapes can be downsampled
+to sparse point clouds on object surfaces to quickly compute CD or EMD,
+the geometric details are inevitably lost due to the extreme
+downsampling process. Therefore, we did not use CD or EMD for evaluation
+in our experiments.
+
+#### 3.4.2 Competing Approaches
+
+We compare against three state of the art deep learning based approaches
+for single depth view reconstruction. We also compare against the
+generator alone in our network, i . e ., without the GAN, named 3D-RecAE
+for short.
+
+-    3D-EPN. In [ Dai2017b ] , Dai et al . proposed a neural network,
+    called “3D-EPN”, to reconstruct the 3D shape up to a @xmath voxel
+    grid, after which a high resolution shape is retrieved from an
+    existing 3D shape database, called “Shape Synthesis”. In our
+    experiment, we only compared with their neural network ( i . e .,
+    3D-EPN) performance because we do not have an existing shape
+    database for similar shape retrieval during testing. Besides,
+    occupancy grid representation is used for the network training and
+    testing.
+
+-    Varley et al . In [ Varley2017 ] , a network was designed to
+    complete the 3D shape from a single 2.5D depth view for robot
+    grasping. The output of their network is a @xmath voxel grid.
+
+    Note that, the low resolution voxel grids generated by 3D-EPN and
+    Varley et al . are all upsampled to @xmath voxel grids using
+    trilinear interpolation before calculating the IoU and CE metrics.
+    The linear upsampling is a widely used post-processing technique for
+    fair comparison in cases where the output resolution is not
+    identical [ Tatarchenko2017 ] . However, as both 3D-EPN and Varley
+    et al . are trained using lower resolution voxel grids for
+    supervision, while the below Han et al . and our 3D-RecGAN++ are
+    trained using @xmath shapes for supervision, it is not strictly fair
+    comparison in this regard. Considering both 3D-EPN and Varley et al
+    . are among the early works and also solid competing approaches
+    regarding the single depth view reconstruction task, we therefore
+    include them as baselines.
+
+-    Han et al . In [ Han2017 ] , a global structure inference network
+    and a local geometry refinement network are proposed to complete a
+    high resolution shape from a noisy shape. The network is not
+    originally designed for single depth view reconstruction, but its
+    output shape is up to a @xmath voxel grid and is comparable to our
+    network. For fair comparison, the same occupancy grid representation
+    is used for their network. It should be noted that [ Han2017 ]
+    involves convoluted designs, thus the training procedure is slower
+    and less efficient due to the many integrated LSTMs.
+
+-    3D-RecAE. As for our 3D-RecGAN++, we remove the discriminator and
+    only keep the generator to infer the complete 3D shape from a single
+    depth view. This comparison illustrates the benefits of adversarial
+    learning.
+
+#### 3.4.3 Single-category Results
+
+(1) Results. All networks are separately trained and tested on four
+different categories, {bench, chair, couch, table}, with the same
+network configuration. Table 3.1 shows the IoU and CE loss of all
+methods on the testing dataset with same viewing angles on @xmath voxel
+grids, while Table 3.2 shows the IoU and CE loss comparison on testing
+dataset with cross viewing angles. Figure 3.6 shows the qualitative
+results of single category reconstruction on testing datasets with same
+and cross viewing angles. The meshgrid function in Matlab is used to
+plot all 3D shapes for better visualization.
+
+(2) Analysis. Both 3D-RecGAN++ and 3D-RecAE significantly outperform the
+competing approaches in terms of IoU and CE loss on both the SV and CV
+testing datasets for dense 3D shape reconstruction ( @xmath voxel
+grids). Although our approach is trained on depth input with a limited
+set of viewing angles, it still performs well to predict aligned 3D
+shapes from novel viewing angles. The 3D shapes generated by 3D-RecGAN++
+and 3D-RecAE are much more visually compelling than others.
+
+Compared with 3D-RecAE, 3D-RecGAN++ achieves better IoU scores and
+smaller CE loss. Basically, adversarial learning of the discriminator
+serves as a regularizer for fine-grained 3D shape estimation, which
+enables the output of 3D-RecGAN++ to be more robust and confident. We
+also notice that the increase of 3D-RecGAN++ in IoU and CE scores is not
+dramatic compared with 3D-RecAE. This is primarily because the main
+object shape can be reasonably predicted by 3D-RecAE, while the finer
+geometric details estimated by 3D-RecGAN++ are usually smaller parts of
+the whole object shape. Therefore, 3D-RecGAN++ only obtains a reasonable
+better IoU and CE scores than 3D-RecAE. The @xmath row of Figure 3.5(a)
+shows a good example in terms of finer geometric details prediction of
+3D-RecGAN++. In fact, in all the remaining experiments, 3D-RecGAN++ is
+constantly, but not significantly, better than 3D-RecAE.
+
+#### 3.4.4 Multi-category Results
+
+(1) Results. All networks are also trained and tested on multiple
+categories without being given any class labels. The networks are
+trained on four categories: {bench, chair, couch, table}; and then
+tested separately on individual categories. Table 3.3 shows the IoU and
+CE loss comparison of all methods on testing dataset with same viewing
+angles for dense shape reconstruction, while Table 3.4 shows the IoU and
+CE loss comparison on testing dataset with cross viewing angles. Figure
+3.7 shows the qualitative results of all approaches on testing datasets
+of multiple categories with same and cross viewing angles.
+
+(2) Analysis. Both 3D-RecGAN++ and 3D-RecAE significantly outperforms
+the state of the art by a large margin in all categories which are
+trained together on a single model. Besides, the performance of our
+network trained on multiple categories, does not notably degrade
+compared with training the network on individual categories as shown in
+previous Table 3.1 and 3.2 . This confirms that our network has enough
+capacity and capability to learn diverse features from multiple
+categories.
+
+#### 3.4.5 Cross-category Results
+
+(1) Results. To further investigate the generality of networks, we train
+all networks on {bench, chair, couch, table}, and then test them on
+another 6 totally different categories: {car, faucet, firearm, guitar,
+monitor, plane}. For each of the 6 categories, we generate the same
+amount of testing datasets with same and cross viewing angles, which is
+similar to the previous {bench, chair, couch, table}. Table 3.5 and 3.6
+shows the IoU and CE loss comparison of all approaches on the testing
+dataset with same viewing angles, while Table 3.7 and 3.8 shows the IoU
+and CE loss comparison on the testing dataset with cross viewing angles.
+Figure 3.8 shows the qualitative results of all methods on 6 unseen
+categories with same and cross viewing angles.
+
+We further evaluate the generality of our 3D-RecGAN++ on a specific
+category. Particularly, we conduct four groups of experiments. In the
+first group, we train our 3D-RecGAN++ on bench, then separately test it
+on the remaining 3 categories: {chair, couch, table}. In the second
+group, the network is trained on chair and separately tested on {bench,
+couch, table}. Similarly, another two groups of experiments are
+conducted. Basically, this experiment is to investigate how well our
+approach learns features from one category and then generalizes to a
+different category, and vice versa. Table 3.9 shows the cross-category
+IoU and CE loss of our 3D-RecGAN++ trained on individual category and
+then tested on the testing dataset with same viewing angles over @xmath
+voxel grids.
+
+(2) Analysis. The proposed 3D-RecGAN++ achieves much higher IoU and
+smaller CE loss across the unseen categories than competing approaches.
+Our network not only learns rich features from different object
+categories, but also is able to generalize well to completely new types
+of categories. Our intuition is that the network may learn geometric
+features such as lines, planes, curves which are common across various
+object categories. As our network involves skip-connections between
+intermediate neural layers, it is not straightforward to visualize and
+analyze the learnt latent features.
+
+It can be also observed that our model trained on @xmath tends to be
+more general than others. Intuitively, the bench category tends to have
+general features such as four legs, seats, and/or a back, which are also
+common among other categories {chair, couch, table}. However, not all
+chairs or couches consist of such general features that are shared
+across different categories.
+
+Overall, we may safely conclude that the more similar features two
+categories share, including both the low-level lines/planes/curves and
+the high-level shape components, the better generalization of our model
+achieves cross those categories.
+
+#### 3.4.6 Real-world Experiment Results
+
+(1) Results. Lastly, in order to evaluate the domain adaptation
+capability of the networks, we train all networks on synthesized data of
+categories {bench, chair, couch, table}, and then test them on
+real-world data collected by a Microsoft Kinect camera. Table 3.10
+compares the IoU and CE loss of all approaches on the real-world
+dataset. Figure 3.9 shows some qualitative results for all methods.
+
+(2) Analysis. There are two reasons why the IoU is significantly lower
+compared with testing on the synthetic dataset. First, the ground truth
+objects obtained from ElasticFusion are not as solid as the synthesized
+datasets. However, all networks predict dense and solid voxel grids, so
+the interior parts may not match though the overall object shapes are
+satisfactorily recovered as shown in Figure 3.9 . Secondly, the input
+2.5D depth view from real-world dataset is noisy and incomplete, due to
+the limitation of the RGB-D sensor ( e . g ., reflective surfaces,
+outdoor lighting). In some cases, the input 2.5D view does not capture
+the whole object and only contains a part of the object, which also
+leads to inferior reconstruction results ( e . g ., the @xmath row in
+Figure 3.9 ) and a lower IoU scores overall. However, our proposed
+network is still able to reconstruct reasonable 3D dense shapes given
+the noisy and incomplete 2.5D input depth views, while the competing
+algorithms ( e . g ., Varley et al .) are not robust to real-world noise
+and unable to generate compelling results.
+
+#### 3.4.7 Impact of Adversarial Learning
+
+(1) Results. In all above experiments, the proposed 3D-RecGAN++ tends to
+outperform the ablated network 3D-RecAE which does not include the
+adversarial learning of GAN part. In all visualization of experiment
+results, the 3D shapes from 3D-RecGAN++ are also more compelling than
+3D-RecAE. To further quantitatively investigate how the adversarial
+learning improves the final 3D results comparing with 3D-RecAE, we
+calculate the mean precision and recall from the previous multi-category
+experiment results in Section 3.4.4 . Table 3.11 compares the mean
+precision and recall of 3D-RecGAN++ and 3D-RecAE on individual
+categories using the network trained on multiple categories.
+
+(2) Analysis. It can be seen that the results of 3D-RecGAN++ tend to
+consistently have higher precision scores than 3D-RecAE, which means
+3D-RecGAN++ has less false positive estimations. Therefore, the
+estimated 3D shapes from 3D-RecAE are likely to be ‘fatter’ and
+‘bigger’, while 3D-RecGAN++ tends to predict ‘thinner’ shapes with much
+more shape details being exposed. Both 3D-RecGAN++ and 3D-RecAE can
+achieve high recall scores ( i . e ., above 0.8), which means both
+3D-RecGAN++ and 3D-RecAE are capable of estimating the major object
+shapes without too many false negatives. In other words, the ground
+truth 3D shape tends to be a subset of the estimated shape result.
+
+Overall, with regard to experiments on per-category, multi-category, and
+cross-category experiments, our 3D-RecGAN++ outperforms others by a
+large margin, although all other approaches can reconstruct reasonable
+shapes. In terms of the generality, Varley et al . [ Varley2017 ] and
+Han et al . [ Han2017 ] are inferior because Varley et al . [ Varley2017
+] use a single fully connected layers, instead of 3D ConvNets, for shape
+generation which is unlikely to be general for various shapes, and Han
+et al . [ Han2017 ] apply LSTMs for shape blocks generation which is
+inefficient and unable to learn general 3D structures. However, our
+3D-RecGAN++ is superior thanks to the generality of the 3D
+encoder-decoder and the adversarial discriminator. Besides, the 3D-RecAE
+tends to over estimate the 3D shape, while the adversarial learning of
+3D-RecGAN++ is likely to remove the over-estimated parts, so as to leave
+the estimated shape to be clearer with more shape details.
+
+#### 3.4.8 Computation Analysis
+
+Table 3.12 compares the computation efficiency of all approaches
+regarding the total number of model parameters and the average time
+consumption to recover a single object.
+
+The model proposed by Han et al . [ Han2017 ] has the least number of
+parameters because most of the parameters are shared to predict
+different blocks of an object. Our 3D-RecGAN++ has reasonable 167.1
+millions parameters, which is on a similar scale to VGG-19 ( i . e .,
+144 millions) [ Simonyan2015 ] .
+
+To evaluate the average time consumption for a single object
+reconstruction, we implement all networks in Tensorflow 1.2 and Python
+2.7 with CUDA 8.0 and cuDNN 7.1 as the back-end driver and library. All
+models are tested on a single Titan X GPU in the same hardware and
+software environments. 3D-EPN [ Dai2017b ] takes the shortest time to
+predict a @xmath object on GPU, while our 3D-RecGAN++ only needs around
+40 milliseconds to recover a dense @xmath object. Comparatively, Han et
+al . takes the longest GPU time to generate a dense object because of
+the time-consuming sequential processing of LSTMs. The low resolution
+objects predicted by 3D-EPN and Varley et al . are further upsampled to
+@xmath using existing SciPy library on a CPU server (Intel E5-2620 v4,
+32 cores). It takes around 7 seconds to finish the upsampling for a
+single object.
+
+### 3.5 Conclusion
+
+In this chapter, we proposed a framework 3D-RecGAN++ that reconstructs
+the full 3D structure of an object from an arbitrary depth view. By
+leveraging the generalization capabilities of 3D encoder-decoder and
+generative adversarial networks, our 3D-RecGAN++ predicts dense and
+accurate 3D structures with fine details, outperforming the state of the
+art in single-view shape completion for individual object category. We
+further tested our network’s ability to reconstruct multiple categories
+without providing any object class labels during training or testing,
+and it showed that our network is still able to predict precise 3D
+shapes. Furthermore, we investigated the network’s reconstruction
+performance on unseen categories, showing that our proposed approach can
+also predict satisfactory 3D structures. Finally, our model is robust to
+real-world noisy data and can infer accurate 3D shapes although the
+model is purely trained on synthesized data. This confirms that our
+network has the capability of learning general 3D latent features of the
+objects, rather than simply fitting a function for the training
+datasets, and the adversarial learning of 3D-RecGAN++ learns to add
+geometric details for estimated 3D shapes. In summary, our network only
+requires a single depth view to recover a dense and complete 3D shape
+with fine details.
+
+Although our 3D-RecGAN++ achieves the state of the art performance in 3D
+object reconstruction from a single depth view, it has limitations.
+Firstly, our network takes the volumetric representation of a single
+depth view as input, instead of taking a raw depth image. Therefore, a
+preprocessing of raw depth images is required for our network. However,
+in many application scenarios such as robot grasping, such preprocessing
+would be trivial and straightforward given the depth camera parameters.
+Secondly, the input depth view of our network only contains a clean
+object information without cluttered background. One possible solution
+is to leverage an existing segmentation algorithm such as Mask-RCNN [
+He2017a ] to clearly segment the target object instance from the raw
+depth view.
+
+## Chapter 4 Learning to Reconstruct 3D Objects from Multiple Views
+
+### 4.1 Introduction
+
+The problem of recovering a geometric representation of the 3D world
+given a set of images is classically defined as multi-view 3D
+reconstruction in computer vision. Traditional pipelines such as
+Structure from Motion (SfM) [ Ozyesil2017 ] and visual Simultaneous
+Localization and Mapping (vSLAM) [ Cadena2016 ] typically rely on
+hand-crafted feature extraction and matching across multiple views to
+reconstruct the underlying 3D model. However, if the multiple viewpoints
+are separated by large baselines, it can be extremely challenging for
+the feature matching approach due to significant changes of appearance
+or self occlusions [ Lowe2004 ] . Furthermore, the reconstructed 3D
+shape is usually a sparse point cloud without geometric details.
+
+Recently, a number of deep learning approaches, such as 3D-R2N2 [
+Chan2016 ] , LSM [ Kar2017 ] , DeepMVS [ Huang2018 ] and RayNet [
+Paschalidou2018 ] have been proposed to estimate the 3D dense shape from
+multiple images and have shown encouraging results. Both 3D-R2N2 [
+Chan2016 ] and LSM [ Kar2017 ] formulate multi-view reconstruction as a
+sequence learning problem, and leverage recurrent neural networks
+(RNNs), particularly GRUs, to fuse the multiple deep features extracted
+by a shared encoder from input images. However, there are three
+limitations. First, the recurrent network is permutation variant, i . e
+., different permutations or orderings of the input image sequence give
+different reconstruction results [ Vinyals2016a ] . Therefore,
+inconsistent 3D shapes are estimated from the same image set with
+different permutations. Second, it is difficult to capture long-term
+dependencies in the sequence because of the gradient vanishing or
+exploding [ Bengio1994 , Kolen2001 ] , so the estimated 3D shapes are
+unlikely to be refined even if more images are given during training and
+testing. Third, the RNN unit is inefficient as each element of the input
+sequence must be sequentially processed without parallelization [
+Martin2018 ] , so it is time-consuming to generate the final 3D shape
+given a sequence of images.
+
+The recent DeepMVS [ Huang2018 ] applies max pooling to aggregate deep
+features across a set of unordered images for multi-view stereo
+reconstruction, while RayNet [ Paschalidou2018 ] adopts average pooling
+to aggregate the deep features corresponding to the same voxel from
+multiple images to recover a dense 3D model. The very recent GQN [
+Eslami2018 ] uses sum pooling to aggregate an arbitrary number of
+orderless images for 3D scene representation. Although max, average and
+summation poolings do not suffer from the above limitations of the RNN,
+they tend to be ‘hard attentive’, since they only capture the max/mean
+values or the summation without learning to attentively preserve the
+useful information. In addition, the above pooling based neural nets are
+usually optimized with a specific number of input images during
+training, therefore they are not robust or general to a dynamic number
+of input images during testing. This critical issue is also observed in
+GQN [ Eslami2018 ] .
+
+In this paper, we introduce a simple yet efficient attentional
+aggregation module, named AttSets ¹ ¹ 1 Code is available at
+https://github.com/Yang7879/AttSets . It can be easily included in an
+existing multi-view 3D reconstruction network to aggregate an arbitrary
+number of elements of a deep feature set. Inspired by the attention
+mechanism, which shows great success in natural language processing [
+Bahdanau2015 , Raffel2016 ] , image captioning [ Xu2015b ] , etc. , we
+design a feed-forward neural module that can automatically learn to
+aggregate each element of the input deep feature set. In particular, as
+shown in Figure 4.1 , given a variable sized deep feature set, which
+encodes view-invariant visual representations from a shared encoder [
+Paschalidou2018 ] , our AttSets module firstly learns an attention
+activation for each latent feature through a standard neural layer ( e .
+g ., a fully connected layer, a 2D or 3D convolutional layer), after
+which an attention score is computed for the corresponding feature.
+Subsequently, the attention scores are simply multiplied by the original
+elements of the deep feature set, generating a set of weighted features
+. Lastly, the weighted features are summed across different elements of
+the deep feature set, producing a fixed size vector of aggregated
+features which are then fed into a decoder to estimate 3D shapes.
+Basically, this AttSets module can be seen as a natural extension of sum
+pooling into a “weighted” sum pooling with learnt feature-specific
+weights. AttSets shares similar concepts with the concurrent work [
+Ilse2018 ] , but it does not require the additional gating mechanism in
+[ Ilse2018 ] . Notably, our simple feed-forward design allows the
+attention module to be separately trainable according to the property of
+its gradients.
+
+In addition, we propose a new Feature-Attention Separate training
+(FASet) algorithm that elegantly decouples the base encoder-decoder (to
+learn deep features) from the AttSets module (to learn attention scores
+for features). This allows the AttSets module to learn desired attention
+scores for deep feature sets and forces the AttSets based neural
+networks to be robust and general to dynamic sized deep feature sets.
+Basically, in the proposed training algorithm, the base encoder-decoder
+neural layers are only optimized when the number of input images is 1 ,
+while the AttSets module is only optimized where there are more than 1
+input images. Eventually, the whole optimized AttSets based neural
+network achieves superior performance with a large number of input
+images, while simultaneously being extremely robust and able to
+generalize to a small number of input images, even to a single image in
+the most extreme case. Comparing with the widely used feed-forward
+attention mechanisms for visual recognition [ JieHu2018 , Rodriguez2018
+, Liu2018e , Sarafianos2018 , Girdhar2017a ] , our FASet algorithm is
+the first to investigate and improve the robustness of attention modules
+to dynamically sized input feature sets, whilst existing works are only
+applicable to fixed sized input data.
+
+Overall, our novel AttSets module and FASet algorithm are distinguished
+from all existing aggregation approaches in three ways. 1) Compared with
+RNN approaches, AttSets is permutation invariant and computationally
+efficient. 2) Compared with the widely used pooling operations, AttSets
+learns to attentively select and weigh important deep features, thereby
+being more effective to aggregate useful information for better 3D
+reconstruction. 3) Compared with existing visual attention mechanisms,
+our FASet algorithm enables the whole network to be general to variable
+sized sets, being more robust and suitable for realistic multi-view 3D
+reconstruction scenarios where the number of input images usually varies
+dramatically.
+
+Our key contributions are:
+
+-   We propose an efficient feed-forward attention module, AttSets, to
+    effectively aggregate deep feature sets. Our design allows the
+    attention module to be separately optimizable according to the
+    property of the gradients of AttSets.
+
+-   We propose a new two-stage training algorithm, FASet, to decouple
+    the base encoder/decoder and the attention module, driving the whole
+    network to be robust and general to an arbitrary number of input
+    images.
+
+-   We conduct extensive experiments on multiple public datasets,
+    demonstrating consistent improvement over existing aggregation
+    approaches for 3D object reconstruction from either single or
+    multiple views.
+
+### 4.2 Attentional Aggregation Module
+
+#### 4.2.1 Problem Definition
+
+We consider the problem of aggregating an arbitrary number of elements
+of a set @xmath into a fixed single output @xmath . Each element of set
+@xmath is a feature vector extracted from a shared encoder, and the
+fixed dimension output @xmath is fed into a subsequent decoder, such
+that the whole network can process an arbitrary number of input
+elements.
+
+Given @xmath elements in the input deep feature set @xmath , @xmath ,
+where @xmath is an arbitrary value, while @xmath is fixed for a specific
+encoder, and the output @xmath , which is then fed into the subsequent
+decoder, our task is to design an aggregation function @xmath with
+learnable weights @xmath : @xmath , which should be permutation
+invariant, i . e ., for any permutation @xmath :
+
+  -- -------- -- -------
+     @xmath      (4.1)
+  -- -------- -- -------
+
+The common pooling operations, e . g ., max/mean/sum, are the simplest
+instantiations of function @xmath where @xmath . However, these pooling
+operations are predefined and only capture partial information.
+
+#### 4.2.2 Attentional Aggregation
+
+The key idea of our AttSets module is to learn an attention score for
+each latent feature of the whole deep feature set. In this chapter,
+‘each latent feature’ refers to each entry of an individual element of
+the feature set, with an individual element usually represented by a
+latent vector, i . e ., @xmath . The learnt scores can be regarded as a
+mask that automatically selects useful latent features across the set.
+The selected features are then summed across multiple elements of the
+set.
+
+As shown in Figure 4.2 , given a set of features @xmath , @xmath ,
+AttSets aims to fuse it into a fixed dimensional output @xmath , where
+@xmath .
+
+To build the AttSets module, we first feed each element of the feature
+set @xmath into a shared function @xmath which can be a standard neural
+layer, i . e ., a linear transformation layer without any non-linear
+activation functions. Here we use a fully connected layer as an example,
+and the bias term is dropped for simplicity. The output of function
+@xmath when applied to all inputs is a set of learnt attention
+activations @xmath , where
+
+  -- -------- -- -------
+     @xmath      (4.2)
+  -- -------- -- -------
+
+Secondly, the learnt attention activations are normalized across the
+@xmath elements of the set, computing a set of attention scores @xmath .
+We choose @xmath as the normalization operation, so the attention scores
+for the @xmath feature element are
+
+  -- -------- -- -------
+     @xmath      (4.3)
+  -- -------- -- -------
+
+Thirdly, the computed attention scores @xmath are multiplied by their
+corresponding original feature set @xmath , generating a new set of deep
+features, denoted as weighted features @xmath , where
+
+  -- -------- -- -------
+     @xmath      (4.4)
+  -- -------- -- -------
+
+Lastly, the set of weighted features @xmath are summed up across the
+total @xmath elements to get a fixed size feature vector, denoted as
+@xmath , where
+
+  -- -------- -- -------
+     @xmath      (4.5)
+  -- -------- -- -------
+
+In the above formulation, we show how AttSets gradually aggregates a set
+of @xmath feature vectors @xmath into a single vector @xmath , where
+@xmath .
+
+#### 4.2.3 Permutation Invariance
+
+The output of AttSets module @xmath is permutation invariant with regard
+to the input deep feature set @xmath . Here is the simple proof.
+
+  -- -------- -- -------
+     @xmath      (4.6)
+  -- -------- -- -------
+
+In Equation 4.6 , the @xmath entry of the output @xmath is computed as
+follows:
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      
+              @xmath      (4.7)
+  -- -------- -------- -- -------
+
+where @xmath is the @xmath column of the weights @xmath . In Equation
+4.2.3 , both the denominator and numerator are a summation of a
+permutation equivariant term. Therefore the value @xmath , and also the
+full vector @xmath , is also invariant to different permutations of the
+deep feature set @xmath [ Zaheer2017 ] .
+
+#### 4.2.4 Implementation
+
+In Section 4.2.2 , we described how our AttSets aggregates an arbitrary
+number of vector features into a single vector, where the attention
+activation learning function @xmath embeds a fully connected ( @xmath )
+layer. AttSets can also be easily implemented with both 2D and 3D
+convolutional neural layers to aggregate both 2D and 3D deep feature
+sets, thus being flexible to be easily included into a 2D
+encoder/decoder or 3D encoder/decoder. Particularly, as shown in Figure
+4.3 , to aggregate a set of 2D features, i . e ., a tensor of @xmath ,
+the attention activation learning function @xmath embeds a standard
+@xmath layer with a stride of @xmath . Similarly, to fuse a set of 3D
+features, i . e ., a tensor of @xmath , the function @xmath embeds a
+standard @xmath layer with a stride of @xmath . For the above @xmath /
+@xmath layer, the filter size can be 1, 3 or many. The larger the filter
+size, the larger the local spatial area the learnt attention score is
+considered to be correlated with.
+
+Instead of embedding a single neural layer, the function @xmath is also
+flexible to include multiple layers, with the restriction that the
+tensor shape of the output of function @xmath is required to be
+consistent with the input element @xmath . This guarantees each
+individual feature of the input set @xmath will be associated with a
+learnt and unique weight. For example, a standard 2-layer or 3-layer
+ResNet module [ He2016b ] could be a candidate of the function @xmath .
+The more the layers that @xmath embeds, the greater the capability of
+the AttSets module is expected to be.
+
+Compared with @xmath enabled AttSets, the @xmath or @xmath based AttSets
+variants tend to have fewer learnable parameters. Note that both the
+@xmath and @xmath based AttSets are still permutation invariant, as the
+function @xmath is shared across all elements of the deep feature set
+and it does not depend on the order of the elements [ Zaheer2017 ] .
+
+### 4.3 Feature Attention Separate Training
+
+#### 4.3.1 Motivation
+
+Our AttSets module can be included in an existing encoder-decoder
+multi-view 3D reconstruction network, replacing the RNN units or pooling
+operations. Essentially, in an AttSets enabled encoder-decoder net, the
+encoder-decoder serves as the base architecture to learn visual features
+for shape estimation, while the AttSets module learns to assign
+different attention scores to combine those features. As such, the base
+network tends to have robustness and generality with regard to different
+input image content, while the AttSets module tends to be generally
+applicable to an arbitrary number of input images.
+
+However, to achieve this robustness is not straightforward. The standard
+end-to-end joint optimization approach is unable to force that the base
+encoder-decoder and AttSets are able to learn visual features and the
+corresponding scores separately, because there are no explicit feature
+score labels available to directly supervise the AttSets module.
+
+Let us revisit Equation 4.2.3 below and draw insights from it.
+
+  -- -------- -- -------
+     @xmath      (4.8)
+  -- -------- -- -------
+
+where @xmath is the size of an arbitrary input set and @xmath are the
+AttSets parameters to be optimized. If @xmath is 1, then the equation
+can be simplified as
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      (4.9)
+     @xmath   @xmath      (4.10)
+  -- -------- -------- -- --------
+
+This shows that none of the parameters, i . e ., @xmath , of the AttSets
+module will be optimized when the size of the input feature set is 1.
+
+However, if @xmath , Equation 4.8 is unable to be simplified to Equation
+4.9 . Therefore,
+
+  -- -------- -- --------
+     @xmath      (4.11)
+  -- -------- -- --------
+
+This shows that both the parameters of AttSets and the base
+encoder-decoder layers will be optimized simultaneously, if the whole
+network is trained in the standard end-to-end fashion.
+
+Here arises the critical issue. When @xmath , all derivatives of the
+parameters in the encoder are different from the derivatives when @xmath
+due to the chain rule of differentiation applied backwards from @xmath .
+Put simply, the derivatives of encoder are @xmath -dependent . As a
+consequence, the encoded visual features and the learnt attention scores
+would be @xmath -biased if the whole network is jointly trained. This
+biased network is unable to generalize to an arbitrary value of @xmath
+during testing.
+
+To illustrate the above issue, assuming the base encoder-decoder and the
+AttSets module are jointly trained given @xmath images to reconstruct
+every object, the base encoder will be eventually optimized towards
+@xmath -view object reconstruction during training. The trained network
+can indeed perform well given 5 views during testing, but it is unable
+to predict a satisfactory object shape given only 1 image.
+
+To alleviate the above problem, a naive approach is to enumerate various
+values of @xmath during the joint training, such that the final
+optimized network can be somewhat robust and general to arbitrary @xmath
+during testing. However, this approach would inevitably optimize the
+encoder to learn the mean features of input data for varying @xmath .
+The overall performance will hence not be optimal. In addition, it is
+impractical and also time-consuming to enumerate all values of @xmath
+during training.
+
+Stage 1:
+
+for number of training iterations do
+
+@xmath Sample @xmath sets of images @xmath and sample @xmath images for
+each set, i . e ., @xmath . Sample @xmath 3D shape labels @xmath .
+
+@xmath Update the base network by descending its stochastic gradient:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Stage 2:
+
+for number of training iterations do
+
+@xmath Sample @xmath sets of images @xmath and sample @xmath images for
+each set, i . e ., @xmath . Sample @xmath 3D shape labels @xmath .
+
+@xmath Update the AttSets module by descending its stochastic gradient:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The gradient-based updates can use any gradient optimization algorithm.
+
+Algorithm 1 Feature-Attention Separate training of an AttSets enabled
+network. @xmath is batch size, @xmath is image number.
+
+#### 4.3.2 Algorithm
+
+To resolve the critical issue discussed in Section 4.3.1 , we propose a
+Feature-Attention Separate training (FASet) algorithm that decouples the
+base encoder-decoder and the AttSets module, enabling the base
+encoder-decoder to learn robust deep features and the AttSets module to
+learn the desired attention scores for the feature sets.
+
+In particular, the base encoder-decoder neural layers are only optimized
+when a single input image is supplied, while the AttSets module is only
+optimized where there are more than one input images. In this regard,
+the parameters of the base encoding layers have consistent derivatives
+over the whole training stage, thus being steadily optimized. In the
+meantime, the AttSets module would be optimized solely based on multiple
+elements of learnt visual features from the shared encoder.
+
+The trainable parameters of the base encoder-decoder are denoted as
+@xmath , and the trainable parameters of AttSets module are denoted as
+@xmath , and the loss function of the whole network is represented by
+@xmath which is determined by the specific supervision signal of the
+base network. Our FASet is shown in Algorithm 1 . It can be seen that
+@xmath and @xmath are completely decoupled from one another, thus being
+separately optimized in two stages. In stage 1, the @xmath is firstly
+well optimized until convergence, which guarantees the base
+encoder-decoder is able to learn robust and general visual features. In
+stage 2, the @xmath is optimized to learn attention scores for
+individual visual features. Basically, this module learns to select and
+weigh important deep features automatically.
+
+In FASet algorithm, once the @xmath is well optimized in stage 1, it is
+not necessary to train it again, since the two-stage algorithm
+guarantees that optimizing @xmath is agnostic to the attention module.
+The FASet algorithm is a crucial component to maintain the superior
+robustness of the AttSets module, as is shown in Section 4.4.13 .
+Without it, the feed-forward attention mechanism is ineffective with
+respect to dynamically sized input sets.
+
+### 4.4 Experiments
+
+#### 4.4.1 Base Networks
+
+To evaluate the performance and various properties of AttSets, we choose
+the encoder-decoders of 3D-R2N2 [ Chan2016 ] and SilNet [ Wiles2017 ] as
+two base networks.
+
+-   Encoder-decoder of 3D-R2N2. The original 3D-R2N2 consists of (1) a
+    shared ResNet-based 2D encoder which encodes a size of @xmath images
+    into @xmath dimensional latent vectors, (2) a GRU module which fuses
+    @xmath @xmath dimensional latent vectors into a single @xmath
+    tensor, and (3) a ResNet-based 3D decoder which decodes the single
+    tensor into a @xmath voxel grid representing the 3D shape. Figure
+    4.4 shows the architecture of AttSets based multi-view 3D
+    reconstruction network where the only difference is that the
+    original GRU module is replaced by AttSets in the middle. This
+    network is called Base @xmath -AttSets.
+
+-   Encoder-decoder of SilNet. The original SilNet consists of (1) a
+    shared 2D encoder which encodes a size of @xmath images together
+    with image viewing angles into @xmath dimensional latent
+    vectors, (2) a max pooling module which aggregates @xmath latent
+    vectors into a single vector, and (3) a 2D decoder which estimates
+    an object silhouette ( @xmath ) from the single latent vector and a
+    new viewing angle. Instead of being explicitly supervised by 3D
+    shape labels, SilNet aims to implicitly learn a 3D shape
+    representation from multiple images via the supervision of 2D
+    silhouettes. Figure 4.5 shows the architecture of AttSets based
+    SilNet where the only difference is that the original max pooling is
+    replaced by AttSets in the middle. This network is called Base
+    @xmath -AttSets.
+
+#### 4.4.2 Competing Approaches
+
+We compare our AttSets and FASet with three groups of competing
+approaches. Note that all the following competing approaches are
+connected at the same location of the base encoder-decoder shown in the
+pink block of Figures 4.4 and 4.5 , with the same network configurations
+and training/testing settings.
+
+-   RNNs. The original 3D-R2N2 makes use of the GRU [ Chan2016 , Kar2017
+    ] unit for feature aggregation and serves as a solid baseline.
+
+-   First-order poolings. The widely used max / mean / sum pooling
+    operations [ Huang2018 , Paschalidou2018 , Eslami2018 ] are all
+    implemented for comparison.
+
+-   Higher-order poolings. We also compare with the state-of-the-art
+    higher-order pooling approaches, including bilinear pooling ( BP ) [
+    Lin2015 ] , and the very recent MHBN [ Yu2018a ] and SMSO poolings [
+    Yu2018b ] .
+
+#### 4.4.3 Datasets
+
+All approaches are evaluated on four large open datasets.
+
+-   ShapeNet @xmath Dataset [ Chan2016 ] . The released 3D-R2N2 dataset
+    consists of @xmath categories of @xmath common objects with
+    synthesized RGB images from the large scale ShapeNet 3D repository [
+    Chang2015 ] . For each 3D object, @xmath images are rendered from
+    different viewing angles circling around each object. The train/test
+    dataset split is @xmath .
+
+-   ShapeNet @xmath Dataset [ Kar2017 ] . Both LSM and 3D-R2N2 datasets
+    are generated from the same 3D ShapeNet repository [ Chang2015 ] , i
+    . e ., they have the same ground truth labels regarding the same
+    object. However, the ShapeNet @xmath dataset has totally different
+    camera viewing angles and lighting sources for the rendered RGB
+    images. Therefore, we use the ShapeNet @xmath dataset to evaluate
+    the robustness and generality of all approaches. All images of
+    ShapeNet @xmath dataset are resized from @xmath to @xmath through
+    linear interpolation.
+
+-   ModelNet40 Dataset. ModelNet40 [ Wu2015 ] consists of @xmath objects
+    belonging to 40 categories. The 3D models are split into @xmath
+    training samples and @xmath testing samples. For each 3D model, it
+    is voxelized into a @xmath shape in [ Qi2016a ] , and 12 RGB images
+    are rendered from different viewing angles.All 3D shapes are
+    zero-padded to be @xmath , and the images are linearly resized from
+    @xmath to @xmath for training and testing.
+
+-   Blobby Dataset [ Wiles2017 ] . It contains @xmath blobby objects.
+    Each object has @xmath RGB images paired with viewing angles and the
+    corresponding silhouettes, which are generated from Cycles in
+    Blender under different lighting sources and texture models.
+
+#### 4.4.4 Metrics
+
+The explicit 3D voxel reconstruction performance of Base @xmath -AttSets
+and the competing approaches is evaluated on three datasets: ShapeNet
+@xmath , ShapeNet @xmath and ModelNet40. We use the mean
+Intersection-over-Union (IoU) [ Chan2016 ] between predicted 3D voxel
+grids and their ground truth as the metric. The IoU for an individual
+voxel grid is formally defined as follows:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+@xmath @xmath is an indicator function, @xmath is the predicted value
+for the @xmath voxel, @xmath is the corresponding ground truth, @xmath
+is the threshold for voxelization, @xmath is the total number of voxels
+in a whole voxel grid. As there is no validation split in the above
+three datasets, to calculate the IoU scores, we independently search the
+optimal binarization threshold value from @xmath with a step @xmath for
+all approaches for fair comparison. In our experiments, we found that
+all optimal thresholds of different approaches end up with @xmath or
+@xmath .
+
+The implicit 3D shape learning performance of Base @xmath -AttSets and
+the competing approaches is evaluated on the Blobby dataset. The mean
+IoU between predicted 2D silhouettes and the ground truth is used as the
+metric [ Wiles2017 ] .
+
+#### 4.4.5 Evaluation on ShapeNet@xmath Dataset
+
+To fully evaluate the aggregation performance and robustness, we train
+the Base @xmath -AttSets and its competing approaches on ShapeNet @xmath
+dataset. For fair comparison, all networks (the pooling/GRU/AttSets
+based approaches) are trained according to the proposed two-stage
+training algorithm.
+
+Training Stage 1. All networks are trained given only 1 image for each
+object, i . e ., @xmath in all training iterations, until convergence.
+Basically, this is to guarantee all networks are well optimized for the
+extreme case where there is only one input image.
+
+Training Stage 2. To enable these networks to be more robust for
+multiple input images, all networks are further trained given more
+images per object. Particularly, we conduct the following five parallel
+groups of training experiments.
+
+-   Group 1. All networks are further trained given only 2 images for
+    each object, i . e ., @xmath in all iterations. As with our Base
+    @xmath -AttSets, the well-trained encoder-decoder in previous stage
+    1 is frozen, and we only optimize the AttSets module according to
+    our FASet algorithm 1 . For the competing approaches, e . g ., GRU
+    and all poolings, we fine-tune the whole networks because they do
+    not have separate parameters suitable for special training. To be
+    specific, we use smaller learning rate (1e-5) to carefully train
+    these networks to achieve better performance where @xmath until
+    convergence.
+
+-   Group 2/3/4. Similarly, in these three groups of second-stage
+    training experiments, @xmath is set to 8, 16 and 24 separately.
+
+-   Group 5. All networks are further trained until convergence, but
+    @xmath is uniformly and randomly sampled from @xmath for each object
+    during training. In the above Group 1/2/3/4, @xmath is fixed for
+    each object, while @xmath is dynamic for each object in Group 5.
+
+In the above experiment, Groups 1/2/3/4 are designed to investigate how
+all competing approaches would be further optimized towards the
+statistics of a fixed @xmath during training, thus resulting in
+different levels of robustness given an arbitrary number of @xmath
+during testing. By contrast, the paradigm in Group 5 aims at enumerating
+all possible @xmath values during training. Therefore the overall
+performance might be more robust with an arbitrary number of input
+images during testing, compared with the above Group 1/2/3/4
+experiments.
+
+Testing Stage. All networks trained in the above five groups of
+experiments are separately tested given @xmath . The permutations of
+input images are the same for all different approaches for fair
+comparison. Note that, we do not test the networks which are only
+trained in Stage 1, because the AttSets module is not optimized and the
+corresponding Base @xmath -AttSets is unable to generalize to multiple
+input images during testing. Therefore, it is meaningless to compare the
+performance when the network is solely trained on a single image.
+
+Results. Tables 4.1 @xmath 4.5 show the mean IoU scores of all 13
+categories for experiments of Group 1 @xmath 5, while Figures 4.10
+@xmath 4.10 show the trends of mean IoU changes in different Groups.
+Figure 4.11 shows the estimated 3D shapes in experiment Group 5, with an
+increasing number of images from 1 to 5 for different approaches.
+
+We notice that the reported IoU scores of ShapeNet data repository in
+the original LSM [ Kar2017 ] are higher than our scores. However, the
+experimental settings in LSM [ Kar2017 ] are quite different from ours
+in the following two ways. 1) The original LSM requires both RGB images
+and the corresponding viewing angles as input, while all our experiments
+do not. 2) The original LSM dataset has different styles of rendered
+color images and different train/test splits compared with our
+experimental settings. Therefore the reported IoU scores in LSM are not
+directly comparable with ours and we do not include the results in this
+paper to avoid confusion. Note that, the aggregation module of LSM [
+Kar2017 ] , i . e ., GRU, is the same as used in 3D-R2N2 [ Chan2016 ] ,
+and is indeed fully evaluated throughout our experiments.
+
+To highlight the performance of single view 3D reconstruction, Table 4.6
+shows the optimal per-category IoU scores for different competing
+approaches from experiments Group 1 @xmath 5. In addition, we also
+compare with the state-of-the-art dedicated single view reconstruction
+approaches including OGN [ Tatarchenko2017 ] , AORM [ Yang2018c ] and
+PointSet [ Fan2017 ] in Table 4.6 . Overall, our AttSets based approach
+outperforms all others by a large margin for either single view or multi
+view reconstruction, and generates much more compelling 3D shapes.
+
+Analysis. We investigate the results as follows:
+
+-   The GRU based approach can generate reasonable 3D shapes in all
+    experiments Group 1 @xmath 5 given either few or multiple images
+    during testing, but the performance saturates quickly after being
+    given more images, e . g ., 8 views, because the recurrent unit is
+    not particularly capable of capturing features from longer image
+    sequences, as illustrated in Figure 4.10 [] .
+
+-   In Group 1 @xmath 4, all pooling based approaches are able to
+    estimate satisfactory 3D shapes when given a similar number of
+    images in testing as in training, but they are unlikely to predict
+    reasonable shapes given an arbitrary number of images. For example,
+    in experiment Group 4, all pooling based approaches have inferior
+    IoU scores given only few images as shown in Table 4.4 and Figure
+    4.10 [] , because the pooled features from fewer images during
+    testing are unlikely to be as general and representative as pooled
+    features from more images during training. Therefore, those models
+    trained on @xmath images fail to generalize well to only one image
+    during testing.
+
+-   In Group 5, as shown in Table 4.5 and Figure 4.10 , all pooling
+    based approaches are much more robust compared with Group 1 @xmath
+    4, because the networks are generally optimized according to an
+    arbitrary number of images during training. However, these networks
+    tend to have the performance in the middle . Compared with Group 4,
+    all approaches in Group 5 tend to have better performance when
+    @xmath , while being worse when @xmath . Compared with Group 1, all
+    approaches in Group 5 are likely to be better when @xmath , while
+    being worse when @xmath . Basically, these networks tend to be
+    optimized to learn the mean features overall.
+
+-   In all experiments Group 1 @xmath 5, all approaches tend to have
+    better performance when given sufficiently many input images, i . e
+    ., @xmath , because more images are able to provide enough
+    information for reconstruction.
+
+-   In all experiments Group 1 @xmath 5, our AttSets based approach
+    clearly outperforms all others in either single or multiple view 3D
+    reconstruction and it is more robust to a variable number of input
+    images. Our FASet algorithm completely decouples the base network to
+    learn visual features for accurate single view reconstruction as
+    illustrated in Figure 4.10 [] , while the trainable parameters of
+    AttSets module are separately responsible for learning attention
+    scores for better multi-view reconstruction as shown in Figure 4.10
+    [] . Therefore, the whole network does not suffer from limitations
+    of GRU or pooling approaches, and can achieve better performance for
+    either fewer or more image reconstruction.
+
+#### 4.4.6 Evaluation on ShapeNet@xmath Dataset
+
+To further investigate how well the learnt visual features and attention
+scores generalize across different style of images, we use the well
+trained networks of previous Group 5 of Section 4.4.5 to test on the
+large ShapeNet @xmath dataset. Note that, we only borrow the synthesized
+images from ShapeNet @xmath dataset corresponding to the objects in
+ShapeNet @xmath testing split. This guarantees that all the trained
+models have never seen either the style of LSM rendered images or the 3D
+object labels before. The image viewing angles from the original
+ShapeNet @xmath dataset are not used in our experiments, since the Base
+@xmath network does not require image viewing angles as input. Table 4.7
+shows the mean IoU scores of all approaches, while Figure 4.12 shows the
+qualitative results.
+
+Our AttSets based approach outperforms all others given either few or
+multiple input images. This demonstrates that our Base @xmath -AttSets
+approach does not overfit the training data, but has better generality
+and robustness over new styles of rendered color images compared with
+other approaches.
+
+#### 4.4.7 Evaluation on ModelNet40 Dataset
+
+We train the Base @xmath -AttSets and its competing approaches on
+ModelNet40 dataset from scratch. For fair comparison, all networks (the
+pooling/GRU/AttSets based approaches) are trained according to the
+proposed FASet algorithm, which is similar to the two-stage training
+strategy of Section 4.4.5 .
+
+Training Stage 1. All networks are trained given only 1 image for each
+object, i . e ., @xmath in all training iterations, until convergence.
+This guarantees all networks are well optimized for single view 3D
+reconstruction.
+
+Training Stage 2. We further conduct the following two parallel groups
+of training experiments to optimize the networks for multi-view
+reconstruction.
+
+-   Group 1. All networks are further trained given all 12 images for
+    each object, i . e ., @xmath in all iterations, until convergence.
+    As with our Base @xmath -AttSets, the well-trained encoder-decoder
+    in the previous Stage 1 is frozen, and only the AttSets module is
+    trained. All other competing approaches are fine-tuned using a
+    smaller learning rate (1e-5) in this stage.
+
+-   Group 2. All networks are further trained until convergence, but
+    @xmath is uniformly and randomly sampled from @xmath for each object
+    during training. Only the AttSets module is trained, while all other
+    competing approaches are fine-tuned in Stage 2.
+
+Testing Stage. All networks trained in the above two groups are
+separately tested given @xmath . The permutations of input images are
+the same for all different approaches for fair comparison.
+
+Results. Tables 4.8 and 4.9 show the mean IoU scores of Groups 1 and 2
+respectively, and Figure 4.13 shows qualitative results of Group 2. The
+Base @xmath -AttSets surpasses all competing approaches by a large
+margin for both single and multiple view 3D reconstruction, and all the
+results are consistent with previous experimental results on both
+ShapeNet @xmath and ShapeNet @xmath datasets.
+
+#### 4.4.8 Evaluation on Blobby Dataset
+
+In this section, we evaluate the Base @xmath -AttSets and the competing
+approaches on the Blobby dataset. For fair comparison, the GRU module is
+implemented with a single fully connected layer of 160 hidden units,
+which has similar network capacity with our AttSets based network. All
+networks (the pooling/GRU/AttSets based approaches) are trained with the
+proposed two-stage FASet algorithm as follows:
+
+Training Stage 1. All networks are trained given only 1 image together
+with the viewing angle for each object, i . e ., @xmath =1 in all
+training iterations, until convergence. This guarantees the performance
+of single view shape learning.
+
+Training Stage 2. Another two parallel groups of training experiments
+are conducted to further optimize the networks for multi-view shape
+learning.
+
+-   Group 1. All networks are further trained given only 2 images for
+    each object, i . e ., @xmath =2 in all iterations. As to Base @xmath
+    -AttSets, only the AttSets module is optimized with the well-trained
+    base encoder-decoder being frozen. For fair comparison, all
+    competing approaches are fine-tuned given 2 images per object for
+    better performance where @xmath =2 until convergence.
+
+-   Group 2. Similar to the above Group 1, all networks are further
+    trained given all 4 images for each object, i . e ., @xmath =4,
+    until convergence.
+
+Testing Stage. All networks trained in the above two groups are
+separately tested given @xmath = [1,2,3,4]. The permutations of input
+images are the same for all different networks for fair comparison.
+
+Results. Tables 4.10 and 4.11 show the mean IoUs of the above two groups
+of experiments and Figure 4.14 shows the qualitative results of Group 2.
+Note that, the IoUs are calculated on predicted 2D silhouettes instead
+of 3D voxels, so they are not numerically comparable with previous
+experiments on ShapeNet @xmath , ShapeNet @xmath , and ModelNet40
+datasets. We do not include the IoU scores of the original SilNet [
+Wiles2017 ] , because the original IoU scores are obtained from an
+end-to-end training strategy. In this paper, we uniformly apply the
+proposed two-stage FASet training paradigm on all approaches for fair
+comparison. Our Base @xmath -AttSets consistently outperforms all
+competing approaches for shape learning from either single or multiple
+views.
+
+#### 4.4.9 Qualitative Results on Real-world Images
+
+To the best of our knowledge, there is no public real-world dataset for
+multi-view 3D object reconstruction. Therefore, we manually collect real
+world images from Amazon online shops to qualitatively demonstrate the
+generality of all networks which are trained on the synthetic ShapeNet
+@xmath dataset in experiment Group 4 of Section 4.4.5 , as shown in
+Figure 4.15 .
+
+In the meantime, we use these real-world images to qualitatively show
+the permutation invariance of different approaches. In particular, for
+each object, we use 6 different permutations in total for testing. As
+shown in Figure 4.16 , the GRU based approach generates inconsistent 3D
+shapes given different image permutations. For example, the arm of a
+chair and the leg of a table can be reconstructed in permutation 1, but
+fail to be recovered in another permutation. By comparison, all other
+approaches are permutation invariant, as shown in Figure 4.15 .
+
+#### 4.4.10 Computational Efficiency
+
+To evaluate the computation and memory cost of AttSets, we implement
+Base @xmath -AttSets and the competing approaches in Python 2.7 and
+Tensorflow 1.2 with CUDA 9.0 and cuDNN 7.1 as the back-end driver and
+library. All approaches share the same Base @xmath network and run in
+the same Titan X and software environments. Table 5.4 shows the average
+time consumption to reconstruct a single 3D object given different
+number of images. Our AttSets based approach is as efficient as the
+pooling methods, while Base @xmath -GRU ( i . e ., 3D-R2N2) takes more
+time when processing an increasing number of images due to the
+sequential computation mechanism of its GRU module. In terms of the
+total trainable weights, the max/mean/sum pooling based approaches have
+@xmath million, while AttSets based net has @xmath million. By contrast,
+the original 3D-R2N2 has @xmath million, the BP/MHBN/SMSO have @xmath
+and @xmath million respectively. Overall, our AttSets outperforms the
+recurrent unit and pooling operations without incurring notable
+computation and memory cost.
+
+#### 4.4.11 Comparison between Variants of AttSets
+
+We further compare the aggregation performance of @xmath , @xmath and
+@xmath based AttSets variants in Figure 4.3 in Section 4.2.4 . The
+@xmath based AttSets net is the same as in Section 4.4.5 . The @xmath
+based AttSets is inserted into the middle of the 2D encoder, fusing a
+@xmath tensor into @xmath , where @xmath is an arbitrary image number.
+The @xmath based AttSets is inserted into the middle of the 3D decoder,
+integrating a @xmath tensor into @xmath . All other layers of these
+variants are the same. Both the @xmath and @xmath based AttSets networks
+are trained using the paradigm of experiment Group 4 in Section 4.4.5 .
+Table 4.13 shows the mean IoU scores of three variants on ShapeNet
+@xmath testing split. The @xmath and @xmath based variants achieve
+similar IoU scores for either single or multi view 3D reconstruction,
+demonstrating the superior aggregation capability of AttSets. In the
+meantime, we observe that the overall performance of @xmath based
+AttSets net is slightly decreased compared with the other two. One
+possible reason is that the 2D feature set has been aggregated at an
+early layer of the network, resulting in features being lost early.
+Figure 4.17 visualizes the learnt attention scores for a 2D feature set,
+i . e ., @xmath features, via the @xmath based AttSets net. To visualize
+2D feature scores, we average the scores along the channel axis and then
+roughly trace back the spatial locations of those scores corresponding
+to the original input. The more visual information the input image has,
+the higher the attention scores that are learnt by AttSets for the
+corresponding latent features. For example, the third image has richer
+visual information than the first image, so its attention scores are
+higher. Note that, for a specific base network, there are many potential
+locations to drop in AttSets and it is also possible to include multiple
+AttSets modules into the same net. How to fully evaluate these factors
+is suggested as an interesting direction for future work.
+
+#### 4.4.12 Feature-wise Attention @xmath Element-wise Attention
+
+Our AttSets module is initially designed to learn unique feature-wise
+attention scores for the whole input deep feature set, and we
+demonstrate that it significantly improves the aggregation performance
+over dynamic feature sets in Sections 4.4.5 , 4.4.6 , 4.4.7 and 4.4.8 .
+In this section, we further investigate the advantage of this
+feature-wise attentive pooling over element-wise attentional
+aggregation.
+
+For element-wise attentional aggregation, the AttSets module tends to
+learn a single attention score for each element of the feature set
+@xmath , followed by the @xmath normalization and weighted summation
+pooling. In particular, as shown in Figure 4.2 , the shared function
+@xmath now learns a scalar, instead of a vector, as the attention
+activation for each input element. Eventually, all features within the
+same element are weighted by a learnt common attention score.
+Intuitively, the original feature-wise AttSets tends to be fine-grained
+aggregation, while the element-wise AttSets learns coarse aggregate
+features.
+
+Following the same training settings of experiment Group 4 in Section
+4.4.5 , we conduct another group of experiments on the ShapeNet @xmath
+dataset for element-wise attentional aggregation. Table 4.14 compares
+the mean IoU for 3D object reconstruction through feature-wise and
+element-wise attentional aggregation. Figure 4.18 shows an example of
+the learnt attention scores and the predicted 3D shapes. As expected,
+the feature-wise attention mechanism clearly achieves better aggregation
+performance compared with the coarse element-wise approach. As shown in
+Figure 4.18 , the element-wise attention mechanism tends to focus on a
+few images, while completely ignoring others. By comparison, the
+feature-wise AttSets learns to fuse information across all images, thus
+achieving better aggregation performance.
+
+#### 4.4.13 Significance of FASet Algorithm
+
+In this section, we investigate the impact of FASet algorithm by
+comparing it with the standard end-to-end joint training (JoinT).
+Particularly, in JoinT, all parameters @xmath and @xmath are jointly
+optimized with a single loss. Following the same training settings of
+experiment Group 4 in Section 4.4.5 , we conduct another group of
+experiments on ShapeNet @xmath dataset under the JoinT training
+strategy. As IoU scores shown in Table 4.15 , the JoinT training
+approach tends to optimize the whole net given the training multi-view
+batches, thus being unable to generalize well for fewer images during
+testing. Effectively, the network itself is unable to dedicate its base
+layers to learning visual features, decoupling the AttSets module to
+learning attention scores. The theoretical reason behind this has been
+discussed previously in Section 4.3.1 . The FASet algorithm may also be
+applicable to other learning based aggregation approaches, as long as
+the aggregation module can be decoupled from the base encoder/decoder.
+
+### 4.5 Conclusion
+
+In this chapter, we present AttSets module and the FASet training
+algorithm to aggregate elements of deep feature sets. AttSets together
+with FASet has powerful permutation invariance, computation efficiency,
+robustness and flexible implementation properties, along with
+theoretical underpinnings and extensive experiments to support its
+prowess for multi-view 3D reconstruction. Both quantitative and
+qualitative results explicitly show that AttSets significantly
+outperforms other widely used aggregation approaches. Nonetheless, all
+of our experiments are dedicated to multi-view 3D reconstruction. It
+would be interesting to explore the generality of AttSets and FASet over
+other set-based tasks such as point cloud classification and semantic
+segmentation [ Qi2016 ] , multi-view object recognition [ Su2015 ] and
+image tagging [ Zaheer2017 ] . These tasks usually take an arbitrary
+number of elements as input.
+
+## Chapter 5 Learning to Segment 3D Objects from Point Clouds
+
+### 5.1 Introduction
+
+Imbuing machines with the ability to understand 3D scenes is a
+fundamental necessity for a number of key applications such as
+autonomous driving, augmented reality and robotics. Core problems over
+3D geometric data, such as point clouds, include semantic segmentation,
+object detection and instance segmentation. Of these problems, instance
+segmentation has only started to be tackled in the literature. The
+primary obstacle is that point clouds are inherently unordered,
+unstructured and unevenly sampled. Widely used convolutional neural
+networks require the 3D point clouds to be voxelized into a regular
+grid, incurring high computational and memory costs.
+
+The first neural algorithm to directly tackle 3D instance segmentation
+is SGPN [ Wang2018d ] , which learns to group per-point features through
+a similarity matrix. Similarly, ASIS [ Wang2019 ] , JSIS3D [ Pham2019 ]
+, MASC [ Liu2019 ] , 3D-BEVIS [ Elich2019 ] and [ Liang2019 ] apply the
+same per-point feature grouping pipeline to segment 3D instances. Mo et
+al . formulate the instance segmentation as a per-point feature
+classification problem in PartNet [ Mo2019 ] . However, the learnt
+segments of these proposal-free methods do not have high objectness as
+they do not explicitly detect the object boundaries. In addition, they
+inevitably require a post-processing step such as mean-shift clustering
+[ Comaniciu2002 ] to obtain the final instance labels, which is
+computationally heavy. Another pipeline is the proposal-based 3D-SIS [
+Hou2019 ] and GSPN [ Yi2019 ] , which usually rely on two-stage training
+and the expensive non-maximum suppression to prune dense object
+proposals.
+
+Figure 5.1 illustrates the existing two pipelines for instance
+segmentation for 3D point clouds. Overall, the proposal-free methods
+learn to cluster point features, while the proposal-based approaches
+firstly generate candidate bounding boxes based on spatial anchors and
+then classify the points within each bounding box.
+
+In this chapter, we present an elegant, efficient, and novel framework
+for 3D instance segmentation, where objects are loosely but uniquely
+detected through a single-forward stage using efficient MLPs, and then
+each instance is precisely segmented through a simple point-level binary
+classifier. To this end, we introduce a new bounding box prediction
+module together with a series of carefully designed loss functions to
+directly learn object boundaries. Our framework is significantly
+different from existing proposal-based and proposal-free approaches,
+since we are able to efficiently segment all instances with high
+objectness, but without relying on expensive and dense object proposals.
+Our code and data are available at https://github.com/Yang7879/3D-BoNet
+.
+
+As shown in Figure 5.2 , our framework, called 3D-BoNet , is a
+single-stage, anchor-free, and end-to-end trainable neural architecture.
+It first uses an existing backbone network to extract a local feature
+vector for each point and a global feature vector for the whole input
+point cloud. The backbone is followed by two branches: 1) instance-level
+bounding box prediction, and 2) point-level mask prediction for instance
+segmentation.
+
+The bounding box prediction branch is the core of our framework. This
+branch aims to predict a unique, unoriented and rectangular bounding box
+for each instance in a single forward stage, without relying on
+predefined spatial anchors or a region proposal network [ Ren2015a ] .
+As shown in Figure 5.3 , we believe that roughly drawing a 3D bounding
+box for an instance is relatively achievable, because the input point
+clouds explicitly include 3D geometry information. Once the object
+bounding boxes are specified, it becomes easier to tackle point-level
+instance segmentation since reasonable bounding boxes can guarantee high
+objectness for learnt segments. However, learning good instance boxes
+involves two critical issues: 1) the number of total instances is
+variable, i . e ., from 1 to many, 2) there is no fixed order for all
+instances. These issues pose significant challenges for correctly
+optimizing the network, because there is no information to directly link
+predicted boxes with ground truth labels to supervise the network.
+However, we show how to elegantly solve these issues. The proposed box
+prediction branch simply takes the global feature vector as input and
+directly outputs a large and fixed number of bounding boxes together
+with confidence scores. These scores are used to indicate whether it is
+likely that the box contains a valid instance or not. To supervise the
+network, we design a novel bounding box association layer followed by a
+multi-criteria loss function . Given a set of ground-truth instances, we
+need to determine which of the predicted boxes best fit them. We
+formulate this association process as an optimal assignment problem with
+an existing solver. After the boxes have been optimally associated, our
+multi-criteria loss function not only minimizes the Euclidean distance
+of paired boxes, but also maximizes the coverage of valid points inside
+the predicted boxes.
+
+The predicted boxes together with point and global features are then fed
+into the subsequent point mask prediction branch , in order to predict a
+point-level binary mask for each instance. The purpose of this branch is
+to classify whether each point inside a bounding box belongs to the
+valid instance or the background. Assuming the estimated instance box is
+reasonably good, it is very likely that an accurate point mask can be
+obtained, as the purpose of this branch is simply to reject points that
+are not part of the detected instance. As a degenerate example, randomly
+guessing could, on average, bring about @xmath corrections.
+
+Overall, our framework is distinguished from all existing 3D instance
+segmentation approaches in three distinct ways: 1) Compared with the
+proposal-free pipeline, our method segments instances with high
+objectness by explicitly learning 3D object boundaries. 2) Compared with
+the widely-used proposal-based approaches, our framework does not
+require expensive and dense proposals. 3) Our framework is remarkably
+efficient, since the instance-level masks are learnt in a single-forward
+pass without requiring any post-processing steps. Our key contributions
+are:
+
+-   We propose a new framework for instance segmentation on 3D point
+    clouds. The framework is single-stage, anchor-free and end-to-end
+    trainable, without requiring any post-processing steps.
+
+-   We design a novel bounding box association layer followed by a
+    multi-criteria loss function to supervise the box prediction branch.
+
+-   We demonstrate significant improvement over baselines and provide
+    insight and intuition behind our design choices through extensive
+    ablation studies.
+
+### 5.2 Method Overview
+
+As shown in Figure 5.4 , our framework consists of two branches on top
+of the backbone network. Given an input point cloud @xmath with @xmath
+points in total, i . e ., @xmath , where @xmath is the number of
+channels such as the location @xmath and color @xmath of each point, the
+backbone network extracts per-point local features, denoted as @xmath ,
+and aggregates a global point cloud feature vector, denoted as @xmath ,
+where @xmath is the length of feature vectors.
+
+The bounding box prediction branch simply takes the global feature
+vector @xmath as input, and directly regresses a predefined and fixed
+set of bounding boxes, denoted as @xmath , and the corresponding box
+scores, denoted as @xmath . We use ground truth bounding box information
+to supervise this branch. During training, the predicted bounding boxes
+@xmath and the ground truth boxes are fed into a box association layer .
+This layer aims to automatically associate a unique and the most similar
+predicted bounding box to each ground truth box. The output of the
+association layer is a list of association indices @xmath . The indices
+reorganize the predicted boxes, such that each ground truth box is
+paired with a unique predicted box for subsequent loss calculation. The
+predicted bounding box scores are also reordered accordingly before
+calculating loss. The reordered predicted bounding boxes are then fed
+into the multi-criteria loss function . At a high-level, this loss
+function aims to not only minimize the Euclidean distance between each
+ground truth box and the associated predicted box, but also maximize the
+coverage of valid points inside of each predicted box. Note that, both
+the bounding box association layer and multi-criteria loss function are
+only designed for network training. They are not used during testing.
+Eventually, this branch is able to predict a correct bounding box
+together with a box score for each instance directly.
+
+In order to predict a point-level binary mask for each instance, every
+predicted box together with the previous derived local and global
+features, i . e ., @xmath and @xmath , are further fed into the point
+mask prediction branch . This network branch is shared by all instances
+of different categories, and is therefore extremely light and compact.
+Such a class-agnostic approach inherently allows general segmentation
+across unseen categories.
+
+### 5.3 Bounding Box Prediction
+
+#### 5.3.1 Bounding Box Encoding
+
+In existing object detection networks, a bounding box is usually
+represented by the center location and the length of three dimensions [
+Chen2017b ] , or the corresponding residuals [ Zhou2018a ] together with
+orientations. Instead, we completely parameterize the rectangular
+bounding box by specifying the two extreme vertices i.e. the minimum and
+maximum for simplicity:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+#### 5.3.2 Neural Layers
+
+As shown in Figure 5.5 , the global feature vector @xmath is fed through
+two fully connected layers with Leaky ReLU as the non-linear activation
+function. This is followed by another two parallel fully connected
+layers. One layer outputs a @xmath dimensional vector, which is then
+reshaped as an @xmath tensor. @xmath is a predefined and fixed number of
+bounding boxes that the whole network is expected to predict as an upper
+limit. The other layer outputs an @xmath dimensional vector followed by
+@xmath function to represent the bounding box scores. The higher the
+score, the more likely it is that the predicted box contains an
+instance, indicating that the box is likely to be valid.
+
+#### 5.3.3 Bounding Box Association Layer
+
+Given the previously predicted @xmath bounding boxes, i . e ., @xmath ,
+it is not straightforward to take use of the ground truth boxes, denoted
+as @xmath , to supervise the network, because there are no predefined
+anchors to trace each predicted box back to a corresponding ground truth
+box in our framework. Besides, for each input point cloud @xmath , the
+number of ground truth boxes @xmath varies and it is usually different
+from the predefined number @xmath , although we can safely assume the
+predefined number @xmath for all input point clouds. In addition, there
+is no box order for either predicted or ground truth boxes.
+
+(1) Optimal Association Formulation: To associate a unique predicted
+bounding box from @xmath for each ground truth box of @xmath , we
+formulate this association process as an optimal assignment problem.
+Formally, let @xmath be a boolean association matrix where @xmath =1 iff
+the @xmath predicted box is assigned to the @xmath ground truth box.
+@xmath is also called association index in this paper. Let @xmath be the
+association cost matrix where @xmath represents the cost that the @xmath
+predicted box is assigned to the @xmath ground truth box. Basically, the
+cost @xmath represents the similarity between two boxes; the smaller the
+cost, the more similar the two boxes. Therefore, the bounding box
+association problem is to find the optimal assignment matrix @xmath with
+the minimum overall cost:
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+     @xmath   @xmath      (5.1)
+  -- -------- -------- -- -------
+
+To solve the above optimal association problem, the existing Hungarian
+algorithm [ Kuhn1955 , Kuhn1956 ] is applied.
+
+(2) Association Matrix Calculation: To evaluate the similarity between
+the @xmath predicted box and the @xmath ground truth box, a simple and
+intuitive criterion is the Euclidean distance between two pairs of
+min-max vertices. However, it is not optimal. In essence, we want the
+predicted box to include as many valid points as possible. As
+illustrated in Figure 5.6 , the input point cloud is usually sparse and
+distributed non-uniformly in 3D space. With regards to the ground truth
+box #0 (blue), the candidate box #2 (red) is believed to be much better
+than the candidate #1 (black), because the box #2 has more valid points
+overlapped with #0. Therefore, the coverage of valid points should also
+be included to calculate the cost matrix @xmath . In this chapter, we
+consider the following three criteria:
+
+-   Euclidean Distance between Vertices. Formally, the cost between the
+    @xmath predicted box @xmath and the @xmath ground truth box @xmath
+    is calculated as follows:
+
+      -- -------- -- -------
+         @xmath      (5.2)
+      -- -------- -- -------
+
+-   Soft Intersection-over-Union on Points. Given the input point cloud
+    @xmath and the @xmath ground truth instance box @xmath , it is able
+    to directly obtain a hard-binary vector @xmath to represent whether
+    each point of the whole input point cloud @xmath is inside the box
+    or not, where ‘1’ indicates the point being inside and ‘0’ outside.
+    However, for a specific @xmath predicted box of the same input point
+    cloud @xmath , to directly obtain a similar hard-binary vector would
+    result in the framework being non-differentiable, due to the
+    discretization operation. Therefore, we introduce a differentiable
+    yet simple Algorithm 2 to obtain a similar but soft-binary vector
+    @xmath , called point-in-pred-box-probability , where all values are
+    in the range @xmath . The deeper the corresponding point is inside
+    of the box, the higher the value. The farther away the point is
+    outside, the smaller the value. Formally, the Soft
+    Intersection-over-Union (sIoU) cost between the @xmath predicted box
+    and the @xmath ground truth box is defined as follows:
+
+      -- -------- -- -------
+         @xmath      (5.3)
+      -- -------- -- -------
+
+    where @xmath and @xmath are the @xmath values of @xmath and @xmath ,
+    @xmath is the total number of points in @xmath .
+
+-   Cross-Entropy Score. In addition, we also consider the cross-entropy
+    score between @xmath and @xmath . Unlike sIoU cost which prefers
+    tighter boxes, this score represents the confidence with which a
+    predicted bounding box includes as many valid points as possible. It
+    prefers larger and more inclusive boxes, and is formally defined as:
+
+      -- -------- -- -------
+         @xmath      (5.4)
+      -- -------- -- -------
+
+    where @xmath and @xmath are the @xmath values of @xmath and @xmath ,
+    @xmath is the total number of points in @xmath .
+
+Overall, the criterion (1) guarantees the geometric boundaries for
+learnt boxes and criteria (2)(3) maximize the coverage of valid points
+and overcome the non-uniformity as illustrated in Figure 5.6 . The final
+association cost between the @xmath predicted box and the @xmath ground
+truth box is defined as:
+
+  -- -------- -- -------
+     @xmath      (5.5)
+  -- -------- -- -------
+
+Note that we assign an equal weight ‘1’ to all the three criteria in
+Equation 5.5 for simplicity. Since different criteria tend to favor
+different densities of input point clouds, it would be ideal to learn a
+combination of the three criteria automatically. This is suggested as an
+interesting direction for future work.
+
+for @xmath to @xmath do
+
+@xmath the @xmath box min-vertex @xmath .
+
+@xmath the @xmath box max-vertex @xmath .
+
+for @xmath to @xmath do
+
+@xmath the @xmath point location @xmath .
+
+@xmath step 1: @xmath .
+
+@xmath step 2: @xmath .
+
+@xmath step 3: probability @xmath .
+
+@xmath step 4: point probability @xmath .
+
+@xmath obtain the soft-binary vector @xmath .
+
+The above two loops are only for illustration. They are easily replaced
+by standard and efficient matrix operations.
+
+Algorithm 2 An algorithm to calculate point-in-pred-box-probability.
+@xmath is the number of predicted bounding boxes @xmath , @xmath is the
+number of points in point cloud @xmath , @xmath and @xmath are
+hyperparameters for numerical stability. We use @xmath , @xmath in all
+our implementation.
+
+#### 5.3.4 Loss Functions
+
+After the bounding box association layer, both the predicted boxes
+@xmath and scores @xmath are reordered using the association index
+@xmath , such that the first predicted @xmath boxes and scores are well
+paired with the @xmath ground truth boxes.
+
+(1) Multi-criteria Loss for Box Prediction : The previous association
+layer finds the most similar predicted box for each ground truth box
+according to the minimal cost including: 1) vertex Euclidean distance,
+2) sIoU cost on points, and 3) cross-entropy score. Therefore, the loss
+function for bounding box prediction is naturally designed to
+consistently minimize those cost. It is formally defined as follows:
+
+  -- -------- -- -------
+     @xmath      (5.6)
+  -- -------- -- -------
+
+where @xmath , @xmath and @xmath are the cost of @xmath paired boxes.
+Note that, we only minimize the cost of @xmath paired boxes; the
+remaining @xmath predicted boxes are ignored because there is no
+corresponding ground truth for them. Therefore, this box prediction
+sub-branch is agnostic to the predefined value of @xmath . Here however
+arises an issue. Since the @xmath negative predictions are not
+penalized, it might be possible that the network predicts multiple
+similar boxes for a single instance. Fortunately, the loss function for
+the parallel box score prediction is able to alleviate this problem.
+
+(2) Loss for Box Score Prediction : The predicted box scores aim to
+indicate the validity of the corresponding predicted boxes. After being
+reordered by the association index @xmath , the ground truth scores for
+the first @xmath scores are all ‘1’, and ‘0’ for the remaining invalid
+@xmath scores. We use cross-entropy loss for this binary classification
+task:
+
+  -- -------- -- -------
+     @xmath      (5.7)
+  -- -------- -- -------
+
+where @xmath is the @xmath predicted score after being associated.
+Basically, this loss function rewards the correctly predicted bounding
+boxes, while implicitly penalizing the cases where multiple similar
+boxes are regressed for a single instance.
+
+Overall, Figure 5.7 illustrates the proposed bounding box association
+layer with the optimal assignment algorithm.
+
+#### 5.3.5 Gradient Estimation for Hungarian Algorithm
+
+Given the predicted bounding boxes, @xmath , and ground-truth boxes,
+@xmath , we compute the assignment cost matrix, @xmath . This matrix is
+converted to a permutation matrix, @xmath , using the Hungarian
+algorithm. Here we focus on the euclidean distance component of the
+loss, @xmath . The derivative of our loss component w.r.t the network
+parameters, @xmath , in matrix form is:
+
+  -- -- -- -------
+           (5.8)
+  -- -- -- -------
+
+The components are easily computable except for @xmath which is the
+gradient of the permutation w.r.t the assignment cost matrix which is
+zero nearly everywhere. In our implementation, we found that the network
+is able to converge when setting this term to zero.
+
+However, convergence could be sped up using the
+straight-through-estimator [ Bengio2013 ] , which assumes that the
+gradient of the rounding is identity (or a small constant), @xmath .
+This would speed up convergence as it allows both the error in the
+bounding box alignment (1st term of Eq. 5.8 ) to be backpropagated and
+the assignment to be reinforced (2nd term of Eq. 5.8 ). This approach
+has been shown to work well in practice for many problems including for
+differentiating through permutations for solving combinatorial
+optimization problems [ Emami2018 ] and for training binary neural
+networks [ Yin2019 ] . More complex approaches could also be used in our
+framework for computing the gradient of the assignment such as [
+Grover2019 ] which uses a Plackett-Luce distribution over permutations
+and a reparameterized gradient estimator.
+
+### 5.4 Point Mask Prediction
+
+Given the predicted bounding boxes @xmath , the learnt point features
+@xmath and global features @xmath , the point mask prediction branch
+processes each bounding box individually with shared neural layers.
+
+#### 5.4.1 Neural Layers
+
+As shown in Figure 5.8 , both the point and global features are
+compressed to be @xmath dimensional vectors through fully connected
+layers, before being concatenated and further compressed to be @xmath
+dimensional mixed point features @xmath . For the @xmath predicted
+bounding box @xmath , the estimated vertices and score are fused with
+features @xmath through concatenation, producing box-aware features
+@xmath . These features are then fed through shared layers, predicting a
+point-level binary mask, denoted as @xmath . We use @xmath as the final
+activation function. This simple box fusing approach is extremely
+computationally efficient, compared with the commonly used RoIAlign in
+prior art [ Yi2019 , Hou2019 , He2017a ] which involves expensive point
+feature sampling and alignment.
+
+#### 5.4.2 Loss Function
+
+The predicted instance masks @xmath are similarly associated with the
+ground truth masks according to the previous association index @xmath .
+Due to the imbalance of instance and background point numbers, we use
+focal loss [ Lin2017c ] with default hyper-parameters instead of the
+standard cross-entropy loss to optimize this branch. Only the valid
+@xmath paired masks are used for the loss @xmath . It is defined as
+follows:
+
+  -- -------- -- -------
+     @xmath      (5.9)
+  -- -------- -- -------
+
+where @xmath , @xmath are the predicted and ground truth point-level
+mask values for the @xmath paired instances. We use the default 0.75 and
+2 for @xmath and @xmath in all our experiments.
+
+### 5.5 Implementation
+
+While our framework is not restricted to a particular point cloud
+network, we adopt PointNet++ [ Qi2017 ] as the backbone to learn the
+local and global features. In parallel, another separate branch is
+implemented to learn per-point semantics with the standard @xmath
+cross-entropy loss function @xmath . Figure 5.9 shows the overall
+architecture for semantic segmentation, bounding box prediction and
+point mask prediction of 3D point clouds. The architecture of the
+backbone and semantic branch is the same as used in [ Wang2018d ] . Note
+that our 3D-BoNet focuses on precisely segmenting individual objects and
+we do not aim to improve the recognition accuracy of 3D points and
+objects in this chapter. Therefore we leverage the existing semantic
+segmentation networks as a sub-branch in our end-to-end framework to
+estimate the categories of segmented objects. Given an input point cloud
+@xmath , the above three branches are linked and end-to-end trained
+using a single combined multi-task loss:
+
+  -- -------- -- --------
+     @xmath      (5.10)
+  -- -------- -- --------
+
+We use Adam solver [ Kingma2015a ] with its default hyper-parameters for
+optimization. Initial learning rate is set to @xmath and then divided by
+2 every @xmath epochs. The whole network is trained on a Titan X GPU
+from scratch. We use the same settings for all experiments, which
+guarantees the reproducibility of our framework.
+
+### 5.6 Experiments
+
+#### 5.6.1 Evaluation on ScanNet
+
+We first evaluate our approach on ScanNet(v2) 3D semantic instance
+segmentation benchmark [ Dai2017 ] . ScanNet(v2) consists of 1613
+complete 3D scenes acquired from real-world indoor spaces. The official
+split has 1201 training scenes, 312 validation scenes and 100 hidden
+testing scenes. The original large point clouds are divided into @xmath
+blocks with @xmath overlapped between neighbouring blocks. This data
+preprocessing step is the same as the one used by PointNet [ Qi2016 ]
+and SGPN [ Wang2018d ] for the S3DIS dataset. We sample @xmath points
+from each block for training, but use all points of a block for testing
+followed by the BlockMerging algorithm [ Wang2018d ] to assemble blocks
+into complete 3D scenes. Each point is represented by a 9D vector
+(normalized xyz in the block, RGB, normalized xyz in the room) . @xmath
+is set as @xmath in our experiments. In our experiment, we observe that
+the performance of the vanilla PointNet++ based semantic prediction
+sub-branch is limited and unable to provide satisfactory semantics.
+Thanks to the flexibility of our framework, we therefore easily train a
+parallel SCN network [ Graham2018 ] to estimate more accurate per-point
+semantic labels for the predicted instances of our 3D-BoNet. The average
+precision (AP) with an IoU threshold 0.5 is used as the evaluation
+metric.
+
+We compare with the leading approaches on 18 object categories in Table
+5.1 . Particularly, SGPN [ Wang2018d ] , 3D-BEVIS [ Elich2019 ] , MASC [
+Liu2019 ] and [ Liang2019 ] are point feature clustering based
+approaches; R-PointNet [ Yi2019 ] learns to generate dense object
+proposals followed by point-level segmentation; 3D-SIS [ Hou2019 ] is a
+proposal-based approach using both point clouds and color images as
+input. PanopticFusion [ Narita2019 ] learns to segment instances on
+multiple 2D images by Mask-RCNN [ He2017a ] and then uses the SLAM
+system to reproject back to 3D space. Our approach surpasses them all
+using point clouds only. Remarkably, our framework offers satisfactory
+performance on all categories without preferring specific classes.
+
+Figure 5.10 shows qualitative results of our 3D-BoNet for instance
+segmentation on ScanNet validation split. It can be seen that our
+approach tends to predict complete object instances, instead of
+inferring tiny and but invalid fragments. This demonstrates that our
+framework indeed guarantees high objectness for segmented instances. The
+red circles showcase the failure cases, where the very similar instances
+are unable to be well segmented by our approach.
+
+#### 5.6.2 Evaluation on S3DIS
+
+We further evaluate the semantic instance segmentation of our framework
+on S3DIS [ Armeni2016 ] , which consists of 3D complete scans from 271
+rooms belonging to 6 large areas. Our data preprocessing and
+experimental settings strictly follow PointNet [ Qi2016 ] , SGPN [
+Wang2018d ] , ASIS [ Wang2019 ] , and JSIS3D [ Pham2019 ] . In
+particular, the original large point clouds are divided into @xmath
+blocks with @xmath overlapped between neighbouring blocks. We sample
+@xmath points from each block for training, but use all points of a
+block for testing. Each point is represented by a 9D vector (normalized
+xyz in the block, rgb, normalized xyz in the room) . In our experiments,
+@xmath is set as @xmath and we follow the 6-fold evaluation [ Armeni2016
+, Wang2019 ] . We train our 3D-BoNet to predict object bounding boxes
+and point-level masks, and in parallel train a vanilla PointNet++ based
+sub-branch to predict point-level semantic labels. Particularly, all the
+semantic, bounding box and point mask sub-branches share the same
+PointNet++ backbone to extract point features, and are end-to-end
+trained from scratch.
+
+We compare the proposed approach with ASIS [ Wang2019 ] , the state of
+art on S3DIS, and the PartNet baseline [ Mo2019 ] . For fair comparison,
+we carefully train the PartNet baseline with the same PointNet++
+backbone and other settings as used in our framework. For evaluation,
+the classical metrics mean precision (mPrec) and mean recall (mRec) with
+IoU threshold 0.5 are reported. Note that, we use the same BlockMerging
+algorithm [ Wang2018d ] to merge the instances from different blocks for
+both our approach and the PartNet baseline. The final scores are
+averaged across the total 13 categories. Table 5.2 presents the
+mPrec/mRec scores and Figure 5.11 shows qualitative results. Our method
+surpasses PartNet baseline [ Mo2019 ] by large margins, and also
+outperforms ASIS [ Wang2019 ] , but not significantly, mainly because
+our semantic prediction branch (vanilla PointNet++ based) is inferior to
+ASIS which tightly fuses semantic and instance features for mutual
+optimization. We leave the feature fusion as our future exploration.
+
+Figure 5.12 shows the training curves of our proposed loss functions on
+Areas (1,2,3,4,6) of S3DIS dataset. It demonstrates that all the
+proposed loss functions are able to converge consistently, thus jointly
+optimizing the semantic segmentation, bounding box prediction, and point
+mask prediction branches in an end-to-end fashion.
+
+Figure 5.13 presents the qualitative results of predicted bounding boxes
+and scores. It can be seen that the predicted boxes are not necessarily
+tight and precise. Instead, they tend to be inclusive but with high
+objectness. Fundamentally, this highlights the simple but effective
+concept of our bounding box prediction network. Given these bounded
+points, it is extremely easy to segment the instance inside.
+
+Figure 5.14 visualizes the predicted instance masks, where the black
+points have @xmath 0 probability and the brighter points have @xmath 1
+probability to be an instance within each predicted mask. In particular,
+the predicted masks #1 @xmath #4 show the results of point mask branch
+from 4 predicted bounding boxes. It can be seen that both the table
+(blue) and the floor (purple) are clearly segmented, while there is
+ambiguity between the predicted two chairs (green and red masks).
+
+#### 5.6.3 Generalization to Unseen Scenes and Categories
+
+Our framework learns the object bounding boxes and point masks from raw
+point clouds without direct coupling to the semantic information, which
+inherently allows for generalization to new categories and scenes. We
+conduct further experiments to qualitatively demonstrate the generality
+of our framework. In particular, we use the well-trained model from
+S3DIS dataset (Areas 1/2/3/4/6) to directly test on the validation split
+of ScanNet(v2) dataset. Since the ScanNet dataset consists of many more
+object categories than S3DIS dataset, there are a number of categories (
+e . g ., toilet, desk, sink, bathtub) that the trained model has never
+seen before.
+
+As shown in Figure 5.15 , our model is still able to predict
+high-quality instance labels even though the scenes and some object
+categories have not been seen before. This shows that our model does not
+simply fit the training dataset. Instead, it tends to learn the
+underlying geometric features which are able to be generalized across
+new objects and scenes.
+
+#### 5.6.4 Ablation Study
+
+To evaluate the effectiveness of each component of our framework, we
+conduct @xmath groups of ablation experiments on the largest Area 5 of
+S3DIS dataset.
+
+(1) Remove Box Score Prediction Sub-branch. Basically, the box score
+serves as an indicator and regularizer for valid bounding box
+prediction. After removing it, we train the network with:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Initially, the multi-criteria loss function is a simple unweighted
+combination of the Euclidean distance, the soft IoU cost, and the
+cross-entropy score. However, this may not be optimal, because the
+density of input point clouds is usually inconsistent and tends to
+prefer different criteria. We conduct @xmath groups of experiments on
+ablated bounding box loss functions.
+
+(2) Use Single Criterion: Euclidean Distance. Only the Euclidean
+Distance criterion is used for the box association and loss @xmath .
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+(3) Use Single Criterion: Soft IoU. Only the Soft IoU criterion is used
+for the box association and loss @xmath .
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+(4) Use Single Criterion: Cross-Entropy Score. Only the Cross-Entropy
+Score criterion is used for the box association and loss @xmath .
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+(5) Do Not Supervise Box Prediction. The predicted boxes are still
+associated according to the three criteria, but we remove the box
+supervision signal. The framework is trained with:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+(6) Remove Focal Loss for Point Mask Prediction. In the point mask
+prediction branch, the focal loss is replaced by the standard
+cross-entropy loss for comparison.
+
+Analysis. Table 5.3 shows the scores for ablation experiments.
+
+-   The box score sub-branch indeed benefits the overall instance
+    segmentation performance, as it tends to penalize duplicated box
+    predictions.
+
+-   Compared with Euclidean distance and cross-entropy score, the sIoU
+    cost tends to be better for box association and supervision, thanks
+    to our differentiable Algorithm 2 . As the three individual criteria
+    prefer different types of point structures, a simple combination of
+    three criteria may not always be optimal on a specific dataset.
+
+-   Without the supervision for box prediction, the performance drops
+    significantly, primarily because the network is unable to infer
+    satisfactory instance 3D boundaries and the quality of predicted
+    point masks deteriorates accordingly.
+
+-   Compared with focal loss, the standard cross entropy loss is less
+    effective for point mask prediction due to the imbalance of instance
+    and background point numbers.
+
+#### 5.6.5 Computation Analysis
+
+The computation complexity of all existing approaches are analysed as
+follows:
+
+(1) For point feature clustering based approaches including SGPN [
+Wang2018d ] , ASIS [ Wang2019 ] , JSIS3D [ Pham2019 ] , 3D-BEVIS [
+Elich2019 ] , MASC [ Liu2019 ] , and [ Liang2019 ] , the computation
+complexity of the post clustering algorithm such as Mean Shift [
+Comaniciu2002 ] tends towards @xmath , where @xmath is the number of
+instances and @xmath is the number of input points.
+
+(2) For dense proposal-based methods including GSPN [ Yi2019 ] , 3D-SIS
+[ Hou2019 ] and PanopticFusion [ Narita2019 ] , region proposal network
+and non-maximum suppression are usually required to generate and prune
+the dense proposals, which is computationally expensive [ Narita2019 ] .
+
+(3) Both PartNet baseline [ Mo2019 ] and our 3D-BoNet have similar
+efficient computation complexity @xmath . Empirically, our 3D-BoNet
+takes around @xmath ms GPU time to process @xmath points, while most
+approaches in (1)(2) need more than 200ms GPU/CPU time to process the
+same number of points.
+
+Table 5.4 compares the time consumption of four existing approaches
+using their released codes on the validation split (312 scenes) of
+ScanNet(v2) dataset. Normally, each scene has dozens of objects with
+around 80k points spanning up to @xmath meters in 3D space. SGPN [
+Wang2018d ] , ASIS [ Wang2019 ] , GSPN [ Yi2019 ] and our 3D-BoNet are
+implemented by Tensorflow 1.4, 3D-SIS [ Hou2019 ] by Pytorch 0.4. All
+approaches are running on a single Titan X GPU and the
+pre/post-processing steps on an i7 CPU core with a single thread. Note
+that 3D-SIS automatically uses CPU for computing when some large scenes
+are unable to be processed by the single GPU.
+
+It can be seen that our approach is much more computationally efficient
+than existing methods, and is up to 20 @xmath faster than ASIS [
+Wang2019 ] . However, the majority of time spent by our 3D-BoNet is
+within the block merging step, which is used to assemble the partitioned
+blocks of point clouds back to large-scale scenes. Fundamentally, this
+is because the backbone network used in our framework, i . e .,
+PointNet++, is unable to take large-scale point clouds as input due to
+its expensive sampling operations. In this regard, the efficiency of our
+framework can be further improved if a more advanced backbone network is
+available to process large-scale point clouds. We leave it as our future
+exploration.
+
+### 5.7 Conclusion
+
+In this chapter, we proposed a simple, effective and efficient framework
+for instance segmentation on 3D point clouds. The framework consists of
+a bounding box branch and a point mask prediction branch. The bounding
+box branch directly regresses a set of 3D bounding boxes to roughly
+detect all object instances, whereas the point mask branch focuses on
+each predicted bounding box to classify whether each 3D point belongs to
+the foreground instance or the background clutter. By training the
+branches in an end-to-end fashion, we obtain the instance segmentation
+results in a single forward pass. Compared with all existing works, our
+framework only consists of feed-forward MLPs without requiring any heavy
+post-processing steps such as non-maximum-suppression or feature
+clustering, therefore being lightweight and efficient.
+
+However, it also has some limitations which open up new directions to
+future work. (1) Instead of using unweighted combination of three
+criteria, it could be better to design a module to automatically learn
+the weights, in order to be able to adapt to different types of input
+point clouds. (2) Instead of training a separate branch for semantic
+prediction, more advanced feature fusion modules can be introduced to
+mutually improve both semantic and instance segmentation. (3) Our
+framework follows the MLP design and is therefore agnostic to the number
+and order of input points. It is desirable to directly train and test on
+large-scale input point clouds instead of the divided small blocks, by
+drawing on recent work [ Engelmann2017 ] [ Landrieu2018 ] .
+
+## Chapter 6 Conclusion and Future Work
+
+### 6.1 Summary of Key Contributions
+
+The overarching purpose of this thesis has been to build intelligent
+systems that understand the geometric structure and semantics of the 3D
+real-world environments. To achieve this goal, we proposed solutions
+from the object level to the more complex scene level.
+
+In Chapter 3 , we introduced an encoder-decoder architecture together
+with adversarial training to accurately estimate dense 3D shape of
+objects from a single depth view. To enable the encoder-decoder to learn
+more fine-grained geometric details, we integrated an adversarial
+component conditioned on the input single view. However, the adversarial
+component is hard to train due to the extremely high-dimensional 3D
+data. To stabilise the end-to-end training procedure, we proposed a
+simple mean feature neural layer to discriminate the real-world 3D
+shapes and the predicted ones, allowing the entire network to recover
+more plausible 3D structures. Since the existing datasets are based on
+3D CAD models and synthesized images, we therefore collected a
+reasonable amount of real-world datasets using the Kinect device,
+demonstrating strong generalization of our approach from simulated data
+to real-world noisy environments. Compared with existing methods, our
+approach is distinguished in the following ways: 1) it estimates dense
+3D shapes within high-resolution voxel grids ( i . e ., @xmath ) which
+represent compelling geometric details. 2) Thanks to the adversarial
+training, the estimated 3D shapes tend to be more realistic because the
+priors of object shapes can be well learnt and propagated from our
+stable discriminator.
+
+In Chapter 4 , we aimed to reconstruct a better 3D shape of an object
+from multiple views instead of merely a single view. Multiple views
+naturally provide much more valuable information to infer the 3D
+structure. However, to effectively integrate this valuable information
+is not easy. In this chapter, we introduced an attentive aggregation
+module to selectively fuse the deep visual features for precise 3D shape
+estimation from multiple views. By formulating the multi-view 3D
+reconstruction problem as an aggregation step for a set of deep
+features, our attention based method learns an attention score for each
+visual feature of all multiple input views. These scores are then used
+to weigh the corresponding features. After that, all the weighted
+features are summed and integrated across multiple views, generating the
+final 3D shapes. Fundamentally, the proposed module serves as a mask to
+filter out the less informative deep features, whereas preserving the
+relative important information according to the input multiple views.
+However, we observed that a naive end-to-end training strategy would
+result in the whole network not being robust to an arbitrary number of
+input images. To overcome this problem, we theoretically investigated
+the principle underlying this issue and presented a two-stage training
+algorithm. Our algorithm separately optimizes the base encoder-decoder
+and the proposed attention module, achieving superior performance at
+reconstructing 3D shapes. Compared with existing RNN based methods, our
+approach is permutation invariant and estimates consist of 3D shapes
+regardless of the different orderings of input views. In contrast to the
+max/mean/sum poolings which usually ignore the majority of information
+from multiple images, our module learns to attentively preserve useful
+features and infers better 3D shapes. Unlike the existing attention
+based methods which only operate on a fixed number of input images, our
+module uses a novel training strategy, forcing the robustness of
+predicted 3D shapes given an arbitrary number of input images.
+
+In Chapter 5 , we extended object-level perception to scene-level
+understanding. In real-world scenarios, the 3D scenes are usually
+cluttered and include multiple objects. In this chapter, we proposed an
+efficient neural pipeline to identify and segment all individual 3D
+objects from real-world and large-scale point clouds. In contrast to
+segmenting 2D images, to identify objects in 3D space is extremely
+challenging, due to the irregular and incomplete statistics of 3D point
+clouds. We solved this difficult task by directly regressing a set of
+bounding boxes to roughly detect individual 3D objects and then
+segmenting each object within its box. By leveraging pioneering work on
+neural networks for 3D point clouds processing, we designed a bounding
+box prediction branch and a point mask prediction branch based on the
+the learnt per-point features and global features. The bounding box
+prediction branch directly regresses a set of 3D boxes to detect all
+objects, whereas the point mask prediction branch serves to classify
+whether each 3D point belongs to the foreground object instance or the
+background clutter. To supervise the bounding box prediction branch, we
+drew on the seminal work on data association and carefully designed loss
+functions to train the entire network in an end-to-end fashion. The
+proposed neural pipeline demonstrates accurate and efficient
+segmentation results on multiple large-scale real-world datasets.
+Compared with the existing proposal-free approaches, our framework does
+not require computationally expensive algorithms to cluster point
+features, and the explicitly predicted bounding boxes guarantee high
+objectness for the final segmented instances. In contrast to the
+existing proposal-based methods, our pipeline does not rely on spatial
+anchors to generate numerous candidate bounding boxes, and thus does not
+require computationally heavy post-processing steps such as
+non-maximum-suppression.
+
+### 6.2 Limitations and Future Work
+
+The work in this thesis has opened up a number of new directions for
+future work:
+
+Using 2D Supervision. The proposed architecture in this thesis mainly
+relies on ground truth 3D data for supervision. However, it is
+labour-intensive to acquire large-scale 3D labels. In addition, the
+learnt representations tend to be fitted to specific 3D datasets and are
+unlikely to generalize to completely unseen scenarios due to domain
+gaps. An alternative approach is to leverage widely available 2D images
+as supervision signal. Unlike 3D supervision, 2D images inherently have
+weaker prior knowledge. Nevertheless, the explicit geometric consistency
+would provide valuable information to supervise the networks.
+
+Better 3D Representation. The widely used voxel grid requires extremely
+heavy computation and memory if being used to represent large-scale 3D
+scenes. Point clouds are efficient to represent complex 3D structures,
+but they are unable to present the object surface which is useful for
+high-level applications such as rendering and grasping. By contrast, 3D
+meshes have been recently integrated into deep neural networks and
+emerge as an efficient and promising approach to shape representation.
+
+Disentanglement of 3D Scenes. The proposed approaches in this thesis
+usually learn a singular representation for an object or a scene,
+without decomposing the shape components explicitly. However, learning
+to factorize the objects or scenes into more detailed elements would be
+desirable, as it allows more robustness and generalization across
+different scenarios.
+
+In conclusion, this thesis has taken a step towards 3D scene
+understanding by learning to reconstruct and segment 3D objects. We hope
+it can inspire researchers to develop more advanced systems that would
+endow machines with the ability to perceive and interact with our
+environment, thus benefiting us humans in a variety of real-world
+applications.

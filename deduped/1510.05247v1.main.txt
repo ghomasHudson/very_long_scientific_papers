@@ -1,0 +1,3541 @@
+##### Contents
+
+-    Abstract
+-    1 Introduction
+-    2 Literature reviews
+    -    2.1 Local asymptotic normality
+    -    2.2 Empirical processes
+    -    2.3 Bayesian asymptotics
+-    3 Main results
+    -    3.1 Semiparametric Bernstein-von Mises theorem
+        -    3.1.1 Integral local asymptotic normality
+        -    3.1.2 Parametric convergence rate of the marginal posterior
+    -    3.2 Quadratic expansion of the expected log likelihood ratio
+        -    3.2.1 Univariate symmetric densities
+        -    3.2.2 Multivariate symmetric densities
+    -    3.3 Examples
+        -    3.3.1 Location model
+        -    3.3.2 Linear regression model
+        -    3.3.3 Random intercept model
+-    4 Numerical studies
+    -    4.1 Gibbs sampler algorithm
+    -    4.2 Simulation
+    -    4.3 Analysis of orthodontic distance growth data
+-    5 Conclusion
+-    A Miscellanies
+    -    A.1 Posterior consistency under independent observations
+    -    A.2 Semiparametric mixtures
+    -    A.3 Symmetrized Dirichlet processes
+
+###### List of Tables
+
+-    4.1 Mean squared error (and relative efficiency) of each methods
+    F1–F2 and B1–B3 among @xmath repetitions for each experiment E1–E9
+-    4.2 The results of orthodontic distance growth data analysis under
+    five different methods
+
+###### List of Figures
+
+-    2.1 Diaconis-Freedman’s counterexample
+-    4.1 Density plots of error distribution in E8 and E9
+
+## Chapter 1 Introduction
+
+It is a fundamental problem in statistics to make an optimal decision
+for a given statistical problem. Every statistical inference is based on
+the observed data, but we rarely know about the sampling distribution of
+a given estimator with finite samples. As a result, it is extremely
+restrictive in actual exercises to find an optimal estimator. In many
+interesting examples, however, the sampling distribution of an estimator
+converges to a specific distribution as the number of observations
+increases, and it is possible to estimate this limit. Therefore
+statistical inferences and theories on optimality are usually based on
+these asymptotic properties. For example, Fisher conjectured that the
+maximum likelihood estimator would be efficient, and in the middle of
+the 20th century many statisticians solved this problem under different
+assumptions.
+
+In this thesis, we prove that statistical inferences based on Bayesian
+posterior distributions are efficient in some semiparametric problems.
+More specifically, we prove the semiparametric Bernstein-von Mises (BvM)
+theorem in some models which have symmetric errors. In theses models,
+the observation @xmath can be represented by
+
+  -- -------- -- -------
+     @xmath      (1.1)
+  -- -------- -- -------
+
+where @xmath and @xmath . Here is non-random and can be parametrized by
+the location parameter @xmath or the regression coefficient @xmath with
+explanatory variables. The error distribution is assumed to be symmetric
+in the sense that @xmath , where @xmath means that two distributions of
+both sides are the same. Since the error distribution is completely
+unknown except its symmetricity, these are semiparametric estimation
+problems. Symmetric location model, linear regression with unknown
+error, and random effects model are included in these models, all of
+them give very useful implication. The assertion of the semiparametric
+BvM theorem is, roughly speaking, that the marginal posterior
+distribution for the parameter of interest is asymptotically normal
+centered on an efficient estimator with variance the inverse of Fisher
+information matrix. As a result statistical inferences based on the
+posterior distribution satisfy frequentist criteria of optimality.
+
+Even before the 1970s, putting a prior, which is always a delicate and
+difficult problem in Bayesian analysis, posed conceptual, mathematical,
+and practical difficulties in infinite dimensional models. A discovery
+of Dirichlet processes by Ferguson [ 25 ] was a breakthrough. This prior
+is easy to elicit, has a large support, and the posterior distribution
+is analytically tractable. After this discovery, there have been a
+growing interest on Bayesian nonparametric statistics, and for the last
+few decades there was remarkable development in many fields science and
+industry. Useful models, priors and efficient computational algorithms
+has been developed in broad areas, and convenient statistical softwares
+have been provided to analyze data of various forms. Especially the
+development of Markov chain Monte Carlo algorithms, along with the
+improvement of computing technologies, boosts Bayesian methodologies
+because they are very flexible and can be applied complex and highly
+structured data, while frequentist methods may have some difficulties to
+analyze such data. More recently, there was considerable progress on
+asymptotic behavior of posterior distributions.
+
+While the BvM theorem for parametric Bayesian models is well established
+(e.g. Le Cam [ 44 ], Kleijn and van der Vaart [ 41 ] ), the non- or
+semiparametric BvM theorem has been actively studied recently after Cox
+[ 16 ] and Freedman [ 26 ] gave negative examples on the non- or
+semiparametric BvM theorem. The BvM theorems for various models
+including survival models ( Kim and Lee [ 40 ], Kim [ 39 ] ), Gaussian
+regression models with increasing number of parameters ( Bontemps [ 9 ],
+Johnstone [ 38 ], Ghosal et al. [ 27 ] ), discrete probability measures
+( Boucheron and Gassiat [ 10 ] ) have been proved. In addition, general
+sufficient conditions for non- or semiparametric BvM theorems are given
+by Shen [ 61 ], Castillo [ 12 ], Bickel and Kleijn [ 4 ], Castillo and
+Rousseau [ 15 ] . Those sufficient conditions, however, are rather
+abstract and not easy to verify. In particular, it is difficult to apply
+these general theories to models with unknown errors in which the
+quadratic expansion of the likelihood ratio is not straightforward. More
+recently, Castillo and Nickl [ 13 , 14 ] have established fully
+infinite-dimmensional BvM theorems by considering weaker topologies than
+the classical @xmath spaces.
+
+We consider the semiparametric BvM theorem in models of the form ( 1.1
+). There is a vast amount of literature about the frequentist’s
+efficient estimation in these models. For example, for the symmetric
+location model, where @xmath ’s are i.i.d. with mean @xmath , we refer
+to Beran [ 3 ], Stone [ 64 ], Sacks [ 57 ] and references therein. More
+elegant and practical method using kernel density estimation can be
+found in Park [ 54 ] . This approach can be easily extended for
+estimating the regression coefficient in the linear regression model.
+Bickel [ 5 ] also provide an efficient estimator for the linear
+regression model.
+
+Bayesian analysis of the symmetric location model has also received much
+attention since Diaconis and Freedman [ 17 ] showed that a careless
+choice of a prior on @xmath leads to an inconsistent posterior.
+Posterior consistency of the symmetric location model with Polya tree
+prior is proved by Ghosal et al. [ 28 ] , posterior consistency of more
+general regression model has been studied by Amewou-Atisso et al. [ 1 ],
+Tokdar [ 66 ] , and posterior convergence rate with Dirichlet process
+mixture prior has been derived by Ghosal and van der Vaart [ 31 ] . But
+the efficiency of the Bayes estimators, the semiparametric BvM theorem,
+in such models has not been proved yet. We prove that this is true when
+the error distribution is endowed with a Dirichlet process mixture of
+normals prior. Furthermore, we have shown that the Bayes estimators in
+random effect models, where the error and random effects distributions
+are unknown except that they are symmetric about the origin, are also
+efficient. In the random effects model, it is known that the full
+likelihood inference is difficult because it can be obtained by
+integrating out the random effects.
+
+The remainder of the thesis is organized as follows. In Chapter 2 , we
+review three topics in asymptotic statistics which are prerequisites for
+our main results. In Section 2.1 , we introduce the local asymptotic
+normality and associated frequentist’s optimality theories. Some
+empirical processes techniques are given in Section 2.2 , and the last
+section provides asymptotic theories on nonparametric Bayesian
+statistics. The main results are given in Chapter 3 . The first section
+proves a general semiparametric BvM theorem which requires two
+conditions: the integral local asymptotic normality and convergence of
+the marginal posterior at parametric rate. These two conditions are
+studied in more depth in following subsections. In these two
+subsections, it is required that the expectation of the log likelihood
+ratio allows a certain quadratic expansion, and Section 3.2 proves this
+condition using the property of symmetric densities. The last section of
+this chapter provides three examples mentioned above: the location,
+linear regression and random intercept models. Some numerical studies,
+which show the superiority of Bayes estimators in random effects models,
+are provided in Chapter 4 . A useful Gibbs sampler algorithm is given in
+the first section of this chapter. A real dataset is also analyzed in
+Section 4.3 . There are concluding remarks and future works in Chapter 5
+, and miscellanies that are required for main theorems and examples are
+given in Appendix. Section A.1 is devoted to prove posterior consistency
+when the model is slightly misspecified and observations are independent
+but not identically distributed. Some technical lemmas for
+semiparametric mixture models, such as bounded entropy and prior
+positivity conditions, are given in Section A.2 . The last Section
+presents properties of symmetrized Dirichlet processes and Gibbs sampler
+algorithms using symmetrized Dirichlet process mixtures.
+
+Before going further, we introduce notations used in this thesis. For a
+real-valued function @xmath defined on a subset of @xmath , the first,
+second and third derivatives are denoted by @xmath , @xmath and @xmath ,
+respectively. If the domain of @xmath is a subset of @xmath for @xmath ,
+then @xmath and @xmath denotes the @xmath gradient vector and @xmath
+Hessian matrix. Also, @xmath and @xmath denote the first and second
+order partial derivatives of @xmath with respect to the corresponding
+indices. The Euclidean norm is denoted by @xmath . For a matrix @xmath ,
+@xmath represents the operator norm, defined as @xmath , of @xmath , and
+if @xmath is a square matrix, @xmath and @xmath denotes the minimum and
+maximum eigenvalues of @xmath . The capital letters @xmath etc are the
+corresponding probability measures of densities denoted by lower letters
+@xmath , etc and vise versa. The corresponding log densities are written
+by the letter @xmath , etc. The Hellinger and total variation metrics
+between two probability measures @xmath and @xmath are defined by
+
+  -- -- --
+        
+  -- -- --
+
+and @xmath , respectively, where @xmath is a measure dominating both
+@xmath and @xmath . Let @xmath be the Kullback-Leibler divergence. The
+metrics and Kullback-Leibler divergence are sometimes denoted like, for
+example, @xmath using the corresponding densities. The expectation of a
+random variable @xmath under a probability measure @xmath is denoted by
+@xmath . The notation @xmath always represents the true probability
+which generates the observation. Finally, @xmath is the probability
+measure of the multivariate normal distribution with mean @xmath and
+variance @xmath , and @xmath denotes the univariate normal density with
+mean 0 and variance @xmath .
+
+## Chapter 2 Literature reviews
+
+This chapter briefly reviews three topics in asymptotic statistics. Each
+topic is closely related to our main results and essential techniques
+for the proofs in this thesis. Section 2.1 introduces some results
+derived from the local asymptotic normality which is a key property of
+classical asymptotic theory. In Section 2.2 , modern empirical processes
+theories are provided. The last section is devoted to introduce Bayesian
+asymptotics including the parametric BvM theorem and theories for
+infinite dimensional models.
+
+### 2.1 Local asymptotic normality
+
+A sequence of statistical models is locally asymptotically normal if,
+roughly speaking, the likelihood ratio behaves like that for a normal
+location parameter. This implies that the likelihood ratio admits a
+certain quadratic expansion. An important example is a smooth parametric
+model, so-called the regular parametric model. If a model is locally
+asymptotically normal, estimating the model parameter can be understood
+as a problem of estimating the normal mean in an asymptotic sense. As a
+result, it satisfies some asymptotic optimality criteria such as the
+convolution theorem and locally asymptotic minimax theorem. There are
+much literature about the local asymptotic normality and related
+asymptotic theories. Here we refer to two well-known books: Bickel
+et al. [ 6 ] and van der Vaart [ 70 ] which contain a lot of references
+and examples.
+
+In this section, we only consider i.i.d. models because it contains all
+essentials about the local asymptotic normality. For i.i.d. models, a
+sequence of statistical models can be represented as a collection of
+probability measures for a single observation. An extension to non-
+i.i.d. models, including both finite and infinite dimensional models, is
+well-established in McNeney and Wellner [ 51 ] . Consider a statistical
+model @xmath parametrized by finite dimensional parameter @xmath and
+assume that @xmath is an open subset of @xmath . The model is called
+locally asymptotic normal , or simply LAN , at @xmath if there exists a
+function @xmath such that @xmath and for every converging sequence
+@xmath in @xmath ,
+
+  -- -------- -- -------
+     @xmath      (2.1)
+  -- -------- -- -------
+
+as @xmath , where @xmath . The function @xmath and matrix @xmath are
+called by the score function and Fisher information matrix ,
+respectively. Le Cam formulated the first version of LAN property as
+early as 1953 in his thesis. This original version can be found, for
+example, in Le Cam and Yang [ 46 ] . Note that the likelihood ratio of
+the normal location model @xmath with single observation @xmath is given
+by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the multivariate normal density with mean @xmath and
+variance @xmath . Since the term @xmath in ( 2.1 ) converges in
+distribution to the normal distribution @xmath , it is clear that the
+local log likelihood ratio ( 2.1 ) converges in distribution to the log
+likelihood ratio of the normal location model in which @xmath . The name
+LAN originated from this fact.
+
+One important result is that every smooth parametric model is LAN. Here
+the smoothness of a model can be expressed in quadratic mean
+differentiability. A model @xmath is called differentiable in quadratic
+mean at @xmath if it is dominated by a @xmath -finite measure @xmath and
+there exists an @xmath -function @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+as @xmath . This is actually the Hadamard (equivalently Fréchet)
+differentiability of the root density @xmath which can be established by
+pointwise differentiability plus a convergence theorem for integrals. A
+proof of the following theorem can be found in Theorem 7.2 of van der
+Vaart [ 70 ] .
+
+###### Theorem 2.1.1.
+
+Assume that @xmath is open in @xmath and @xmath is differentiable in
+quadratic mean at @xmath . Then, @xmath , @xmath exists, and the LAN
+assertion ( 2.1 ) holds.
+
+More general statement of LAN can be found in Strasser [ 65 ] . With the
+help of the LAN property, Fisher’s early concept of efficiency can be
+sharpened and elaborated upon. We state three optimality theorems by Le
+Cam and Hájek, which can be derived from the LAN property. Besides the
+original reference, we refer to Chapter 8 of van der Vaart [ 70 ] as a
+nice text. An estimator sequence @xmath is called regular at @xmath if,
+for every @xmath ,
+
+  -- -- -- -------
+           (2.2)
+  -- -- -- -------
+
+for some probability distribution @xmath . Here @xmath denotes the
+distribution of @xmath when @xmath follows the probability measure
+@xmath and @xmath represents convergence in distribution. Note that the
+limit distribution @xmath does not depend on @xmath and this is the key
+assumption for regularity of an estimator. Let @xmath be the convolution
+operator. The most important theorem about asymptotic optimality is
+definitely Hájek-Le Cam convolution theorem ( Hájek [ 34 ], Le Cam [ 44
+] ) stated as follows.
+
+###### Theorem 2.1.2 (Convolution).
+
+Assume that @xmath is open in @xmath and @xmath is LAN at @xmath with
+the nonsingular Fisher information matrix @xmath . Then for any regular
+estimator sequence @xmath for @xmath , there exist probability
+distributions @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the limit distribution in ( 2.2 ).
+
+Theorem 2.1.2 says that for a class of all regular estimators, the
+normal distribution @xmath is the best possible limit distribution.
+However, some estimator sequences of interest, such as shrinkage
+estimators, are not regular. A typical example is the Hodges
+superefficient estimator
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for the normal location parameter. Here @xmath is an arbitrary positive
+constant which is strictly smaller than 1. In this case, @xmath is
+@xmath -consistent, that is @xmath , and asymptotically normal, but
+superefficient at 0 (variance is smaller than that of MLE).
+Interestingly, the set of superefficiency is of Lebesgue measure zero
+and this can be proved in general situations ( Le Cam [ 48 ] ).
+
+###### Theorem 2.1.3.
+
+Assume that @xmath is open in @xmath and @xmath is LAN at @xmath with
+the nonsingular Fisher information matrix @xmath . Let @xmath be an
+estimator sequence such that @xmath converges to a limit distribution
+@xmath under every @xmath . Then, there exist probability distributions
+@xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for Lebesgue almost every @xmath .
+
+Though the set of superefficiency is a null set, the above theorem may
+not be fully satisfactory because there is no information about
+parameters which may be important as in the Hájek’s example.
+Furthermore, an estimator sequence is required to be @xmath -consistent
+in Theorem 2.1.3 . The following theorem, which can be found in Theorem
+8.11 of van der Vaart [ 70 ] , is a refined version of the so-called
+local asymptotic minimax theorem ( Hájek [ 35 ], Le Cam et al. [ 45 ] ).
+A function @xmath is called a bowl-shaped loss if the sublevel sets
+@xmath are convex and symmetric about the origin. It is called subconvex
+if, moreover, these sets are closed.
+
+###### Theorem 2.1.4 (Local asymptotic minimax).
+
+Assume that @xmath is open in @xmath and @xmath is LAN at @xmath with
+the nonsingular Fisher information matrix @xmath . Then, for any
+estimator sequence @xmath and bowl-shaped loss function @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where the first supremum is taken over all finite subsets @xmath of
+@xmath .
+
+According to the three theorems above we conclude that the normal
+distribution @xmath is the best possible limit distribution. An
+estimator sequence @xmath is called efficient or best regular if it is
+regular and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+as @xmath . A well-known (see, for example, van der Vaart [ 70 ] ) fact
+is that every efficient estimator is asymptotically linear estimator as
+stated in the following theorem.
+
+###### Theorem 2.1.5.
+
+An estimator sequence @xmath is efficient if and only if
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+So far we have studied asymptotic optimality of an estimator sequence in
+a smooth parametric model. The two theorems, the convolution theorem and
+local asymptotic minimax theorem, have natural extensions in infinite
+dimensional models. Typically an infinite dimensional parameter is not
+estimable at @xmath rate ( van der Vaart [ 68 ] ). It is possible,
+however, to estimate some finite dimensional parameters at this rate
+even in an infinite dimensional model. The central limit theorem, by
+which mean parameters are estimable at parametric rate, is a
+representative example. Under regularity conditions, moreover, some
+estimators can be shown to be asymptotically optimal in the sense of the
+convolution theorem and local asymptotic minimax theorem as in
+parametric models.
+
+We first define the tangent set and tangent space. For a given
+statistical model @xmath containing @xmath , consider a one-dimensional
+submodel @xmath passing through @xmath at @xmath and differentiable in
+quadratic mean. By the differentiability we get the score function
+@xmath at @xmath from this submodel. Letting @xmath range over the
+collection of all such submodels, we obtain the collection of score
+functions, which is called the tangent set of the model @xmath at @xmath
+. The closed linear span of the tangent set in @xmath , denoted by
+@xmath , is called the tangent space of @xmath at @xmath .
+
+Since our main interest in Chapter 3 is to estimate a finite dimensional
+parameter in a semiparametric model, we only consider the information
+bound for a semiparametric model @xmath , @xmath is the finite
+dimensional parameter of interest and @xmath is the infinite dimensional
+nuisance parameter. For more general theory, readers are referred to two
+books: van der Vaart [ 70 ], Bickel et al. [ 6 ] . Fix @xmath , and
+define two submodels @xmath and @xmath . Assume that @xmath is
+differentiable in quadratic mean and let @xmath be the score function at
+@xmath . Then it is easy to show that @xmath is equal to the set of all
+@xmath , where @xmath ranges over @xmath . The function defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is called the efficient score function and the matrix @xmath is the
+efficient information matrix , where @xmath is the orthogonal projection
+onto @xmath in @xmath . For defining the information for estimating
+@xmath , if @xmath , then it is enough to consider one-dimensional
+smooth (differentiable in quadratic mean) submodels of type
+
+  -- -------- -- -------
+     @xmath      (2.3)
+  -- -------- -- -------
+
+for @xmath . An estimator sequence @xmath is regular for estimating
+@xmath if it is regular in every such submodel, that is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for some @xmath which does not depend on @xmath . The following two
+theorems are extensions of the convolution theorem and local asymptotic
+minimax theorem, respectively, to semiparametric models.
+
+###### Theorem 2.1.6 (Convolution).
+
+Assume that @xmath , @xmath is convex and @xmath is nonsingular. Then,
+every limit distribution @xmath of a regular sequence of estimators can
+be written @xmath for some probability distribution @xmath .
+
+###### Theorem 2.1.7 (Local asymptotic minimax).
+
+Assume that @xmath , @xmath is convex and @xmath is nonsingular. Then
+for any estimator sequence @xmath and subconvex loss function @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where the first supremum is taken over all finite index sets @xmath of
+one-dimensional smooth submodels, denoted by @xmath , of type ( 2.3 ).
+
+As in parametric models, the normal distribution @xmath can be
+considered as the best possible limit distribution. A regular estimator
+sequence @xmath is called efficient or best regular if it is regular and
+its limit distribution is @xmath . An efficient estimator is
+asymptotically linear as in Theorem 2.1.5 , replacing the score function
+and information matrix by the efficient score function and efficient
+information matrix.
+
+###### Theorem 2.1.8.
+
+An estimator sequence @xmath is efficient if and only if
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Roughly speaking, the information bound @xmath of a semiparametric model
+is equal to the infimum of information bounds of all smooth parametric
+submodels. If there is a smooth parametric submodel whose information
+bound achieves this infimum, it is the hardest submodel. Formally in a
+smooth semiparametric model, if there exists a submodel @xmath which has
+@xmath as the score function at @xmath , it is called a least favorable
+submodel at @xmath . There may be more than two least favorable
+submodels, or it may not exist. Typically, if a maximizer of the map
+@xmath is smooth in @xmath , it constitutes a least favorable submodel (
+Severini and Wong [ 60 ] ; Murphy and van der Vaart [ 52 ] ).
+
+We finish this section with the notion of adaptiveness. A smooth
+semiparametric model @xmath is called (locally) adaptive (at @xmath ) if
+@xmath in @xmath . By definition the efficient score function and
+information matrix is equal to the ordinary score function and
+information matrix in adaptive models. Therefore the information bound
+for the semiparametric model @xmath and the parametric model @xmath , in
+which the true nuisance parameter @xmath is known, are the same.
+
+### 2.2 Empirical processes
+
+In this section we review modern empirical process theories that play
+important roles for the proofs given in Chapter 3 . We assume that
+readers are familiar to weak convergence of probability measures in
+metric spaces. Also, we do not state any measurability conditions,
+because the formulation of these would require too many digressions. For
+all details about this section and further reading including historical
+stories, examples and so on, we refer to the monograph van der Vaart and
+Wellner [ 67 ] .
+
+Consider a sample of random elements @xmath in a measurable space @xmath
+, where @xmath is endowed with a semimetric ¹ ¹ 1 @xmath can be equal to
+0 when @xmath . @xmath . Let @xmath be the empirical measure and @xmath
+be empirical process , where @xmath denotes the Dirac measure at point
+@xmath . Consider a collection @xmath of measurable functions @xmath .
+With the notation @xmath , if
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+in @xmath -probability, @xmath is called a @xmath Glivenko-Cantelli
+class , or simply Glivenko-Cantelli class. Under the condition @xmath
+for every @xmath , the empirical process @xmath can be viewed as an
+@xmath -valued random element. If this map converges weakly to a tight
+Borel measurable element in @xmath , it is called a Donsker class , or
+@xmath -Donsker to be more complete.
+
+The Donsker property is very important and closely related to the notion
+of tightness. Before going further, we introduce some definitions and
+theorems about stochastic processes in spaces of bounded functions. A
+sequence of @xmath -valued stochastic processes @xmath is asymptotically
+tight if for every @xmath there exists a compact set @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath . Here @xmath is defined by the set @xmath . This is
+slightly weaker than uniform tightness but enough to assure the weak
+convergence. For an index set @xmath , weak convergence in @xmath is
+characterized as asymptotic tightness plus convergence of marginals as
+stated in the following theorem.
+
+###### Theorem 2.2.1.
+
+A sequence of @xmath -valued stochastic processes @xmath converges
+weakly to a tight limit if and only if @xmath is asymptotically tight
+and the marginals @xmath converge weakly to a limit for every finite
+subset @xmath of @xmath .
+
+Asymptotic tightness is a quite complicate concept and it is closely
+related to equicontinuity of sample paths of stochastic processes. For a
+semimetric space @xmath , a sequence of @xmath -valued stochastic
+process @xmath is said to be asymptotically uniformly @xmath
+-equicontinuous in probability if for every @xmath there exists a @xmath
+such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The following theorem represents the relationship between asymptotic
+tightness and asymptotic unifomrly equicontinuity of sample paths.
+
+###### Theorem 2.2.2.
+
+A sequence of stochastic processes @xmath indexed by @xmath is
+asymptotically tight if and only if @xmath is asymptotically tight in
+@xmath for every @xmath and there exists a semimetric @xmath on @xmath
+such that @xmath is totally bounded and @xmath is asymptotically
+uniformly @xmath -equicontinuous in probability. If, moreover, @xmath
+converges weakly to @xmath , then almost all paths @xmath are uniformly
+@xmath -continuous and the semimetric @xmath can be taken equal to any
+semimetric for which this is true and @xmath is totally bounded.
+
+A stochastic process @xmath is called Gaussian if each of its
+finite-dimensional marginals @xmath has a multivariate normal
+distribution on Euclidean space. For a given stochastic process @xmath ,
+define a semimetric @xmath on @xmath by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+When the limit process @xmath in Theorem 2.2.2 is Gaussian, @xmath can
+always be used to establish asymptotic equicontinuity of a sequence
+@xmath .
+
+###### Theorem 2.2.3.
+
+A Gaussian process @xmath in @xmath is tight if and only if @xmath is
+totally bounded and almost all paths @xmath are uniformly @xmath
+-continuous.
+
+Now we return to empirical processes @xmath on @xmath . By the central
+limit theorem, a marginal distribution @xmath converges weakly to a
+normal distribution. Therefore if the stochastic process @xmath is
+asymptotically tight, then @xmath is a Donsker class by Theorem 2.2.1 .
+Since asymptotic tightness is conceptually equivalent to the uniform
+equicontinuity of sample paths by Theorem 2.2.2 , we can expect from
+Arzelà-Ascoli theorem that the Donsker property can be determined by the
+covering number. The covering number @xmath of @xmath with respect to a
+semimetric @xmath is the minimal number of balls @xmath of radius @xmath
+needed to cover the set @xmath . For given two functions @xmath and
+@xmath , the bracket @xmath is the set of all functions @xmath with
+@xmath . An @xmath - bracket is a bracket @xmath with @xmath . The
+bracketing number @xmath is the minimum number of @xmath -brackets
+needed to cover @xmath . Then it is easy to show that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath . Define
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath . A collection @xmath of functions is a Donsker class if the
+covering number or bracketing number is suitably bounded. We only
+introduce conditions on bracketing numbers and refer to Section 2.6 of
+van der Vaart and Wellner [ 67 ] for conditions on covering numbers.
+
+###### Theorem 2.2.4.
+
+@xmath is @xmath -Donsker if @xmath .
+
+The condition of Theorem 2.2.4 is very simple and is satisfied for many
+interesting examples For classes of smooth functions on a Euclidean
+space, we can find an upper bound for bracketing numbers. To define such
+classes let, for a given function @xmath and @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where the suprema are taken over all @xmath in the interior of @xmath
+with @xmath , the value @xmath is the greatest integer strictly smaller
+than @xmath , and for each vector @xmath of @xmath integers @xmath is
+the differential operator
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+These are well-known @xmath - Hölder norms. Let @xmath be the set of all
+continuous functions @xmath with @xmath .
+
+###### Theorem 2.2.5.
+
+Let @xmath be a partition into cubes of uniformly bounded size, and
+@xmath be a class of functions @xmath such that the restrictions of
+@xmath onto @xmath belong to @xmath for every @xmath and some fixed
+@xmath . Then, there exists a constant @xmath depending only on @xmath
+and the uniform bound on the diameter of the sets @xmath such that
+
+  -- -------- -- -------
+     @xmath      (2.4)
+  -- -------- -- -------
+
+for @xmath
+
+Theorem 2.2.4 concern the empirical process for different @xmath , but
+each time with the same indexing class @xmath . This is enough for many
+applications, but sometimes it may be necessary to allow the class
+@xmath to change with @xmath . The following theorem is a modification
+of Theorem 2.2.4 for this purpose.
+
+###### Theorem 2.2.6.
+
+Let @xmath be a class of measurable functions indexed by a totally
+bounded semimetric space @xmath satisfying
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and assume that there exists a function @xmath such that @xmath , @xmath
+and @xmath for all @xmath . If @xmath for every @xmath and @xmath
+converges pointwise on @xmath , then the sequence @xmath converges
+weakly to a tight Gaussian process.
+
+Theorems 2.2.4 and 2.2.6 only consider empirical processes of i.i.d.
+observations. We finish this section with an extension of Donsker
+theorem to the case of independent but not identically distributed
+processes. The following theorem is an extension of Jain-Marcus’s
+central limit theorem ( Jain and Marcus [ 37 ] ), and the proof can be
+found in Theorems 2.11.9 and 2.11.11 of van der Vaart and Wellner [ 67 ]
+.
+
+###### Theorem 2.2.7.
+
+For each @xmath , let @xmath be independent stochastic processes indexed
+by an arbitrary index set @xmath . Suppose that there exist independent
+random variables @xmath , and a semimetric @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Furthermore assume that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath . Then the sequence @xmath is asymptotically uniformly
+@xmath -equicontinuous in @xmath -probability. Moreover, it converges to
+a tight Gaussian process provided the sequence of covariance functions
+converges pointwise on @xmath .
+
+### 2.3 Bayesian asymptotics
+
+For the last few decades, there were remarkable activities in the
+development of nonparametric Bayesian statistics. This section reviews
+some frequentist properties of Bayesian procedures in infinite
+dimensional models. There are books for nonparametric Bayesian
+statistics like Ghosh and Ramamoorthi [ 33 ] and Hjort et al. [ 36 ] ,
+but they are not fully satisfactory because a lot of important theories
+and examples are developed quite recently. Here we focus on asymptotic
+behaviors of posterior distributions when i.i.d. observations are given.
+
+Let @xmath be a random sample in a metric space @xmath with the Borel
+@xmath -algebra @xmath . Consider a statistical model @xmath , where the
+parameter space @xmath is equipped with a metric @xmath . Let @xmath be
+a prior on @xmath , that is, a probability measure on the Borel @xmath
+-algebra @xmath of @xmath . Any version of the conditional distribution
+of @xmath given @xmath is called a posterior distribution and denoted by
+@xmath . We assume that there exists a @xmath -finite measure @xmath on
+@xmath dominating all @xmath . In this case, using Bayes’ rule, the
+posterior distribution is given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all @xmath .
+
+A prior and data yield the posterior and the subjectiveness of this
+strategy does not need the idea of what happens if further data arise.
+However, one may be interested in asymptotic behavior of the posterior
+distribution which can be seen as a frequentist viewpoint. Frequentist
+typically assumes that there exists the true distribution @xmath which
+generates the observations @xmath . Throughout this section, we assume
+that @xmath for some @xmath , and under this assumption the posterior
+distribution is expected to concentrate around the true parameter @xmath
+.
+
+Before going to infinite-dimensional models, we begin with parametric
+models. In a smooth parametric, the posterior distribution is
+asymptotically normal centered on a best regular estimator with the
+variance the inverse of Fisher information matrix. This is the so-called
+BvM theorem which was proved by many authors. The following theorem is
+considerably more elegant than the results by early authors and proofs
+can be found, for example, in Le Cam [ 44 ] , Le Cam and Yang [ 47 ] .
+
+###### Theorem 2.3.1 (Bernstein-von Mises).
+
+Assume that a parametric model @xmath is differentiable in quadratic
+mean at @xmath with nonsingular Fisher information matrix @xmath .
+Furthermore suppose that for every @xmath there exists a sequence of
+tests @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If the prior has continuous and positive density in a neighborhood of
+@xmath , then the corresponding posterior distributions satisfy
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+in @xmath -probability, where @xmath is a best regular estimator and the
+supremum is taken over all Borel sets.
+
+Since best regular estimators are asymptotically equivalent up to @xmath
+terms, the centering sequence @xmath in the BvM theorem can be any best
+regular estimator sequence. An important application of the BvM theorem
+is that the posterior mean is an efficient estimator and Bayesian
+credible sets are asymptotically equivalent to frequentists’ confidence
+intervals. This implies that statistical inferences based on the
+posterior distribution is equally optimal to that based on the maximum
+likelihood estimators.
+
+A sequence of tests @xmath is called uniformly consistent for testing
+@xmath versus @xmath if
+
+  -- -------- --
+     @xmath   
+     @xmath   
+  -- -------- --
+
+as @xmath . Le Cam’s version of the BvM theorem requires the existence
+of uniformly consistent tests for testing @xmath versus @xmath for every
+@xmath . Such tests certainly exist if there exist estimators @xmath
+that are uniformly consistent, that is,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath .
+
+Theorem 2.3.1 is quite general so it can be applied for most smooth
+parametric models. As frequentist theory, however, Theorem 2.3.1 does
+not generalize fully to nonparametric estimation problems. Actually many
+nonparametric priors do not work well in the sense that the posterior
+mass does not concentrate around the true parameter. An important
+counterexample was found by Diaconis and Freedman [ 17 , 18 ] which
+proves that the posterior distribution may be inconsistent even if a
+very natural nonparametric prior is used. Doss [ 20 , 21 , 22 ] found
+similar phenomena for median estimation problem. Before introducing this
+example, we define the posterior consistency rigorously and state an
+important theorem about consistency proved by Doob [ 19 ] . The sequence
+of posteriors @xmath is said to be consistent at @xmath (with respect to
+a metric @xmath ) if for every @xmath
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+as @xmath . The definition of consistency may be different in some texts
+in which consistency is defined using almost-sure convergence, not
+convergence in probability. More precisely, we call the posterior is
+almost-surely consistent at @xmath , if for every @xmath
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+@xmath -almost-surely. Furthermore we say that a sequence @xmath is the
+convergence rate of the posterior distribution at @xmath (with respect
+to a metric @xmath ) if for any @xmath , we have that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+in @xmath -probability. As the definition of posterior consistency, the
+convergence rate of the posterior also can be defined using almost-sure
+convergence. Now we state the theorem by Doob [ 19 ] .
+
+###### Theorem 2.3.2.
+
+Suppose that @xmath and @xmath are both complete and separable metric
+spaces, and the model is identifiable. Then there exists @xmath , with
+@xmath such that @xmath is consistent at every @xmath .
+
+Doob’s theorem looks very useful bet it does not tell about the
+posterior consistency at a specific @xmath . Although the set of
+inconsistency is a @xmath -null set, it may not be ignorable when @xmath
+is an infinite-dimensional parameter space. As mentioned above the
+Diaconis-Freedman’s counterexample was a surprising discovery in
+Bayesian nonparametric society as the case of Hodges supperefficient
+estimator. Before the discovery of this counterexample, it was believed
+that most prior works well except some abnormal examples. To explain the
+Diaconis-Freedman example, we need to mention the Dirichlet process (
+Ferguson [ 25 ] ) prior which is often considered as a starting point of
+Bayesian nonparametrics. Dirichlet processes are widely used in many
+fields of science and industry for the prior of unknown probability
+distributions. The definition of Dirichlet processes and its symmetrized
+version is given in Section A.3 . In the statement of the following
+theorem, we slightly abuse notations for @xmath which is used for the
+location parameter, not the whole parameter, in a semiparametric
+location problem.
+
+###### Theorem 2.3.3.
+
+Consider an i.i.d. observations @xmath from well-specified model
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath follows an unknown distribution @xmath . For the prior,
+@xmath has the standard normal density, and @xmath is independently
+drawn from the symmetrized Dirichlet process with mean the standard
+Cauchy distribution. Then the posterior is inconsistent at @xmath and
+@xmath for some @xmath which has infinitely differentiable density
+@xmath , which is compactly supported and symmetric about 0, with a
+strict maximum at @xmath .
+
+An example of inconsistent @xmath in Theorem 2.3.3 is illustrated in
+Figure 2.1 . With this @xmath , the posterior mass for @xmath
+concentrate around two distinct points @xmath for some @xmath . To prove
+the posterior consistency at a specific point @xmath , the condition by
+Schwartz [ 58 ] can be a very useful tool. It requires that the prior
+mass of every Kullback-Leibler neighborhood of the true parameter is
+positive. Furthermore a uniformly consistent sequence of tests are
+required.
+
+###### Theorem 2.3.4.
+
+Let @xmath be a prior on @xmath , and assume that the model is dominated
+by a common @xmath -finite measure. If for every @xmath ,
+
+  -- -- -- -------
+           (2.5)
+  -- -- -- -------
+
+and there exists a uniformly consistent sequence of tests for testing
+@xmath versus @xmath , then the posterior is almost-surely consistent.
+
+There are many interesting examples satisfying the Scwartz’s condition.
+Barron et al. [ 2 ] founds a sufficient condition using bracketing
+number for consistency with respect to Hellinger distance.. Some
+extensions to semiparametric models and non- i.i.d. models can be found,
+for example, in Amewou-Atisso et al. [ 1 ] and Wu and Ghosal [ 76 ] .
+More recently Walker [ 72 ] founds a new sufficient condition for
+posterior consistency.
+
+Many statisticians do not fully satisfy posterior consistency and they
+want to know how fast it converges to the true parameter. As an
+extension of Scwartz’s theorem, Ghosal et al. [ 29 ] found sufficient
+conditions which assures a certain rate of posterior consistency. Let
+@xmath denote the @xmath - packing number of @xmath , that is, the
+maximal number of points in @xmath such that the distance between every
+pair is at least @xmath . This is related to the covering number by the
+inequalities
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The following general theorem given in Ghosal et al. [ 29 ] is very
+intuitive and interpretable.
+
+###### Theorem 2.3.5.
+
+Let @xmath be the metric on @xmath defined by @xmath or @xmath . Suppose
+that for a sequence @xmath with @xmath and @xmath , a constant @xmath
+and sets @xmath , we have
+
+  -- -------- -- -------
+     @xmath      (2.6)
+     @xmath      
+  -- -------- -- -------
+
+and
+
+  -- -------- -- -------
+     @xmath      (2.7)
+  -- -------- -- -------
+
+Then for sufficiently large @xmath , we have that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+in @xmath -probability.
+
+A sequence @xmath is a sieve for @xmath . Condition ( 2.6 ) requires
+that the model is not too big. The log of covering number is called
+entropy and this is often interpreted as the complexity of the model (
+Birgé [ 7 ], Le Cam [ 43 ] ). Under certain conditions a rate satisfying
+( 2.6 ) gives the optimal rate of convergence relative to the Hellinger
+metric. Condition ( 2.6 ) ensures the existence of certain tests and
+could be replaced by a testing condition. Condition ( 2.7 ) requires
+that the prior mass around the true parameter is not too small, and this
+is a refined version of condition ( 2.5 ). Roughly speaking condition (
+2.7 ) tells that the prior mass should be uniformly spread on the
+support of the prior.
+
+An important application of Theorem 2.3.5 is Dirichlet process mixture
+priors for density estimation problems. Ghosal and van der Vaart [ 30 ]
+found a tight entropy bound for classes of mixtures of normal densities
+and got Hellinger convergence rate @xmath when the true density is a
+mixture of normals. Note that this is nearly parametric rate. Although
+the true density is not a mixture of normal densities, a Dirichlet
+process mixture of normals prior works well if the prior mass for
+standard deviance of normal is concentrated around zero as @xmath . When
+the true density is twice continuously differentiable, Ghosal and
+van der Vaart [ 32 ] proved that a Dirichlet process mixture of normals
+prior gives Hellinger convergence rate @xmath which is almost same to
+the optimal rate @xmath of kernel density estimation.
+
+Conditions in Theorem 2.3.5 may be slightly strong than required, and
+more refined versions are given in Ghosal et al. [ 29 ] . Shen and
+Wasserman [ 62 ] independently found similar sufficient conditions for
+posterior convergence rate around the same time. More recently Walker
+et al. [ 73 ] developed new conditions as an extension of Walker [ 72 ]
+and provided an example which gives a better convergence rate than
+previous works. When the model is misspecified, Kleijn and van der Vaart
+[ 42 ] proved that the posterior converges to the parameter in the
+support at minimal Kullback-Leibler divergence to the true parameter, at
+rate as if it were in the support.
+
+## Chapter 3 Main results
+
+### 3.1 Semiparametric Bernstein-von Mises theorem
+
+Consider a sequence of statistical models @xmath parametrized by finite
+dimensional @xmath of interest and infinite dimensional @xmath which is
+usually considered as a nuisance parameter. Assume that @xmath is an
+open subset of @xmath and @xmath has the density @xmath with respect to
+a @xmath -finite measure @xmath . Let @xmath be a random element which
+follows @xmath and assume that @xmath for some @xmath and @xmath . We
+consider a product prior @xmath on @xmath and denote the posterior
+distribution by @xmath . Assume that @xmath is thick at @xmath , that
+is, it has a positive continuous Lebesgue density in a neighborhood of
+@xmath . Also @xmath is allowed to depend on @xmath , but we abbreviate
+the notation @xmath in @xmath for notational simplicity. For a given
+prior distribution @xmath on @xmath , let
+
+  -- -------- -- -------
+     @xmath      (3.1)
+  -- -------- -- -------
+
+be the integrated likelihood , where @xmath . We begin this section with
+the statement of general BvM theorem. The proof is almost identical to
+that of Theorem 2.1 in Kleijn and van der Vaart [ 41 ] upon replacement
+of parametric likelihoods with integrated likelihoods. Hereafter, some
+quantities in proofs may not be measurable, and in this case the
+expectation can be understood by the outer integral and measurable
+majorants. We refer to Part I of van der Vaart and Wellner [ 67 ] for
+details about this.
+
+###### Theorem 3.1.1.
+
+Assume that the model @xmath is endowed with the product prior @xmath ,
+where @xmath is thick at @xmath , and
+
+  -- -------- -- -------
+     @xmath      (3.2)
+  -- -------- -- -------
+
+for every real sequence @xmath with @xmath . Furthermore, suppose that
+for given sequences of uniformly tight random vectors @xmath and
+non-random positive definite matrices @xmath satisfying @xmath , the
+integrated likelihood ( 3.1 ) satisfies
+
+  -- -------- -- -------
+     @xmath      (3.3)
+  -- -------- -- -------
+
+for any compact @xmath . Then,
+
+  -- -------- -- -------
+     @xmath      (3.4)
+  -- -------- -- -------
+
+in @xmath -probability.
+
+Proof We first prove the assertion conditional on an arbitrary compact
+set @xmath and then we use this to prove ( 3.4 ). Let @xmath be the
+normal distribution @xmath and @xmath . For any set @xmath with @xmath ,
+we define a conditional version @xmath by @xmath . Similarly we define a
+conditional measure @xmath corresponding to @xmath
+
+Let @xmath be a compact set containing a neighborhood of @xmath , and
+@xmath be the event that @xmath . Then, for any open neighborhood @xmath
+of @xmath , @xmath for large enough @xmath . Since @xmath is an interior
+point of @xmath , for large enough @xmath , the random functions @xmath
+,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+are well defined, where @xmath is the density of @xmath , @xmath is the
+density of the prior for the centered and rescaled parameter @xmath ,
+and @xmath . Note that @xmath as @xmath . Therefore,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+by ( 3.3 ) and we conclude that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+as @xmath .
+
+Let @xmath be given and define @xmath . Since the total variation is
+bounded by 2,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Note that
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+and @xmath for all @xmath . Therefore, by the Jensen’s inequality on the
+function @xmath , we have
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Since @xmath , we conclude @xmath .
+
+Now, we can choose a sequence of balls @xmath centered at 0 with radii
+@xmath and satisfying @xmath , where @xmath is redefined by the event
+@xmath . Note that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and @xmath by ( 3.2 ). We also have @xmath by ( 3.2 ).
+
+It only remains to prove @xmath . For that, it is sufficient to show
+that @xmath converges in @xmath -probability. This follows by the fact
+that @xmath is uniformly tight and @xmath . ∎
+
+Note that if @xmath is continuous @xmath -almost-surely, then ( 3.3 ) is
+equivalent to
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every bounded random sequence @xmath .
+
+Conditions in Theorem 3.1.1 are quite intuitive, but not easy to prove.
+In the following two subsections, we provide sufficient conditions for
+the conditions ( 3.2 ) and ( 3.3 ) for models in which there is no
+information loss. These conditions are given as follows.
+
+There exist a positive number @xmath , @xmath -functions @xmath , a
+sequence @xmath of subsets of @xmath containing @xmath , and matrices
+@xmath satisfying
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (3.5)
+     @xmath   @xmath   @xmath      (3.6)
+     @xmath   @xmath   @xmath      (3.7)
+     @xmath   @xmath   @xmath      (3.8)
+     @xmath   @xmath   @xmath      (3.9)
+  -- -------- -------- -------- -- -------
+
+and for large enough @xmath
+
+  -- -------- -- --------
+     @xmath      (3.10)
+  -- -------- -- --------
+
+as @xmath . Furthermore,
+
+  -- -------- -- --------
+     @xmath      (3.11)
+  -- -------- -- --------
+
+and
+
+  -- -------- -- --------
+     @xmath      (3.12)
+  -- -------- -- --------
+
+for every @xmath , @xmath and @xmath , where @xmath is the centered
+random variable of @xmath .
+
+These conditions are highly related to those of van der Vaart [ 69 ]
+which prove the efficiency of maximum likelihood estimators in
+semiparametric models. The most important condition in van der Vaart [
+69 ] is that a class of score functions is Donsker, which implies
+uniformly asymptotic equicontinuity or asymptotic tightness of the
+stochastic processes. This corresponds to conditions ( 3.6 ) and ( 3.7
+). Condition ( 3.6 ) is related to the asymptotic equicontinuity of the
+stochastic process and ( 3.7 ) is a direct result of asymptotic
+tightness. Both properties can be proved by showing that the stochastic
+process
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+indexed by a neighborhood of @xmath is asymptotically tight. Modern
+empirical process theory is an useful tool for proving this property.
+Once ( 3.7 ) is shown to be true, ( 3.11 ) and ( 3.12 ) can be easily
+checked by Taylor expansion of @xmath provided it is smooth. Condition (
+3.5 ) implies that the expectation of the ordinary score function
+vanishes near @xmath at order @xmath and this is similar to condition
+(2.9) of van der Vaart [ 69 ] . Condition ( 3.10 ) is that the
+expectation of the log likelihood ratio is approximated by a quadratic
+function near @xmath . Therefore if the model is smooth, ( 3.8 ), ( 3.9
+) and ( 3.10 ) imply ( 3.5 ). Note that conditions ( 3.8 ) and ( 3.9 )
+are natural, so ( 3.10 ) is the most stringent to prove. For models
+considered in this thesis, the symmetricity of densities make an
+important role to prove ( 3.10 ).
+
+#### 3.1.1 Integral local asymptotic normality
+
+In this subsection, we prove the integral LAN condition ( 3.3 ) using
+conditions mentioned above. A key requirement is the uniform LAN ( 3.16
+) which can be proved by the quadratic expansion ( 3.10 ) and
+application of the empirical process theory. Another important condition
+is ( 3.13 ) which is the consistency of nuisance posterior under @xmath
+-perturbation of @xmath . For i.i.d. models, a well-established theory
+is given in Theorem 3.1 of Bickel and Kleijn [ 4 ] . An extension to
+non- i.i.d. independent models can be found in Theorem A.1.1 of Section
+A.1 .
+
+###### Theorem 3.1.2 (Integral LAN).
+
+Suppose that ( 3.5 ), ( 3.6 ), ( 3.8 ), ( 3.10 ) and ( 3.11 ) hold for
+some @xmath , @xmath and @xmath . Furthermore, assume that
+
+  -- -------- -- --------
+     @xmath      (3.13)
+  -- -------- -- --------
+
+for every bounded random sequence @xmath . Then,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+holds for every bounded random sequence @xmath .
+
+Proof For a given compact set @xmath , let
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then, @xmath by Lemma 3.1.1 and @xmath by ( 3.6 ) and ( 3.8 ). Let
+@xmath and a random sequence @xmath in @xmath be given, and let @xmath
+be the maximum of @xmath , @xmath , @xmath and @xmath . If we define
+@xmath by the event @xmath , then @xmath for large enough @xmath . On
+@xmath , we have
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (3.14)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+and
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (3.15)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+where the last inequality of ( 3.15 ) holds by the consistency of the
+posterior of @xmath given @xmath . The inequalities ( 3.14 ) and ( 3.15
+) can be summarized by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and this yields the desired result. ∎
+
+###### Lemma 3.1.1 (Uniform LAN).
+
+Assume that ( 3.5 ), ( 3.10 ) and ( 3.11 ) hold for some @xmath , @xmath
+and @xmath . Then, the uniform LAN assertion
+
+  -- -------- -- --------
+     @xmath      (3.16)
+  -- -------- -- --------
+
+holds.
+
+Proof We can rewrite the left hand side of ( 3.16 ) by
+
+  -- -------- --
+     @xmath   
+     @xmath   
+  -- -------- --
+
+and for @xmath in a compact set @xmath and @xmath , the supremum of the
+first term converges to 0 in @xmath -probability by ( 3.11 ). The last
+three terms also converges uniformly to 0 by ( 3.5 ) and ( 3.10 ). ∎
+
+#### 3.1.2 Parametric convergence rate of the marginal posterior
+
+In this subsection, the marginal posterior of @xmath is shown to
+converge at parametric rate @xmath . It looks very natural but the proof
+is not easy as mentioned in Bickel and Kleijn [ 4 ] . We apply the
+second approach given in Section 6 of Bickel and Kleijn [ 4 ] . The
+proof is quite technical and we motivated from the proofs of Theorem 2.4
+in Ghosal et al. [ 29 ] and Theorem 3.1 in Kleijn and van der Vaart [ 41
+] .
+
+There are extensive literatures about posterior consistency, condition (
+3.17 ). The version that adapts to our examples is given in Theorem
+A.1.2 .
+
+###### Theorem 3.1.3.
+
+Suppose that ( 3.7 )–( 3.12 ) hold for some @xmath , @xmath , @xmath and
+sufficiently small @xmath . Also, the posterior is consistent in the
+sense that
+
+  -- -------- -- --------
+     @xmath      (3.17)
+  -- -------- -- --------
+
+in @xmath -probability for every @xmath . Then, ( 3.2 ) holds for every
+@xmath provided @xmath is thick at @xmath .
+
+Proof It is sufficient to show that ( 3.2 ) holds for sufficiently
+slowly increasing @xmath so that @xmath . For given such @xmath , we can
+choose @xmath and @xmath satisfying the assertions of Lemmas 3.1.2 and
+3.1.3 . Let @xmath be the intersection of two events whose probabilities
+are tending to 1 in the both Lemmas. For a given @xmath (see below), let
+@xmath , @xmath and @xmath be the minimum among @xmath ’s satisfying
+@xmath . Since @xmath is thick at @xmath , @xmath can be chosen
+sufficiently small so that @xmath for some constant @xmath . Then on
+@xmath ,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Since
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+on @xmath , we have on this set
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+as @xmath , by the choice of @xmath . We conclude that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+in @xmath -probability because @xmath . Now, we can write
+
+  -- -------- --
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+  -- -------- --
+
+and each term converges in @xmath -probability to 0. ∎
+
+###### Lemma 3.1.2.
+
+For given @xmath , @xmath and @xmath , suppose that ( 3.7 )–( 3.11 )
+hold for some @xmath , @xmath , @xmath and @xmath . Then, for every
+@xmath , there exists @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+provided @xmath is thick at @xmath .
+
+Proof For given @xmath and @xmath with @xmath and @xmath , we have
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+                       @xmath   
+                       @xmath   
+                       @xmath   
+                       @xmath   
+  -- -------- -------- -------- --
+
+where @xmath is the prior for the centered and rescaled parameter @xmath
+. For @xmath and @xmath , the exponent is uniformly bounded below by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+by ( 3.7 ), ( 3.8 ), ( 3.10 ) and ( 3.11 ). Since @xmath by ( 3.9 ),
+@xmath is thick at @xmath , and @xmath is arbitrary, we have the desired
+result. ∎
+
+###### Lemma 3.1.3.
+
+For given @xmath , @xmath and @xmath , suppose that ( 3.8 )–( 3.10 ) and
+( 3.12 ) holds for some @xmath , @xmath , @xmath and sufficiently small
+@xmath . Then, there exists a constant @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+as @xmath .
+
+Proof Let a real sequence @xmath , @xmath and @xmath , be given. For
+given @xmath , if @xmath is sufficiently small, then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for large enough @xmath and every @xmath with @xmath by ( 3.10 ). Write
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+                       @xmath   
+                       @xmath   
+  -- -------- -------- -------- --
+
+Then, for @xmath and @xmath , the right hand side is uniformly bounded
+above by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+by ( 3.8 ) and ( 3.12 ). Since @xmath can be arbitrarily small and
+@xmath by ( 3.9 ), we have the desired result. ∎
+
+### 3.2 Quadratic expansion of the expected log likelihood ratio
+
+This section is devoted to study about uniform quadratic expansion of
+the expected log likelihood ratio ( 3.10 ) in models with symmetric
+densities. Typically in a smooth parametric model it is expected that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+as @xmath by use of Taylor expansion. Here @xmath is the Fisher
+information matrix at @xmath . In this expansion, the linear term is
+equal to zero because the model is well specified so @xmath is maximized
+at @xmath . To satisfy the condition ( 3.10 ), this quadratic expansion
+should be satisfied when the nuisance parameter is slightly
+misspecified. This is not generally true, even in models without
+information loss. Consider, for example, the Gaussian model @xmath .
+When @xmath is misspecified the log likelihood ratio satisfies
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+so the quadratic expansion ( 3.10 ) is satisfied. In contrast, when
+@xmath is misspecified, the expected log likelihood ratio is given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+so it does not allow the desired quadratic expansion. Note that the
+linear term of the Taylor expansion with respect to @xmath is given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and the map @xmath is maximized at @xmath . This implies that the
+condition ( 3.10 ) may be difficult to be satisfied in general.
+Fortunately, many interesting models satisfy this condition, and we
+establish a sufficient condition for condition ( 3.10 ) in models with
+symmetric error.
+
+We consider univariate and multivariate models with symmetric errors in
+the following two subsections, respectively. These models, like the
+Gaussian location model in which @xmath is considered as nuisance
+parameter, allow the desired quadratic expansion when nuisance parameter
+is misspecified. Condition ( 3.10 ) requires that this quadratic
+expansion happens uniformly around the true parameter @xmath . We will
+provide sufficient conditions for uniform quadratic expansions and prove
+a class of mixtures of normal densities satisfies these conditions.
+
+#### 3.2.1 Univariate symmetric densities
+
+We first consider one-dimensional location problem
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where the error distribution is parametrized by @xmath for some infinite
+dimensional @xmath . Write the density of error distribution by @xmath
+and let @xmath . A density @xmath is assumed to be symmetric about 0 and
+continuously differentiable for every @xmath . Fix @xmath which can be
+considered as the true parameter. Define
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+if it exists. The following lemma is the key identity for our result so
+we mention it before stating the main theorem.
+
+###### Lemma 3.2.1.
+
+If @xmath and @xmath for all @xmath , then
+
+  -- -------- -- --------
+     @xmath      (3.18)
+  -- -------- -- --------
+
+for any suitably integrable function @xmath .
+
+Proof The left hand side of ( 3.18 ) is equal to
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+so the proof is complete. ∎
+
+###### Theorem 3.2.1.
+
+Suppose that for a subset @xmath there exist @xmath and a function
+@xmath such that @xmath , @xmath , and
+
+  -- -------- -- --------
+     @xmath      (3.19)
+  -- -------- -- --------
+
+for all @xmath . Furthermore, assume that
+
+  -- -------- -- --------
+     @xmath      (3.20)
+  -- -------- -- --------
+
+and
+
+  -- -------- -- --------
+     @xmath      (3.21)
+  -- -------- -- --------
+
+as @xmath . Then
+
+  -- -------- -- --------
+     @xmath      (3.22)
+  -- -------- -- --------
+
+as @xmath .
+
+Proof Without loss of generality we assume that @xmath and @xmath .
+Then, applying Lemma 3.2.1 with @xmath , we get
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+as @xmath , where the @xmath term converges to 0 uniformly in @xmath .
+Since
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+the left hand side of ( 3.22 ) is bounded by
+
+  -- -------- --
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+  -- -------- --
+
+as @xmath , where the last equality holds by the dominated convergence
+theorem. ∎
+
+###### Example 3.2.1 (Mixtures of normal densities).
+
+Let positive constants @xmath and @xmath , with @xmath be given. Let
+@xmath be the set of all Borel probability measures @xmath supported on
+@xmath and satisfying @xmath . Define mixtures of normal densities
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath and let @xmath . Then, by Lemma 3.2.2 , there exists a
+function @xmath satisfying @xmath , @xmath for every @xmath , and ( 3.19
+). Furthermore, we can choose @xmath as @xmath . Conditions ( 3.20 ) and
+( 3.21 ) are satisfied by (v) and (vi) of Lemma and 3.2.3 ,
+respectively. We conclude that the assertion of Theorem 3.2.1 holds.
+@xmath
+
+A class of mixtures of normal densities is large enough to approximate
+every twice continuously differentiable density. If @xmath is a twice
+continuously differentiable density, it is well-known (see, for example
+Ghosal and van der Vaart [ 32 ] ) that @xmath as @xmath , where @xmath
+denotes the convolution. When @xmath is symmetric, it can be similarly
+approximated by symmetric normal mixtures, but in this case, there
+should be a restriction on mixing distribution to make a density
+symmetric. In Example 3.2.1 we impose an assumption that @xmath is
+supported on @xmath for some @xmath and @xmath . This assumption is
+required just for technical convenience, and with some additional
+efforts, the results could be extended to symmetric mixtures supported
+on @xmath as in Ghosal and van der Vaart [ 30 ] and Tokdar [ 66 ] .
+Furthermore, even when mixtures of normal densities are used for
+modeling a smooth density (not necessarily a mixture of normal
+densities) as in Ghosal and van der Vaart [ 32 ] , we believe that the
+results in this thesis could be fully generalized.
+
+In the remainder of this subsection, we prove some elementary properties
+of mixtures of normal densities required in Example 3.2.1 . We follow
+the notations presented in Example 3.2.1 . Note first that
+
+  -- -------- -- --------
+     @xmath      (3.23)
+  -- -------- -- --------
+
+for any probability measure @xmath and integrable real-valued functions
+@xmath and @xmath . These inequalities are very useful to bound the
+ratio of two mixtures of densities.
+
+###### Lemma 3.2.2.
+
+There exists a function @xmath with @xmath and an open neighborhood
+@xmath of @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all @xmath and @xmath . Furthermore, @xmath as @xmath .
+
+Proof By ( 3.23 ), we have
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+for every @xmath and this assures the existence of @xmath and @xmath as
+@xmath . ∎
+
+###### Lemma 3.2.3.
+
+For @xmath and @xmath , the density function satisfies
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+as @xmath .
+
+Proof Note that
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+and @xmath for every @xmath . First, (i) holds by
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+as @xmath . Also, since we have
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+for @xmath , (ii), (iii) and (iv) are proved. Next, (v) can be proved by
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+for @xmath and large enough @xmath . In the same way, combining
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+and (iii), we can prove (vi). ∎
+
+#### 3.2.2 Multivariate symmetric densities
+
+For @xmath , @xmath and @xmath , consider a multivariate location
+problem
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where the distribution of is parametrized by @xmath for some infinite
+dimensional @xmath . Write the density of error distribution by @xmath
+and let @xmath . A density @xmath is assumed to be symmetric about the
+origin in the sense that @xmath , and continuously differentiable for
+every @xmath . Fix @xmath and @xmath which can be considered as the true
+parameter. For a set @xmath let @xmath . The following lemma and theorem
+are the multivariate correspondences of Lemma 3.2.1 and Theorem 3.2.1 .
+
+###### Lemma 3.2.4.
+
+Assume that a positive function @xmath satisfies @xmath . Then, for any
+suitably integrable function @xmath ,
+
+  -- -------- -- --------
+     @xmath      (3.24)
+  -- -------- -- --------
+
+where @xmath is any subset of @xmath such that @xmath and @xmath are
+disjoint, and @xmath has Lebesgue measure zero.
+
+Proof The left hand side of ( 3.24 ) is equal to
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+which is the desired result. ∎
+
+###### Theorem 3.2.2.
+
+Suppose that for a subset @xmath there exist @xmath and a function
+@xmath such that @xmath , @xmath , and
+
+  -- -------- -- --------
+     @xmath      (3.25)
+  -- -------- -- --------
+
+for all @xmath . Furthermore, assume that
+
+  -- -------- -- --------
+     @xmath      (3.26)
+  -- -------- -- --------
+
+and
+
+  -- -------- -- --------
+     @xmath      (3.27)
+  -- -------- -- --------
+
+as @xmath converges to the zero vector. Then
+
+  -- -------- -- --------
+     @xmath      (3.28)
+  -- -------- -- --------
+
+as @xmath .
+
+Proof Without loss of generality, we may assume that @xmath is the zero
+vector. Define @xmath , then @xmath satisfies the condition of Lemma
+3.2.4 . Applying Lemma 3.2.4 with @xmath
+
+  -- -- -------- -------- --
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+as @xmath , where the @xmath term converges to the zero vector uniformly
+in @xmath . Since
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+the left hand side of ( 3.28 ) is bounded by
+
+  -- -- -------- -------- --
+                          
+                 @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+as @xmath converges to zero vector, where the last equality holds by the
+dominated convergence theorem. ∎
+
+An important application of Theorem 3.2.2 is to the random effects
+models in which is the sum of the random effects and errors. Therefore
+the distribution of random effects, as well as the error distribution,
+should be assumed to be symmetric about the origin. In Section 3.3.3 ,
+two distributions @xmath and @xmath in Example 3.2.2 will be considered
+as the distributions of errors and of random effects, respectively.
+
+###### Example 3.2.2.
+
+For @xmath and @xmath , we define @xmath by the set of all Borel
+probability measures @xmath supported on @xmath and satisfying @xmath .
+Let @xmath be the set of all Borel probability measures on @xmath with
+@xmath and define @xmath . For @xmath , @xmath , and @xmath , let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath . Then @xmath for every @xmath and @xmath . Also,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+as @xmath . Therefore there exists @xmath such that @xmath , @xmath for
+every @xmath and satisfies ( 3.25 ). The fact that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and (ii) of Lemma 3.2.5 yield ( 3.26 ). In a similar way, ( 3.29 ) and
+(i) of Lemma 3.2.5 proves ( 3.27 ). Therefore the assertion of Theorem
+3.2.2 holds. @xmath
+
+###### Lemma 3.2.5.
+
+With the notation presented in Example 3.2.2 , we have
+
+1.  @xmath
+
+2.  @xmath
+
+as @xmath .
+
+Proof Note first that
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (3.29)
+     @xmath   @xmath   @xmath      (3.30)
+     @xmath   @xmath   @xmath      (3.31)
+  -- -------- -------- -------- -- --------
+
+as @xmath . Also, for any @xmath and @xmath and
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (3.32)
+     @xmath   @xmath   @xmath      (3.33)
+  -- -------- -------- -------- -- --------
+
+by Taylor’s expansion. Therefore, ( 3.32 ) combining with ( 3.30 ) and (
+3.31 ) yields (ii). Also, (i) is satisfied by ( 3.29 ), ( 3.30 ) and the
+identity
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all @xmath and @xmath . ∎
+
+### 3.3 Examples
+
+In this section, we apply the general semiparametric BvM theorem for
+specific models and priors. We consider three models which have
+symmetric errors: the location, linear regression and random intercept
+models. In each model, error densities are modeled by symmetric mixtures
+of normal densities. Although the location model is contained in the
+regression model, we begin the proof with the location model because the
+essentials of the proofs are similar for the other models.
+
+#### 3.3.1 Location model
+
+Consider the symmetric location model, where i.i.d. real-valued
+observations @xmath are modeled as
+
+  -- -------- -- --------
+     @xmath      (3.34)
+  -- -------- -- --------
+
+and @xmath follows a mixture of normal densities @xmath for a mixing
+distribution @xmath that is symmetric in the sense @xmath . The model
+can be parameterized by the location parameter @xmath and the mixing
+distribution @xmath , where @xmath is an open subset of @xmath and
+@xmath is defined as in Example 3.2.1 . Assume that the true
+distribution @xmath which generates the observations is contained in the
+model, that is @xmath for some @xmath . Let @xmath be the ordinary score
+function and @xmath be the Fisher information. Then it is obvious that
+@xmath and @xmath for all @xmath and @xmath . Let @xmath and @xmath . A
+weak neighborhood of @xmath is defined by
+
+  -- -------- -- --------
+     @xmath      (3.35)
+  -- -------- -- --------
+
+for @xmath and any finite collection @xmath of bounded continuous
+functions on @xmath .
+
+###### Theorem 3.3.1.
+
+Assume that @xmath is contained in the model @xmath which is endowed
+with the product prior @xmath , where @xmath is thick at @xmath and
+@xmath for every weak neighborhood @xmath of @xmath . Then,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+in @xmath -probability, where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Proof By Theorems 3.1.1 , 3.1.2 , and 3.1.3 , it is sufficient to show
+that ( 3.5 )–( 3.13 ), and ( 3.17 ) hold for some @xmath , @xmath and
+@xmath . First, the metric @xmath satisfies ( A.1 ). Also, ( A.2 ) holds
+by Lemma A.2.3 and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Condition ( A.3 ) is satisfied by Lemma 3.2.2 . Now, the assertions of
+Theorems A.1.1 and A.1.2 hold by Lemmas A.2.1 , A.2.2 , A.2.4 and the
+fact that the median @xmath of @xmath satisfies ( A.7 ). This implies
+that there exists a sequence @xmath such that the sequence @xmath
+defined by @xmath satisfies ( 3.13 ) and ( 3.17 ).
+
+Let @xmath be the ordinary score function and @xmath . Then, ( 3.5 )
+holds by Lemma 3.3.4 , ( 3.8 ) holds by Lemma 3.3.1 , ( 3.9 ) is
+trivial, and ( 3.10 ) holds by Example 3.2.1 . Lemma 3.3.2 directly
+implies ( 3.7 ). If we define an index set @xmath for sufficiently small
+@xmath and a semimetric
+
+  -- -------- -- --------
+     @xmath      (3.36)
+  -- -------- -- --------
+
+then the Donsker property also implies that @xmath is totally bounded
+with respect to @xmath and the stochastic process @xmath indexed by
+@xmath is asymptotically uniformly @xmath -equicontinuous in probability
+¹ ¹ 1 See problem 2 in page 93 of van der Vaart and Wellner [ 67 ] . .
+As a result, ( 3.6 ) holds because @xmath implies @xmath .
+
+For ( 3.11 ), by the Tayler expansion implies
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+and by the Jensen’s inequality and Fubini’s theorem, the variance of the
+right hand side is bounded by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+by (vi) of Lemma 3.2.3 . Therefore, for each @xmath the term in the left
+hand side of ( 3.11 ) converges in probability to 0, and it converges
+uniformly by Donsker’s theorem. Finally, write
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and apply the Donsker’s theorem to prove ( 3.12 ). ∎
+
+In Theorem 3.3.1 , the only nontrivial condition is in the prior @xmath
+. However, we note that the condition is very weak compared to the usual
+conditions ² ² 2 Prior positivity for every Kullback-Leibler type
+neighborhood . that are typically required for posterior consistency or
+convergence rate. We provide an example which is widely used for
+nonparametric symmetric density estimation problems.
+
+Recall that the support of a positive measure @xmath on a topological
+space is defined by the complement of the largest open set of @xmath
+-measure zero and denoted by @xmath . If @xmath follows a Dirichlet
+process with base measure @xmath over the Euclidean spaces, then it is
+well-known ³ ³ 3 See, for example, Ghosh and Ramamoorthi [ 33 ] . that
+the support of @xmath with respect to the weak topology is given by
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (3.37)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+Using this fact, we can easily check that under the Dirichlet mixture
+priors of normal densities the BvM theorem holds.
+
+###### Example 3.3.1.
+
+For the prior @xmath for @xmath , consider a symmetrized Dirichlet
+process prior defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath follows a Dirichlet process with parameter @xmath and
+@xmath is supported on @xmath . Since @xmath and @xmath for all @xmath
+and @xmath with @xmath , it is sufficient to consider weak neighborhoods
+of type ( 3.35 ) with bounded continuous @xmath satisfying @xmath . If
+@xmath and @xmath then @xmath , where @xmath and @xmath is the Dirac
+measure at zero. Therefore, @xmath contains a weak neighborhood of
+@xmath in @xmath if and only if @xmath contains a weak neighborhood of
+@xmath in @xmath , where @xmath and @xmath . We conclude that if the
+support of @xmath contains the support of @xmath , then @xmath satisfies
+the condition in Theorem 3.3.1 by ( 3.37 ) so the BvM theorem holds. ∎
+
+In the following, we prove some technical lemmas for proving Theorem
+3.3.1 .
+
+###### Lemma 3.3.1.
+
+With the notation of Theorem 3.3.1 , we have
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (3.38)
+     @xmath   @xmath   @xmath      (3.39)
+  -- -------- -------- -------- -- --------
+
+as @xmath . That is, @xmath and @xmath converge in @xmath to @xmath and
+@xmath , respectively, as @xmath with respect to @xmath .
+
+Proof Without loss of generality, we may assume that @xmath . Then, for
+( 3.38 ), by Theorem 5 in Wong and Shen [ 75 ] , it is sufficient to
+show that
+
+  -- -------- -- --------
+     @xmath      (3.40)
+  -- -------- -- --------
+
+for some @xmath and @xmath . Note that
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+for @xmath . Also, we have
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+for @xmath . Therefore, for sufficiently small @xmath ,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+                       @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+and ( 3.40 ) is satisfied for every @xmath .
+
+For ( 3.39 ), note that
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+                 @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+where the inequality holds by (vi) of Lemma 3.2.3 . This enables the
+interchange of two limits, by Moore-Osgood theorem, in the following
+equality:
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+where the first and third equalities hold by the dominated convergence
+theorem and @xmath convergence of @xmath to @xmath . ∎
+
+###### Lemma 3.3.2.
+
+The class
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+are @xmath -Donsker for every @xmath .
+
+Proof Without loss of generality, we may assume that @xmath . By Theorem
+2.2.5 with @xmath and a partition @xmath , we can easily check that
+@xmath is bounded by @xmath as @xmath . Therefore, it is a Donsker class
+by Theorem 2.2.4 . ∎
+
+Note that the total variation is bounded by the Kullback-Leibler
+divergence as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+by Pinsker’s inequality. ⁴ ⁴ 4 See, for example, Massart and Picard [ 50
+] .
+
+###### Lemma 3.3.3.
+
+For every @xmath there exist @xmath and a universal constant @xmath
+(does not depend on @xmath ) such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Proof Without loss of generality, we assume that @xmath . Note that
+@xmath . Since @xmath and @xmath is continuous, there exists @xmath such
+that @xmath for @xmath . Then, for @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and therefore,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath . The same argument can be applied for @xmath , and as a
+result, we have @xmath . For given @xmath , we can choose @xmath , by
+Lemma 3.3.1 , such that @xmath implies @xmath . Since
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and @xmath by Pinsker’s inequality, we have the conclusion with @xmath .
+∎
+
+Let @xmath as a maximizer of the map @xmath if it exists. Example 3.2.1
+says that the expectation of log density can be approximated by a
+quadratic function near @xmath for every fixed @xmath . Since @xmath is
+strictly positive, if @xmath is sufficiently close to @xmath , then
+@xmath will be a local maximizer of the function @xmath . If @xmath is
+not sufficiently close to @xmath , then it can never be a maximizer of
+@xmath by Lemma 3.3.3 , so @xmath is expected to the global maximizer.
+That is, even when the nuisance parameter @xmath is slightly
+misspecified, the Kullback-Leibler divergence of the misspecified model
+is minimized at @xmath . Here, the distance between @xmath and @xmath in
+@xmath is measured by @xmath defined by @xmath . This is summarized in
+the following lemma.
+
+###### Lemma 3.3.4.
+
+There exists an @xmath such that @xmath is the unique maximizer of the
+map @xmath for all @xmath with @xmath .
+
+Proof Without loss of generality, we may assume that @xmath = 0. Since
+@xmath we can choose @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath by Example 3.2.1 . Since @xmath by ( 3.39 ), we can
+also choose an @xmath such that @xmath for @xmath . Therefore, for
+@xmath and @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and as a result, we have @xmath . By Lemma 3.3.3 , @xmath can be chosen
+sufficiently small so that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all @xmath , where @xmath is a constant in Lemma 3.3.3 . Therefore,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and this yields @xmath . ∎
+
+#### 3.3.2 Linear regression model
+
+This section considers the linear regression model
+
+  -- -------- -- --------
+     @xmath      (3.41)
+  -- -------- -- --------
+
+for independent observations @xmath , where the error distribution
+follows a mixture of normal densities as in the previous section. The
+parameter space for @xmath is denoted by @xmath which is an open subset
+of @xmath . The parameter space @xmath for @xmath and the corresponding
+density @xmath are defined as in Example 3.2.1 . The @xmath -dimensional
+covariate vectors @xmath ’s are non-random and their norms are assumed
+to be uniformly bounded by a constant @xmath . Additionally, we denote
+@xmath be the probability measure of @xmath in the model ( 3.41 )
+conditional on @xmath , and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+be its density evaluated at @xmath . The corresponding log density and
+its derivative evaluated at @xmath are denoted by @xmath and @xmath ,
+respectively. Let @xmath which is equal to the partial derivative of the
+map @xmath . @xmath represents the product measure @xmath . Let @xmath
+be the design matrix and @xmath , where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which is the same to the location model. ⁵ ⁵ 5 Note that the definition
+of @xmath does not depend on @xmath . We assume that the minimum
+eigenvalue @xmath of @xmath is bounded away from 0 in the sense @xmath
+which is required for the identifiability of @xmath . Now, we state the
+main theorem of this section.
+
+###### Theorem 3.3.2.
+
+Suppose that there is the true parameter @xmath which generates the
+observation from the model ( 3.41 ) with @xmath and @xmath for some
+@xmath . If the model is endowed with the product prior @xmath , where
+@xmath is thick at @xmath and @xmath for every weak neighborhood @xmath
+of @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+in @xmath -probability, where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Proof The proof is similar to that of Theorem 3.3.1 . As in the proof of
+Theorem 3.3.1 we will show that ( 3.5 )–( 3.13 ), and ( 3.17 ) hold with
+@xmath and @xmath replaced by @xmath and @xmath , respectively. The
+definition of @xmath , proofs of ( 3.13 ) and ( 3.17 ) are the same to
+those of Theorem 3.3.1 replacing the median @xmath by the least square
+estimator @xmath .
+
+Let @xmath , and @xmath be defined as in the beginning of this section.
+Then, ( 3.8 ) holds by Lemma 3.3.1 and ( 3.9 ) holds by the condition on
+the design matrix. Since @xmath is bounded, we have, by Example 3.2.1 ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which directly implies ( 3.10 ). Also, by ( 3.8 ), ( 3.9 ), ( 3.10 ) and
+differentiability, @xmath is a local maximizer of @xmath for large
+enough @xmath and @xmath sufficiently close to @xmath with respect to
+@xmath . As a result ( 3.5 ) is satisfied. The result of Lemma 3.3.5
+implies ( 3.7 ).
+
+For a given nonzero vector @xmath , the stochastic process
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+indexed by @xmath for sufficiently small @xmath is asymptotically tight
+by Theorem 3.3.5 and the condition on @xmath . Furthermore, it converges
+marginally to a Gaussian distribution by the Lindberg-Feller’s theorem,
+so weakly converges to a Gaussian process. As a result, for the
+semimetric ⁶ ⁶ 6 The definition of @xmath is the same to ( 3.36 ).
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+the process is asymptotically uniformly @xmath -equicontinuous in
+probability because @xmath is totally bounded ⁷ ⁷ 7 See the proof of
+Theorem 3.3.1 . with respect to @xmath . Since @xmath implies @xmath , (
+3.6 ) holds.
+
+For ( 3.11 ), Tayler expansion implies
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+and by the Jensen’s inequality and Fubini’s theorem, the variance of the
+right hand side is bounded by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+by (vi) of Lemma 3.2.3 . Therefore, for each @xmath the term in the left
+hand side of ( 3.11 ) converges in probability to 0, and it converges
+uniformly by Lemma 3.3.5 . Finally, write
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and apply Lemma 3.3.5 to prove ( 3.12 ). ∎
+
+The following lemma corresponds to the Donsker’s theorem for i.i.d.
+models.
+
+###### Lemma 3.3.5.
+
+If @xmath for some constant @xmath , then for any @xmath , there exists
+@xmath such that the sequence of stochastic processes
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is asymptotically tight in @xmath , where @xmath is an open ball of
+@xmath with radius @xmath .
+
+Proof For given @xmath we will prove the assertion using Theorem 2.2.7 .
+Without loss of generality, we may assume that @xmath . If @xmath is
+sufficiently small, there exists a square-integrable @xmath by Lemma
+3.2.2 such that @xmath , where @xmath , a stochastic process indexed by
+@xmath . Let @xmath be a metric on @xmath defined as @xmath . Also, let
+@xmath be the product metric @xmath on @xmath defined as @xmath .
+
+Since @xmath for every @xmath and @xmath is square-integrable, the
+triangular array of random variables @xmath satisfies the Lindberg’s
+condition. By the triangular inequality,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and the first term of the right-hand-side is bounded by
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+for some constants @xmath independent of @xmath , where the last
+inequality holds by (vi) of Lemma 3.2.3 . The expectation of the square
+of the second term can be bounded by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and if @xmath is sufficiently small,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+for some constant @xmath independent of @xmath and @xmath , where the
+third equality is due to the symmetricity and the last inequality holds
+because
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for some @xmath between @xmath and @xmath by the mean value theorem, and
+@xmath as @xmath by (ii) of Lemma 3.2.3 . Since @xmath , there exist a
+global constant @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath and @xmath .
+
+It only remains to prove
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Note that @xmath and @xmath as @xmath . If we define @xmath , then
+@xmath is equal to @xmath and this is bounded above by the bracketing
+number @xmath . The bracketing entropy @xmath is of order @xmath as
+@xmath by applying Theorem 2.2.5 with @xmath , @xmath and a partition
+@xmath . Therefore, we complete the proof. ∎
+
+#### 3.3.3 Random intercept model
+
+For the independent data @xmath , we consider the random intercept model
+
+  -- -------- -- --------
+     @xmath      (3.42)
+  -- -------- -- --------
+
+where @xmath . @xmath . For the given random effect @xmath , the errors
+@xmath are conditionally independent and follow @xmath , where @xmath is
+the probability measure on @xmath whose Lebesgue density is given by
+@xmath . The random effects @xmath ’s are i.i.d. from distribution
+@xmath . Since there are two unknown distributions @xmath and @xmath ,
+we need different notations from those used in previous sections.
+
+For @xmath and @xmath , let @xmath , @xmath and @xmath . @xmath denotes
+the probability for @xmath in the model ( 3.42 ). Define the metric
+@xmath on @xmath by @xmath . We assume that there exists the true
+parameter @xmath generating the data and let @xmath . Also, define
+
+  -- -------- -- --------
+     @xmath      (3.43)
+  -- -------- -- --------
+
+Since @xmath is positive definite matrix, so is @xmath for large enough
+@xmath provided @xmath , where @xmath is the design matrix.
+
+###### Theorem 3.3.3.
+
+Suppose that there is the true parameter @xmath which generates the
+observation from the model ( 3.42 ) with @xmath and @xmath for some
+@xmath . If the model is endowed with the product prior @xmath , where
+@xmath is thick at @xmath and @xmath for every weak neighborhood @xmath
+of @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+in @xmath -probability, where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Proof The proof is similar to that of Theorems 3.3.1 and 3.3.2 . We will
+show that ( 3.5 )–( 3.13 ), and ( 3.17 ) hold with @xmath and @xmath
+replaced by @xmath and @xmath , respectively. The proofs of ( 3.13 ) and
+( 3.17 ) are slightly different from previous two models because of the
+presence of random effects. Note first that by Lemma A.2.3 , for @xmath
+and @xmath ,
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (3.44)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+as @xmath . Therefore, ( A.2 ) is satisfied by the boundedness of
+covariate. Condition ( A.1 ) is trivial, and ( A.3 ) holds by ( 3.29 ).
+Note also that the least square estimator @xmath satisfies ( A.7 ). To
+apply Theorems A.1.1 and A.1.2 it is sufficient to show that @xmath and
+@xmath for every @xmath by Lemma A.2.4 . Both facts hold by Lemmas A.2.1
+and A.2.2 , respectively, treating random effects also as mixture
+components. We conclude that there exists a sequence @xmath such that
+the sequence @xmath defined by @xmath satisfies ( 3.13 ) and ( 3.17 ).
+
+Let @xmath , and @xmath be defined as ( 3.43 ). Then, ( 3.8 ) holds by
+Lemma 3.3.6 and ( 3.9 ) holds by the condition on @xmath . Since @xmath
+is bounded, we have, by Example 3.2.2 ,
+
+  -- -------- -- --------
+     @xmath      (3.45)
+  -- -------- -- --------
+
+as @xmath which directly implies ( 3.10 ). Also, by ( 3.8 ), ( 3.9 ) and
+( 3.10 ), @xmath is a local maximizer of @xmath for large enough @xmath
+and @xmath sufficiently close to @xmath with respect to @xmath . As a
+result ( 3.5 ) is satisfied. The result of Theorem 3.3.7 implies ( 3.7
+).
+
+To prove ( 3.6 ), note that, for a given vector @xmath , the stochastic
+process
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+indexed by @xmath for sufficiently small @xmath , is asymptotically
+uniformly @xmath -equicontinuous in probability, where @xmath is the
+semimetric defined by ( 3.48 ). Since @xmath implies @xmath by Lemma
+3.3.6 , we have ( 3.6 ).
+
+For ( 3.11 ), by the Tayler expansion
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+and by the Jensen’s inequality and Fubini’s theorem, the variance of the
+right hand side is bounded by @xmath . Therefore, for each @xmath the
+term in the left hand side of ( 3.11 ) converges in probability to 0,
+and it converges uniformly by Lemma 3.3.5 . Finally, write
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and apply Lemma 3.3.5 , then ( 3.12 ) holds. ∎
+
+###### Lemma 3.3.6.
+
+As @xmath , @xmath and @xmath in @xmath . Furthermore, @xmath as @xmath
+, where @xmath is the semimetric defined by ( 3.48 ).
+
+Proof First, @xmath in @xmath as @xmath by Theorem 5 of Wong and Shen [
+75 ] . Note that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the @xmath th unit vector. Also,
+
+  -- -------- -- --------
+     @xmath      
+     @xmath      
+     @xmath      (3.46)
+  -- -------- -- --------
+
+as @xmath . Therefore, by the dominated convergence theorem and
+Moore-Osgood theorem,
+
+  -- -------- --
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+  -- -------- --
+
+where the convergence of the limit of @xmath is taken by the metric
+@xmath . Therefore, @xmath in @xmath as @xmath .
+
+Finally, note that the uniform convergence ( 3.46 ) still holds when the
+integrand is multiplied by @xmath . Therefore, the proof above can be
+applied for the convergence under the semimetric @xmath . ∎
+
+Note that for every @xmath , there exist @xmath and an open neighborhood
+@xmath of @xmath such that
+
+  -- -------- -- --------
+     @xmath      (3.47)
+  -- -------- -- --------
+
+for every @xmath . The following Lemma corresponds to the Donsker’s
+theorem for i.i.d. models and Lemma 3.3.5 for non- i.i.d. regression
+model.
+
+###### Lemma 3.3.7.
+
+If @xmath for some constant @xmath , then for any @xmath , there exists
+@xmath such that the sequence of stochastic processes
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is asymptotically tight in @xmath , where @xmath is the open ball of
+@xmath with radius @xmath .
+
+Proof We will prove the assertion using Theorem 2.2.7 . Without loss of
+generality, we may assume that @xmath . Since @xmath is bounded, if
+@xmath is sufficiently small, then there exists a function @xmath such
+that @xmath for every @xmath , and @xmath , where @xmath , a stochastic
+process indexed by @xmath . Let @xmath be a metric on @xmath defined as
+
+  -- -------- -- --------
+     @xmath      (3.48)
+  -- -------- -- --------
+
+Also, let @xmath be the product metric @xmath on @xmath defined as
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since @xmath for every @xmath and @xmath is square-integrable, the
+triangular array of random variables @xmath satisfies the Lindberg’s
+condition. By the triangular inequality,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and the first term of the right-hand-side is bounded by
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+for some constants @xmath and @xmath by ( 3.47 ) provided @xmath is
+sufficiently small. The expectation of the square of the second term can
+be bounded by
+
+  -- -------- --
+     @xmath   
+     @xmath   
+     @xmath   
+  -- -------- --
+
+for some @xmath . If @xmath is sufficiently small,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where the last inequality holds because
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for some @xmath and @xmath sufficiently close to @xmath . Since @xmath ,
+there exist @xmath and a constant @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath and @xmath .
+
+It only remains to prove
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Note that @xmath and @xmath as @xmath . If we define @xmath , then
+@xmath is equal to @xmath , where @xmath for @xmath . Let @xmath be the
+set of all @xmath th coordinate functions of @xmath for @xmath . Then,
+we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath . The bracketing entropy @xmath is of order @xmath as
+@xmath by applying Theorem 2.2.5 with @xmath , @xmath , @xmath , @xmath
+and a partition
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Therefore, the proof is complete. ∎
+
+## Chapter 4 Numerical studies
+
+### 4.1 Gibbs sampler algorithm
+
+Consider the data @xmath generated from the random intercept model
+
+  -- -------- -- -------
+     @xmath      (4.1)
+  -- -------- -- -------
+
+for @xmath and @xmath . In Section 3.3.3 , we proved the BvM theorem
+when the error distribution is modeled as a location-scale mixture of
+normal densities. In this section, we only consider location mixtures of
+normal densities and the scale parameter of the normal distribution is
+endowed with a prior. Then the density of the error distribution can be
+written by @xmath for some @xmath and mixing distribution @xmath . Also,
+we assume that the distribution of random effects is @xmath . Therefore,
+the unknown parameters are @xmath and we endow @xmath , @xmath , @xmath
+and @xmath prior for @xmath and @xmath , respectively, where @xmath is
+the inverse gamma distribution which has
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+as the density, @xmath is the symmetrized Dirichlet process defined in
+Section A.3 , and @xmath is the @xmath identity matrix.
+
+We introduce a Gibbs sampler algorithm based on Algorithm 2 in Section
+A.3 . For this we denote the latent class variable @xmath associated
+with observation @xmath and the corresponding location parameter @xmath
+and sign indicator @xmath as in Section A.3 . Also, let @xmath be the
+location parameter for the class @xmath , that is @xmath . Note that for
+given @xmath and @xmath , the response variable @xmath follows a normal
+distribution with mean @xmath and variance @xmath . The conditional
+posterior distribution of unobservable quantities are given below. The
+conditional posterior distributions (i)–(iv) can be easily calculated by
+conjugacy. For notational convenience, the observations are abbreviated
+in each conditional probability. The boldface @xmath represents all
+@xmath for @xmath and @xmath and it is denoted by @xmath when @xmath is
+excluded. Also, @xmath and @xmath are similarly defined.
+
+1.  Generating @xmath for given @xmath
+
+The conditional posterior distribution of @xmath is given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+1.  Generating @xmath for given @xmath
+
+By the conjugacy, the conditional posterior distribution of @xmath is
+given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+1.  Generating @xmath for given @xmath
+
+The conditional posterior distribution of @xmath is also normal given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for each @xmath .
+
+1.  Generating @xmath
+
+The conditional posterior distribution of @xmath can be similarly
+calculated by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+1.  Generating @xmath
+
+Instead of generating @xmath directly, we sample @xmath and @xmath
+iteratively for @xmath , @xmath and @xmath . Then, @xmath can be
+determined by @xmath . Let @xmath and @xmath be the number of
+observation with @xmath , @xmath and @xmath . Similarly we can define
+@xmath by replacing @xmath to @xmath . The conditional distribution of
+@xmath is given by
+
+  -- -------- --
+     @xmath   
+              
+  -- -------- --
+
+where @xmath is a random variable from @xmath . If a new class is
+generated, then draw a random variable from
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and set @xmath to this value. Next, the conditional distribution of
+@xmath and @xmath are proportional to @xmath and @xmath , respectively.
+Finally, the conditional posterior distribution of @xmath is given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the number of observations with @xmath .
+
+The whole Gibbs sampler algorithm repeat (i)–(v) until the generated
+Markov chain converges. The algorithm converges after few dozens of
+iterations. Algorithm 3 of Neal [ 53 ] also can be used to construct a
+Gibbs sampler algorithm with the help of a partially collapsed Gibbs
+sampler algorithm introduced by van Dyk and Park [ 71 ] . This algorithm
+integrates @xmath out when it generates the latent class @xmath , so the
+convergence speed can be improved.
+
+### 4.2 Simulation
+
+In numerical experiments, a dataset is generated from model ( 4.1 ) with
+various error distributions. Then, the regression parameters @xmath are
+estimated by various methods including both frequentist’s and Bayesian
+point estimators. We repeat this procedure @xmath times and the
+performance of each method is evaluated by the mean squared error @xmath
+, where @xmath is a point estimator in @xmath th repetition. We compare
+the performance of 5 estimators (two frequentist’s ones F1–F2 and three
+Bayesians B1–B3) with 9 error distributions E1–E9. In all experiments,
+we use 2 covariates which follow independent Bernoulli distributions
+with success probability 1/2, and the true parameter @xmath is set to be
+@xmath . With regard to the error distribution, Student’s
+t-distributions with 1, 2, 4, 8, 16 degrees of freedom for E1–E5, the
+standard normal distribution for E6, uniform(-3,3) distribution for E7,
+and mixtures of normal densities for E8 and E9. More specifically,
+mixture densities are of the form
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with @xmath for E8, and @xmath for E9. These two densities are depicted
+in Figure 4.1 .
+
+For the estimators, F1 is the least square estimator, F2 ¹ ¹ 1 The
+maximum likelihood estimate can be calculated by solving the generalized
+estimating equation ( Liang and Zeger [ 49 ] ). is the maximum
+likelihood estimator based on normal random effects and normal errors,
+B1 and B2 are posterior means under the assumption of normal errors
+without and with normal random effects, respectively. Note that B1 and
+B2 are Bayesian correspondences of F1 and F2. B3 is the posterior mean
+under the assumption of normal random effects and location mixtures of
+normal densities as error density.
+
+For each experiment, @xmath datasets, with @xmath and @xmath for each
+@xmath , are simulated. The mean squared errors and relative
+efficiencies comparing with E9 are summarized in Table 4.1 . As we can
+see, the results for F1 and F2 are similar to their Bayesian
+counterparts B1 and B2. Since the Student’s t-distribution converges to
+the standard normal distribution as the degree of freedom increases, F2
+and B2 performs slightly better than B3 in E4–E6. For the case of Cauchy
+error E1, B3 also does not work well like other estimators, because we
+only considered the location mixture of normal densities. In other
+cases, B3 dominates the other estimators as expected.
+
+### 4.3 Analysis of orthodontic distance growth data
+
+In this section, we analyze the orthodontic distance growth data
+considered previously by Pinheiro et al. [ 55 ] and Song et al. [ 63 ] .
+These data were originally reported in an orthodontic study by Potthoff
+and Roy [ 56 ] . The measurements of the response variable is the
+distance (in millimeters) from the pituitary gland to the
+pterygomaxillary fissure taken repeatedly at 8, 10, 12 and 14 years of
+age on a sample of 27 children, comprised of 16 boys and 11 girls. It is
+known from the previous studies that there are two outliers in these
+data. For analyzing these data, we consider the following linear mixed
+effects model
+
+  -- -------- -- -------
+     @xmath      (4.2)
+  -- -------- -- -------
+
+where @xmath is the orthodontic distance for the @xmath th subject at
+age @xmath , and @xmath represents the sex of @xmath th subject, coded
+@xmath for boys and @xmath for girls. The error @xmath follows a
+symmetric density and there are two independent random effects @xmath
+and @xmath which are assumed to follow the normal distributions @xmath
+and @xmath , respectively.
+
+To compare the results from the model ( 4.2 ), we consider four
+submodels M1–M4: @xmath and @xmath for M1, @xmath and @xmath for M2,
+@xmath and @xmath follows an unknown symmetric density for M3, @xmath
+for M4. The saturated model ( 4.2 ) is denoted by M5. For the priors of
+error distributions of M3 and M5, Dirichlet processes mixtures of normal
+densities, explained in Section 4.1 , are used.
+
+The posterior mean and standard deviation of each parameter is
+summarized in Table 4.2 . The estimated regression coefficients from the
+models M3 and M5 are different from the others because their results do
+not heavily depend on outliers. Using the Student’s @xmath
+-distribution, Song et al. [ 63 ] found the maximum likelihood
+estimators from four different models of type ( 4.2 ): normal-normal,
+@xmath -normal, @xmath - @xmath and normal- @xmath for the distributions
+of errors and random effects. The estimated regression coefficient from
+the model M5 is closest to the result from the third model, @xmath -
+@xmath , although we only considered the normal random effects.
+
+## Chapter 5 Conclusion
+
+We have shown that the semiparametric Bernstein-von Mises theorem holds
+in the location, the linear regression and random intercept models if
+the unknown symmetric error distribution is endowed with a Dirichlet
+process mixture of normal densities. Our results can be applied to more
+general models such as linear mixed effects models which have symmetric
+errors. The only non-trivial requirement is the consistency of the
+posterior distribution.
+
+As an extension of our results, we are interested in two Bayesian
+problems. The first one is the regression with unknown error
+distribution when the number of covariates diverges. In the linear
+regression problems with increasing regressors, Bontemps [ 9 ],
+Johnstone [ 38 ], Ghosal et al. [ 27 ] proved the asymptotic normality
+of the posterior distributions, but they considered only Gaussian error
+distributions. Frequentists also assume the Gaussian error when they
+consider high-dimensional data because, otherwise, it is very difficult
+to find an efficient algorithm and nice asymptotic properties. Since
+Bayesian computation is often more convenient than frequentist’s one, we
+believe that Bayesian method will be a promising tools to analyze
+high-dimensional data in the near future.
+
+The second problem we consider is to prove the Bernstein-von Mises
+theorem in semiparametric mixture models in which there is loss of
+information. The generalized linear mixed effects models and the frailty
+model are important examples. Before working this paper, our original
+interest was to prove the Bernstein-von Mises theorem, or at least the
+consistency of the posterior distribution, in frailty models. There are
+general semiparametric Bernstein-von Mises theorems, but it is difficult
+to apply them for mixture models because they require the change of
+parameters. Since a collection of probability measures is not closed
+under the subtraction, it is not easy to apply general approach. In our
+main results, we considered only adaptive models, so this change of
+parameters is not needed.
+
+## Appendix A Miscellanies
+
+### a.1 Posterior consistency under independent observations
+
+In this section, we consider posterior consistency under the independent
+observation @xmath which follows
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for any product set @xmath . The final goal of this subsection is to
+prove Therems A.1.1 and A.1.2 which can be used as tools for proving (
+3.13 ) and ( 3.17 ). When @xmath are identically distributed, it is
+well-known ( Ghosal et al. [ 29 ] ) that the posterior convergence rate
+depends on the Hellinger metric entropy and the prior concentration rate
+to Kullback-Leibler type neighborhoods of the true parameter @xmath .
+This general result can be extended to non- i.i.d. cases ( Ghosal and
+van der Vaart [ 31 ] ) and misspecified models ( Kleijn and van der
+Vaart [ 42 ] ). The convergence rate of conditional posterior of @xmath
+is also well established in Bickel and Kleijn [ 4 ] under a slight
+misspecification of @xmath . All of these results, however, cannot be
+directly applied to our examples because we should consider both non-
+i.i.d. observation and misspecification. The aim of this subsection is
+to prove the consistency of joint posterior @xmath , ( 3.17 ), and the
+consistency of conditional posterior of @xmath under @xmath
+-perturbation of @xmath , condition ( 3.13 ), when the observation is
+independent and a Hellinger type metric is used.
+
+Assume that for every @xmath , the Hellinger distance @xmath does not
+depend on @xmath , so we can define a metric @xmath on @xmath by
+
+  -- -------- -- -------
+     @xmath      (A.1)
+  -- -------- -- -------
+
+Assume also that
+
+  -- -------- -- -------
+     @xmath      (A.2)
+  -- -------- -- -------
+
+as @xmath . When the model @xmath is smooth for every @xmath and @xmath
+, ( A.2 ) is not difficult to prove. Let
+
+  -- -- --
+        
+  -- -- --
+
+and @xmath . Finally, assume that there exists a neighborhood @xmath of
+@xmath and maps @xmath such that @xmath and
+
+  -- -------- -- -------
+     @xmath      (A.3)
+  -- -------- -- -------
+
+for every @xmath and @xmath . If ( A.3 ) holds, then there is a
+universal constant @xmath such that for sufficiently small @xmath ,
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (A.4)
+                                @xmath   
+  -- -------- -------- -------- -------- -------
+
+as in the proof of Lemma A.2.4 . The following lemma is a generalization
+of Lemma 8.1 in Ghosal et al. [ 29 ] and Lemma 3.4 in Bickel and Kleijn
+[ 4 ] .
+
+###### Lemma A.1.1.
+
+Let @xmath be stochastic and bounded by some @xmath . Then,
+
+  -- -------- -- -------
+     @xmath      (A.5)
+  -- -------- -- -------
+
+for all @xmath and @xmath .
+
+Proof Let @xmath be the probability measure obtained by restricting
+@xmath to @xmath and next renormalizing. Then, by Jensen’s inequality,
+the left hand side of ( A.5 ) can be bounded by
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+                 @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+where the third inequality holds by Markov’s and Jensen’s inequalities.
+∎
+
+Typically, a certain type of consistent tests is required for posterior
+consistency, and in i.i.d. cases, the Hellinger metric entropy bound of
+a given model ensures the existence of such tests. Lemma 3.2 of Bickel
+and Kleijn [ 4 ] is an extension of this result to semiparametric models
+when the finite dimensional parameter @xmath is misspecified. Lemma
+A.1.2 generalize this to non- i.i.d. models.
+
+###### Lemma A.1.2.
+
+Suppose that ( A.1 ) is well-defined and ( A.2 ) holds. Also, assume
+that @xmath for every @xmath . Then, for every @xmath and @xmath with
+@xmath and @xmath , there exist a sequence of tests @xmath and a
+universal constant @xmath (does not depend on @xmath ) such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for large enough @xmath .
+
+Proof Let @xmath and @xmath , @xmath and @xmath , be given. Then,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+by ( A.2 ). Choose @xmath such that @xmath . Then,
+
+  -- -------- -- -------
+     @xmath      (A.6)
+  -- -------- -- -------
+
+for large enough @xmath . Also,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath that is contained in the right hand side of ( A.6 ).
+Note that each set in the right hand side of ( A.6 ) is convex.
+Therefore, by the general result known from Birgé [ 8 ] and Le Cam [ 44
+] (Lemma 4 on page 478) and the inequality @xmath , there exists a
+sequence of tests @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for large enough @xmath . Since @xmath , the assertion holds by taking
+maximum of such tests. ∎
+
+In the following two theorems, assume that @xmath does not depend on
+@xmath .
+
+###### Theorem A.1.1.
+
+Suppose that ( A.1 ) is well-defined and ( A.2 ), ( A.3 ) hold.
+Furthermore, assume that @xmath and @xmath for every @xmath and @xmath .
+Then, for every @xmath and bounded stochastic @xmath
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+in @xmath -probability.
+
+Proof Let @xmath be given and @xmath be a stochastic sequence bounded by
+@xmath . Let @xmath be the set in the left hand side of ( A.5 ). By
+Lemma A.1.2 , there exists a test sequence @xmath and @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath and large enough @xmath . Then,
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+for every @xmath . If we choose @xmath satisfying @xmath , then the last
+term converges to 0 because @xmath for some @xmath and large enough
+@xmath . Since @xmath can be chosen arbitrarily small, we have the
+desired result. ∎
+
+###### Theorem A.1.2.
+
+Suppose that ( A.1 ) is well-defined, ( A.2 ) and ( A.3 ) hold, and
+@xmath , @xmath for every @xmath . Furthermore, assume that @xmath is
+thick at @xmath and there exists an estimator @xmath for @xmath
+satisfying
+
+  -- -------- -- -------
+     @xmath      (A.7)
+  -- -------- -- -------
+
+for every @xmath . Then, for every @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+in @xmath -probability.
+
+Proof For given @xmath , @xmath and @xmath , there exists a sequence of
+tests @xmath satisfying the assertion of Lemma A.1.2 . Therefore, by
+combining Theorem 2.2 in Wu and Ghosal [ 76 ] and ( A.4 ), it is
+sufficient to show that there exists a sequence of tests @xmath
+satisfying
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+because the existence of uniformly consistent tests implies the
+existence of exponentially consistent tests (see Le Cam [ 43 ] or Lemma
+7.2 of Ghosal et al. [ 29 ] ). Since @xmath is a @xmath -consistent
+estimator for @xmath , if we define @xmath , then, @xmath and
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+as @xmath . This completes the proof. ∎
+
+### a.2 Semiparametric mixtures
+
+In this section, we prove some technical lemmas for semiparametric
+mixtures. Let @xmath be an arbitrary parameter space and @xmath is the
+set of all probability measures whose supports are contained in a
+compact subset @xmath of @xmath . For a given family of kernel densities
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and @xmath , let @xmath be the density of the probability measure @xmath
+with respect to the Lebesgue measure @xmath on @xmath . For given @xmath
+and @xmath , let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and define a metric @xmath on @xmath by @xmath . A prior on @xmath is
+denoted by @xmath .
+
+###### Lemma A.2.1.
+
+Assume that:
+
+1.  @xmath is uniformly tight.
+
+2.   For any compact @xmath , @xmath is an equicontinuous family of
+    functions from @xmath to @xmath .
+
+Then, @xmath for all @xmath .
+
+Proof For a given @xmath , we have a compact set @xmath satisfying
+@xmath , by (i). Since equicontinuouity on a compact set implies uniform
+equicontinuity, we have a finite partition @xmath of @xmath such that
+@xmath for some @xmath implies @xmath . Pick @xmath for each @xmath and
+choose a large integer @xmath such that @xmath . Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the Dirac measure at @xmath and @xmath is the set of
+nonnegative integers. Since @xmath we can define, for any @xmath ,
+@xmath . Then, it is not difficult to show that @xmath . Since @xmath
+and
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+                       @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+we get the desired result because @xmath is arbitrary. ∎
+
+###### Lemma A.2.2.
+
+Assume that:
+
+1.  @xmath is uniformly tight.
+
+2.   For any compact set @xmath , @xmath is an equicontinuous family of
+    functions from @xmath to @xmath .
+
+3.   For all @xmath , @xmath is bounded and continuous.
+
+4.  @xmath for all weak neighborhood @xmath of @xmath
+
+5.  @xmath for some @xmath and @xmath .
+
+Then, @xmath for every @xmath .
+
+Proof For a given @xmath , we have a compact set @xmath satisfying
+@xmath , by (i). Using (ii), choose @xmath so that @xmath and @xmath
+implies @xmath . Let @xmath be a partition of @xmath with @xmath . Pick
+@xmath for each @xmath and let @xmath and @xmath . Then,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Therefore,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and (iii) and (iv) implies every total variation neighborhood of @xmath
+has positive prior mass. Since the total variation and Hellinger metrics
+are topologically equivalent, (v) and Theorem 5 in Wong and Shen [ 75 ]
+yield the desired result. ∎
+
+###### Lemma A.2.3.
+
+For any @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the probability measure with density @xmath .
+
+Proof By the Cauchy-Scwartz ineqaulity, we have
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+which is the desired result. ∎
+
+Now, assume that @xmath is an open subset of Euclidean space and let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every @xmath and @xmath .
+
+###### Lemma A.2.4.
+
+Assume that there exist a function @xmath with @xmath and an open
+neighborhood @xmath of @xmath such that
+
+  -- -------- -- -------
+     @xmath      (A.8)
+  -- -------- -- -------
+
+for all @xmath . Then, there is a universal constant @xmath such that
+for all @xmath and @xmath , @xmath for large enough @xmath .
+
+Proof Let @xmath be given. By condition ( A.8 ),
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath . For @xmath , we have
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+and
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+This completes the proof. ∎
+
+### a.3 Symmetrized Dirichlet processes
+
+In this section, we address the properties of symmetrized Dirichlet
+processes. Let @xmath be a probability space and @xmath be the Borel
+@xmath -field on @xmath . Let @xmath be the set of all probability
+measures on @xmath , equipped with a metric induced by the weak
+convergence of probability measures, and @xmath be the Borel @xmath
+-field of @xmath with respect to this metric.
+
+For given @xmath and a probability measure @xmath on @xmath , the law of
+a measurable map @xmath is called the Dirichlet process with parameter
+@xmath , denoted by @xmath , if
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for every finite partition @xmath of @xmath , where @xmath denotes the
+Dirichlet distribution. Then, the symmetrized Dirichlet process ,
+denoted by @xmath , is defined by the law of
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath for all @xmath .
+
+###### Lemma A.3.1.
+
+If two probability measures @xmath and @xmath on @xmath satisfies @xmath
+, then for @xmath , @xmath and @xmath have the same distribution.
+
+Proof By the construction of Sethuraman [ 59 ] , if @xmath and @xmath ,
+then the law of
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is equal to @xmath for any probability measure @xmath . Therefore, it is
+sufficient to show that @xmath and @xmath implies @xmath . This follows
+from the condition @xmath . ∎
+
+###### Lemma A.3.2.
+
+Assume that @xmath is endowed with a @xmath prior, and for given @xmath
+, @xmath are independent and identically distributed by @xmath . Then,
+the posterior distribution of @xmath given @xmath is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+that is, @xmath is conjugate.
+
+Proof It is sufficient by conjugacy to prove the assertion in the case
+of @xmath . Let @xmath and @xmath be an independent binary random
+variable with @xmath . For given @xmath and @xmath , the conditional
+distribution of @xmath is @xmath or @xmath according as @xmath or @xmath
+. It is sufficient to show that for given @xmath the conditional
+distribution of @xmath is equal to
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Note first that @xmath follows @xmath . Therefore, conditional on @xmath
+and @xmath , the law of @xmath is
+
+  -- -------- -- --------
+     @xmath      (A.9)
+     @xmath      (A.10)
+  -- -------- -- --------
+
+by the conjugacy of the Dirichlet process. Therefore, conditional on
+@xmath , the law of @xmath is ( A.9 ) with probability @xmath , or the
+law of @xmath is ( A.10 ) with probability @xmath . In both cases, the
+law of @xmath is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+by Lemma A.3.1 . ∎
+
+###### Lemma A.3.3.
+
+Assume that @xmath is endowed with a @xmath prior, and for given @xmath
+, @xmath are independent and identically distributed by @xmath . Then,
+conditional on @xmath , the predictive distribution of @xmath is given
+by
+
+  -- -------- -- --------
+     @xmath      (A.11)
+  -- -------- -- --------
+
+for every @xmath . (When @xmath , the predictive distribution is the
+marginal distribution of @xmath and the summation is defined by zero.)
+
+Proof The marginal distribution of @xmath follows by the Sethuraman’s
+construction of the Dirichlet process. The remainder follows by Lemma
+A.3.2 . ∎
+
+Now, consider the observation @xmath which is generated from a
+symmetrized Dirichlet process mixture model, that is,
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (A.12)
+  -- -------- -------- -------- -- --------
+
+for a class of densities @xmath . This is a direct extension of a
+Dirichlet process mixture model which is popularly used in nonparametric
+Bayesian data analysis. There are many interesting Markov chain Monte
+Carlo algorithms to infer Dirichlet process mixture models and they can
+be naturally extended to symmetrized Dirichlet process models. We refer
+to Neal [ 53 ] for a nice review on these algorithms. We only consider
+conjugate algorithms, where conjugacy means that @xmath in ( A.12 ) is a
+conjugate prior for model @xmath .
+
+The first algorithm, which samples @xmath iteratively, is an extension
+of algorithms proposed by Escobar [ 23 ] and Escobar and West [ 24 ] .
+We can derive the conditional posterior of @xmath from the marginal
+distribution ( A.11 ) by
+
+  -- -------- -- --------
+     @xmath      (A.13)
+  -- -------- -- --------
+
+where @xmath and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Here, @xmath is the posterior distribution for @xmath based on the prior
+@xmath and the single observation @xmath , with likelihood @xmath . The
+algorithm is summarized in Algorithm 1 . This algorithm is simple and
+intuitive but the convergence to the stationary distribution may be
+rather slow, so inefficient as noted in Neal [ 53 ] .
+
+Initialize @xmath
+
+repeat
+
+for i=1, …, n do
+
+Sample @xmath from ( A.13 )
+
+end for
+
+until convergence
+
+Algorithm 1 An Gibbs sampler algorithm generating @xmath directly
+
+The next algorithm is an extension of algorithms proposed in Bush and
+MacEachern [ 11 ] and West and Escobar [ 74 ] . If @xmath are
+observations from the symmetrized Dirichlet process mixture, the
+generative model ( A.12 ) can be written by
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where @xmath indicates which latent class is associated with observation
+@xmath . For each class, @xmath , the parameters @xmath determine the
+distribution of observations from that class. To build a Gibbs sampler
+algorithm we include sign indicators @xmath for each observation in the
+generative model. The conditional distribution of @xmath is given by
+
+  -- -------- -- --------
+     @xmath      (A.14)
+  -- -------- -- --------
+
+where @xmath and @xmath is the number of @xmath ’s with @xmath and
+@xmath . If generated @xmath is different from @xmath for all @xmath ,
+draw a value for @xmath from @xmath , where @xmath is the posterior
+distribution for @xmath based on the prior @xmath and the single
+observation @xmath with likelihood @xmath . Next, the conditional
+distribution of @xmath and @xmath are given by
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (A.15)
+     @xmath   @xmath   @xmath      (A.16)
+  -- -------- -------- -------- -- --------
+
+respectively. The algorithm is summarized in Algorithm 2 .
+
+Initialize @xmath and @xmath
+
+repeat
+
+for i=1, …, n do
+
+Sample @xmath from ( A.14 ), and if @xmath for all @xmath , then sample
+@xmath from @xmath
+
+Sample @xmath from ( A.16 )
+
+end for
+
+for c=1, 2, … do
+
+Sample @xmath from ( A.15 )
+
+end for
+
+until convergence
+
+Algorithm 2 An alternative Gibbs sampler algorithm

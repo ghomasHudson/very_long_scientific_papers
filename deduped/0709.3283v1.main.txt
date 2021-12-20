@@ -1,0 +1,4602 @@
+# Acknowledgements
+
+The writing of this thesis has been one of the most significant academic
+challenges I have had to face. Without the support, patience and
+guidance of the following people and institutes, this study would not
+have been completed. It is to them that I owe my deepest gratitude.
+
+In the first place I would like to record my gratitude to Saugata Basu
+for his supervision. His wisdom, knowledge and commitment to the highest
+standards inspired and motivated me. Moreover, he always gave me a lot
+of freedom and made it possible to visit many interesting places in
+order to learn from many outstanding researchers. I am indebted to him
+more than he knows.
+
+I gratefully acknowledge Laureano González-Vega for his advice and
+supervision of my research during my two year visit to the Universidad
+de Cantabria in Santander, Spain, which was supported by the European
+RTNetwork Real Algebraic and Analytic Geometry (Contract
+No. HPRN-CT-2001-00271). He introduced me to another very exciting area
+of Real Algebraic Geometry. In additon, he serves on my committee.
+
+Many thanks also go to John Etnyre, Mohammad Ghomi and Victoria Powers
+for serving on my committee.
+
+It is a pleasure to pay tribute also to the entire staff, especially to
+Genola Turner, and the professors, especially to Alfred Andrew, Eric
+Carlen, Luca Dieci, Wilfrid Gangbo and William Green, of the School of
+Mathematics. Furthermore, I would like to thank Tomás Recio Muñiz and
+Fernando Etayo Gordejuela from the Universidad de Cantabria. They all
+have provided an environment that is both supportive and intellectually
+stimulating.
+
+I am very grateful to the European RTNetwork Real Algebraic and Analytic
+Geometry (Contract No. HPRN-CT-2001-00271), the Institut Henri Poincaré
+in Paris, France, the Institute for Mathematics and its Applications in
+Minneapolis, MN, and the Mathematical Sciences Research Institute in
+Berkeley, CA, for giving me the opportunity to visit several workshops
+and meeting many outstanding researchers. Moreover, I would like to
+thank Chris Brown for his steady help with QEPCAD B, Michel Coste for
+simplifying the proof of Proposition 2.24 , Ioana Necula for providing
+her source code of the TOP-algorithm and Nicola Wolpert for very useful
+discussions and comments.
+
+I would also acknowledge the Fulbright Commission, the Kurt Fordan
+Foundation for Outstanding Talents (Förderverein Kurt Fordan für
+herausragende Begabungen e.V.) and the Foundation of Hans Rudolf
+(Hans-Rudolf-Stiftung) for financial support during my first year at
+Georgia Tech.
+
+Furthermore, I would like to thank Daniel Rost, Erwin Schörner and
+Wolfgang Zimmermann from the Ludwig-Maximilians-Universität München in
+Munich, Germany, as well as the Association of German-American Club
+(Deutsch-Amerikanischer Austauschstudentenclub) and the World Student
+Fund for supporting my application to Georgia Tech.
+
+I convey special acknowledgement to my friends Nadja Benes, Fabian
+Bumeder, James M. Burkhart, Vanesa Cabieces Cabrillo, Fernando Carreras
+Oliver, Jennifer Chung, Alberto Di Minin, Natalia Del Rio Pérez, Violeta
+Fariñas Franco, Ignacio Fernández Rúa, Jascha Freess, Jürgen Gaul, Anja
+and Torsten Götz, Marianela Gurria de las Cuevas, Leanne Metcalfe,
+Javier Molleda González, Mira Kiridz̆ić-Marić, Sven Krasser, Ulrike
+Leitermann, Korbinian Meindl, Silke Nowak, Pablo Orozco Dehesa, Paloma
+Prieto Gorricho and her mother, Joseba Rodríguez Bayón, Tere Salas
+Ibaseta, Ainhoa Sanchez Bas, Sebastian Stamminger, Nanette Ströbele,
+Marcus Trügler, the Gröbenzell Bandits, the whole Skiles United team and
+all my other friends all over the world for helping me when I needed it.
+Each one in their own way widened my horizon, and they all contributed
+to making this period of time the most beneficial in my life.
+
+Last but not least, my Mum and my family deserve special mention for
+their unconditional love and affection all these years. They taught me
+uncountable many things. Words fail me to express my appreciation.
+
+Thank you! Muchas gracias! Vielen Dank!
+
+###### List of Figures
+
+-    2.1 A cylindrical decomposition adapted to the unit sphere in
+    @xmath
+-    2.2 The polynomial @xmath is in generic position with respect to
+    @xmath
+-    2.3 The topology of @xmath
+-    2.4 The topology of @xmath with respect to @xmath
+-    2.5 The hollow torus
+-    4.1 Schematic picture of the retraction of @xmath to @xmath .
+-    5.1 Output of a cylindrical decomposition using QEPCAD B
+-    5.2 Three ellipsoids
+-    5.3 Six ellipsoids
+-    5.4 Seven ellipsoids
+-    5.5 Twenty ellipsoids
+-    5.6 The intersection of three linearly independent quadrics
+-    5.7 A curve and an isolated point
+-    5.8 Two intersecting lines with @xmath
+-    5.9 One connected component
+
+###### List of Tables
+
+-    5.1 Input polynomials defining the different arrangements
+-    5.2 Experimental results for Example 5.14
+-    5.3 Experimental results of Schömer and Wolpert [ 69 ]
+-    5.4 Experimental results for Example 5.15
+-    5.5 Experimental results for Example 5.16
+-    5.6 Experimental results for Example 5.17
+-    5.7 Experimental results for Example 5.18
+-    5.8 Experimental results for Example 5.19
+
+## Chapter 1 Introduction
+
+### 1.1. Real Algebraic Geometry
+
+In classical algebraic geometry, the main objects of interest are
+complex algebraic sets, i.e. the zero set of a finite family of
+polynomials over the field @xmath of complex numbers, meaning the set of
+all points that simultaneously satisfy one or more polynomial equations.
+But in many applications in computer-aided geometric design,
+computational geometry, robotics or computer graphics one is interested
+in the solutions over the field @xmath of real numbers. Moreover, they
+also deal with the real solutions of finite systems of inequalities
+which are the main objects of real algebraic geometry. Unfortunately,
+real algebraic sets have a very different behavior than their complex
+counterparts. For example, an irreducible algebraic subset of @xmath
+having complex dimension @xmath , considered as an algebraic subset of
+@xmath is connected, not bounded (unless it is a point) and has local
+real dimension @xmath at every point (see, for instance, [ 27 ] ). But
+this is no longer true for real algebraic sets (see Example 2.38 ).
+
+In 1926, Emil Artin and Otto Schreier [ 7 , 6 ] introduced the notion of
+a real closed field. Artin [ 5 , 6 ] used this new theory for solving
+the 17th problem of Hilbert which asks whether a polynomial which is
+nonnegative on @xmath is a sum of squares of rational functions. A real
+closed field is an ordered field whose positive cone is the set of
+squares @xmath and such that every polynomial in @xmath of odd degree
+has a root in . Notice that real closed fields need not be complete nor
+archimedean (see Chapter 2.1.2 ).
+
+In this thesis, we consider semi-algebraic sets over a real closed field
+defined by quadratic polynomials in @xmath variables. Semi-algebraic
+sets of @xmath are defined as the smallest family of sets in @xmath that
+contains the algebraic sets as well as the sets defined by polynomial
+inequalities, and which is also closed under the boolean operations
+(complementation, finite unions and finite intersections). Furthermore,
+unlike algebraic sets (over ), the projection of a semi-algebraic set is
+again semi-algebraic, this was proved by Tarski [ 75 ] and Seidenberg [
+70 ] .
+
+It is worthwhile to mention that in many applications in computer-aided
+geometric design or computational geometry one deals with arrangements
+of many geometric objects having a similar simple description [ 48 ] .
+For instance, each object is a semi-algebraic set defined by few
+polynomials of fixed degree. Thus, understanding the properties of
+semi-algebraic sets and designing algorithms are important topics in
+real algebraic geometry.
+
+The class of semi-algebraic set defined by quadratic polynomials is of
+particular interest for several reasons. First, any semi-algebraic set
+can be defined by (quantified) formulas involving only quadratic
+polynomials (at the cost of increasing the number of variables and the
+size of the formula). Secondly, they are distinguished from arbitrary
+semi-algebraic sets since one can obtain better results from an
+algorithmic standpoint, as well as from the point of view of topological
+complexity (as we will see later). Moreover, they can be much more
+complicated topologically than semi-algebraic sets defined by only
+linear polynomials. Thirdly, quadratic surfaces are widely used in
+computer-aided geometric design, computational geometry [ 69 ] and
+computer graphics as well as in robotics ( [ 68 ] ) and computational
+physics ( [ 58 , 64 ] ).
+
+One basic ingredient in most algorithms for computing topological
+properties of semi-algebraic sets is an algorithm due to Collins [ 33 ]
+, called cylindrical decomposition (see Chapter 2.1.4 ) which decomposes
+a given semi-algebraic set into topological balls. Cylindrical
+decomposition can be used to compute a semi-algebraic triangulation of a
+semi-algebraic set (see Chapter 2.1.5 ), and from this triangulation one
+can compute the homology groups, Betti numbers, et cetera. One
+disadvantage of the cylindrical decomposition is that it uses iterated
+projections (reducing the dimension by one in each step) and the number
+of polynomials (as well as the degrees) is squared in each step of the
+process. Thus, the complexity of performing cylindrical decomposition is
+double exponential in the number of variables which makes it impractical
+in most cases for computing topological information. Nevertheless, we
+will see in Chapters 2.1.4 and 5 that it can be used quite efficiently
+for several important problems in low dimensions.
+
+### 1.2. Betti numbers
+
+Important topological invariants of a semi-algebraic sets are the Betti
+numbers @xmath (see Chapter 2.2.1 for a precise definition) which,
+roughly speaking, measure the number of @xmath -dimensional holes of a
+semi-algebriac set. The zero-th Betti number @xmath is the number of
+connected components.
+
+The initial result on bounding the Betti numbers of semi-algebraic sets
+defined by polynomial inequalities was proved independently by Oleinik
+and Petrovskii [ 65 ] , Thom [ 76 ] and Milnor [ 63 ] . They proved (see
+Theorem 2.34 ) that the sum of the Betti numbers of a semi-algebraic set
+in @xmath defined by @xmath polynomial inequalities of degree at most
+@xmath has a bound of the form @xmath . Notice that this bound is
+exponential in @xmath and this exponential dependence is unavoidable
+(see Example 2.35 ). Recently, the above bound was extended to more
+general classes of semi-algebraic sets. For example, Basu [ 11 ]
+improved the bound of the individual Betti numbers of @xmath -closed
+semi-algebraic sets (which are defined by a Boolean formula with atoms
+of the form @xmath , @xmath or @xmath , where @xmath ), while Gabrielov
+and Vorobjov [ 44 ] extended the above bound to any @xmath
+-semi-algebraic set (which is defined by a Boolean formula with atoms of
+the form @xmath , @xmath or @xmath , where @xmath ). They proved a bound
+of @xmath . Moreover, Basu, Pollack and Roy [ 19 ] proved a similar
+bound for the individual Betti numbers of the realizations of sign
+conditions.
+
+However, it turns out that for a semi-algebraic set @xmath defined by
+@xmath quadratic inequalities, it is possible to obtain upper bounds on
+the sum of Betti numbers of @xmath which are polynomial in @xmath and
+exponential only in @xmath . The first such result was proved by
+Barvinok [ 9 ] who proved a bound of @xmath (see Theorem 2.36 ). The
+exponential dependence on @xmath is unavoidable as already remarked by
+Barvinok, but the implied constant (which is at least two) in the
+exponent of Barvinok’s bound is not optimal.
+
+Using Barvinok’s result, as well as inequalities derived from the
+Mayer-Vietoris sequence (see Chapter 2.2.2 ), Basu [ 11 ] proved a
+polynomial bound (polynomial both in @xmath and @xmath ) on the top few
+Betti numbers of a set defined by quadratic inequalities (see Theorem
+2.37 ). Very recently, Basu, Pasechnik and Roy [ 18 ] extended these
+bounds to arbitrary @xmath -closed (not just basic closed)
+semi-algebraic sets defined in terms of quadratic inequalities.
+
+Apart from their intrinsic mathematical interest, for example in
+distinguishing the semi-algebraic sets defined by quadratic inequalities
+from general semi-algebraic sets, the bounds proved by Barvinok and Basu
+respectively have motivated recent work on designing polynomial time
+algorithms for computing topological invariants of semi-algebraic sets
+defined by quadratic inequalities. For instance, Grigoriev and Pasechnik
+[ 47 ] presented a polynomial time algorithm (in @xmath ) for computing
+sampling points meeting each connected component of a real algebraic set
+defined over a quadratic map. Their result improves a result of Barvinok
+[ 8 ] about the the feasibility of systems of real quadratic equations.
+Basu [ 14 , 13 ] gave polynomial time algorithms for computing the Euler
+characteristic and the higher Betti numbers of semi-algebraic sets
+defined by quadratic inequalities. Furthermore, Basu and Zell [ 23 ]
+gave a polynomial time algorithm for computing the lower Betti numbers
+of projections defined by such semi-algebraic sets. For details, we
+refer the reader to the papers mentioned above.
+
+Traditionally an important goal in algorithmic semi-algebraic geometry
+has been to design algorithms for computing topological invariants of
+semi-algebraic sets, whose worst-case complexity matches the best upper
+bounds known for the quantity being computed. It is thus of interest to
+tighten the bounds on the Betti numbers of semi-algebraic sets defined
+by quadratic inequalities, as it has been done recently in the case of
+general semi-algebraic sets (see for example [ 44 , 11 , 19 , 18 ] ).
+Notice that the problem of computing the Betti numbers of semi-algebraic
+sets in single exponential time is considered to be a very important
+open problem in algorithmic semi-algebraic geometry. Recent progress has
+been made in several special cases (see [ 21 , 12 , 14 ] ).
+
+In another direction, the bounds of the Betti numbers are used to
+produce lower bounds for complexity decision problems. For instance,
+Steele and Yao [ 74 ] recognized that the bounds for the sum of the
+Betti numbers can be applied to obtain non-trivial lower bounds in terms
+of the number of connected components for the model of algebraic
+decision trees. This was extended to algebraic computation trees by
+Ben-Or [ 25 ] .
+
+### 1.3. Homotopy Types
+
+A fundamental theorem in semi-algebraic geometry is Hardt’s Theorem (see
+Theorem 2.15 ) which is a corollary of the existence of the cylindrical
+decomposition. For a projection map @xmath on the last @xmath
+co-ordinates and semi-algebraic subset @xmath of @xmath , it implies
+that there is a semi-algebraic partition of @xmath , @xmath , such that
+for each @xmath and any point @xmath , the pre-image @xmath is
+semi-algebraically homeomorphic to @xmath by a fiber preserving
+homeomorphism. In particular, for each @xmath , all fibers @xmath ,
+@xmath , are semi-algebraically homeomorphic. Unfortunately, the
+cylindrical decomposition algorithm implies a double exponential (in
+@xmath and @xmath ) upper bound on the cardinality of @xmath and, hence,
+on the number of homeomorphism types of the fibers of the map @xmath .
+No better bounds than the double exponential bound are known, even
+though it seems reasonable to conjecture a single exponential upper
+bound on the number of homeomorphism types of the fibers of the map
+@xmath .
+
+Basu and Vorobjov [ 22 ] considered the weaker problem of bounding the
+number of distinct homotopy types, occurring amongst the set of all
+fibers of @xmath , and a single exponential upper bound was proved on
+the number of homotopy types of such fibers (see Theorem 2.42 ). They
+proved in the same paper a similar result for semi-Pfaffian sets as
+well, and Basu [ 14 ] extended it to arbitrary o-minimal structures.
+Both these bounds on the number of homotopy types are exponential in
+@xmath as well as @xmath . As already pointed out in [ 22 ] , in this
+generality the single exponential dependence on @xmath is unavoidable
+(see Example 2.43 ).
+
+Since sets defined by quadratic equalities and inequalities are the
+simplest class of topologically non-trivial semi-algebraic sets, the
+problem of classifying such sets topologically has attracted the
+attention of many researchers. Motivated by problems related to
+stability of maps, Wall [ 79 ] considered the special case of real
+algebraic sets defined by two simultaneously diagonalizable quadratic
+forms in @xmath variables. He obtained a full topological classification
+of such varieties making use of Gale diagrams (from the theory of convex
+polytopes). To be more precise, letting
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Wall obtains as a consequence of his classification theorem, that the
+number of different topological types of fibers @xmath is bounded by
+@xmath . Similar results were also obtained by López [ 59 ] using
+different techniques. Much more recently Briand [ 28 ] has obtained
+explicit characterization of the isotopy classes of real varieties
+defined by two general conics in two dimensional real projective space
+@xmath in terms of the coefficients of the polynomials. His method also
+gives a decision algorithm for testing whether two such given varieties
+are isotopic.
+
+In another direction Agrachev [ 1 ] studied the topology of
+semi-algebraic sets defined by quadratic inequalities, and he defined a
+certain spectral sequence converging to the homology groups of such
+sets. We will give a parametrized version of Agrachev’s construction in
+Chapter 4.3 which is due to Basu.
+
+In view of the topological simplicity of semi-algebraic sets defined by
+few quadratic inequalities as opposed to general semi-algebraic sets,
+one might expect a much tighter bound on the number of topological types
+compared to the general case. However one should be cautious, since a
+tight bound on the Betti numbers of a class of semi-algebraic sets does
+not automatically imply a similar bound on the number of topological or
+even homotopy types occurring in that class. We refer the reader to [ 24
+] for an explicit example of the large number of possible homotopy types
+amongst finite cell complexes having very small Betti numbers.
+
+### 1.4. Arrangements
+
+Arrangements of geometric objects in fixed dimensional Euclidean space
+are fundamental objects in computational geometry and computer-aided
+geometric design (for instance, see [ 48 ] ). As already mentioned
+before, usually it is assumed that each individual object in such an
+arrangement has a simple description – for instance, they are
+semi-algebraic sets defined by few polynomials of fixed degree.
+
+Arrangements of quadratic surfaces, or quadrics, in three dimensional
+space are of particular interest since they are widely used in CAD/CAM
+and computer graphics as well as in robotics ( [ 68 ] ) and
+computational physics ( [ 58 , 64 ] ). Therefore, it is often necessary
+to compute or characterize the intersection of quadratic surfaces and
+many approaches have already been proposed (see [ 56 , 57 , 81 , 80 , 82
+, 40 , 38 , 37 , 77 ] ). In particular, computing the real intersection
+of three quadrics is an important subject in computational geometry and
+computer-aided geometric design (for instance, see [ 32 , 84 , 83 , 69 ]
+).
+
+Chionh, Goldman and Miller [ 32 ] used Macaulay’s multivariate resultant
+to solve the problem in the case of finitely many intersection points.
+But, as pointed out by Xu, Wang, Chen and Sun [ 84 ] , one can produce
+quite general examples where the real intersection cannot be computed
+using this approach. In [ 84 ] , the computation of the real
+intersection of three quadrics is reduced to computing the real
+intersection of two planar curves obtained by Levin’s method. Though
+useful for curve tracing, Levin’s method ( [ 56 , 57 ] ) and its
+improvement by Wang, Goldman and Tu [ 80 ] has serious limitations.
+First of all, it produces a parameterization of the real intersection
+curve of two quadrics with a square-root function but does not yield
+information about reducibility or singularity of the real intersection.
+Secondly, Levin’s method and similar methods ( [ 38 , 55 ] ) for
+computing parameterization for the intersection set are restricted to
+quadratic surfaces since higher degree intersection curves cannot be
+parameterized easily.
+
+In another direction, Chazelle, Edelsbrunner, Guibas and Sharir [ 31 ]
+showed how to decompose an arrangement of @xmath objects in @xmath into
+@xmath simple pieces. This was further improved by Koltun in the case
+@xmath [ 54 ] . However, these decompositions while suitable for many
+applications, are not useful for computing topological properties of the
+arrangements, since they fail to produce a cell complex. Furthermore,
+arrangements of finitely many balls in @xmath have been studied by
+Edelsbrunner [ 39 ] from both combinatorial and topological viewpoint,
+motivated by applications in molecular biology. But these techniques use
+special properties of the objects, such as convexity, and are not
+applicable to general semi-algebraic sets.
+
+### 1.5. Review of the Results
+
+We review the main results of this thesis.
+
+#### 1.5.1. Bounding the Betti Numbers
+
+In Chapter 3 we consider the problem of bounding the Betti numbers,
+@xmath , of a semi-algebraic set @xmath defined by polynomial
+inequalities
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath , @xmath , and @xmath , for @xmath .
+
+We prove (see Theorem 3.1 ) that for @xmath ,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+We first bound the Betti numbers of non-singular complete intersections
+of complex projective varieties defined by generic quadratic forms, and
+use this bound to obtain bounds in the real semi-algebraic case. Because
+of this new approach we are able to remove the constant in the exponent
+in the bounds proved in [ 9 , 11 ] and this constitutes the main
+contribution which appears in [ 17 ] .
+
+#### 1.5.2. Bounding the Stable Homotopy Types of a Parameterized Family
+
+In Chapter 4 we consider the following problem. Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with @xmath , @xmath , @xmath . Let @xmath be a semi-algebaic set,
+defined by a Boolean formula without negations, whose atoms are of the
+form, @xmath . Let @xmath be the projection on the last @xmath
+co-ordinates. Then the number of stable homotopy types (see Definition
+2.28 ) amongst the fibers @xmath is bounded by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+(see Theorem 4.1 ).
+
+Our result can be seen as a follow-up to the recent work by Basu and
+Vorobjov [ 22 ] on bounding the number of homotopy types of fibers of
+general semi-algebraic maps (see Theorem 2.42 ). However, our bound
+(unlike the one proven in [ 22 ] ) is polynomial in @xmath for fixed
+@xmath and @xmath , which constitutes the main contribution and appears
+in [ 16 ] . Unfortunately, the exponential dependence on @xmath is
+unavoidable (see Remark 4.2 ).
+
+Due to technical reasons, we only obtain a bound on the number of stable
+homotopy types, rather than homotopy types. But note that the notions of
+homeomorphism type, homotopy type and stable homotopy type are each
+strictly weaker than the previous one, since two semi-algebraic sets
+might be stable homotopy equivalent, without being homotopy equivalent
+(see [ 73 ] , p. 462), and also homotopy equivalent without being
+homeomorphic. However, two closed and bounded semi-algebraic sets which
+are stable homotopy equivalent have isomorphic homology groups.
+
+#### 1.5.3. Algorithms and Their Implementations
+
+In Chapter 5 we consider the problem of computing the first Betti
+Numbers of arrangements of compact objects in @xmath as well as
+computing the intersection of three quadratic surfaces in three
+dimensional space @xmath .
+
+##### Computing the Betti Numbers of Arrangements
+
+In Chapter 5.1 we consider arrangements of compact objects in @xmath
+which are simply connected. This implies, in particular, that their
+first Betti number is zero. We describe an algorithm (see Algorithm 5.2
+) for computing the number of connected components and the first Betti
+number of such an arrangement, along with its implementation. For the
+implementation, we restrict our attention to arrangements in @xmath and
+take for our objects the simplest possible semi-algebraic sets in @xmath
+which are topologically non-trivial – namely, each object is an
+ellipsoid defined by a single quadratic equation. Ellipsoids are simply
+connected, but with non-zero second Betti number. We also allow solid
+ellipsoids defined by a single quadratic inequality. This algorithm
+appears in [ 15 ] .
+
+##### Computing the Real Intersection of Quadratic Surfaces
+
+In Chapter 5.2 we consider the problem of computing the real
+intersection of three quadratic surfaces, or quadrics, defined by the
+quadratic polynomials @xmath , @xmath and @xmath in @xmath . We describe
+an algorithm for computing the isolated points and a linear graph
+embedded into @xmath (if the real intersection form a curve)
+representing the real intersection of the three quadrics defined by the
+three polynomials @xmath , along with its prototypical implementation
+into the computer algebra system Maple (Version 9.5). For our
+implementation, we restrict our attention to quadrics with defining
+equation having rational coefficients. This algorithm appears in [ 52 ]
+.
+
+## Chapter 2 Mathematical Preliminaries
+
+### 2.1. Real Algebraic Geometry
+
+#### 2.1.1. Some Notations
+
+Let be a real closed field and let be an algebraic closed field
+containing such that @xmath . For each @xmath we will denote by @xmath
+the set @xmath .
+
+For @xmath and @xmath , @xmath , we denote
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We omit both @xmath and @xmath from the notation for the unit sphere
+centered at the origin. For any polynomial @xmath , let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the total degree of @xmath , the homogenization of
+@xmath with respect to @xmath . The polynomial @xmath is @xmath -regular
+if @xmath , i.e., if the polynomial @xmath has a non-vanishing constant
+leading coefficient in the variable @xmath . The gcd-free part of a
+polynomial @xmath with respect to another polynomial @xmath is the
+polynomial @xmath . A polynomial @xmath is square-free if there is no
+non-constant polynomial @xmath such that @xmath divides @xmath .
+Equivalently, the polynomial @xmath is square-free if and only if @xmath
+is equal (up to a constant) to the gcd-free part of @xmath and @xmath .
+
+For any family of polynomials @xmath , and @xmath , we denote by @xmath
+the set of common zeros of @xmath in @xmath , i.e.,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let @xmath be a Boolean formula with atoms of the form @xmath , @xmath ,
+or @xmath , where @xmath . We call @xmath a @xmath -formula , and the
+semi-algebraic set @xmath defined by @xmath , a @xmath -semi-algebraic
+set .
+
+If the Boolean formula @xmath contains no negations, and its atoms are
+of the form @xmath , @xmath , or @xmath , with @xmath , then we call
+@xmath a @xmath -closed formula , and the semi-algebraic set @xmath
+defined by @xmath , a @xmath -closed semi-algebraic set .
+
+For an element @xmath introduce
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+A sign condition @xmath on @xmath is an element of @xmath . The
+realization of the sign condition @xmath is the basic semi-algebraic set
+
+  -- -- --
+        
+  -- -- --
+
+A sign condition @xmath is realizable if @xmath . We denote by @xmath
+the set of realizable sign conditions on @xmath . For @xmath we define
+the level of @xmath as the cardinality
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+For each level @xmath , @xmath , we denote by @xmath the subset of
+@xmath of elements of level @xmath . Furthermore, for a sign condition
+@xmath let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Finally, for any family of homogeneous polynomials @xmath , we denote by
+@xmath (resp., @xmath ) the set of common zeros of @xmath in the real
+(resp., complex) projective space @xmath (resp., @xmath ) of dimension
+@xmath .
+
+#### 2.1.2. Infinitesimals
+
+In Chapter 3 and 4 we will extend the ground field by infinitesimal
+elements which are smaller than any positive element of . The
+infinitesimals are used to deform our semi-algebraic sets such that we
+get very similar semi-algebraic sets having some additional properties.
+
+We denote by @xmath the real closed field of algebraic Puiseux series in
+@xmath with coefficients in (see [ 20 ] for more details). The sign of a
+Puiseux series in @xmath agrees with the sign of the coefficient of the
+lowest degree term in @xmath . This induces a unique order on @xmath
+which makes @xmath infinitesimal, i.e., @xmath is positive and smaller
+than any positive element of . Given a semi-algebraic set @xmath in
+@xmath , the extension of @xmath to @xmath , denoted @xmath , is the
+semi-algebraic subset of @xmath defined by the same quantifier free
+formula that defines @xmath . The set @xmath is well defined (i.e., it
+only depends on the set @xmath and not on the quantifier free formula
+chosen to describe it). This is an easy consequence of the
+Tarski-Seidenberg principle (see for instance [ 20 ] ).
+
+We will also need the following remark about extensions which is again a
+consequence of the Tarski-Seidenberg transfer principle.
+
+###### Remark 2.1.
+
+Let @xmath be two closed and bounded semi-algebraic subsets of @xmath ,
+and let @xmath be a real closed extension of . Then @xmath and @xmath
+are semi-algebraically homotopy equivalent if and only if @xmath and
+@xmath are semi-algebraically homotopy equivalent.
+
+#### 2.1.3. Resultants and Subresultants
+
+We recall next the notion of resultant and subresultant which will play
+an important role in the cylindrical decomposition and its applications
+(see Chapter 2.1.4 ). We will define them and recall some of their
+properties which will be very helpful in our settings. But we will omit
+the details on how to compute them. We refer to [ 20 ] for more details
+on the algorithm. Nevertheless, it is worthwhile to mention that
+subresultants can be computed very efficiently in practice.
+
+Let @xmath be a field. Let @xmath and @xmath be two polynomials in
+@xmath of positive degree @xmath and @xmath , @xmath ¹ ¹ 1 in the case
+@xmath , we replace @xmath by @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Next, we introduce the well-known Sylvester-Habicht matrix.
+
+###### Definition 2.2 (Sylvester-Habicht matrix).
+
+For @xmath , the @xmath -th Sylvester-Habicht matrix of @xmath and
+@xmath , denoted by @xmath , is the matrix whose rows are
+@xmath considered as vectors in the basis @xmath :
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Under these conditions, the resultant of two polynomials @xmath and
+@xmath is defined as follows.
+
+###### Definition 2.3 (Resultant).
+
+The (univariate) resultant of @xmath and @xmath , denoted by @xmath , is
+@xmath .
+
+The signed subresultants of @xmath and @xmath will play a key role in
+what follows. For any @xmath , the signed subresultant of @xmath and
+@xmath of index @xmath is the polynomial
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath and each @xmath are elements of @xmath defined as
+determinants of submatrices coming from @xmath (see [ 20 ] for a precise
+definition). Note that @xmath .
+
+We write @xmath (resp., @xmath ) for the @xmath -th subresultant (resp.,
+resultant) of the polynomials @xmath , @xmath with respect to @xmath .
+The @xmath -th signed subresultant coefficient of @xmath and @xmath ,
+denoted by @xmath or @xmath , is the coefficient of @xmath in @xmath .
+
+Next, we notice that one of the main characteristics of subresultants is
+that they provide a very easy to use characterization of the greatest
+common divisor of two polynomials (see [ 20 ] for a proof).
+
+###### Theorem 2.4.
+
+Let @xmath , @xmath be two polynomials of degree @xmath and @xmath .
+Then the following are equivalent:
+
+1.  @xmath and @xmath have a gcd of degree @xmath
+
+2.  @xmath , @xmath
+
+In this case, @xmath is the greatest common divisor of P and Q.
+
+The following well-known theorem is very helpful.
+
+###### Theorem 2.5 (The Extension Theorem).
+
+Let @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let @xmath and assume that @xmath , then either
+
+1.  @xmath or @xmath vanish at @xmath , or
+
+2.   there is a number @xmath such that @xmath and @xmath vanish at
+    @xmath .
+
+###### Proof.
+
+See [ 35 ] . ∎
+
+In other words, if we assume that @xmath and @xmath are in , i.e.,
+@xmath and @xmath are @xmath -regular, and that @xmath and @xmath do not
+have a common factor, then any solution @xmath of the equation @xmath
+can be extended to a solution @xmath of the polynomials @xmath and
+@xmath . Note that we always can ensure that the polynomials are @xmath
+-regular by a change of coordinates. (see [ 83 ] for details). Moreover,
+the common factor can be detected a priori by computing the greatest
+common divisor of @xmath and @xmath .
+
+The following proposition shows why resultants are very useful in our
+setting (see, for instance, Chapter 2.1.4 and 5.2 ).
+
+###### Proposition 2.6.
+
+Let @xmath , @xmath and @xmath be three square-free and @xmath -regular
+polynomials in @xmath such that two of them do not have a common factor.
+Moreover, assume that the polynomials @xmath and @xmath do not have a
+common factor, i.e. @xmath . Then the number of distinct roots of the
+system
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is finite.
+
+###### Proof.
+
+By [ 35 ] , Chapter  3.6., Proposition 1, we know that @xmath is in the
+elimination ideal @xmath . Therefore, by Proposition 2.5 , only the
+solutions of the system
+
+  ------- -- -------- --
+  (2.1)      @xmath   
+  ------- -- -------- --
+
+can be extended to a solution of the equations ( 2.6 ). But there are
+only finitely many such solutions since @xmath .
+
+Hence, let @xmath be a solution of the equations ( 2.1 ). Then every
+@xmath is not identically zero, as all of them are @xmath -regular. In
+particular, they only have finitely many solutions. Now, the claim
+follows. ∎
+
+#### 2.1.4. The Cylindrical Decomposition
+
+##### Definition
+
+One basic ingredient in most algorithms for computing topological
+properties of semi-algebraic sets is an algorithm due to Collins [ 33 ]
+, called cylindrical decomposition, which decomposes a given
+semi-algebraic set into topological balls. In this chapter, we recall
+some facts about the cylindrical decomposition which can be turned into
+an algorithm for solving several important problems. For instance,
+computing the topology of planar curves (see Chapter 2.1.4 ), computing
+the (real) intersection of quadratic surfaces (see Chapter 5.2 ), the
+general decision problem or the quantifier elimination problem (see [ 20
+] ). Moreover, cylindrical decomposition can be used to compute a
+semi-algebraic triangulation of a semi-algebraic set (see Chapter 2.1.5
+). For more details on the algorithm in the general case we refer to [
+33 , 2 , 3 , 4 , 20 ] .
+
+###### Definition 2.7.
+
+A Cylindrical Decomposition of @xmath is a sequence @xmath , where, for
+each @xmath , @xmath is a finite partition of @xmath into semi-algebraic
+subsets ( cells of level i ), which satisfy the following properties:
+
+-   Each cell @xmath is either a point or an open interval.
+
+-   For every @xmath and every @xmath there are finitely many continuous
+    semi-algebraic functions
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    such that the cylinder @xmath (also called a stack over the cell S )
+    is a disjoint union of cells of @xmath which are:
+
+    -   either the graph of one of the functions @xmath , for @xmath :
+
+          -- -------- --
+             @xmath   
+          -- -------- --
+
+    -   or a band of the cylinder bounded from below and above by the
+        graphs of the functions @xmath and @xmath , for @xmath , where
+        we take @xmath and @xmath .
+
+Note that a cylindrical decomposition has a recursive structure, i.e.,
+the decomposition of @xmath induces a decomposition of @xmath and
+vice-versa.
+
+###### Definition 2.8.
+
+Given a finite set @xmath of polynomials in @xmath , a subset @xmath of
+@xmath is @xmath -invariant if every polynomial @xmath in @xmath has
+constant sign on @xmath . A cylindrical decomposition of @xmath adapted
+to @xmath is a cylindrical decomposition for which each cell in @xmath
+is @xmath -invariant.
+
+The following example illustrate the above definitions.
+
+###### Example 2.9 (Decomposition adapted to the unit sphere).
+
+Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+(see Figure 2.1 ). The decomposition of (i.e., the line) consists of
+five cells of level 1 corresponding to the points @xmath and @xmath and
+the three intervals they define. The decomposition of @xmath (i.e., the
+plane) consists of 13 cells of level 2. For instance, the two bands to
+the left and right of the circle, the two cells corresponding to the
+points @xmath and @xmath and the cell that corresponds to the set @xmath
+. The decomposition of @xmath consists of 25 cells of level 3. For
+instance, the two cells corresponding to the points @xmath and @xmath
+and the cell that corresponds to the set @xmath . For a more detailed
+description of this example see [ 20 ] , Shapter 5.1.
+
+The Cylindrical Decomposition Algorithm ( [ 33 , 20 ] ) consists of two
+phases: the projection and the lifting phase. During the projection
+phase one eliminates the variables @xmath by iterative use of
+(sub)-resultant computations. In the lifting phase the cells defined by
+these (sub)-resultants are used to define inductively, starting with
+@xmath , the cylindrical decomposition.
+
+One disadvantage of the Cylindrical Decomposition Algorithm is that it
+uses iterated projections (reducing the dimension by one in each step)
+and the number of polynomials (as well as the degrees) square in each
+step of the process. Thus, the complexity of performing cylindrical
+decomposition is double-exponential in the number of variables which
+makes it impractical in most cases for computing topological
+information.
+
+Nevertheless, we will see in the next chapters that it can be used quite
+efficiently for several important problems in low dimensions.
+
+##### Computing the Topology of Planer Curves
+
+The simplest situation where the cylindrical decomposition method can be
+performed is the case of one single non-zero bivariate polynomial @xmath
+or a set of bivariate polynomials @xmath . In particular, we are
+interested in the topology of the curve @xmath (resp., of @xmath ),
+i.e., to determine a planar graph homeomorphic to @xmath (resp., @xmath
+).
+
+We consider planar algebraic curves being in generic position which we
+define next.
+
+###### Definition 2.10.
+
+Two square-free bi-variate polynomials @xmath and @xmath are in generic
+position with respect to the projection on the @xmath -axis if the
+following conditions hold.
+
+1.  @xmath ( @xmath -regular),
+
+2.  @xmath ,
+
+3.  for all @xmath the number of distinct (complex) roots of
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    is @xmath or @xmath .
+
+In particular, a single bi-variate polynomial @xmath is called in
+generic position with respect to @xmath (resp., generic position ) if
+@xmath and @xmath are in generic position and, for @xmath , @xmath
+(resp., @xmath ).
+
+It is worthwhile to mention that it is always possible to put a set of
+planar algebraic curves in generic position by a linear change of
+coordinates and computing the gcd-free part of each polynomial.
+Furthermore, two plane curves in generic position behalf nicely, i.e.,
+their intersection points can be described using signed subresultant
+computations.
+
+The following proposition makes this precise.
+
+###### Proposition 2.11.
+
+Let @xmath , @xmath be two square-free polynomials in generic position.
+If @xmath is an intersection point of @xmath and @xmath , then there
+exists a unique @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+Let @xmath be the unique integer such that @xmath and @xmath . Then
+@xmath is the greatest common divisor of the polynomials @xmath and
+@xmath by Theorem 2.4 . Since @xmath and @xmath are in generic position,
+there is only one intersection point of @xmath and @xmath with @xmath
+-coordinate equal to @xmath . In particular, @xmath is the only root of
+@xmath and hence @xmath . ∎
+
+González-Vega and Necula presented an algorithm TOP [ 45 ] which
+computes the topology of a plane curve. The TOP-algorithm takes a single
+bi-variate polynomial @xmath as an input. While computing, it checks if
+the polynomial @xmath is in generic position and performs a change of
+coordinates until the polynomial is in generic position. The
+TOP-algorithm outputs the topology of @xmath as described below (see
+Algorithm 2.12 ).
+
+For example, consider the curves given in Figure 2.2 . The polynomial
+@xmath (defining the two ellipses) is in generic position with respect
+to the polynomial @xmath (defining the dotted ellipse). The output of
+the TOP-algorithm is as in Figure 2.3 .
+
+After some slight modifications one can use this algorithm for the
+following two problems, which might occur simultaneously.
+
+1.  Computing the topology of a plane curve @xmath with respect to
+    another plane curve @xmath , and
+
+2.  computing the common roots of two plane curves.
+
+Note that the proof presented in [ 45 ] can easily be adapted to those
+two problems, but the modified algorithm detects for the first problem
+whether or not the polynomial @xmath is in generic position with respect
+to @xmath and for the second one if @xmath and @xmath are in generic
+position.
+
+For our example considered above the modified TOP-algorithm output is as
+in Figure 2.4 . Note that @xmath additional points are computed.
+
+Finally, we simply recall the in- and output of the TOP-algorithm which
+we later will use as a black-box in Chapter 5.2 , and we refer the
+reader to [ 45 , 20 ] for more details.
+
+###### Algorithm 2.12 (Top).
+
+Input: a square-free polynomial @xmath .
+Output: the topology of the curve @xmath , described by
+
+-   The real roots @xmath of @xmath . We set by @xmath , @xmath .
+
+-   The number @xmath of roots of @xmath in when @xmath varies on @xmath
+    .
+
+-   The number @xmath of roots of @xmath in . We denote these roots by
+    @xmath .
+
+-   A number @xmath such that if @xmath is the unique critical point of
+    the projection of @xmath on the @xmath -axis above @xmath , @xmath .
+
+##### Cell Adjacency
+
+An important piece of information that we require from the cylindrical
+decomposition algorithm is that of cell adjacency. In other words, we
+need to know given two cells in a set @xmath , whether the closure of
+one intersects the other. In Example 2.9 , for instance, we have that
+the cell corresponding to the point @xmath is adjacent to the cell
+@xmath .
+
+We need the following notation. We distinguish between the inter-stack
+cell adjacency of level @xmath , which is the adjacency of cells of
+level @xmath in two different stacks, and the intra-stack cell adjacency
+of level @xmath , which is the adjacency of cells of level @xmath within
+the same stack.
+
+Moreover, we use the following intuitive labeling of cells.
+
+-   A cell in , i.e., a cell in the induced decomposition (line) of the
+    induced decomposition (plane), is denoted by @xmath , where the
+    @xmath ranges over the number of cells in the induced decomposition
+    of . Note that @xmath if and only if the cell @xmath “occurs to the
+    left” of the cell @xmath .
+
+-   A cell in @xmath , i.e., a cell in the induced decomposition of the
+    plane, is denoted by @xmath , where @xmath ranges over the number of
+    cells in the line and the @xmath ranges over the number of cells in
+    the stack over the cell @xmath . Note that @xmath if and only if the
+    cell @xmath “occurs lower in the plane” than the cell @xmath .
+
+-   A cell in @xmath is denoted by @xmath , where @xmath is a cell in
+    the induced decomposition of the plane and the @xmath ranges over
+    the number of cells in the stack over the cell @xmath . Note that
+    @xmath if and only if the cell @xmath “occurs lower” than the cell
+    @xmath .
+
+Furthermore, we distinguish among 0-cells, 1-cells, 2-cells and 3-cells
+of the cylindrical decomposition, that are points, graphs and cylinders
+bounded below and above by graphs. The adjacency between a @xmath -cell
+and @xmath -cell will be denoted by @xmath -adjacency .
+
+We illustrate the above notation on Example 2.9 (Decomposition adapted
+to the unit sphere).
+
+###### Example 2.13 (cont.).
+
+For instance, the cell @xmath and @xmath correspond to the points @xmath
+and @xmath (in the line), whereas the cells @xmath and @xmath correspond
+the point @xmath and the set
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Moreover, the cell @xmath corresponds to the point @xmath and the cell
+@xmath corresponds to the set @xmath .
+
+While there are algorithms known for computing the cell adjacencies of a
+cylindrical decomposition of @xmath (see ( [ 3 , 4 ] ), we will only be
+interested in the cell adjacencies for a cylindrical decomposition
+adapted to family @xmath such that @xmath and @xmath is @xmath -regular
+for every polynomial @xmath .
+
+It is worthwhile to mention that we do not need to compute all cell
+adjacencies. In our applications (see Chapter 5 ) it suffices to compute
+the @xmath -inter-stack adjacencies which we can do by a simple
+combinatorial type approach. In other words, we determine the full
+adjacency information for the boundary of the semi-algebraic set by
+using the simpler structure induced by the quadratic polynomials which
+we describe next.
+
+Assume that the @xmath -cell @xmath and the @xmath -cell @xmath are
+adjacent in the induced decomposition of the plane. To be more precise,
+the @xmath -cell @xmath and the @xmath -cell @xmath correspond to a
+point and a curve segment of @xmath where @xmath and @xmath are two
+input quadratic polynomials that are @xmath -regular. We have the
+following two cases:
+
+Case 1: The stack over the 0-cell @xmath contains exactly one 0-cell
+@xmath . Note, that the stack over 1-cell @xmath must contain two @xmath
+-cells @xmath and @xmath (corresponding to graphs), since the polynomial
+@xmath is of degree equal to @xmath in the variable @xmath . Therefore,
+the 0-cell @xmath must be adjacent to both cells @xmath and @xmath ,
+since the semi-algebraic set @xmath is closed.
+
+Case 2: The stack over the 0-cell @xmath contains two @xmath -cells
+@xmath and @xmath . As above, the stack over the @xmath -cell @xmath
+must contain two @xmath -cells @xmath and @xmath . Remember that both
+stacks are ordered from the bottom to the top. Hence, the cells @xmath
+and @xmath as well as the cells @xmath and @xmath must be adjacent for
+the same reason as above. It is worthwhile to mention that is not
+possible to have just one @xmath -cell above @xmath , i.e., @xmath , by
+the properties of the cylindrical decomposition.
+
+#### 2.1.5. Triangulation of Semi-algebraic Sets
+
+Another important property of closed and bounded semi-algebraic sets is
+that they are homeomorphic to a simplicial complex. The following makes
+this statement precise.
+
+Let @xmath be points of @xmath that are affinely independent. The @xmath
+- simplex with vertices @xmath is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Note that the dimension of @xmath is @xmath .
+
+An @xmath - face of the @xmath -simplex @xmath is any simplex @xmath
+such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The open simplex, denoted by @xmath , corresponding to a simplex @xmath
+consists of all points of @xmath which do not belong to any proper face
+of s:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+A simplicial complex in @xmath is a finite set of simplices in @xmath
+such that @xmath implies
+
+-   every face of @xmath is in ,
+
+-   @xmath is a common face of both @xmath and @xmath .
+
+A triangulation of a semi-algebraic set @xmath is a simplicial complex
+@xmath together with a semi-algebraic homeomorphism @xmath , where the
+set @xmath is the realization of .
+
+A triangulation of @xmath respecting a finite family of semi-algebraic
+sets @xmath contained in @xmath is a triangulation @xmath such that each
+@xmath is the union of images by @xmath of open simplices of .
+
+We have the following theorem.
+
+###### Theorem 2.14.
+
+Let @xmath be a closed and bounded semi-algebraic set, and let @xmath be
+semi-algebraic subsets of @xmath . There exists a triangulation of
+@xmath respecting @xmath . Moreover, the vertices of can be chosen with
+rational coefficients.
+
+###### Proof.
+
+See [ 20 ] ∎
+
+For example, let @xmath be a closed and bounded subset of @xmath such
+that @xmath . Then Theorem 2.14 implies that there is a triangulation
+@xmath of @xmath such that for every simplex @xmath and @xmath either
+@xmath or @xmath .
+
+Finally, note that one can compute a triangulation of a closed and
+bounded semi-algebraic set using the cylindrical decomposition which
+decomposes a given semi-algebraic set into double exponential number (in
+the dimension) of topological balls.
+
+#### 2.1.6. Triviality of Semi-algebraic Mappings
+
+The finiteness of the topological types of algebraic subsets of @xmath
+defined by polynomials of fixed degree is an easy consequence of Hardt’s
+triviality theorem, which we recall next.
+
+###### Theorem 2.15 (Hardt’s triviality theorem [49, 20]).
+
+Let @xmath and @xmath be semi-algebraic sets. Given a continuos
+semi-algebraic function @xmath , there exists a finite partition of
+@xmath into semi-algebraic sets @xmath , so that for each @xmath and any
+@xmath , @xmath is semi-algebraically homeomorphic to @xmath .
+
+Hardt’s theorem is a corollary of the existence of cylindrical
+decompositions (see Chapter 2.1.4 ), which implies a double exponential
+(in @xmath ) upper bound on the cardinality of the set @xmath .
+Moreover, it follows that one can always retract a closed semi-algebraic
+set to a closed and bounded set. The following proposition makes this
+precise.
+
+###### Proposition 2.16 (Conic structure at infinity).
+
+Let @xmath be a closed semi-algebraic set. There exists @xmath , @xmath
+, such that for every @xmath , @xmath , there is a semi-algebraic
+deformation retraction from @xmath to @xmath and a semi-algebraic
+deformation retraction from @xmath to @xmath .
+
+###### Proof.
+
+See [ 20 ] , Proposition 5.49. ∎
+
+### 2.2. Algebraic Topology
+
+#### 2.2.1. Some Notations
+
+In this chapter we recall the basic objects from algebraic topology like
+homology and co-homology theory. Unless otherwise noted, we will
+consider vector spaces over @xmath in what follows next.
+
+Given a simplicial complex , we denote by @xmath the vector space
+generated by the @xmath -dimensional oriented simplices of . The
+elements of @xmath are called the @xmath -chains of . For @xmath , we
+define @xmath .
+
+Given an oriented @xmath -simplex @xmath , @xmath , the boundary of
+@xmath is the @xmath -chain
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath means that the @xmath is omitted. For @xmath , we define
+@xmath . The map @xmath extends linearly to a homomorphism
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Thus, we have the following sequence of vector space homomorphism with
+@xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The sequence of pairs @xmath , denoted by @xmath , is called the
+simplicial chain complex .
+
+We denote by @xmath the @xmath -th simplicial homology group of , that
+is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the subspace of @xmath -cycles , and @xmath is the
+subspace of @xmath -boundaries .
+
+Note that @xmath is a finite dimensional vector space. The dimension of
+@xmath as a vector space is called the @xmath -th Betti number of and
+denoted by @xmath . We will denote by @xmath the sum @xmath .
+
+Next, we define the dual notion of cohomology groups.
+
+We denote by @xmath the vector space dual to @xmath , and by @xmath the
+co-boundary map @xmath which is the homomorphism dual to @xmath in the
+simplicial chain complex @xmath . More precisely, given @xmath , and a
+@xmath -simplex @xmath of , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Thus, we have the following sequence of (dual) vector space
+homomorphism,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with @xmath . The sequence of pairs @xmath , denoted by @xmath , is
+called the simplicial cochain complex .
+
+We denote by @xmath the @xmath -th simplicial cohomology group of , that
+is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the subspace of @xmath -cocycles , and @xmath is the
+subspace of @xmath -coboundaries .
+
+Note that @xmath is a finite dimensional vector space and its dimension
+as a vector space is equal to @xmath . To be more precise, we have by
+the Universal Coefficient Theorem for cohomology (see [ 51 ] ,
+Theorem 3.2, page 195) that @xmath and @xmath are isomorphic for every
+@xmath . Moreover, the cohomology group @xmath can be identified with
+the vector space of locally constant functions on @xmath (see [ 20 ] ,
+Proposition 6.5).
+
+Next, we define simplicial (co)-homology groups for a closed
+semi-algebraic set. Let @xmath be a closed semi-algebraic set. By
+Proposition 2.16 (Conic structure at infinity), there exists @xmath ,
+@xmath , such that for every @xmath , @xmath , there is a semi-algebraic
+deformation from @xmath to @xmath and a semi-algebraic deformation from
+@xmath to @xmath . Note that the set @xmath is closed and bounded. By
+Theorem 2.14 , the set @xmath can be triangulated by a simplicial
+complex with rational coordinates. Choose a semi-algebraic triangulation
+@xmath , then for @xmath the homology groups @xmath are @xmath (resp.,
+cohomology groups @xmath are @xmath ). Note that the (co)-homology
+groups do not depend on the particular triangulation. The dimension of
+@xmath as a vector space is called the @xmath -th Betti number of @xmath
+and denoted by @xmath . We will denote by @xmath the sum @xmath .
+
+For completeness we now consider a basic locally closed semi-algebraic
+set @xmath which is, by definition, the intersection of a closed
+semi-algebraic set with a basic open one. Let @xmath be the (one point)
+Alexandroff compactification of @xmath . Then the dimension of @xmath as
+a vector space is called the @xmath -th Betti number of @xmath and
+denoted by @xmath . This definition is well-defined since the
+Alexandroff compactification @xmath of @xmath is closed, bounded, unique
+(up to semi-algebraic homeomorphism) and semi-algebraically homeomorphic
+to @xmath . We will denote by @xmath the sum @xmath . Note that the
+homology groups of a semi-algebraic set @xmath are finitely generated.
+Hence, the Betti numbers @xmath are finite.
+
+We illustrate Betti numbers with the following example.
+
+###### Example 2.17.
+
+Let @xmath be the hollow torus in @xmath (see Figure 2.5 ), then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Intuitively, @xmath measures the number of @xmath -dimensional holes in
+the set @xmath . The zero-th Betti number, @xmath , is the number of
+connected components.
+
+Similarly, one can define @xmath , the @xmath -th Betti number with
+coefficients in @xmath , as the @xmath -vector space dimension of @xmath
+. We denote by @xmath the sum @xmath .
+
+It follows from the Universal Coefficients Theorem, that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+(see [ 51 ] , Corollary 3.A6 (b)).
+
+Hence, any bounds proved for Betti numbers with @xmath -coefficients
+also apply to the ordinary Betti numbers (with coefficients in @xmath ).
+
+#### 2.2.2. The Mayer-Vietoris Theorem
+
+We have seen in Chapter 2.1.4 that we can use the cylindrical
+decomposition in order to decompose a semi-algebraic set into smaller
+pieces. The Mayer-Vietoris inequalities (see Proposition 2.19 ) bound
+the Betti numbers of the union (resp., intersection) of semi-algebraic
+sets in terms of intersections (resp., unions) of fewer semi-algebraic
+sets. This will be very useful in Chapter 3 and Chapter 4 . We first
+recall a semi-algebraic version of the Mayer-Vietoris theorem.
+
+###### Theorem 2.18 (Semi-algebraic Mayer-Vietoris).
+
+Let @xmath and @xmath be two closed and bounded semi-algebraic subsets
+of @xmath . Then there is a long exact sequence.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+By Theorem 2.14 there is a triangulation of @xmath that is
+simultaneously a triangulation of @xmath , @xmath , and @xmath . Let
+@xmath be the simplicial complex corresponding to @xmath . Then there is
+a a short exact sequence of simplicial chain complexes,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The claim follows by a standard argument about short and long exact
+sequences (see [ 20 ] , Lemma 6.10). ∎
+
+From the exactness of the Mayer-Vieotoris sequence, we have the
+following proposition.
+
+###### Proposition 2.19 (Mayer-Vietoris inequalities).
+
+Let be @xmath subsets of @xmath be all open or all closed. Then for each
+@xmath we have,
+
+  ------- -- -------- --
+  (2.2)      @xmath   
+  ------- -- -------- --
+
+and
+
+  ------- -- -------- --
+  (2.3)      @xmath   
+  ------- -- -------- --
+
+###### Proof.
+
+Follows from [ 20 ] , Proposition 7.33. ∎
+
+The following proposition characterizes @xmath and @xmath in a special
+case of unions of simplicial complexes. It is a slightly strengthened
+version of a similar proposition appearing in [ 21 , 20 ] . We do not
+require that the complexes @xmath be acyclic, but only that their first
+co-homology group vanishes. We need the following notations.
+
+Let @xmath be sub-complexes of a finite simplicial complex @xmath such
+that
+
+-   each @xmath is connected, i.e., @xmath ,
+
+-   @xmath , and
+
+-   @xmath , @xmath .
+
+Note that the intersections of any number of the sub-complexes, @xmath ,
+is again a sub-complex of @xmath . We will denote by @xmath the
+sub-complex @xmath , and by @xmath the sub-complex @xmath .
+
+Recall that @xmath can be identified as the vector space of locally
+constant functions on the simplicial complex . Hence, we can define the
+following sequence of generalized restriction homomorphisms.
+
+Let @xmath , define
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and let @xmath , define
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We now are able to state our proposition.
+
+###### Proposition 2.20.
+
+Let @xmath be sub-complexes of a finite simplicial complex @xmath such
+that @xmath and for each @xmath ,
+
+1.  @xmath , and
+
+2.  @xmath .
+
+Let the homomorphisms @xmath and @xmath in the following sequence be
+defined as above.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then,
+
+1.  @xmath ,
+
+2.  @xmath .
+
+###### Proof.
+
+Follows from [ 20 ] , Theorem 6.9. ∎
+
+###### Remark 2.21.
+
+One could use the so-called generalized Mayer-Vietoris sequence and some
+spectral sequence argument in order to prove Proposition 2.20 . We refer
+to [ 10 , 15 ] for more details.
+
+#### 2.2.3. Smith Theory
+
+In Chapter 3 we will reduce the problem of bounding the Betti numbers of
+a semi-algebraic set to the problem of bounding the Betti numbers of
+some real projective algebraic sets. Using the Smith inequality (see
+Theorem 2.22 below) allows us to relate the Betti numbers of these real
+projective algebraic sets to the corresponding complex projective
+algebraic sets. As we will see in Chapter 2.3.2 , we have precise
+information about the corresponding complex projective algebraic set.
+Before we recall a version of the Smith inequality, we need the
+following.
+
+Let @xmath be a compact topological space and @xmath an involution. We
+regard @xmath as a @xmath -space, where @xmath . We denote by @xmath the
+orbit space, and by @xmath , the fixed point set of the involution
+@xmath . Moreover, we identify @xmath with its image in @xmath .
+
+Then there are two exact sequences, called (homology and cohomology)
+Smith sequences of @xmath :
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We refer the reader to [ 78 ] , p. 131, for more details.
+
+Next, we state a version of the Smith inequality which follows from the
+exactness of the Smith sequence. We consider the special case where
+@xmath is a complex projective algebraic set defined by real forms, with
+the involution taken to be complex conjugation. Then we have the
+following theorem.
+
+###### Theorem 2.22 (Smith inequality).
+
+Let @xmath be a family of homogeneous polynomials. Then,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+#### 2.2.4. Alexander Duality
+
+In Chapter 3 , we also use the well-known Alexander duality theorem
+which relates the Betti numbers of a compact subset of a sphere to those
+of its complement.
+
+###### Theorem 2.23 (Alexander Duality).
+
+Let @xmath . For any closed subset @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath , @xmath , denotes the reduced cohomology group of @xmath .
+
+###### Proof.
+
+See [ 62 ] , Theorem 6.6. ∎
+
+#### 2.2.5. The Betti Numbers of a Double Cover
+
+Let @xmath be a topological space. A covering space of @xmath is a space
+@xmath together with a continuous surjective map @xmath , such that for
+every @xmath there exists an open neighborhood @xmath of @xmath such
+that @xmath is a disjoint union of open sets in @xmath each of which is
+mapped homeomorphically onto @xmath by @xmath . In particular, if for
+every @xmath the fiber @xmath has two elements, we speak of a double
+cover .
+
+The following proposition relates the Betti numbers (with @xmath
+coefficients) of a finite simplicial complex to its double cover. Note
+that the proposition is no longer true for Betti numbers (with @xmath
+-coefficients). A simple counterexample is provided by the @xmath -torus
+which is a double cover of the Klein bottle, for which the stated
+inequality is not true for @xmath for Betti numbers (with @xmath
+-coefficients).
+
+###### Proposition 2.24.
+
+Let @xmath be a finite simplicial complex and @xmath a double cover of
+@xmath . Then for each @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+denote the chain map sending each simplex of @xmath to the sum of its
+two preimages in @xmath . Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+be the chain map induced by the covering map @xmath .
+
+It is an easy exercise to check that the following sequence is exact,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The corresponding long exact sequence in homology,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+gives the required inequality. ∎
+
+###### Remark 2.25.
+
+The above proof is due to Michel Coste.
+
+#### 2.2.6. The Betti Numbers of a Projection
+
+The following proposition gives a bound on the Betti numbers of the
+projection @xmath of a closed and bounded semi-algebraic set @xmath in
+terms of the number and degrees of polynomials defining @xmath .
+
+###### Proposition 2.26 ([43]).
+
+Let be a real closed field and let @xmath be the projection map on to
+last @xmath co-ordinates. Let @xmath be a closed and bounded
+semi-algebraic set defined by a Boolean formula with @xmath distinct
+polynomials of degrees not exceeding @xmath . Then the @xmath -th Betti
+number of the projection
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+See [ 43 ] . ∎
+
+#### 2.2.7. The Smale-Vietoris Theorem
+
+In Chapter 4 we also need the following version of the well-known
+Smale-Vietoris Theorem [ 71 ] .
+
+###### Theorem 2.27 ([71]).
+
+Let @xmath and @xmath be closed and bounded semi-algebraic sets, and
+@xmath a continuous semi-algebraic map such that @xmath is contractible
+for every @xmath . Then the map @xmath is a homotopy equivalence.
+
+#### 2.2.8. Stable homotopy equivalence and Spanier-Whitehead duality
+
+For any finite CW-complex @xmath we will denote by @xmath the suspension
+of @xmath , which is the quotient of @xmath by collapsing @xmath to one
+point and @xmath to another point.
+
+Recall from [ 72 ] that for two finite CW-complexes @xmath and @xmath ,
+an element of
+
+  ------- -- -------- --
+  (2.4)      @xmath   
+  ------- -- -------- --
+
+is called an S-map (or map in the suspension category ). (When the
+context is clear we will sometime denote an S-map @xmath by @xmath ).
+
+###### Definition 2.28.
+
+An S-map @xmath is an S-equivalence (also called a stable homotopy
+equivalence ) if it admits an inverse @xmath . In this case we say that
+@xmath and @xmath are stable homotopy equivalent .
+
+If @xmath is an S-map, then @xmath induces a homomorphism,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The following theorem characterizes stable homotopy equivalence in terms
+of homology.
+
+###### Theorem 2.29.
+
+[ 73 ] Let @xmath and @xmath be two finite CW-complexes. Then @xmath and
+@xmath are stable homotopy equivalent if and only if there exists an
+S-map @xmath which induces isomorphisms @xmath (see [ 36 ] , pp. 604)
+for all @xmath .
+
+In order to compare the complements of closed and bounded semi-algebraic
+sets which are homotopy equivalent, we will use the duality theory due
+to Spanier and Whitehead [ 72 ] . We will need the following facts about
+Spanier-Whitehead duality (see [ 36 ] , pp. 603 for more details). Let
+@xmath be a finite CW-complex. Then there exists a dual complex, denoted
+@xmath . The dual complex @xmath is defined only upto S-equivalence. In
+particular, any deformation retract of @xmath represents @xmath .
+Moreover, the functor @xmath has the following property. If @xmath is
+another finite CW-complex, and the S-map represented by @xmath is a
+stable homotopy equivalence, then there exists a stable homotopy
+equivalence @xmath . Moreover, if the map @xmath is an inclusion, then
+the dual S-map @xmath is also represented by a corresponding inclusion.
+
+###### Remark 2.30.
+
+Note that, since Spanier-Whitehead duality theory deals only with finite
+polyhedra over @xmath , it extends without difficulty to general real
+closed fields using the Tarski-Seidenberg transfer principle.
+
+#### 2.2.9. Homotopy colimits
+
+Let @xmath , where each @xmath is a sub-complex of a finite CW-complex.
+
+Let @xmath denote the standard simplex of dimension @xmath with vertices
+in @xmath . For @xmath , we denote by @xmath the @xmath -dimensional
+face of @xmath corresponding to @xmath , and by @xmath the CW-complex
+@xmath .
+
+The homotopy colimit, @xmath , is a CW-complex defined as follows.
+
+###### Definition 2.31.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where the equivalence relation @xmath is defined as follows.
+
+For @xmath , let @xmath denote the inclusion map of the face @xmath in
+@xmath , and let @xmath denote the inclusion map of @xmath in @xmath .
+
+Given @xmath and @xmath with @xmath , then @xmath if and only if @xmath
+and @xmath .
+
+We have a obvious map
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+sending @xmath . It is a consequence of the Smale-Vietoris theorem (see
+Theorem LABEL:Smale-Vietoris ) that
+
+###### Lemma 2.32.
+
+The map
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is a homotopy equivalence.
+
+Now let @xmath (resp. @xmath ) be a set of sub-complexes of a finite
+CW-complex. For each @xmath let @xmath be a stable homotopy equivalence,
+having the property that for each @xmath , @xmath . Then we have an
+induced S-map, @xmath , and we have that
+
+###### Lemma 2.33.
+
+The induced S-map @xmath is a stable homotopy equivalence.
+
+###### Proof.
+
+Using the Mayer-Vietoris exact sequence it is easy to see that if the
+@xmath ’s induce isomorphisms in homology, so does the map @xmath . Now
+apply Theorem 2.29 . ∎
+
+### 2.3. The Topology of Algebraic and Semi-Algbraic Sets
+
+#### 2.3.1. Bounds on the Topology of Semi-Algebraic Sets
+
+The initial result on bounding the Betti numbers of semi-algebraic sets
+defined by polynomial inequalities was proved independently by Oleinik
+and Petrovskii [ 65 ] , Thom [ 76 ] and Milnor [ 63 ] . They proved:
+
+###### Theorem 2.34.
+
+[ 65 , 76 , 63 ] Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with @xmath , @xmath and let @xmath be the set defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Notice that the theorem includes the case where the set @xmath is a real
+algebraic set. Moreover, the above bound is exponential in @xmath and
+this exponential dependence is unavoidable (see Example 2.35 below).
+Recently, the above bound was extended to more general classes of
+semi-algebraic sets. For example, Basu [ 11 ] improved the bound of the
+individual Betti numbers of @xmath -closed semi-algebraic sets while
+Gabrielov and Vorobjov [ 44 ] extended the above bound to any @xmath
+-semi-algebraic set. They proved a bound of @xmath . Moreover, Basu,
+Pollack and Roy [ 19 ] proved a similar bound for the individual Betti
+numbers of the realizations of sign conditions.
+
+###### Example 2.35.
+
+The set @xmath defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+has @xmath .
+
+However, it turns out that for a semi-algebraic set @xmath defined by
+@xmath quadratic inequalities, it is possible to obtain upper bounds on
+the Betti numbers of @xmath which are polynomial in @xmath and
+exponential only in @xmath . The first such result was proved by
+Barvinok who proved the following theorem.
+
+###### Theorem 2.36.
+
+[ 9 ] Let @xmath be defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with @xmath . Then, @xmath .
+
+Theorem 2.36 is proved using a duality argument that interchanges the
+roles of @xmath and @xmath , and reduces the original problem to that of
+bounding the Betti numbers of a semi-algebraic set in @xmath defined by
+@xmath polynomials of degree at most @xmath . One can then use Theorem
+2.34 to obtain a bound of @xmath . The constant hidden in the exponent
+of the above bound is at least two. Also, the bound in Theorem 2.36 is
+polynomial in @xmath but exponential in @xmath . The exponential
+dependence on @xmath is unavoidable as remarked in [ 9 ] , but the
+implied constant (which is at least two) in the exponent of Barvinok’s
+bound is not optimal.
+
+Using Barvinok’s result, as well as inequalities derived from the
+Mayer-Vietoris sequence, Basu proved a polynomial bound (polynomial both
+in @xmath and @xmath ) on the top few Betti numbers of a set defined by
+quadratic inequalities. More precisely, he proved the following theorem.
+
+###### Theorem 2.37.
+
+[ 11 ] Let @xmath and let @xmath be defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with @xmath . Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Notice that for fixed @xmath , the bound in Theorem 2.37 is polynomial
+in both @xmath and @xmath .
+
+#### 2.3.2. Bounds on the Topology of Complex Algebraic Sets
+
+By separating the real and imaginary parts one can consider a complex
+algebraic set @xmath as a real algebraic subset of @xmath .
+Unfortunately, real and complex algebraic sets do not have the same
+properties. To be more precise, an irreducible algebraic subset of
+@xmath having complex dimension @xmath , considered as an algebraic
+subset of @xmath is connected, not bounded (unless it is a point) and
+has local real dimension @xmath at every point (see, for instance, [ 27
+] ). But this is no longer true for real algebraic sets as we will see
+in the following examples.
+
+###### Example 2.38 ([27]).
+
+1.  The circle @xmath is bounded.
+
+2.  The cubic curve @xmath has an isolated point at the origin.
+
+However, in Chapter 3 we will show how to reduce the problem of bounding
+the Betti numbers of a real algebraic set to the problem of bounding the
+Betti numbers of a complex projective algebraic set involving the same
+polynomials. Moreover, this complex projective algebraic set will have
+the property that is a non-singular complete intersection, which we
+define next.
+
+###### Definition 2.39.
+
+A projective algebraic set @xmath of codimension @xmath is a
+non-singular complete intersection if it is the intersection of @xmath
+non-singular hypersurfaces in @xmath that meet transversally at each
+point of the intersection.
+
+Next, we recall some results about the Betti numbers of a complex
+projective algebraic set which is a non-singular complete intersection.
+We need the following notation.
+
+Fix a @xmath -tuple of natural numbers @xmath . Let @xmath , such that
+the degree of @xmath is @xmath , denote a complex projective algebraic
+set of codimension @xmath which is a non-singular complete intersection.
+
+Let @xmath denote the sum of the Betti numbers with @xmath coefficients
+of @xmath . This is well defined since the Betti numbers only depend
+only on the degree sequence and not on the specific @xmath (see, for
+instance, [ 41 ] ).
+
+The function @xmath satisfies the following (see [ 26 ] ):
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In the special case when each @xmath , we denote by @xmath . We then
+have the following recurrence for @xmath .
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Next, we show some properties of @xmath .
+
+###### Lemma 2.40.
+
+1.  @xmath and @xmath .
+
+2.   For @xmath , @xmath .
+
+3.   For @xmath and @xmath odd, @xmath .
+
+###### Proof.
+
+The first part is shown by two easy computations and noting that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Hence, we can assume that the statements are true for @xmath and that
+@xmath . Note that for the special case @xmath , we have that @xmath
+since @xmath . Then
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+and, for @xmath odd,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+                       @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+∎
+
+Hence, we get the following bound for @xmath .
+
+###### Theorem 2.41.
+
+1.  
+
+2.  @xmath
+
+3.  @xmath , for @xmath .
+
+###### Proof.
+
+Follows from Lemma 2.40 . ∎
+
+#### 2.3.3. Bounds on the Topology of Parametrized Semi-algebraic Sets
+
+Let @xmath be the projection map on the last @xmath co-ordinates, and
+for any @xmath we will denote by @xmath the restriction of @xmath to
+@xmath . Moreover, when the map @xmath is clear from context, for any
+@xmath we will denote by @xmath the fiber @xmath . One way to interpret
+this setting is that the set @xmath depends on @xmath parameters and
+@xmath is the projection onto the parameter space.
+
+Hardt’s triviality theorem (see Theorem 2.15 ) implies that there exists
+a semi-algebraic partition @xmath of @xmath having the following
+property. For each @xmath and any point @xmath , the pre-image @xmath is
+semi-algebraically homeomorphic to @xmath by a fiber preserving
+homeomorphism. In particular, for each @xmath , all fibers @xmath ,
+@xmath are semi-algebraically homeomorphic.
+
+As mentioned in Chapter 2.1.6 the existence of cylindrical
+decompositions implies a double exponential (in @xmath and @xmath )
+upper bound on the cardinality of @xmath and, hence, on the number of
+homeomorphism types of the fibers of the map @xmath . No better bounds
+than the double exponential bound are known, even though it seems
+reasonable to conjecture a single exponential upper bound on the number
+of homeomorphism types of the fibers of the map @xmath .
+
+In [ 22 ] , Basu and Vorobjov considered the weaker problem of bounding
+the number of distinct homotopy types occurring amongst the set of all
+fibers of @xmath , and they proved a single exponential upper bound (in
+@xmath and @xmath ) on the number of homotopy types of such fibers.
+
+They proved the following theorem.
+
+###### Theorem 2.42.
+
+[ 22 ] Let @xmath , with @xmath for each @xmath and cardinality @xmath .
+Then there exists a finite set @xmath with
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+such that for every @xmath , there exists @xmath such that for every
+@xmath -semi-algebraic set @xmath , the set @xmath is semi-algebraically
+homotopy equivalent to @xmath . In particular, for any fixed @xmath
+-semi-algebraic set @xmath , the number of different homotopy types of
+fibers @xmath for various @xmath is also bounded by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Notice that the bound in Theorem 2.42 is single exponential in @xmath .
+The following example, which also appears in [ 22 ] , shows that the
+single exponential dependence on @xmath is unavoidable.
+
+###### Example 2.43.
+
+Let @xmath be the polynomial defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The algebraic set defined by @xmath in @xmath with coordinates @xmath ,
+consists of @xmath lines all parallel to the @xmath axis. Consider now
+the semi-algebraic set @xmath defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+It is easy to verify that, if @xmath is the projection map on the @xmath
+co-ordinate, then the fibers @xmath , for @xmath are 0-dimensional and
+of different cardinality, and hence have different homotopy types.
+
+#### 2.3.4. Some Useful Constructions
+
+In this chapter, we recall some very useful constructions for
+semi-algebraic subsets of @xmath which are well-known in real algebraic
+geometry.
+
+Let @xmath with @xmath , @xmath . Let @xmath be the basic semi-algebraic
+set defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let @xmath be an infinitesimal, and let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let @xmath be the basic semi-algebraic set defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proposition 2.44.
+
+The bounded set @xmath and the set @xmath are homotopy equivalent.
+Moreover, the homology groups of the @xmath and @xmath are isomorphic.
+
+###### Proof.
+
+It follows from Proposition 2.16 (Conic structure at infinity) that the
+semi-algebraic set @xmath has the same homotopy type as @xmath . The
+claim now follows since one can extend any triangulation over to a
+triangulation over @xmath . ∎
+
+Let @xmath be the basic semi-algebraic set defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Lemma 2.45.
+
+For @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+Note that @xmath is bounded by Proposition 2.44 and @xmath is the
+projection from the origin of the set @xmath onto the unit sphere @xmath
+in @xmath . Since @xmath is bounded, the projection does not intersect
+the equator and consists of two disjoint copies (each homeomorphic to
+the set @xmath ) in the upper and lower hemispheres. ∎
+
+## Chapter 3 Bounding the Betti Numbers
+
+### 3.1. Results
+
+We prove the following theorem.
+
+###### Theorem 3.1.
+
+[ 17 ] Let @xmath , @xmath . Let @xmath be defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with @xmath . Then, for @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+As a consequence of Theorem 3.1 we get a new bound on the sum of the
+Betti numbers, which we state for the sake of completeness.
+
+###### Corollary 3.2.
+
+Let @xmath , @xmath . Let @xmath be defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with @xmath . Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Remark 3.3.
+
+The technique used in this chapter was proposed as a possible
+alternative method by Barvinok in [ 9 ] , who did not pursue this
+further in that paper. Also, Benedetti, Loeser, and Risler [ 26 ] used a
+similar technique for proving upper bounds on the number of connected
+components of real algebraic sets in @xmath defined by polynomials of
+degrees bounded by @xmath . However, these bounds (unlike the bounds we
+obtain) are exponential in @xmath . Finally, there exists another
+possible method for bounding the Betti numbers of semi-algebraic sets
+defined by quadratic inequalities, using a spectral sequence argument
+due to Agrachev [ 1 ] . However, this method also produces a non-optimal
+bound of the form @xmath (similar to Barvinok’s bound) where the
+constant in the exponent is at least two. We omit the details of this
+argument referring the reader to [ 13 ] for an indication of the proof
+(where the case of computing, and as a result, bounding the
+Euler-Poincaré characteristics of such sets is worked out in full
+details).
+
+### 3.2. Proof Strategy
+
+Our strategy for proving Theorem 3.1 is as follows. Using certain
+infinitesimal deformations we first reduce the problem to bounding the
+Betti numbers of another closed and bounded semi-algebraic set defined
+by a new family of quadratic polynomials. We then use inequalities
+obtained from the Mayer-Vietoris exact sequence to further reduce the
+problem of bounding the Betti numbers of this new semi-algebraic set to
+the problem of bounding the Betti numbers of the real projective
+algebraic sets defined by each @xmath -tuple, @xmath , of the new
+polynomials. The new family of polynomials also has the property that
+the complex projective algebraic set defined by each @xmath -tuple,
+@xmath , of these polynomials is a non-singular complete intersection.
+According to Theorem 2.41 we have precise information about the Betti
+numbers of these complex complete intersections. An application of the
+Smith inequality (see Theorem 2.22 ) then allows us to obtain bounds on
+the Betti numbers of the real parts of these algebraic sets and, as a
+result, on the Betti numbers of the original semi-algebraic set.
+
+### 3.3. Constructing Non-singular Complete Intersections
+
+In Chapter 2.3.2 we introduced the notion of a projective complex
+algebraic set which is a non-singular complete intersection (see
+Definition 2.39 ). Next, we show the existence of such a set and how to
+obtain a non-singular complete intersection from a given algebraic set
+in complex projective space.
+
+###### Proposition 3.4.
+
+There exists a family @xmath of positive definite quadratic forms such
+that @xmath is a non-singular complete intersection for every @xmath .
+
+###### Proof.
+
+Recall that the set of positive definite quadratic forms is open in the
+set of quadratic forms over . Moreover, any real closed field contains
+the real closure of @xmath . Thus, we can choose a family @xmath of
+positive definite quadratic forms such that their coefficients are
+algebraically independent over @xmath . It follows by Bertini’s Theorem
+(see [ 50 ] , Theorem 17.16) that @xmath , @xmath , is a non-singular
+complete intersection. ∎
+
+The following proposition allows us to replace a family of real
+quadratic forms by another family obtained by infinitesimal
+perturbations of the original family and whose zero sets are
+non-singular complete intersections in complex projective space.
+
+###### Proposition 3.5.
+
+Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+be a set of quadratic forms and let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+be a family of positive definite quadratic forms such that @xmath is a
+non-singular complete intersection for every @xmath .
+
+Let @xmath be infinitesimals, and let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then for any @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is a non-singular complete intersection.
+
+###### Proof.
+
+Consider
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let @xmath , and let @xmath be defined by,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Clearly, @xmath contains @xmath . Moreover, since being a non-singular
+complete intersection is a stable condition, @xmath must contain an open
+neighborhood of @xmath in and so must @xmath . Finally, the set @xmath
+is constructible, since it can be defined by a first order formula.
+Since a constructible subset of is either finite or the complement of a
+finite set (see for instance, [ 19 ] , Corollary 1.25), @xmath must
+contain an interval @xmath . Hence, its extension to @xmath contains
+@xmath . ∎
+
+### 3.4. Proof of Theorem 3.1
+
+Before we prove Theorem 3.1 , we need what follows next:
+
+Let @xmath , @xmath , with @xmath , @xmath . Let @xmath be the basic
+semi-algebraic set defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let @xmath be infinitesimals, and let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let @xmath be the basic semi-algebraic set defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The homology groups of @xmath and @xmath are isomorphic by Proposition
+2.44 . Moreover, the set @xmath is bounded.
+
+Let @xmath be the basic semi-algebraic set defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then, for @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+by Lemma 2.45 .
+
+We now fix a family of polynomials that will be useful in what follows.
+By Proposition 3.4 we can choose a family @xmath of positive definite
+quadratic forms such that @xmath is a non-singular complete intersection
+for every @xmath .
+
+Let @xmath , @xmath . Let @xmath (resp., @xmath ) be the basic
+semi-algebraic set defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+respectively.
+
+Also, let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Lemma 3.6.
+
+We have,
+
+1.   the homology groups of @xmath and @xmath are isomorphic,
+
+2.   the homology groups of @xmath and @xmath are isomorphic,
+
+3.   for all @xmath ,
+    @xmath is a non-singular complete intersection, and
+
+4.   for all @xmath ,
+    @xmath .
+
+###### Proof.
+
+For the first part note that the sets @xmath and @xmath have the same
+homotopy type using  Lemma 16.17 in [ 20 ] .
+
+The second part is clear since we have a retraction from @xmath to
+@xmath .
+
+The third part follows from Proposition 3.5 .
+
+For the last part, let @xmath be the double cover obtained by
+identifying antipodal points. Then the restriction of @xmath to @xmath
+gives a double cover,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Now apply Proposition 2.24 . ∎
+
+###### Proposition 3.7.
+
+For @xmath , we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+First note that by Lemma 3.6 ( 3 ) @xmath is a complete intersection for
+all @xmath . For @xmath , we have
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where the first inequality is a consequence of the fact that, @xmath is
+an open subset of
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and disconnected from its complement in @xmath , and the last inequality
+follows from Theorem 2.23 (Alexander Duality).
+
+It follows from Proposition 2.19 ( 2.2 ), Lemma 3.6 ( 4 ) and Theorem
+2.22 (Smith inequality) that
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Note that for @xmath the number of possible @xmath -ary intersections is
+equal to @xmath and using Theorem 2.41 , we conclude
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+∎
+
+We are now in a position to prove Theorem 3.1 .
+
+###### Proof of Theorem 3.1.
+
+It follows from the Universal Coefficients Theorem (see [ 51 ] ,
+Corollary 3.A6 (b)), that @xmath . We have by Lemma 3.6 that the
+homology groups (with @xmath coefficients) of @xmath and @xmath are
+isomorphic. Moreover @xmath , for @xmath , by Proposition 2.44 and Lemma
+2.45 . Hence, the first inequality follows from Proposition 3.7 .
+
+The second inequality follows from an easy computation. ∎
+
+## Chapter 4 Bounding the Number of Homotopy Types
+
+### 4.1. Result
+
+We prove the following theorem.
+
+###### Theorem 4.1.
+
+[ 16 ] Let be a real closed field and let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with @xmath . Let @xmath be the projection on the last @xmath
+co-ordinates. Then for any @xmath -closed semi-algebraic set @xmath ,
+the number of stable homotopy types (see Definition 2.28 ) amongst the
+fibers, @xmath , is bounded by @xmath
+
+###### Remark 4.2.
+
+1.  The bound in Theorem 4.1 (unlike the one in Theorem 2.42 ) is
+    polynomial in @xmath for fixed @xmath and @xmath . The exponential
+    dependence on @xmath is unavoidable, as can be seen from a slight
+    modification of Example 2.43 . Consider the semi-algebaic set @xmath
+    defined by
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    Let @xmath be the projection on the @xmath -coordinate. Then, the
+    sets @xmath , @xmath , have different number of connected
+    components, and hence have distinct (stable) homotopy types.
+
+2.  The technique used to prove Theorem 2.42 in [ 22 ] does not directly
+    produce better bounds in the quadratic case, and hence we need a new
+    approach to prove a substantially better bound in this case. For
+    technical reasons, we only obtain a bound on the number of stable
+    homotopy types, rather than homotopy types. But note that the
+    notions of homeomorphism type, homotopy type and stable homotopy
+    type are each strictly weaker than the previous one, since two
+    semi-algebraic sets might be stable homotopy equivalent, without
+    being homotopy equivalent (see [ 73 ] , p. 462), and also homotopy
+    equivalent without being homeomorphic. However, two closed and
+    bounded semi-algebraic sets which are stable homotopy equivalent
+    have isomorphic homology groups.
+
+### 4.2. Proof Strategy
+
+The strategy underlying our proof of Theorem 4.1 is as follows. We first
+consider the special case of a semi-algebraic subset, @xmath , defined
+by a disjunction of @xmath homogeneous quadratic inequalities restricted
+to the unit sphere in @xmath . We then show that there exists a closed
+and bounded semi-algebraic set @xmath (see ( 4.14 ) below for the
+precise definition of the semi-algebraic set @xmath ), consisting of
+certain sphere bundles, glued along certain sub-sphere bundles, which is
+homotopy equivalent to @xmath . The number of these sphere bundles, as
+well descriptions of their bases, are bounded polynomially in @xmath
+(for fixed @xmath ).
+
+In the presence of parameters @xmath , the set @xmath , as well as
+@xmath , will depend on the values of the parameters. However, using
+some basic homotopy properties of bundles, we show that the homotopy
+type of the set @xmath stays invariant under continuous deformation of
+the bases of the different sphere bundles which constitute @xmath .
+These bases also depend on the parameters, @xmath , but the degrees in
+@xmath of the polynomials defining them are bounded by @xmath . Now,
+using techniques similar to those used in [ 22 ] , we are able to
+control the number of isotopy types of the bases which occur as the
+parameters vary over @xmath . The bound on the number of isotopy types,
+also gives a bound on the number of possible homotopy types of the set
+@xmath , and hence of @xmath , for different values of the parameter.
+
+In order to prove the results for semi-algebraic sets defined by more
+general formulas than disjunctions of weak inequalities, we first use
+Spanier-Whitehead duality to obtain a bound in the case of conjunctions,
+and then use the construction of homotopy colimits to prove the theorem
+for general @xmath -closed sets. Because of the use of Spanier-Whitehead
+duality we get bounds on the number of stable homotopy types, rather
+than homotopy types.
+
+### 4.3. Topology of Sets Defined by Quadratic Constraints
+
+One of the main ideas behind our proof of Theorem 4.1 is to parametrize
+a construction introduced by Agrachev in [ 1 ] while studying the
+topology of sets defined by (purely) quadratic inequalities (that is
+without the parameters @xmath in our notation). However, we avoid
+construction of Leray spectral sequences as was done in [ 1 ] . For the
+rest of this section, we fix a set of polynomials
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which are homogeneous of degree @xmath in @xmath , and of degree at most
+@xmath in @xmath .
+
+We will denote by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+the map defined by the polynomials @xmath , and generally, for @xmath ,
+we denote by @xmath , the map whose co-ordinates are given by @xmath ,
+@xmath . When @xmath , we will often drop the subscript @xmath from our
+notation.
+
+For any subset @xmath , let @xmath be the semi-algebraic set defined by
+
+  ------- -- -------- --
+  (4.1)      @xmath   
+  ------- -- -------- --
+
+and let
+
+  ------- -- -------- --
+  (4.2)      @xmath   
+  ------- -- -------- --
+
+For @xmath we denote by @xmath the polynomial defined by
+
+  ------- -- -------- --
+  (4.3)      @xmath   
+  ------- -- -------- --
+
+For @xmath , we will denote by @xmath the quadratic form in @xmath
+obtained from @xmath by specializing @xmath .
+
+Let @xmath be the semi-algebraic set defined by
+
+  ------- -- -------- --
+  (4.4)      @xmath   
+  ------- -- -------- --
+
+We denote by @xmath and @xmath the two projection maps (see diagram
+below).
+
+  ------- -- -------- --
+  (4.5)      @xmath   
+  ------- -- -------- --
+
+The following key proposition was proved by Agrachev [ 1 ] in the
+unparametrized situation, but as we see below it works in the
+parametrized case as well.
+
+###### Proposition 4.3.
+
+The map @xmath gives a homotopy equivalence between @xmath and @xmath .
+
+###### Proof.
+
+In order to simplify notation we prove it in the case @xmath , and the
+case for any other @xmath would follow immediately. We first prove that
+@xmath If @xmath then there exists some @xmath such that @xmath . Then
+for @xmath (where @xmath if @xmath , and @xmath otherwise), we see that
+@xmath . Conversely, if @xmath then there exists @xmath such that,
+@xmath . Since @xmath and not all @xmath , this implies that @xmath for
+some @xmath . This shows that @xmath .
+
+For @xmath , the fiber
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is a non-empty subset of @xmath defined by a single linear inequality.
+Thus each non-empty fiber is an intersection of a convex cone with
+@xmath , and hence contractible.
+
+The proposition now follows from the well-known Vietoris-Smale theorem
+(see Theorem 2.27 ). ∎
+
+We will use the following notation.
+
+###### Notation 4.4.
+
+For any quadratic form @xmath , we will denote by @xmath the number of
+negative eigenvalues of the symmetric matrix of the corresponding
+bilinear form, that is of the matrix @xmath such that, @xmath for all
+@xmath (here @xmath denotes the usual inner product). We will also
+denote by @xmath , @xmath , the eigenvalues of @xmath in non-decreasing
+order, i.e.,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+For @xmath , let
+
+  ------- -- -------- --
+  (4.6)      @xmath   
+  ------- -- -------- --
+
+It is clear that each @xmath is a closed semi-algebraic subset of @xmath
+and that they induce a filtration of the space @xmath given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Lemma 4.5.
+
+The fiber of the map @xmath over a point @xmath has the homotopy type of
+a sphere of dimension @xmath .
+
+###### Proof.
+
+As before, we prove the lemma only for @xmath . The proof for a general
+@xmath is identical. First notice that for @xmath , the first @xmath
+eigenvalues of @xmath
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Moreover, letting @xmath be the co-ordinates with respect to an
+orthonormal basis @xmath , consisting of eigenvectors of @xmath , we
+have that @xmath is the subset of @xmath defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since, @xmath it follows that for @xmath , the fiber @xmath is homotopy
+equivalent to the @xmath -dimensional sphere defined by setting
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+on the sphere defined by @xmath . ∎
+
+For each @xmath , let @xmath denote the sum of the non-negative
+eigenspaces of @xmath (i.e., @xmath is the largest linear subspace of
+@xmath on which @xmath is positive semi-definite). Since @xmath stays
+invariant as @xmath varies over @xmath , @xmath varies continuously with
+@xmath .
+
+We will denote by @xmath the semi-algebraic set defined by
+
+  ------- -- -------- --
+  (4.7)      @xmath   
+  ------- -- -------- --
+
+The following proposition relates the homotopy type of @xmath to that of
+@xmath .
+
+###### Proposition 4.6.
+
+The semi-algebraic set @xmath defined above is homotopy equivalent to
+@xmath (see ( 4.4 ) for the definition of @xmath ).
+
+###### Proof.
+
+We give a deformation retraction of @xmath to @xmath constructed as
+follows. For each @xmath , we can retract the fiber @xmath to the
+zero-dimensional sphere, @xmath by the following retraction. Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+be the co-ordinates with respect to an orthonormal basis @xmath ,
+consisting of eigenvectors of @xmath corresponding to non-decreasing
+order of the eigenvalues of @xmath . Then, @xmath is the subset of
+@xmath defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and @xmath is defined by @xmath . We retract @xmath to the
+zero-dimensional sphere, @xmath by the retraction sending,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+at time @xmath to
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath , and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Notice that even though the local co-ordinates @xmath in @xmath with
+respect to the orthonormal basis @xmath may not be uniquely defined at
+the point @xmath (for instance, if the quadratic form @xmath has
+multiple eigenvalues), the retraction is still well-defined since it
+only depends on the decomposition of @xmath into orthogonal complements
+@xmath and @xmath . We can thus retract simultaneously all fibers over
+@xmath continuously, to obtain a semi-algebraic set @xmath , which is
+moreover homotopy equivalent to @xmath .
+
+This retraction is schematically shown in Figure 4.1 , where @xmath is
+the closed segment, and @xmath are its end points.
+
+Now starting from @xmath , retract all fibers over @xmath to the
+corresponding one dimensional spheres, by the retraction sending
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+at time @xmath to
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath , and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+to obtain @xmath , which is homotopy equivalent to @xmath . Continuing
+this process we finally obtain @xmath , which is clearly homotopy
+equivalent to @xmath by construction. ∎
+
+Notice that the semi-algebraic set @xmath is a @xmath -bundle over
+@xmath under the map @xmath , and @xmath is a union of these sphere
+bundles. We have good control over the bases, @xmath , of these bundles,
+that is we have good bounds on the number as well as the degrees of
+polynomials used to define them. However, these bundles could be
+possibly glued to each other in complicated ways, and it is not
+immediate how to control this glueing data, since different types of
+glueing could give rise to different homotopy types of the underlying
+space. In order to get around this difficulty, we consider certain
+closed subsets, @xmath of @xmath , where each @xmath is an infinitesimal
+deformation of @xmath , and form the base of a @xmath -bundle. Moreover,
+these new sphere bundles are glued to each other along sphere bundles
+over @xmath , and their union, @xmath , is homotopy equivalent to @xmath
+. Finally, the polynomials defining the sets @xmath are in general
+position in a very strong sense, and this property is used later to
+bound the number of isotopy classes of the sets @xmath in the
+parametrized situation.
+
+We now make precise the argument outlined above. Let @xmath be the
+polynomial in @xmath defined by
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where @xmath , and each @xmath .
+
+Notice, that @xmath is obtained from @xmath by setting the variable
+@xmath to @xmath in the polynomial @xmath for each @xmath .
+
+Note also that for @xmath , the polynomial @xmath being the
+characteristic polynomial of a real symmetric matrix has all its roots
+real. It then follows from Descartes’ rule of signs (see for instance [
+20 ] ), that for each @xmath , where @xmath for all @xmath , @xmath is
+determined by the sign vector
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Hence, denoting by
+
+  ------- -- -------- --
+  (4.8)      @xmath   
+  ------- -- -------- --
+
+we have
+
+###### Lemma 4.7.
+
+For each @xmath , @xmath is the intersection of @xmath with a @xmath
+-closed semi-algebraic set @xmath .
+
+###### Notation 4.8.
+
+Let @xmath be defined by the formula
+
+  ------- -- -------- --
+  (4.9)      @xmath   
+  ------- -- -------- --
+
+for some @xmath . Note that, @xmath and @xmath for all @xmath .
+
+Now, let @xmath and @xmath be infinitesimals such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and let
+
+  -------- -- -------- --
+  (4.10)      @xmath   
+  -------- -- -------- --
+
+Given @xmath , and @xmath , we denote by @xmath the set defined by the
+formula @xmath obtained by taking the conjunction of
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Similarly, we denote by @xmath the set defined by the formula @xmath
+obtained by taking the conjunction of
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+For each @xmath , let
+
+  -------- -------- -------- -------- -------- --
+           @xmath   @xmath   @xmath            
+           @xmath   @xmath   @xmath            
+           @xmath   @xmath   @xmath            
+  (4.11)            @xmath   @xmath   @xmath   
+  -------- -------- -------- -------- -------- --
+
+where we denote by @xmath . We also denote by @xmath .
+
+We now note some extra properties of the sets @xmath ’s.
+
+###### Lemma 4.9.
+
+For each @xmath , @xmath is a @xmath -closed semi-algebraic set, where
+
+  -------- -- -------- --
+  (4.12)      @xmath   
+  -------- -- -------- --
+
+###### Proof.
+
+Follows from the definition of the sets @xmath . ∎
+
+###### Lemma 4.10.
+
+For @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+In order to keep notation simple we prove the proposition only for
+@xmath . The proof for a general @xmath is identical. The inclusions,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+follow directly from the definitions of the sets
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and the fact that,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+It follows immediately that,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is disjoint from @xmath , and hence from @xmath . ∎
+
+We now associate to each @xmath a @xmath -dimensional sphere bundle as
+follows. For each @xmath , let @xmath denote the sum of the non-negative
+eigenspaces of @xmath (i.e., @xmath is the largest linear subspace of
+@xmath on which @xmath is positive semi-definite). Since @xmath stays
+invariant as @xmath varies over @xmath , @xmath varies continuously with
+@xmath .
+
+Let,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+be the eigenvalues of @xmath for @xmath . There is a continuous
+extension of the map sending @xmath to @xmath .
+
+To see this observe that for @xmath the block of the first @xmath
+(negative) eigenvalues, @xmath , and hence the sum of the eigenspaces
+corresponding to them can be extended continuously to any infinitesimal
+neighborhood of @xmath , and in particular to @xmath . Now @xmath is the
+orthogonal complement of the sum of the eigenspaces corresponding to the
+block of negative eigenvalues, @xmath .
+
+We will denote by @xmath the semi-algebraic set defined by
+
+  -------- -- -------- --
+  (4.13)      @xmath   
+  -------- -- -------- --
+
+Note that the projection @xmath , makes @xmath the total space of a
+@xmath -dimensional sphere bundle over @xmath .
+
+Now observe that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is also a @xmath dimensional sphere bundle over @xmath .
+
+Let
+
+  -------- -- -------- --
+  (4.14)      @xmath   
+  -------- -- -------- --
+
+We have that
+
+###### Proposition 4.11.
+
+@xmath is homotopy equivalent to @xmath , where @xmath and @xmath are
+defined in ( 4.7 ) and ( 4.10 ) respectively.
+
+###### Proof.
+
+Let @xmath and let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+First observe that @xmath where @xmath is the semi-algebraic set defined
+in ( 4.7 ) above.
+
+Now let,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Notice that each @xmath is a closed and bounded semi-algebraic set.
+Also, for @xmath , let @xmath be the semi-algebraic set obtained by
+replacing @xmath (resp., @xmath ) in the definition of @xmath by the
+variable @xmath . Then, there exists @xmath , such that for all @xmath ,
+@xmath .
+
+It follows (see Lemma 16.17 in [ 20 ] ) that for each @xmath , @xmath ,
+@xmath is homotopy equivalent to @xmath . ∎
+
+### 4.4. Partitioning the Parameter Space
+
+The goal of this section is to prove the following proposition
+(Proposition 4.12 ). The techniques used in the proof are similar to
+those used in [ 22 ] for proving a similar result. We go through the
+proof in detail in order to extract the right bound in terms of the
+parameters @xmath and @xmath .
+
+###### Proposition 4.12.
+
+There exists a finite set of points @xmath with
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+such that for any @xmath , there exists @xmath , with the following
+property.
+
+There is a semi-algebraic path, @xmath and a continuous semi-algebraic
+map, @xmath (see ( 4.2 ) and ( 4.10 ) for the definition of @xmath and
+@xmath ),
+
+with @xmath , @xmath , and for each @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is a homeomorphism for each @xmath .
+
+Before proving Proposition 4.12 we need a few preliminary results. Let
+
+  -------- -- -------- --
+  (4.15)      @xmath   
+  -------- -- -------- --
+
+where @xmath is defined in ( 4.12 ) above.
+
+Note that for each @xmath , @xmath , @xmath is a @xmath -closed
+semi-algebraic set. Moreover, let @xmath be the projection onto the last
+@xmath co-ordinates.
+
+###### Notation 4.13.
+
+We fix a finite set of points @xmath such that for every @xmath there
+exists @xmath such that for every @xmath -semi-algebraic set @xmath ,
+the set @xmath is homeomorphic to @xmath .
+
+The existence of a finite set @xmath with this property follows from
+Hardt’s triviality theorem (Theorem 2.15 ) and the Tarski-Seidenberg
+transfer principle, as well as the fact that the number of @xmath
+-semi-algebraic sets is finite.
+
+Now, we note some extra properties of the family @xmath . The notations
+@xmath and @xmath were introduced in Chapter 2.1.1 .
+
+###### Lemma 4.14.
+
+If @xmath , then @xmath and @xmath is a non-singular @xmath -dimensional
+manifold such that at every point @xmath , the @xmath -Jacobi matrix,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+has maximal rank @xmath .
+
+###### Proof.
+
+Let @xmath be the unit sphere in @xmath . Suppose without loss of
+generality that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+since the equation @xmath eliminates the variable @xmath from the
+polynomials. It follows that it suffices to show that the algebraic set
+
+  -------- -- -------- --
+  (4.16)      @xmath   
+  -------- -- -------- --
+
+is a smooth @xmath -dimensional manifold such that at every point on it
+the @xmath -Jacobi matrix,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+has maximal rank @xmath .
+
+Let @xmath . Consider the semi-algebraic map @xmath defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+By the semi-algebraic version of Sard’s theorem (see [ 27 ] ), the set
+of critical values of @xmath is a semi-algebraic subset @xmath of @xmath
+of dimension strictly less than @xmath . Since @xmath and @xmath are
+infinitesimals, it follows that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Hence, the algebraic set @xmath defined in ( 4.16 ) has the desired
+properties, and the same is true for the basic semi-algebraic set @xmath
+.
+
+We now prove that @xmath . Suppose that @xmath . As we have just proved,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is a finite set of points. But the polynomial @xmath cannot vanish on
+each of these points as @xmath and @xmath are infinitesimals. ∎
+
+###### Lemma 4.15.
+
+For every @xmath , and @xmath , where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+the following holds.
+
+1.  @xmath , and
+
+2.  @xmath is a non-singular @xmath -dimensional manifold such that at
+    every point @xmath , the @xmath -Jacobi matrix,
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    has maximal rank @xmath .
+
+###### Proof.
+
+Note that @xmath for each @xmath and @xmath . The proof is now identical
+to the proof of Lemma 4.14 . ∎
+
+###### Lemma 4.16.
+
+For any bounded @xmath -semi-algebraic set @xmath defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+the partitions
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+are compatible Whitney stratifications of @xmath and @xmath
+respectively.
+
+###### Proof.
+
+Follows directly from the definition of Whitney stratification (see [ 46
+, 34 ] ), and Lemma 4.14 . ∎
+
+Fix some sign condition @xmath . Recall that @xmath is a critical point
+of the map @xmath if the Jacobi matrix,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+at @xmath is not of the maximal possible rank. The projection @xmath of
+a critical point is a critical value of @xmath .
+
+Let @xmath be the set of critical points of @xmath over all sign
+conditions
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+(i.e., over all @xmath with @xmath ). For a bounded @xmath
+-semi-algebraic set @xmath , let @xmath be the set of critical points of
+@xmath over all sign conditions
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+(i.e., over all @xmath with @xmath ).
+
+Let @xmath be the union of @xmath over all
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+(i.e., over all @xmath with @xmath ). For a bounded @xmath
+-semi-algebraic set @xmath , let @xmath be the union of @xmath over all
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+(i.e., over all @xmath with @xmath ).
+
+Denote @xmath , and @xmath .
+
+###### Lemma 4.17.
+
+For each bounded @xmath -semi-algebraic @xmath , the set @xmath is
+closed and bounded.
+
+###### Proof.
+
+The set @xmath is bounded since @xmath is bounded. The union @xmath of
+strata of dimensions less than @xmath is closed since @xmath is closed.
+
+Let @xmath , @xmath , where @xmath , @xmath , and if @xmath , then
+@xmath for any @xmath . It follows that stratum @xmath lies in the
+closure of the stratum @xmath . Let @xmath be the finite family of
+@xmath -minors such that @xmath is the set of all critical points of
+@xmath . Then @xmath is either contained in @xmath (when @xmath ), or is
+contained in the set of all critical points of @xmath (when @xmath ). It
+follows that the closure of @xmath lies in the union of the following
+sets:
+
+1.  @xmath ,
+
+2.  sets of critical points of some strata of dimensions less than
+    @xmath ,
+
+3.  some strata of dimension less than @xmath .
+
+Using induction on descending dimensions in case ( 2 ), we conclude that
+the closure of @xmath is contained in @xmath . Hence, @xmath is closed.
+∎
+
+###### Definition 4.18.
+
+We denote by @xmath , and @xmath . Similarly, for each bounded @xmath
+-semi-algebraic set @xmath , we denote by @xmath , @xmath , and @xmath .
+
+###### Lemma 4.19.
+
+We have @xmath . In particular, @xmath for every bounded @xmath
+-semi-algebraic set @xmath .
+
+###### Proof.
+
+By Lemma 4.15 , for all @xmath , and @xmath ,
+
+1.  @xmath , and
+
+2.  @xmath is a non-singular @xmath -dimensional manifold such that at
+    every point @xmath , the @xmath -Jacobi matrix,
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    has the maximal rank @xmath .
+
+If a point @xmath , then there exists @xmath such that @xmath is a
+critical point of @xmath for some @xmath , and this is impossible by ( 2
+).
+
+Similarly, @xmath , implies that there exists @xmath such that @xmath
+for some @xmath , and this is impossible by ( 1 ). ∎
+
+Let @xmath be a connected component of @xmath , and for a bounded @xmath
+-semi-algebraic set @xmath , let @xmath be a connected component of
+@xmath .
+
+###### Lemma 4.20.
+
+For every bounded @xmath -semi-algebraic set @xmath , all fibers @xmath
+, @xmath are homeomorphic.
+
+###### Proof.
+
+Lemma 4.15 and Lemma 4.16 imply that @xmath is a Whitney stratified set
+having strata of dimensions at least @xmath . Moreover, @xmath is a
+proper stratified submersion. By Thom’s first isotopy lemma (in the
+semi-algebraic version, over real closed fields [ 34 ] ) the map @xmath
+is a locally trivial fibration. In particular, all fibers @xmath ,
+@xmath are homeomorphic for every connected component @xmath . The lemma
+follows, since the inclusion @xmath implies that either @xmath for some
+connected component @xmath , or @xmath . ∎
+
+###### Lemma 4.21.
+
+For each @xmath , there exists a connected component @xmath of @xmath ,
+such that @xmath is homeomorphic to @xmath for every bounded @xmath
+-semi-algebraic set @xmath and for every @xmath .
+
+###### Proof.
+
+Let @xmath be a bounded @xmath -semi-algebraic set and @xmath . By Lemma
+4.19 , @xmath belongs to some connected component @xmath of @xmath .
+Lemma 4.20 implies that @xmath is homeomorphic to @xmath for every
+@xmath . ∎
+
+We now are able to prove Proposition 4.12 .
+
+###### Proof of Proposition 4.12.
+
+Recall that @xmath , where @xmath is the union of sets of critical
+values of @xmath over all strata @xmath of dimensions at least @xmath ,
+and @xmath is the union of projections of all strata of dimensions less
+than @xmath .
+
+By Lemma 4.21 it suffices to bound the number of connected components of
+the set @xmath . Denote by @xmath the family of closed sets of critical
+points of @xmath , over all sign conditions @xmath such that strata
+@xmath have dimensions at least @xmath (the notation @xmath was
+introduced in Chapter 2.1.1 ). Let @xmath be the family of closed sets
+@xmath , over all sign conditions @xmath such that strata @xmath have
+dimensions equal to @xmath . Let @xmath . Denote by @xmath the image
+under the projection @xmath of the union of all sets in the family
+@xmath .
+
+Because of the transversality condition, every stratum of the
+stratification of @xmath , having the dimension less than @xmath , lies
+in the closure of a stratum having the next higher dimension. In
+particular, this is true for strata of dimensions less than @xmath . It
+follows that @xmath , and thus every connected component of the
+complement @xmath is contained in a connected component of @xmath .
+Since @xmath , every connected component of @xmath contains a connected
+component of @xmath . Therefore, it is sufficient to estimate from above
+the Betti number @xmath which is equal to @xmath by the Alexander’s
+duality.
+
+The total number of sets @xmath , such that @xmath and @xmath , is
+@xmath because each @xmath is defined by a conjunction of at most @xmath
+of possible @xmath polynomial equations.
+
+Thus, the cardinality @xmath , as well as the number of images under the
+projection @xmath of sets in @xmath is @xmath . According to ( 2.2 ) in
+Proposition 2.19 , @xmath does not exceed the sum of certain Betti
+numbers of sets of the type
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where every @xmath and @xmath . More precisely, we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Obviously, there are @xmath sets of the kind @xmath .
+
+Using inequality ( 2.3 ) in Proposition 2.19 , we have that for each
+@xmath as above, the Betti number @xmath does not exceed the sum of
+certain Betti numbers of unions of the kind,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with @xmath . More precisely,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+It is clear that there are at most @xmath sets of the kind @xmath .
+
+If a set @xmath , then it is defined by @xmath polynomials of degrees at
+most @xmath . If a set @xmath , then it is defined by @xmath polynomials
+of degrees @xmath , since the critical points on strata of dimensions at
+least @xmath are defined by @xmath determinantal equations, the
+corresponding matrices have orders @xmath , and the entries of these
+matrices are polynomials of degrees at most @xmath .
+
+It follows that the closed and bounded set
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is defined by @xmath polynomials of degrees @xmath .
+
+By Proposition 2.26 , @xmath for all @xmath , @xmath . Then @xmath for
+every @xmath . Since there are @xmath sets of the kind @xmath , we get
+the claimed bound
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The rest of the proof follows from Proposition 4.21 . ∎
+
+### 4.5. Proof of the Result
+
+#### 4.5.1. The Homogeneous Case
+
+We first consider the case where all the polynomials in @xmath are
+homogeneous in variables @xmath and we bound the number of homotopy
+types among the fibers @xmath , defined by the @xmath -closed
+semi-algebraic subsets @xmath of @xmath . We first the prove the
+following theorems for the special cases of unions and intersections.
+
+###### Theorem 4.22.
+
+Let be a real closed field and let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where each @xmath is homogeneous of degree @xmath in the variables
+@xmath , and of degree at most @xmath in @xmath .
+
+For @xmath , let @xmath be semi-algebraic sets defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let @xmath be the projection on the last @xmath co-ordinates.
+
+Then, the number of homotopy types amongst the fibers @xmath is bounded
+by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+With the same assumptions as in Theorem 4.22 we have
+
+###### Theorem 4.23.
+
+The number of stable homotopy types amongst the fibers @xmath is bounded
+by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Before proving Theorems 4.22 and 4.23 we first prove two preliminary
+lemmas.
+
+###### Lemma 4.24.
+
+There exists a finite set @xmath , with
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+such that for every @xmath there exists @xmath , a semi-algebraic set
+@xmath , and semi-algebraic maps @xmath , as shown in the diagram below,
+such that @xmath are both homotopy equivalences.
+
+  -------- -- -------- --
+  (4.17)      @xmath   
+  -------- -- -------- --
+
+Moreover, for each @xmath , there exists a subset @xmath , such that the
+restrictions, @xmath , of @xmath to @xmath give rise to the following
+diagram in which all maps are again homotopy equivalences.
+
+  -------- -- -------- --
+  (4.18)      @xmath   
+  -------- -- -------- --
+
+For each @xmath , @xmath and the maps @xmath are restrictions of @xmath
+.
+
+###### Proof of Lemma 4.24.
+
+By Proposition 4.12 , there exists @xmath with
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+such that for every @xmath , there exists @xmath , with the following
+property.
+
+There is a semi-algebraic path, @xmath and a continuous semi-algebraic
+map, @xmath , with @xmath , @xmath , and for each @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is a homeomorphism for each @xmath (see ( 4.2 ), ( 4.10 ) and ( 4.11 )
+for the definition of @xmath , @xmath and @xmath ).
+
+Now, observe that @xmath (resp. @xmath ) is a sphere bundle over @xmath
+(resp. @xmath ). Moreover
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and, for @xmath , we have @xmath .
+
+We now prove that the map @xmath induces a homeomorphism @xmath , which
+for each @xmath and @xmath restricts to a homeomorphism @xmath .
+
+First recall that by a standard result in the theory of bundles (see for
+instance, [ 42 ] , p. 313, Lemma 5), the isomorphism class of the sphere
+bundle @xmath , is determined by the homotopy class of the map,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where @xmath denotes the Grassmannian variety of @xmath dimensional
+subspaces of @xmath .
+
+The map @xmath induces for each @xmath , a homotopy between the maps
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+and
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+(after indentifying the sets @xmath and @xmath since they are
+homeomorphic) which respects the inclusions @xmath , and @xmath .
+
+The above observation in conjunction with Lemma 5 in [ 42 ] is
+sufficient to prove the equivalence of the sphere bundles @xmath and
+@xmath . But we need to prove a more general equivalence, involving all
+the sphere bundles @xmath simultaneously, for @xmath .
+
+However, note that the proof of Lemma 5 in [ 42 ] proceeds by induction
+on the skeleton of the CW-complex of the base of the bundle. After
+choosing a sufficiently fine triangulation of the set @xmath compatible
+with the closed subsets @xmath , the same proof extends without
+difficulty to this slightly more general situation to give a fiber
+preserving homeomorphism, @xmath , which restricts to an isomorphism of
+sphere bundles, @xmath for each @xmath and @xmath .
+
+We have the following maps.
+
+  -------- -- -------- --
+  (4.19)      @xmath   
+  -------- -- -------- --
+
+The map @xmath is the inclusion map, and @xmath is a retraction shown to
+exist by Proposition 4.11 .
+
+Since all the maps @xmath have been shown to be homotopy equivalences,
+by Propositions 4.6 , 4.3 , and 4.11 , their composition is also a
+homotopy equivalence.
+
+Moreover, for each @xmath , the maps in the above diagram restrict
+properly to give a corresponding diagram:
+
+  -------- -- -------- --
+  (4.20)      @xmath   
+  -------- -- -------- --
+
+Now let @xmath , and @xmath and @xmath . Finally, for each @xmath , let
+@xmath and the maps @xmath the restrictions of @xmath and @xmath
+respectively to @xmath . The collection of sets @xmath and the maps
+@xmath clearly satisfy the conditions of the lemma. This completes the
+proof of the lemma. ∎
+
+###### Remark 4.25.
+
+Note that if @xmath is a real closed sub-field of , then Lemma 4.24
+continues to hold after we substitute “ @xmath ” and “for all @xmath ”
+in place of “ @xmath ” and “for all @xmath ” in the statement of the
+lemma. This is a consequence of the Tarski-Seidenberg transfer
+principle.
+
+With the same hypothesis as in Lemma 4.24 we also have,
+
+###### Lemma 4.26.
+
+There exists a finite set @xmath with
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+such that for every @xmath , there exists @xmath , for each @xmath , a
+semi-algebraic set @xmath defined over @xmath , where @xmath (see ( 4.10
+for the definition of @xmath and @xmath ), and S-maps @xmath as shown in
+the diagram below such that @xmath are both stable homotopy
+equivalences.
+
+  -------- -- -------- --
+  (4.21)      @xmath   
+  -------- -- -------- --
+
+For each @xmath , @xmath and the maps @xmath are restrictions of of
+@xmath .
+
+###### Proof.
+
+Let @xmath be an infinitesimal. For @xmath , we define
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Note that the set @xmath is homotopy equivalent to @xmath for each
+@xmath and @xmath . Applying Lemma 4.24 (see Remark 4.25 ) to the family
+@xmath , we have that there exists a finite set @xmath with
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+such that for every @xmath , there exists @xmath such that for each
+@xmath , the following diagram
+
+  -------- -- -------- --
+  (4.22)      @xmath   
+  -------- -- -------- --
+
+where for each @xmath we denote
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+@xmath are homotopy equivalences.
+
+Note that for each @xmath , the set @xmath is a deformation retract of
+the complement of @xmath and hence is Spanier-Whitehead dual to @xmath .
+The lemma now follows by taking the Spanier-Whitehead dual of diagram (
+4.22 ) above for each @xmath . ∎
+
+###### Proof of Theorem 4.22.
+
+Follows directly from Lemma 4.24 . ∎
+
+###### Proof of Theorem 4.23.
+
+Follows directly from Lemma 4.26 . ∎
+
+We now prove a homogenous version of Theorem 4.1
+
+###### Theorem 4.27.
+
+Let be a real closed field and let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where each @xmath is homogeneous of degree @xmath in the variables
+@xmath , and of degree at most @xmath in @xmath .
+
+Let @xmath be the projection on the last @xmath co-ordinates. Then, for
+any @xmath -closed semi-algebraic set @xmath , the number of stable
+homotopy types amongst the fibers @xmath is bounded by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+We first replace the family @xmath by the family,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Note that the cardinality of @xmath is @xmath . Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+It follows from Lemma 4.26 that there exists a set @xmath with
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+such that for every @xmath and @xmath , there exists @xmath and a
+semi-algebraic set @xmath defined over @xmath and S-maps @xmath as shown
+in the diagram below such that @xmath are both stable homotopy
+equivalences.
+
+  -------- -- -------- --
+  (4.23)      @xmath   
+  -------- -- -------- --
+
+Now notice that each @xmath -closed set @xmath is a union of sets of the
+form @xmath with @xmath . Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Moreover, the intersection of any sub-collection of sets of the kind,
+@xmath with @xmath , is also a set of the same kind. More precisely, for
+any @xmath there exists @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We are not able to show directly a stable homotopy equivalence between
+@xmath and @xmath . Instead, we note that the S-maps @xmath and @xmath
+induce S-maps (cf. Definition 2.31 )
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which are stable homotopy equivalences by Lemma 2.33 since each @xmath
+and @xmath is a stable homotopy equivalence.
+
+Since @xmath (resp. @xmath ) is homotopy equivalent by Lemma 2.32 to
+@xmath (resp. @xmath ), it follows (see Remark 2.1 ) that @xmath is
+stable homotopy equivalent to @xmath . This proves the theorem. ∎
+
+#### 4.5.2. Inhomogeneous case
+
+We are now in a position to prove Theorem 4.1 .
+
+###### Proof of Theorem 4.1.
+
+Let @xmath be a @xmath -closed formula defining the @xmath -closed
+semi-algebraic set @xmath . Let @xmath be an infinitesimal, and let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let @xmath , and let @xmath be the @xmath -closed formula defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+defining the @xmath -closed semi-algebraic set @xmath . Note that the
+set @xmath is bounded.
+
+It follows from the local conical structure of semi-algebraic sets at
+infinity [ 27 ] that the semi-algebraic set @xmath has the same homotopy
+type as @xmath .
+
+Considering each @xmath as a polynomial in the variables @xmath with
+coefficients in @xmath , and let @xmath denote the homogenization of
+@xmath . Thus the polynomials @xmath and are homogeneous of degree
+@xmath in the variables @xmath .
+
+Let @xmath be the semi-algebraic set defined by the @xmath -closed
+formula @xmath (replacing @xmath by @xmath in @xmath ). It is clear that
+@xmath is a union of two disjoint, closed and bounded semi-algebraic
+sets each homeomorphic to @xmath , which has the same homotopy type as
+@xmath .
+
+The theorem is now proven by applying Theorem 4.27 to the family @xmath
+and the semi-algebraic set @xmath . Note that two fibers @xmath and
+@xmath are stable homotopy equivalent if and only if @xmath and @xmath
+are stable homotopy equivalent (see Remark 2.1 ). ∎
+
+### 4.6. Metric upper bounds
+
+In [ 22 ] certain metric upper bounds related to homotopy types were
+proven as applications of the main result. Similar results hold in the
+quadratic case, except now the bounds have a better dependence on @xmath
+. We state these results without proof.
+
+We first recall the following results from [ 22 ] . Let @xmath be a
+@xmath -semi-algebraic set, where @xmath . Suppose for each @xmath ,
+@xmath , and the maximum of the absolute values of coefficients in
+@xmath is less than some constant @xmath , @xmath .
+
+###### Theorem 4.28.
+
+There exists a constant @xmath , such that for any @xmath we have
+
+1.  @xmath and @xmath are homotopy equivalent, and
+
+2.  @xmath and @xmath are homotopy equivalent.
+
+In the special case of quadratic polynomials we get the following
+improvement of Theorem 4.28 .
+
+###### Theorem 4.29.
+
+Let be a real closed field. Let @xmath be a @xmath -semi-algebraic set,
+where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with @xmath , @xmath and the maximum of the absolute values of
+coefficients in @xmath is less than some constant @xmath , @xmath .
+
+There exists a constant @xmath , such that for any @xmath we have,
+
+1.  @xmath and @xmath are stable homotopy equivalent, and
+
+2.  @xmath and @xmath are stable homotopy equivalent.
+
+## Chapter 5 Algorithms and Their Implementation
+
+### 5.1. Computing the Betti Numbers of Arrangements
+
+In this chapter, we consider arrangements of compact objects in @xmath
+which are simply connected. This implies, in particular, that their
+first Betti number is zero. We describe an algorithm for computing the
+zero-th and the first Betti number of such an arrangement, along with
+its implementation [ 15 ] . For the implementation, we restrict our
+attention to arrangements in @xmath and take for our objects the
+simplest possible semi-algebraic sets in @xmath which are topologically
+non-trivial – namely, each object is an ellipsoid defined by a single
+quadratic equation. Ellipsoids are simply connected, but with
+non-vanishing second co-homology groups. We also allow solid ellipsoids
+defined by a single quadratic inequality. Computing the Betti numbers of
+an arrangement of ellipsoids in @xmath is already a challenging
+computational problem in practice and to our knowledge no existing
+software can effectively deal with this case. Note that arrangements of
+ellipsoids are topologically quite different from arrangements of balls.
+For instance, the union of two ellipsoids can have non-zero first Betti
+number, unlike in the case of balls.
+
+#### 5.1.1. Outline of the Method
+
+The following corollary follows immediately from Proposition 2.20 .
+
+###### Corollary 5.1.
+
+Let be @xmath such that @xmath are compact semi-algebraic sets with
+
+1.  @xmath , and
+
+2.  @xmath , @xmath .
+
+Let the homomorphisms @xmath and @xmath in the following sequence be
+defined as in Chapter 2.2.2 (identifying @xmath with the @xmath -vector
+space of locally constant functions on a simplicial complex ).
+
+  -- -- --
+        
+  -- -- --
+
+Then,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+The importance of Corollary 5.1 lies in the following observation. Given
+an arrangement, @xmath , of @xmath simply connected objects in @xmath ,
+suppose we are able to identify the connected components of all pairwise
+and triple-wise intersections of these objects and their incidences
+(that is, which connected component of @xmath is contained in which
+connected component of @xmath ). Then this information is sufficient to
+compute the zero-th and the first Betti number of the arrangement. We
+only have to look at the objects of the arrangement at most three at a
+time. Thus, the cost of computing the connected components and
+incidences is @xmath . This is to be compared with having to compute a
+global triangulation of the whole arrangement using cylindrical
+algebraic decomposition which would have entailed a cost of @xmath .
+
+Recall that a cylindrical decomposition (see Chapter 2.1.4 ) adapted to
+a finite set @xmath of polynomials in @xmath produces a graph where the
+vertices correspond to cells in @xmath and edges correspond to
+adjacencies. Moreover, each cell in @xmath is @xmath -invariant and we
+know the sign for each @xmath in @xmath on each such cell. Hence, given
+an arrangement, @xmath , of @xmath semi-algebraic sets in @xmath , we
+are able to identify the connected components of all pairwise and
+triple-wise intersections of these objects and their incidences by
+computing a cylindrical decomposition adapted to the families @xmath ,
+where @xmath is the set of polynomials used in the definition of @xmath
+and @xmath and by performing a graph transversal algorithm on the graph
+described above.
+
+To sum up, we now formally describe our algorithm for computing the
+zero-th and the first Betti numbers of an arrangement of @xmath simply
+connected compact objects in @xmath .
+
+###### Algorithm 5.2 (Computing the zero-th and the first Betti number).
+
+Input: compact sets @xmath , @xmath , with @xmath and @xmath .
+Output: @xmath and @xmath .
+Procedure:
+
+-   For each triple @xmath , do the following:
+    Compute a cylindrical decomposition adapted to the set @xmath .
+    Identify the connected components of all pairwise and triple-wise
+    intersections and their incidences.
+
+-   Compute the matrices @xmath and @xmath corresponding to the sequence
+    of homomorphisms:
+
+      -- -- --
+            
+      -- -- --
+
+-   Compute
+
+      -- -------- -------- -------- --
+         @xmath   @xmath   @xmath   
+         @xmath   @xmath   @xmath   
+      -- -------- -------- -------- --
+
+    where @xmath is the dimension of @xmath , @xmath is the dimension of
+    @xmath , and the rank of a matrix is denoted by @xmath .
+
+#### 5.1.2. The Implementation
+
+The algorithm has been prototypically implemented using
+QEPCAD B (Version 1.27) [ 66 ] and Magma [ 60 ] for compact sets @xmath
+. We use the package QEPCAD B for computing the cylindrical
+decompositions, in Step 1 of Algorithm 5.2 . There are several other
+packages available for computing cylindrical decompositions, for
+instance REDLOG [ 67 ] . The main reason for using QEPCAD B is that it
+provides some important information regarding cell adjacency, that is
+not provided by the other systems.
+
+In Figure 5.1 , which shows the QEPCAD B output for a cylindrical
+decomposition adapted to the unit sphere, the first (resp., second and
+third) column corresponds to the cylindrical decomposition of the line
+(resp. plane and @xmath ). Note that the signs accompanying the cells
+give the signs of projection factors computed by QEPCAD B and the letter
+”T” and ”F” corresponds to true and false value of the cells, i.e.,
+depending upon whether our input formula is true or false on this cell.
+
+Even though QEPCAD B does not provide full information regarding cell
+adjacencies in dimension three, we are still able to deduce all the
+needed cell adjacencies as described in Chapter 2.1.4 , making use of
+the fact that input polynomials are quadratic.
+
+We use Magma for post-processing of the information output by QEPCAD B,
+in Steps 2 and 3 of the algorithm. Note that all computations performed
+are exact with no possibility of numerical errors.
+
+To illustrate our implementation, we consider four examples where the
+ellipsoids
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+@xmath , are defined by the following list of polynomials (see Table 5.1
+)
+
+We denote by @xmath and @xmath the matrices of the homomorphisms @xmath
+and @xmath with respect to the obvious basis. The columns (resp., the
+rows) of the matrix @xmath are labeled by @xmath (resp., @xmath ), while
+the columns (resp., the rows) of the matrix @xmath are labeled by @xmath
+(resp., @xmath ), where @xmath corresponds to @xmath , @xmath
+corresponds to the @xmath -th connected component of @xmath and @xmath
+corresponds to the @xmath -th connected component of @xmath .
+
+###### Remark 5.3.
+
+In the examples described below, we have modified the matrix @xmath as
+follows. Since we know that each input set @xmath has exactly one
+connected component, we can simplify the computation. We only need to
+check whether or not the intersection @xmath is empty. Therefore, we
+have exactly one row for each intersection instead of one row for each
+connected component of each intersection @xmath , and this reduces the
+size of the matrix @xmath without changing its rank. For the matrix
+@xmath we delete all rows containing only zeros which correspond to
+empty triple intersections @xmath .
+
+###### Example 5.4 (Three ellipsoids).
+
+Let @xmath be the union of the first three ellipsoids, i.e., @xmath (see
+Figure 5.2 ). Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In this case,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+###### Example 5.5 (Six ellipsoids).
+
+Let the set @xmath be the union of the first six ellipsoids @xmath ,
+@xmath , i.e., @xmath (see Figure 5.3 ). Then
+
+[]
+
+and
+
+[]
+
+In this case,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+###### Example 5.6 (Seven ellipsoids).
+
+Let the set @xmath be the union of the first seven ellipsoids @xmath ,
+@xmath , i.e., @xmath (see Figure 5.4 ). Then
+
+[]
+
+and
+
+[]
+
+In this case,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+###### Example 5.7 (20 ellipsoids).
+
+Let the set @xmath be the union of the last 20 ellipsoids @xmath ,
+@xmath , i.e., @xmath (see Figure 5.5 ). Thus, we get a @xmath -matrix
+@xmath of rank equal to @xmath , a @xmath -matrix @xmath of rank equal
+to @xmath , and the dimension of @xmath is equal to @xmath . In this
+case,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+### 5.2. Computing the Real Intersection of Quadratic Surfaces
+
+In this chapter, we consider the problem of computing the real
+intersection of three quadratic surfaces, or quadrics, defined by the
+quadratic polynomials @xmath , @xmath and @xmath in @xmath . We describe
+an algorithm for computing the isolated points and a linear graph
+embedded into @xmath (if the real intersection form a curve)
+representing the real intersection of the three quadrics defined by the
+three polynomials @xmath , along with its implementation [ 52 ] . For
+the implementation, we restrict our attention to quadrics with defining
+equation having rational coefficients.
+
+Before outlining our method, we define the silhouette curve and cut
+curve, which can be interpreted in our setting as the projection of one
+quadric and the projection of intersection curve of two quadrics into
+the @xmath -plane, respectively.
+
+###### Definition 5.8.
+
+Let @xmath , @xmath . The algebraic curves with defining polynomials
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+are called silhouette curve and cut curve respectively.
+
+Another geometric interpretation of the silhouette curve in our setting
+is the following. The silhouette curve defined by @xmath contains all
+points @xmath such that the polynomial @xmath has exactly one root
+@xmath of multiplicity @xmath .
+
+#### 5.2.1. Outline of the Method
+
+The basic idea of computing the intersection of three quadrics is based
+on the cylindrical decomposition (see Chapter 2.1.4 ). As the algorithm
+of Schömer and Wolpert [ 69 , 83 ] , our approach can be summarized by
+several phases:
+
+preparation, projection, planar arrangement analysis and lifting phase .
+
+But our analysis of the planar arrangement and lifting phase differs
+from the methods presented in [ 69 , 83 ] .
+
+First, we project one input quadric and the resulting space intersection
+curves of the pairwise intersections by computing (univariate)
+resultants onto the plane assuming that we have a “good” coordinate
+system by using the Brown-McCallum projection operation (see [ 30 , 29 ]
+). The Brown-McCallum projection operation produces, based on the
+current literature, the smallest projection set in our setting. Then we
+analyze the planar arrangement of curves before we lift our solution
+into space (if possible). In other words, we compute the defining
+polynomial @xmath of the silhouette curve of the input quadric @xmath ,
+and the defining polynomial @xmath of the corresponding cut curves (see
+Definition 5.8 ). Then we identify the common factor @xmath of @xmath
+and @xmath and the corresponding gcd-free parts @xmath .
+
+While Schömer and Wolpert [ 69 ] use resultants for computing the
+candidates of the @xmath and @xmath -coordinates and analyze the
+resulting grid (see [ 69 ] for more details) afterwards, our planar
+analysis is based on the TOP algorithm (see Algorithm 2.12 ). To be more
+precise, we use the TOP-algorithm in order to obtain the topology of the
+curve defined by the common factor @xmath (including some relevant
+points on the curve). In addition, we generalize the idea of [ 45 ] of
+using subresultants to two planar curves. We perform a linear change of
+coordinates (if it is needed) in order to have two planar curves of the
+arrangement in generic position (see Definition 2.10 ). Then we compute
+the @xmath -coordinates of the (planar) intersection points of two
+curves using resultants as well as the @xmath -coordinates of those
+points that can be described rationally in terms of @xmath via
+subresultant computations.
+
+Furthermore, when the intersection points form a curve, the set of
+solutions is described topologically via a linear graph embedded in
+@xmath . The computed graph provides all the information for tracing
+this curve numerically since we know exactly how to proceed when we are
+close to a complicated point. Nevertheless, all computed points lie in
+the real intersection set of the three quadric surfaces defined by the
+three polynomials @xmath .
+
+Next we describe all necessary steps, but we omit the details on the
+change of coordinates to which we refer to several times. For more
+details on the change of coordinates see [ 45 ] .
+
+#### 5.2.2. Details on the Preparation Phase
+
+Before starting the real computation, we test the input quadrics for
+degeneracy and if they behave well under resultant computations. We want
+to make sure that all quadrics are of degree equal to two, @xmath
+-regular, square-free and pairwise do not have a common factor of degree
+equal to one. The absence of the latter two conditions can easily be
+detected and solved as it simplifies the considered problem. For
+example, one quadric describes a single plane if it is not square-free,
+whereas two quadrics define three planes, with one of them in common, if
+they have a common factor of degree equal to one. Therefore, we omit the
+details on these cases, though we can detect and solve them easily. In
+the case that one of the other conditions is violated, we make a change
+of coordinates and start the computation again.
+
+Finally, from now on we use the following assumption for the input
+polynomials @xmath .
+
+###### Assumption 5.9.
+
+The trivariate polynomials @xmath , @xmath and @xmath with coefficients
+in @xmath are all of degree equal to two, square-free, @xmath -regular
+and pairwise do not have a common factor of degree equal to one.
+
+#### 5.2.3. Details on the Projection Phase
+
+After a suitable preparation of our input quadrics, we assume throughout
+this and the following sections that the quadratic input polynomials
+have the properties of Assumption 5.9 . It is worthwhile to mention that
+Assumption 5.9 is necessary in order to interpret correctly the
+projection onto the @xmath - @xmath plane via resultant computation. Our
+projection method is based on the so-called restricted equational
+version of the Brown-McCallum projection operation (see [ 30 ] , [ 29 ]
+) where we use the polynomial @xmath as the pivot constraint. The
+Brown-McCallum projection operation produces, based on the current
+literature, the smallest projection set @xmath and consists of the
+following polynomials in our setting,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+As in the beginning of our computation, we need to test the polynomials
+contained in the set @xmath for degeneracy in order to interpret
+correctly the following resultant computations. Thus, we simplify the
+set @xmath further and we obtain the set @xmath containing the following
+polynomials,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+such that @xmath , where @xmath is the greatest common divisor of @xmath
+and @xmath . Moreover, we decompose the polynomial @xmath further. We
+write @xmath where @xmath (resp., @xmath ) is the gcd-free part (resp.,
+greatest common divisor) of @xmath and @xmath . Note, that the
+decomposition of the polynomial @xmath into @xmath and @xmath will be
+very useful for the lifting phase (see Chapter 5.2.5 ). Finally, we can
+summarize the projection phase as follows.
+
+###### Algorithm 5.10 (Projection).
+
+Input: three polynomials @xmath , @xmath and @xmath in @xmath with the
+properties of Assumption 5.9 .
+Output: @xmath
+such that @xmath is the square-free part of @xmath with respect to
+@xmath ,
+where @xmath . Moreover, we decompose the polynomial @xmath into @xmath
+where @xmath (resp., @xmath ) is the gcd-free part (resp., greatest
+common factor) of @xmath and @xmath .
+
+#### 5.2.4. Details on the Analysis of the Planar Arrangement
+
+In this section, we describe how we analyze the planar arrangement. We
+assume from now on that the set @xmath computed before is of the
+following form:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+such that @xmath , where @xmath is the square-free part of the common
+factor of @xmath and @xmath . Moreover, we decompose the polynomial
+@xmath further. We write @xmath where @xmath (resp., @xmath ) is the
+gcd-free part (resp., greatest common factor) of @xmath and @xmath .
+
+The problem, which might occur, is that the planar curves might not be
+in generic position which would ensure that we can use subresultants in
+order to compute the critical points (including intersection points with
+another curve) of the planar curves in our arrangement. In this case, we
+start the computation again after a change of coordinates if the planar
+curves are not in generic position. Hence, we assume throughout this and
+the following sections that the set @xmath has the following properties.
+
+###### Assumption 5.11.
+
+Let @xmath as computed in Algorithm 5.10 such that all polynomials are
+@xmath -regular. The polynomials @xmath and @xmath as well as @xmath are
+in generic position. Moreover, @xmath is in generic position with
+respect to @xmath .
+
+By using the Brown-McCallum projection operation for eliminating the
+variable @xmath , it follows that the (possible) intersection points of
+all three quadrics lie on the cut curves defined by @xmath and @xmath ,
+i.e., on the intersection of @xmath and @xmath , or on @xmath . In
+addition, we need to identify the common points of those curves with the
+silhouette curve @xmath since the number and type of points above a
+point on @xmath might be different than for points which do not lie on
+@xmath . But observe that the curve @xmath contains all points @xmath
+such that @xmath has exactly one root @xmath of multiplicity @xmath . To
+sum up, we need to compute the following:
+
+1.  the intersection points of @xmath and @xmath and whether or not they
+    lie on the curve @xmath , and
+
+2.  the topology of @xmath including the common points with @xmath which
+    could be finitely or infinitely many.
+
+By decomposing the polynomial @xmath we simplify the second problem
+further since we just need to compute the following:
+
+1.  the topology of @xmath including the common points with @xmath ,
+
+2.  the topology of @xmath including the common points with @xmath .
+
+It is worthwhile to mention that we can not decide without further
+computation whether or not a planar point can be lifted to a solution of
+all three quadrics. This comes from the fact that two different (space)
+points in @xmath might get projected to the same (planar) point.
+Nevertheless, this problem can be solved easily as we will see in
+Chapter 5.2.5 . We summarize the above discussion in the following
+algorithm.
+
+###### Algorithm 5.12 (Planar Arrangement Analysis).
+
+Input: the set of polynomials
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with the properties of Assumption 5.11
+Output:
+
+-   the common points of @xmath and @xmath ,
+
+-   the topology of the curve @xmath , described by
+
+    -   the real roots @xmath of @xmath , @xmath and
+        @xmath . We denote by @xmath , @xmath .
+
+    -   The number @xmath of roots of @xmath in @xmath when @xmath
+        varies on @xmath . We denote this root by @xmath .
+
+    -   The number @xmath of roots of @xmath in @xmath . We denote these
+        roots by @xmath .
+
+    -   A number @xmath such that if @xmath is the unique critical point
+        of the projection of @xmath on the @xmath -axis or an
+        intersection point of @xmath and @xmath above @xmath , @xmath .
+
+Procedure:
+– Compute the common points of @xmath and @xmath using Algorithm 2.12
+(TOP) as a black-box.
+– Compute the topology of @xmath including the common points with @xmath
+by using Algorithm 2.12 (TOP) as a black-box.
+
+#### 5.2.5. Details on the Lifting Phase
+
+##### Lifting of Single Points
+
+We recall some well-known facts about the real roots of a quadratic
+polynomial in one variable. Note that we know a priori what case we do
+have to consider in our setting. For example, a candidate @xmath which
+also lie on @xmath corresponds to the case @xmath (see Proposition 5.13
+), i.e., the polynomial @xmath has exactly one real root.
+
+###### Proposition 5.13.
+
+Let @xmath with @xmath and let @xmath . Then we get the following cases.
+
+1.   If @xmath , then the polynomial @xmath has exactly one solution
+    @xmath .
+
+2.   If @xmath , then the polynomial @xmath has two real solution @xmath
+    and @xmath . In this case, @xmath and @xmath .
+
+3.   If @xmath , then the polynomial P has only two complex conjugated
+    roots.
+
+By using the information computed by Algorithm 5.12 we can now easily
+determine the solutions @xmath , @xmath , of the polynomial @xmath where
+@xmath is a possible candidate in the plane.
+
+##### Lifting of a Curve
+
+Our approach for lifting a curve is similar to lifting a single point as
+described in the chapter before. By computing some extra points on
+@xmath as described in the previous section, we can determine easily the
+adjacency of the (possible) space curve which is induced by the plane
+curve @xmath .
+
+Assume that we computed the topology of @xmath as described in Algorithm
+5.12 . First, we lift all points (if possible) onto @xmath . Note that
+we can easily determine the missing adjacencies as described in Chapter
+2.1.4 , since there are only one or two points above. Then we just need
+to test whether or not our candidates lie on @xmath and @xmath as well.
+It is worthwhile to mention that not all components of @xmath might get
+lifted even though they can be lifted to a solution on @xmath .
+
+#### 5.2.6. The Implementation
+
+The algorithm has been prototypically implemented in the Computer
+Algebra System Maple (version 9.5) [ 61 ] and it follows the approach
+outlined closely. It starts always with three quadratic polynomials
+@xmath and @xmath in @xmath and, due to efficiency reasons, it performs
+most of the computations by using floating point arithmetic. The latter
+one comes from the fact that we extended Laureano Gonzalez-Vega and
+Ioana Necula’s TOP algorithm code ( [ 45 ] ). Hence, the only
+computations that are performed symbolically are:
+
+1.  the computation of the projection set @xmath .
+
+2.  the computations of the different signed subresultant sequences and
+    their coefficients for the projection set @xmath .
+
+3.  the computation of the square-free part of the resultant of two
+    polynomials @xmath and @xmath in @xmath and its decomposition with
+    respect to the signed subresultant coefficients.
+
+The remaining computations consist in solving numerically different
+polynomial equations (without multiple roots) or evaluating at these
+roots some of the polynomials symbolically computed. Initially the
+chosen precision is 15 digits, but one can choose any other starting
+precision @xmath . As in the implementation of the TOP-algorithm, we
+choose a threshold @xmath that depends on the chosen precision in order
+to decide whether or not a polynomial is zero at a given point.
+
+Once the planar arrangement @xmath is computed, we analyze the size
+@xmath of the input polynomials @xmath and the set @xmath . Afterwards,
+we update the precision to @xmath digits, where @xmath . Furthermore,
+the Maple function fsolve is used to solve the square-free univariate
+polynomial equations before mentioned. If fsolve does not return the
+correct number of roots (which are known in advance) or some numerical
+evaluation returns some non guaranteed value, the precision is increased
+by 10 digits and those computations are performed again. Moreover, we
+output the coordinates of the isolated points and a three dimensional
+linear graph if the intersection points form a curve.
+
+We end this section by giving some examples, which illustrate our
+approach. The experimentations were performed on a PowerPC G4 1GHz. The
+following example is taken from [ 69 ] .
+
+###### Example 5.14 (two isolated points, [69]).
+
+Let be
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+                       @xmath   
+     @xmath   @xmath   @xmath   
+                       @xmath   
+  -- -------- -------- -------- --
+
+Then the projection set @xmath contains of
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+                       @xmath   
+                       @xmath   
+                       @xmath   
+                       @xmath   
+     @xmath   @xmath   @xmath   
+                       @xmath   
+                       @xmath   
+                       @xmath   
+                       @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Our computations end with a precision of 26 digits. The real
+intersection is computed in @xmath seconds and consists of two isolated
+points, namely,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Moreover, Table 5.2 and Table 5.3 present a comparison between the
+computing times (in seconds) obtained by our approach and the
+prototypically and improved implementation of [ 69 ] ¹ ¹ 1 running times
+are measured on a Intel Pentium 700 and Pentium III Mobile 800 using
+different numbers of decimal digits for the three input quadrics.
+Moreover, Table 5.2 contains the following additional information:
+
+-   size of Input (resp., @xmath ) – number of decimal digits of the
+    Input (resp., the projection set @xmath .
+
+-   Changes – number of linear changes of variables
+
+-   Precision – used precision for obtaining the result
+
+It is worthwhile to mention that we obtain similar running times for all
+our experiments. Additionally, the improvement of the running times do
+not only depend on the newer computer.
+
+###### Example 5.15 (closed curve).
+
+Let be
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Note, that the three quadrics are linearly independent and the
+projection set @xmath contains of
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Then the real intersection of the three quadrics defined by @xmath ,
+@xmath and @xmath consists of infinitely many points. Figure 5.6 shows
+the linear three dimensional graph computed by our implementation. The
+computations start and end with a precision of 15 digits and is computed
+in @xmath seconds. For representing the linear graph we computed the
+following four points. The points
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+which correspond to the lift of the intersection points of the two plane
+curves @xmath and @xmath , and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which are two sample points for the two curve segments between the
+critical points @xmath and @xmath .
+
+###### Example 5.16 (2 isolated points, @xmath).
+
+Let be
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Note, that @xmath . Then the projection set @xmath contains of
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+                       @xmath   
+                       @xmath   
+                       @xmath   
+  -- -------- -------- -------- --
+
+Our computations end with a precision of 19 digits. The real
+intersection consists of two isolated points
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and is computed in @xmath seconds.
+
+###### Example 5.17 (empty intersection).
+
+Let be
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Then the projection set @xmath contains of
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Our computations start and end with precision of 15 digits. The real
+intersection is empty and computed in @xmath s.
+
+###### Example 5.18 (a curve and an isolated point).
+
+Let be
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Note, that @xmath . Then the projection set @xmath contains of
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Note, that @xmath consists of two isolated points and and open curve.
+Our computations start and end with precision of 15 digits. The real
+intersection is computed in @xmath seconds and consists of the isolated
+point @xmath and an open curve (see Figure 5.7 ). For the curve we
+computed the following three points.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which corresponds to the lift of the (non-isolated) critical point of
+@xmath , and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which are sample points for the two branches ending and starting of
+@xmath .
+
+###### Example 5.19 (a curve, @xmath).
+
+Let be
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Then the projection set @xmath contains of
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Our computations start and end with precision of 15 digits. The real
+intersection is computed in @xmath seconds and consists of two
+intersecting lines. We computed the following five points. The point
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which corresponds to the lift of the critical point of @xmath , and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which are sample points for the two branches attached to the left and to
+the right of @xmath .
+
+###### Example 5.20 (one connected component).
+
+Let be
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Note, that @xmath . Then the projection set @xmath contains of
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+                       @xmath   
+  -- -------- -------- -------- --
+
+Our computations start and end with precision of 15 digits. The real
+intersection is computed in @xmath seconds and consists of one connected
+component (see Figure 5.9 ).
+
+#### 5.2.7. Remark on Cubic Surfaces
+
+We would like to remark that the algorithm presented in Chapter 5.2 has
+been extended to three cubic surfaces defined by the polynomials @xmath
+and @xmath in @xmath . Note that in this case the silhouette curve
+@xmath contains all points @xmath such that the polynomial @xmath has a
+root @xmath of multiplicity @xmath or @xmath . Theorem 2.4 implies that
+in the first case the polynomial @xmath whereas in the latter one @xmath
+. Moreover, one can also use a solution formula for cubic polynomials in
+one variable in order to lift a single point.
+
+Like in the case for quadrics, we can easily determine the missing
+adjacency information while lifting the curve @xmath using a simple
+combinatorial type approach.
+
+Finally, this new algorithm has similarly implemented in the Computer
+Algebra System Maple (version 9.5) as well. The experimental results
+archived show a very good performance. We refer to [ 53 ] for more
+details.

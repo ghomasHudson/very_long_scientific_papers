@@ -1,0 +1,4483 @@
+## Chapter \thechapter Quantum State Estimation
+
+### 1 Introduction
+
+Quantum state preparation is the first important step for any protocol
+that makes use of quantum resources. Examples of such protocols are
+quantum state teleportation and quantum key distribution which require
+entangled quantum states. In order to verify the integrity of the
+quantum state prepared by the source, one carries out quantum state
+tomography on the source. Measurements are performed on a collection of
+identical copies of quantum systems (electrons, photons, etc.) that are
+emitted from the source. Then, the quantum state of the source is
+inferred from the measurement data obtained from this collection. The
+measurements are generically described by a set of positive operators
+@xmath that compose a probability operator measurement (POM). After
+that, the measurement data obtained are used to infer the quantum state
+of the source. Such a procedure of state inference, which shall be our
+main focus in this dissertation, is also known as quantum state
+estimation .
+
+The central idea of quantum state estimation is to attribute a
+well-defined objective true state to each measured quantum system that
+is emitted from the source, making a connection with the frequentist’s
+definition of classical estimation. An observer, after measuring a
+finite number of copies, will obtain a state estimator that is generally
+different from that obtained by another observer, after measuring his
+own copies in a different way. This is not surprising since the quantum
+state of the source directly reflects the amount of information an
+observer gains after measuring his copies [ CFS02 ] . As the number of
+copies approaches infinity, different estimation procedures ultimately
+lead to the same true quantum state of the source if the measurements
+completely characterize the source. However, such an idealized situation
+is never achievable in any laboratory setting, as one can only perform
+measurements on finite copies of quantum systems. As a result, the state
+estimator obtained will be different from the true state and depends on
+the details of the estimation procedure. To make statistical
+predictions, the corresponding operator @xmath describing this estimator
+must be a statistical operator , which is positive. This will ensure
+that the estimated probability @xmath for an outcome @xmath of any set
+of POM is positive. We shall denote all estimated quantities with a
+“hat” symbol.
+
+The frequentist’s notion of quantum state estimation, described above,
+is fundamentally different from the Bayesian point of view [ PŘ04 ,
+CFS02 ] , in which there is no objective true state of the source to be
+characterized. Rather, the quantum state of a given source is treated
+purely as knowledge that is to be updated by the measurement data
+obtained from finite copies, subjected to some prior information about
+the distribution of statistical operators. In the latter viewpoint, the
+quantum state of the source is naturally regarded as a subjective
+reality that is based on the measurements performed by an observer,
+rather than a definite state that is associated to the source.
+Unfortunately, due to its technical difficulty, a feasible Bayesian
+estimation scheme for quantum states is presently undeveloped.
+
+There are two popular methods for the frequentist’s version of quantum
+state estimation: Bayesian state estimation ^(\fnsymbolwrap)
+^(\fnsymbolwrap) \fnsymbolwrap Not to be confused with the Bayesian view
+of quantum estimation as discussed previously. and maximum-likelihood
+estimation (ML). The Bayesian state estimation method [ SBC01 , BKH06 ,
+BK10b ] constructs a state estimator from an integral average over all
+possible quantum states to estimate the unknown true state. The
+likelihood functional , which yields the likelihood of obtaining a
+particular sequence of measurement detections given a quantum state,
+serves as a weight for the average. This approach includes all the
+neighboring states near the maximum of the likelihood functional as
+possible guesses for the unknown @xmath . These neighboring states are
+given especially significant weight when @xmath , the measured total
+number of copies, is small, in which case the likelihood functional is
+only broadly peaked at the maximum. However, the integral average
+unavoidably depends on how one measures volumes in the state space, and
+there is no universal and unambiguous method for that. The ML method [
+Fis22 , Hel76 , PŘ04 , ŘHKL07 ] , on the other hand, simply chooses the
+estimator as the statistical operator that maximizes the likelihood
+functional. For a sufficiently large number of copies, both methods give
+the same estimator since the likelihood functional peaks very strongly
+at the maximum.
+
+When the measurement outcomes form an informationally complete set, the
+measurement data obtained will contain maximal information about the
+source. Thus, a unique state estimator can be inferred with ML.
+Unfortunately, in tomography experiments performed on complex quantum
+systems with many degrees of freedom, it is not possible to implement
+such an informationally complete set of measurement outcomes. As a
+result, some information about the source will be missing and its
+quantum state cannot be completely characterized. For example, if a
+source produces a mode of light that is described by an
+infinite-dimensional statistical operator @xmath , then no matter how
+ingeniously a measurement scheme is designed to probe incoming photons
+prepared by this source, an infinite amount of information about the
+mode of light will always remain unknown. The ML estimator obtained from
+these informationally incomplete data is no longer unique and there will
+in general be infinitely many other ML estimators that are consistent
+with the data.
+
+The standard approach to this problem is to apply an ad hoc truncation
+on the Hilbert space and perform the state reconstruction in a
+particular subspace. This results in a smaller number of unknown
+parameters that can then be uniquely determined by the measurement
+scheme. Since the truncation is largely based on the observer’s
+intuition about the expected result, that is the true state that
+describes an infinite number of copies of such quantum systems, this
+cannot be a truly objective method [ ŘMH08 ] . A more objective
+alternative is to consider the largest possible reconstruction subspace
+that is compatible with any existing prior knowledge about the source.
+For example, if an observer has prior knowledge about the range of the
+energy spectrum a given light source can have, he should consider the
+largest possible reconstruction subspace that contains quantum states
+describing the source in this range of energies. This inevitably
+introduces more unknown parameters that cannot be uniquely determined by
+the measurements and one should select the state estimator in this
+subspace that is least biased.
+
+In Refs. [ TZE @xmath 11 ] and [ TSE @xmath 12 ] , we reported an
+iterative algorithm (MLME) to estimate unknown quantum states from
+incomplete measurement data by maximizing the likelihood and von Neumann
+entropy functionals. The application of this algorithm was illustrated
+with simulations and experimental data and we concluded that, together
+with a more objective Hilbert space truncation, this approach can serve
+as a reliable and statistically meaningful quantum state estimation with
+incomplete data.
+
+In this first chapter, we will discuss, at great lengths, the principles
+of quantum state estimation and establish some novel algorithms using
+various numerical methods.
+
+### 2 Preliminaries of quantum state estimation
+
+#### 2.1 Estimation theory
+
+At the heart of estimation theory lies the principles of functional
+optimization [ Hel76 ] . Typically, an objective functional involving
+the cost functional @xmath of an estimator @xmath for the unknown
+quantum state @xmath of a source is minimized based on the measurement
+data @xmath . These measurement data are collected in an experiment
+carried out on the unknown source producing multiple copies @xmath of
+quantum systems, each prepared in the state @xmath . The data collection
+is usually done with a probability operator measurement (POM) such that
+@xmath .
+
+Since @xmath is always unknown, in order to obtain a generically
+reliable estimator, the objective functional to be minimized has to be
+independent of @xmath . There are many kinds of such objective
+functionals we can use. A typical kind of objective functional, which we
+will consider here as the main example, is one that accounts for all
+possible experimental data @xmath one can obtain in an experiment. This
+allows us to find the estimator that is, in this sense, a universally
+optimal estimator for the cost functional that is independent of the
+data. To this end, we introduce the average cost functional
+
+  -- -------- -- -------
+     @xmath      (2.1)
+  -- -------- -- -------
+
+where @xmath is a pre-chosen integration measure for the @xmath
+-dimensional Hilbert space and @xmath is the probability of having
+@xmath and the state @xmath simultaneously. The summation notation
+@xmath refers to an average over all possible @xmath . The statistical
+identity @xmath separates @xmath into a product of a conditional
+probability distribution and a prior probability distribution @xmath of
+all possible states @xmath . The conditional probability @xmath , which
+involves the data, is defined in terms of the likelihood functional
+@xmath inasmuch as
+
+  -- -------- -- -------
+     @xmath      (2.2)
+  -- -------- -- -------
+
+The functional @xmath gives the likelihood of a state @xmath yielding
+the measurement data @xmath . The prior probability distribution @xmath
+, on the other hand, reflects the prior knowledge one has about the
+source. One can define the prior @xmath . After inserting all the
+necessary elements, the objective functional is given by
+
+  -- -- -- -------
+           (2.3)
+  -- -- -- -------
+
+To proceed, we need to decide on the form of @xmath , for the estimator
+@xmath strongly depends on the cost functional. A very typical
+functional
+
+  -- -------- -- -------
+     @xmath      (2.4)
+  -- -------- -- -------
+
+defined by the positive operators @xmath and @xmath , can be used as the
+cost functional and this quantifies a “distance” between @xmath and
+@xmath . Here @xmath refers to the operator 2-norm of @xmath defined as
+
+  -- -------- -- -------
+     @xmath      (2.5)
+  -- -------- -- -------
+
+This is equal to the largest eigenvalue of @xmath , since for any ket
+@xmath ,
+
+  -- -------- -------- -- -------
+              @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      (2.6)
+  -- -------- -------- -- -------
+
+In the derivation, the fact that @xmath is exploited.
+
+To show that @xmath is indeed bounded from above by 1, we note that
+
+  -- -------- -------- -- -------
+              @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      (2.7)
+  -- -------- -------- -- -------
+
+In establishing the first inequality, the simple identity @xmath is
+used. This general quadratic form @xmath has a unique minimum as long as
+@xmath . Such a functional gives non-zero cost for @xmath and the
+special case @xmath , @xmath yields the familiar square of the
+normalized Hilbert-Schmidt distance (David Hilbert and Erhard Schmidt).
+An extreme case of such a cost functional is given by
+
+  -- -------- -- -------
+     @xmath      (2.8)
+  -- -------- -- -------
+
+with which a singularly large reduction in cost is offered when @xmath
+and no reduction is given otherwise.
+
+With @xmath , the variation @xmath is
+
+  -- -------- -- -------
+     @xmath      (2.9)
+  -- -------- -- -------
+
+The total variation @xmath works out to be
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+where
+
+  -- -------- -- --------
+     @xmath      (2.10)
+  -- -------- -- --------
+
+Since minimizing @xmath requires that @xmath , we thus have @xmath . The
+statistical operator @xmath is known as the Bayesian estimator (Thomas
+Bayes) of @xmath for a given operator @xmath . A common variant of the
+Bayesian estimator [ SBC01 , BKH06 , BK10b ] is defined as @xmath . In
+general, the integral average strongly depends on the definition of
+@xmath , which has no definite form whatsoever even when some
+constraints are imposed on @xmath . For example, when @xmath and
+spherical coordinates @xmath are used to parameterize the Bloch vector
+of @xmath , the constraint of unitary invariance on @xmath fixes @xmath
+, but @xmath can still take any function of the variable @xmath . In
+this sense, there is an element of arbitrariness in the choice of @xmath
+. Moreover, for a fixed form of @xmath , the operator integral can be
+computationally difficult.
+
+A more straightforward estimation scheme would be to consider @xmath .
+The corresponding expression for @xmath then simplifies to
+
+  -- -------- -- --------
+     @xmath      (2.11)
+  -- -------- -- --------
+
+Thus, minimizing @xmath amounts to looking for the estimator @xmath that
+maximizes the likelihood functional @xmath . This estimator is the
+maximum-likelihood (ML) estimator. In other words, to estimate @xmath
+whilst minimizing the objective functional @xmath after an experiment,
+we need a scheme to search for a positive operator @xmath of unit trace
+such that the likelihood functional @xmath takes the largest value
+within the admissible space of quantum states @xmath . There is an
+asymptotic connection between @xmath and @xmath . That is, when @xmath
+is sufficiently large, the likelihood functional peaks very sharply
+around the maximum @xmath ( @xmath ) and, from Eq. ( 2.10 ), it follows
+that @xmath .
+
+In a quantum-state tomography experiment, one can, in principle, measure
+@xmath copies of quantum systems using detectors with perfect detection
+efficiencies described by a POM @xmath , with @xmath running over all
+detectors. The measurement data @xmath is a list of detection outcome
+occurrences @xmath such that @xmath . One may also define the
+corresponding set of measurement frequencies @xmath . For simplicity, we
+shall consider the POM to be informationally complete. This means that
+there are @xmath linearly independent outcomes in the POM that span the
+space of @xmath -dimensional statistical operators. Therefore, this type
+of POM fully characterizes the source and maximal information can be
+extracted from the measurement data to reconstruct @xmath uniquely .
+Since the detection of one copy is independent of another, the detection
+occurrences @xmath follow a multinomial distribution and so the
+corresponding likelihood functional for this scenario is
+
+  -- -------- -- --------
+     @xmath      (2.12)
+  -- -------- -- --------
+
+with @xmath .
+
+One can construct an operator that maximizes @xmath whilst paying no
+heed to the positivity constraint. To do this, we introduce a
+transposition mapping on a given operator @xmath of complex @xmath ,
+@xmath and @xmath into an extended Hilbert space [ Sco06 ] :
+
+  -- -------- -- --------
+     @xmath      (2.13)
+  -- -------- -- --------
+
+The notation @xmath denotes a superket . It is a ket that lives in an
+extended @xmath -dimensional Hilbert space and is derived from an
+operator in a @xmath -dimensional Hilbert space. Analogously to
+operators, one can define a @xmath -dimensional superoperator @xmath
+living in this extended Hilbert space. The simple identity
+
+  -- -- -- --------
+           (2.14)
+  -- -- -- --------
+
+follows from these notations.
+
+Under this formalism, we can systematically study the linear
+independence of the POM outcomes. The first step is to note that for a
+set of @xmath linearly-independent POM outcomes, if the equation
+
+  -- -------- -- --------
+     @xmath      (2.15)
+  -- -------- -- --------
+
+is to be satisfied for a given vector @xmath , then @xmath must be zero
+since none of the outcomes can be expressed as a linear combination of
+the rest. In vector notations, Eq. ( 2.15 ) amounts to the scalar
+product relation
+
+  -- -- -- --------
+           (2.16)
+  -- -- -- --------
+
+Defining the positive matrix @xmath with matrix elements
+
+  -- -- -- --------
+           (2.17)
+  -- -- -- --------
+
+The statement in ( 2.16 ) implies that the only solution to the matrix
+equation @xmath is @xmath . In the language of linear algebra, we say
+that the null space of @xmath has dimension zero. It follows that the
+rank of @xmath is @xmath . We have thus constructed a positive matrix
+@xmath that has @xmath positive eigenvalues out of a set of @xmath
+linearly independent superkets @xmath . This matrix is known as the Gram
+matrix (Jørgen Pedersen Gram). The largest value of @xmath is @xmath
+since this is the maximum number of linearly independent operators
+spanning the space of Hermitian operators as a basis. Therefore, a POM
+contains the maximal set of @xmath linearly independent outcomes if the
+corresponding Gram matrix @xmath has a rank of @xmath .
+
+One can also define the frame superoperator
+
+  -- -------- -- --------
+     @xmath      (2.18)
+  -- -------- -- --------
+
+With this, an equivalent criterion for a set of informationally complete
+POM outcomes @xmath is that the superoperator @xmath is invertible.
+There exist dual superkets @xmath of @xmath with the property
+
+  -- -- -- --------
+           (2.19)
+  -- -- -- --------
+
+where @xmath is the identity superoperator. The dual property is
+elucidated by the following equalities:
+
+  -- -------- -------- --
+     @xmath   @xmath   
+                       
+                       
+  -- -------- -------- --
+
+Since the final equality is always true for any @xmath , it follows that
+@xmath . Using Eq. ( 2.18 ), the dual superkets can be defined as
+
+  -- -------- -- --------
+     @xmath      (2.20)
+  -- -------- -- --------
+
+and it is straightforward to verify that Eq. ( 2.19 ) is immediately
+satisfied. If, in addition, the number of @xmath s is exactly @xmath (
+minimal POM), then the dual superkets @xmath are uniquely defined as in
+Eq. ( 2.20 ). For overcomplete measurements, there is more than one way
+of defining these dual superkets and the @xmath s in Eq. ( 2.20 ) serve
+as the canonical dual superkets. As an example, we consider a @xmath
+-dimensional symmetric informationally complete POM (SIC POM) [ LLLK08 ,
+App05 , ADF07 , ŘEK04 , RBKSC04 , SG10 , Sco06 ] whose subnormalized
+rank-1 outcomes @xmath , that is @xmath , are such that
+
+  -- -------- -- --------
+     @xmath      (2.21)
+  -- -------- -- --------
+
+The corresponding dual superkets for this POM can be shown (see Appendix
+\thechapter ) to be
+
+  -- -------- -- --------
+     @xmath      (2.22)
+  -- -------- -- --------
+
+With all the necessary tools in place, we can now define the operator
+that maximizes the likelihood functional over all Hermitian operators:
+
+  -- -------- -- --------
+     @xmath      (2.23)
+  -- -------- -- --------
+
+To verify that this is indeed the solution, we note that @xmath are the
+solutions that maximize the likelihood functional in Eq. ( 2.12 ). A
+simple calculation shows that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Alternatively, the estimator @xmath in Eq. ( 2.23 ), also known as the
+linear-inversion estimator , can be obtained by directly inverting the
+set of @xmath constraints @xmath for minimal informationally complete
+data. An essential tool for linear-inversion is a complete set of
+Hermitian, trace-orthonormal basis operators @xmath such that @xmath .
+By “complete”, we mean that the superkets @xmath satisfy the
+completeness relation
+
+  -- -------- -- --------
+     @xmath      (2.24)
+  -- -------- -- --------
+
+With this basis, one can express the operators @xmath and @xmath in
+terms of @xmath . The coefficients @xmath can thereafter be obtained by
+inverting the system of linear equations
+
+  -- -------- -- --------
+     @xmath      (2.25)
+  -- -------- -- --------
+
+The estimator @xmath is the ML statistical operator we seek if @xmath
+for the measurement data. We say that @xmath is an unbiased estimator
+for @xmath since the operator @xmath . This means that the set of all
+possible estimators @xmath , for a given @xmath , forming an uncertainty
+hyper-ellipsoid is such that the operator centroid of the set is @xmath
+. Because of this fact, the estimator @xmath is generally not a positive
+operator. Geometrically, part of the boundary of the uncertainty
+hyper-ellipsoid around @xmath that contains all estimators @xmath can
+lie outside the state space for finite @xmath . As @xmath increases, the
+hyper-ellipsoid shrinks to a point in the state space when @xmath
+becomes infinite. In other words, as long as @xmath is finite, if the
+true state lies on the boundary, then no matter how small this
+hyper-ellipsoid is, there will always be estimators that are not
+positive. For them, it follows that the true peak of @xmath lies outside
+the state space and the resulting positive ML estimator @xmath that
+maximizes @xmath inside the state space must necessarily be
+rank-deficient. In this case, there is no analytical expression for the
+positive estimator and numerical methods are needed to look for this
+estimator. The positive ML estimator, like @xmath , is also a consistent
+estimator, which is defined by the property that @xmath approaches
+@xmath as @xmath increases [ TZE10 , ZE11 ] .
+
+#### 2.2 Uncertainties in quantum estimation
+
+The usual distance functional
+
+  -- -------- -- --------
+     @xmath      (2.26)
+  -- -------- -- --------
+
+reminiscent of the Hilbert-Schmidt distance, is a common measure of the
+average deviation of an estimator @xmath away from the true statistical
+operator @xmath and is known as the covariance of @xmath and @xmath . To
+evaluate this functional, we express the operators @xmath and @xmath in
+terms of a set of Hermitian, trace-orthonormal basis operators @xmath .
+The resulting functional becomes
+
+  -- -------- -- --------
+     @xmath      (2.27)
+  -- -------- -- --------
+
+where @xmath . The corresponding dyadic
+
+  -- -------- -- --------
+     @xmath      (2.28)
+  -- -------- -- --------
+
+is known as the covariance dyadic and is positive.
+
+More generally, the covariance dyadic describes the mean squared-error
+between @xmath and @xmath in terms of their respective coefficients. The
+average of a function @xmath of the data @xmath is given by
+
+  -- -------- -- --------
+     @xmath      (2.29)
+  -- -------- -- --------
+
+There exists a lower bound for the covariance dyadic and to calculate
+it, we assume that @xmath is unbiased, which as a consequence need not
+be positive, and note that
+
+  -- -------- -------- -- --------
+              @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      (2.30)
+  -- -------- -------- -- --------
+
+where @xmath is the unit dyadic, and
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+     @xmath   @xmath      (2.31)
+  -- -------- -------- -- --------
+
+Combining Eqs. ( 2.30 ) and ( 2.31 ), we have
+
+  -- -------- -- --------
+     @xmath      (2.32)
+  -- -------- -- --------
+
+Multiplying the vectors @xmath and @xmath respectively on the left and
+right of Eq. ( 2.32 ) gives
+
+  -- -------- -- --------
+     @xmath      (2.33)
+  -- -------- -- --------
+
+By the Cauchy-Schwarz inequality (Baron Augustin-Louis Cauchy and Karl
+Hermann Amandus Schwarz),
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      
+              @xmath      
+              @xmath      (2.34)
+  -- -------- -------- -- --------
+
+where @xmath is the Fisher’s information dyadic (Sir Ronald Aylmer
+Fisher). A substitution of @xmath gives the inequality
+
+  -- -------- -- --------
+     @xmath      (2.35)
+  -- -------- -- --------
+
+which is satisfied for any @xmath . This implies that
+
+  -- -------- -- --------
+     @xmath      (2.36)
+  -- -------- -- --------
+
+The inequality presented above is the famous Cramér-Rao inequality
+(Harald Cramér and Calyampudi Radhakrishna Rao) for unbiased estimation.
+It tells us that the lowest mean squared-error @xmath is given by @xmath
+.
+
+It is interesting to study the asymptotic expression for the Fisher’s
+dyadic @xmath when @xmath is large. To begin, we note that for
+sufficiently large @xmath , the Central Limit Theorem tells us that [
+ŘMH08 ] the conditional probability distribution
+
+  -- -------- -- --------
+     @xmath      (2.37)
+  -- -------- -- --------
+
+takes a Gaussian form (Johann Carl Friedrich Gauss), where @xmath is the
+vector of coefficients for @xmath . With this,
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+and so
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+              @xmath      (2.38)
+  -- -------- -------- -- --------
+
+An important lesson learned here is that for large @xmath , the unbiased
+ML estimator @xmath , on average, approaches the lower bound (Cramér-Rao
+bound) set by the Cramér-Rao inequality asymptotically. The unbiased ML
+estimator is thus said to be an efficient estimator, that is, no other
+unbiased estimator can achieve a lower asymptotic mean squared-error.
+When the positivity constraint is taken into account, the Cramér-Rao
+inequality will be modified to accomodate the constraint [ Mar93 , MSK08
+] and it was shown that the corresponding constrained ML estimator is
+efficient in terms of the constrained Cramér-Rao bound.
+
+Equation ( 2.38 ) provides an operational way to compute the
+uncertainties of a real quantity @xmath , where
+
+  -- -------- -- --------
+     @xmath      (2.39)
+  -- -------- -- --------
+
+The corresponding Hermitian operator @xmath can be similarly expressed
+in terms of the set of operator basis @xmath such that @xmath . Note
+that its variance
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+Equation ( 2.38 ) tells us that @xmath is the inverse of the Fisher’s
+information dyadic @xmath for sufficiently large @xmath . This leads to
+[ ŘMH08 ]
+
+  -- -------- -- --------
+     @xmath      (2.40)
+  -- -------- -- --------
+
+Hence the meaning of the Fisher’s information dyadic is quite clear for
+large @xmath : it directly quantifies the uncertainty of the real
+quantity @xmath and carries the same amount of information as @xmath .
+If @xmath is non-invertible, then @xmath will carry information in the
+support of @xmath .
+
+### 3 Informationally complete quantum state estimation
+
+#### 3.1 Steepest-ascent (direct-gradient) algorithm
+
+Suppose an informationally complete POM, consisting of @xmath linearly
+independent outcomes, is used to reconstruct an unknown true state
+@xmath of dimension @xmath . The detection of @xmath copies of quantum
+systems yields a multinomial statistic for the measured number of
+occurrences @xmath for every outcome @xmath , and the corresponding
+likelihood functional @xmath is given in Eq. ( 2.12 ). To look for
+@xmath numerically, we first vary the log-likelihood @xmath and obtain
+
+  -- -------- -- -------
+     @xmath      (3.1)
+  -- -------- -- -------
+
+where
+
+  -- -------- -- -------
+     @xmath      (3.2)
+  -- -------- -- -------
+
+Note that maximizing the likelihood functional requires @xmath . To
+increase the value of @xmath when the maximal value of @xmath is not
+reached, we need to look for a suitable variation @xmath such that
+@xmath while maintaining the positivity of @xmath .
+
+We begin by parameterizing the statistical operator
+
+  -- -------- -- -------
+     @xmath      (3.3)
+  -- -------- -- -------
+
+with an auxiliary complex operator @xmath . Under this parametrization,
+
+  -- -------- -------- --
+     @xmath            
+              @xmath   
+  -- -------- -------- --
+
+It follows that,
+
+  -- -------- -------- -- -------
+     @xmath               
+              @xmath      
+              @xmath      (3.4)
+  -- -------- -------- -- -------
+
+In deriving Eq. ( 3.4 ), the identity @xmath is invoked. By setting
+@xmath , we arrive at the extremal equation for the positive ML
+estimator @xmath [ ŘHKL07 , PŘ04 ] :
+
+  -- -------- -- -------
+     @xmath      (3.5)
+  -- -------- -- -------
+
+where the operator @xmath is the operator @xmath , defined in Eq. ( 3.2
+), evaluated with the ML estimator @xmath .
+
+One way of ensuring a positive @xmath every step is to note that the
+definition of the variation of @xmath , in the form of a trace equation,
+is given by
+
+  -- -- -- -------
+           (3.6)
+  -- -- -- -------
+
+where the partial derivative @xmath . Noting that the gradient of @xmath
+, which we now define to be a two-component vector @xmath , is given by
+
+  -- -- -- -------
+           (3.7)
+  -- -- -- -------
+
+we can enforce the variation of @xmath to follow the direction of the
+steepest ascent up to the global maximum. In other words,
+
+  -- -- -- -------
+           (3.8)
+  -- -- -- -------
+
+where @xmath is a small positive parameter. Correspondingly,
+
+  -- -------- -- -------
+     @xmath      (3.9)
+  -- -------- -- -------
+
+Thus, one derives the iterative equation, in discrete form, as
+
+  -- -------- -- --------
+     @xmath      (3.10)
+  -- -------- -- --------
+
+which is precisely the iterative equation for the ML scheme established
+in [ ŘHKL07 , PŘ04 ] . It is now clear that ML is actually the method of
+steepest-ascent to search for @xmath . Since this enhanced algorithm
+attempts to reach the global maximum by directly following the gradient,
+this method can also be called the direct-gradient method (ML-DG).
+Hence, given the above iterative equation, one can attempt to obtain the
+ML estimator that gives the global maximum of @xmath . Numerically, the
+estimator @xmath is taken such that @xmath , where @xmath is the trace
+norm for an operator @xmath and @xmath is a pre-chosen precision and
+must not be confused with the small parameter @xmath . One can also
+introduce an enhancement in the rate of convergence to this scheme by
+attempting to optimize the value of @xmath in each step of the iteration
+so that the log-likelihood functional is maximized efficiently. This
+procedure is usually known as the line search and can be done in various
+ways.
+
+Outlined below is the iterative algorithm for the ML estimation scheme [
+ŘHKL07 , TZE10 ] .
+
+ML algorithm using the steepest-ascent method (ML-DG) Starting from the
+maximally-mixed state @xmath , with @xmath and a small fixed value of
+@xmath , Compute @xmath ; Escape from loop if @xmath ; Otherwise,
+proceed to the following steps. Carry out the line search procedure: Use
+two trial values of @xmath to compute two @xmath s and determine the
+value of the likelihood @xmath for both. Combine these two with @xmath ,
+which was in fact obtained from @xmath , and compute a quadratic
+function of @xmath that interpolates between the three support values.
+Find the @xmath value for which the quadratic function assumes its
+maximum. Use this maximizing @xmath to evaluate the new @xmath using
+Eq. ( 3.10 ), with @xmath replaced by @xmath . Set @xmath and repeat the
+iteration from the beginning.
+
+The optimization of @xmath introduced here is practical since the exact
+maximum of @xmath is in general hard to compute. Such a line search
+optimization can in principle expedite the search of @xmath . However,
+when @xmath and the number of POM outcomes are huge, such a procedure
+becomes impractical since it involves the evaluation of very many large
+matrices, which can be very computationally expensive. In this case, a
+fixed value of @xmath is used instead.
+
+#### 3.2 Conjugate-gradient algorithm
+
+The steepest-ascent, or direct-gradient, method seeks the extremal
+solution of a given function by following the path of its steepest
+gradient in the space of parameters. It may happen that in an iterative
+step, the path is quite parallel to another one taken in one of the
+previous iterative steps. In other words, the iterated answer traces out
+a “zig-zag” path in the space of parameters as it approaches the true
+extremal point. This causes a considerable retardation in the iteration
+if the precision @xmath is chosen too small. Another alternative to this
+method is the approach of conjugate gradient . Initially developed for
+real quadratic objective functions of the form
+
+  -- -------- -- --------
+     @xmath      (3.11)
+  -- -------- -- --------
+
+where the real dyadic @xmath and the dimensionality of the real vectors
+is @xmath , the conjugate-gradient (CG) iteration takes a path which
+“circulates” directly to the extremal point @xmath in exactly @xmath
+iterative steps. Technically speaking, the search directions @xmath
+taken in the @xmath -th step is such that @xmath for @xmath . This
+conjugacy property is where the name of this approach is derived. One
+can obtain a complete set of conjugate direction vectors using the
+Gram-Schmidt conjugation strategy (Jørgen Pedersen Gram and Erhard
+Schmidt), a modified orthonormalization technique which accounts for the
+conjugacy property. However, this strategy ultimately requires all
+direction vectors to be stored into memory, since a linear combination
+of all the previously computed direction vectors is required to compute
+the next one. Such a procedure can be computationally expensive for
+large @xmath .
+
+In the CG method, the gradient vectors @xmath for every @xmath are used
+to compute the set of conjugate direction vectors @xmath . Here, @xmath
+is the @xmath -dimensional gradient vector and @xmath . With this
+substitution, the linear combination of @xmath s in the Gram-Schmidt
+conjugation procedure becomes just a single term ^(\fnsymbolwrap)
+^(\fnsymbolwrap) \fnsymbolwrap Please consult Ref. [ She94 ] for the
+technical details and graphs. and so there is no longer a need to store
+all the previously computed direction vectors. In each step, the
+conjugate direction vector @xmath and @xmath are thus generated
+pairwise.
+
+The CG algorithm for the quadratic form in Eq. ( 3.11 ) is outlined
+below:
+
+CG method for quadratic forms Beginning with @xmath and @xmath , Compute
+@xmath and set @xmath . This value of @xmath corresponds to the maximum
+value of @xmath after a line search procedure. Set @xmath . Set the
+parameter @xmath . Set @xmath . Set @xmath and repeat the iteration from
+the beginning.
+
+Very often, the objective function @xmath to be maximized is not a
+simple quadratic form as described in Eq. ( 3.11 ). This introduces a
+few complications to the simple CG algorithm outlined above. Firstly,
+the optimal value of @xmath is often not available readily as an
+analytical expression. Therefore, numerical methods have to be invoked
+in order to look for the value of @xmath such that @xmath is maximal. In
+cases where such a numerical search for the optimal @xmath is
+computationally expensive, a fixed value of @xmath may be assigned.
+Secondly, we note that
+
+  -- -------- -- --------
+     @xmath      (3.12)
+  -- -------- -- --------
+
+when @xmath is a quadratic form. This follows from the fact that
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+Therefore, we have that
+
+  -- -------- -- --------
+     @xmath      (3.13)
+  -- -------- -- --------
+
+For a general function @xmath , the two factors are clearly different.
+It is known that the CG algorithm which uses the Fletcher-Reeves factor
+(Roger Fletcher and Colin Morrison Reeves) converges only when the
+starting vector @xmath is close to @xmath , and that which uses the
+Polak-Ribière factor (Elijah Polak and Gerard Ribière) rarely diverges.
+This divergence can be prevented by defining the Polak-Ribière criterion
+
+  -- -------- -- --------
+     @xmath      (3.14)
+  -- -------- -- --------
+
+This implies that when the Polak-Ribière factor becomes negative, the CG
+algorithm switches back to the DG algorithm. Putting the pieces
+together, we have:
+
+Polak-Ribière CG method for general objective functions Beginning with
+@xmath and @xmath , Compute @xmath using a line search procedure such
+that @xmath is maximal and set @xmath . Set @xmath . Set the parameter
+@xmath . Set @xmath . Set @xmath and repeat the iteration from the
+beginning.
+
+The main point of this short discourse is that the above algorithm can
+be generalized to the space of operators by simply replacing all
+numerical vectors by vector operators. The inner product of two vector
+operators @xmath and @xmath is defined as @xmath , where the trace
+operation is understood to act on the operators in @xmath and @xmath .
+To apply the conjugate-gradient strategy to ML, we first allow the
+operator vector @xmath to follow the search direction of the steepest
+ascent, namely @xmath . Subsequently, @xmath will follow a series of
+approximately conjugate search directions defined by the dyadic @xmath
+^(\fnsymbolwrap) ^(\fnsymbolwrap) \fnsymbolwrap To visualize this more
+vividly, consider a quadratic form of three parameters, contained in the
+vector @xmath , given by @xmath . Then, the three-dimensional gradient
+@xmath and the search directions @xmath generated by the conjugate
+gradient method are related by @xmath . . The standard Polak-Ribière CG
+method, when applied to ML, proceeds as follows:
+
+ML algorithm using the standard Polak-Ribière CG method (ML-CG) Starting
+from the parameters @xmath , @xmath , @xmath and @xmath , Compute @xmath
+; Escape from loop if @xmath ; Otherwise, proceed to the following
+steps. Optimize @xmath such that @xmath is maximum using a line search
+procedure and set @xmath . Set @xmath . Set the parameter @xmath
+(Polak-Ribière). Set @xmath . Set @xmath and repeat the iteration from
+the beginning.
+
+We remind ourselves that the efficiency of the ML-CG method will be
+higher if the functional to be optimized is very close to a quadratic
+form in the space of parameters, in which case @xmath and @xmath . Since
+the likelihood functional @xmath deviates far away from a quadratic form
+in @xmath , this term can be significant in value, causing @xmath to be
+constantly reset to 0 and thereby turning the ML-CG method back to
+steepest-ascent. Hence it is fruitful to consider a new Polak-Ribière
+criterion, namely
+
+  -- -------- -- --------
+     @xmath      (3.15)
+  -- -------- -- --------
+
+where @xmath is a suitably chosen parameter, which is less than 1, such
+that the factor @xmath is small. If @xmath is set to 0, corresponding to
+the Fletcher-Reeves scheme, the ML-CG algorithm may not converge. In
+general, the optimal value of @xmath that gives the minimal average
+number of iterative steps to achieve a certain numerical precision
+@xmath depends very much on @xmath . In view of this, we set @xmath for
+any @xmath . From hereon, the ML-CG algorithm is defined with the new
+Polak-Ribière criterion. Figure 1 gives a numerical simulation on a
+single-qubit state @xmath , where @xmath and @xmath are two orthogonal
+kets.
+
+To investigate the performance of ML-CG numerically, Monte Carlo
+simulations are carried out on a unitarily-invariant random ensemble of
+full-rank two-qubit mixed states. To generate each random mixed state
+@xmath , we choose four random normalized kets @xmath and four random
+complex numbers @xmath . Then each mixed state is defined as
+
+  -- -------- -- --------
+     @xmath      (3.16)
+  -- -------- -- --------
+
+where @xmath is an integer parameter which we vary to obtain random
+mixed states of varying ranges of purity. To compute the optimal value
+of @xmath in the @xmath th step, we evaluate the likelihood functional
+at ten different values of @xmath and perform a quadratic curve fitting
+to obtain the approximate maximum of the likelihood functional. For the
+POM outcomes, we use the tensor products of the single-qubit SIC POM
+(also known as the tetrahedron measurement) subnormalized projectors [
+TZE10 , ZE11 ] . These four rank-1 outcomes of the tetrahedron
+measurement have Bloch vectors defined by
+
+  -- -------- -- --------
+     @xmath      (3.17)
+  -- -------- -- --------
+
+This product measurement forms a minimal set of 16 informationally
+complete POM outcomes.
+
+All simulations are conducted with Mathematica on an Intel i7 Quad Core
+2.67 GHz machine. Figures 2 and 3 give the simulated results.
+
+Notice, however, that the improvement, in terms of average duration of
+each full run, of ML-CG over ML-DG I is generally smaller than that in
+terms of the average number of iterations required to complete a full
+run. The reason lies in the computation of matrix multiplications which
+can be significant in the conjugate gradient methods as @xmath
+increases. Nevertheless, ML-CG shows the best average convergence rate
+for all the randomly generated two-qubit mixed states in terms of both
+the average number of iterations and average duration compared to all
+other schemes.
+
+Next, we present two sets of simulation data for four-qubit tomography
+on the GHZ and W states. Let us emphasize that as the dimension of the
+Hilbert space increases, the computational cost for evaluating large
+matrices becomes more significant, especially in the likelihood
+functional computations required for the quadratic interpolation
+procedure. This is eminent in four-qubit state estimation. In this case,
+we also consider performing ML-CG with fixed @xmath to reduce the
+overall time required to compute a full run of the algorithm.
+
+Finally, we compare the performances of ML-DG and ML-CG by performing
+quantum state estimation on one simulated set of measurement data for an
+eight-qubit pure state [ HHR @xmath 05 ] with MATLAB. The POM used is
+the set of @xmath different tensor products of eight single-qubit
+tetrahedron outcomes. In practice, it is difficult to store all the
+65536 outcomes into memory on a personal computer and so we generate all
+these outcomes on the fly in each iterative step of the algorithms. In
+addition, the evaluation of these @xmath operators is extremely costly.
+These factors, together, cause a tremendous slowdown in the durations of
+the algorithms. Hence, the type I algorithms are naturally more
+practical in this situation than type II algorithms. The simulations
+show that ML-DG I takes about 143 hours to complete the run up to a
+fixed numerical precision @xmath , whereas ML-CG I takes about 95 hours
+to achieve the same precision. Thus, ML-CG I does in fact offer a more
+optimistic alternative for quantum state estimation involving quantum
+systems living in large Hilbert spaces. It is important to note that the
+conjugate-gradient methodology we have presented in this section is
+applicable to any algorithm that is based on the steepest-ascent method,
+as the machineries established are a natural extension to those of
+steepest-ascent.
+
+### 4 Informationally incomplete quantum state estimation
+
+If the POM used for measurement is informationally complete, then there
+exists a unique estimator @xmath that maximizes @xmath . However, if the
+POM is not informationally complete, then there are infinitely many
+estimators that maximize @xmath for a given set of @xmath s. In fact,
+because of the concavity of @xmath , the existence of two such
+estimators @xmath and @xmath implies the existence of a continuous
+family of estimators @xmath , where @xmath . Therefore in order to
+systematically choose one estimator for statistical prediction, we shall
+consider the principle of entropy maximization (ME) that goes way back
+to two papers by Edwin Thompson Jaynes [ Jay57a , Jay57b ] in 1957. In
+doing so, one can always obtain a unique estimator that maximizes both
+@xmath and the von Neumann entropy functional @xmath (John von Neumann).
+J. Řeháček et al. had looked into this ML-assisted ME technique in
+particular for commuting POM outcomes [ ŘH04 ] and the photon-number
+statistics of light [ HŘ06 ] . This section develops iterative schemes
+that are applicable for general situations.
+
+#### 4.1 General iterative scheme
+
+The original idea of ML-assisted ME considered by J. Řeháček et al.
+involves two steps. The first step is to perform the ML procedure in
+order to look for the estimators @xmath that maximize @xmath given a
+fixed set of measured frequencies @xmath s from a informationally
+incomplete POM with @xmath outcomes. In this case, there are infinitely
+many such ML estimators and as a result, the likelihood functional forms
+a plateau on the space of statistical operators. The second step is to
+select the estimator with the maximum value of @xmath . Such a procedure
+is equivalent to raising the plateau into a concave hill so that the
+resulting estimator chosen gives the globally maximum value. In this
+way, a unique maximum-likelihood-maximum-entropy (MLME) estimator can
+always be obtained for statistical predictions. We do this by
+considering the Lagrange functional (Joseph-Louis Lagrange) @xmath
+involving the von Neumann entropy functional @xmath and the constraints
+@xmath as well as @xmath defined as
+
+  -- -------- -- -------
+     @xmath      (4.1)
+  -- -------- -- -------
+
+where the @xmath s and @xmath are the Lagrange multipliers for the
+constraints. Varying @xmath yields
+
+  -- -------- -- -------
+     @xmath      (4.2)
+  -- -------- -- -------
+
+Thus, setting @xmath to zero gives the maximum-entropy (ME) estimator of
+the form
+
+  -- -------- -- -------
+     @xmath      (4.3)
+  -- -------- -- -------
+
+which maximizes @xmath under the set of constraints, after setting
+
+  -- -------- -- -------
+     @xmath      (4.4)
+  -- -------- -- -------
+
+The task now is to look for the Lagrange multipliers using the above
+constraints. This requires the solutions to a set of nonlinear equations
+which in general may not be conveniently obtained, especially when the
+operators @xmath do not commute.
+
+An alternative idea is to maximize the likelihood functional @xmath by
+optimizing @xmath of the estimator in Eq. ( 4.3 ) so that the resulting
+MLME estimator @xmath is the one that maximizes @xmath and is
+automatically the maximum-entropy estimator. An interesting observation
+^(\fnsymbolwrap) ^(\fnsymbolwrap) \fnsymbolwrap Thanks to Dr. Ng Hui
+Khoon, a research fellow in CQT, for pointing this out. is that the
+Lagrange multipliers are not all independent. This stems from the
+completeness of the POM @xmath which implies that there are altogether
+@xmath independent constraints for the Lagrange multipliers. As such one
+may choose to optimize only @xmath Lagrange multipliers.
+
+Varying @xmath yields
+
+  -- -------- -- -------
+     @xmath      (4.5)
+  -- -------- -- -------
+
+where @xmath . Using @xmath of the form in Eq. ( 4.3 ), the variation
+
+  -- -------- -- -------
+     @xmath      (4.6)
+  -- -------- -- -------
+
+with @xmath , involves the variation of @xmath and this is carried out
+by noting that given an operator @xmath ,
+
+  -- -------- -- -------
+     @xmath      (4.7)
+  -- -------- -- -------
+
+Substituting Eq. ( 4.6 ) into Eq. ( 4.5 ), the resulting variation of
+the log-likelihood functional @xmath is derived to be
+
+  -- -------- -- -------
+     @xmath      (4.8)
+  -- -------- -- -------
+
+where @xmath is the number of detection copies of the quantum system.
+One can immediately find that the derivative of @xmath with respect to
+@xmath is
+
+  -- -------- -- -------
+     @xmath      (4.9)
+  -- -------- -- -------
+
+Hence the maximal value of @xmath is attained when the extremal equation
+
+  -- -------- -- --------
+     @xmath      (4.10)
+  -- -------- -- --------
+
+is satisfied, where @xmath and @xmath is the identity operator on the
+support of @xmath . This is of course obvious in hindsight since Eq. (
+4.10 ) is equivalent to the statement
+
+  -- -------- -- --------
+     @xmath      (4.11)
+  -- -------- -- --------
+
+as in the case of ML.
+
+With the above setting, we can construct an iterative scheme MLME based
+on the principle of steepest-ascent. Since the @xmath s are arbitrary,
+we can set each variation as follows:
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+              @xmath      (4.12)
+  -- -------- -------- -- --------
+
+where @xmath is a positive parameter which defines the step size taken
+in every iterative step. So now the iteration proceeds by a step of size
+@xmath along the direction of the gradient @xmath in each step. We thus
+have the variation @xmath to be always positive. The MLME scheme is then
+given by
+
+Scheme A
+
+@xmath @xmath (4.13) @xmath (4.14)
+
+As in the ML iterative scheme, one can always start from the
+maximally-mixed state.
+
+The fruit of the above discussion is an iterative scheme that looks for
+the MLME estimator directly rather than taking the ML-assisted ME
+approach which involves two steps and a set of nonlinear equations. This
+iterative scheme is conveniently applicable for general POMs and
+tomography in any Hilbert space dimension. In general, the CPU time for
+exponentiating a square matrix is acceptable even for matrices as large
+as @xmath using commercial optimized algorithms. The only practical
+shortcoming in this scheme is the long CPU time required to perform the
+numerical integration in each iterative step and this can be quite
+serious as the dimension of the Hilbert space increases. One possible
+way of circumventing the problem is to approximate the variation of the
+matrix exponential of an operator @xmath as ^(\fnsymbolwrap)
+^(\fnsymbolwrap) \fnsymbolwrap Thanks to Zhu Huangjun who suggested this
+approximation.
+
+  -- -------- -- --------
+     @xmath      (4.15)
+  -- -------- -- --------
+
+Then the direction of ascent in every step of Scheme A is given by
+
+  -- -------- -- --------
+     @xmath      (4.16)
+  -- -------- -- --------
+
+In this way, the integration procedure can be avoided.
+
+At this point, we would like to make a distinction between this MLME
+technique and the conventional ME technique [ BAD96 , RP05 ] . The ME
+technique takes the outcome frequencies @xmath as the probabilities
+@xmath and tries to search for the positive operator in Eq. ( 4.3 ) by
+maximizing @xmath , subjected to the probability constraints which are
+mediated by the Lagrange multipliers @xmath . The fundamental problem
+with this scheme is that, in general, the @xmath s cannot be treated as
+probabilities since they correspond to an operator which is not
+necessarily positive. This is due to the statistical noise which is
+inherent in the outcome frequencies arising from measuring finite copies
+of quantum systems. Therefore, in such cases, the ME technique fails as
+there simply is no positive operator which is consistent with the
+measurement data to begin with. The MLME algorithm, on the other hand,
+looks for the unique MLME estimator by confining the search within the
+plateau region inside the Hilbert space. Thus, positivity is ensured. In
+cases where the @xmath s are probabilities, both the ME and MLME schemes
+yield the same estimator by construction since the estimated
+probabilities @xmath correspond to a statistical operator.
+
+We compare the MLME scheme with the standard ME scheme using the simple
+example of a trine POM defined by the equations
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+     @xmath   @xmath      (4.17)
+  -- -------- -------- -- --------
+
+where the Pauli operators (Wolfgang Ernst Pauli) @xmath , @xmath and
+@xmath are given by
+
+  -- -------- -- --------
+     @xmath      (4.18)
+  -- -------- -- --------
+
+A straightforward calculation shows that when @xmath , @xmath and @xmath
+after measuring @xmath copies for instance, the standard ME scheme fails
+as no quantum state has the frequencies @xmath , @xmath and @xmath as
+probabilities. On the other hand, the MLME scheme still gives a positive
+estimator described by the Bloch vector @xmath for those frequencies,
+thus showing its versatility. Only when the frequencies are
+probabilities giving positive estimators may we use the ME scheme and in
+this case, the MLME scheme naturally incorporates these constraints.
+
+#### 4.2 Qubit tomography
+
+In this example, to benchmark the MLME iterative scheme, qubit
+tomography simulations are performed using the trine POM defined in
+Eq. ( 4.17 ). In this case, no expectation value is measured along the
+@xmath direction in the three-dimensional Bloch representation. One can
+easily show that the maximum-entropy estimator @xmath for the true state
+will always be represented by a real and positive matrix by simply
+minimizing the purity of the estimator since for any qubit statistical
+operator, a decrease in its purity corresponds to an increase in its
+entropy. In the simulation, we fix @xmath , @xmath and @xmath , where
+@xmath and @xmath . Therefore
+
+  -- -------- -- --------
+     @xmath      (4.19)
+  -- -------- -- --------
+
+Since this is an eigenstate of @xmath , we will ideally have @xmath .
+This implies that @xmath and we expect the final MLME estimator to be
+the maximally-mixed state. The MLME Scheme A gives the unique estimator
+
+  -- -------- -- --------
+     @xmath      (4.20)
+  -- -------- -- --------
+
+which is consistent with the expected result, under an iteration time of
+0.015 s using the approximated gradient expression for a precision
+@xmath in a particular simulated experimental run on an Intel(R)
+Core(TM) i7 2.66 GHz computer using Mathematica.
+
+#### 4.3 Two-qubit tomography
+
+For simplicity, we consider two different informationally incomplete
+POMs. The first POM consists of nine outcomes that are tensor products
+of a pair of qubit trine POM outcomes as in Eq. ( 4.17 ). In this case,
+there will be expectation values for observables which depend on @xmath
+like @xmath , etc. However, as it turns out, the MLME estimator is still
+a real statistical operator in the computational basis, with the six
+expectation values @xmath , @xmath , @xmath , @xmath , @xmath and @xmath
+all equal to zero.
+
+For the second POM, we emphasize the versatility of the MLME scheme by
+choosing a random POM consisting of nine outcomes by first generating
+nine random complex operators @xmath and then defining
+
+  -- -------- -- --------
+     @xmath      (4.21)
+  -- -------- -- --------
+
+where @xmath . Care has to be taken to ensure that @xmath has full rank,
+which is the typical situation if the operators @xmath are randomly
+chosen. Using this POM, the maximum-entropy estimator is in general a
+complex statistical operator. The results are shown in Figs.
+LABEL:fig:trine and 5 . The two figures show that the reconstructed
+statistical operators are in general close to the true statistical
+operators.
+
+#### 4.4 Imperfect measurements
+
+In a practical tomography experiment, the detectors used are less than
+perfect. Typically, detection imperfections can be summarized using a
+set of positive numbers @xmath , where @xmath is the detection
+efficiency for a particular POM outcome @xmath . More generally, one can
+describe a POM with more sophisticated imperfections by introducing the
+efficiency matrix @xmath , with positive matrix elements satisfying the
+inequality
+
+  -- -------- -- --------
+     @xmath      (4.22)
+  -- -------- -- --------
+
+After obtaining these matrix elements through calibration, one can
+define a new set of outcomes
+
+  -- -------- -- --------
+     @xmath      (4.23)
+  -- -------- -- --------
+
+such that @xmath ^(\fnsymbolwrap) ^(\fnsymbolwrap) \fnsymbolwrap There
+are, of course, other types of experimental imperfections, such as the
+non-uniformity in the thickness of wave plates, the instability of the
+phase modulator, etc., that can affect the result of state estimation.
+These imperfections, in principle, can all be accounted for with the POM
+outcomes @xmath . . Therefore, @xmath .
+
+As a consequence to these imperfections, we would not know the true
+total number of copies @xmath that have reached all detectors. Denoting
+the total number of copies registered by the imperfect detectors by
+@xmath , we can write down the likelihood functional for this scenario,
+with no emphasis on any particular sequence of detector clicks, as
+
+  -- -------- -- --------
+     @xmath      (4.24)
+  -- -------- -- --------
+
+where the indices here run over all outcomes and we define @xmath to be
+the overall detection efficiency . The multinomial factor takes into
+account all possible sequences of having @xmath detected copies out of
+the total of @xmath copies sent to all detectors. Using Stirling’s
+formula (James Stirling) @xmath , the log-likelihood can be simplified
+to
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+              @xmath      (4.25)
+  -- -------- -------- -- --------
+
+where @xmath .
+
+Performing the variation, we have
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+              @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      (4.26)
+  -- -------- -------- -- --------
+
+Setting @xmath to zero, i.e. maximizing @xmath , requires the derivative
+
+  -- -------- -- --------
+     @xmath      (4.27)
+  -- -------- -- --------
+
+to be independently zero. This implies that the extremal equation
+
+  -- -------- -- --------
+     @xmath      (4.28)
+  -- -------- -- --------
+
+has to be satisfied, which is a rather natural statement since the
+likely number of copies that are actually received by the imperfect
+detectors is, of course, the true total number multiplied by the overall
+detection efficiency that is less than one. Then the resulting
+expression for @xmath further simplifies to
+
+  -- -- -- --------
+           (4.29)
+  -- -- -- --------
+
+where @xmath and the operator @xmath accounts for inefficient
+detections.
+
+We may naively make use of Eq. ( 4.3 ) to derive the following scheme:
+
+  -- -------- -------- -- --------
+     @xmath               (4.30)
+     @xmath   @xmath      (4.31)
+  -- -------- -------- -- --------
+
+with the index @xmath running over all POM outcomes. However, it turns
+out that there are many different sets of probabilities @xmath that
+maximize @xmath for a fixed set of measured data and hence multiple MLME
+estimators. We first note that the log-likelihood functional @xmath ,
+after an application of the Stirling’s formula on the factorials, is a
+concave function in @xmath since
+
+  -- -------- -- --------
+     @xmath      (4.32)
+  -- -------- -- --------
+
+and each logarithmic term in the sum is concave in @xmath . Hence
+concavity is not the cause of the existence of non-unique extremal
+@xmath s. To identify the root of the problem, we look at the
+derivatives of @xmath by differentiating Eq. ( 4.32 ) with respect to
+@xmath , i.e.
+
+  -- -------- -- --------
+     @xmath      (4.33)
+  -- -------- -- --------
+
+Then an extremal solution of @xmath satisfy the above equations with
+@xmath inasmuch as
+
+  -- -------- -- --------
+     @xmath      (4.34)
+  -- -------- -- --------
+
+For @xmath detected POM outcomes, there are altogether @xmath
+independent equations and one normalization constraint for the full set
+of @xmath s. From Eq. ( 4.34 ), it is clear that the total number of
+available equations which are independent is @xmath and thus, there
+exist infinitely many solutions for these reduced set of equations, for
+the number of independent variables is now more than the number of
+independent equations. A simple example is a set of three POM outcomes,
+with @xmath for the third outcome. Then the only independent equation
+involving the probabilities is
+
+  -- -------- -- --------
+     @xmath      (4.35)
+  -- -------- -- --------
+
+and hence, there are infinitely many solutions of @xmath , @xmath and
+@xmath which maximize @xmath .
+
+In other words, we have infinitely many sets of solutions for @xmath ,
+with each set giving rise to a unique MLME estimator. The task is then
+to select the MLME estimator that has the highest entropy out of the
+continuous family of MLME estimators. To do this, we first realize that
+Eq. ( 4.34 ) simply implies that the ratio @xmath equals a constant
+value for @xmath . Hence a scaling transformation on a reference set of
+solutions @xmath with a continuous parameter @xmath such that
+
+  -- -------- -- --------
+     @xmath      (4.36)
+  -- -------- -- --------
+
+also gives another set of solutions which satisfy Eq. ( 4.34 ). The
+resulting maximum entropy estimator is obtained by varying the Lagrange
+functional
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+              @xmath      (4.37)
+  -- -------- -------- -- --------
+
+and later setting the variation zero. In this way, the parameter @xmath
+is optimized to give an estimator with the highest entropy among the
+family of MLME estimators. It follows that the extremal equation, after
+a variation in @xmath , is given by
+
+  -- -------- -- --------
+     @xmath      (4.38)
+  -- -------- -- --------
+
+where
+
+  -- -------- -- --------
+     @xmath      (4.39)
+  -- -------- -- --------
+
+This implies that
+
+  -- -------- -- --------
+     @xmath      (4.40)
+  -- -------- -- --------
+
+Taking the ME estimator of the form in Eq. ( 4.40 ), one can derive an
+iterative scheme to maximize @xmath which is given by
+
+Scheme B
+
+@xmath @xmath (4.41) @xmath @xmath @xmath (4.42)
+
+where the extremal equation to be satisfied by @xmath is
+
+  -- -------- -- --------
+     @xmath      (4.43)
+  -- -------- -- --------
+
+With the approximation supplied by Eq. ( 4.15 ), the gradient can be
+approximated to
+
+  -- -------- -------- -- --------
+              @xmath      
+     @xmath   @xmath      (4.44)
+  -- -------- -------- -- --------
+
+Since this scheme is independent on the choice of @xmath , one may first
+perform ML starting from the maximally-mixed state and make use of the
+resulting set of ML probabilities to carry out Scheme B .
+
+To demonstrate the results of the scheme, we first ran a single
+simulated experiment involving the measurement of 5000 copies of qubits
+prepared in a random state using of a random three-outcome POM, with one
+of the POM outcomes not registering any qubit. Post-processing the data
+with Scheme B indeed gives the MLME estimator which has the highest
+entropy among all other estimators generated using the former naive
+scheme by varying the starting state for each iteration. The result is
+shown in Fig. 6 .
+
+Fig. 7 compares the performances of Scheme A , with which we search for
+the MLME estimator by assuming that the measured data @xmath are all we
+have while ignoring the possible missing data, in qubit tomography using
+the trace-class distance
+
+  -- -------- -- --------
+     @xmath      (4.45)
+  -- -------- -- --------
+
+as the figure of merit to quantify the distance between @xmath and
+@xmath . The lesson here is that if one neglects the consequence of
+imperfect measurements in performing state reconstruction, the quality
+of the resulting reconstructed state estimator will typically be much
+lower than that obtained from a scheme which accounts for this
+imperfection.
+
+In a typical experiment, all detectors are controlled to have the same
+efficiency @xmath . In this special setting, the operator @xmath in
+Eq. ( 4.29 ) further simplifies to
+
+  -- -------- -- --------
+     @xmath      (4.46)
+  -- -------- -- --------
+
+Incidently, the term that is a multiple of the identity operator does
+not affect the likelihood maximization procedure at all, and we will
+obtain exactly Scheme A for the incomplete set of data. In other words,
+since all the detectors have indistinguishable efficiencies, we can
+consider this special setting as the situation in which the observer has
+a complete set of measurement data that is less than that for the case
+when all detectors have 100% efficiency.
+
+#### 4.5 A new perspective
+
+Previously, we described the original idea of the ML-assisted ME
+procedure for a set of informationally incomplete measurements in a
+given quantum tomography experiment, that is the selection of the
+most-likely state estimator with the highest von Neumann entropy as the
+least-biased state estimator. Such a procedure usually involves
+complicated systems of non-linear equations which are especially hard to
+solve for non-commuting measurement operators.
+
+We then established novel and more feasible schemes, via the
+steepest-ascent approach, which are suitable for any set of measurement
+operators, to obtain the same result by maximizing the likelihood
+functional over the space of statistical operators, with each operator
+assuming the form that maximizes the von Neumann entropy functional for
+a fixed set of probabilities. This MLME approach, which effectively
+condenses the ML and ME optimization procedures into one, can in fact be
+slow. This is due to the fact that the proposed MLME algorithm proceeds
+along a search path that deviates away from steepest-ascent because of
+the approximation in Eq. ( 4.15 ).
+
+In the subsequent sections, we establish more efficient MLME algorithms
+by viewing the problem of MLME in a different perspective [ TZE @xmath
+11 , TSE @xmath 12 ] . We then apply these new algorithms to several
+different situations.
+
+##### 4.5.1 A new algorithm for perfect measurements
+
+Assuming that the measurement detections are perfect, one can consider
+the optimization of the normalized log-likelihood functional @xmath ,
+with @xmath defined in Eq. ( 2.12 ). The motivation for introducing the
+normalization will become clear soon. The MLME scheme can then be
+perceived as a standard constrained optimization problem: maximize
+@xmath subjected to the constraint that @xmath takes the maximal value
+@xmath . The Lagrange functional for this optimization problem is
+defined as
+
+  -- -------- -- --------
+     @xmath      (4.47)
+  -- -------- -- --------
+
+where @xmath is the Lagrange multiplier corresponding to the constraint
+for @xmath . This is equivalent to maximizing @xmath with the constraint
+that @xmath is maximal, as discussed previously. We denote the estimator
+that maximizes @xmath by @xmath . Incidently, as a result of the
+normalization of @xmath , the functional @xmath is a sum of two
+different types of entropy, up to an irrelevant additive constant @xmath
+: the von Neumann entropy @xmath that quantifies the “lack of
+information”, and the negative of the relative entropy @xmath that
+quantifies the “gain of information” from the measurement data. The
+scheme can now be interpreted as a simultaneous optimization of two
+complementary aspects of information, with an appropriately assigned
+constant relative weight @xmath . In addition, the normalization of
+@xmath renders the optimal value of @xmath to be independent of @xmath .
+
+When @xmath , we recover the Lagrange functional for the log-likelihood
+functional alone. Owing to the informational incompleteness of the
+measurement data, there exists a convex plateau structure for the
+log-likelihood functional. As @xmath , the von Neumann entropy becomes
+increasingly more significant and the resulting estimator @xmath
+approaches the maximally-mixed state @xmath . Naturally, when @xmath
+takes on a very small positive value, the contribution from @xmath
+becomes much smaller than @xmath and the effect of the von Neumann
+entropy functional is only significant over the plateau region in which
+the likelihood is maximal. Figure 8 illustrates all the aforementioned
+points.
+
+This means that, in general, @xmath should be chosen so small that
+@xmath takes a value that is very close to the minimum, and below which
+there are only very slight changes in the two entropy functionals. The
+methodology to select an appropriate value of @xmath will be discussed
+in § 4.5.3 .
+
+Let us derive the iterative algorithm for maximizing @xmath with respect
+to @xmath . After varying @xmath , we have
+
+  -- -- -- --------
+           (4.48)
+  -- -- -- --------
+
+The variations @xmath , or @xmath , have to be such that @xmath stays
+positive after these variations. With the help of the parametrization in
+Eq. ( 3.3 ), we find that
+
+  -- -------- -- --------
+     @xmath      (4.49)
+  -- -------- -- --------
+
+where
+
+  -- -------- -- --------
+     @xmath      (4.50)
+  -- -------- -- --------
+
+with
+
+  -- -------- -- --------
+     @xmath      (4.51)
+  -- -------- -- --------
+
+When @xmath is maximal, we have @xmath and the extremal equations
+
+  -- -------- -- --------
+     @xmath      (4.52)
+  -- -------- -- --------
+
+are satisfied. Therefore, to solve these extremal equations numerically,
+we iterate the equation
+
+  -- -- -- --------
+           (4.53)
+  -- -- -- --------
+
+starting from some statistical operator @xmath , until @xmath such that
+the norm of @xmath is less than some pre-chosen value. We then take
+@xmath as the MLME estimator. Maximizing @xmath will require @xmath to
+be positive whenever @xmath is less than the maximal value. A
+straightforward way to enforce positivity is to set
+
+  -- -------- -- --------
+     @xmath      (4.54)
+  -- -------- -- --------
+
+with @xmath being a small positive constant. This is the steepest-ascent
+method. We have thus established a numerical MLME scheme as a set of
+iterative equations ( 4.53 ) and ( 4.54 ) to search for the MLME
+estimator using the measurement data obtained from perfect measurement
+detections. More compactly, the relevant iterative equations are
+
+New MLME iterative equations for perfect measurements
+
+@xmath @xmath @xmath @xmath (4.55)
+
+There exists an interesting structure in these MLME estimators and to
+explore it, one needs some knowledge on the structure of the POM used
+and its influence on the @xmath -dimensional Hilbert space. Suppose a
+set of @xmath POM elements @xmath are informationally incomplete. A
+consequence of this is that the number of linearly independent @xmath s
+is less than @xmath . As discussed in § 2 , to determine their linear
+independence, we can look for the eigenvalues of the @xmath Gram matrix
+@xmath whose matrix elements are defined as
+
+  -- -------- -- --------
+     @xmath      (4.56)
+  -- -------- -- --------
+
+Thus, a set of informationally incomplete @xmath s acting on the @xmath
+-dimensional Hilbert space is such that the number of positive
+eigenvalues of @xmath , denoted by @xmath , is less than @xmath . Any
+@xmath -dimensional positive operator can be represented by a set of
+@xmath Hermitian basis operators @xmath satisfying the
+trace-orthonormality condition @xmath . For dimension two, an example of
+such a basis is the the familiar set of four operators @xmath , @xmath ,
+@xmath and @xmath . Once the number of independent measurement outcomes
+@xmath is known, one can construct a set @xmath of @xmath
+trace-orthonormal Hermitian basis operators directly from the @xmath POM
+elements. In other words, each of the @xmath POM elements can be
+expressed as a linear combination of the @xmath basis operators
+
+  -- -------- -- --------
+     @xmath      (4.57)
+  -- -------- -- --------
+
+where all coefficients @xmath are real. This implies that the @xmath
+-dimensional subspace is spanned by the basis operators that uniquely
+specify the POM outcomes. We will coin this subspace the measurement
+subspace . The rest of the @xmath Hermitian basis operators, which are
+trace-orthonormal to the previous set and span the subspace, that is
+complement to the measurement subspace can also be constructed.
+
+Suppose a state estimator @xmath is generated using the ML procedure on
+a set of measurement data obtained from the POM outcomes @xmath . We can
+represent this estimator by a set of Hermitian trace-orthonormal basis
+operators inasmuch as
+
+  -- -------- -- --------
+     @xmath      (4.58)
+  -- -------- -- --------
+
+The part @xmath resides in the measurement subspace, which is spanned by
+the measurement outcomes @xmath giving the measurement data, and is
+uniquely fixed for all ML estimators by the ML procedure for the same
+set of measurement data. The part @xmath resides in the complementary
+subspace, which is orthogonal to the measurement subspace, and thus does
+not contribute to the @xmath s. In other words, @xmath and this can
+imply the existence of a family of @xmath s that gives the same set of
+ML probabilities as long as the @xmath s are positive.
+
+Therefore, the MLME scheme can be understood as an optimization over the
+complementary subspace to maximize @xmath under the constraint @xmath .
+However, one notes that only certain sets of @xmath s are allowed during
+the optimization in order to obey this positivity constraint. This is
+especially important when @xmath is rank deficient and lies on the
+boundary of the state space. Geometrically, the plateau of most-likely
+states is generally a much smaller subspace contained in the
+complementary subspace. In some cases, this plateau contains a single ML
+estimator because of the positivity constraint even when the
+measurements are informationally incomplete. In general, the boundary of
+the plateau is complicated and deserves further study.
+
+##### 4.5.2 A new algorithm for imperfect measurements
+
+In actual experiments, as discussed previously, the measurement
+detections will usually be imperfect in the sense that the detection
+efficiency @xmath of a particular measurement outcome @xmath is less
+than unity. In this case, the overall outcome probabilities
+
+  -- -------- -- --------
+     @xmath      (4.59)
+  -- -------- -- --------
+
+will not sum to unity. Hence, we have a set of POM with outcomes @xmath
+such that @xmath . A consequence of this is that the true total number
+@xmath of copies received is not known, since only @xmath are detected (
+@xmath when all @xmath as in § 4.5.1 ).
+
+From § 4.4 , the correct form of the likelihood functional for this
+situation is given by
+
+  -- -------- -- --------
+     @xmath      (4.60)
+  -- -------- -- --------
+
+up to an irrelevant multiplicative factor, with its corresponding
+logarithmic variation
+
+  -- -- -- --------
+           (4.61)
+  -- -- -- --------
+
+with @xmath . The additional term @xmath in the argument of the trace
+accounts for copies that have escaped detection.
+
+Defining @xmath for the new POM and its @xmath in Eq. ( 4.60 ), one can
+derive the iterative equations
+
+New MLME iterative equations for imperfect measurements
+
+@xmath @xmath @xmath (4.62)
+
+with @xmath . We note that more efficient algorithms, using the
+conjugate-gradient method, can be derived from these steepest-ascent
+algorithms using the machineries introduced in § 3.2 .
+
+##### 4.5.3 Applications
+
+Homodyne detection tomography
+
+To discuss the methodology of choosing @xmath , we shall apply the MLME
+scheme to homodyne detection tomography, a technique which is used to
+reconstruct quantum states of light [ SMBF93 , OTBG06 , NNNH @xmath 06 ]
+. This is typically done by measuring a POM which resembles a set of
+eigenstate projectors @xmath of quadrature operators @xmath for various
+@xmath values, where @xmath and @xmath are respectively the position and
+momentum quadrature operators and @xmath and @xmath are parameters
+specifying these projectors. Introducing the standard annihilation
+operator @xmath , we have
+
+  -- -------- -- --------
+     @xmath      (4.63)
+  -- -------- -- --------
+
+To facilitate the numerical simulations with the eigenkets @xmath , the
+corresponding quadrature wave functions @xmath in the Fock
+representation are needed. To obtain these wave functions, we first note
+that the product of @xmath and the function @xmath satisfies the
+relation @xmath since, for any Fock ket @xmath ,
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      
+              @xmath      (4.64)
+  -- -------- -------- -- --------
+
+From this relation, we realize that
+
+  -- -------- -- --------
+     @xmath      (4.65)
+  -- -------- -- --------
+
+and its corresponding quadrature eigenket @xmath is thus obtained via a
+unitary transformation
+
+  -- -------- -- --------
+     @xmath      (4.66)
+  -- -------- -- --------
+
+of the corresponding eigenket @xmath of the position quadrature operator
+@xmath . Hence, in the Fock representation, the corresponding quadrature
+wave functions are given by
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+              @xmath      (4.67)
+  -- -------- -------- -- --------
+
+where @xmath are the Hermite polynomials (Charles Hermite) of degree
+@xmath .
+
+It is clear that a finite set of such measurements is never
+informationally complete in the infinite-dimensional Hilbert space and
+thus the MLME scheme is necessary to obtain a unique estimator. Figure 9
+shows the dependence of @xmath and @xmath on @xmath such that @xmath .
+In practice, @xmath can be chosen from a range near zero, within which
+@xmath and @xmath remain almost constant.
+
+Homodyne detection tomography is commonly used not only in quantum
+tomography on the true state, but also in quantum diagnostics where a
+given true state is to be classified as being classical/non-classical or
+separable/entangled. With the help of the coherent states @xmath , the
+following decomposition
+
+  -- -------- -- --------
+     @xmath      (4.68)
+  -- -------- -- --------
+
+for a state @xmath can be used to distinguish classical states from
+non-classical ones, where the function @xmath is known as the
+Glauber-Sudarshan @xmath function (Roy Jay Glauber and Ennackal Chandy
+George Sudarshan) of the complex parameter @xmath . Using this
+decomposition, we define the state @xmath to be a classical state if
+@xmath is positive for all @xmath , and only then: that is, @xmath is a
+statistical mixture of coherent states. Otherwise, @xmath is
+non-classical. The symbol @xmath denotes the integral measure over the
+real and imaginary parts of the complex variable @xmath .
+
+One very popular way to represent the measurement data obtained in a
+typical homodyne experiment is by means of the Wigner functional (Eugene
+Paul Wigner) of @xmath defined as
+
+  -- -------- -- --------
+     @xmath      (4.69)
+  -- -------- -- --------
+
+This functional is a quasi-probability density functional that maps the
+statistical operator onto the phase space (see Ref. [ Wig32 ] ) and has
+many nice properties that are symmetric with respect to the phase space
+variables @xmath and @xmath . In addition, this functional can be used
+to determine if a state @xmath is non-classical. To see this, we note
+the coherent-state representation of @xmath defined in Eq. ( 4.68 ) and
+the expression for the wave function of the ket @xmath given by
+
+  -- -------- -- --------
+     @xmath      (4.70)
+  -- -------- -- --------
+
+Using these equations,
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+              @xmath      
+                          
+              @xmath      (4.71)
+  -- -------- -------- -- --------
+
+Since the exponentials are always positive, any non-positivity of @xmath
+must originate from a non-positive @xmath . The converse is in general
+not true, however, as there are non-classical quantum states that give
+positive Wigner functions. A naive quantity that is often investigated
+as an indication of whether an unknown true state is non-classical is
+the value of the Wigner functional at the phase space origin evaluated
+with a reconstructed estimator @xmath for the unknown true state. This
+is defined as @xmath , with the parity operator @xmath . In the Fock
+representation, the parity operator becomes
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      (4.72)
+              @xmath      (4.73)
+  -- -------- -------- -- --------
+
+due to the property of the Hermite polynomials contained in the complex
+function @xmath . To obtain an estimator @xmath , one would need to
+choose a subspace from the infinite-dimensional Hilbert space in which
+the reconstruction procedure is tractable. This means that the value of
+@xmath will depend on this truncation, which in turn relies on the prior
+knowledge one has about the true state. Using the new MLME scheme, we
+perform a simulation, shown in Fig. 10 , to illustrate this dependence.
+
+If the true state lies outside the subspace of interest, then the
+estimated value of @xmath can drastically deviate from the true value.
+It is clear that a truncation of the Hilbert space into a smaller
+reconstruction subspace can lead to diagnostics which are highly
+incompatible with the true result. So, if one is interested in
+performing an objective quantum tomography experiment on a given
+collection of identically-prepared quantum systems with some prior
+knowledge regarding its true state, an option would be to reconstruct
+the MLME estimator in the largest possible subspace based on this prior
+knowledge. By enlarging the reconstruction subspace, many more
+admissible states are taken into consideration and more reliable state
+estimations and quantum diagnostics can thus be performed. We now have
+an operational reconstruction scheme that combines our knowledge and
+ignorance about the unknown true state to give us a unique state
+estimator in an objective way.
+
+Time-multiplexed detection tomography
+
+Next, we apply the MLME technique to simulation experiments on
+time-multiplexed detection (TMD) tomography [ ASŚ @xmath 03 , HHP04 ] .
+For experiments of this type, photon pulses of a particular quantum
+state, where each pulse is a wave packet containing a few photons, are
+sent through a series of beam splitters ^(\fnsymbolwrap)
+^(\fnsymbolwrap) \fnsymbolwrap The word ‘‘beam splitter’’, used in this
+context, represents a class of possible apparatuses used to split photon
+pulses, which includes conventional beam splitters, optical fibers, etc.
+, each associated with a certain transmission probability. Behind each
+of the output ports of such a series is a single-photon detector that
+either registers a click from an incoming split photon pulse, with some
+detection efficiency, or does nothing. Thus, each output port has a
+certain overall efficiency @xmath which is related to the relevant
+transmission probabilities and detection efficiency (See Fig.
+LABEL:fig:tmd_diag ).
+
+As a consequence of this, the POM outcomes
+
+  -- -------- -- --------
+     @xmath      (4.74)
+  -- -------- -- --------
+
+will be a mixture of Fock states, with the coefficients @xmath related
+to @xmath [ ŘHH @xmath 03 ] . If there are @xmath output ports, where
+all @xmath s are different, there will be @xmath distinct POM outcomes
+that arise from the binary nature of the single-photon detectors. In
+addition, @xmath since the @xmath binary sequences of detection
+configurations constitute all possible events. These POM outcomes
+commute and a measurement of these outcomes only gives information about
+the diagonal entries of the statistical operator of the true state in
+the Fock basis. In order to obtain information about the off-diagonal
+entries, one can, for instance, displace the current set of @xmath POM
+outcomes in phase space with some complex value @xmath away from the
+origin using the displacement operator
+
+  -- -------- -- --------
+     @xmath      (4.75)
+  -- -------- -- --------
+
+Then, the new set of outcomes
+
+  -- -------- -- --------
+     @xmath      (4.76)
+  -- -------- -- --------
+
+with @xmath being the total number of such displaced set of @xmath
+outcomes, do not commute with the undisplaced set. These displaced
+outcomes are suitable for a measurement that is designed to obtain
+information about the unknown true state by sampling over multiple
+@xmath s. Experimentally, these displaced POM outcomes can be realized
+with unbalanced homodyne detection [ WV96 ] .
+
+In the simulations, four output ports, corresponding to a total of
+@xmath POM outcomes, are considered. Two different true states are
+selected to illustrate the results of MLME. The first true state is
+chosen to be a stationary state of a laser given by
+
+  -- -------- -- --------
+     @xmath      (4.77)
+  -- -------- -- --------
+
+where @xmath defines the mean number of photons [ WV02 ] . For the
+second true state, the state @xmath , where
+
+  -- -------- -- --------
+     @xmath      (4.78)
+  -- -------- -- --------
+
+is the superposition of the coherent states @xmath and @xmath , is
+chosen. Statistical operators are first reconstructed from the simulated
+data. For this reconstruction, one has to decide on the dimension @xmath
+of the truncated Hilbert space for the reconstructions. This procedure,
+also commonly known as state-space truncation , depends on the prior
+information about the unknown state. In our case, suppose one knows that
+the mean number of photons of the source is @xmath , which is the value
+assigned in the simulation. Then, one may anticipate that all the
+relevant information about the true state should be contained in a
+Hilbert space of a dimension which is close to @xmath . In fact, it is a
+common practice to choose @xmath , compatible with this information,
+such that the displaced operators form an informationally complete POM.
+Then, the standard ML method can be applied to state estimation. We
+shall compare the result of this approach with another, perhaps more
+objective, methodology in which we select a larger subspace compatible
+with this prior information and estimate the state with MLME.
+
+To represent the reconstructed statistical operators @xmath , the Wigner
+functions @xmath of the dimensionless position and momentum quadrature
+values, @xmath and @xmath respectively, are calculated in accordance
+with ^(\fnsymbolwrap) ^(\fnsymbolwrap) \fnsymbolwrap Refer to Appendix
+\thechapter for its derivation.
+
+  -- -------- -------- -- --------
+              @xmath      
+     @xmath               (4.79)
+  -- -------- -------- -- --------
+
+where @xmath is the degree- @xmath associated Laguerre polynomial
+(Edmond Nicolas Laguerre) in @xmath of order @xmath and @xmath , for all
+the statistical operators. Here, we define @xmath and @xmath .
+
+To quantify the non-classicality of the statistical operators, we make
+use of the concept of non-classicality depth introduced in Ref. [ Lee91
+] . Let us define the function
+
+  -- -------- -- --------
+     @xmath      (4.80)
+  -- -------- -- --------
+
+where @xmath is a complex variable, @xmath is the Glauber-Sudarshan
+@xmath function, and the parameter @xmath is in the range @xmath . From
+the above definition, it follows that @xmath is a continuous
+interpolating function of @xmath from the typically singular, as well as
+non-positive, @xmath ( @xmath ), to the Wigner function @xmath ( @xmath
+), and finally to the positive Husimi @xmath function (Kôdi Husimi)
+@xmath ( @xmath ). The non-classicality depth is then defined as the
+smallest value @xmath , above which @xmath . Any mixture of coherent
+states is therefore a classical state since, in this case, @xmath . A
+quantum state with @xmath is a non-classical state. This measure of
+non-classicality captures the non-classical nature of quantum states
+through a one-parameter family of functions, which can otherwise be
+invisible to measures involving a fixed value of @xmath , such as the
+conventional negativity of the Wigner function. This non-classicality
+depth is but one of a few approaches for quantifying the
+non-classicality of quantum states and we will, without fixating on this
+quantity, adopt it as an appropriate measure that is not worse than
+other proposals. The generalization of Eq. ( 4.79 ) ^(\fnsymbolwrap)
+^(\fnsymbolwrap) \fnsymbolwrap Refer to Appendix \thechapter for its
+derivation. to arbitrary values of @xmath ,
+
+  -- -------- -------- -- --------
+              @xmath      
+     @xmath   @xmath      (4.81)
+  -- -------- -------- -- --------
+
+is useful for the numerical computation of @xmath . For the truncated
+version
+
+  -- -------- -- --------
+     @xmath      (4.82)
+  -- -------- -- --------
+
+of the stationary state in Eq. ( 4.77 ), taking , Eq. ( 4.81 )
+simplifies to
+
+  -- -------- -------- -- --------
+              @xmath      
+     @xmath   @xmath      (4.83)
+  -- -------- -------- -- --------
+
+The performances of both MLME and the standard ML method on the true
+states defined in Eqs. ( 4.77 ) and ( 4.78 ) are illustrated by the
+Wigner function plots of the respective statistical operators obtained
+from both methods. These are shown in Figs. 12 and 13 . The respective
+non-classicality depths are also computed for Fig. 12 . For the state
+@xmath , all the reconstructed statistical operators are highly
+non-classical, with @xmath [ TBS02 ] for all them. Rather than comparing
+the @xmath values, the structure of the Wigner functions for various
+reconstruction subspaces will be briefly analyzed instead in Fig. 13 .
+
+Light-beam tomography
+
+Finally, we make use of the MLME algorithm to reconstruct states of
+classical light beams that are measured using the Shack-Hartmann (SH)
+wave front sensor (Roland Shack and Johannes Franz Hartmann). An
+incoming light beam is transformed by a regular array of microlens
+apertures and detected in its rear focal plane by a charge-coupled
+device (CCD) camera (see Fig. 14 ). A plane wave traversing in the
+transverse plane of the SH sensor gives rise to a detection, where the
+individual diffraction patterns are centered at the corresponding
+optical centers of the microlenses. For a distorted wave front, the
+observed diffraction pattern behind the @xmath th microlens aperture
+will be deflected by an angle @xmath . Since the set of angles @xmath is
+related to the local wave front tilts with respect to the transverse
+plane of the SH sensor, the shape of the wave front can be inferred.
+Clearly, this standard technique of wave front reconstruction fails in
+the presence of imperfect coherence, where the notions of ‘‘wave front’’
+and “optical phase” are no longer well-defined and a more general
+description of the state of the light beam is necessary.
+
+Recently, an alternative theory for SH detection, based on the
+principles of quantum state tomography, has been introduced. It was
+shown that a complete characterization of a beam of light is possible
+from the measurement data obtained with the SH sensor under certain
+assumptions with regards to the aperture profiles [ HŘSS10 ] .
+Analogously to quantum states, we can describe a coherent beam (mode),
+with a complex amplitude @xmath , by a ket @xmath , such that @xmath .
+
+The transformation of the complex amplitude @xmath of an incoming light
+beam, which is propagating from the @xmath th microlens aperture to the
+SH sensor, can be described by the linear transformation [ Goo05 ]
+
+  -- -------- -- --------
+     @xmath      (4.84)
+  -- -------- -- --------
+
+With the identity
+
+  -- -------- -- --------
+     @xmath      (4.85)
+  -- -------- -- --------
+
+the complex amplitude @xmath , after propagation, is given by
+
+  -- -------- -- --------
+     @xmath      (4.86)
+  -- -------- -- --------
+
+where @xmath is the impulse response function of the @xmath th microlens
+aperture, which describes the free propagation of the beam from the
+aperture to the SH sensor. Apart from wave propagation that is
+energy-conserving, there is an additional effect on the wave amplitude
+as the light beam passes through the microlens aperture that can result
+in energy attenuation. This is mathematically described by the
+multiplicative transformation @xmath , where the aperture function
+@xmath of the @xmath th aperture gives the resulting aperture effect on
+the beam profile. Hence, on the focal plane of the @xmath th microlens
+aperture where the SH sensor resides, the final complex amplitude @xmath
+of the beam is given by the convolution integral
+
+  -- -------- -- --------
+     @xmath      (4.87)
+  -- -------- -- --------
+
+Since the detection region of the SH sensor is small, we can compare
+Eq. ( 4.86 ) with the Fresnel diffraction equation (Augustin-Jean
+Fresnel) for the normalized amplitudes, that is
+
+  -- -------- -- --------
+     @xmath      (4.88)
+  -- -------- -- --------
+
+where @xmath is the wavelength of the beam, @xmath , and irrelevant
+phase factors are neglected, to conclude that the normalized impulse
+response function can be defined as
+
+  -- -------- -- --------
+     @xmath      (4.89)
+  -- -------- -- --------
+
+Here, the @xmath direction is taken to be the optical axis. It follows
+that the functions @xmath are orthogonal. That is,
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      (4.90)
+  -- -------- -------- -- --------
+
+More generally, this orthogonality property follows directly from energy
+conservation of the light field during propagation. By defining @xmath
+to be the intensity of the propagated beam from the @xmath th aperture,
+at position @xmath , to be @xmath and @xmath to be the initial intensity
+at the same position before propagation,
+
+  -- -------- -------- -- --------
+              @xmath      
+     @xmath               
+     @xmath               
+     @xmath   @xmath      
+     @xmath               
+     @xmath   @xmath      
+     @xmath   @xmath      (4.91)
+  -- -------- -------- -- --------
+
+Suppose now, a generic partially coherent beam is detected by the SH
+sensor. We can describe the state of such a beam with a coherence
+operator @xmath . Using a computational basis of orthonormal modes
+@xmath , the @xmath -dimensional coherence operator @xmath is given by
+
+  -- -------- -- --------
+     @xmath      (4.92)
+  -- -------- -- --------
+
+By defining the aperture operator
+
+  -- -------- -- --------
+     @xmath      (4.93)
+  -- -------- -- --------
+
+for the @xmath th microlens aperture and the impulse response operator
+
+  -- -- -- --------
+           (4.94)
+  -- -- -- --------
+
+that is unitary from the orthogonality relation in Eq. ( 4.90 ), the
+representation of the corresponding transformed state @xmath ,
+
+  -- -------- -------- -- --------
+     @xmath               
+              @xmath      
+              @xmath      (4.95)
+  -- -------- -------- -- --------
+
+on the focal plane of the apertures follows from the linearity of optics
+transformations. The intensity @xmath at position @xmath
+^(\fnsymbolwrap) ^(\fnsymbolwrap) \fnsymbolwrap In order to talk about a
+physical position ket @xmath , it is important to understand that the
+specification of @xmath comes with a certain finite precision. As such,
+these physical kets now normalize to the Kronecker delta, that is @xmath
+. on the focal plane of the @xmath th aperture is
+
+  -- -------- -- --------
+     @xmath      (4.96)
+  -- -------- -- --------
+
+where @xmath are the complex amplitudes of the transformed light beam
+obtained from the amplitudes @xmath of Eq. ( 4.87 ). Since @xmath
+possesses all the properties of a statistical operator, the MLME
+technique can be used to estimate the true coherence operator @xmath
+that describes a given light beam. To this end, we need to compute the
+corresponding POM describing the measurement outcomes of the SH sensor.
+By relating @xmath to the corresponding probabilities of the outcomes
+@xmath , we have
+
+  -- -------- -- --------
+     @xmath      (4.97)
+  -- -------- -- --------
+
+Comparing Eqs. ( 4.96 ) and ( 4.97 ), the positive operator describing
+the detection outcome at the @xmath th pixel of the CCD camera behind
+the @xmath th aperture is given by
+
+  -- -------- -- --------
+     @xmath      (4.98)
+  -- -------- -- --------
+
+In the experiment, a controlled preparation of optical beams is realized
+using the principles of digital holography [ HMSW92 , BČ04 ] . Figure 15
+shows the set-up. The essence of the beam preparation lies in the
+numerical construction of a digital hologram that is programmed to
+produce a superposition of a reference plane wave and a beam with the
+true state @xmath of interest. This is achieved with the help of an
+amplitude spatial light modulator (OPTO SLM) with a resolution of 1024
+@xmath 768 pixels. The hologram is then illuminated by the reference
+plane wave that is considered in the superposition. To approximately
+produce this plane wave, a collimated Gaussian beam is generated by
+placing the output of a single-mode fiber at the focal plane of a
+collimating lens. In this way, the digital hologram can be fully
+situated at the center of the collimated Gaussian beam of a larger beam
+waist, where this beam can then be approximated to be a plane wave with
+high accuracy. The resulting diffraction spectrum, after illuminating
+the digital hologram with the collimated Gaussian beam, involves several
+diffraction orders, of which only one contains useful information about
+@xmath . To filter out the unwanted diffraction orders, a 4- @xmath
+optical processor, with a small circular aperture stop placed at the
+rear focal plane of the second lens, is used for this purpose (the
+aperture stop in Fig. 15 ). The resulting light beam with the state
+@xmath is then focussed at the rear focal plane of the third lens. This
+completes the preparation stage.
+
+The measurement of the light beam involves a Flexible Optical SH sensor
+with 128 microlenses that form a hexagonal array. Each microlens has a
+focal length of 17.9mm and a hexagonal aperture with a diameter of
+0.3mm. The signal at the focal plane of the array is detected by a uEye
+CCD camera that has a resolution of 640 @xmath 480 pixels, with each
+pixel being 9.9 @xmath m @xmath 9.9 @xmath m in dimensions.
+
+The aforementioned set-up is used for generating and analyzing low-order
+Laguerre-Gaussian (LG) modes. The LG modes can serve as important
+resources in quantum information processing [ MVWZ01 ] . In this
+experiment, only LG modes with no radial nodes are considered. Such
+modes form a one-parameter orthonormal basis, where the modes are
+specified by the orbital angular momentum quantum number @xmath . In
+polar coordinates, the relevant part of the complex amplitude of a LG
+mode @xmath , for a fixed @xmath , is given by
+
+  -- -------- -- --------
+     @xmath      (4.99)
+  -- -------- -- --------
+
+On the other hand, the orbital angular moment operator @xmath in the
+@xmath direction, in position representation, is given by
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      
+              @xmath      (4.100)
+  -- -------- -------- -- ---------
+
+To express the derivatives in Eq. ( 4.100 ) in terms of polar
+coordinates, we begin with the parametrization
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      
+     @xmath   @xmath      (4.101)
+  -- -------- -------- -- ---------
+
+In a compact matrix form, the corresponding variations are then given by
+
+  -- -------- -- ---------
+     @xmath      (4.102)
+  -- -------- -- ---------
+
+By inverting the matrix equation, we get
+
+  -- -------- -- ---------
+     @xmath      (4.103)
+  -- -------- -- ---------
+
+Using the definitions
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+for the total variation of a function @xmath and Eq. ( 4.103 ), we
+obtain
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      
+     @xmath   @xmath      (4.104)
+  -- -------- -------- -- ---------
+
+Hence,
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+for all @xmath . This shows that @xmath is an eigenket of @xmath ,
+implying that each photon, prepared in the state @xmath , carries an
+orbital angular momentum of @xmath .
+
+For the source of light beams, we would like to prepare the state @xmath
+, where
+
+  -- -------- -- ---------
+     @xmath      (4.105)
+  -- -------- -- ---------
+
+using the OPTO SLM. In the presence of experimental imperfections,
+however, the true state @xmath prepared this way will not be exactly the
+same as @xmath . After measuring this beam with the SH sensor, the data
+are processed using the MLME algorithm in Eq. ( 4.62 ) to obtain the
+estimator @xmath for @xmath , since @xmath . To quantify the quality of
+@xmath , we investigate the fidelity between @xmath and @xmath .
+
+Figure 16 shows the CCD image for the state @xmath . Each aperture gives
+rise to a bright spot in the CCD image. To maximize the signal-to-noise
+ratio, only the pixel with the highest intensity within each spot is
+selected as a measurement datum. The set of intensities, corresponding
+to maximum-intensity pixels, constitute the measurement data to be used
+for state reconstruction. In our case, the corresponding POM consists of
+@xmath linearly independent outcomes described by Eq. ( 4.98 ). This
+measurement is, therefore, informationally complete for @xmath .
+
+In cases where state reconstruction on informationally complete
+subspaces gives unsatisfactory results, the MLME approach can be used on
+the informationally incomplete data to give reasonable estimators on a
+larger subspace, as illustrated in Fig. 17 .
+
+So far, the procedure of state-space truncation is performed in the
+basis of the @xmath modes. In this basis, when @xmath is known to be
+quite close to @xmath , the truncation of modes of higher orders will
+not result in a great loss of reconstruction information, as implied by
+the structure of @xmath in Eq. ( 4.105 ). The situation will be very
+different when there is no such prior knowledge about @xmath , except
+for the fact that the possible values of @xmath lie in a certain range.
+In this situation, there is no appropriate strategy to choose a
+computational basis in which the state-space truncation can be done
+effectively and justifiably. More generally, estimating the unknown
+state @xmath on a truncated subspace can very often result in missing
+important reconstruction information and this will lead to strongly
+biased estimators. A remedy for this problem is to perform state
+reconstruction on a sufficiently large subspace that is compatible with
+the knowledge about the range of values of @xmath .
+
+To emphasize this point, we simulate the following scenario:
+
+-   The set of measurement data, obtained from the CCD image shown in
+    Fig. 16 , is distributed to @xmath parties. The possible values of
+    @xmath for the true state @xmath are known to lie in the range
+    @xmath .
+
+-   Each party selects a computational basis and estimates the state of
+    the beam for @xmath using either the ML (for @xmath ) or the MLME
+    algorithm (for @xmath ).
+
+-   The reconstructed estimators for the six values of @xmath are
+    reported by each party and the average fidelity of the estimators
+    for every value of @xmath are calculated.
+
+A typical outcome of this scenario is shown in Fig. 18 . As can be seen,
+performing state-space truncations in order to reconstruct @xmath with
+an informationally complete set of data generally leads to low
+fidelities in the estimators. Increasing the number of degrees of
+freedom and using the MLME algorithm to cope with the completeness issue
+seems to be a much better strategy.
+
+### 5 Hedged quantum state estimation – a comparison
+
+As strongly advocated by Robin Blume-Kohout [ BKH06 , BK10b ] , this
+method has at least two advantages compared to the maximum likelihood
+estimation protocol. Firstly the estimator obtained this way is always
+full-rank, thereby eradicating the problem of zero eigenvalues which are
+not necessarily justified by a finite number of measurement copies. This
+is because a zero eigenvalue corresponds to zero probability for a
+particular outcome in for instance the eigenbasis of the estimator and
+this requires an extremely high confidence which the measured data
+cannot give. Secondly, the likelihood functional @xmath in general has a
+broad peak over a range of statistical operators. By looking at just the
+peak of the likelihood functional, one eliminates all other possible
+states that are close to the maximum. Therefore it is more reliable to
+take into account all possible states in the vicinity to give an
+estimator that is much less sensitive to slight changes in the measured
+data than the maximum likelihood estimator. However it is typically hard
+to evaluate the integrals and a systematic way of choosing a suitable
+prior and the volume measure @xmath is unknown [ BK10b ] .
+
+Recently, Robin introduced the hedged likelihood functional [ BK10a ]
+which is given by
+
+  -- -------- -- -------
+     @xmath      (5.1)
+  -- -------- -- -------
+
+where @xmath . It is analogous to the classical Bayesian method of
+supplying a Dirichlet-type prior probability distribution (Johann Peter
+Gustav Lejeune Dirichlet) and gives the following estimated
+probabilities
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+when the measurement operators are now projectors of any complete set of
+orthonormal basis states in the @xmath dimensional Hilbert space. This
+smooth, unitarily-invariant hedging functional @xmath was proven to be
+the unique one for carrying out such a transformation. It is shown that
+maximizing this functional will result in an estimator which is always
+full-rank and therefore more compatible with finite number of
+measurement copies.
+
+In this last section of Chap. \thechapter , we first review some
+properties of @xmath which were mentioned in [ BK10a ] using variational
+methods in § 5.1 . Next we will derive an iterative scheme to maximize
+@xmath based on the steepest-ascent method in § 5.2 . In § 5.3 , we will
+discuss informationally incomplete measurements and report some
+interesting features with regards to the hedged maximum likelihood
+estimators. In particular, we first prove that given any POM in general,
+informationally complete or not, the estimator that maximizes @xmath
+(HML estimator) is unique. Next we show, by means of qubit tomography
+simulations, that for some POMs, the HML estimators are actually
+relatively close to the estimators that maximize both the conventional
+likelihood and von Neumann entropy functionals simultaneously (MLME
+estimator) even for relatively small @xmath .
+
+#### 5.1 The hedged likelihood functional
+
+The main objective is to maximize the concave hedged likelihood
+functional @xmath defined as
+
+  -- -------- -- -------
+     @xmath      (5.2)
+  -- -------- -- -------
+
+where the probabilities @xmath . As always, we can equivalently maximize
+the log-likelihood functional @xmath . Performing a variation on @xmath
+, we have
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+              @xmath      (5.3)
+  -- -------- -------- -- -------
+
+where @xmath . To get the second equality for the first term, we invoke
+the identity
+
+  -- -------- -- -------
+     @xmath      (5.4)
+  -- -------- -- -------
+
+With the usual parametrization presented in Eq. ( 3.3 ), we obtain the
+variation
+
+  -- -- -- -------
+           (5.5)
+  -- -- -- -------
+
+By setting @xmath , we arrive at the extremal equation
+
+  -- -------- -- -------
+     @xmath      (5.6)
+  -- -------- -- -------
+
+where @xmath with @xmath .
+
+From the extremal equation in ( 5.6 ), we can recover two properties of
+@xmath which were mentioned in [ BK10a ] . Assuming now that the POM
+outcomes are projectors of a given set of @xmath orthonormal basis
+states used to represent @xmath , i.e.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+This set of measurements is not informationally complete since the
+number of measurement outcomes is @xmath , which is less than the
+minimal number @xmath required to unambiguously specify a state. Then by
+direct substitution of the forms of @xmath and @xmath into Eq. ( 5.6 ),
+multiplying @xmath on both sides and taking the trace, one can obtain
+the expression for @xmath as
+
+  -- -------- -- -------
+     @xmath      (5.7)
+  -- -------- -- -------
+
+which is exactly the “ add @xmath rule ”  that assigns a small non-zero
+probability for outcomes with zero occurrence in a finite-sample
+tomography experiment.
+
+To show the next property, that is the eigenvalues of @xmath are
+non-zero for any @xmath in general, a transparent approach is to rewrite
+both Eq. ( 5.6 ) and its corresponding adjoint statement as
+
+  -- -------- -- -------
+     @xmath      (5.8)
+  -- -------- -- -------
+
+It is now clear that the extremal equation enforces the existence of the
+inverse of any @xmath , with
+
+  -- -------- -- -------
+     @xmath      (5.9)
+  -- -------- -- -------
+
+This means that for any non-zero @xmath , @xmath is always full-rank.
+Therefore the peak of @xmath for any given set of @xmath s always lies
+inside the admissible state space. This is consistent with the fact that
+the hedged likelihood functional goes smoothly to zero on the boundary
+of the state space.
+
+It was also reported that for most of the mixed states, taking @xmath
+gives optimal estimation results with respect to some distance measures
+between the true state @xmath and @xmath . For nearly-pure states, a
+small value of @xmath is needed to achieve good accuracy since now the
+true states can have eigenvalues that are very close to zero and so
+large @xmath values can result in significant deviations. Keeping in
+mind that pure states are, strictly speaking, a fiction in practical
+state preparation, we will set the @xmath in the subsequent analysis.
+
+#### 5.2 The HML algorithm
+
+A way of searching for the maximum of the hedged likelihood functional
+is to start from an arbitrary state, usually the maximally-mixed state
+@xmath , and ascend in the direction of the steepest gradient. To
+determine this direction, we revisit Eq. ( 5.5 ) and recognize that the
+two component gradient @xmath is given by
+
+  -- -- -- --------
+           (5.10)
+  -- -- -- --------
+
+where
+
+  -- -------- -- --------
+     @xmath      (5.11)
+  -- -------- -- --------
+
+which follows from Eq. ( 3.6 ).
+
+In order to ensure that @xmath is always positive in the search process,
+we can set the variations @xmath and @xmath to be proportional to the
+respective derivatives @xmath and @xmath , the steepest-ascent method.
+Thus, the variation of the two component vector operator @xmath is given
+by
+
+  -- -- -- --------
+           (5.12)
+  -- -- -- --------
+
+for a small @xmath parameter. We thus have a simple iterative scheme
+(HML) to look for the extremal state @xmath which maximizes the hedged
+likelihood given an initial statistical operator @xmath , which is given
+by
+
+HML iterative equations
+
+@xmath (5.13) @xmath
+
+There exists a slight technical detail in choosing an appropriate @xmath
+for the entire iteration. We note that the ratio @xmath involves the
+inverse of @xmath in every step and is of the order of @xmath , which
+can be significantly large as the number of detected copies increases.
+Setting @xmath too large, even to the order of 1, can result in a rank
+deficient @xmath that can produce an indeterminate inverse since the
+iterative equation tends to that of ML for large @xmath . By experience,
+@xmath seems to be a wise choice.
+
+#### 5.3 Informationally incomplete measurements
+
+Typically, we use a set of informationally complete measurement outcomes
+to infer a positive statistical operator which is compatible with the
+measured data. One can do this by looking for the unique statistical
+operator which maximizes the conventional likelihood functional @xmath .
+We will therefore require at least a minimal set of @xmath linearly
+independent measurement outcomes to obtain a unique estimator. The
+situation changes when we perform informationally incomplete
+measurements. As discussed previously, MLME is one method of obtaining a
+unique and statistically meaningful estimator out of a set of
+informationally incomplete data.
+
+An interesting property of the estimator @xmath is that it is always
+unique for any given set of measurement outcomes @xmath (See Appendix
+\thechapter for a proof). This implies that regardless of whether a set
+of measurement outcomes is informationally complete, maximizing the
+hedged likelihood functional always gives a unique estimator. One can
+understand this intuitively by drawing analogy from the information
+functional @xmath discussed in § 4.5 . Then, it is convenient to treat
+the functional @xmath as an “entropy-like” term much like the von
+Neumann entropy functional @xmath . In this sense, the mechanism of HML
+is rather similar to that of MLME.
+
+The distance between the HML and MLME estimators, defined by the
+trace-class distance @xmath , will depend on @xmath and the POM outcomes
+@xmath . In fact, there are cases in which @xmath and @xmath are close
+to each other for a fixed set of measurement data. We illustrate this
+point with two examples. In the first example, we consider qubit
+tomography using the trine POM in Eq. ( 4.17 ). In the second example,
+we look at two-qubit tomography using a POM consisting of the four
+standard Bell state projectors defined as
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      (5.14)
+  -- -------- -------- -- --------
+
+A relatively small @xmath is fixed throughout the simulations. Figure 19
+shows the results.
+
+In general, the distance between @xmath and @xmath for a fixed set of
+@xmath s will also depend on the number of detection copies @xmath . As
+@xmath becomes extremely large, the two estimators approach each other
+for some POMs and in this case, any of the two methods is fine as far as
+state estimation with these incomplete POMs is concerned. Figure 19
+shows that in these two examples, even for relatively small @xmath , the
+distance between the two estimators are in general quite small. Hence,
+the performance of HML and MLME can sometimes be comparable even for a
+reasonably small number of detection copies.
+
+### 6 Chapter summary
+
+We have discussed many aspects of quantum state estimation. In
+introducing the idea of informationally complete state estimation, we
+established several maximum-likelihood algorithms using steepest-ascent
+and conjugate-gradient techniques. We showed that the efficiency of the
+conjugate-gradient algorithms is generally higher than that of the
+steepest-ascent algorithm. It must be emphasized that the approach to
+derive the conjugate-gradient maximum-likelihood algorithms is naturally
+extended to all other algorithms that are based on the steepest-ascent
+method.
+
+Next, we established maximum-likelihood-maximum-entropy algorithms to
+deal with informationally incomplete data and finally applied these
+algorithms to three different types of tomography for state
+reconstruction of complex quantum states with infinitely many degrees of
+freedom. An important lesson that can be learnt from this study is that
+with a limited set of measurement data, reconstructing an unknown
+quantum state on a heavily truncated Hilbert space, in which the
+measurement data become informationally complete, using the standard
+maximum-likelihood technique can give rise to extraneous features in the
+reconstructed states that arise from the state-space truncation. One
+straightforward approach to minimize this problem is to apply the
+maximum-likelihood-maximum-entropy state estimation technique on a
+larger reconstruction subspace that is compatible with any known prior
+information about the quantum state. The choice of the dimension of the
+reconstruction subspace, as well as an appropriate computational basis
+for the truncation, depends very much on the available prior information
+and is sometimes more of an art rather than a science for complex
+quantum systems.
+
+Finally, we derived an iterative algorithm, using the steepest-ascent
+method, to maximize the hedged likelihood functional that was proposed
+as a more operational alternative to Bayesian state estimation. We
+showed that the hedged maximum-likelihood estimator obtained is always
+unique regardless of the informational completeness of the measurement
+outcomes, unlike a conventional maximum-likelihood estimator. We also
+gave numerical plots to show that for some typical single-qubit
+measurements, the hedged maximum-likelihood estimator is very close to
+the maximum-likelihood-maximum-entropy estimator for a given set of
+measurement data on average even for a relatively few number of copies.
+Hence for practical purposes, one can rely on this new state estimation
+technique to obtain an estimator that is sufficiently close to the
+maximum-likelihood-maximum-entropy estimator for some measurements.
+Otherwise, the hedged maximum-likelihood estimator can still serve as a
+convenient estimator for the unknown quantum state.
+
+## Chapter \thechapter Two-qubit Entanglement Detection with State
+Estimation
+
+Entanglement witnesses are Hermitian observables which, when their
+expectation values are measured, can indicate if a given unknown quantum
+state is entangled. In this chapter, we discuss another important
+application, in addition to those discussed in Chapter \thechapter , of
+the MLME numerical schemes to bipartite entanglement witness
+measurement.
+
+To this end, we first introduce an unprecedented protocol to measure a
+family of a particular kind of entanglement witnesses at one go [ ZTE10
+] in § 7 and § 8 . Such a family of witnesses are known as optimal
+witnesses [ LKCH00 ] . An entanglement witness is defined as an optimal
+witness if no other witnesses can detect all entangled states detected
+by this witness, as well as other entangled states. Next, in § 9 , we
+will establish an adaptive strategy to measure these families of
+witnesses in order to improve the efficiency of entanglement detection.
+
+### 7 Witness bases measurement
+
+A general @xmath -partite pure quantum state (describing a composite of
+@xmath quantum systems) is defined as an entangled state if its ket
+cannot be written in the form
+
+  -- -------- -- -------
+     @xmath      (7.1)
+  -- -------- -- -------
+
+a product or factorizable form. More generally, a @xmath -partite mixed
+state is defined to be an entangled mixed state if it cannot be written
+in the separable form
+
+  -- -------- -- -------
+     @xmath      (7.2)
+  -- -------- -- -------
+
+where @xmath . By defining @xmath to be the partial transpose on the
+@xmath th subsystem, from Eq. ( 7.2 ), it can be readily shown that
+@xmath . To determine if a given unknown state @xmath , with a fixed
+known @xmath , is entangled, one can measure the expectation value of a
+particular kind of Hermitian observable, known as entanglement witness ,
+to obtain some information about the existence of entanglement.
+Mathematically, an entanglement witness @xmath is a Hermitian operator,
+@xmath , with the property that @xmath for all separable states and
+@xmath for at least one entangled state @xmath . Thus, for a given
+unknown state @xmath , the condition @xmath implies that @xmath is
+entangled. However, if @xmath , no conclusion can be drawn as to whether
+@xmath is entangled or not. Geometrically, measuring the expectation
+value of an entanglement witness introduces a hyperplane that “dissects”
+the Hilbert space, with the side to which @xmath containing only
+entangled states.
+
+For @xmath ( bipartite systems), a Hermitian operator @xmath is
+decomposable if it can be written as
+
+  -- -------- -- -------
+     @xmath      (7.3)
+  -- -------- -- -------
+
+in terms of the positive operators @xmath and @xmath . According to Ref.
+[ LKCH00 ] , a @xmath -dimensional, bipartite, optimal decomposable
+witness is defined as
+
+  -- -------- -- -------
+     @xmath      (7.4)
+  -- -------- -- -------
+
+for a given positive operator @xmath with no product kets in its range.
+In other words, for any @xmath -dimensional ket @xmath , the resulting
+non-zero ket @xmath must be entangled. It is clear that @xmath .
+Throughout the analysis, we fix @xmath for the case of two-qubit quantum
+systems. One can easily construct such optimal witnesses from pure
+states, where @xmath . From the definition given in Eq. ( 7.4 ), it
+follows that @xmath must be an entangled state. The Schmidt
+decomposition of its corresponding ket
+
+  -- -------- -- -------
+     @xmath      (7.5)
+  -- -------- -- -------
+
+is useful for subsequent calculations. Evaluating @xmath ,
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+     @xmath   @xmath      
+              @xmath      
+     @xmath   @xmath      
+              @xmath      
+              @xmath      (7.6)
+  -- -------- -------- -- -------
+
+The important point of this calculation is to realize that for any pure
+state @xmath , the eigenkets of @xmath are always the same kinds: two
+product kets @xmath and two Bell kets @xmath .
+
+When we measure the projectors @xmath , @xmath , @xmath and @xmath , we
+in fact measure a family of optimal witnesses at one go. Such a progress
+allows us to search for the “best” entanglement witness out of the
+measured family that has the highest chance of detecting entanglement of
+@xmath . We start by defining the witness criterion
+
+  -- -------- -- -------
+     @xmath      (7.7)
+  -- -------- -- -------
+
+which is obeyed by all separable states and is violated for the
+entangled states that are detected by this family of witnesses. The
+minimization means that we are searching for the witness that maximizes
+the chance of violating the inequality @xmath in order to detect the
+presence of entanglement. From Eq. ( 7.6 ),
+
+  -- -------- -------- --
+              @xmath   
+     @xmath            
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+where @xmath and @xmath are the measured frequencies (or expectation
+values) for the product states, and @xmath and @xmath are those for the
+Bell states. So, the witness criterion now reduces to the simple
+inequality
+
+  -- -------- -- -------
+     @xmath      (7.8)
+  -- -------- -- -------
+
+Thus, once the frequency data are obtained after measurement, the
+presence of entanglement can be detected as long as the witness
+criterion is violated.
+
+The projectors @xmath , @xmath , @xmath and @xmath form an orthogonal
+POM. This basis is known as a witness basis since measuring these
+projectors amounts to measuring the entire one-parameter family of
+optimal witnesses. In practice, it is possible to set up an experiment
+to measure such a family of witnesses using a photon source. Figure 20
+illustrates such a set-up and Table 2 explains the measurement outcomes
+of the set-up in the figure [ ZTE10 ] .
+
+Another advantage of witness basis measurement is that, unlike
+conventional witness measurement where only the expectation value of
+@xmath is collected for inference, all frequency data are used to
+perform quantum state estimation to obtain more information about the
+unknown state. It is therefore desirable to measure an informationally
+complete set of witness bases, such that if all the witness bases miss
+the entanglement detection, a full estimation can be performed to
+identify the unknown quantum state. To construct this informationally
+complete set of bases, we first think of a single witness basis
+measurement as being equivalent to a measurement of multiple
+observables. These observables can be decomposed into linear
+combinations of tensor products of the single-qubit Weyl operators
+(Hermann Klaus Hugo Weyl) since these operators form a complete operator
+basis. As we are dealing with two-qubit systems, the corresponding
+single-qubit Weyl operators are defined as
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (7.9)
+  -- -------- -------- -------- -- -------
+
+in terms of the polarization basis. Since measuring a two-qubit witness
+basis, which comprises four orthogonal projectors, gives only three
+independent outcomes, this means that we obtain expectation values of
+only three two-qubit observables. These three observables are
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+     @xmath               
+     @xmath   @xmath      (7.10)
+  -- -------- -------- -- --------
+
+Here, @xmath . With this formalism, we are now able to construct an
+informationally complete set of witness bases. By introducing the
+Clifford unitary operator (William Kingdon Clifford) @xmath that
+permutes the Weyl operators cyclically,
+
+  -- -------- -- --------
+     @xmath      (7.11)
+  -- -------- -- --------
+
+we can construct an informationally complete set of six witness bases.
+Table 3 lists these six witness bases. Note that one inevitably needs an
+overcomplete set since there may exist a repeated observable from a pair
+of bases. More details on the structures of informationally complete
+sets of two-qubit witness bases will be discussed in the next section.
+
+The wave plates in the input ports implement the unitary transformations
+@xmath and @xmath on the polarization of photons 1 and 2, respectively,
+and so the incoming two-photon state @xmath is transformed in accordance
+with
+
+  -- -------- -- --------
+     @xmath      (7.12)
+  -- -------- -- --------
+
+before the photons arrive at the half-transparent mirror. In effect,
+then, the family of optimal witnesses of the transformed witness basis
+is measured rather than the original family. The Clifford operator
+@xmath is implemented by wave plates that yield the polarization changes
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (7.13)
+  -- -------- -------- -------- -- --------
+
+possibly accompanied by an irrelevant over-all phase factor.
+
+### 8 Properties of two-qubit informationally complete witness bases
+
+We exhaustively list and investigate the set of informationally complete
+two-qubit witness bases that live in the simplest bipartite Hilbert
+space. Some observations are made regarding the structure and unitary
+equivalences of these bases.
+
+#### 8.1 Construction
+
+We begin by parameterizing an entanglement witness @xmath for a
+two-qubit system with three parameters @xmath , where @xmath and @xmath
+, with @xmath and @xmath labeling the respective unitary Weyl operators
+@xmath and @xmath for qubits 1 and 2. Since we want to search for
+informationally complete sets of witness bases, a good strategy will be
+to use a complete set of mutually unbiased bases. For this, we will
+consider the (ordered) set of order-2 qubit Weyl operators { @xmath ,
+@xmath , @xmath }. These operators are order-2 since @xmath . The labels
+@xmath and @xmath are each defined to refer to one of the three Weyl
+operators in the given order. For instance, @xmath , @xmath and @xmath
+for this set of order-2 qubit Weyl operators that refer to qubit 1. The
+corresponding complementary operators @xmath and @xmath , such that
+@xmath , will each refer to an operator from a list that is a cyclic
+permutation of the Weyl operators given above, that is { @xmath , @xmath
+, @xmath }. There is in principle more than one list of complementary
+Weyl operators but we shall refer to the aforementioned list unless
+otherwise stated.
+
+The Schmidt decomposition of a two-qubit pure state is given by
+
+  -- -------- -- -------
+     @xmath      (8.1)
+  -- -------- -- -------
+
+The decomposable witness defined as
+
+  -- -------- -- -------
+     @xmath      (8.2)
+  -- -------- -- -------
+
+can be written as
+
+  -- -------- -- -------
+     @xmath      (8.3)
+  -- -------- -- -------
+
+where a cyclic shift, effected by the unitary operator @xmath , is
+applied to the kets of qubit 2 to account for non-unique orbits of
+witnesses. We recall that any operator can be written as functions of
+the Weyl operators since these operators are algebraically complete.
+This means that any such two-qubit projector @xmath is given by
+
+  -- -------- -- -------
+     @xmath      (8.4)
+  -- -------- -- -------
+
+By expressing @xmath , given in Eq. ( 8.3 ), in terms of the Weyl
+operators and picking out the four operators that are measurable in a
+given two-qubit tomography experiment to be
+
+  -- -------- -- -------
+     @xmath      (8.5)
+  -- -------- -- -------
+
+and
+
+  -- -------- -- -------
+     @xmath      (8.6)
+  -- -------- -- -------
+
+we arrive at the equations
+
+  -- -------- -------- -- -------
+              @xmath      
+     @xmath   @xmath      (8.7)
+              @xmath      
+     @xmath   @xmath      (8.8)
+  -- -------- -------- -- -------
+
+To extract the relevant independent observables from Eqs. ( 8.7 ) and (
+8.8 ), we note that
+
+  -- -------- -- -------
+     @xmath      (8.9)
+  -- -------- -- -------
+
+when the @xmath s are single-qubit unitary operators and
+
+  -- -------- -- --------
+     @xmath      (8.10)
+  -- -------- -- --------
+
+where @xmath in this case. From Eq. ( 8.7 ),
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+              @xmath      
+     @xmath   @xmath      (8.11)
+  -- -------- -------- -- --------
+
+By looking at different values @xmath and @xmath , we have
+
+  -- -------- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath   @xmath      (8.12)
+     @xmath   @xmath   @xmath   @xmath      
+     @xmath   @xmath                        (8.13)
+     @xmath   @xmath   @xmath   @xmath      (8.14)
+  -- -------- -------- -------- -------- -- --------
+
+out of which two observables @xmath , @xmath can be extracted from
+Eqs. ( 8.13 ) and ( 8.14 ) respectively. From Eq. ( 8.8 ), we consider
+all the four possible combinations
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      (8.15)
+     @xmath   @xmath      
+     @xmath   @xmath      (8.16)
+     @xmath   @xmath      (8.17)
+  -- -------- -------- -- --------
+
+from which the only other independent observable that can be extracted
+is @xmath . It can be verified that the six sets of three independent
+observables listed in Table 3 are easily obtained from the three
+simplified observable expressions.
+
+We need a total of 15 linearly independent observables to perform full
+tomography on a two-qubit state. To search for these sets of
+informationally complete observables, each of a pre-chosen set of @xmath
+observables is expressed in terms of the 15 Weyl basis operators @xmath
+^(\fnsymbolwrap) ^(\fnsymbolwrap) \fnsymbolwrap The identity operator is
+excluded. , where @xmath and @xmath each takes the value 0 or 1 and are
+not simultaneously zero. Next, we form a @xmath observable matrix @xmath
+, with each row representing an observable and having phase factor
+coefficients as matrix entries, to have an informationally complete set
+of witness bases. Thus, for a set of 18 observables @xmath , the
+observable matrix @xmath satisfies the equation
+
+  -- -------- -- --------
+     @xmath      (8.18)
+  -- -------- -- --------
+
+The task is then to look for the combination of settings @xmath such
+that @xmath has 15 non-zero singular values.
+
+#### 8.2 Local unitary equivalence
+
+There are altogether @xmath different combinations of triplets @xmath
+available to form a set consisting of six distinct triplets. Hence the
+total number of possible sets is @xmath , which is tractable enough for
+us to perform an exhaustive search for all the full-rank sets
+^(\fnsymbolwrap) ^(\fnsymbolwrap) \fnsymbolwrap Here, a full-rank set
+corresponds to an observable matrix @xmath with 15 non-zero singular
+values . Using the list of Weyl operators given in the previous section,
+we find that there are altogether 1395 sets that are informationally
+complete after the numerical search.
+
+These sets are categorized into six classes and within each class, all
+sets give exactly the same set of singular values of @xmath . The first
+class contains only three members which are related by the order-3 qubit
+Clifford transformation @xmath , defined in Eq. ( 7.11 ), on the entire
+reference set. Classes 2 to 6 each comprises a number of families of
+sets, each of which are generated by the local unitary transformation
+effected by the operator @xmath on a reference set in the family, which
+amounts to changing the value of @xmath . Some of the witness bases in a
+particular set of six are not affected by the transformation. We call a
+transformation that is effected on @xmath witness bases out of the six
+in a particular set to be an @xmath - @xmath transformation. Table 4
+summarizes the results. Another symmetry is that these 1395 sets are
+invariant under a cyclic permutation of the list of @xmath operators.
+
+#### 8.3 A summary
+
+There exist many full-rank solutions for the two-qubit case and we
+listed six classes of informationally complete sets of witness bases,
+with all sets giving the same singular values of @xmath within each
+class. These informationally complete sets are invariant under a cyclic
+permutation of the complementary @xmath operators. Finally we mention
+that the results presented here are valid for the list of @xmath
+operators we used, and that the structures may vary if different choices
+of @xmath operators are taken. For instance, a given @xmath operator
+remains complementary if the operator @xmath is multiplied to it. So
+there will be two such complementary operators for every operator @xmath
+. Hence, we have a total of eight different lists of complementary
+@xmath operators and every list, in general, gives different
+informationally complete sets and, therefore, different structures. The
+properties of the witness bases for quantum systems of larger dimensions
+are still largely unknown at this point.
+
+### 9 Adaptive witness bases measurement with state estimation
+
+We now have all the necessary tools to establish an adaptive scheme to
+measure the witness bases in such a way that the number of witness bases
+needed to detect the entanglement of the unknown state @xmath is
+optimized. Each time a witness basis is measured, a set of four
+frequencies is obtained and this can be used to partially estimate
+@xmath using MLME. Since the MLME estimators are generally mixed states,
+there is a chance that the purity of a MLME estimator is lower than that
+of @xmath , especially when @xmath is a nearly-pure state. If the
+measurement of a witness basis detects the entanglement of this
+estimator, measuring the same witness basis could very likely detect the
+entanglement of @xmath . This is due to the trend that entanglement
+detection becomes more difficult as the purity of @xmath decreases. The
+extreme cases are the maximally-entangled Bell states and the separable
+maximally-mixed state.
+
+Defining the operators @xmath and @xmath to be the outcomes of the
+product states, and @xmath and @xmath to be those of the
+maximally-entangled states for a given witness basis, an adaptive
+strategy based on this idea is as follows:
+
+Adaptive witness bases measurement
+
+Starting from @xmath and a witness basis,
+
+1.  Obtain the frequency data by measuring the witness basis;
+
+    -   If the witness criterion is violated, escape the loop;
+
+    -   Otherwise, proceed to the following steps.
+
+2.  If @xmath , combine these data with the previous ones and
+    renormalize all the frequencies.
+
+3.  Look for the MLME estimator @xmath consistent with the total
+    collected data.
+
+4.  For each of the @xmath witness bases left, choose the one which
+    gives the minimum value of the function @xmath , where @xmath are
+    the probabilities of the outcomes @xmath from one of the @xmath
+    witness bases, calculated based on the MLME estimator.
+
+5.  Set @xmath and repeat the iteration from the beginning.
+
+To investigate the performance of this adaptive measurement scheme, we
+perform simulations for both pure and full-rank mixed two-qubit states
+respectively.
+
+Figure (a)a shows the percentage of pure and mixed states detected by a
+specific number of the six witness bases in a particular ordering by
+violating the witness criterion in Eq. ( 7.8 ). Figure (b)b shows the
+plot generated using the adaptive strategy for choosing the subsequent
+witness basis based on the MLME estimator obtained using the accumulated
+measurement data. Doing so will reduce the mean number of witnesses
+required to detect entanglement for a given pure state. Note that about
+2% of the random pure states and about 67% of the random mixed states
+are undetected by the six witnesses without performing full tomography
+with the aforementioned strategies.
+
+The number of quantum states that are not detected by all the witness
+bases can be further reduced (Fig. (c)c ) by performing one additional
+step to check if there are separable states in the ML convex set
+produced by the accumulated incomplete measurement data after the
+witness criterion is not violated. The entanglement of a quantum state
+is considered to be detected when no separable states are present in the
+convex set, since subsequent witness basis measurements ultimately
+reduce the size of the convex set to a single estimator — the true state
+@xmath for large @xmath — that was previously inside this larger set.
+
+To perform this search, we maximize the likelihood functional over the
+space of separable states and compare this maximum value with that
+obtained by maximizing the same functional over all states. If the
+former is lower than the latter, this means that the true ML estimators
+in the convex set cannot be separable.
+
+The iterative algorithm for the maximization is in fact very similar to
+that established in Ref. [ ŘH03 ] . Without going through the
+derivation, we present the algorithm below:
+
+ML over the space of separable states
+
+Starting from @xmath , a fixed small parameter @xmath and a separable
+state
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath and the randomly chosen kets @xmath and @xmath are
+subnormalized,
+
+1.  Compute @xmath as in Eq. ( 3.2 );
+
+    -   Escape from loop if
+
+          -- -------- --
+             @xmath   
+          -- -------- --
+
+        where
+
+          -- -------- --
+             @xmath   
+          -- -------- --
+
+    -   Otherwise, proceed to following steps.
+
+    Compute the new operators
+
+      -- -- --
+            
+      -- -- --
+
+    and
+
+      -- -- --
+            
+      -- -- --
+
+2.  Set @xmath and repeat the iteration from the beginning.
+
+With this additional step, the percentage of undetected pure states is
+reduced to practically zero (0.01%) and one needs no more than five
+witness bases to detect entanglement for the rest of the pure states.
+The improvement is even more dramatic for the mixed states, with a
+reduction from about 67% to about 2.7%. The mean number of witness bases
+needed to detect entanglement for mixed states is higher than that for
+pure states. This is not surprising, since mixed states generally have
+lower entanglement and are, therefore, harder to detect. Also, the mixed
+states are more likely to be separable than the pure states.
+
+## Chapter \thechapter Quantum Process Estimation
+
+### 10 Introduction
+
+Quantum process tomography (QPT) is an important tool to characterize
+the operation of a given quantum channel ^(\fnsymbolwrap)
+^(\fnsymbolwrap) \fnsymbolwrap The words “quantum process” and “quantum
+channel” will be used interchangeably. [ MRL08 , OPG @xmath 04 , PCZ97 ]
+. Such a characterization is needed, for example, when one attempts to
+construct a quantum channel comprising multiple logic gates, each
+carrying out a specific quantum process. One such quantum channel for
+entanglement distillation, for instance, would consist of controlled not
+cnot gates. A physical quantum process is described by a
+completely-positive map @xmath . That is, given a particular input
+quantum state @xmath residing in the @xmath -dimensional Hilbert space
+@xmath , the resulting output state @xmath in the @xmath -dimensional
+Hilbert space @xmath is given by
+
+  -- -------- -- --------
+     @xmath      (10.1)
+  -- -------- -- --------
+
+with the Kraus operators (Karl Kraus) @xmath satisfying the relation
+@xmath . The @xmath s are not unique and any other set of Kraus
+operators
+
+  -- -------- -- --------
+     @xmath      (10.2)
+  -- -------- -- --------
+
+where the @xmath s are the elements of a unitary matrix, also
+parameterizes the completely-positive map @xmath [ NC00 ] .
+
+The idea behind QPT is to estimate such completely-positive maps with
+measurements. Much like quantum state tomography, the estimation of an
+unknown quantum process can be perceived as the estimation of a positive
+Choi-Jamiółkowski operator (Man-Duen Choi and Andrzej Edmund
+Jamiółkowski) @xmath that is represented by a @xmath matrix [ Cho75 ,
+Jam72 ] . Such an operator contains all accessible information about the
+quantum process. The standard QPT procedure involves the measurement of
+multiple copies of @xmath different output states, with each output
+state corresponding to one of the @xmath linearly independent input
+states @xmath , thereby using a POM of, say, @xmath outcomes. The
+unknown operator @xmath is estimated by linear-inversion of the @xmath
+measurement frequencies, which consists of @xmath linearly independent
+constraints. Like the linear-inversion procedure for quantum state
+estimation, the resulting estimator obtained may not be positive. If
+that is the case, the estimator cannot be used for statistical
+predictions. This failure occurs whenever the observed relative
+frequencies of the measurement outcomes do not have consistent
+interpretation as probabilities. What is, therefore, called for, is an
+estimation procedure that ensures a physically meaningful estimator
+whatever the measurement data may be.
+
+One statistically meaningful technique to obtain a positive estimator
+for @xmath is the maximum-likelihood estimation procedure [ PŘ04 ] .
+This can be applied to yield a unique estimator @xmath as long as the
+measurement data obtained form a set of @xmath linearly independent
+constraints. We say that this set of measurement data is informationally
+complete. However, the number of linearly independent parameters
+increases rapidly with the dimensions and a complete characterization of
+@xmath becomes unfeasible for complex processes. This is especially true
+when the quantum process acts on an infinite-dimensional Hilbert space [
+RKSM @xmath 11 ] . The well-known method of Direct Characterization of
+Quantum Dynamics (DCQD) [ MRL08 ] was introduced to reduce the amount of
+measurement resources (the total number @xmath of copies measured) that
+are used for quantum process tomography. However, this method requires
+entangled input states and post-processing strategies that can be
+expensive when dealing with more complex quantum processes.
+
+A more straightforward and conceptually different approach is to resort
+to informationally incomplete QPT. With this approach, less measurement
+resources are used to obtain an estimator for the unknown quantum
+process to a fair amount of accuracy. As a consequence, there exists a
+convex set of infinitely many ML estimators which are consistent with
+the measurement data. To choose the estimator which is least-biased from
+the convex set, we invoke the maximum-entropy principle [ Jay57a ,
+Jay57b ] and choose the estimator with the largest entropy. Such an
+incomplete QPT can also give useful information about the quantum
+channel. In a typical tomography experiment, with data from measuring a
+finite number of copies, the resulting quantum process estimator can
+never be exactly equal to @xmath since experimental fluctuations are
+inevitable. One can only obtain an estimator that is close to @xmath
+within a certain tomographic precision. Thus, MLME QPT is typically
+useful in providing a unique estimator for an unknown quantum process
+within a suitable tomographic precision using fewer incomplete
+measurement resources. As will be shown, this reduction in measurement
+resources is more pronounced for unitary quantum channels. Since @xmath
+is unknown, one common practice is to gauge such a tomographic precision
+with another operator @xmath that is close to @xmath , based on some
+prior information one has about the constructed quantum channel. The
+availability of such a @xmath for a given @xmath will become useful and
+important in subsequent discussions.
+
+The estimators obtained using the aforementioned method are least-biased
+with respect to the set of incomplete measurement data in the sense of
+the entropy of the quantum process . In Ref. [ Zim08 ] , which is an
+analytical study of the conventional maximum-entropy method, the entropy
+functional for the Choi-Jamiółkowski operator @xmath describing a
+quantum channel was introduced as @xmath and this was shown to exhibit
+nice properties. In particular, this concave channel entropy functional
+has a unique maximum in @xmath and is zero only when the quantum channel
+is unitary since @xmath is then a rank-1 projector. However, the
+analytical results in [ Zim08 ] apply only to simple qubit channels and
+are difficult to extend to general quantum channels of greater
+complexity. We shall extend the strategy in § 4.5 and establish adaptive
+iterative algorithms [ TEŘH11 ] to search for the MLME estimator @xmath
+which maximizes both the likelihood and entropy functionals using the
+channel entropy functional in [ Zim08 ] .
+
+We first give some preliminary ideas on quantum process estimation in §
+11 . Then, in § 12 , we will present the iterative MLME algorithm using
+variational principles to derive a steepest-ascent scheme and apply it
+to numerical simulations of two-qubit and three-qubit quantum channels.
+In § 13 , we will establish adaptive strategies to apply the MLME
+algorithm with the aim of minimizing the amount of measurement resources
+needed to perform incomplete QPT.
+
+### 11 Preliminaries of quantum process estimation
+
+The estimation of the completely-positive map @xmath that describes an
+unknown quantum process, in the manner presented in Eq. ( 10.1 ), is
+isomorphic to the estimation of an unknown quantum state. This is a
+consequence of the well-known Choi-Jamiółkowski isomorphism [ Cho75 ,
+Jam72 , PŘ04 ] . Let us define a maximally-entangled pure state @xmath
+in terms of the computational basis kets @xmath . Here, the dimensions
+of the Hilbert spaces @xmath and @xmath are both equal to the dimension
+@xmath of the input Hilbert space. Using this basis, there exists a
+one-to-one correspondence between the map @xmath and a unique positive
+operator @xmath defined as follows:
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+     @xmath   @xmath      (11.1)
+  -- -------- -------- -- --------
+
+with @xmath being the identity map. From Eq. ( 10.1 ), the alternative
+expression
+
+  -- -------- -- --------
+     @xmath      (11.2)
+  -- -------- -- --------
+
+with
+
+  -- -------- -- --------
+     @xmath      (11.3)
+  -- -------- -- --------
+
+implies that the rank of @xmath is equal to the number of linearly
+independent @xmath s. It follows that @xmath is rank-1 if the
+completely-positive map is described by a single unitary Kraus operator,
+and only then.
+
+The output state can be expressed in terms of @xmath by means of
+
+  -- -------- -- --------
+     @xmath      (11.4)
+  -- -------- -- --------
+
+where the transposition is defined with respect to the computational
+basis. Hence, reconstructing the quantum process amounts to estimating
+the positive operator @xmath . To do so, one requires a total of @xmath
+real parameters to specify the corresponding matrix. In the subsequent
+analyses, we shall consider trace-preserving maps, that is @xmath for
+any @xmath , in which case the number of independent parameters is
+reduced to @xmath , with the constraints compactly written as
+
+  -- -------- -- --------
+     @xmath      (11.5)
+  -- -------- -- --------
+
+To estimate @xmath , typically a set of @xmath input states @xmath ,
+with @xmath copies each, are sent through the quantum channel, one state
+at a time. The output state @xmath that corresponds to @xmath is
+measured with a POM consisting of @xmath outcomes @xmath such that
+@xmath . The probability of getting outcome @xmath for the input state
+@xmath is given by @xmath . Here, @xmath .
+
+If the @xmath parameters comprise @xmath linearly independent ones, the
+measurement data will be informationally complete. One can thus perform
+a complete quantum process estimation using the maximum-likelihood (ML)
+algorithm [ PŘ04 ] and so obtain a unique positive estimator @xmath by
+maximizing the likelihood functional
+
+  -- -------- -- --------
+     @xmath      (11.6)
+  -- -------- -- --------
+
+where the number of occurrences @xmath for the outcome @xmath obtained
+in an experiment with the input state @xmath are such that @xmath .
+
+### 12 The iterative algorithm
+
+We consider the optimization of the information functional
+
+  -- -------- -- --------
+     @xmath      (12.1)
+  -- -------- -- --------
+
+where @xmath is a parameter which scales the entropy relative to the
+normalized log-likelihood and should be chosen with a very small value.
+When the measurement data are informationally complete, one sets @xmath
+to zero and optimizing @xmath amounts to the ML problem [ PŘ04 , FH01 ]
+. In the same spirit as in § 4.5 , both our knowledge from the
+measurement data (contained in @xmath which measures the information
+gain) and our ignorance (reflected in @xmath which measures the lack of
+information) about the operator @xmath are taken into account in such a
+way that our ignorance takes an infinitesimal weight. This introduces a
+small and smooth convex hill over the set of positive ML estimators
+which selects the one with the largest entropy. As in [ TZE @xmath 11 ]
+, the value of @xmath may be chosen such that both @xmath and @xmath
+remain almost constant with respect to @xmath .
+
+To maximize @xmath with respect to @xmath , we define the variation
+@xmath , where @xmath is a small arbitrary operator such that Eq. ( 11.5
+) is satisfied, that is: @xmath . Thus the most general expression for
+@xmath is
+
+  -- -------- -- --------
+     @xmath      (12.2)
+  -- -------- -- --------
+
+with an unrestricted infinitesimal @xmath . On the other hand, the
+variation of @xmath with respect to @xmath gives @xmath , where
+
+  -- -------- -- --------
+     @xmath      (12.3)
+  -- -------- -- --------
+
+and @xmath . Since @xmath is small, the operator @xmath can be expressed
+as
+
+  -- -------- -- --------
+     @xmath      (12.4)
+  -- -------- -- --------
+
+in terms of the first-order variations @xmath and @xmath . In deriving
+the expression above, the approximation
+
+  -- -------- -- --------
+     @xmath      (12.5)
+  -- -------- -- --------
+
+for a small operator @xmath is used. The variation @xmath is thus
+evaluated as
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+     @xmath   @xmath      
+              @xmath      (12.6)
+  -- -------- -------- -- --------
+
+Hence
+
+  -- -------- -------- -- --------
+              @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+              @xmath      
+     @xmath   @xmath      (12.7)
+  -- -------- -------- -- --------
+
+By imposing @xmath , the method of steepest ascent leads us to
+
+  -- -------- -- --------
+     @xmath      (12.8)
+  -- -------- -- --------
+
+for some small @xmath . Hence, to obtain the MLME estimator @xmath , one
+simply fixes @xmath and iterates the equations
+
+MLME QPT iterative equations
+
+@xmath @xmath @xmath @xmath @xmath @xmath (12.9)
+
+where the expression for @xmath follows from Eq. ( 12.2 ) and @xmath
+denotes the operator @xmath in Eq. ( 12.3 ) evaluated for @xmath . One
+may do so by starting from a randomly chosen operator @xmath and
+continue until the extremal equation for @xmath is satisfied with some
+pre-chosen numerical precision. To derive this extremal equation, we
+define the Lagrange functional [ PŘ04 ]
+
+  -- -------- -- ---------
+     @xmath      (12.10)
+  -- -------- -- ---------
+
+with the Lagrange operator @xmath for the constraints in Eq. ( 11.5 ),
+where @xmath is a Hermitian operator. Setting the variation of @xmath to
+zero gives the extremal equation
+
+  -- -------- -- ---------
+     @xmath      (12.11)
+  -- -------- -- ---------
+
+with @xmath .
+
+Thus far, we have been assuming that the measurement outcomes @xmath
+give perfect detection of quantum systems. The iterative equations in
+Eq. ( 12.9 ) can be generalized to the case of imperfect detection. As
+always, if each of the @xmath measurement outcomes @xmath is assigned a
+detection efficiency @xmath , one can define a new set of @xmath
+measurement outcomes @xmath such that @xmath . It follows that the
+probabilities @xmath do not sum to unity.
+
+The likelihood functional, in this case, turns out to be
+
+  -- -------- -- ---------
+     @xmath      (12.12)
+  -- -------- -- ---------
+
+where @xmath is the unknown total number of copies and the primed
+quantities are defined as in § 11 . Stirling’s formula then gives
+
+  -- -------- -------- -- ---------
+     @xmath   @xmath      
+              @xmath      (12.13)
+  -- -------- -------- -- ---------
+
+The corresponding derivative
+
+  -- -------- -- ---------
+     @xmath      (12.14)
+  -- -------- -- ---------
+
+is zero for the most-likely @xmath , which is given by
+
+  -- -------- -- ---------
+     @xmath      (12.15)
+  -- -------- -- ---------
+
+Hence,
+
+  -- -------- -- ---------
+     @xmath      (12.16)
+  -- -------- -- ---------
+
+In short, the iteration procedure of Eq. ( 12.9 ) can still be used with
+the new set of POM outcomes @xmath provided that the operator @xmath in
+Eq. ( 12.3 ) is replaced by @xmath , where
+
+  -- -------- -- ---------
+     @xmath      (12.17)
+  -- -------- -- ---------
+
+accounts for the copies that escape detection.
+
+As an example, we apply the algorithm to numerical simulations on
+two-qubit channels, the cnot gate described by the unitary operator
+
+  -- -------- -- ---------
+     @xmath      (12.18)
+  -- -------- -- ---------
+
+and a randomly generated non-unitary quantum channel described by a
+full-rank Choi-Jamiółkowski matrix, as well as the three-qubit Toffoli
+gate described by the unitary operator
+
+  -- -------- -- ---------
+     @xmath      (12.19)
+  -- -------- -- ---------
+
+To quantify the discrepancy between an MLME estimator and the true
+Choi-Jamiółkowski operator @xmath , we use the trace-class distance
+
+  -- -------- -- ---------
+     @xmath      (12.20)
+  -- -------- -- ---------
+
+In these simulations, we take the @xmath -dimensional projectors of a
+SIC POM as the input states.
+
+As shown in Fig. 22 , using the MLME algorithm for QPT can give fast
+convergence in terms of tomographic efficiency with a reduced number of
+input states as quantum resources. This reduction is especially
+significant for unitary processes, where the Choi-Jamiółkowski operators
+are rank-1. For nonunitary quantum processes described by matrices of
+larger rank, the tomographic efficiency will be lower as shown in the
+first plot of Fig. 22 . This is expected in analogy with quantum state
+tomography where it is more difficult to reliably estimate highly-mixed
+states than nearly-pure ones.
+
+### 13 Adaptive strategies
+
+An interesting question to ask with regard to incomplete QPT is whether
+one can perform it in an optimal way given the available resources by
+means of adaptive strategies. Here optimality refers to the minimization
+of the amount of resources (input states or measurements) used to
+perform incomplete QPT such that the distance between @xmath and @xmath
+reaches a certain desired value. Very frequently, despite the fact that
+@xmath is always unknown, one has a rough idea of an operator @xmath
+which may be close to @xmath based on some prior information about the
+unknown @xmath . This scenario is reasonable and typical when one
+designs a quantum channel experimentally which performs an expected
+quantum operation, with errors arising from imperfections of the
+components that make up the channel. We shall establish adaptive
+strategies which make use of such an operator in order to select, with
+the help of the MLME algorithm, resources for incomplete QPT in an
+optimal way. We refer to such tomography schemes as the adaptive MLME
+quantum process tomography (AMLME QPT) schemes.
+
+We will focus on adaptive strategies to choose the input states
+optimally. This can be reviewed in two separate cases: The case in which
+a fixed set of linearly independent input states is used (§ 13.1 ) and
+that in which arbitrary input states can be generated for incomplete QPT
+(§ 13.2 ). Adaptive strategies to choose the POM are relatively harder
+to formulate and this task is put aside for future studies.
+
+#### 13.1 Optimization over a fixed set of linearly independent input
+states
+
+In the previous section, we considered the projectors of the SIC POMs,
+which are known to have optimal tomographic efficiencies, as input
+states in the numerical simulations. Since these POMs are symmetric in
+the sense of Eq. ( 2.21 ), any ordering of the input states in a given
+set gives the same plots in Fig. 22 . In practice, however, such
+entangled states are difficult to produce and one typically has access
+to a set of separable states [ RKS @xmath 06 ] for measurements instead.
+In this case, there no longer exists such a symmetry and the tomographic
+performance depends on the order of the input states chosen, possibly
+strongly so. We propose to optimize the tomographic performance by
+choosing the input states adaptively based on the measurement data
+collected from the previously chosen input states, thereby using the
+prior @xmath .
+
+To describe the adaptive strategy, let us consider a set of @xmath input
+states in which @xmath of them are linearly independent. Suppose that
+@xmath , which is a fixed integer for all input states, copies of a
+randomly chosen input state @xmath are sent through the quantum channel
+and the first set of measurement data @xmath , @xmath , is collected.
+With these data @xmath , one obtains the first MLME estimator @xmath .
+To select the next input state out of the remaining @xmath states, we
+take @xmath as a gauge for @xmath to generate @xmath sets of
+probabilities respectively from the @xmath states. Each set of
+probabilities is then treated as the set of frequencies @xmath , for the
+corresponding input state @xmath . Hence, one has @xmath sets of
+measurement data, each set being the combined data @xmath with the
+normalized frequencies @xmath and @xmath such that @xmath for each
+@xmath , and the corresponding @xmath projected MLME estimators @xmath .
+
+The value of @xmath is selected such that a chosen figure of merit which
+quantifies the distance between @xmath and @xmath is the largest, so
+that there is a high chance for the next MLME estimator to be closer to
+@xmath . As an example, the figure of merit is taken to be the
+trace-class distance @xmath . With this input state, the second
+estimator @xmath is then obtained with MLME QPT. One repeats this
+procedure for subsequent input states until the distance @xmath is below
+some preset threshold. An alternative to this would be to minimize the
+trace-class distance @xmath .
+
+It is important to understand that in this strategy, the prior
+information @xmath is not used to reconstruct the unknown quantum
+process in any way. It serves only as a means to optimally select the
+input states from the given set so as to maximize the tomographic
+convergence. This adaptive strategy also relies partially on the
+measurement data obtained in the experiment. We have thus introduced an
+operational method of using the prior information to minimize the amount
+of resources needed to perform reliable MLME QPT without introducing any
+artifacts coming from the prior information into the reconstruction
+procedure. To summarize, the adaptive MLME strategy is as follows:
+
+Adaptive MLME algorithm (Fixed set of input states)
+
+1.  Randomly choose @xmath from the set of @xmath input states and set
+    @xmath .
+
+    1.  Perform QPT using @xmath and obtain the set of frequencies
+        @xmath , @xmath .
+
+    2.  Set @xmath .
+
+    3.  Invoke the MLME algorithm with @xmath and obtain @xmath . Use
+        @xmath to compute the frequencies @xmath , @xmath , from the
+        remaining input states, with @xmath labeling the remaining
+        @xmath states.
+
+    4.  Define @xmath sets of accumulated frequencies @xmath and
+        calculate the @xmath projected MLME estimators @xmath .
+
+    5.  Set @xmath as the input state corresponding to @xmath such that
+        @xmath is largest.
+
+2.  Set @xmath and repeat Steps 1(a)–1(e).
+
+#### 13.2 Optimization over the Hilbert space
+
+More generally, the adaptive strategy may be extended to the case in
+which one has access to the entire Hilbert space of states. In other
+words, the task is to search for the next optimal input state @xmath
+from the @xmath -dimensional Hilbert space based on the measurement data
+@xmath obtained in the experiment from @xmath previously chosen input
+states, where @xmath for all @xmath , and the prior information @xmath
+about the unknown quantum process.
+
+To this end, we define the normalized projected log-likelihood
+functional
+
+  -- -------- -- --------
+     @xmath      (13.1)
+  -- -------- -- --------
+
+where
+
+  -- -------- -- --------
+     @xmath      (13.2)
+  -- -------- -- --------
+
+  -- -------- -- --------
+     @xmath      (13.3)
+  -- -------- -- --------
+
+with @xmath always running from @xmath to @xmath over all previously
+used input state labels.
+
+This projected log-likelihood functional is a good approximation to the
+log-likelihood functional for the situation in which the state @xmath is
+chosen as the next input state for the experiment as long as @xmath is
+not too far away from @xmath . The projected frequencies @xmath estimate
+the actual frequencies one gets when measuring the input state @xmath .
+An optimal input state @xmath and the corresponding Choi-Jamiółkowski
+operator are chosen as the positive estimators that maximize this
+projected log-likelihood functional.
+
+Coincidentally, this maximum projected log-likelihood (MPL) procedure is
+equivalent to minimizing the cross entropy functional @xmath [ JM09 ,
+EFS05 ] over all positive operators subjected to the respective
+constraints for @xmath and @xmath . Hence, another way of understanding
+this procedure is to first regard both the incomplete measurement data
+collected after using @xmath input states and @xmath as the full prior
+knowledge one has about the unknown @xmath . The statistical motivation
+for MPL or minimizing @xmath is, loosely speaking, to obtain estimators
+which are as compatible with this prior knowledge as possible by
+minimizing the entropy of the prior knowledge @xmath . We will provide
+some more arguments related to this optimization technique in the later
+part of this section.
+
+To carry out the optimization, we consider the response of @xmath to
+small variations of both @xmath and @xmath . After some similar
+calculations as in § 12 , we obtain the MPL iterative equations
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+     @xmath   @xmath      (13.4)
+  -- -------- -------- -- --------
+
+where @xmath is defined by Eq. ( 12.2 ) with
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+     @xmath   @xmath      (13.5)
+  -- -------- -------- -- --------
+
+and
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+     @xmath   @xmath      
+              @xmath      (13.6)
+  -- -------- -------- -- --------
+
+The MPL estimators satisfy the extremal equations
+
+  -- -------- -------- -- --------
+     @xmath   @xmath      
+     @xmath   @xmath      (13.7)
+  -- -------- -------- -- --------
+
+where
+
+  -- -------- -- --------
+     @xmath      (13.8)
+  -- -------- -- --------
+
+The small parameters @xmath and @xmath are positive numbers. Thus, to
+carry out the MPL procedure, one iterates Eqs. ( 13.4 ) until Eqs. (
+13.7 ) are satisfied with a preset numerical precision.
+
+There is one important feature of this optimization scheme. From Eq. (
+13.1 ), we note that @xmath is neither convex nor concave in @xmath and
+hence can have multiple local maxima. Thus, the MPL optimization is
+nonconvex.
+
+To generate these local-maxima estimators, one can start from multiple
+randomly chosen starting points and perform the iterations. Thereafter,
+the state estimator @xmath to be chosen as the next input state @xmath
+is such that its corresponding @xmath gives the largest trace-class
+distance away from the previous MLME estimator @xmath , which is
+obtained from the data of the previously chosen @xmath input states,
+over all generated pairs of MPL estimators @xmath . Again, one may also
+minimize the distance between @xmath and @xmath .
+
+Let us summarize the adaptive MPL-MLME strategy with the following
+scheme:
+
+Adaptive MPL-MLME algorithm Randomly choose @xmath as the first input
+state and set @xmath . Perform QPT using @xmath and obtain the set of
+frequencies @xmath , @xmath . Set @xmath . Invoke the MLME algorithm
+with @xmath and obtain @xmath . Using @xmath , generate a set of pairs
+of MPL estimators ( @xmath , @xmath ), where the states @xmath were not
+part of the @xmath input states previously used, by iterating Eqs. (
+13.7 ) from different, randomly chosen starting points. Set @xmath as
+the input state corresponding to the state estimator @xmath such that
+@xmath is the largest. Set @xmath and repeat Steps 1(a)–1(e).
+
+With this, let us first compare the performances of the three proposed
+schemes, namely the non-adaptive MLME scheme in § 12 , the adaptive MLME
+scheme in § 13.1 and the adaptive MPL-MLME scheme. For this purpose, we
+consider two quantum processes, the first being an imperfect cnot gate
+whose action is described by the Kraus operators
+
+  -- -------- -- --------
+     @xmath      (13.9)
+  -- -------- -- --------
+
+This first channel is a cnot gate with probability @xmath and does
+nothing to the input states with probability @xmath , an imperfect cnot
+gate represented by a rank-2 Choi-Jamiółkowski operator. The second
+process is described by the Kraus operators
+
+  -- -------- -- ---------
+     @xmath      (13.10)
+  -- -------- -- ---------
+
+where the 15 operators @xmath are randomly generated and satisfy the
+equation @xmath . This second channel, which is represented by a
+full-rank matrix, is a cnot gate with probability @xmath and randomly
+perturbs the input states with probability @xmath with additional noise.
+As an example, we set @xmath . Figure 23 ^(\fnsymbolwrap)
+^(\fnsymbolwrap) \fnsymbolwrap The set of input states used in Fig. 23 ,
+taken from Ref. [ RKS @xmath 06 ] , is just one of the many possible
+choices one can use in quantum process tomography. It is important to
+understand that this set is by no means sanctioned to be the “standard”
+set of input states. Rather, these are four states of the six projectors
+of the standard six-outcome POM, but any four of the six states will
+serve the purpose equally well. shows the numerical results.
+
+Next, to understand how this adaptive MPL-MLME strategy can lead to an
+optimization in tomographic performance, we need to know how increasing
+the number of input states used in AMLME QPT can affect the
+corresponding MLME estimators. Since we are considering only a subset of
+the full linearly independent input states in general, there exists a
+convex set of estimators @xmath maximizing the likelihood functional for
+a given set of informationally incomplete measurement data. This means
+that the likelihood functional possesses a plateau hovering over this
+convex set of estimators. As the number of input states @xmath used
+increases, the likelihood plateau will either remain unchanged (if no
+additional information about @xmath is gained after performing QPT with
+new input states) or decrease in size (if new independent information is
+obtained). Thus in general, the plateau will continue to shrink to a
+point when a full set of linearly independent input states is used.
+
+We conjecture that the adaptive MPL-MLME strategy optimizes the rate of
+decrease in the size of the likelihood plateau by maximizing the
+normalized projected log-likelihood functional with respect to the next
+input state. A point of view to justify this conjecture is to interpret
+the maximum of the normalized log-likelihood functional @xmath as the
+maximum information gain from the measurement data. When the number of
+copies @xmath is infinite, the data are noiseless and the resulting
+maximum information gain is @xmath , which is the negative of the
+Shannon entropy of the measurement data. For finite @xmath , the maximum
+information gain over the space of statistical operators will typically
+be lower than the true maximum due to the positivity constraint,
+especially when @xmath is highly rank-deficient. In this language, the
+MPL-MLME strategy attempts to maximize this maximum information gain as
+much as possible via the optimization of future input states over the
+entire Hilbert space of statistical operators, using the normalized
+projected log-likelihood functional as an estimate for the actual
+normalized log-likelihood functional describing future measurements.
+This is a possible explanation for the optimal decrease in the
+likelihood plateau size since one has maximal knowledge about the
+unknown @xmath gained with the optimized input states and so the
+ambiguity in the estimators is minimized.
+
+We illustrate this point by considering the imperfect cnot gate with
+@xmath described by Eq. ( 13.9 ). Since the boundary of the likelihood
+plateau is complicated, we shall estimate its size numerically by first
+generating @xmath ML estimators @xmath labeled with the index @xmath for
+a given set of measurement data. Next, in the same spirit as in
+numerical sampling, we can define the operator centroid
+
+  -- -------- -- ---------
+     @xmath      (13.11)
+  -- -------- -- ---------
+
+for this generated set of estimators and the normalized Hilbert-Schmidt
+standard deviation
+
+  -- -------- -- ---------
+     @xmath      (13.12)
+  -- -------- -- ---------
+
+away from the centroid. Thus, @xmath . For sufficiently large @xmath ,
+the size of the plateau may be well approximated by the spread @xmath .
+Figure 24 compares the respective performances of the the three proposed
+schemes by analyzing the size of the likelihood plateau and the maximum
+of the normalized log-likelihood functional. From Fig. 24 , it is
+crucial to understand that @xmath does not, strictly speaking, decrease
+monotonically with increasing height of the normalized log-likelihood
+functional. A counterexample is shown in the figure, that is a
+significant decrease in @xmath for the adaptive MLME scheme as compared
+to the non-adaptive one with the corresponding slight decrease in its
+normalized log-likelihood maxima. We emphasize that what the adaptive
+MPL-MLME strategy exploits is the possible trend of this behavior.
+
+To end this part of the section, we comment that the aforementioned idea
+can be applied to adaptively choose the next set of POM outcomes @xmath
+based on the collected measurement data. However, to perform the
+optimization successfully requires the solutions to more technical
+problems which include ensuring that the POM outcomes are linearly
+independent after the optimization. This project is left for future
+studies.
+
+#### 13.3 A combination of both adaptive strategies
+
+Let us begin this final part of the section by reviewing the nonconvex
+feature of the MPL-MLME strategy discussed in § 13.2 . The presence of
+multiple local-maxima estimators which are linearly independent is an
+important element of the MPL-MLME strategy as it provides linearly
+independent input states which are optimal for measurement based on the
+data obtained from the experiments. In general, because of the
+nonlinearity of Eq. ( 13.7 ), it is difficult to determine the number of
+such linearly independent extremal solutions for a given set of
+measurement data by analytical means. One can only search for as many
+linearly independent local-maxima estimators @xmath as possible via
+numerical optimizations from different starting points within a
+reasonable time period.
+
+Another technical subtlety is that these local-maxima estimators tend to
+repeat themselves during the optimization. Hence, a local-maxima
+estimator which was chosen as one of the input states earlier may
+reappear in later optimizations. The repetition frequency strongly
+depends on the POM chosen to measure the output states. The examples
+given thus far make use of the product tetrahedron measurements as the
+POM and the resulting MPL optimizations give linearly independent
+estimators with few repetitions. This may not be the case for other
+types of POM. In view of this, another way of doing AMLME QPT is to use
+both adaptive strategies in § 13.1 and § 13.2 interchangeably, the
+hybrid MLME strategy. For example, one can start with the adaptive
+MPL-MLME strategy for tomography and when the repetition rate increases
+as more input states have been used, one may switch to the first
+adaptive MLME strategy. Figure 25 suggests that such a hybrid MLME
+strategy can further improve the tomographic performance as compared
+with the adaptive MLME strategy alone.
+
+#### 13.4 Fixed measurement resources
+
+Finally, we try to answer, with numerics, the following question: For a
+fixed value of @xmath , is it more beneficial, in terms of tomographic
+performance, to measure more input states with fewer copies per input
+state or to measure fewer input states with more copies per input state?
+In quantum state estimation, it is well known that for a fixed number of
+measurement copies, it is better to measure more POM outcomes, an
+overcomplete set if possible [ dBLDG08 ] . To see if there exists an
+analogous benefit to measure more input states in QPT, we performed a
+simulation with a fixed value of @xmath and show the results in Fig. 26
+.
+
+It turns out that the average trace-class distance is a monotonically
+decreasing function of @xmath , with the maximal @xmath . Hence, for a
+fixed amount of measurement resources, the advantage of increasing the
+different types of measurements carries over to quantum process
+estimation. However, it is important to note that this does not
+contradict the fact that for a fixed average trace-class distance, one
+can use MLME to reduce the total number of measurement
+resources/settings by simply reducing the number of input states
+necessary to achieve this distance. This is because, as discussed
+previously in § 12 and also shown in Fig. 26 , the improvement gained by
+increasing the number of input states @xmath decreases rapidly with
+@xmath , especially when the input states are chosen optimally. Put
+differently, it is not worth the trouble to increase @xmath after some
+point, beyond which there is very little tomographic improvement. This
+point, which is the essence of AMLME QPT, cannot be overemphasized.
+Experimentally, this means that one need not perform full tomography to
+obtain a quantum process estimator within a certain preset error margin
+since other confounding variables contribute to the total experimental
+error anyway.
+
+### 14 Chapter summary
+
+We have established adaptive numerical strategies to perform incomplete
+quantum process tomography. One may choose whichever strategy is
+convenient to carry out tomography depending on the available types of
+measurement resources at hand. Each of these strategies combines the
+simplicity of incomplete quantum process tomography using quantum state
+estimation with good tomographic performances using optimization
+techniques. It can never be overemphasized that, although some prior
+information is necessary for each adaptive strategy, such information is
+never used in the estimation of the unknown quantum process. Rather, the
+prior information is utilized to adaptively select future input states,
+the input states in our context, based on the current measurement data,
+to optimize the tomographic performance. The discussions presented in
+this chapter, therefore, provide a means of obtaining estimators for the
+unknown quantum process using incomplete resources which are typically
+within reasonably good experimental precisions. These estimators are
+statistically meaningful in that they are least-biased with respect to a
+set of informationally incomplete measurement data and are hence
+suitable for partial characterization of quantum processes. This is in
+contrast with the standard quantum process tomography which generally
+requires a huge amount of informationally complete measurement
+resources.
+
+## Conclusion
+
+The frequentist’s notion of quantum estimation serves as a very useful
+methodology for estimating the identity of a given source of quantum
+systems or a quantum channel. In this dissertation, we have touched on
+several aspects of this theory. They involve the two main statistical
+principles of maximum-likelihood and maximum-entropy, both of which are
+celebrated approaches in the subject of classical parameter estimation.
+Numerical techniques were developed to reconstruct quantum states and
+processes from the measurement data obtained. One important experimental
+application of these techniques, namely entanglement detection, was
+discussed in detail. Another important direction from the materials
+discussed in this dissertation would be to develop numerical methods for
+the construction of error bars that go with the reconstructed
+statistical or process operators. In view of this, we briefly mention
+that a methodology to construct what is called the region estimator for
+a given set of measurement data was discussed in a recent Workshop on
+Quantum Tomography (WQT@CQT 28 November – 02 December 2011). This
+estimator is a region of statistical operators that encloses the true
+state/process with a high probability, based on a pre-chosen likelihood
+ratio. Further improvements of this methodology with incomplete
+measurement data is a subject of future work.
+
+## Chapter \thechapter Dual Superkets of the SIC POM
+
+The superkets @xmath of a @xmath -dimensional SIC POM follows the trace
+relation
+
+  -- -------- -- -------------------
+     @xmath      ( \thechapter .1)
+  -- -------- -- -------------------
+
+These @xmath superkets are therefore not orthonormal to one another. To
+facilitate the subsequent calculations, it is convenient to construct a
+set of @xmath orthonormal superkets, denoted by @xmath , out of the
+@xmath s. To do this, we use the following ansatz:
+
+  -- -------- -- -------------------
+     @xmath      ( \thechapter .2)
+  -- -------- -- -------------------
+
+where @xmath . The inner product
+
+  -- -------- -- -------------------
+     @xmath      ( \thechapter .3)
+  -- -------- -- -------------------
+
+suggests that @xmath for @xmath . This equation allows for a free
+variable @xmath or @xmath . Choosing @xmath , we find that @xmath .
+Hence a good choice of orthonormal superkets are
+
+  -- -------- -- -------------------
+     @xmath      ( \thechapter .4)
+  -- -------- -- -------------------
+
+Using these orthonormal superkets and after a tedious simplification, we
+obtain the matrix elements of @xmath to be
+
+  -- -------- -- -------------------
+     @xmath      ( \thechapter .5)
+  -- -------- -- -------------------
+
+This means that
+
+  -- -------- -- -------------------
+     @xmath      ( \thechapter .6)
+  -- -------- -- -------------------
+
+The form of the superoperator @xmath is that of @xmath , where @xmath is
+a rank-1 projector. To invert this superoperator, we note that
+
+  -- -------- -------- -- -------------------
+     @xmath   @xmath      
+              @xmath      ( \thechapter .7)
+  -- -------- -------- -- -------------------
+
+Since @xmath and @xmath are orthogonal projectors, the inverse of @xmath
+is given by
+
+  -- -------- -------- -- -------------------
+     @xmath               
+              @xmath      ( \thechapter .8)
+  -- -------- -------- -- -------------------
+
+Using the parameters @xmath , @xmath , @xmath and
+
+  -- -- -- -------------------
+           ( \thechapter .9)
+  -- -- -- -------------------
+
+we obtain
+
+  -- -------- -- --------------------
+     @xmath      ( \thechapter .10)
+  -- -------- -- --------------------
+
+Thus,
+
+  -- -- -- --------------------
+           ( \thechapter .11)
+  -- -- -- --------------------
+
+where
+
+  -- -------- -------- -- --------------------
+     @xmath               
+              @xmath      ( \thechapter .12)
+  -- -------- -------- -- --------------------
+
+as it should be.
+
+## Chapter \thechapter Wigner Functional in Fock Representation
+
+With the help of the relation between the Fock-state wave functions
+@xmath and the Hermite polynomials @xmath given by
+
+  -- -------- -- -------------------
+     @xmath      ( \thechapter .1)
+  -- -------- -- -------------------
+
+the one-dimensional Wigner functional, defined as
+
+  -- -- -- -------------------
+           ( \thechapter .2)
+  -- -- -- -------------------
+
+for the dimensionless values @xmath and @xmath , for a given statistical
+operator @xmath can be represented in the Fock basis as
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+where @xmath and @xmath .
+
+In obtaining the final equation, a new variable @xmath is introduced and
+the property @xmath is used. The job is thus to evaluate the integral of
+the general form
+
+  -- -------- -- -------------------
+     @xmath      ( \thechapter .3)
+  -- -------- -- -------------------
+
+We shall first consider the case where @xmath . To proceed, it is useful
+for us to understand the response of @xmath when the argument is shifted
+by a constant @xmath . We begin with the generating function
+
+  -- -------- -- -------------------
+     @xmath      ( \thechapter .4)
+  -- -------- -- -------------------
+
+for the Hermite polynomials.
+
+It follows that
+
+  -- -------- -------- -- -------------------
+     @xmath   @xmath      
+              @xmath      
+     @xmath   @xmath      
+              @xmath      ( \thechapter .5)
+  -- -------- -------- -- -------------------
+
+so that
+
+  -- -------- -- -------------------
+     @xmath      ( \thechapter .6)
+  -- -------- -- -------------------
+
+Using Eq. ( \thechapter .6 ), the integral in Eq. ( \thechapter .3 )
+turns into
+
+  -- -------- -------- -- -------------------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      
+              @xmath      
+     @xmath   @xmath      ( \thechapter .7)
+  -- -------- -------- -- -------------------
+
+From the definition
+
+  -- -------- -- -------------------
+     @xmath      ( \thechapter .8)
+  -- -------- -- -------------------
+
+where @xmath are the associated Laguerre polynomials in @xmath of degree
+@xmath and order @xmath , we have
+
+  -- -------- -- -------------------
+     @xmath      ( \thechapter .9)
+  -- -------- -- -------------------
+
+The corresponding expression for @xmath requires the roles of @xmath and
+@xmath , as well as those of @xmath and @xmath , to be interchanged.
+Thus
+
+  -- -------- -- --------------------
+     @xmath      ( \thechapter .10)
+  -- -------- -- --------------------
+
+With Eqs. ( \thechapter .9 ) and ( \thechapter .10 ), we can write
+
+  -- -------- -- --------------------
+     @xmath      ( \thechapter .11)
+  -- -------- -- --------------------
+
+where
+
+  -- -------- -- --------------------
+     @xmath      ( \thechapter .12)
+  -- -------- -- --------------------
+
+or, with @xmath and @xmath ,
+
+  -- -------- -- --------------------
+     @xmath      ( \thechapter .13)
+  -- -------- -- --------------------
+
+## Chapter \thechapter Formula for Computing the Non-classicality Depth
+
+From the definitions of the function
+
+  -- -------- -- -------------------
+     @xmath      ( \thechapter .1)
+  -- -------- -- -------------------
+
+and the Glauber-Sudarshan @xmath function [ Meh67 ]
+
+  -- -------- -- -------------------
+     @xmath      ( \thechapter .2)
+  -- -------- -- -------------------
+
+with the overcomplete set of coherent states @xmath , similar
+manipulation in Appendix \thechapter gives
+
+  -- -------- -------- -- -------------------
+     @xmath   @xmath      
+              @xmath      ( \thechapter .3)
+  -- -------- -------- -- -------------------
+
+By defining @xmath , the necessary integral for subsequent calculations
+from Eq. ( \thechapter .3 ) is given by
+
+  -- -------- -- -------------------
+     @xmath      ( \thechapter .4)
+  -- -------- -- -------------------
+
+By introducing the polar coordinates @xmath , we have
+
+  -- -------- -------- -- -------------------
+     @xmath   @xmath      
+              @xmath      ( \thechapter .5)
+  -- -------- -------- -- -------------------
+
+where the second equality is obtained via the integral definition
+
+  -- -------- -- -------------------
+     @xmath      ( \thechapter .6)
+  -- -------- -- -------------------
+
+of the Bessel function (Friedrich Wilhelm Bessel) of the first kind
+@xmath of integer order @xmath . Using a new set of variables @xmath and
+supposing that @xmath ,
+
+  -- -------- -------- -- -------------------
+     @xmath   @xmath      
+              @xmath      ( \thechapter .7)
+  -- -------- -------- -- -------------------
+
+In deriving the identity above, we make use of the fact that @xmath ,
+which follows immediately from the generating function
+
+  -- -------- -- -------------------
+     @xmath      ( \thechapter .8)
+  -- -------- -- -------------------
+
+where @xmath is complex. To evaluate the integral in Eq. ( \thechapter
+.7 ), we need a few identities for @xmath . Let us start by establishing
+the power series expansion for @xmath with an integer order @xmath . For
+this, we need the expression for the @xmath th derivative of @xmath with
+respect to @xmath . From Eq. ( \thechapter .6 ),
+
+  -- -------- -------- -- -------------------
+     @xmath               
+              @xmath      ( \thechapter .9)
+  -- -------- -------- -- -------------------
+
+Using the parametrization @xmath ,
+
+  -- -------- -------- -- --------------------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      ( \thechapter .10)
+  -- -------- -------- -- --------------------
+
+The resulting contour integral can be evaluated using the Cauchy’s
+Residue Theorem (Baron Augustin-Louis Cauchy), from which we have
+
+  -- -------- -- --------------------
+     @xmath      ( \thechapter .11)
+  -- -------- -- --------------------
+
+Since the pole @xmath of the complex function in the argument is of
+order @xmath , the corresponding residue can be calculated using the
+formula
+
+  -- -------- -- --------------------
+     @xmath      ( \thechapter .12)
+  -- -------- -- --------------------
+
+Since
+
+  -- -------- -------- -- --------------------
+              @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      ( \thechapter .13)
+  -- -------- -------- -- --------------------
+
+we have
+
+  -- -- -- --------------------
+           ( \thechapter .14)
+  -- -- -- --------------------
+
+Thus, the Maclaurin series (Colin Maclaurin) of @xmath is given by
+
+  -- -------- -------- -- --------------------
+     @xmath   @xmath      
+              @xmath      ( \thechapter .15)
+  -- -------- -------- -- --------------------
+
+where we note that @xmath when @xmath . After a change of variable
+@xmath , we finally obtain the power series expansion
+
+  -- -------- -- --------------------
+     @xmath      ( \thechapter .16)
+  -- -------- -- --------------------
+
+which is very useful to obtain the necessary identities to proceed. We
+note that this formula is valid for any real number @xmath , although we
+have derived it from Eq. ( \thechapter .6 ) for integer @xmath . Since
+we are still considering the case where @xmath , @xmath .
+
+The first identity
+
+  -- -------- -------- -- --------------------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      
+              @xmath      ( \thechapter .17)
+  -- -------- -------- -- --------------------
+
+relates the @xmath -derivative of @xmath to another Bessel function
+@xmath that is one order lower. Next,
+
+  -- -------- -------- -- --------------------
+              @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      ( \thechapter .18)
+  -- -------- -------- -- --------------------
+
+With these two identities, and the definition of the associated Laguerre
+polynomials in Appendix \thechapter , we have
+
+  -- -------- -------- -- --------------------
+     @xmath               
+                          
+              @xmath      ( \thechapter .19)
+  -- -------- -------- -- --------------------
+
+Thus, using the integral representation in Eq. ( \thechapter .19 ) for
+@xmath , we have
+
+  -- -------- -------- -- --------------------
+     @xmath   @xmath      
+              @xmath      ( \thechapter .20)
+  -- -------- -------- -- --------------------
+
+For the case where @xmath , we make use of the property
+
+  -- -------- -- --------------------
+     @xmath      ( \thechapter .21)
+  -- -------- -- --------------------
+
+and evaluate the integral in Eq. ( \thechapter .5 ) using, again, Eq. (
+\thechapter .19 ), from which we obtain
+
+  -- -------- -------- -- --------------------
+     @xmath   @xmath      
+              @xmath      ( \thechapter .22)
+  -- -------- -------- -- --------------------
+
+Finally, using the results in Eq. ( \thechapter .20 ) and ( \thechapter
+.22 ), we have
+
+  -- -------- -------- -- --------------------
+              @xmath      
+     @xmath   @xmath      ( \thechapter .23)
+  -- -------- -------- -- --------------------
+
+where @xmath and @xmath .
+
+## Chapter \thechapter Uniqueness of the Hedged Likelihood Estimator
+
+We suppose that there exist two estimators @xmath and @xmath that
+maximize the hedged likelihood functional @xmath . The concavity of
+@xmath , which is equivalently expressed by the inequality
+
+  -- -------- -- -------------------
+     @xmath      ( \thechapter .1)
+  -- -------- -- -------------------
+
+for @xmath , implies that the convex sum @xmath also maximizes @xmath .
+In other words, if we vary the parameter @xmath along the direction from
+@xmath to @xmath and vice versa, the gradient of @xmath will always be
+zero. Hence, making use of Eq. ( 5.3 ), we obtain two simultaneous
+equations inasmuch as
+
+  -- -------- -- -------------------
+     @xmath      
+     @xmath      ( \thechapter .2)
+  -- -------- -- -------------------
+
+Adding the two equations and dividing the sum by 2, we have
+
+  -- -------- -- -------------------
+     @xmath      ( \thechapter .3)
+  -- -------- -- -------------------
+
+Since both @xmath and @xmath and their corresponding inverses are
+full-rank, each product of operators in the first trace term is also
+full-rank. Defining @xmath , we can express the first term in the
+eigenvalues @xmath of the full-rank operator @xmath , i.e.
+
+  -- -------- -------- -- -------------------
+              @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      ( \thechapter .4)
+  -- -------- -------- -- -------------------
+
+For the second term, denoting @xmath , a similar argument follows [ ŘH04
+] , namely
+
+  -- -------- -------- -- -------------------
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      ( \thechapter .5)
+  -- -------- -------- -- -------------------
+
+Therefore the left-hand side of Eq. ( \thechapter .3 ) is always larger
+than the right-hand side unless of course @xmath in the first term,
+which leads to @xmath needed for the equality in the second term. It
+follows that the operator @xmath is the identity operator. This means
+that @xmath and so @xmath , which concludes the proof.

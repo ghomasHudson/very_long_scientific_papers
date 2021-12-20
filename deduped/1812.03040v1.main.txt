@@ -1,0 +1,1449 @@
+## Chapter 1 Introduction
+
+### 1.1 Flow cardinality estimation
+
+Today’s Internet is flooded with data. The measuring and monitoring of
+Internet data traffic has led to many useful applications but it is also
+challenging due to the sheer volume and speed of the traffic. Flow
+cardinality estimation is one of the fundamental problems in network
+traffic measurement and it is the problem addressed by this thesis.
+
+In general, we define cardinality estimation to be the problem of
+estimating the number of distinct elements @xmath of a given multiset ¹
+¹ 1 A multiset is a generalization of a set, with the difference that a
+multiset can have duplicate elements. @xmath . For example, if @xmath ,
+then @xmath . The problem is often considered in the stream model — we
+are only allowed to observe each element in @xmath once, then the
+element is discarded forever.
+
+Flow cardinality estimation, in its essence, is cardinality estimation
+in the context of network traffic measurement, where we define a flow to
+be a multiset of data packets defined by certain properties observed on
+a network link over a period of time. The purpose of flow cardinality
+estimation is to estimate the number of distinct packets in the
+multiset, where the distinction is made based on some properties such as
+values of certain packet header fields of interest.
+
+For example, we can consider a per-source flow that contains all the
+packets from the same source address and use cardinality estimation to
+estimate the number of distinct destination addresses among them. In
+this case, the particular source address is known as the flow’s
+identifier ( flow ID ). Some commonly used flow identifiers are
+source/destination address, source/destination port number, protocol
+type, or a combination of them (such as source-destination pair).
+
+Challenges: The challenges of flow cardinality estimation are mainly
+twofold: time and space constraints. First of all, high data transfer
+rates in some communication networks today make it infeasible to spend
+much time on processing each element. According to [ 1 ] and [ 2 ] , on
+a typical OC-768 ² ² 2 OC is an acronym for Optical Carrier . OC-n
+specifies the transmission rate of digital signals on a Synchronous
+Optical Networking (SONET) fiber optic network, equivalent to @xmath
+Mbit/s. backbone network link with 40 Gbps traffic speed, the time
+available to process each packet is at best about tens of nanoseconds,
+corresponding to no more than a hundred elementary operations.
+
+Secondly, such a high traffic rate necessitates the need to use on-chip
+cache memory on network processors, in order to achieve real-time
+processing and maintain high throughput. But most on-chip caches on
+processors are made of SRAM, typically only a few megabytes [ 3 ] . A
+naïve approach that maintains a look-up dictionary to record all the
+distinct elements seen thus far is too costly, since it requires @xmath
+bits. In some applications, @xmath can be on the order of billions.
+
+Therefore, an ideal algorithm should be simple and quick in processing
+each flow element and be compact in memory usage. The good news is that
+it is usually not necessary to know the exact value of a flow’s
+cardinality. Many approximation algorithms have been developed to
+explore the trade-off between estimation accuracy and space/timing
+efficiency.
+
+Applications Examples: One important direction of application of
+cardinality estimation is network anomaly detection . Estan et al. [ 4 ]
+suggested three such applications: detecting port scans, detecting
+denial of service (DoS) attacks and estimating worm spread rate.
+
+Let us take port scan detection as an example to illustrate the idea. A
+port scan is a probing process that sends service requests from a client
+to a range of port addresses of a server with the aim of finding an open
+port, which an attacker can take advantage of to find vulnerabilities on
+the server. A router can detect such a process by keeping track of
+packet flows and using cardinality estimation to measure the number of
+distinct port addresses attempted by each source. Any source that is
+trying to connect to an abnormally large number of port addresses in a
+short time interval should be suspected of conducting a port scan.
+
+Other than network anomaly detection, we can apply flow cardinality
+estimation to many other problems that have a count-distinct nature by
+adapting the concept of a flow to contain other (maybe abstract) types
+of data. For example, Google might be interested in estimating the
+number of distinct users that query certain keywords in a period of time
+[ 3 ] . Here a per-keyword flow can be defined to be all the user IP
+addresses that query that keyword. Information about the cardinalities
+of such flows reflects the popularity of those keywords which might be
+helpful in the optimization of Google’s database and search algorithm.
+Much research on cardinality estimation was motivated by
+database-related applications (e.g. [ 5 ] and [ 6 ] ).
+
+### 1.2 Motivation and contributions
+
+State-of-the-art algorithms for cardinality estimation comprise two
+processes. First, the sketching process reads elements from the flow and
+stores useful information in a compact data structure. Second, in the
+estimation process , an estimator takes the recorded information as
+input and outputs the estimated cardinality of the flow.
+
+The HyperLogLog (HLL) algorithm proposed by Flajolet et al. in [ 7 ] is
+near-optimal and has been widely adopted in many industry systems due to
+its simplicity and excellent performance; according to [ 3 ] , it is the
+best existing algorithm for single-flow estimation. Roughly speaking,
+the HLL algorithm requires hundreds of bytes to make a fair estimation
+for a single flow with cardinality up to @xmath . Details of the HLL
+algorithm are presented in Section 2.1.1 .
+
+However, in some applications the cardinalities of multiple flows need
+to be estimated at the same time — this is known as per-flow cardinality
+estimation. In this case, the rate of hundreds of bytes per flow is
+still too much in some important scenarios where the number of flows can
+be on the order of tens of millions and memory usage is critical. To
+this end, Xiao et al. [ 3 ] proposed the virtual LogLog algorithm based
+on memory sharing at register level, which can potentially bring down
+the memory cost from hundreds of bytes per flow to one bit per flow on
+average. Details of the sketching process of this algorithm are
+described in Section 2.2.1 . The estimation process of this algorithm
+uses an estimator called vHLL, summarized in Section 3.2.1 .
+
+The main purpose of this thesis is to propose and investigate
+alternative estimators for the estimation process of the virtual LogLog
+algorithm in [ 3 ] :
+
+-   The original vHLL estimator of [ 3 ] is based on the HLL estimator
+    for single-flow estimation. We show that the HLL estimator can be
+    generalized by a family of estimators parametrized by a value @xmath
+    (Section 3.1 ); for HLL, @xmath . The idea of this generalization
+    can be easily applied to the vHLL estimator for per-flow estimation
+    as well. Although it is already known that for single-flow
+    estimation, @xmath (i.e. HLL) is near-optimal [ 7 ] , it is not
+    clear whether this near-optimality at @xmath extends to the case of
+    per-flow estimation. We provide empirical evidence to show that
+    indeed @xmath (i.e. vHLL) is still optimal for per-flow estimation.
+
+-   We introduce an alternative approach to the estimation problem – a
+    maximum-likelihood estimator. We find that this estimator does not
+    significantly improve the estimation process, compared to the vHLL
+    estimator.
+
+Empirical evidence from both perspectives suggests the near-optimality
+of the vHLL estimator for per-flow estimation, on the basis of the
+virtual LogLog algorithm [ 3 ] .
+
+### 1.3 Thesis overview
+
+The rest of this thesis is organized as follows. Chapter 2 provides the
+background knowledge and preliminaries to the estimators discussed in
+this thesis. Chapter 3 and Chapter 4 investigate alternative estimators
+of the virtual LogLog algorithm from the aforementioned two
+perspectives. Chapter 3 introduces the @xmath estimator, a
+generalization of the vHLL estimator, and evaluates its performances for
+different values of @xmath . Chapter 4 derives the maximum-likelihood
+estimator and compares its performance with that of the @xmath
+estimator. Chapter 5 summarizes the conclusions of the thesis and points
+to possible future works.
+
+## Chapter 2 Background and Preliminaries
+
+This chapter briefly overviews cardinality estimation algorithms and
+points to relevant references. The focus is on summarizing previous
+works that are essential to the understanding of the main body of this
+thesis: the LogLog [ 8 ] and HyperLogLog [ 7 ] algorithms for
+single-flow estimation and the virtual LogLog algorithm [ 3 ] for
+per-flow estimation.
+
+### 2.1 Single-flow cardinality estimation
+
+Given a single flow of elements @xmath , the goal of cardinality
+estimation is to estimate the number of distinct elements in the flow.
+There are two general approaches to this problem: sampling and
+streaming. A sampling-based algorithm collects a small sample of
+elements from the flow while bypassing other elements and infers the
+cardinality of the flow from sample information. A streaming-based
+algorithm, in contrast, processes every element in the flow. Most
+state-of-the-art algorithms are based on streaming. For a review of
+these two kinds of algorithms and a comparison between them, see [ 9 ] .
+
+A streaming-based algorithm for cardinality estimation has three
+integral components:
+
+-   A hash function @xmath , mapping each element @xmath of the flow
+    into a hashed value @xmath of a chosen type. The purpose of @xmath
+    is generally twofold: filtering out duplicate elements (relying on
+    the fact that multiple appearances of the same element have the same
+    hash) and providing randomization.
+
+-   A compact data structure @xmath , capturing certain low-dimensional
+    statistical information of the flow’s cardinality by recording
+    features of the hashed values. In some literature, the data
+    structure is known as a sketch , meaning it is a concise summary of
+    the flow. The process of updating the sketches is called sketching .
+
+-   An estimator @xmath that takes the content of @xmath as input and
+    outputs the estimated cardinality, thus @xmath .
+
+Usually we want the estimator to be unbiased (i.e. @xmath ). One
+commonly used metric for the evaluation of the performance of an
+estimator is the relative standard error @xmath . For two unbiased
+estimators using the same amount of memory, the one with a smaller
+relative standard error is better. For a detailed classification and
+comparison of existing single-flow cardinality estimation algorithms,
+see [ 10 , 11 ] . We take a closer look at the LogLog and HyperLogLog
+algorithms in Section 2.1.1 .
+
+#### 2.1.1 LogLog and HyperLogLog
+
+The HyperLogLog (HLL) [ 7 ] algorithm is the best-known algorithm in
+practice, due to its simplicity and good performance. HLL is a successor
+of LogLog [ 8 ] : the two algorithms use the same hash function and data
+structure (therefore have the same sketching process) and only differ in
+their choice of estimators.
+
+The data structure of the LogLog/HLL algorithm is a single array of
+@xmath registers (counters), denoted as @xmath , where @xmath refers to
+the @xmath register in the array (or the value stored in it, depending
+on the context). Suppose we have a hash function @xmath that maps each
+element of the flow to a sufficiently long bit string. Define a function
+@xmath that takes a bit string and outputs the position of the leftmost
+@xmath -bit of the string, e.g. @xmath . The sketching process of
+LogLog/HLL is summarized as follows.
+
+LogLog/HLL sketching process :
+
+1.  Initialize all the registers in @xmath with value @xmath . Let
+    @xmath .
+
+2.  For each element @xmath in flow:
+
+    1.  @xmath . Hash @xmath into a sufficiently long bit string.
+
+    2.  Divide the bit string into two parts:
+
+        -   @xmath . Use the prefix @xmath bits to select a register in
+            @xmath .
+
+        -   @xmath . Use the remaining bits to update the selected
+            register.
+
+    3.  @xmath . Update the value of @xmath by the larger of the current
+        value of @xmath and the position of the leftmost @xmath -bit of
+        @xmath .
+
+Here are a few points to note about the above sketching process. First,
+@xmath is chosen to be some integer power of @xmath so that @xmath is an
+integer and @xmath . Assume that for a random element @xmath , @xmath is
+a random bit string with independent and uniform bits. Then @xmath can
+be regarded as a uniform random variable in @xmath , which means that
+the @xmath registers in @xmath are equally likely to be selected for
+updating for a randomly given element.
+
+Second, the values of the registers in @xmath after the sketching
+process should not be affected by duplicate elements, nor by the order
+of the elements appearing in the flow. This is guaranteed by hashing and
+the max operation in step (iii).
+
+Third, how large can a register’s value get? With the previous
+assumption on the independence and uniformity of the bits in the hash
+output string, for a random element @xmath we have @xmath with
+probability @xmath . That is, @xmath can be regarded as a geometric
+random variable with parameter @xmath . By the same assumption, we
+expect about @xmath distinct elements distributed to any particular
+register @xmath . Suppose that this number @xmath is exact, then at the
+end of the sketching process, @xmath is just the maximum of @xmath
+independent @xmath random variables. According to [ 8 ] , previous study
+has shown that the expectation of @xmath is close to @xmath with a small
+additive bias. Therefore, on average each register needs about @xmath
+bits to store its value — this is why such a register is also known as a
+LogLog sketch . Based on this discussion, a rough estimator for @xmath
+can be @xmath . Following this idea, the LogLog estimator [ 8 ] replaces
+@xmath with the average of the @xmath register values:
+
+  -- -------- -- -------
+     @xmath      (2.1)
+  -- -------- -- -------
+
+where @xmath is a suitable bias correction factor. The HLL algorithm [ 7
+] uses a different estimator:
+
+  -- -------- -- -------
+     @xmath      (2.2)
+  -- -------- -- -------
+
+with a different bias correction factor @xmath . Note that @xmath is
+commonly known as the geometric mean of the values @xmath , while @xmath
+is the harmonic mean of those values.
+
+We will introduce two other estimators for single-flow estimation in
+Section 3.1 ( @xmath estimator) and Section 4.4 (maximum-likelihood
+estimator), respectively.
+
+It has been shown in [ 8 ] and [ 7 ] that the LogLog and HLL estimators
+are asymptotically approximately unbiased in the sense that, as @xmath ,
+@xmath is very close to @xmath with a practically negligible
+fluctuation. It has been shown that as @xmath , the bias correction
+constants are independent of @xmath . They do depend on @xmath ,
+however; but as @xmath gets large (e.g. @xmath ), they can be safely
+replaced by constants for all practical purposes. Practical values of
+@xmath and @xmath are @xmath and @xmath respectively.
+
+The relative standard error @xmath is approximately @xmath for the
+LogLog estimator [ 8 ] and approximately @xmath for the HLL estimator [
+7 ] , as @xmath . Therefore, using the same number of registers (same
+amount of memory), HLL’s estimate is more accurate than that of LogLog.
+With the HLL algorithm, we can achieve an estimate accuracy (in terms of
+relative standard error) of about @xmath by choosing @xmath . If we use
+@xmath bits for each register (for measuring cardinalities up to @xmath
+), then in total we need @xmath bits @xmath bytes for one estimation.
+
+According to Section 4 of [ 7 ] , the HLL algorithm is near-optimal, in
+the sense that its relative standard error @xmath is quite close to the
+lower bound @xmath for a wider class of algorithms based on order
+statistics. For a more detailed discussion of this lower bound, see [ 2
+] .
+
+One problem of the HLL algorithm is that it is highly biased and
+inaccurate for the estimation of small cardinalities. Methods to remedy
+this flaw are considered in Section 4 of [ 7 ] and further in [ 6 ] .
+
+### 2.2 Per-flow cardinality estimation with memory sharing
+
+In many real-world applications we need to estimate the cardinalities of
+multiple flows at the same time. For example, consider a stream of data
+packets from many flows observed by a network monitor device (such as a
+router). Let each packet be abstracted as a 2-tuple @xmath , where
+@xmath is the IP source address of the packet (the flow ID) and @xmath
+is the destination address (i.e. an element of the flow). The goal is,
+at the end of the measuring period, to estimate the number of distinct
+destination addresses from each given source address, i.e. the
+cardinality of each flow. For example, if the stream of packets is
+@xmath , then flow @xmath is @xmath with cardinality @xmath , flow
+@xmath is @xmath with cardinality @xmath and flow @xmath is @xmath with
+cardinality @xmath .
+
+An immediate idea to solve this problem is to allocate a separate block
+of memory for each flow and use any of the existing single-flow
+cardinality estimation algorithms for each flow. Since we do not know
+the cardinalities of the flows beforehand, it is inevitable to allocate
+the maximum amount of memory for each flow; with the HLL algorithm, we
+still need hundreds of bytes per flow. However, in many applications
+most of the flows have small cardinalities. Figure 2.1 shows an example
+of flow cardinality distribution from real-world data. ¹ ¹ 1 Data are
+retrieved from network traffic trace files [ 12 ] recorded on a backbone
+link between San Jose and Los Angeles during a ten minute interval.
+Here, a flow is defined by an IP source address. The cardinality of a
+flow is the number of distinct destination addresses among all the
+packets in the flow. In this example, the majority (about @xmath ) of
+the flows have cardinality of only @xmath , while only six flows have
+cardinalities larger than @xmath .
+
+In view of this waste of memory, some algorithms have been proposed that
+allow memory to be shared among flows. Such an algorithm usually
+combines the following components/ideas:
+
+-   A memory pool , which is the actual source of memory for all
+    estimations.
+
+-   A virtual data structure for each flow . This data structure does
+    not physically exist but is logically constructed by (often
+    randomly) pointing to memory units in the pool. Consequently,
+    difference flows may share some common parts of the memory.
+
+-   In the sketching process, for each incoming element, the algorithm
+    applies the sketching process of an existing single-flow estimation
+    algorithm to update the virtual data structure allocated for the
+    corresponding flow.
+
+-   After the sketching process, the algorithm uses an estimator to
+    estimate the cardinality of any given flow (with its ID). The
+    estimator needs to take into account the interference among flows
+    due to memory sharing. This estimation process can be done off-line
+    (in comparison to the online sketching process).
+
+Such algorithms may differ from each other in any of the above aspects.
+A review and comparison of some per-flow cardinality estimation
+algorithms based on memory sharing can be found in [ 3 ] . All these
+algorithms, however, share memory at bit level (meaning that the basic
+unit of the memory pool and of the virtual data structure is a bit),
+which [ 3 ] claims to be inherently too noisy.
+
+Another algorithm that shares memory at bit level, which [ 3 ] did not
+mention, is the virtual FM sketches algorithm proposed in [ 13 ] . The
+algorithm constructs multiple virtual bit arrays from a bit pool for
+each flow and relies on the sketching process of the FM sketches ² ² 2
+See [ 5 ] by Flajolet and Marin for a description of the FM sketches
+algorithm for single-flow estimation. algorithm for single-flow
+estimation. The algorithm adopts a maximum-likelihood estimator in the
+estimation process based on bit patterns in the sketches. We will also
+consider a maximum-likelihood estimator solution in Chapter 4 , but for
+a different sketching scheme. The performance reported in [ 13 ] shows
+that with memory cost of 1 bit per flow, the algorithm can estimate
+flows with cardinalities up to @xmath and average flow cardinality about
+@xmath ; it can achieve relative standard error of about @xmath for
+flows with cardinalities less than @xmath and @xmath for flows with
+cardinalities in the range @xmath to @xmath . For relatively small flows
+with cardinalities in the range @xmath to @xmath , this algorithm may
+outperform the virtual LogLog algorithm with the vHLL estimator [ 3 ] ;
+but it does not appear to be as competitive for larger ranges of flow
+cardinality.
+
+In view of the inherent drawback of bit-level sharing, [ 3 ] proposed
+the virtual LogLog algorithm based on memory sharing at register level
+and showed through experiments that such an algorithm outperforms
+previous ones. The data structure and sketching process of this
+algorithm are presented in the following subsection.
+
+#### 2.2.1 Virtual LogLog register sharing and sketching process
+
+Virtual Data Structure: The virtual LogLog algorithm [ 3 ] keeps a
+memory pool in the form of a register array, denote as @xmath . Denote
+the size of the array by @xmath , which is usually a very large number.
+@xmath refers to the @xmath register in the array (or the value stored
+in the register, depending on the context). For each flow @xmath , we
+form a virtual data structure ( virtual register array ) denoted as
+@xmath , which is a logically constructed array of @xmath registers with
+the @xmath register denoted as @xmath . The registers of @xmath are
+randomly selected from @xmath by using @xmath independent hash functions
+@xmath , each mapping the flow ID uniformly to an integer in @xmath ,
+i.e.
+
+  -- -------- -- -------
+     @xmath      (2.3)
+  -- -------- -- -------
+
+The @xmath hash functions can be implemented by a single master hash
+function @xmath as follows:
+
+  -- -------- -- -------
+     @xmath      (2.4)
+  -- -------- -- -------
+
+where “ @xmath ” is the concatenation operator. It should be emphasized
+that @xmath does not need to be physically constructed (thus it is
+“virtual”). A simple example is shown in Figure 2.2 to illustrate the
+concepts. In the example, say we want to update the third register of
+flow @xmath , i.e. @xmath , what actually will be updated is @xmath — we
+do not even need to know where the other registers in @xmath are.
+
+A caveat should be pointed out here, which the original paper [ 3 ]
+omitted: it could happen that two logically distinct registers of a
+virtual register array are mapped from the same physical register in the
+pool, i.e. @xmath for some @xmath . Certainly we wish to avoid this
+situation, but it is tolerable if the number of such “collisions” is
+very small.
+
+To see how likely it is for such a “collision” to occur, we can consider
+a bins-and-balls analogous problem: suppose we have @xmath balls and
+@xmath bins and we throw the balls sequentially, independently and
+uniformly at random into the bins. In the end how many bins will contain
+more than one balls? If @xmath is reasonably large, then the number of
+balls distributed at each bin can be approximated by an independent
+Poisson random variable @xmath with mean @xmath (see Chapter 5.4 of [ 14
+] ). So we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where the last approximation assumes @xmath . Therefore out of the
+@xmath bins, we expect to have approximately @xmath bins that hold more
+than one ball. Ideally we want @xmath to be small, which means with high
+probability the registers in a virtual register array are all mapped
+from distinct physical registers in the pool. This factor should be
+included in the design consideration.
+
+Sketching Process: The sketching process of virtual LogLog is almost
+identical to that of LogLog/HLL (recall from Section 2.1.1 ): for each
+packet @xmath in the stream, we process @xmath to obtain @xmath (the
+register selector) and @xmath (to be compared with the selected
+register’s value); except that the last step (iii) becomes
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+That is, we are treating the virtual register array as the actual
+register array. By combining ( 2.3 ) and ( 2.4 ), the above expression
+can be re-written as
+
+  -- -------- -- -------
+     @xmath      (2.5)
+  -- -------- -- -------
+
+Again, it shows that updates are actually made in the physical registers
+in @xmath . It should now be clear why the algorithm is called virtual
+LogLog: it is based on virtual register arrays, where each register is a
+LogLog sketch.
+
+After the sketching process, we obtain @xmath register values. The
+remaining problem is to infer flow cardinalities from these register
+values: this is the estimation process . We will consider two kinds of
+estimators in Chapters 3 and 4 , respectively.
+
+### 2.3 A per-flow estimator performance metric – Weighted square error
+
+Before we discuss specific estimators for per-flow cardinality
+estimation, we consider a metric based on weighted square error to
+evaluate the performance of any given estimator.
+
+Suppose that the incoming data stream contains @xmath flows, with
+cardinalities @xmath . Given any estimator @xmath , suppose its
+corresponding estimates for the flows’ cardinalities are @xmath . The
+weighted square error of estimator @xmath is defined as
+
+  -- -------- -- -------
+     @xmath      (2.6)
+  -- -------- -- -------
+
+where @xmath is a weight function mapping the cardinality of a flow to a
+positive number. For two estimators using the same amount of memory, the
+one with a lower WSE is better.
+
+#### 2.3.1 Weight function
+
+The choice of the weight function depends on the specific application.
+For example, if each flow is considered equally important regardless of
+its cardinality, then we can simply let @xmath for all @xmath . In many
+other situations, large flows are considered to be more important than
+small flows, then we want @xmath be an increasing function in @xmath .
+The weight function used in this thesis is presented and explained as
+follows.
+
+First, assume that the cardinality of a randomly chosen flow can be
+modeled as a random variable @xmath with pmf @xmath . We use the
+following weight function:
+
+  -- -------- -- -------
+     @xmath      (2.7)
+  -- -------- -- -------
+
+The motivation for using this weight function is explained here. The
+integral
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is an approximation of the total weight of flows whose cardinalities are
+in the range @xmath . With the weight function in ( 2.7 ), we have
+@xmath ; it is easy to verify that in this case the integral
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath is independent of @xmath . If we plot the curve @xmath as a
+function of @xmath on log scale of @xmath , then the area under the
+curve should be approximately the same in each decade interval: @xmath ,
+@xmath , @xmath , @xmath , etc. In another word, by choosing such a
+weight function, we put approximately the same total weight to the
+aggregate of flow cardinalities in each of these intervals.
+
+#### 2.3.2 Zipf model
+
+The weight function in ( 2.7 ) can be applied to any given flow
+cardinality distribution. The particular distribution used for
+simulation in this thesis is the Zipf distribution. A random variable
+@xmath following the @xmath distribution has the following pmf:
+
+  -- -------- -- -------
+     @xmath      (2.8)
+  -- -------- -- -------
+
+where @xmath is an upper bound of the flow cardinality, @xmath is a
+parameter that controls the shape of the Zipf distribution ( @xmath )
+and @xmath is a constant such that @xmath .
+
+The adoption of the Zipf model is motivated by the fact that Zipf’s law
+underlies many Internet applications (see [ 15 ] ). In Figure 2.3 , we
+plot the distribution of a large number of simulated flow cardinalities,
+each generated independently according to a @xmath model. The validity
+of the model can be verified by observing the resemblance between Figure
+2.3 (from Zipf model) and Figure 2.1 (from raw Internet data).
+
+With @xmath , by ( 2.7 ) and ( 2.8 ), we have
+
+  -- -------- -- -------
+     @xmath      (2.9)
+  -- -------- -- -------
+
+where the constant @xmath can be omitted (set to 1) because when we
+compare the weighted square errors of two estimators, we only care about
+their relative values, which are unaffected by a constant factor.
+
+We remark that the specific estimators we will discuss in Chapters 3 and
+4 do not reply on any particular distribution model. The Zipf model here
+is for two purposes: to complete the definition of the weighted square
+error for the performance evaluation of estimators and to generate
+random flow cardinalities for simulation; both purposes are independent
+of the estimation process.
+
+Finally, we make a note on experimental evaluation of per-flow
+estimators. Given the close match between the real trace data and
+simulated trace data with a Zipf distribution, we will evaluate the
+estimators using simulated trace data. We generated @xmath simulated
+trace files. Each trace file contains @xmath flows, with the cardinality
+of each flow randomly and independently generated according to a @xmath
+distribution. A flow is presented in the file as a collection of packets
+with the same source address and distinct destination addresses;
+different flows have different source addresses (flow IDs). For one
+experiment, we process one such trace file and estimate the
+cardinalities of all the @xmath flows in it. For a given estimator, we
+perform @xmath independent experiments and evaluate its performance
+based on the statistics averaged over the @xmath experiments. All
+experiments are performed with @xmath and @xmath . If each register uses
+@xmath bits, this setting uses @xmath bits to measure the cardinalities
+of @xmath flows, leading to one bit per flow on average.
+
+## Chapter 3 Virtual LogLog Estimator with Parameter @xmath
+
+The sketching process of the virtual LogLog algorithm has been described
+in Section 2.2.1 . After the sketching process, we can offload the
+register values from the network measuring device for off-line query.
+The following per-flow estimation problem is to be solved:
+
+Given : Register values @xmath and any flow’s ID @xmath .
+
+Objective : Estimate @xmath , the number of distinct elements in flow
+@xmath .
+
+In this chapter, we first introduce @xmath , a family of generalized
+LogLog estimators parameterized by @xmath , for single-flow estimation.
+Then, with the similar idea from @xmath , we propose @xmath , a family
+of generalized virtual LogLog estimators parameterized by @xmath , for
+per-flow estimation.
+
+### 3.1 The @xmath estimator for single-flow estimation
+
+The @xmath estimator is a class of estimators parameterized by @xmath ,
+which unifies and generalizes the LogLog and HLL estimators described in
+Section 2.1.1 .
+
+#### 3.1.1 Generalized mean
+
+We start with the concept of generalized mean . Given @xmath positive
+numbers @xmath , their generalized mean parameterized by @xmath is
+defined for nonzero @xmath by
+
+  -- -------- -- -------
+     @xmath      (3.1)
+  -- -------- -- -------
+
+In the case of @xmath , we let
+
+  -- -------- -- -------
+     @xmath      (3.2)
+  -- -------- -- -------
+
+which is in fact the limit of @xmath as @xmath . Note that
+
+  -- -------- -- -------
+     @xmath      (3.3)
+  -- -------- -- -------
+
+@xmath is commonly known as the arithmetic mean , geometric mean , and
+harmonic mean of the @xmath numbers when @xmath , respectively. A
+notable property of the generalized mean function is that @xmath with a
+lesser @xmath is more robust to abnormally high values in obtaining the
+mean. Consider an example: for numbers @xmath , @xmath , @xmath , @xmath
+and @xmath .
+
+#### 3.1.2 Unification and generalization of LogLog and HLL estimators
+
+Recall from Section 2.1.1 , the LogLog and HLL estimators use the
+geometric mean and harmonic mean, respectively. Based on the generalized
+mean notation, we attempt to unify these two estimators by proposing the
+@xmath estimator:
+
+  -- -------- -- -------
+     @xmath      (3.4)
+  -- -------- -- -------
+
+where @xmath is a suitable coefficient.
+
+It is desirable if there exists a value of @xmath to make the estimator
+approximately unbiased and for which we can identify such value.
+Specifically, @xmath should not depend on @xmath . We already know that
+for @xmath (i.e. LogLog [ 8 ] ) and @xmath (i.e. HLL [ 7 ] ) such values
+of @xmath exist (by letting @xmath and @xmath respectively). But we do
+not know if it is true for other values of @xmath . The analysis of this
+estimator for general @xmath is difficult. ¹ ¹ 1 Interested readers may
+refer to the analyses of LogLog [ 8 ] and HLL [ 7 ] algorithms to get an
+idea of the techniques used for this kind of analysis. We resort to
+simulations to explore empirical evidence of the existence of this
+coefficient @xmath .
+
+Let @xmath denote @xmath for short. In Figure 3.1 we show empirical
+values of the ratio @xmath for selected values of @xmath , @xmath and
+@xmath . Each dot in each of the sub-figures is generated by taking the
+average of @xmath independent experiment results. Experiments are
+performed on values of @xmath in @xmath , but plots are only shown for
+selected values of @xmath for better graph layout; plots for other
+values of @xmath have similar shapes and are at their expected positions
+in the figure.
+
+From the plots we see:
+
+-   For the same value of @xmath and @xmath , @xmath is almost a
+    constant when @xmath gets large (say @xmath ).
+
+-   For the same value of @xmath and @xmath , @xmath is almost a
+    constant for large @xmath ( @xmath or @xmath ).
+
+We conclude that, at least for @xmath , there exists a value for the
+aforementioned coefficient @xmath that approximately depends only on
+@xmath for large @xmath and @xmath . To reflect this dependence of
+@xmath on @xmath , we denote this coefficient as @xmath instead.
+
+To investigate the relationship between @xmath and @xmath , we plot
+values of @xmath computed empirically for selected values of @xmath in
+@xmath , shown in Figure 3.2 . Here, the values are generated
+empirically with fixed @xmath and @xmath .
+
+We observe an approximately linear relationship between @xmath and
+@xmath by
+
+  -- -------- -- -------
+     @xmath      (3.5)
+  -- -------- -- -------
+
+which is plotted as the red line in Figure 3.2 . The @xmath estimator is
+now completely defined by replacing @xmath in ( 3.4 ) with @xmath
+specified in ( 3.5 ). The claim that this family of estimators unifies
+the LogLog and HLL estimators can be verified by checking that @xmath
+(for LogLog) and @xmath for (HLL).
+
+A natural question one may ask next is if there exists an optimal value
+of @xmath for the @xmath estimator. To answer this question, we
+empirically calculate the relative standard error of the @xmath
+estimator for different values of @xmath (and for selected @xmath ’s).
+The results are plotted in Figure 3.3 .
+
+According to the experiment results, for each fixed value of @xmath ,
+the optimal value of @xmath for the @xmath estimator is either @xmath or
+@xmath ; in the cases where @xmath is the optimal, the difference
+between @xmath and @xmath , in terms of relative standard error, is
+negligible. Recall the @xmath estimator is the same as the HLL
+estimator. This verifies the claim that the HLL is near-optimal [ 7 ] ,
+which we briefly described in Section 2.1.1 .
+
+### 3.2 The @xmath estimator for per-flow estimation
+
+With the @xmath estimator defined, we now introduce the @xmath estimator
+for per-flow estimation. We start with a high-level idea of the
+estimator and the motivation for introducing the parameter @xmath here.
+
+Just like for single-flow estimation where we infer the cardinality of a
+flow from its register array, for per-flow estimation we can infer the
+cardinality of a given flow @xmath from its virtual register array
+@xmath . We can directly apply the @xmath estimator on @xmath to give an
+estimate of the total number of distinct elements distributed to @xmath
+. But this estimate involves the noise brought by other flows that have
+registers shared with flow @xmath ; so we probably need a different bias
+correction coefficient to calibrate this rough estimate. While for the
+single-flow case @xmath is near-optimal, it is not immediately clear
+whether @xmath with a suitable bias correction coefficient is still
+near-optimal in the per-flow case.
+
+Recall that @xmath with a lesser value of @xmath is more robust to
+abnormally high values in obtaining the mean. For per-flow estimation,
+due to register sharing, large flows can cause much noise to some small
+flows by causing abnormally high register values. Therefore, we
+speculate that an estimator with a lesser value of @xmath might work
+better in the per-flow case due to its robustness against bursty noise
+from large flows. This motivates our investigation of the @xmath
+estimator, introduced in the rest of this section.
+
+#### 3.2.1 Review of vHLL estimator and the generalization to @xmath
+estimator
+
+We start with a review of the virtual HyperLogLog (vHLL) estimator
+introduced in [ 3 ] . Let @xmath be the total aggregate cardinality of
+all flows, i.e. the sum of the cardinalities of all flows in the packet
+stream. Let @xmath be the total number of distinct elements distributed
+to the register array @xmath , which include the distinct elements from
+flow @xmath and those from other flows (we call noise elements).
+Suggested in [ 3 ] is the following approximate relationship between
+@xmath and @xmath :
+
+  -- -------- -- -------
+     @xmath      (3.6)
+  -- -------- -- -------
+
+which can be interpreted as: the number of noise elements received by
+@xmath is the total number of elements from flows other than @xmath
+scaled by @xmath — the ratio of the number of registers in @xmath to the
+number of registers in @xmath . The assumption here is that noise
+elements are roughly uniformly distributed to all the @xmath registers
+in the pool, which is a fair approximation when the number of flows and
+the number of registers for each flow are both sufficiently large [ 3 ]
+. Rearranging ( 3.6 ) gives us
+
+  -- -------- -- -------
+     @xmath      (3.7)
+  -- -------- -- -------
+
+Now the values of @xmath and @xmath are not directly available so we
+need their estimates @xmath and @xmath . It has been shown in Section
+6.1 of [ 3 ] that if @xmath and @xmath are close to @xmath (which
+approximately equals to @xmath by ( 3.6 )) and @xmath respectively, then
+@xmath is an approximately unbiased estimator of @xmath .
+
+There are two possible methods to estimate @xmath . The first method is
+to treat @xmath as the cardinality of a grand flow – the flow containing
+all the distinct packets in the stream. In another word, if a packet is
+abstracted as a @xmath pair, to estimate @xmath is to estimate the total
+number of distinct @xmath pairs (e.g. source-destination pair) in the
+stream. This is a single-flow cardinality estimation problem and, as
+discussed in Section 2.1 , can be solved using the HLL algorithm with an
+additional few hundreds of bytes, which is negligible compared to the
+memory for main register pool @xmath . The second method is to use
+@xmath as a rough estimator, based on the assumption that all the
+elements of the grand flow are distributed approximately uniformly over
+@xmath . Either method works fine in practice. So @xmath is relatively
+easy to obtain.
+
+Now, for @xmath , the vHLL estimator applies the HLL single-flow
+estimator on @xmath to obtain an estimate, i.e.
+
+  -- -------- -- -------
+     @xmath      (3.8)
+  -- -------- -- -------
+
+Combining the ideas above, the vHLL estimator for flow @xmath is
+summarized as:
+
+  -- -------- -- -------
+     @xmath      (3.9)
+  -- -------- -- -------
+
+We consider a generalization of the vHLL estimator by replacing the
+above harmonic mean @xmath with a generalized mean @xmath . More
+specifically, given any value @xmath , let
+
+  -- -------- -- --------
+     @xmath      (3.10)
+  -- -------- -- --------
+
+be a rough estimate of @xmath . Then we calibrate this rough estimate by
+suitable additive and multiplicative constants @xmath and @xmath to
+obtain a better estimate, i.e.
+
+  -- -------- -- --------
+     @xmath      (3.11)
+  -- -------- -- --------
+
+We discuss how to set the values of @xmath and @xmath in Section 3.2.2 .
+
+#### 3.2.2 How to set @xmath and @xmath
+
+For a given @xmath , one way to set the values of @xmath and @xmath is
+through empirical error minimization , explained as follows. Recall from
+the end of Section 2.3.2 , we have 100 simulated trace files, each can
+be considered as a training sample. Suppose that in one training sample
+we have @xmath flows with cardinalities @xmath , and by the @xmath
+estimator specified in ( 3.11 ) we obtain corresponding estimates @xmath
+. Then we can find values of @xmath and @xmath that minimize the
+weighted square error defined in Section 2.3 on this training sample.
+That is
+
+  -- -------- -- --------
+     @xmath      (3.12)
+  -- -------- -- --------
+
+where we let @xmath and @xmath . The solution to the above minimization
+problem is standard:
+
+  -- -------- -- --------
+     @xmath      (3.13)
+  -- -------- -- --------
+
+where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since we have 100 training samples, we can obtain the values of @xmath
+and @xmath for each of the samples using the above method and use their
+average values for the estimator. The values of @xmath and @xmath
+obtained in this way are optimal in the sense that they minimize the
+weighted square error of the training samples (i.e. the empirical error
+). The drawback of this approach is obvious. It only works well for the
+training samples generated according to a specific Zipf distribution;
+there is no performance guarantee for other data sets. Also, it relies
+on the specific definition of the weighted square error (including the
+weight function and the cardinality distribution model), which may not
+be universal for all applications.
+
+We suggest the following alternative and practical choice of @xmath and
+@xmath for the @xmath estimator, which does not reply on any assumption
+on weight function or cardinality distribution model:
+
+  -- -------- -- --------
+     @xmath      (3.14)
+  -- -------- -- --------
+
+where @xmath can be calculated using ( 3.5 ) and @xmath can be
+calculated using either of the two methods mentioned in Section 3.2.1
+(e.g. @xmath ). Note that this is a direct generalization of the vHLL
+estimator in ( 3.9 ). Also note that in this case @xmath does not depend
+on @xmath .
+
+In Figure 3.4 , we plot the empirical values of @xmath and @xmath
+obtained by these two different methods through experiments on the
+@xmath training samples. The plots show that our suggested values of
+@xmath and @xmath are good as they are close to the optimal values of
+@xmath and @xmath for these training samples.
+
+#### 3.2.3 Summary of the @xmath estimator
+
+We summarize the @xmath estimator here. For a given @xmath , the @xmath
+estimator estimates the cardinality of a given flow @xmath by
+
+  -- -------- -- --------
+     @xmath      (3.15)
+  -- -------- -- --------
+
+where
+
+  -- -------- -- --------
+     @xmath      (3.16)
+  -- -------- -- --------
+
+and @xmath is an estimate of the total aggregate cardinality of all the
+flows and can be obtained by calculating @xmath in practice.
+
+Note that it could happen that Equation ( 3.15 ) produces an estimate
+@xmath , which is impossible in practice. In such case, we can simply
+reset @xmath .
+
+### 3.3 Experimental performance evaluation
+
+We ran experiments on the 100 simulated trace files to evaluate the
+performance of the @xmath estimator for different values of @xmath , in
+terms of the weighted square error defined in Section 2.3 . The results
+are plotted in Figure 3.5 . Results for @xmath are not plotted in the
+graph because the values are comparatively too large (which means the
+corresponding @xmath estimators are bad).
+
+According to the experiment results, the @xmath estimator has the best
+performance, which refutes our speculation at the beginning of Section
+3.2 that a value of @xmath lesser than @xmath might be optimal for the
+per-flow estimation case.
+
+A possible explanation of this phenomenon is as follows. With the weight
+function defined in Section 2.3 and @xmath used for flow cardinality
+distribution, we have that @xmath . This means we put much larger
+weights on large flows compared to small flows. Therefore the weighted
+square error of an estimator is largely determined by how well the
+estimator estimates large flows. But the influence of bursty noise on
+large flows is much weaker than that on small flows; in another word,
+the signal-to-noise ratio for the cardinality estimation of a large flow
+is larger than that for small flows. Therefore, as we have discussed for
+the single-flow case where @xmath is near-optimal, for per-flow case
+@xmath is also likely to give good estimates for large flows and hence
+results in a smaller weighted square error.
+
+## Chapter 4 Maximum Likelihood Estimator
+
+In this chapter we derive an alternative approach to the same per-flow
+estimation problem stated at the beginning of Chapter 3 : a
+maximum-likelihood estimator.
+
+### 4.1 Formulation
+
+We model the values of the @xmath registers in @xmath after the
+sketching process as a random vector
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath . The @xmath is the maximum value that can be stored in a
+register. For example, if the register has @xmath bits, then @xmath .
+Register values @xmath is an instance of the random vector @xmath . Let
+@xmath be the pmf of @xmath (i.e. the joint pmf of the @xmath random
+variables) given that @xmath , i.e. it is the likelihood function of
+@xmath :
+
+  -- -------- -- -------
+     @xmath      (4.1)
+  -- -------- -- -------
+
+The maximum likelihood estimator finds the value of @xmath that
+maximizes the likelihood function based on the instance of register
+values in @xmath . An equivalent formulation is to maximize the natural
+log of the likelihood function
+
+  -- -------- -- -------
+     @xmath      (4.2)
+  -- -------- -- -------
+
+The maximum-likelihood estimator of flow @xmath ’s cardinality is then
+given by
+
+  -- -------- -- -------
+     @xmath      (4.3)
+  -- -------- -- -------
+
+where @xmath is an upper bound of the cardinality of a flow.
+
+### 4.2 Derivation of the likelihood function
+
+In this section we derive an analytical expression for the likelihood
+function @xmath .
+
+#### 4.2.1 Outline of derivation
+
+Suppose we have two copies of the register pool @xmath : @xmath and
+@xmath , both initialized with @xmath ’s. Consider the following
+process:
+
+1.  Repeat the virtual LogLog sketching process described in Section
+    2.2.1 for all elements, except those from flow @xmath , with
+    register pool @xmath .
+
+2.  Repeat the sketching process only for elements from flow @xmath with
+    register pool @xmath .
+
+3.  Merge the register values in @xmath and @xmath by a register-wise
+    max operation.
+
+The register values in the merged pool as described above are exactly
+the same as those in @xmath after the original sketching process. This
+is because the register values at the end of the sketching process are
+not affected by the order of arrival of the elements in the stream.
+
+Let @xmath ( @xmath ) denote the virtual register array for flow @xmath
+constructed by selecting registers from @xmath ( @xmath ), whose indices
+in @xmath ( @xmath ) are the same as those of @xmath in @xmath . Then
+define the following random variables:
+
+@xmath the value of an arbitrary register in @xmath .
+
+@xmath the value of an arbitrary register in @xmath , conditioned on
+@xmath .
+
+@xmath the value of an arbitrary register in @xmath , conditioned on
+@xmath .
+
+@xmath represents the background noise in our estimation caused by
+elements from flows other than @xmath . @xmath represents the impact of
+elements from flow @xmath itself. We model the values of the @xmath
+corresponding registers in @xmath and @xmath also as random vectors,
+respectively, i.e.
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Then we have
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+Therefore
+
+  -- -------- -- -------
+     @xmath      (4.4)
+  -- -------- -- -------
+
+Here is an outline of the derivation of an analytical expression for
+@xmath :
+
+1.  Find the distribution of @xmath and argue that @xmath are
+    independent. We will see that it is difficult to obtain the exact
+    distribution of @xmath , but there exists a convenient and close
+    approximation to it.
+
+2.  Find the distribution of @xmath and argue that @xmath are
+    independent under the assumption that @xmath is large.
+
+3.  With the distribution of @xmath and @xmath , find the distribution
+    of @xmath by ( 4.4 ).
+
+4.  With the independence of @xmath and @xmath , we have that @xmath are
+    independent. Then we can factor @xmath out as the product of @xmath
+    pmfs of a single variable @xmath .
+
+#### 4.2.2 Distribution of @xmath and independence of @xmath
+
+One possible approach to obtain an approximate expression of the
+distribution of @xmath is as follows. First assume that the total number
+of flows (excluding flow @xmath ) is known and a flow’s cardinality can
+be modeled as a random variable (e.g. Zipf). Then we can model the
+number of distinct elements distributed to an arbitrary register by a
+random variable @xmath and calculate the distribution of @xmath by
+adding up the influences from all the individual independent flows on
+that register. This calculation involves a high-dimensional convolution,
+which is computationally costly. We can perhaps avoid the convolution by
+appealing to the central limit theory for approximation. However this
+approximation gives us a continuous distribution for @xmath , from which
+we need to derive the CDF of @xmath that only takes discrete values (and
+really concentrates on only a few values as we shall see soon). This
+calculation may be highly inaccurate and is somewhat complicated.
+Moreover, in practice we usually do not know the total number of flows
+beforehand and it is undesirable that our estimator relies on any
+particular cardinality distribution model.
+
+Another approach to approximate the distribution of @xmath , which
+circumvents the above difficulties and complications, is the following.
+Define a random variable @xmath :
+
+@xmath the value of an arbitrary register in @xmath .
+
+We claim that, for any practical purpose, the distribution of @xmath can
+be directly approximated by the distribution of @xmath , i.e.
+
+  -- -------- -- -------
+     @xmath      (4.5)
+  -- -------- -- -------
+
+where @xmath and @xmath are the CDFs of @xmath and @xmath ,
+respectively. This approximation is based on the following two
+considerations:
+
+-   Register values in @xmath differ from those in @xmath at no more
+    than @xmath registers, because flow @xmath can only affect @xmath
+    registers. If @xmath , the difference in the CDF of @xmath compared
+    to that of @xmath is small.
+
+-   Assume there are many flows in the stream and @xmath is small
+    compared to the total cardinalities of all other flows. As packets
+    are being distributed to a register, it becomes harder and harder
+    for the register’s value to further increase, because it requires an
+    much less likely (with geometrically decaying probability) hashed
+    value to occur.
+
+The analytical distribution of @xmath is also difficult to find.
+However, we can obtain an empirical distribution of @xmath directly from
+the register values in the pool at the end of the sketching process:
+
+  -- -------- -- -------
+     @xmath      (4.6)
+  -- -------- -- -------
+
+In Figure 4.1 we show a sample distribution of @xmath generated using
+real trace data (the same data used for plotting Figure 2.1 ). From the
+figure we can see that the values of most of the registers are centered
+around @xmath to @xmath .
+
+Since @xmath is the distribution of an arbitrary register value in
+@xmath , including the @xmath registers in @xmath . We have @xmath .
+Since the @xmath registers are randomly selected from the pool with
+replacement, their independence is guaranteed by a good choice of the
+hash function @xmath .
+
+#### 4.2.3 Distribution of @xmath and independence of @xmath
+
+To find the distribution of @xmath , we first define a random variable
+@xmath :
+
+@xmath the number of distinct elements distributed to an
+
+arbitrary register in @xmath , conditioned on @xmath .
+
+It is easy to see @xmath . The number of distinct elements distributed
+to each of the @xmath registers in @xmath has the same distribution as
+@xmath , but they are not independent of each other (because they sum to
+@xmath ). However, if @xmath is large, we can approximate @xmath by a
+Poisson random variable with mean @xmath . Under this Poissonization
+approximation, @xmath and the number of distinct elements distributed to
+each of the @xmath registers in @xmath will then be independent (see
+Chapter 5.4 of [ 14 ] for this Poissonization trick).
+
+As discussed in Section 2.1.1 , @xmath can be regarded as the maximum of
+@xmath i.i.d. geometric random variables with parameter @xmath . Given
+that @xmath , the CDF of @xmath can be calculated as follows. For @xmath
+,
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      
+              @xmath      (4.7)
+  -- -------- -------- -- -------
+
+Under the Poissonization approximation, @xmath are independent and have
+the same distribution with @xmath . We emphasize that this independence
+follows from the assumption that @xmath is large.
+
+#### 4.2.4 Distribution of @xmath and independence of @xmath
+
+Recall that, by construction, @xmath . Therefore the CDF of @xmath is:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath and @xmath are the CDF of @xmath and @xmath respectively.
+We have used that @xmath and @xmath are independent of each other and
+the distribution of @xmath can be approximated by that of @xmath .
+Hence, the pmf of @xmath can be approximated by
+
+  -- -- -- -------
+           (4.8)
+  -- -- -- -------
+
+where
+
+  -- -------- -- -------
+     @xmath      (4.9)
+  -- -------- -- -------
+
+We have argued the independence of @xmath and the independence of @xmath
+under certain conditions. But @xmath and @xmath is independent of @xmath
+by construction. So @xmath are also independent of each other under the
+same conditions. The consequence of this independence is that we can
+factor the @xmath -variable likelihood function @xmath into the product
+of @xmath single-variable pmfs, based on the distribution of @xmath .
+That is, under this approximation, the log likelihood function in ( 4.2
+) can be re-written as
+
+  -- -------- -- --------
+     @xmath      (4.10)
+  -- -------- -- --------
+
+### 4.3 Implementation
+
+It would be nice if we could obtain a closed-form analytical expression
+of the value of @xmath that maximizes the log-likelihood function @xmath
+. Unfortunately it turns out to be difficult. In order to search for
+this value, we explore properties of @xmath that might be helpful.
+
+#### 4.3.1 Concavity of the log-likelihood function
+
+In this subsection we show that @xmath has the decreasing increment
+property with respect to @xmath . That is, @xmath is the restriction of
+a concave function to integer values. A by-product of this property is
+that @xmath must have a global maximum over the possible values of
+@xmath . We will call this property “concave” or “concavity” for
+convenience henceforth.
+
+Suppose for now that the possible values of @xmath is a continuous
+range. First, since @xmath , we have
+
+  -- -------- -- --------
+     @xmath      (4.11)
+  -- -------- -- --------
+
+for some non-negative integer constants @xmath such that @xmath (i.e.
+the constants represent the empirical pmf of @xmath ). Therefore a
+sufficient condition for @xmath to be concave in @xmath is that @xmath
+is concave in @xmath for each fixed value @xmath . Recall the pmf of
+@xmath from ( 4.8 ) and ( 4.9 ). Let us denote @xmath and @xmath , so
+@xmath . Then we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+When @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which is linear in @xmath and thus concave in @xmath . When @xmath , we
+prove that @xmath is concave in @xmath by showing that its second
+derivative with respect to @xmath is non-positive:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We conclude that @xmath is concave in @xmath .
+
+In Figure 4.2 , we show the plot of @xmath as a function of @xmath for
+four selected flows whose cardinalities are @xmath , @xmath , @xmath and
+@xmath , respectively. The plots are generated based on the same trace
+data used for Figure 2.1 and Figure 4.1 . The concavity of @xmath is
+obvious. We can also observe that in each plot, the value of @xmath at
+which the curve peaks is close to the actual flow cardinality @xmath
+(though not exact the same due to randomness and noise).
+
+#### 4.3.2 Bi-section search implementation
+
+We have shown that @xmath is concave in @xmath . Since @xmath can only
+take integer values in @xmath , we can do a bi-section search to find
+the optimal @xmath .
+
+Bi-section search implementation of @xmath : @xmath , @xmath . While
+@xmath : @xmath , @xmath if @xmath : @xmath , @xmath else: @xmath ,
+@xmath If @xmath , return @xmath ; otherwise return @xmath .
+
+The pseudo-code above should be self-explanatory. In actual
+implementation, it is found that the algorithm reaches the optimal
+@xmath at a faster rate if we replace @xmath with @xmath , which is
+equivalent to @xmath , i.e. a bi-section search on log scale. This
+faster rate is because, as we already mentioned, most of the flows have
+small cardinalities. If @xmath , then at the first while loop iteration,
+with @xmath , we have @xmath ; but with @xmath we have @xmath — the
+latter search is quicker if the optimal @xmath is actually small.
+
+With bi-section search, the number of searches required for the
+estimation of one flow is upper bounded by @xmath . This is not ideal
+compared to the @xmath estimator which only needs one search/estimation.
+However, since the estimation process is off-line, the worst-case time
+complexity of @xmath for searching is still acceptable.
+
+#### 4.3.3 Summary of the maximum-likelihood estimator
+
+We wrap up the ideas in the previous sections of this chapter and name
+this estimator vLL-MLE, meaning that it uses maximum likelihood
+estimation based on virtual LogLog sketching . The estimator is
+summarized as follows. To estimate the cardinality of flow @xmath :
+
+1.  Find the values of the @xmath registers in @xmath : @xmath .
+
+2.  From the register values in @xmath , find the CDF of @xmath by ( 4.6
+    ).
+
+3.  Do a bi-section search on integer value @xmath in the range @xmath
+    to maximize the log likelihood function @xmath , output this value
+    of @xmath as the estimate.
+
+    -   For a given @xmath , @xmath can be evaluated by ( 4.8 ), ( 4.9 )
+        and ( 4.10 ).
+
+### 4.4 Aside: MLE for single-flow estimation
+
+As an aside, we can also use the vLL-MLE estimator for single-flow
+estimation, with some minor changes. Recall that in single-flow
+estimation, the goal is to estimate the flow’s cardinality @xmath from
+its @xmath register values. This is similar to the per-flow estimation
+case, where the goal is to estimate a given flow @xmath ’s cardinality
+@xmath from its @xmath register values @xmath , except that in the
+single-flow case, there is no background noise in the register values.
+That is, the vLL-MLE estimator for per-flow estimation can be used for
+single-flow estimation by simply letting @xmath .
+
+In this case, we do not need the assumptions related to @xmath anymore.
+But the Poissonization approximation of @xmath (i.e. assuming @xmath is
+large) is still necessary.
+
+To evaluate the performance of the MLE on single-flow estimation, we run
+experiments to obtain empirical values of its relative standard error
+for selected values of @xmath and compare it with the HLL estimator. The
+experiments are performed with @xmath . The results are summarized in
+Table 4.1 .
+
+The experiment results show that the MLE’s performance is very close to
+that of HLL, but not any better. It reinforces the claim that the HLL
+estimator is near-optimal for single-flow estimation.
+
+### 4.5 Experimental performance evaluation
+
+In this section we evaluate the performance of the vLL-MLE estimator and
+compare it with that of the @xmath estimator introduced in Chapter 3 .
+Since we have shown that @xmath (i.e. vHLL) is the best within the
+family of the @xmath estimators, we compare vLL-MLE with @xmath in
+particular. Results for each estimator are generated by running
+experiments on the same @xmath simulated trace files.
+
+Figure 4.3 shows the estimation results of both estimators by directly
+plotting the estimated cardinalities vs. the corresponding actual
+cardinalities. Each point in the graphs represents one flow, with its
+x-coordinate value being the actual cardinality of the flow and its
+y-coordinate value being the estimated cardinality. The more clustered
+the points are to the equality line @xmath , the more accurate the
+estimator is. We can see that the two estimators have comparable
+performances.
+
+In Figure 4.4 and Figure 4.5 , we respectively plot the relative bias
+(defined as @xmath ) and relative standard error (defined as @xmath )
+vs. the actual flow cardinality for both estimators. Since there are not
+many flows for some cardinalities (especial the large cardinalities), we
+divide the horizontal axis into bins of width @xmath for cardinalities
+@xmath and of width @xmath for cardinalities @xmath . In each bin, we
+calculate the empirical relative bias and relative standard error of the
+data and interpolate the values for each bin on the graph to form the
+plots. Again we see that the two estimators have very similar
+performances.
+
+In both figures, the curves are plotted for cardinalities larger than
+@xmath only. This is for better graph layouts: we found from the
+experiment results that estimates for flows with cardinalities less than
+@xmath are very inaccurate. Accurate estimation for small flows is
+difficult because of the noise caused by large flows in their register
+values.
+
+Figure 4.4 shows that both estimators are approximately unbiased for
+large flows (with cardinalities @xmath ).
+
+Figure 4.5 shows that in general, for both estimators, the estimation
+accuracy improves as the cardinality gets larger. We do observe a slight
+curving up at the high end of the graph though, meaning that the
+accuracy stops improving once the actual flow cardinality reaches a
+certain level (probably @xmath ).
+
+Finally, in Figure 4.6 we compare the weighted square error of the
+vLL-MLE estimator with that of the @xmath estimators. Experiment results
+show that the vLL-MLE estimator outperforms the @xmath estimator for all
+values of @xmath ; compared to the @xmath estimator, the vLL-MLE
+estimator has a slight improvement of about @xmath . We conclude that
+the two estimators, vLL-MLE and @xmath (i.e. vHLL), have comparable
+performances.
+
+## Chapter 5 Conclusions and Future Work
+
+In this thesis we explored two new perspectives on the estimation
+process of the virtual LogLog algorithm [ 3 ] for per-flow cardinality
+estimation:
+
+-   We showed how the existing vHLL estimator of [ 3 ] for per-flow
+    estimation can be generalized by introducing a parameter @xmath , in
+    a similar way in which the HLL estimator for single-flow estimation
+    can be generalized by @xmath .
+
+-   We proposed the vLL-MLE estimator, an alternative approach to the
+    per-flow estimation problem.
+
+In both cases we provided empirical evidence to show the near-optimality
+of the vHLL estimator for per-flow estimation. This result is analogous
+to the near-optimality of the HLL estimator for single-flow estimation [
+7 ] .
+
+Results of this thesis are mostly based on simulated experiments. One
+possible future work is the analysis of theoretical bounds for per-flow
+cardinality estimation. For example, for a given amount of memory, flow
+cardinality distribution and number of flows, what is the best possible
+level of accuracy that can be achieved for per-flow estimation? There
+has been much research on this direction for single-flow estimation. For
+example, [ 2 ] gives an asymptotic lower bound on the relative standard
+error of single-flow estimators based on order statistics. It would be
+useful to obtain similar results for per-flow estimation.
+
+Another possible direction of future work is on efficient algorithms
+that identify heavy-hitters (i.e. large flows). With the per-flow
+estimators discussed in this thesis, one is able to estimate the
+cardinality of a flow given the flow’s ID. However, in many
+applications, the goal is to identify large flows, in which case we are
+not given the IDs of these flows beforehand. One possible approach to
+this problem is to store all the distinct flow IDs using a separate
+block of memory and then check each flow one by one; the work in [ 16 ]
+discusses how all the distinct flow IDs can be stored in main memory.
+However, with this approach some memory is wasted on flows that are
+actually small (which do not matter at all). Algorithms that identify
+large flows and estimate their cardinalities directly and more
+efficiently are useful in this context.

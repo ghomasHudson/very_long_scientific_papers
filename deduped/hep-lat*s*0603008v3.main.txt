@@ -1,0 +1,1932 @@
+##### Contents
+
+-    1 Introduction
+-    2 The overlap Dirac operator and topology
+-    3 Lattice simulations
+    -    3.1 Quenched QCD with admissible gauge fields
+    -    3.2 Cooling method to measure the topological charge
+    -    3.3 Large negative mass Wilson fermion
+    -    3.4 Numerical implementation of the overlap Dirac operator
+-    4 Wilson loops and the static quark potential
+    -    4.1 The static quark potential
+    -    4.2 Perturbative renormalization of the gauge coupling
+-    5 Stability of the topological charge
+    -    5.1 Admissibility condition and topology stability
+    -    5.2 Negative mass Wilson fermion to fix topology
+-    6 The effects on the overlap Dirac operator
+    -    6.1 Low-lying mode distribution of @xmath
+    -    6.2 Locality
+-    7 Lattice QCD in the @xmath -regime with fixed @xmath
+    -    7.1 Meson correlators in the @xmath -regime
+    -    7.2 Lattice observables with the exact chiral symmetry
+    -    7.3 Numerical results
+        -    7.3.1 @xmath from the axial-vector correlator
+        -    7.3.2 @xmath , @xmath and @xmath from connected S and PS
+            correlators
+        -    7.3.3 Chiral condensates
+        -    7.3.4 Disconnected PS correlators
+-    8 Conclusions and discussions
+-    A Notations
+-    B The hybrid Monte Carlo algorithm
+-    C Quenched chiral perturbation theory in the @xmath -regime
+
+## 1 Introduction
+
+Lattice QCD has played an important role in elementary particle physics,
+in particular, in studying the low energy dynamics of hadrons. One can
+nonperturbatively calculate hadron masses or decay constants with Monte
+Carlo simulations. As compensation, however, the lattice discretization
+of space-time spoils a lot of symmetries of the gauge theory. Violation
+of the translational symmetry would be an easiest example.
+
+It is well known that chiral symmetry is not compatible with the absence
+of fermion doubling, due to the periodic properties of the lattice Dirac
+operator in momentum space [ 1 , 2 ] . A popular prescription to avoid
+the appearance of unphysical modes, or doublers, is adding a so-called
+Wilson term [ 3 ] to the naive subtraction operator;
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (1.1)
+  -- -------- -------- -------- -- -------
+
+where @xmath is Wilson parameter (we set @xmath .). ² ² 2 The other
+notations used here and in the following of this paper are summarized in
+appendix A . This term gives a large mass to the doublers which are
+decoupled from the theory. The Wilson term, however, violates chiral
+symmetry. A well known difficulty with Wilson fermion is
+renormalization. The complicated operator mixing, additive quark mass
+corrections, have to be calculated. Actually these are obstacles to
+obtain reliable numerical data, especially in the chiral limit.
+
+With the overlap Dirac operator [ 4 , 5 ] , as well as the other Dirac
+operators [ 6 , 7 , 8 , 9 , 10 ] , which satisfies the Ginsparg-Wilson
+relation [ 11 ] , one can construct lattice gauge theories which have
+the exact chiral symmetry [ 12 ] . Although the good chiral behaviors in
+applying the overlap operator to QCD are reported in both theoretical
+and numerical studies, its locality properties and smoothness with
+respect to the gauge fields are not so obvious. Since it has a term
+proportional to @xmath , where @xmath is a fixed parameter in the region
+@xmath , the near zero modes of @xmath can contaminate the locality or
+smoothness properties. In fact, it is not difficult to see that there
+exist some points where the overlap Dirac operator, @xmath , is not
+smooth by noting the fact that the index of @xmath can take integer
+values only. Also practically, near zero modes of @xmath causes some
+problems in the numerical simulations. Small eigen-modes of @xmath lower
+the convergence of polynomial or rational expansion of @xmath . For
+example, to keep a certain accuracy, the order of the Chebyshev
+polynomial has to be proportional to @xmath , where @xmath is the
+minimum eigenvalue of @xmath . In full QCD with the dynamical overlap
+fermion [ 13 , 14 , 15 , 16 , 17 , 18 , 19 , 20 , 21 , 22 , 23 , 24 ] ,
+one would have to carefully perform the hybrid Monte Carlo [ 25 ]
+updating near @xmath points since sudden changes of the trajectories,
+reflection or refraction, should occur due to sudden jumps of the
+fermion determinant. Thus, at least, the smallest eigenvalue of @xmath
+always needs to be monitored in conventional methods of lattice QCD
+simulations, which is very time consuming and it is known that
+reflection/refraction itself has systematic errors when one employs the
+pseudo-fermion method [ 23 ] . Because of these difficulties, no lattice
+QCD study with the @xmath overlap Dirac fermions has been done except
+for the cases with a very small lattice size.
+
+An interesting solution might be prohibiting the topology change along
+the simulations. It is known that under a smoothness condition on the
+plaquette variables [ 26 , 27 , 28 , 29 ] ,
+
+  -- -------- -- -------
+     @xmath      (1.2)
+  -- -------- -- -------
+
+which is called the “admissibility” bound, any eigenvalues of @xmath are
+non-zero (we denote @xmath ) and the topological charge can be conserved
+if @xmath , which is a fixed number, is sufficiently small [ 29 , 30 ] .
+Furthermore, when @xmath , the locality is also guaranteed. The
+“admissibility” condition, Eq.( 1.2 ), is automatically satisfied if one
+takes a type of gauge action which diverges when @xmath [ 31 , 32 , 33 ,
+34 , 35 , 36 , 37 , 38 ] .
+
+Topology transitions can also be suppressed by including the factor,
+@xmath , in the functional integral [ 39 ] . The inclusion of this
+factor was previously considered in a study of domain-wall fermions [ 40
+, 41 , 42 ] , where the aim was to reduce the effects of the finiteness
+of the lattice in the 5th dimension. If any eigenvalue approaches near
+@xmath along the simulation, the determinant, @xmath , would give a very
+small Boltzmann weight, and such a trajectory would be rejected. Since
+@xmath is equivalent to @xmath Wilson fermion determinant with a
+negative cutoff-scale mass, it would not have any effects on the low
+energy physics. Moreover, the numerical cost of this determinant is
+expected to be much smaller than that of the dynamical overlap fermions.
+
+What can we do with the configurations in a fixed topological sector ? A
+straightforward application would be QCD in the so-called @xmath -regime
+[ 43 , 44 , 45 , 46 , 47 , 48 ] , where the linear extent of the
+space-time is smaller than the pion Compton wave length @xmath . In this
+regime (though it is an unphysical small-volume situation), it is
+believed that one would be able to evaluate the pion decay constant and
+the chiral condensates, which are the fundamental parameters of the
+chiral perturbation theory (ChPT) [ 49 , 50 ] . They should be evaluated
+in lattice QCD studies without taking the large volume limit, since the
+finite volume effects are already involved on the ChPT side [ 51 , 52 ,
+53 , 54 , 55 , 56 , 57 , 58 , 59 , 60 , 61 , 62 , 63 , 64 , 65 , 66 ] .
+
+In this thesis, we study
+
+1.  The practical feasibility of the topology conserving gauge action
+    which keeps the “admissibility” bound, Eq.( 1.2 ), as well as the
+    Wilson fermion action with a large negative mass. A careful analysis
+    on the gluonic quantity and comparison with that with the standard
+    plaquette action have to be done.
+
+2.  How much stable the topological charge can be, with these topology
+    conserving actions.
+
+3.  Their effect on the numerical cost of the overlap Dirac operator.
+
+4.  The determination of the low energy constants of quenched chiral
+    perturbation theory in the @xmath -regime in a fixed topological
+    sector. This study would be helpful when @xmath simulations with the
+    dynamical overlap fermion are done in the future works.
+
+We start with the theoretical details on the overlap Dirac operator and
+topology of the lattice gauge fields in Sec. 2 . The technical issues of
+our numerical study is presented in Sec. 3 . To test their practical
+application, the static quark potential with different couplings and
+@xmath and with/without the negative mass Wilson fermions is
+investigated (Sec. 4 ). We study the parameter dependence of the
+topological charge stability in Sec. 5 . Then the effects on the overlap
+Dirac operator are discussed in Sec. 6 . The numerical result of
+quenched lattice QCD in the @xmath -regime is presented in Sec. 7 .
+Conclusions and discussions are given in Sec. 8 .
+
+The main papers contributed to this thesis are
+
+-   H. Fukaya, S. Hashimoto, T. Hirohashi, K. Ogawa and T. Onogi,
+    “Topology conserving gauge action and the overlap-Dirac operator,”
+    Phys. Rev. D 73 , 014503 (2006) [arXiv:hep-lat/0510116] [ 37 ] ,
+
+-   H. Fukaya, S. Hashimoto and K. Ogawa, “Low-lying mode contribution
+    to the quenched meson correlators in the epsilon-regime,”
+    Prog. Theor. Phys. 114  (2005) 451 [arXiv:hep-lat/0504018] [ 59 ] .
+
+Refer also [ 31 , 32 ] which are similar studies in 2-dimensions as a
+good test ground.
+
+## 2 The overlap Dirac operator and topology
+
+The overlap Dirac operator [ 4 , 5 ] is defined by
+
+  -- -------- -- -------
+     @xmath      (2.1)
+  -- -------- -- -------
+
+which satisfies the Ginsparg-Wilson relation [ 11 ]
+
+  -- -------- -- -------
+     @xmath      (2.2)
+  -- -------- -- -------
+
+and @xmath -hermiticity @xmath . Here @xmath is a real parameter which
+satisfies @xmath . The Dirac operator Eq.( 2.1 ) is gauge covariant and
+has no fermion doubling, as one can see in the Fourier transform of
+@xmath in the free case ³ ³ 3 Here we show @xmath case for simplicity. ;
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (2.3)
+  -- -------- -------- -------- -- -------
+
+where the term @xmath at @xmath in any direction @xmath gives large
+mass, so that the doublers are decoupled and the continuum limit can be
+properly taken [ 12 ] . The Ginsparg-Wilson relation guarantees that the
+fermion action
+
+  -- -------- -- -------
+     @xmath      (2.4)
+  -- -------- -- -------
+
+is exactly invariant under the chiral rotation, even for finite lattice
+spacings;
+
+  -- -------- -- -------
+     @xmath      (2.5)
+  -- -------- -- -------
+
+Thus the chiral symmetry at classical level is realized on the lattice.
+
+In order to see quantum level properties of chiral symmetry, let us
+consider the eigenstates of the operator @xmath [ 67 , 68 ] . Note that
+if an eigen-mode of @xmath has the eigenvalue @xmath , it is also the
+eigenstate of @xmath with the eigenvalue @xmath , which means that this
+mode has @xmath chirality. It is easier to see that zero modes of @xmath
+can be taken as eigen-modes of @xmath . Every other mode of @xmath with
+eigenvalue @xmath in the range @xmath is not chiral but has its pair
+with eigenvalue @xmath through the Ginsparg-Wilson relation;
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (2.6)
+  -- -------- -------- -------- -- -------
+
+These modes have another interesting property,
+
+  -- -------- -- -------
+     @xmath      (2.7)
+  -- -------- -- -------
+
+which is again obtained from the Ginsparg-Wilson relation;
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (2.8)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- -------
+
+Now it is obvious to see
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (2.9)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- -------
+
+and
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.10)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+where @xmath denotes the number of @xmath modes and @xmath is that of
+the zero modes with @xmath chirality. It is known that the equation
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (2.11)
+  -- -------- -------- -------- -- --------
+
+can be obtained with the perturbative expansion @xmath . Eq.( 2.9 ) and
+Eq.( 2.11 ) show that the Atiyah-Singer index theorem is restored in the
+continuum limit. In this way, the overlap Dirac operator properly
+establishes the quantum aspects of chiral symmetry, the anomaly or the
+index theorem, on the lattice.
+
+It is, however, not difficult to see that the overlap Dirac operator is
+not a smooth function of link variables. Consider two gauge
+configurations, one of which @xmath gives the index @xmath and another
+is @xmath with @xmath , where @xmath denotes Lie algebra of @xmath . One
+obtains a smooth path which connects @xmath and @xmath , for example,
+@xmath , while @xmath can take integers only. There must be at least one
+jump from @xmath to @xmath , at some @xmath along the path, @xmath .
+This jump of @xmath indicates non-smoothness of the overlap Dirac
+operator. Hernández et al. [ 29 ] showed that this discontinuity occurs
+exactly when @xmath has zero mode. They also proved that if the
+configuration space is limited such that @xmath holds for a certain
+positive number @xmath , then the locality is also guaranteed ⁴ ⁴ 4
+Recently it is discussed that the mobility edge of @xmath plays a more
+important role for the locality property. See refs. [ 69 , 70 , 71 , 72
+, 73 ] . . To see what happens when an eigenvalue crosses @xmath , let
+us rewrite the overlap Dirac operator,
+
+  -- -------- -- --------
+     @xmath      (2.12)
+  -- -------- -- --------
+
+Since every complex eigenvalue @xmath of @xmath makes a pair with its
+complex conjugate @xmath , only real modes can pass through @xmath or
+@xmath . Note that any real modes are chiral; @xmath , and these real
+modes are the eigenstates of @xmath which eigenvalues take 0 or @xmath
+only, which means that crossing @xmath is always accompanied by topology
+changes.
+
+In the numerical studies, there is a very crucial advantage of
+suppressing the small eigenvalues of @xmath . In order to implement the
+overlap Dirac operator, the sign function in Eq.( 2.1 ) has to be
+expressed in the polynomial or rational expansion;
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (2.13)
+                                         
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+whose errors are controlled to some desired accuracy. The order of
+polynomial or rational function one needs is known to be a monotonous
+increasing function of the condition number @xmath :
+
+  -- -------- -- --------
+     @xmath      (2.14)
+  -- -------- -- --------
+
+where @xmath and @xmath denote the lowest and the highest eigenvalues
+respectively. For example, the accuracy of the Chebyshev polynomial
+approximation of sign function, @xmath , with degree @xmath is
+empirically known as @xmath , where @xmath and @xmath are constants [ 53
+] . Apparently the approximation of finite order @xmath would break down
+when @xmath . In the hybrid Monte Carlo simulation with the dynamical
+overlap fermion (See appendix B .) [ 25 ] , the problem would be worse,
+since one has to consider the discontinuity of the fermion determinant [
+16 , 17 , 18 , 19 , 20 , 21 , 22 ] . Every molecular dynamics step in
+the simulation trajectory, one would have to monitor the nearest
+zero-mode of @xmath , and judge if the topology change occurs or not.
+Then careful recalculation of the link updates has to be done to
+determine the simulation trajectory to enter the other topological
+sector (refraction) or go back to the previous sector (reflection). This
+procedure would require an enormous numerical cost when one tries the
+Monte Carlo simulation in a large volume. If one omits this step it
+would make the acceptance rate very low due to overlooking sudden jumps
+of the determinant. Keeping topology and assuring smoothness of the
+determinant allows us to avoid this procedure. Thus, to exclude
+configurations which gives @xmath is useful not only theoretically to
+construct a sound quantum lattice theory with a smooth fermion
+determinant (in particular, it is essential for the chiral gauge theory
+[ 26 , 27 , 28 , 74 , 75 , 76 , 77 , 78 , 79 , 80 , 81 , 82 , 83 , 84 ,
+85 , 86 ] and also applied to the supersymmetric theory [ 87 , 88 , 89 ,
+90 ] or non-commutative spaces [ 91 , 92 ] .), but also in practically,
+to reduce the numerical cost of calculating the overlap Dirac operator
+both in quenched and unquenched simulations. Here we would like to make
+two proposals that would avoid the appearance of @xmath modes or
+topology changes. One is the modification of the gauge action and the
+another is the additional fermion action.
+
+For the former solution, one can construct a gauge action, which
+generates link variables respecting the “admissibility” bound Eq.( 1.2 )
+[ 27 , 33 , 34 , 35 , 36 , 37 , 38 ] . A simplest example is
+
+  -- -------- -- --------
+     @xmath      (2.15)
+  -- -------- -- --------
+
+Every “admissible” gauge configuration with very small @xmath keeps
+@xmath and therefore, keeps topological structure of gauge fields. In
+order to explain how “admissible” gauge fields can preserve the
+topological charge, the best example would be the U(1) gauge theory in
+two-dimensions, for which we can define an exact geometrical definition
+of the topological charge [ 26 , 27 ]
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath               
+     @xmath   @xmath   @xmath      (2.16)
+  -- -------- -------- -------- -- --------
+
+@xmath denotes the plaquette in the U(1) theory. In two dimensions,
+@xmath gives an integer on the lattices with the periodic boundary
+condition. Since the jump from @xmath to @xmath is allowed, the topology
+can change easily. It is the U(1) version of the Lüscher’s admissibility
+bound
+
+  -- -------- -- --------
+     @xmath      (2.17)
+  -- -------- -- --------
+
+with @xmath , that can prevent these topology changes because the point
+@xmath is excluded under this condition. Furthermore, it can be shown
+that @xmath is equivalent to the index of the overlap fermion (with
+@xmath ) if @xmath is satisfied. For the non-abelian gauge theories in
+higher dimensions, we do not have the exact geometrical definition of
+the topological charge. But it is quite natural to assume that a similar
+mechanism concerning the compactness of the link variables allows us to
+preserve the index of the overlap-Dirac operator for very small @xmath .
+Note, however, that the value of @xmath is too tight for the simulation
+with the cutoff around 2.0GeV. For practical purposes, we would like to
+try much larger @xmath , as we still expect that the topology is
+stabilized well in practical sampling of gauge configurations, even
+though the topology change would not be prevented completely. It is also
+notable that the difference between the gauge action Eq.( 2.15 ) and the
+Wilson plaquette action is only of @xmath and one can safely take the
+continuum limit. Also, the positivity which would be lost [ 93 ] at
+cut-off scale by the restriction on the configuration space, is restored
+as @xmath .
+
+For another solution to suppress small eigenvalues of @xmath , the
+additional fermion determinant
+
+  -- -------- -- --------
+     @xmath      (2.18)
+  -- -------- -- --------
+
+could be effective [ 40 , 42 , 39 ] . This determinant would prevent the
+appearance of near zero-modes of @xmath , by giving small Boltzmann
+weights to the configurations which have @xmath modes. Since it is
+equivalent to adding 2-flavor Wilson fermion with a large negative mass
+at cut-off scale, @xmath , it would not affect the low-energy physics,
+and be decoupled like other fermion doublers. This additional
+determinant may require more numerical cost than that of the gauge
+action, Eq.( 2.15 ), but it would be negligible compared to the cost of
+the dynamical overlap fermions.
+
+## 3 Lattice simulations
+
+In this section, we explain our setups for the numerical simulations.
+
+### 3.1 Quenched QCD with admissible gauge fields
+
+Although several types of the gauge action that generate the
+“admissible” gauge fields satisfying the bound Eq.( 1.2 ) are proposed [
+33 , 34 , 38 ] , we take the simplest choice: Eq.( 2.15 ). We use three
+values of @xmath : 1, 2/3, and 0. Note that @xmath corresponds to the
+conventional Wilson plaquette gauge action. The value @xmath is the
+boundary, below this value the gauge links can take any value in the
+gauge group @xmath (all configurations are admissible.) and the
+positivity is guaranteed [ 93 ] .
+
+The link fields are generated with the standard hybrid Monte Carlo
+algorithm [ 25 ] (See appendix B ). The molecular dynamics step size
+@xmath is taken in the range 0.01–0.02 and the number of steps in an
+unit trajectory, @xmath , is 20–40. Every molecular dynamics step, we
+check whether the condition @xmath is satisfied or not. In fact, no
+violation of this bound was observed in our simulations. For
+thermalization, we discarded at least 2000 trajectories before measuring
+observables.
+
+To generate topologically non-trivial gauge configurations, we use the
+initial link variables,
+
+  -- -------- -------- -- -- -------
+     @xmath                  
+     @xmath   @xmath         (3.1)
+  -- -------- -------- -- -- -------
+
+which is a discretized version of a classical solution with the
+topological charge @xmath on a four-dimensional torus [ 94 ] . We
+confirmed that the topological charge assigned in this way agrees with
+the index of the overlap operator with @xmath = 0.6.
+
+The simulation parameters and the plaquette expectation values (for the
+run with the initial configuration with @xmath or 1) are summarized in
+Table 1 . The length of unit trajectory is 0.07–0.4, and the step size
+is chosen such that the acceptance rate is larger than @xmath 70%.
+
+### 3.2 Cooling method to measure the topological charge
+
+In order to measure the topological charge, we develop a new “cooling”
+method. It is achieved by the hybrid Monte Carlo steps with an
+exponentially increasing coupling, @xmath , and decreasing step size,
+@xmath , as a function of trajectory, @xmath , i.e.
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (3.2)
+  -- -------- -------- -------- -- -------
+
+using the gauge action Eq.( 2.15 ) with fixed @xmath . Note that @xmath
+is fixed in order to keep each step small. In this method, one can
+“cool” the configuration smoothly, keeping the admissibility bound, Eq.(
+1.2 ), with @xmath . The parameters are chosen as @xmath = (2.0, 0.01,
+1) for the configurations generated with @xmath , and (3.5, 0.01, 2/3)
+for the configurations with @xmath or @xmath . Even for the gauge fields
+generated with the Wilson plaquette gauge action ( @xmath ), the
+condition @xmath can be used because it allows all values of SU(3). The
+link variables are cooled down after 50–200 steps close to a classical
+solution in each topological sector. Then the geometrical definition of
+the topological charge [ 95 ] ,
+
+  -- -------- -- -------
+     @xmath      (3.3)
+  -- -------- -- -------
+
+for the “cooled” configuration gives a number close to an integer times
+a universal factor @xmath , namely, @xmath is close to an integer. The
+value @xmath is calculated through would-be @xmath gauge configurations.
+As Fig. 1 shows, the topological charge @xmath is consistent with the
+index of the overlap-Dirac operator with @xmath = 0.6, which is measured
+as described in Section 3.4 . The consistency seems better for @xmath
+than for the standard Wilson plaquette action ( @xmath ).
+
+### 3.3 Large negative mass Wilson fermion
+
+Now let us discuss the lattice QCD with the determinant of Wilson
+fermion with negative mass at cut-off scale @xmath as seen in Eq.( 2.18
+). This is a more direct way to suppress the small eigenvalue of @xmath
+, or keep topological charge, since the determinant @xmath would give a
+very small Boltzmann weight if @xmath touches zero. For the gauge
+action, we use the topology conserving action Eq.( 2.15 ) again with
+three values of @xmath : 1, 2/3, and 0. We set the hopping parameter
+@xmath , which is known to be an optimal choice for the locality of the
+overlap Dirac operator [ 96 ] , and the conventional pseudo-fermion
+method is performed in the hybrid Monte Carlo steps to calculate the
+fermion determinant. For thermalization, we performed more than 500
+trajectories before measuring observables.
+
+The topological charge is evaluated in the same way as explained in the
+previous subsection, namely, by the geometrical definition Eq.( 3.3 )
+after 100-200 of the quenched HMC steps with increasing @xmath ,
+switching off the Wilson fermion. Although the topological charge is
+expected to be more stable in this method, there may be a large scaling
+violation. Careful comparison with quenched studies without the
+determinant would be important.
+
+The simulation parameters are summarized in Table. 1
+
+### 3.4 Numerical implementation of the overlap Dirac operator
+
+For the overlap Dirac operator, Eq.( 2.1 ), we use the Wilson Dirac
+Hamiltonian @xmath with @xmath , which is empirically known as an
+optimal choice to suppress the small eigen-modes of @xmath at @xmath
+2.0GeV in quenched QCD. The sign function is approximated by the
+Chebyshev polynomial (See Fig. 2 );
+
+  -- -------- -- -------
+     @xmath      (3.4)
+  -- -------- -- -------
+
+where the function @xmath in the range [a,b] is written
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (3.5)
+  -- -------- -------- -------- -- -------
+
+Note that the Chebyshev basis @xmath (of order @xmath ) satisfies the
+orthogonal relation
+
+  -- -------- -- -------
+     @xmath      (3.6)
+  -- -------- -- -------
+
+We use the numerical package ARPACK [ 97 ] , which implements the
+implicitly restarted Arnoldi method, to measure the lowest eigenvalue
+@xmath and the highest @xmath . In some cases, we calculate the 10
+lowest modes explicitly, project them out of @xmath , and use the
+approximation Eq.( 3.4 ) after the projection, in the range @xmath where
+we use the 11th eigenvalue for the lower bound; @xmath .
+
+In order to determine the order of the polynomial, @xmath , it is
+important to note that the accuracy is expressed as a function of @xmath
+and the condition number @xmath ,
+
+  -- -------- -- -------
+     @xmath      (3.7)
+  -- -------- -- -------
+
+for a random vector @xmath , where the constants @xmath and @xmath are
+turned out to be independent of @xmath , @xmath and the lattice size
+@xmath , as seen in Fig. 3 . Note that the lhs. of Eq.( 3.7 ) is zero
+when the sign function is exact and the approximation breaks down when
+@xmath .
+
+We also use ARPACK to calculate the eigenvalues of @xmath and @xmath ,
+where @xmath . The index can be obtained from the number of zero-modes
+of chirally projected Dirac operators. To construct the non-zero mode,
+@xmath , of @xmath , the formula
+
+  -- -------- -- -------
+     @xmath      (3.8)
+  -- -------- -- -------
+
+is useful.
+
+## 4 Wilson loops and the static quark potential
+
+In order to confirm the practical feasibility of the topology conserving
+actions, Eq.( 2.15 ) and Eq.( 2.18 ), a careful comparison with the
+Wilson plaquette action should be done. In this section, we study
+gluonic quantities or Wilson loops to determine the lattice spacing, to
+estimate the scaling violations due to the change in the actions, and to
+test the perturbation theory with tadpole improved coupling. Then we can
+judge whether our naive expectation that @xmath effect is small (of
+order @xmath ) or the effect of the determinant, @xmath , is negligible,
+is true or not.
+
+### 4.1 The static quark potential
+
+In the following, we assume that the topology of the gauge field does
+not affect the Wilson loops when the lattice size is large, say @xmath
+fm, and choose the run with @xmath or @xmath initial configuration for
+the measurement.
+
+Wilson loops, @xmath ’s, are measured using the smearing technique
+according to [ 98 ] , where the spatial separation @xmath is taken to be
+an integer multiples of vectors @xmath , @xmath , @xmath , @xmath ,
+@xmath and @xmath . Assuming the Wilson loop is an exponential function
+
+  -- -------- -- -------
+     @xmath      (4.1)
+  -- -------- -- -------
+
+for large @xmath , we extract the static quark potential @xmath . The
+measurements are done every 20 trajectories and the errors are estimated
+by the jackknife method.
+
+As a reference scale to determine the lattice spacing, we evaluate the
+Sommer scales @xmath and @xmath [ 99 , 100 ] defined by @xmath and
+@xmath , respectively. The force @xmath on the lattice is given by a
+differentiation of the potential in the direction of @xmath ;
+
+  -- -------- -- -------
+     @xmath      (4.2)
+  -- -------- -- -------
+
+for @xmath . @xmath is introduced to cancel @xmath errors in the short
+distances at tree level,
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (4.3)
+  -- -------- -------- -------- -- -------
+
+In Table 2 we present the values of the Sommer scales @xmath , @xmath ,
+their ratio @xmath , and the lattice spacing @xmath (We assume @xmath
+fm.). The data of @xmath and @xmath in the case that @xmath is an
+integer multiples of @xmath are given in Tables 3 , 4 and 5 .
+
+@xmath is a good quantity to estimate the scaling violation, comparing
+with the value @xmath in the continuum limit, which was obtained with
+the plaquette action [ 100 ] . Fig. 5 shows the @xmath dependence of
+this ratio with different values of @xmath . The quenched results with
+@xmath = 2/3 and 1 agree very well with Ref [ 100 ] except for the
+coarsest lattice points around @xmath 0.1. Also in the case with @xmath
+, as seen in Fig. 5 , any large scaling violation has not been seen
+although the statistics are much poorer.
+
+Fig. 7 presents the quark potential itself in a dimensionless
+combination, i.e. @xmath as a function of @xmath . @xmath is evaluated
+by an interpolation of the data in the direction @xmath . The data at
+@xmath =1.3, @xmath in the quenched case and at @xmath , @xmath with
+@xmath are plotted together with the curve representing the continuum
+limit obtained in [ 100 ] . The agreement is satisfactory (less than two
+sigma) for long distances @xmath 0.5. For short distances, on the other
+hand, one can see deviations of order 10%, as shown in Fig. 7 , where
+the ratio @xmath is plotted. @xmath represents the curve in the
+continuum limit drawn in Fig. 7 . The plots at @xmath = @xmath and
+@xmath obviously deviate from zero in the upward direction, while the
+plots at @xmath and @xmath are lower than zero. This fact indicates the
+rotational symmetry violation in a short distance. Let us concentrate on
+the point @xmath as a function of the lattice spacing, as seen in Fig. 8
+(left panel). We find that the size of the violation is quite similar to
+that with Wilson plaquette action and independent of @xmath . One might
+think that the rotational symmetry goes worse in the continuum limit,
+but one should note the fact that the relevant scale of the observable
+also diverges as @xmath . After a correction at the tree level by
+introducing @xmath as @xmath , which is an analogue of @xmath in Eq.(
+4.1 ) but is defined for the potential, we obtain the plot on the right
+panel of Fig. 8 , where one can see an improvement. The remaining
+deviation should be of order @xmath , which would vanish as @xmath near
+the continuum limit. The data at @xmath with @xmath have larger
+statistical errors but show a very similar behavior.
+
+These observations show that both of scaling violations and rotational
+symmetry violations are reasonable and the topology conserving actions
+are feasible in the numerical studies.
+
+Finally, we confirm our assumption that the topology does not affect the
+quark potential by measuring @xmath for two initial value of @xmath (0
+and @xmath ). Measurements are done on a @xmath lattice at @xmath =
+1.42, @xmath = 1, for which the probability of the topology change is
+extremely small as discussed in Sec. 5 . Our results are @xmath =
+6.24(9) for the @xmath initial condition and 6.11(13) for @xmath .
+Details are seen in Table. 6 .
+
+### 4.2 Perturbative renormalization of the gauge coupling
+
+From @xmath Wilson loop, @xmath , the so-called “mean field improved”
+bare gauge coupling can be defined. In quenched study with the standard
+Wilson plaquette action, it is known that the perturbation theory with
+mean field improvement coupling converges very well. Here we would like
+to define the mean field improved coupling with the topology conserving
+gauge action, Eq.( 2.15 ), evaluate the coupling renormalization and see
+its convergence in 2-loop perturbation theory.
+
+Two-loop corrections to the gauge coupling for general one-plaquette
+actions (constructed by the plaquette only and no rectangular term is
+involved.) is calculated by Ellis et al. [ 101 ] . Using their formula,
+the renormalized gauge couping @xmath defined in the “Manton” scheme is
+given by
+
+  -- -------- -- -------
+     @xmath      (4.4)
+  -- -------- -- -------
+
+where @xmath denotes the bare coupling and the coefficients @xmath and
+@xmath are calculated as
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            
+     @xmath   @xmath   @xmath            (4.5)
+                                @xmath   
+                                @xmath   
+  -- -------- -------- -------- -------- -------
+
+Here, the parameters are @xmath , @xmath , @xmath , @xmath , @xmath ,
+@xmath , and @xmath . The values of the next-to-leading and
+next-to-next-to-leading order coefficients @xmath and @xmath , when
+@xmath and 0, are given in Table 7 .
+
+Let us define the mean field improved coupling @xmath by
+
+  -- -------- -- -------
+     @xmath      (4.6)
+  -- -------- -- -------
+
+with the measured value of the plaquette expectation value @xmath (see
+Table 1 ). It is defined from a coefficient of @xmath when we rewrite
+@xmath and expand the action Eq.( 2.15 ) [ 102 ] .
+
+A perturbative expectation value of the plaquette, or @xmath Wilson
+loop, is evaluated with the general one-plaquette action by Heller et
+al. [ 103 ] as
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (4.7)
+                                @xmath   
+  -- -------- -------- -------- -------- -------
+
+Here @xmath and @xmath are from the original calculation [ 104 ] for the
+Wilson plaquette gauge action, and @xmath (on a symmetric lattice @xmath
+) is introduced for generalization. Their values are @xmath , @xmath and
+@xmath in the infinite volume limit. The constant @xmath is written
+
+  -- -------- -- -------
+     @xmath      (4.8)
+  -- -------- -- -------
+
+where @xmath denotes the quadratic Casimir operator in a representation
+@xmath of the group @xmath . @xmath is the dimension of the
+representation @xmath , and @xmath is defined such that @xmath for the
+group generator @xmath . The coupling @xmath is defined as a coupling
+when we rewrite the gauge action in terms of a general form of the
+one-plaquette action,
+
+  -- -------- -- -------
+     @xmath      (4.9)
+  -- -------- -- -------
+
+where @xmath denotes the plaquette variable in the @xmath
+representation. The values of these parameters for the topology
+conserving gauge action Eq.( 2.15 ) are
+
+  -- -------- -- --------
+     @xmath      (4.10)
+  -- -------- -- --------
+
+The other parameters are @xmath , @xmath , @xmath , @xmath , @xmath and
+@xmath . With these numbers, we obtain @xmath and we finally get
+
+  -- -------- -- --------
+     @xmath      (4.11)
+  -- -------- -- --------
+
+Since the perturbative relation between the bare coupling @xmath and the
+boosted coupling @xmath Eq.( 4.6 ) is given by
+
+  -- -------- -- --------
+     @xmath      (4.12)
+  -- -------- -- --------
+
+where
+
+  -- -------- -- --------
+     @xmath      (4.13)
+  -- -------- -- --------
+
+one obtains the Manton coupling in terms of the boosted coupling as
+
+  -- -------- -- --------
+     @xmath      (4.14)
+  -- -------- -- --------
+
+Numerical values of @xmath and @xmath are listed in Table 7 . One can
+see the effect of the mean field improvement; the two-loop coefficient
+@xmath is significantly reduced by reorganizing the perturbative
+expansion as in Eq.( 4.14 ).
+
+With these results, the Manton coupling is obtained for each lattice
+parameters. In Fig. 9 , we plot the coupling evaluated at a reference
+scale @xmath as a function of @xmath . We use the two-loop
+renormalization equation to run @xmath to the reference scale. Although
+@xmath is very different at the tree level, the one-loop results are
+already in good agreement among the different values of @xmath . The
+two-loop corrections show that the perturbative expansion converges very
+well and a good agreement among different @xmath . Moreover, the scaling
+toward the continuum limit seems also good in the two-loop level plots.
+
+## 5 Stability of the topological charge
+
+### 5.1 Admissibility condition and topology stability
+
+As discussed in Sec. 2 , it is difficult to construct an exact and
+practical geometrical definition of the topological charge for
+non-Abelian theories, unless the gauge fields are very smooth [ 105 ]
+(note that ( 3.3 ) gives non-integers). But even if we choose larger
+@xmath , it is quite possible that the barriers among the topological
+sectors are high enough to suppress topology changes for hundreds of HMC
+trajectories, since any gauge action has a tendency to prevent the
+topology transitions in the continuum limit.
+
+In Table. 8 we present our data of the topological charge stability,
+
+  -- -------- -- -------
+     @xmath      (5.1)
+  -- -------- -- -------
+
+where @xmath is the plaquette autocorrelation time, which is measured
+according to Appendix E of [ 106 ] . @xmath denotes the total length of
+the HMC trajectories and @xmath is the number of topology changes during
+the trajectories. This definition, @xmath , gives a mean number of
+uncorrelated gauge configurations which can be sampled without changing
+the topology along the simulations. But we should mention that it only
+gives an upper limit, because the topological charge is measured only
+once per 10–20 trajectories and we may underestimate the topology
+changes if @xmath jumps and returns quickly to the original value within
+this interval. Therefore, @xmath is not reliable when the topology
+change is very frequent.
+
+In Fig. 10 the results are plotted as a function of the lattice spacing
+squared. Clearly, one can see that the stability goes better as @xmath
+increases when the lattice spacing is the same. Also, the stability gets
+worse as the lattice size is increased from @xmath to @xmath . This is
+no surprising, because the topology change occurs through local
+dislocations of gauge field and its probability scales as the volume. An
+important notice here is that the topological charge can be very stable
+in any case in the continuum limit. The stability quickly rises as
+@xmath .
+
+To study QCD in the @xmath -regime in a fixed topological sector, the
+lattices @xmath and @xmath would be appropriate. Their physical size is
+around @xmath 1.25 fm and the topological charge is stable for @xmath
+trajectories.
+
+### 5.2 Negative mass Wilson fermion to fix topology
+
+In contrast to the case with topology conserving gauge action Eq.( 2.15
+), one expects that the fermion determinant, @xmath , can rigorously fix
+the topology of gauge fields along the simulation. In fact, as Table. 8
+shows, the topology change has never occurred in every run with
+different parameters, which are chosen such that the lattice spacing is
+around @xmath –0.1fm. Our data show that @xmath is unchanged for, at
+least, 100-1000 @xmath trajectories, even if one ignores the
+thermalization steps.
+
+## 6 The effects on the overlap Dirac operator
+
+### 6.1 Low-lying mode distribution of @xmath
+
+As explained in Sec 3.4 , the order of Chebyshev polynomial
+approximation, @xmath has to be proportional to the condition number,
+@xmath , in order to keep a certain desired accuracy. Since both
+topology conserving actions, Eq.( 2.15 ) and Eq.( 2.18 ) would play a
+role to suppress the occurrence of low-lying eigenvalues of @xmath ,
+they may be useful to reduce the numerical cost of calculating the
+overlap Dirac operator.
+
+Fig. 11 shows a typical comparison of the eigenvalue distribution on a
+16 @xmath lattice. The values of @xmath and @xmath are chosen such that
+the Sommer scale @xmath is roughly equal to 5 (left panel) and 6.5-7
+(right panel) , which correspond to @xmath fm and @xmath fm
+respectively. From the plot we observe that the density of the low-lying
+modes is relatively small for larger values of @xmath in quenched case.
+Let us discuss this more quantitatively. In Table 9 we list the
+probability, @xmath , that a configuration has the lowest eigenvalue
+lower than 0.1. For the above example (left panel), the probability is
+74% for the standard Wilson gauge action ( @xmath , @xmath = 0 quenched
+), but it decreases to 53% (47%) for @xmath = 2/3 (1)(quenched). It is
+interesting to note that the data with @xmath show that the average of
+@xmath is not so large, but the occurrence of very small eigenvalues
+@xmath 0.1 is strongly suppressed. The lowest eigenvalue in these
+configurations is 1.2e-03 in the quenched case at @xmath and @xmath ,
+while it is 0.042 in the case with @xmath at @xmath and @xmath .
+
+Also, for another lattice spacing ( @xmath 6.5) and lattice size @xmath
+, a similar trend can be seen. In Table 9 we also present the ensemble
+average of the lowest eigenvalue @xmath and the inverse of condition
+numbers @xmath and @xmath , where @xmath and @xmath denote the 10th and
+the highest eigenvalues respectively. We may conclude that the lowest
+eigenvalue is higher in average when we use the topology conserving
+actions. In the numerical implementation of the overlap-Dirac operator,
+the low-lying eigen-modes of @xmath are often subtracted and treated
+exactly. Then the higher mode contributions are approximated by some
+polynomial or rational functions. Here, we assume that 10 lowest
+eigen-modes are subtracted and compare the relative numerical cost on
+the gauge configurations with different values of @xmath . From Table 9
+we observe that the reduced condition number is about a factor 1.2–1.4
+smaller for @xmath = 1 than that for the standard Wilson gauge action.
+
+We also check that the above observation does not change when one shifts
+the value of @xmath in a reasonable range. In Fig. 12 , a typical
+distributions of the low-lying eigen-modes for @xmath = 0.2–0.7 are
+plotted. We find that the advantage of the topology conserving actions
+does not change. Also, from these plots we can see that @xmath is nearly
+optimal for all the cases.
+
+### 6.2 Locality
+
+When we talk about the locality of the overlap-Dirac operator, it means
+that the norm @xmath with a point source vector @xmath at @xmath should
+decay exponentially as a function of @xmath [ 29 ]
+
+  -- -------- -- -------
+     @xmath      (6.1)
+  -- -------- -- -------
+
+where @xmath and @xmath are constants. Actually we observe this
+property, as seen in Fig. 13 . The plot shows the results for different
+values of @xmath at the lattice scales @xmath 5.3 (left) and 6.5
+(right). We find no remarkable difference on the locality when we change
+@xmath .
+
+Recently, it has been indicated that the mobility edge is more crucial
+quantity which governs the locality of the overlap-Dirac operator [ 69 ,
+70 , 71 , 72 , 73 ] . It would be interesting and important to see the
+dependence of the mobility edge on the parameters in the topology
+conserving actions, which should be done in the future works.
+
+## 7 Lattice QCD in the @xmath-regime with fixed @xmath
+
+In previous sections we have discussed the topology conserving actions
+which might be helpful to the full QCD simulation with the overlap
+fermion determinant. Here we would like to show great uses of the
+overlap Dirac operator itself to measure physical observables. Once a
+set of configurations of @xmath or 3 full QCD is generated, it would be
+much easier and more reliable to extract physical quantities such as
+pion mass, decay constants, Kaon bag parameters, and so on, using the
+overlap Dirac operator which respects the “exact” chiral symmetry. One
+of attractive numerical applications would be the so-called @xmath
+-regime, where both of chiral symmetry and topology have significant
+effects on the observables.
+
+In this section we demonstrate the analysis of quenched lattice QCD in
+the @xmath -regime to determine the low energy constants of the quenched
+chiral perturbation theory (qChPT). Of course, both quenched QCD and
+qChPT are unphysical and the data of pion decay constant or the chiral
+condensate have little relation to the true value of them in nature.
+However, this quenched study is still interesting to see how these
+low-energy constants can be extracted when the full QCD simulation is
+established in the future.
+
+### 7.1 Meson correlators in the @xmath-regime
+
+It is believed that the low energy limit of QCD is described by the pion
+effective theory, or (q)ChPT. To determine the fundamental parameters of
+(q)ChPT is one of relevant issues of lattice QCD. In the so-called
+@xmath -regime [ 43 , 44 , 45 , 46 , 47 , 48 ] , where the size of the
+space-time box is smaller than the pion Compton wave length; @xmath (but
+larger than the QCD scale @xmath , which should be guaranteed so that
+the pion can be treated as a point particle and other heavier hadrons
+are decoupled.), (q)ChPT with a expansion parameter @xmath , is still
+applicable. Here @xmath is a cutoff scale of the chiral Lagrangian
+roughly around 1 GeV. An important notice is that the low energy
+constants in (q)ChPT are defined at the cutoff scale and it does not
+depend on whether the system is in the @xmath -regime or the large
+volume regime. Therefore, once @xmath or @xmath are determined in the
+@xmath -regime, one can use them in the standard (q)ChPT in a larger
+volume. Analytic calculations of meson correlation functions in the
+@xmath -regime have been widely studied for both ChPT and qChPT [ 107 ,
+108 , 109 ] .
+
+In the quenched case, the fundamental parameters of the effective theory
+are the pion decay constant, @xmath , the chiral condensate, @xmath ,
+the singlet mass, @xmath , and the coefficient of an additional singlet
+kinetic term, @xmath . Here we just present some results of 1-loop
+calculation, which are relevant to our numerical study. The details of
+calculation and the definition of the functions and coefficients are
+summarized in Appendix C . The scalar condensate at 1-loop level in
+@xmath topological sector is given by
+
+  -- -------- -- -------
+     @xmath      (7.1)
+  -- -------- -- -------
+
+The triplet axial vector, scalar and pseudo-scalar correlators are given
+by
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (7.2)
+     @xmath   @xmath   @xmath      (7.3)
+     @xmath   @xmath   @xmath      (7.4)
+  -- -------- -------- -------- -- -------
+
+The singlet scalar and pseudo-scalar correlators are
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (7.5)
+     @xmath   @xmath   @xmath      (7.6)
+  -- -------- -------- -------- -- -------
+
+As mentioned in Appendix C , the results are valid only when @xmath is
+small, which is a particular restriction of quenching the fermion
+determinant.
+
+As these equations of qChPT show, the meson correlators in the @xmath
+-regime should be quite sensitive to the topological charge and the
+fermion mass. These prominent @xmath and @xmath dependences are used to
+evaluate the low energy constants, or namely, we fit our lattice data
+with the above equations, in which @xmath , @xmath , @xmath and @xmath
+are treated as free parameters. The parameter @xmath always appears
+associated with the quark mass @xmath as @xmath is renormalization scale
+and scheme independent. The value of @xmath in the following analysis
+should be understood as a bare quantity in the lattice regularization at
+a scale @xmath . To relate them with the conventional scheme such as the
+@xmath scheme requires perturbative or non-perturbative matching, which
+is beyond the scope of this work.
+
+### 7.2 Lattice observables with the exact chiral symmetry
+
+We generate gauge link variables at @xmath and @xmath in the quenched
+approximation on a @xmath lattice. The spacial length @xmath of the box
+is about 1.23 fm. We employ the massive Dirac operator for the valence
+quark,
+
+  -- -------- -- -------
+     @xmath      (7.7)
+  -- -------- -- -------
+
+where the bare quark mass are chosen to be very small; @xmath 0.0016,
+0.0032, 0.0048, 0.0064, 0.008, which corresponds 2.6–13MeV. The number
+of configurations for each topological sector is given in Table 10 . We
+analyze the gauge configurations in @xmath sectors.
+
+When the exact inversion of the overlap-Dirac operator is needed, we use
+the techniques described in Ref. [ 53 ] ; for a given source vector
+@xmath , we solve the equation
+
+  -- -------- -- -------
+     @xmath      (7.8)
+  -- -------- -- -------
+
+by separating the left and right handed components as @xmath and solving
+two equations
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (7.9)
+     @xmath   @xmath   @xmath      (7.10)
+  -- -------- -------- -------- -- --------
+
+consecutively. (The above equations apply to positive @xmath cases and
+the same procedure applies with a replacement @xmath to negative @xmath
+cases.) The conjugate gradient (CG) algorithm is used to invert the
+chirally projected matrices with the low-mode preconditioning in which
+20 lowest eigen-modes are subtracted.
+
+As one of special features of finite volume regime, a remarkable
+low-mode dominance in the chiral limit is expected [ 110 , 111 , 112 ] .
+Using ARPACK [ 97 ] again, we calculate 200 + @xmath lowest mode
+eigenvalues and their eigenfunctions of the overlap Dirac operator. The
+index @xmath is calculated at the same time. Note that these eigenvalues
+cover more than 15% of the circle in the complex space of the
+eigenvalues of @xmath as Fig. 14 shows. Then, the inverse of the overlap
+operator is decomposed as
+
+  -- -------- -- --------
+     @xmath      (7.11)
+  -- -------- -- --------
+
+where @xmath ’s are eigenvalues of @xmath and @xmath ’s are their
+eigenvectors. We set @xmath . In the following analysis, we often use
+the low-mode approximation of the expectation value (We will denote
+@xmath instead of a simple bracket.) by inserting the low-mode part
+only,
+
+  -- -------- -- --------
+     @xmath      (7.12)
+  -- -------- -- --------
+
+to the propagators. This would be valid only when it is proved that the
+higher mode’s contributions are sufficiently small or can be canceled in
+the combination of different operators. An great advantage of using
+@xmath instead of exact @xmath is that the inversion at any @xmath and
+@xmath is obtained without performing the CG algorithm, so that one can
+easily average the correlators over the space-time arguments, like
+
+  -- -------- -- --------
+     @xmath      (7.13)
+  -- -------- -- --------
+
+where @xmath denotes some gamma matrix. This so-called low-mode
+averaging dramatically reduces the fluctuation of the correlators as
+shown in Fig. 15 , which is also reported in Refs. [ 113 , 57 ] .
+
+### 7.3 Numerical results
+
+#### 7.3.1 @xmath from the axial-vector correlator
+
+First let us consider the axial-vector current correlator ( 7.2 ), which
+is most sensitive to @xmath and not contaminated by the parameters
+@xmath and @xmath . Here we do not use the low-mode approximation
+because 200+ @xmath modes are not sufficient to estimate the total
+propagator, as the left panel of Fig. 16 shows.
+
+A naive definition of the axial vector current is @xmath , constructed
+from the overlap fermion field @xmath . Note that it is not the
+conserved current associated with the lattice chiral symmetry, and
+(finite) renormalization is needed to relate it to the continuum
+axial-vector current. We follow the method applied in Refs. [ 114 , 115
+] to calculate the @xmath factor non-perturbatively. Namely, we
+calculate
+
+  -- -------- -- --------
+     @xmath      (7.14)
+  -- -------- -- --------
+
+where @xmath denotes a symmetric lattice derivative and @xmath ⁵ ⁵ 5 We
+should use the chirally improved operator, @xmath , but for the on-shell
+matrix elements such as the one considered here, one can use the
+equation of motion to replace the @xmath by @xmath , which is negligible
+for our quark masses. We therefore use the local operator for @xmath . .
+
+Fitting the average of @xmath over all topological sectors with a
+constant in the range @xmath , we obtain
+
+  -- -------- -- --------
+     @xmath      (7.15)
+  -- -------- -- --------
+
+at four quark masses @xmath = 0.0016, 0.0048, 0.008, 0.016, as plotted
+in Fig. 17 , which shows a very good chiral behavior. With a quadratic
+fit we obtain
+
+  -- -------- -- --------
+     @xmath      (7.16)
+  -- -------- -- --------
+
+The constant term is perfectly consistent with zero and we extract an
+accurate value, @xmath = 1.439(15) , which is consistent with the value
+@xmath = 1.448(4) reported in Ref. [ 116 ] which was done with the same
+@xmath and @xmath .
+
+Now one can compare the renormalized axial-vector correlation function
+with the qChPT result
+
+  -- -------- -- --------
+     @xmath      (7.17)
+  -- -------- -- --------
+
+to extract @xmath and @xmath . In Ref. [ 55 ] it is reported that the
+correlators suffer from large statistical fluctuation when @xmath and
+the data in the other topological sectors are insensitive to @xmath ,
+but it turned out that two-parameter ( @xmath and @xmath ) fitting does
+work well when we treat the data of different topology and fermion
+masses simultaneously. As shown in Fig. 18 , our data at @xmath =
+0.0016, 0.0048, 0.008 in the @xmath sectors are well described by the
+qChPT formula ( 7.17 ). A simultaneous fit in the range @xmath yields
+@xmath = 98.3(8.3) MeV and @xmath = 259(50) MeV with @xmath = 0.19. The
+result for @xmath is in a good agreement with that of the previous work
+[ 57 ] , 102(4) MeV.
+
+On the other hand, the correlators at @xmath = 2 do not agree with the
+above fit parameters as shown in Fig. 19 . As discussed before, it may
+indicate that the topological sector @xmath = 2 is already too large to
+apply the qChPT in the @xmath -regime.
+
+#### 7.3.2 @xmath, @xmath and @xmath from connected S and PS correlators
+
+We find that the scalar and pseudo-scalar triplet correlators are
+approximated precisely with the lowest 200 @xmath eigen-modes at small
+quark masses ( @xmath = 2.6–13 MeV) as the right panel of Fig. 16 shows.
+In the range @xmath , the systematic error of this low-mode
+approximation is estimated to be only @xmath for the scalar correlators
+in @xmath sectors and the pseudo-scalar correlators in all the
+topological sectors. In this way we measure
+
+  -- -------- -- --------
+     @xmath      (7.18)
+     @xmath      (7.19)
+  -- -------- -- --------
+
+at @xmath = 0.0016, 0.0032, 0.0048, 0.0064, and 0.008. We take an
+average of the source point @xmath over @xmath lattice sites. In qChPT
+formulas ( 7.3 ) and ( 7.4 ), we have five parameters to be determined:
+@xmath , @xmath , @xmath , @xmath and @xmath . Since these correlators
+are weakly depending on @xmath , we use the jackknife samples of @xmath
+obtained from the axial-vector current correlator, @xmath =
+98.3(8.3) MeV. Unfortunately, there still remain too many parameters to
+fit with qChPT expressions. Therefore, we use the relation ( C.13 ) and
+an input @xmath from a recent work [ 117 ] , which gives @xmath =
+940(80)(23) MeV, where the second error reflects the error of @xmath .
+
+With these input values, we fit the correlators ( 7.18 ) and ( 7.19 ) in
+the range @xmath at different @xmath and @xmath simultaneously. Fig. 20
+shows the correlators with fitting curves. For @xmath sectors, the data
+at all available quark masses @xmath = 0.0016, 0.0032, 0.0064 and 0.008
+are fitted well, and we actually get @xmath @xmath 0.7. (Note that the
+correlations between different @xmath ’s, @xmath ’s and channels (PS and
+S) are not taken into account.) This fit yields @xmath = 257 @xmath 14
+@xmath 00 MeV, which is consistent with Ref. [ 96 ] , @xmath = 271
+@xmath 12 @xmath 00 MeV, and @xmath = @xmath 4.5 @xmath 1.2 @xmath 0.2,
+where the first error is the statistical error and the second one is
+from uncertainty of @xmath .
+
+Here are some remarks. The ratio
+
+  -- -------- -- --------
+     @xmath      (7.20)
+  -- -------- -- --------
+
+should indicate the size of the NLO correction in the @xmath expansion.
+Our data, 1.163(59), implies that the @xmath expansion is actually
+converging. @xmath has large negative value, which is also reported in
+Refs. [ 118 ] and [ 35 ] . These results contradict with a previous
+precise calculation [ 119 ] , which obtained a smaller value @xmath =
+0.03(3). If we instead assume @xmath = 0, and fit the data with @xmath
+as a free parameter, we obtain @xmath = 136.9(5.3) MeV and @xmath and
+@xmath are almost unchanged. (Detailed numbers are summarized in Table
+11 .) A possible cause is that @xmath is not small enough to derive the
+partition function Eq.( C ) (See Appendix C ). Eq.( C.13 ) may also have
+a systematic error due to finite @xmath as well as finite @xmath . Look
+at the data with @xmath = 2, which are plotted in Fig. 20 . They do not
+agree with expectations from the qChPT shown by dashed curves in the
+plots, which is also seen in the case with the axial-vector correlators.
+A simultaneous fit with all the data including @xmath = 0, 1 and 2 gives
+a bad @xmath ( @xmath 12). Thus our numerical data might be posing a
+problem whether the partition function of qChPT @xmath is reliable or
+not, when @xmath is not satisfied very much; @xmath on our lattice.
+
+#### 7.3.3 Chiral condensates
+
+Consider the low-mode contribution to the scalar and pseudo-scalar
+condensates with a fixed topological charge @xmath ,
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (7.21)
+                       @xmath   @xmath   
+     @xmath   @xmath   @xmath            
+              @xmath   @xmath            
+  -- -------- -------- -------- -------- --------
+
+If @xmath is large enough, the higher mode contribution, @xmath , should
+be insensitive to the link variables @xmath if @xmath and thus to the
+global structure of the gauge field configuration, such as the
+topological charge. We, therefore, expect that the difference of the
+scalar condensates with different topology can be approximated with
+low-modes,
+
+  -- -------- -- --------
+     @xmath      (7.23)
+  -- -------- -- --------
+
+In fact, Fig. 21 shows that the convergence up to @xmath is really good.
+For the pseudo-scalar condensate, the situation is much easier, since
+the condensate is determined by the zero modes only;
+
+  -- -------- -- --------
+     @xmath      (7.24)
+  -- -------- -- --------
+
+Note that the contributions from non-zero eigen-modes cancel because of
+the orthogonality among different eigenvectors. As shown in Fig. 22 ,
+our data with @xmath low-modes perfectly agree with this theoretical
+expectation.
+
+The free parameter in the scalar condensate is @xmath as seen in ( 7.1 )
+and ( C.16 ). We compare our numerical result of Eq.( 7.23 ) with the
+qChPT result @xmath . We use the low-mode averaging over @xmath lattice
+sites. Fig. 23 shows the results as a function of quark mass for @xmath
+= 1, 2 and 3. The lattice data agree remarkably well with the qChPT
+expectation with @xmath = 271(12) MeV as determined from the
+(pseudo-)scalar connected correlators as presented in the previous
+section. In fact, if we fit these data with @xmath as a free parameter,
+we obtain 256(14) MeV which is consistent with the result above.
+
+#### 7.3.4 Disconnected PS correlators
+
+Let us rewrite the disconnected pseudo-scalar correlator in a fixed
+topological sector,
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (7.25)
+                       @xmath   @xmath   
+                                @xmath   
+                       @xmath   @xmath   
+                                @xmath   
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+where @xmath . Here we assume that higher mode’s contribution does not
+have correlation with any local operator @xmath separated enough from
+@xmath , i.e.
+
+  -- -------- -- --------
+     @xmath      (7.26)
+  -- -------- -- --------
+
+where the expectation value @xmath represents insensitivity to the
+topological charge. We also use the translational invariance @xmath .
+Since we know @xmath , the above equation should be well approximated
+with low-modes. In fact, Fig. 24 shows a very good convergence with the
+lowest 200+ @xmath eigen-modes. Similar results were also obtained
+previously in the study of the @xmath propagator with the Wilson fermion
+[ 111 ] and with the overlap fermion [ 120 ] .
+
+In the qChPT the correlator is written as
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (7.27)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+where
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (7.28)
+  -- -------- -------- -------- -- --------
+
+In Fig. 25 , we present the data in @xmath = 0–3 topological sectors at
+two representative quark masses @xmath = 0.0032 and 0.0064. The qChPT
+predictions are plotted with the parameters determined from the
+axial-vector and (pseudo-)scalar connected correlators: @xmath =
+257 MeV, @xmath = 98.3 MeV, @xmath = 940 MeV, and @xmath = @xmath 4.5.
+One finds that the agreement is marginal, though the correlator’s
+magnitude and shape are qualitatively well described. Instead, if we fit
+the disconnected correlator with @xmath and @xmath as free parameters
+while fixing @xmath and @xmath to the same value, we obtain @xmath =
+227(32) MeV and @xmath = @xmath 3.5(1.2), which are statistically
+consistent with those input numbers. We conclude that not only the
+connected correlators, but also disconnected correlators can be
+consistently expressed by the qChPT in the @xmath -regime when @xmath is
+small. Details of the fit results are listed in Table 11 .
+
+## 8 Conclusions and discussions
+
+The exact chiral symmetry is established on the lattice, with the
+overlap Dirac operator which satisfies the Ginsparg-Wilson relation.
+However, the overlap Dirac operator becomes ill-defined at certain
+points where the zero-mode of @xmath appears. Also, practically, these
+points make the numerical study very difficult. One has to carefully
+evaluate the discontinuity of the overlap fermion determinant
+(reflection/refraction) and the polynomial or rational expression of the
+overlap Dirac operator itself goes worse near this discontinuity. In
+fact, these dangerous points are topology boundaries; it is known that
+crossing @xmath changes the index of the overlap Dirac operator, or
+topological charge.
+
+In the continuum limit, @xmath is automatically excluded but it would be
+better if we can construct the lattice gauge theory which does not allow
+@xmath from the beginning with a finite lattice spacing. There have been
+proposed two promising strategies. One is the gauge action which
+satisfies Lüscher’s “admissibility” condition and the other is an
+additional fermion determinant, @xmath . Both of them are designed for
+the use of the hybrid Monte Carlo algorithm, in which global and small
+(smooth) updates are performed. Therefore, we regard them as “topology
+conserving actions”. In this thesis, we have investigated the
+possibility of lattice QCD in a fixed topological sector. We studied the
+properties of the topology conserving actions with no light quarks
+(namely, pure @xmath theory.). Although the admissibility condition with
+small @xmath ( @xmath 1/20) can strictly prohibit the topology changes,
+our interest is the case with @xmath for practical purposes. In the
+(quenched) Hybrid Monte Carlo updates, we found that the topology change
+is strongly suppressed for @xmath = 2/3 and 1, compared to the standard
+Wilson plaquette gauge action. The topological charge seems more stable
+for finer lattices, and it is possible to preserve the topological
+charge for O(100)-O(1,000) HMC trajectories at @xmath 0.08 fm and @xmath
+1.3 fm, which might be applicable to the @xmath -regime. The action Eq.(
+2.15 ) has, thus, been proved to be useful to accumulate gauge
+configurations in a fixed topological sector. While the gauge action
+Eq.( 2.15 ) with @xmath and 2/3 allows the topology changes, at times,
+the topology conservation with the fermion determinant @xmath seems
+perfect. The numerical cost for this determinant is, of course, much
+more expensive than the quenched case, but it would be negligible
+compared to the cost of the dynamical overlap fermion. The full QCD
+overlap fermion simulation with the additional determinant @xmath may be
+very efficient, if we can omit the reflection/refraction procedures.
+
+To test their practical feasibility, we measured the heavy quark
+potential with these actions. The lattice spacing is determined from the
+Sommer scale @xmath . With these measurements we also investigated the
+scaling violation at short and intermediate distances. The probe in the
+short range is the violation of the rotational symmetry, and a ratio
+@xmath of two different scale can be used for the intermediate distance.
+For both of these we found that the size of the scaling violation is
+comparable to the case with the Wilson plaquette gauge action, which is
+consistent with the expectation that the term with @xmath introduces a
+difference at most @xmath or the additional large negative mass Wilson
+fermions are decoupled. These actions show no disadvantage as far as
+Wilson loops are concerned. We also found that the perturbative
+expansion of the coupling (after mean-field improvement) shows very good
+convergence even if @xmath term is introduced. The coupling constant in
+a certain scheme at a given scale is consistent among different values
+of @xmath .
+
+As another advantage of the (approximate) topology conservation, the
+low-lying eigenvalues of the Wilson-Dirac operator in the negative mass
+regime is suppressed. This reduces the cost of the numerical
+implementation of the overlap-Dirac operator. We observed that the
+topology conserving actions have a gain about a factor 2–3 at the same
+lattice spacing compared to the standard Wilson gauge action. Comparison
+with the other improved gauge actions, such as the Lüscher-Weisz,
+Iwasaki and DBW2 would be interesting.
+
+In a fixed topological sector, one of the very interesting applications
+would be the QCD in the @xmath -regime. In the chiral limit, the (q)ChPT
+analysis shows that the meson correlators are largely affected by the
+fermion zero-modes, and thus by the topology of the background gauge
+field. In order to study lattice QCD in such a regime, the chiral
+symmetric Dirac operator is essential, otherwise the large lattice
+artifacts would contaminate the fundamental points of the analysis, such
+as the definition of the topological charge, or what is the zero-mode,
+etc. To demonstrate how much effective the overlap Dirac operator is, we
+studied the quenched QCD with very small quark masses in the range
+@xmath –13MeV. In this chiral regime, we observed that the chiral
+behavior is really nice, as seen in, for example, accurate determination
+of @xmath , or the pseudo-scalar condensates @xmath . We also found the
+importance of the low lying modes and used them to extract the
+low-energy constants. (Note that the low lying modes are not affected by
+the @xmath limit, since it would add higher modes only, which are
+irrelevant to the low energy dynamics.) From triplet meson correlators
+with @xmath and 1, we extracted @xmath = 98.3(8.3) MeV, @xmath =
+257(14)(00) MeV ( @xmath = 271(12)(00) MeV), @xmath = 940(80)(23) MeV,
+and @xmath = @xmath 4.5(1.2)(0.2). In these numerical results the second
+error reflects the error of @xmath . We also obtained consistent results
+from disconnected pseudo-scalar correlator and the chiral condensates.
+Although we observed minor inconsistencies and problems due to finite
+@xmath correction, which is a special restriction of the quenched ChPT,
+these remarkable successes would encourage us to go further to @xmath
+full QCD in the @xmath -regime.
+
+The exact chiral symmetry with the overlap Dirac operator is surely a
+most remarkable progress in the lattice gauge theory and it would be
+more and more important in both of the numerical works and theoretical
+works, in the future. In order to perform the path integrals, one
+should, however, note the fact that there is several points where @xmath
+has zero modes, which makes the overlap Dirac operator ill-defined, its
+locality is doubtful, and the numerical cost is suddenly enhanced. Our
+observation shows that the lattice QCD with fixed topology would be one
+of interesting and promising solutions to this. A number of applications
+such as @xmath -vacuum, finite temperatures, and so on, might be
+possible as well.
+
+For the future works, we would like to give a few remarks.
+
+We have observed a large @xmath -shift when the negative mass Wilson
+fermion Eq.( 2.18 ) is added, which may also cause a unwanted large
+scaling violation. We thus propose another “topology stabilizer” which
+would have effects on @xmath modes only;
+
+  -- -------- -- -------
+     @xmath      (8.1)
+  -- -------- -- -------
+
+where the denominator is corresponding to the twisted mass ghost [ 121 ,
+122 , 123 ]
+
+with a large negative mass @xmath and a small twisted mass @xmath . The
+effect from both determinant should be canceled unless @xmath has small
+eigenvalues. Note that @xmath with @xmath fixed.
+
+As a final remark, let us consider the contribution from different
+topological sectors. In each topological sector, one measures the
+expectation value of operator @xmath with a fixed topological charge,
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (8.2)
+  -- -------- -------- -------- -- -------
+
+where @xmath denotes the integral over the gauge fields with topological
+charge @xmath and @xmath is the determinant of @xmath flavor overlap
+fermion with quark mass @xmath . In order to calculate the total
+expectation value (in @xmath -vacuum);
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (8.3)
+  -- -------- -------- -------- -- -------
+
+the ratio @xmath has to be evaluated. In fact, there are several
+proposals to calculate this ratio of the partition function, including
+the tempering method [ 124 , 125 , 126 , 127 , 128 ] . Here, we would
+like to propose an easier method. With an assumption that the ratio
+should be Gaussian;
+
+  -- -------- -- -------
+     @xmath      (8.4)
+  -- -------- -- -------
+
+in a large volume @xmath , one only has to calculate the topological
+susceptibility [ 129 , 130 ] ,
+
+  -- -------- -- -------
+     @xmath      (8.5)
+  -- -------- -- -------
+
+to evaluate the ratio @xmath with any value of @xmath . In principle,
+the topological susceptibility can be evaluated with the local
+topological charge density operator @xmath in a semi-local region
+(assuming the cluster decomposition principle);
+
+  -- -------- -- -------
+     @xmath      (8.6)
+  -- -------- -- -------
+
+where @xmath is performed over the small volume @xmath around the
+origin, where @xmath . Thus, if the topological susceptibility in a
+fixed topological sector,
+
+  -- -------- -- -------
+     @xmath      (8.7)
+  -- -------- -- -------
+
+shows sufficiently small @xmath dependence and the finite volume effects
+due to @xmath and @xmath are both negligible, then @xmath should be a
+good approximation of @xmath ⁶ ⁶ 6 In this argument we omit the
+renormalization or mixing of @xmath for simplicity. . What we would like
+to emphasize here is that summing up all the topology with the weight
+@xmath (in a @xmath -vacuum) is not so difficult and maybe not so
+important unless @xmath term is considered ⁷ ⁷ 7 In Ref. [ 131 ] , it is
+shown that the observables in a fixed topology are equivalent to those
+in the @xmath vacuum up to correction terms proportional to @xmath . ,
+since @xmath , although the numerical studies has to be done in the
+future works to verify this quite optimistic argument. It seems an
+appropriate way to preserve the topology along the simulations, since
+any lattice gauge action would eventually create large barriers between
+the topological sectors in the continuum limit.
+
+## Acknowledgments
+
+I would like to thank Prof. Tetsuya Onogi, my supervisor, for his great
+advices, encouragements and many nice lectures. I also thank
+S.Hashimoto, K.Ogawa, T.Hirohashi and H.Matsufuru for the
+collaborations, on which I really enjoyed and discussed many interesting
+topics. This work is greatly owing to M.Lüscher who gave me a lot of
+crucial advices and helped me staying in Geneva very much when I visited
+CERN. Also I would like to thank L.Del Debbio, L.Giusti, C.Pena,
+S.Vascotto and all the members of CERN for fruitful discussions and
+their very warm hospitality during my stay which was really impressive
+experience for me. I acknowledge W.Bietenholz, K.Jansen and S.Shcheredin
+for giving me many meaningful advices. Many instructions on
+computational works are given by T.Umeda, and I would like to express
+special thanks to him. I thank all the members of YITP and the
+Department of Physics of Kyoto Univ. for happy everyday life.
+
+Simulations are done on NEC SX-5 at RCNP, Alpha workstations at YITP ,
+and SR8000 and Itanium2 workstations at KEK.
+
+Finally I would like to thank my parents, my brother, and my
+grandmothers, for continuous encouragement and supports.
+
+## Appendix A Notations
+
+Lorentz indices @xmath run from 0 to 3. The lattice spacing and size are
+denoted by @xmath and @xmath respectively. The gauge field @xmath is
+located on the link from @xmath to @xmath , where @xmath is the unit
+vector in direction @xmath . The plaquette is denoted by @xmath . The
+fermion field @xmath is located on the site @xmath . The forward and
+backward covariant difference of the fermion field @xmath are defined by
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (A.1)
+  -- -------- -------- -------- -- -------
+
+Euclidean Dirac matrix @xmath satisfies
+
+  -- -------- -- -------
+     @xmath      (A.2)
+  -- -------- -- -------
+
+The expectation values of an operator @xmath with a fixed topology is
+denoted by @xmath .
+
+## Appendix B The hybrid Monte Carlo algorithm
+
+We explain how to generate the configurations in our numerical
+simulations. The hybrid Monte Carlo algorithm (HMC) is one of the most
+efficient [ 25 ] algorithms and widely used in the lattice QCD studies.
+
+Consider updating fields, @xmath ’s, which have an action @xmath . The
+HMC algorithm consists of two parts;
+
+1.  generate a candidate of updating field @xmath .
+
+2.  judge whether @xmath is accepted or rejected.
+
+The former is called molecular dynamics steps, since it is very similar
+to the trajectory of a classical particle, randomly walking in
+configuration space, of which path is determined by the equation of
+motion;
+
+  -- -------- -- -------- -- -------
+     @xmath      @xmath      (B.1)
+  -- -------- -- -------- -- -------
+
+where the initial momentum @xmath is randomly given with probability
+density
+
+  -- -------- -- -------
+     @xmath      (B.2)
+  -- -------- -- -------
+
+The final point, @xmath , obtained in this way (after a fixed ’time’
+@xmath ), is chosen to be the candidate @xmath . This step is known to
+satisfy “the detailed balance” which is a sufficient condition for an
+algorithm to sample the distribution with the correct Boltzmann weight
+@xmath . However, in the numerical studies, the evolution is done by the
+leap-frog updates with a finite step-size @xmath ,
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (B.3)
+  -- -------- -------- -------- -- -------
+
+Therefore, one needs the latter procedure, or the Metropolis test, to
+judge that the new configuration is accepted or not; @xmath is accepted
+with probability
+
+  -- -------- -- -------
+     @xmath      (B.4)
+  -- -------- -- -------
+
+which realizes the exact detailed-balance. The above steps ( @xmath
+molecular dynamics steps with the step-size @xmath and the Metropolis
+test) are done in every ’trajectory’. In this way, the configurations
+are generated performing the hundreds or thousands of trajectories,
+@xmath .
+
+Let us consider the path integral
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (B.5)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- -------
+
+where the pseudo-fermion field @xmath is introduced to evaluate the
+fermion determinant @xmath , which can not be directly calculated when
+the lattice size is large.
+
+Since the pseudo-fermion part of the action is a simple bilinear, @xmath
+can be updated with a conventional heat-bath algorithm. The HMC
+algorithm is applied to updating the link fields @xmath ’s with fixed
+@xmath which is generated by the heat-bath method;
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (B.6)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- -------
+
+Thus, our lattice QCD simulation is performed as follows,
+
+1.  Choose a starting link variable configuration.
+
+2.  Choose @xmath to be a field of Gaussian noise (heat-bath).
+
+3.  Choose the momentum of link variables, @xmath from a Gaussian noise.
+
+4.  @xmath molecular dynamics with the step-size @xmath are done.
+
+5.  Accept or reject the new configuration (Metropolis test).
+
+6.  Store the (new or old) configuration.
+
+7.  Return to step 2.
+
+Note that both of
+
+  -- -------- -- -------
+     @xmath      (B.7)
+  -- -------- -- -------
+
+involves the calculation of @xmath , which requires a very expensive
+computational cost in the chiral limit, @xmath , since a lot of low
+eigenvalues appear. Also, it is notable that when @xmath is not smooth
+with respect to the gauge link field @xmath , sudden jumps of momentum
+evolution in Eq.( B.3 ) should be monitored, otherwise over(under)
+estimation of the momentum would break the algorithm. Finally, we should
+refer to the fact that each step of HMC is small variation of the
+fields, and therefore, tends to keep the initial topological properties
+of the link variables.
+
+## Appendix C Quenched chiral perturbation theory in the @xmath-regime
+
+This appendix is devoted to a brief review of quenched chiral
+perturbation theory (qChPT) in the @xmath -regime [ 107 ] and we
+summarize the relevant formulas for our analysis of meson correlation
+functions.
+
+The partition function of qChPT with @xmath valence quarks is defined
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (C.1)
+  -- -------- -------- -------- -- -------
+
+where the Lagrangian @xmath is given by
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (C.2)
+                                @xmath   
+  -- -------- -------- -------- -------- -------
+
+at the leading order of pion mass, @xmath , and pion momentum, @xmath ,
+expansion, where @xmath denotes the number of color, @xmath is the pion
+decay constant and @xmath is the chiral condensate. @xmath is integrated
+over a sub-manifold of the super-group @xmath , called the maximally
+symmetric Riemannian sub-manifold which is characterized by a matrix of
+form
+
+  -- -------- -- -------
+     @xmath      (C.3)
+  -- -------- -- -------
+
+and Grassmannian @xmath matrices @xmath and @xmath . Str denotes the
+super-trace. The quark mass is involved in the mass matrix @xmath where
+@xmath and @xmath are the identity matrix in the fermion-fermion and
+boson-boson blocks respectively. The @xmath term which violates CP
+symmetry, enters through @xmath . Note that in the quenched
+approximation the singlet field @xmath is not decoupled, and its mass
+@xmath and coupling @xmath are introduced [ 132 ] .
+
+The @xmath -regime [ 43 , 44 , 45 , 46 , 47 , 48 ] is a special regime
+where the quark mass is so small that the pion Compton wavelength @xmath
+is larger than the linear extent of the space-time @xmath . In this
+regime, the zero mode of pion gives important contribution and one must
+explicitly integrate out the constant mode of @xmath . The other mode’s
+contributions are perturbatively evaluated with the expansion parameter,
+@xmath . Namely, separating the zero mode and the other modes;
+
+  -- -------- -- -------
+     @xmath      (C.4)
+  -- -------- -- -------
+
+the Lagrangian Eq.( C.2 ) can be rewritten. Together with @xmath
+-expansion, one obtains the partition function with a fixed topological
+charge @xmath by Fourier transforming ( C.1 ) as follows,
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (C.5)
+                       @xmath   @xmath   
+                       @xmath   @xmath   
+                                @xmath   
+                                @xmath   
+                       @xmath   @xmath   
+                                @xmath   
+  -- -------- -------- -------- -------- -------
+
+where we use
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (C.6)
+     @xmath   @xmath   @xmath      (C.7)
+     @xmath   @xmath   @xmath      (C.8)
+     @xmath   @xmath   @xmath      (C.9)
+     @xmath   @xmath   @xmath      (C.10)
+  -- -------- -------- -------- -- --------
+
+In the last line of ( C.5 ), we perform @xmath integral as a Gaussian;
+
+  -- -------- -- -------- -------- --------
+     @xmath                        (C.11)
+                                   
+                 @xmath   @xmath   
+                 @xmath   @xmath   
+  -- -------- -- -------- -------- --------
+
+where @xmath and @xmath . We need a condition, @xmath , in order to
+justify this Gaussian integral, otherwise the integral Eq.( C.11 )
+should depend on @xmath , which means that @xmath and @xmath can not be
+treated independently and the last line of the partition function Eq.(
+C.5 ) is invalid. Therefore, all the results shown below are reliable
+only for small @xmath .
+
+With redefinition @xmath , the partition function in a fixed topological
+sector is obtained
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+                       @xmath   
+  -- -------- -------- -------- --
+
+where @xmath denotes the Haar measure of the maximally Riemannian
+sub-manifold of
+@xmath . Note that the topological charge distributes as a Gaussian with
+variance
+
+  -- -------- -- --------
+     @xmath      (C.13)
+  -- -------- -- --------
+
+which is in a good contrast with the full theory, for which @xmath is
+expected with @xmath flavors.
+
+In the following we consider @xmath = 1 and 2 cases only, as we are
+interested in the system with two light quarks. Any correlators or
+condensates are obtained by the perturbation of @xmath fields and the
+exact integration over zero mode, @xmath , which can be written in terms
+of the Bessel functions.
+
+First let us calculate the condensates. At the tree-level the scalar
+condensate is given by
+
+  -- -------- -- --------
+     @xmath      (C.14)
+  -- -------- -- --------
+
+with @xmath . @xmath and @xmath denote the modified Bessel functions.
+One-loop contribution does not change its functional form [ 133 ]
+
+  -- -------- -- --------
+     @xmath      (C.15)
+  -- -------- -- --------
+
+but the parameters @xmath and @xmath are shifted to @xmath and @xmath :
+
+  -- -------- -- -------- -- --------
+     @xmath      @xmath      (C.16)
+  -- -------- -- -------- -- --------
+
+Here, parameters @xmath and @xmath are ultraviolet divergent tadpole
+integrals,
+
+  -- -------- -- -------- -- --------
+     @xmath      @xmath      (C.17)
+  -- -------- -- -------- -- --------
+
+which need renormalization.
+
+Next, we consider the flavor-singlet meson operators
+
+  -- -------- -- -------- -- --------
+     @xmath      @xmath      (C.18)
+  -- -------- -- -------- -- --------
+
+To add these operators to the QCD Lagrangian as source terms;
+
+  -- -------- -- --------
+     @xmath      (C.19)
+  -- -------- -- --------
+
+corresponds to the substitution
+
+  -- -------- -- --------
+     @xmath      (C.20)
+  -- -------- -- --------
+
+in qChPT. The two-point correlation functions are obtained by
+differentiating the generating functional by @xmath and @xmath . To
+@xmath the results are
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (C.21)
+     @xmath   @xmath   @xmath      (C.22)
+  -- -------- -------- -------- -- --------
+
+where
+
+  -- -------- -- -------- -- --------
+     @xmath      @xmath      (C.23)
+  -- -------- -- -------- -- --------
+
+and the constant terms are given by
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath               (C.24)
+     @xmath   @xmath   @xmath      (C.25)
+  -- -------- -------- -------- -- --------
+
+Note that the prime denotes the derivative with respect to @xmath ,
+
+  -- -------- -- --------
+     @xmath      (C.26)
+  -- -------- -- --------
+
+For flavor non-singlet case, we need a @xmath super-group integral,
+which is also described with the Bessel functions. The non-singlet
+operators are given by
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (C.27)
+     @xmath   @xmath   @xmath      (C.28)
+  -- -------- -------- -------- -- --------
+
+with the Pauli matrices @xmath . To @xmath the two-point functions are
+given by
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (C.29)
+     @xmath   @xmath   @xmath      (C.30)
+  -- -------- -------- -------- -- --------
+
+where
+
+  -- -------- -- --------
+     @xmath      (C.31)
+  -- -------- -- --------
+
+and
+
+  -- -------- -- -------- -- --------
+     @xmath      @xmath      (C.32)
+  -- -------- -- -------- -- --------
+
+For the flavor non-singlet axial-vector current
+
+  -- -------- -- --------
+     @xmath      (C.33)
+  -- -------- -- --------
+
+the correlator is obtained [ 108 ]
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (C.34)
+  -- -------- -------- -------- -- --------
+
+An important observation here is that the axial-current correlator does
+not depend on the parameters related to the quenched artifact, i.e.
+@xmath and @xmath . Also note that the constant term is proportional to
+@xmath rather than @xmath . Therefore, this channel is suitable for an
+extraction of @xmath , whereas for the pseudo-scalar and scalar
+correlators @xmath appears only in the coefficients of @xmath and @xmath
+terms.
+
+For zero spatial momentum projection, it is convenient to define
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (C.35)
+     @xmath   @xmath   @xmath      (C.36)
+  -- -------- -------- -------- -- --------
+
+As a Remarkable feature in the @xmath -regime, the correlators do not
+behave as the usual exponential fall-off @xmath with the mass gap @xmath
+.
