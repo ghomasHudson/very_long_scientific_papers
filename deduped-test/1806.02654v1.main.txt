@@ -1,0 +1,3397 @@
+###### Contents
+
+-    I Motivation and state-of-the-art
+    -    1 Introduction
+        -    1.1 Motivation
+        -    1.2 State of the art
+            -    1.2.1 Neural Computation-based Approaches
+            -    1.2.2 Evolutionary Computation-based Algorithms
+        -    1.3 Structure of the thesis
+-    II Proposed contributions with numerical results in renewable
+    energy problems
+    -    2 Ocean wave features prediction
+        -    2.1 Introduction
+        -    2.2 Wave energy resource: calculation of @xmath and @xmath
+        -    2.3 The hybrid prediction system considered
+        -    2.4 Bayesian optimization of the prediction system
+        -    2.5 Experiments and results
+            -    2.5.1 Methodology
+            -    2.5.2 Results I: Bayesian optimization of the wave
+                energy prediction system parameters
+            -    2.5.3 Results II: Estimation of the generalization
+                performance
+        -    2.6 Conclusions
+    -    3 Wind power ramps events prediction
+        -    3.1 Introduction
+            -    3.1.1 Motivation
+            -    3.1.2 Purpose and Contributions
+        -    3.2 Problem Definition
+        -    3.3 Data and Predictive Variables
+        -    3.4 Experimental Work
+            -    3.4.1 Results
+            -    3.4.2 Discussion
+        -    3.5 Conclusions
+-    III Proposed contributions with numerical results in facilities
+    management
+    -    4 Accurate estimation of @xmath with SVR and marine radar
+        images
+        -    4.1 Introduction
+        -    4.2 Analysis of the sea surface from X-band radar
+            -    4.2.1 Standard method to estimate @xmath from X-band
+                radar image time series
+        -    4.3 Description of the data used
+            -    4.3.1 Predictive variables
+        -    4.4 Experiments and results
+            -    4.4.1 Pre-processing of the databases
+            -    4.4.2 Results obtained
+        -    4.5 Conclusions
+    -    5 Efficient prediction of low-visibility events at airports
+        -    5.1 Introduction
+        -    5.2 Predictive Data and Objective Variables
+        -    5.3 Methods
+            -    5.3.1 Discrete-Wavelet-Transformation Algorithm
+        -    5.4 Results
+        -    5.5 Conclusions
+-    IV Final remarks and future research activities
+-    V Appendix
+-    VI Bibliography
+
+###### List of Figures
+
+-    LIST OF ACRONYMS
+-    1.1 Structure of SC, including , EC and FC.
+-    1.2 Artificial neural network.
+-    1.3 Illustration of the SVR model. Samples in the original input
+    space are first mapped to a Reproducing Kernel Hilbert Space, where
+    a linear regression is performed. All samples outside a fixed tube
+    of size @xmath are penalized, and are support vectors
+    (double-circled symbols).
+-    1.4 Outline of the grouping crossover implemented in the proposed
+    example of GGA.
+-    2.1 An example of BO on a toy 1D noiseless problem.
+-    2.2 Western USA Buoys considered in this study. In red buoy where
+    the @xmath prediction is carried out from data at blue ones.
+-    2.3 Average results obtained for the @xmath optimization after
+    evaluating the performance of 50 different parameters for the BO
+    technique and a random exploration of the parameter space. The
+    performance a configuration specified by a human expert is also
+    shown for comparison.
+-    2.4 Wave Height optimization average results of the performance of
+    the 50 different parameter values selected by the BO technique and a
+    random exploration of the parameter space. The plot also shows the
+    performance of the parameter values selected by a human expert.
+-    2.5 @xmath prediction after the FS process with the GGA-ELM
+    approach; (a) ELM; (b) SVR; (c) ELM with BO; (d) SVR with BO.
+-    2.6 Scatter plots in the problem of @xmath prediction in tackled by
+    the ELM and SVR with FS by the GGA-ELM; (a) ELM; (b) SVR; (c) ELM
+    with BO; (d) SVR with BO.
+-    2.7 @xmath prediction after the FS process with the GGA-ELM
+    approach; (a) ELM; (b) SVR; (c) ELM with BO; (d) SVR with BO.
+-    2.8 Scatter plots in the problem of @xmath prediction in tackled by
+    the ELM and SVR with FS by the GGA-ELM; (a) ELM; (b) SVR; (c) ELM
+    with BO; (d) SVR with BO.
+-    3.1 Representation of the geographical location of the wind farms
+    (labeled “A”, “B” and “C”) considered in the experimental work
+    carried out in this thesis. The four closest nodes from the
+    Era-Interim reanalysis (predictive variables) have also been
+    represented for illustrative purposes. The reason why these wind
+    farms have been selected is that they cover different parts of
+    Spain, north, center and south, characterized by different wind
+    regimes.
+-    3.2 ( a ) Estimation of the ramp function @xmath (Equation ( 3.1 ))
+    obtained by using the proposed approach in the particular case in
+    which the ML is an ELM regressor. This figure corresponds to Wind
+    Farm A, whose location has been represented in Figure 3.1 . ( b , c
+    ) represent two shorter excerpts in which the predicted WPREs that
+    exceed the thresholds ( @xmath or @xmath ) are shown to be correctly
+    detected. A WPRE is detected if @xmath . The predicted series
+    exhibits RMSE @xmath MW, MAE @xmath MW, @xmath (+ramp) @xmath ,
+    @xmath ( @xmath ramp) @xmath and @xmath (no ramp) @xmath .
+-    3.3 Estimation of the ramp function @xmath (Equation ( 3.1 ))
+    obtained by this proposed hybrid approach when using the GP as the
+    ML regressor in Wind Farm B. The predicted series exhibits RMSE
+    @xmath MW, MAE @xmath MW, @xmath (+ramp) @xmath , @xmath ( @xmath
+    ramp) @xmath and @xmath (no ramp) @xmath (see Table 3.3 ).
+-    3.4 Prediction of the ramp function @xmath (Equation ( 3.1 )) when
+    using the GP in Wind Farm C. The predicted ramps series exhibits
+    RMSE @xmath MW, MAE @xmath MW, @xmath (+ramp) @xmath , @xmath (
+    @xmath ramp) @xmath , and @xmath (no ramp) @xmath (see Table 3.3 ).
+-    3.5 Estimation of the ramp function @xmath (Equation ( 3.2 ))
+    obtained by the proposed approach using the GP regressor, in Wind
+    Farm A. The ramp predicted values resemble the ramp measured ones
+    with RMSE @xmath MW and MAE @xmath MW, @xmath (ramp) @xmath and
+    @xmath (no ramp) @xmath (see Table 3.4 ).
+-    3.6 Estimation of the ramp function @xmath (Expression ( 3.2 ))
+    obtained by the proposed method when using the ELM regressor, in
+    Wind Farm B. The predicted series follows the measured series with
+    RMSE @xmath MW and MAE @xmath MW, @xmath (ramp) @xmath and @xmath
+    (no ramp) @xmath (see Table 3.4 ).
+-    3.7 Estimation of the ramp function @xmath (Expression ( 3.2 ))
+    obtained by the proposed method when using the ELM regressor, in
+    Wind Farm C. The predicted series follows the measured series with
+    RMSE @xmath MW and MAE @xmath MW, @xmath (ramp) @xmath and @xmath
+    (no ramp) @xmath (see Table 3.4 ).
+-    4.1 Estimation of the image spectrum @xmath of a radar image time
+    series. The plot corresponds to a transect in the spectral domain
+    @xmath along the peak wave direction, @xmath , where @xmath denotes
+    the peak wave wave number vector.
+-    4.2 Illustration of the SVR training and testing process.
+-    4.3 Scatter plots colored by @xmath of the @xmath measured by the
+    buoy and estimated by the SM and the SVR approach for the test data
+    set at FINO 1; (a) SM; (b) SVR approach. The solid line indicates
+    the best fit.
+-    4.4 Scatter plots colored by @xmath of the @xmath measured by the
+    buoy and estimated by the SM and the SVR approach for the test data
+    set at Ekofisk; (a) SM; (b) SVR approach. The solid line indicates
+    the best fit.
+-    4.5 Scatter plots colored by @xmath of the @xmath measured by the
+    buoy and estimated by the SM and the SVR approach for the test data
+    set at Glas Dowr; (a) SM; (b) SVR approach. The solid line indicates
+    the best fit.
+-    4.6 Temporal evolution of the @xmath estimation obtained with the
+    SVR in the different platforms considered; (a) Fino 1; (b)
+    Ekofisk; (c) Glas Dowr.
+-    4.7 Difference between measured and predicted @xmath with the SVR
+    and SM in the locations considered; (a) Fino 1; (b) Ekofisk; (c)
+    Glas Dowr.
+-    4.8 Bivariate histograms of significant wave steepness vs. relative
+    error in the @xmath estimation for each measuring station: Fino 1
+    (top), Ekofisk (middle), and Glas Dowr (down). The results derived
+    from the SM are plotted on the left, and the corresponding results
+    from SVR (predicted) are located on le right part of the image. The
+    color bar indicates the percentage of total data within the
+    histogram for each case.
+-    5.1 Location of Valladolid airport (Villanubla), Spain, where the
+    experiments to validate the proposed methodology for the prediction
+    of low-visibility events have been carried out.
+-    5.2 Example of the proposed prediction system with wavelet
+    pre-processing for the test dataset and training step; (a) example
+    of the prediction-system structure; (b) training phase and
+    evaluation of the regressors.
+-    5.3 Decomposition of a signal of interest into approximation and
+    detailed parts using a wavelet transform. In this case, the signals
+    of interest are the predictive variables for the low-visibility
+    prediction.
+-    5.4 Skill score @xmath of the different regressors considered at
+    different time-horizons for the prediction of low visibility; (a)
+    with the CIBA tower; (b) without the CIBA tower.
+-    5.5 Prediction of low-visibility events at Valladolid airport by
+    the MLP approach with wavelet pre-processing for the test
+    dataset; (a) direct prediction of the runway visual range
+    (temporal); (b) Normalized scatter plot.
+-    5.6 Prediction of low-visibility events at Valladolid airport by
+    the GP approach with wavelet pre-processing for the test
+    dataset; (a) direct prediction of the runway visual range
+    (temporal); (b) Normalized scatter plot.
+
+###### List of Tables
+
+-    2.1 Geographic coordinates and buoy’s description.
+-    2.2 Predictive variables used in the experiments.
+-    2.3 Comparative results of the @xmath estimation by the ELM and SVR
+    approaches after the FS by the GGA-ELM in 2010.
+-    2.4 Comparative results of the @xmath estimation by the ELM and SVR
+    approaches after the FS by the GGA-ELM in 2010.
+-    3.1 Predictive variables considered at each node from the
+    ERA-Interim reanalysis.
+-    3.2 Configuration and design parameters of the regression ML models
+    @xmath explored in the proposed approach for all the wind farms
+    considered.
+-    3.3 Results (in terms of RMSE, MAE and sensitivity) corresponding
+    to the estimation of the ramp function @xmath (Equation ( 3.1 ))
+    obtained when using the proposed approach, as a function of the ML
+    regressors explored (SVR, ELM, GP and MLP), in the tree study cases:
+    the wind farms “A”, “B” and “C”, whose locations have been
+    represented in Figure 3.1 .
+-    3.4 Results (in terms of RMSE, MAE and sensitivity) corresponding
+    to the estimation of the ramp function @xmath (Equation ( 3.2 ))
+    obtained by the proposed approach as a function of the ML regressors
+    explored (SVR, ELM, GP, and MLP), for Wind Farms “A”, “B” and “C”,
+    respectively.
+-    4.1 Division of the databases into different sets for the
+    experiments.
+-    4.2 Comparative results of the @xmath estimation by the SM and the
+    SVR approaches.
+-    4.3 SVR performance with different train/test partitions at Fino 1
+    measuring station.
+-    4.4 Averaged significant wave steepness @xmath derived from the
+    buoy data at the dates when the measurements were obtained in the
+    different platforms considered.
+-    5.1 Data used in the study.
+-    5.2 Comparison of the best results (10 runs of the algorithms in
+    different sets) for the estimation of low-visibility events (in
+    terms of the runway visual range at the airport) by the ELM, SVR,
+    MLP and GP, with and without wavelet pre-processing. The variance is
+    given in parentheses.
+-    5.3 Comparison of the best results for the estimation of
+    low-visibility events (in terms of the runway visual range at the
+    airport) by the ELM, SVR, MLP and GP, for the wavelet pre-processing
+    case, and without CIBA features.
+-    5.4 Comparison of the best results for the estimation of
+    low-visibility events (in terms of the runway visual range at the
+    airport) by the ELM, SVR, MLP and GP, for the wavelet pre-processing
+    case, with nighttime and daytime samples.
+-    5.5 Confusion matrix of the MLP and GP models with the wavelet
+    method for 1000-m, 550-m and 300-m classification thresholds (Th).
+
+### List of Acronyms
+
+AI
+    Artificial Intelligent
+
+ARMA
+    Autoregressive-Moving-Average
+
+ANN
+    Artificial Neural Network
+
+BO
+    Bayesian Optimization
+
+CI
+    Computational Intelligence
+
+CNN
+    Convolutional Neural Network
+
+CRO
+    Coral Reef Optimization
+
+DFT
+    Discrete Fourier Transform
+
+EA
+    Evolutionary Algorithm
+
+EC
+    Evolutionary Computation
+
+ELM
+    Extreme-Learning Machine
+
+EI
+    Expected Improvement
+
+EV
+    Electric Vehicles
+
+FC
+    Fuzzy Computation
+
+FFT
+    Fast Fourier Transform
+
+FL
+    Fuzzy Logic
+
+FS
+    Feature Selection
+
+GA
+    Genetic Algorithm
+
+GGA
+    Grouping Genetic Algorithm
+
+GP
+    Gaussian process
+
+GS
+    Grid Search
+
+MAE
+    Mean Absolute Error
+
+ML
+    Machine Learning
+
+MLP
+    Multi-Layer Perceptron
+
+MSE
+    Mean Squared Error
+
+NC
+    Neural Computation
+
+NN
+    Neural Network
+
+RMSE
+    Root Mean Squared Error
+
+SAR
+    Synthetic Aperture Radar
+
+SC
+    Soft-Computing
+
+SM
+    Standard Method
+
+SVM
+    Support Vector Machine
+
+SVR
+    Support-Vector Regression
+
+@xmath
+    Significant Wave Height
+
+V2G
+    Vehicle-to-Grid
+
+@xmath
+    Wave Energy Flux
+
+WECs
+    Wave Energy Converters
+
+WPF
+    Wind Power Forecasting
+
+WPREs
+    Wind Power Ramps Events
+
+## Part I Motivation and state-of-the-art
+
+### Chapter 1 Introduction
+
+#### 1.1 Motivation
+
+The challenges of renewable energies in the near future, as well as the
+associated facilities, will require new computational tools for the
+optimization and exploitation of the available resources. In a World
+where the climate change is a recognized fact, it is necessary a
+re-evaluation of the energy use. For this reason, this work is focused
+on renewable energy sources, with almost zero emissions of both air
+pollutants and greenhouse gases. Currently, renewable energy sources
+supply 19% of the total world energy demand [ REN21-2017 ] , but it is
+expected an increasing in the near future. In consequence, a sustainable
+development must be guaranteed, defined by the World Commission on
+Environment and Development as “development that meets the needs of the
+present without compromising the ability of future generations to meet
+their own needs”. The main goal then is to conciliate energy production,
+that satisfies social welfare, and the environmental protection,
+achieving economic growth.
+
+The technology is the best way to meet the objectives proposed. There
+are many renewable energy technologies but most of them are still at an
+early stage of development and not technically mature. The aim of this
+work is to contribute to the progress in this field by means of AI.
+
+AI is a term that indicates in its broadest sense the ability of a
+machine to perform the human learning. Specifically, it is the part of
+the computer science tasked with the design of intelligent computer
+systems. This kind of intelligence can be associated with human
+behavior, i.e., understanding, language, learning [ Kalogirou2006 ] and
+whose skills can be applied in diverse applications in forecasting,
+patter recognition, optimization and many more. That is possible because
+AI covers different areas like Neural Computation ( NC ), Evolutionary
+Computation ( EC ) and Fuzzy Computation ( FC ), among others, that can
+be used or hybridized to solve several problems in our society.
+
+Some of these algorithms are used, in this work, in the estimation of
+really important parameters in renewable energy area, taking into
+account not only the attainment of energy but also how these parameters
+can affect in determined tasks of facilities management. In this regard,
+facilities management are related with the necessary infrastructures in
+renewable energy environments and another fields where meteorological
+variables affect in the same way, as the study developed in airports to
+estimate the visibility in runways which will be explained in depth in
+Part III .
+
+Two fields compose the core of this Ph.D Thesis: ML regression
+algorithms and evolutionary optimization. Pattern recognition is a
+branch of AI focused on systems that are able to associate
+multidimensional data to labels. Using this method it will be possible
+to develop others systems based on the available data to obtain
+predictions and classifications in many fields in Engineering, Sciences,
+Economy, etc. The second pillar of this thesis is the use of the EC
+approaches to solve features selection problems and thus optimize the
+accuracy in the future regressions.
+
+In the next sections it will be provided a more detailed description of
+the ML techniques applied in this work as well as Evolutionary Algorithm
+( EA ), providing a review of the state-of-the-art in Soft-Computing (
+SC ) techniques.
+
+#### 1.2 State of the art
+
+This section presents a description of the state-of-the-art in the
+technological fields addressed in this thesis. Figure 1.1 shows a scheme
+of different areas of SC . SC is an essential part of AI and many of its
+methods can be classified in the field of Knowledge called “Natural
+Computing”. The algorithms that can be found in this category are
+inspired by the way Nature solves complex problems. In this regard, EC
+is inspired in the theory of evolution or ANNs find their behaviour in
+human brain. Because of the variety of techniques used, the structure of
+this section has been chosen to properly cover the areas included in AI
+that come in handy in this work.
+
+##### 1.2.1 Neural Computation-based Approaches
+
+NC is the part of SC that includes algorithms inspired on how the human
+brain learns. They have been mainly used in classification and
+regression problems. In the next points four of the most used NC
+approaches will be described: Feed-forward NNs (MLPs and ELMs), GPs for
+Regression and SVR algorithms.
+
+###### Multi-layer perceptrons
+
+A MLP is a particular kind of Artificial Neural Network ( ANN ) that is
+massively parallel. It is considered a distributed
+information-processing system, which has been successfully applied in
+modelling a large variety of nonlinear problems [ Haykin1998 ,
+Bishop1995 ] . The MLP consists of an input layer, a number of hidden
+layers, and an output layer, all of which are basically composed of a
+number of special processing units called neurons, as Figure 1.2 shows.
+Just as important as the processing units themselves is their
+connectivity, whereby the neurons within a given layer are connected to
+those of other layers by means of weighted links, whose values are
+related to the ability of the MLP to learn and generalize from a
+sufficiently long number of examples. Such a learning process demands a
+proper database containing a variety of input examples or patterns with
+the corresponding known outputs. The adequate values of the weights
+minimize the error between the output generated by the MLP (when fed
+with input patterns in the database), and the corresponding expected
+output in the database. The number of neurons in the hidden layer is a
+parameter to be optimized when using this type of neural network [
+Haykin1998 , Bishop1995 ] .
+
+The input data for the MLP consists of a number of samples arranged as
+input vectors, x = @xmath . Once a MLP has been properly trained,
+validated and tested using an input vector different from those
+contained in the database, it is able to generate a proper output @xmath
+. The relationship between the output and the input signals of a neuron
+is
+
+  -- -------- -- -------
+     @xmath      (1.1)
+  -- -------- -- -------
+
+where @xmath is the output signal, @xmath for @xmath are the input
+signals, @xmath is the weight associated with the @xmath -th input, and
+@xmath is a threshold [ Haykin1998 , Bishop1995 ] . The transfer
+function @xmath is usually considered as the logistic function,
+
+  -- -------- -- -------
+     @xmath      (1.2)
+  -- -------- -- -------
+
+The process to obtain an accuracy output is related with the training
+procedure as it was mentioned before. During the training process, the
+error between the estimated output and its corresponding real value in
+the database will determine what degree the weights in the network
+should be adjusted, and thanks to all neurons in the network are
+interconnected (feed-forward NN) MLP makes easy to get this purpose.
+Hence, The objective of training is to find the combination of weights
+which result in the smallest error. There are many algorithms that can
+be used to train a MLP. One possible technique is the backpropagation
+training algorithm which uses the procedure known as gradient descent to
+try to locate the global minimum of the error [ Gardner1998 ] . Another
+approach is the well-known Levenberg-Marquardt algorithm which is often
+applied to train the MLP [ Hagan1994 ] .
+
+###### Extreme Learning Machine
+
+An ELM [ Huang2015 , Huang2006 ] is a novel and fast learning method
+based on the structure of MLPs, similar to the one shown in Figure 1.2 .
+In addition, the ELM approach presents a novel way of training
+feed-forward NN. The most significant characteristic of the ELM training
+is that it is carried out just by randomly setting the network weights,
+and then obtaining a pseudo-inverse of the hidden-layer output matrix.
+The advantages of this technique are its simplicity, which makes the
+training algorithm extremely fast, and also its outstanding performance
+when compared to avant-garde learning methods, usually better than other
+established approaches such as classical MLPs or SVRs.
+
+Moreover, the universal approximation capability of the ELM network, as
+well as its classification capability, have been already proven [
+Huang2012 ] .
+
+The ELM algorithm can be summarized as follows: given a training set
+@xmath an activation function @xmath , which a sigmoidal function is
+usually used, and number of hidden nodes ( @xmath ),
+
+1.  Randomly assign inputs weights @xmath and bias @xmath , @xmath .
+
+2.  Calculate the hidden layer output matrix @xmath , defined as
+
+      -- -------- -- -------
+         @xmath      (1.3)
+      -- -------- -- -------
+
+3.  Calculate the output weight vector @xmath as
+
+      -- -------- -- -------
+         @xmath      (1.4)
+      -- -------- -- -------
+
+    where @xmath stands for the Moore-Penrose inverse of matrix @xmath [
+    Huang2006 ] , and @xmath is the training output vector, @xmath .
+
+Note that the number of hidden nodes ( @xmath ) is a free parameter of
+the ELM training, and must be estimated for obtaining good results.
+Usually, scanning a range of @xmath values is the best solution.
+
+###### Gaussian Processes for Regression
+
+GPs for regression is a generic supervised-learning method primarily
+designed for solving regression problems, the advantages of which
+include the predictive interpolation of the observations. Here, the
+prediction is probabilistic (Gaussian), so that one computes the
+empirical confidence intervals and exceeded probabilities to be used in
+refitting the prediction in some region of interest. Moreover, different
+linear-regression and correlation models may be specified. Here a short
+description of the most important characteristics of the GP approach is
+given, for which the interested reader is referred to the more
+exhaustive reviews of [ Lázaro2012 ] and [ Rasmussen2006 ] for further
+information.
+
+Given a set of @xmath -dimensional inputs @xmath and their corresponding
+scalar outputs @xmath , for the dataset @xmath , the regression task
+obtains the predictive distribution for the corresponding observation
+@xmath based on @xmath , given a new input @xmath .
+
+The GP model assumes that the observations can be modelled as some
+noiseless latent function of the inputs in addition to an independent
+noise, @xmath , and then specifies a zero-mean GP for both the latent
+function @xmath @xmath @xmath and the noise @xmath , where @xmath is a
+covariance function, and @xmath is a hyper-parameter that specifies the
+noise power.
+
+The covariance function @xmath specifies the degree of coupling between
+@xmath and @xmath , and encodes the properties of the GP, such as the
+power level and smoothness. One of the best-known covariance functions
+is the anisotropic-squared exponential, which has the form of an
+unnormalized Gaussian function, @xmath , and depends on the signal power
+@xmath and length scales @xmath , where @xmath is a diagonal matrix
+containing one length scale per input dimension. Each length scale
+controls the degree to which the correlation between outputs decay as
+the separation along the corresponding input dimension grows. All kernel
+parameters are collectively referred as @xmath .
+
+The joint distribution of the available observations (collected in
+@xmath ) and some unknown outputs @xmath form a multivariate Gaussian
+distribution, with parameters specified by the covariance function
+
+  -- -- -- -------
+           (1.5)
+  -- -- -- -------
+
+where @xmath , @xmath and @xmath . Here, @xmath is used to denote the
+identity matrix of size @xmath . The notation @xmath refers to the entry
+at row @xmath , column @xmath of @xmath . Likewise, @xmath is used to
+reference the @xmath -th element of vector @xmath .
+
+From ( 1.5 ) and the conditioning on the observed training outputs, the
+predictive distribution is obtained as
+
+  -- -------- -- -------
+     @xmath      (1.6)
+  -- -------- -- -------
+
+which is computed @xmath times, due to the inversion of the @xmath
+matrix @xmath .
+
+The hyper-parameters @xmath are typically selected by maximizing the
+marginal likelihood (also called “evidence”) of the observations, which
+is
+
+  -- -------- --
+     @xmath
+  -- -------- --
+
+  -- -------- -- -------
+     @xmath      (1.7)
+  -- -------- -- -------
+
+If analytical derivatives of ( 1.7 ) are available, optimization is
+carried out using gradient methods, with each gradient computed @xmath
+times. GPs regression algorithms can typically handle a few thousand
+data points on a desktop computer.
+
+###### Support Vector Regression
+
+SVR [ Smola2004 ] is one of the state-of-the-art algorithms for
+regression and function approximation. The SVR approach takes into
+account the error approximation to the data and also the generalization
+of the model, i.e. its capability to improve the prediction of the model
+when a new dataset is evaluated by it. Although there are several
+versions of the SVR, the classical model, @xmath -SVR, described in
+detail in [ Smola2004 ] and used in a large number of application in
+Science and Engineering [ Salcedo2014b ] , is considered in this work.
+
+The @xmath -SVR method for regression consists of, given a set of
+training vectors @xmath , where @xmath stands for a vector of predictive
+variables, and @xmath is the target associated to the input, training a
+model of the form
+
+  -- -------- -- -------
+     @xmath      (1.8)
+  -- -------- -- -------
+
+where @xmath stands for an estimation of @xmath , in such a way that a
+risk function is minimized. This risk function can be written as:
+
+  -- -------- -- -------
+     @xmath      (1.9)
+  -- -------- -- -------
+
+where the norm of @xmath controls the smoothness of the model, @xmath is
+a function of projection of the input space to the feature space, @xmath
+is a parameter of bias, and @xmath is the loss function selected. In
+this thesis, the L1-SVRr is used (L1 support vector regression),
+characterized by an @xmath -insensitive loss function [ Smola2004 ] :
+
+  -- -------- -- --------
+     @xmath      (1.10)
+  -- -------- -- --------
+
+In order to train this model, it is necessary to solve the following
+optimization problem [ Smola2004 ] :
+
+  -- -------- -- --------
+     @xmath      (1.11)
+  -- -------- -- --------
+
+subject to
+
+  -- -------- -- --------
+     @xmath      (1.12)
+  -- -------- -- --------
+
+  -- -------- -- --------
+     @xmath      (1.13)
+  -- -------- -- --------
+
+  -- -------- -- --------
+     @xmath      (1.14)
+  -- -------- -- --------
+
+Figure 1.3 shows and example of the final solution for a given input
+variables. The dual form of this optimization problem is usually
+obtained through the minimization of the Lagrange function, constructed
+from the objective function and the problem constraints. In this case,
+the dual form of the optimization problem is the following:
+
+  -- -------- --
+     @xmath
+  -- -------- --
+
+  -- -------- -- --------
+     @xmath      (1.15)
+  -- -------- -- --------
+
+subject to
+
+  -- -------- -- --------
+     @xmath      (1.16)
+  -- -------- -- --------
+
+  -- -------- -- --------
+     @xmath      (1.17)
+  -- -------- -- --------
+
+In addition to these constraints, the Karush-Kuhn-Tucker conditions must
+be fulfilled, and also the bias variable, @xmath , must be obtained. The
+interested reader can consult [ Smola2004 ] for reference. In the dual
+formulation of the problem the function @xmath is the kernel matrix,
+which is formed by the evaluation of a kernel function, equivalent to
+the dot product @xmath . A usual election for this kernel function is a
+Gaussian function, as follows:
+
+  -- -------- -- --------
+     @xmath      (1.18)
+  -- -------- -- --------
+
+The final form of function @xmath depends on the Lagrange multipliers
+@xmath , as follows:
+
+  -- -------- -- --------
+     @xmath      (1.19)
+  -- -------- -- --------
+
+So finally, the estimation of the target under study will be carried out
+using the following expression:
+
+  -- -------- -- --------
+     @xmath      (1.20)
+  -- -------- -- --------
+
+In this way it is possible to obtain a SVR model by means of the
+training of a quadratic problem for a given hyper-parameters @xmath ,
+@xmath and @xmath . The estimation of these SVR hyper-parameters is a
+process usually carried out before the training of the algorithm. There
+are different methods to obtain @xmath , @xmath and @xmath , but the
+most common approach consists of a Grid Search ( GS ) procedure. GS
+exhaustively considers all parameters combinations from a grid of
+possible pre-defined values. The quality of the SVR with these
+hyper-parameters’ values is tested on a reduced validation set of data
+from the problem at hand. More information about GS and alternative
+techniques for SVR hyper-parameters estimation can be found in [
+Smola2004 ] . A variant of the GS approach that includes lower and upper
+bounds to limit the tested values of the hyper-parameters can be used.
+This method was proposed in [ Ortiz2009 ] , and it is able to
+considerably reduce the time for hyper-parameters estimation with GS,
+without affecting the quality of the SVR.
+
+##### 1.2.2 Evolutionary Computation-based Algorithms
+
+EC algorithms are used for solving continuous optimization challenges,
+working in discrete and search spaces. They are used also in features
+selection to improve the performance of the predictions in regression
+problems. All genetic and EAs are based on the evolution of the
+population of candidate solutions by applying a series of evolutionary
+operators. Part of this PhD. Thesis is based on the application of this
+kind of techniques, hence the explanation of different approaches will
+be carried out in the following points.
+
+###### The Grouping Genetic Algorithm
+
+There are many potential benefits for applying Feature Selection ( FS )
+in prediction problems: facilitating data visualization and data
+understanding, reducing the measurement and storage requirements,
+reducing training and utilization times or defying the curse of
+dimensionality to improve prediction performance, to mention some of
+them. Previous literature on this issue mainly focus on constructing and
+selecting subsets of features that are useful to build a good predictor.
+This process has been tackled before with EC [ Salcedo2002 ,
+Salcedo2014a ] . The GGA is a class of evolutionary algorithm especially
+modified to tackle grouping problems, i.e., problems in which a number
+of items must be assigned to a set of predefined groups (subsets of
+features, in the case of this work). It was first proposed by Falkenauer
+[ Falkenauer1992 , Falkenauer1998 ] , who realized that traditional GAs
+had difficulties when they were applied to grouping problems (mainly,
+the standard binary encoding increases the space search size in this
+kind of problem). The GGA has shown very good performance on different
+applications and problems [ Agustín2008 , De-Lit2000 ] . In the GGA, the
+encoding, crossover and mutation operators of traditional GA s are
+modified to obtain a compact algorithm with very good performance in
+grouping problems.
+
+###### Problem encoding
+
+The GGA initially proposed by Falkenauer is a variable-length GA. The
+encoding is carried out by separating each individual in the algorithm
+into two parts: the first one is an assignment part that associates each
+item to a given group. The second one is a group part, that defines
+which groups must be taken into account for the individual. In problems
+where the number of groups is not previously defined, it is easy to see
+why this is a variable-length algorithm: the group part varies from one
+individual to another. In the implementation of the GGA for FS , an
+individual @xmath has the form @xmath . An example of an individual in
+the proposed GGA for a FS problem, with 20 features and 4 groups, is the
+following:
+
+1 1 2 3 1 4 1 4 3 4 4 1 2 4 4 2 3 1 3 2 @xmath 1 2 3 4
+
+where the group 1 includes features @xmath , group 2 features @xmath ,
+group 3 features {4,9,17,19} and finally group 4 includes features
+@xmath .
+
+###### Genetic operators
+
+Tournament-based selection mechanism is usually used, similar to the one
+described in [ Yao1999 ] . It has been shown to be one of the most
+effective selection operators, avoiding super-individuals and performing
+a excellent exploration of the search space. Regarding the crossover
+operator, it is implemented in the GGA as a modified version of the
+initially proposed by Falkenauer [ Falkenauer1992 , Falkenauer1998 ] .
+The process to apply this operator follows the process outlined in
+Figure 1.4 :
+
+-   Choose two parents from the current population, at random.
+
+-   Randomly select two points for the crossover, from the “Groups” part
+    of parent 1, then, all the groups between the two cross-points are
+    selected. In the example of Figure 1.4 the two crossover points are
+    @xmath and @xmath . Note that, in this case the items of parent1
+    belonging to group @xmath and @xmath are 1, 2, 4, 5, and 6.
+
+-   Insert the selected section of the “Groups” part into the second
+    parent. After the insertion in the example of Figure 1.4 , the
+    assignment of the nodes 1, 2, 4, 5 and 6 of the offspring individual
+    will be those of parent 1, while the rest of the nodes’ assignment
+    are those of parent 2. The “Groups” part of the offspring individual
+    is that of parent 2 plus the selected section of parent 1 (8 groups
+    in total, in this case).
+
+-   Modify the “Groups” part of the offspring individual with their
+    corresponding number. In the example, @xmath = 1   2   3   4   5   6
+      1   2 is modified into @xmath = 1   2   3   4   5   6   7   8.
+    Modify also the assignment part accordingly.
+
+-   Remove any empty groups in the offspring individual. In the example
+    considered, it is found that groups 1, 2, 3, and 6 are empty, these
+    groups’ identification number are eliminated and the rest are
+    rearranged. The final offspring is then obtained.
+
+Regarding mutation operator, note that standard mutation usually calls
+for an alteration of a small percentage of randomly selected parts of
+the individuals. This type of mutation may be too disruptive in the case
+of a grouping problem. In this case, a swapping mutation in which two
+items are interchanged (swapping this way the assignment of features to
+different groups), is taken into account. This procedure is carried out
+with a very low probability to avoid increasing of the random search in
+the process.
+
+###### The Coral Reef Optimization
+
+The CRO is a novel meta-heuristic approach for optimization, recently
+proposed in [ Salcedo2014c ] , which is based on simulating the corals’
+reproduction and coral reefs’ formation processes. Basically, the CRO is
+based on the artificial modeling of a coral reef @xmath , consisting of
+a @xmath grid. It is assumed that each square (i,j) of @xmath is able to
+allocate a coral @xmath . Note that each of such corals represents a
+solution to a given optimization problem, for which it is encoded as a
+string of numbers, spanning a given alphabet @xmath . The CRO algorithm
+is first initialized at random by assigning some squares in @xmath to be
+occupied by corals (i.e. solutions to the problem) and some other
+squares in the grid to be empty, i.e. holes in the reef where new corals
+can freely settle and grow in the future. The rate between free/occupied
+squares in @xmath at the beginning of the algorithm is denoted as @xmath
+and referred to as initial occupation factor. Each coral is labeled with
+an associated health function @xmath that corresponds to the problem’s
+objective function. The CRO is based on the fact that the reef will
+evolve and develop as long as healthier or stronger corals (which
+represent better solutions to the problem at hand) survive, while less
+healthy corals perish.
+
+After the reef initialization described above, the phase of reef
+formation is artificially simulated. This phase consists of K
+iterations: at each of such iterations the corals’ reproduction in the
+reef is emulated by applying different operators and processes as
+described in Algorithm 1 : a modeling of corals’ sexual reproduction
+(broadcast spawning and brooding).
+
+After the reproduction stage, the set of formed larvae (namely, newly
+produced solutions to the problem) attempts to find a place on the reef
+to develop and further reproduce. This deployment may occur in a free
+space inside the reef (hole), or in an occupied location, by fighting
+against the coral currently settled in that place. If larvae are not
+successful in locating a place to settle after a number of attempts,
+they are considered as preyed by animals in the reef. The coral builds a
+new reef layer in every iteration.
+
+0: Valid values for the parameters controlling the CRO algorithm
+
+0: A single feasible individual with optimal value of its fitness
+
+1: Initialize the algorithm
+
+2: for each iteration of the simulation do
+
+3: Update values of influential variables: predation probability, etc.
+
+4: Sexual reproduction processes (broadcast spawning and brooding)
+
+5: Settlement of new corals
+
+6: Predation process
+
+7: Evaluate the new population in the coral reef
+
+8: end for
+
+9: Return the best individual (final solution) from the reef
+
+Algorithm 1 Pseudo-code for the CRO algorithm
+
+The specific definition of the different operators that form the
+classical CRO algorithm is detailed here:
+
+1.   Sexual reproduction : The CRO model implements two different kinds
+    of sexual reproduction: external and internal.
+
+    1.   External sexual reproduction or broadcast spawning : the corals
+        eject their gametes to the water, from which male-female couples
+        meet and combine together to produce a new larva by sexual
+        crossover. In Nature, some species are able to combine their
+        gametes to generate mixed polyps even though they are different
+        from each other. In the CRO algorithm, external sexual
+        reproduction is applied to a usually high fraction @xmath of the
+        corals. The couple selection can be done uniformly at random or
+        by resorting to any fitness proportionate selection approach
+        (e.g. roulette wheel). In the original version of the CRO,
+        standard crossover (one point or two-points) are applied in the
+        broadcast spawning process.
+
+    2.   Internal sexual reproduction or brooding : CRO applies this
+        method to a fraction @xmath of the corals in the reef. The
+        brooding process consists of the formation of a coral larva by
+        means of a random mutation of the brooding-reproductive coral
+        (self-fertilization considering hermaphrodite corals). The
+        produced larvae is then released out to the water in a similar
+        fashion than that of the larvae generated through broadcast
+        spawning.
+
+2.   Larvae settlement : once all larvae are formed at iteration @xmath
+    through reproduction, they try to settle down and grow in the reef.
+    Each larva will randomly attempt at setting in a square @xmath of
+    the reef. If the location is empty (free space in the reef), the
+    coral grows therein no matter the value of its health function. By
+    contrast, if another coral is already occupying the square at hand,
+    the new larva will set only if its health function is better than
+    the fitness of the existing coral. A number of attempts @xmath for a
+    larva to set in the reef is defined: after @xmath unsuccessful
+    tries, it will not survive to following iteration.
+
+3.   Depredation : corals may die during the reef formation phase of the
+    reef. At the end of each iteration, a small number of corals can be
+    preyed, thus liberating space in the reef for the next iteration.
+    The depredation operator is applied under a very small probability
+    @xmath , and exclusively to a fraction @xmath of the worse health
+    corals.
+
+#### 1.3 Structure of the thesis
+
+The rest of this thesis is organized in two technical parts:
+
+1.  First, proposed contributions with numerical results in renewable
+    energy problems is structured in two chapters: Ocean wave features
+    prediction, and WPREs prediction.
+
+2.  The next part, proposed contributions with numerical results in
+    facilities management is divided in two other chapters: Accurate
+    estimation of @xmath with SVR and marine radar images, and efficient
+    prediction of low-visibility events at airports.
+
+To conclude, some final remarks and future research lines are summarize
+in the last part of the document, with the list of publications shown in
+a final Appendix section.
+
+## Part II Proposed contributions with numerical results in renewable
+energy problems
+
+### Chapter 2 Ocean wave features prediction
+
+#### 2.1 Introduction
+
+The exploitation of marine energy resources is currently a hot topic in
+renewable energy research, since they have shown a clear potential for
+sustainable growth [ Defne2009 , García2014 , Lenee2011 , López2013 ,
+Rusu2009 , Rusu2012 , Gonçalves2014 ] : marine energy resources do not
+generate CO @xmath , are potentially able to convert part of the huge
+energy of oceans into electricity [ Arinaga2012 , Esteban2012 ] , and
+reduce oil imports, a crucial geo-economical issue. However, in spite of
+this potential, the use of marine energy sources is nowadays still minor
+at global level. In spite of this, wave energy plays a key role for
+sustainable development in several offshore islands because it provides
+not only technical and economical benefits (to satisfy the demands of
+clean electricity) but also without significant environmental impact, a
+key concern in offshore islands, committed to the protection of
+ecological systems [ Fadaeenejad2014 ] . Some interesting reviews of the
+most important issues involved in the generation of electricity from
+oceans (including converters, their related economical aspects, and the
+potential of a number of ocean regions to be exploited worldwide) can be
+found in [ Bahaj2011 , Chong2013 , Kim2012 , Hammar2012 , Cuadra2016 ] .
+
+There are different technologies that can be considered within marine
+energy resources, including ocean wave, tidal and ocean thermal. This
+work is focused on wave energy, that uses WECs to convert ocean energy
+into electricity [ Falcão2010 , Cuadra2016 ] . WECs transform the
+kinetic energy of wind-generated waves into electricity by means of
+either the vertical oscillation of waves or the linear motion of waves,
+and exhibit some important advantages when compared to alternatives
+based on tidal converters. However, waves are more difficult to
+characterize than tides, because of their stochastic nature. As a
+consequence of this complexity, both the design, deployment, and control
+of WECs [ Hong2014 , Richter2013 ] become key topics that require a
+proper characterization and prediction of waves [ Larsén2015 ,
+Reikard2015 , Wimmer2006 ] . Maybe, the two most important wave
+parameters in this regard to characterize wave energy is the @xmath and
+the Wave Energy Flux ( @xmath ), in which prediction this chapter is
+focused on.
+
+As mentioned, waves’ stochastic nature makes very difficult the
+prediction of wave energy resource, so the research work on this topic
+has been intense in the last few years. Focusing on ML approaches, one
+of the first algorithms proposed to predict @xmath is due to Deo et al.
+[ Deo1998 ] , who use ANN to obtain an accurate prediction of @xmath .
+Improvements on this prediction system were presented in a more recent
+work [ Agrawal2004 ] . NN have also been applied to other problems of
+@xmath and @xmath prediction, such as [ Tsai2002 ] , where @xmath and
+@xmath are predicted from observed wave records using time series NN, [
+Castro2014 ] , where a neural network is applied to estimate the wave
+energy resource in the northern coast of Spain, or [ Zanaganeh2009 ] ,
+where a hybrid GA-adaptive network-based fuzzy inference system model
+was developed to forecast @xmath and the peak spectral period at Lake
+Michigan. Alternative proposals based on different approaches have been
+recently proposed like in [ Mahjoobi2008 ] , where different SC
+techniques are tested for @xmath prediction, [ Mahjoobi2009 ] where a
+SVR methodology is considered, [ Fernández2015 ] where different
+classifiers have been applied to analyze and predict @xmath and @xmath
+ranges in buoys for marine energy applications, [ Nitsure2012 ] , that
+propose the use of genetic programming for @xmath reconstruction
+problems or [ Özger2011 ] , where Fuzzy Logic ( FL )-based approaches
+were introduced for @xmath prediction problems.
+
+In spite of this huge work dealing with ML algorithms in @xmath and
+@xmath prediction, there are not previous studies focussed on analyzing
+what are the best predictive variables to obtain an accurate prediction
+of these important parameters from neighbour buoys data. This problem is
+usually known in the ML community as FS [ Weston2000 ] , and it is an
+important task in supervised classification and regression problems. The
+reason for this is that irrelevant features, used as part of a training
+procedure in a classification or regression machine, can unnecessarily
+increase the cost and running time of a prediction system, as well as
+degrade its generalization performance [ Blum1997 , Salcedo2002 ] . In
+this thesis a novel hybrid GGA–ELM for accurate prediction of @xmath and
+@xmath values is proposed. The GGA is a recently proposed algorithm
+especially modified to tackle grouping problems [ Falkenauer1992 ,
+Falkenauer1998 ] . In this case it is focussed on obtaining the best set
+of features (predictive variables) for the regressor machine (ELM). It
+will be shown how the GGA is able to produce different sets of good
+predictive variables for this problem, and how the ELM is able to obtain
+excellent @xmath or @xmath prediction from them. An experimental
+analysis of the proposed hybrid GGA-ELM approach in a real case of
+@xmath and @xmath prediction in buoys at the Western coast of the USA
+will be carried out. The application of alternative regression
+techniques such as SVR have been also analyzed in these experiments.
+Moreover, because of this hybrid prediction system has a number of
+parameters that may affect its final performance and they need to be
+previously specified by the practitioner, an automatic fine tuning of
+the prediction system’s parameters is added to the study. In this case,
+the parameters of GGA-ELM approach include the probability of mutation
+in the GGA or the number of neurons in the ELM hidden layer, among
+others. It is proposed then to use a Bayesian Optimization ( BO )
+approach to automatically optimize the parameters of the whole
+prediction system (GGA-ELM), with the aim of improving its performance
+in wave energy prediction problems. BO has been shown to obtain good
+results in the task of obtaining good parameter values for prediction
+systems [ Snoek2012 ] .
+
+The rest of the chapter is structured in the following parts: Section
+2.2 where the calculation of @xmath and @xmath is done, Section 2.3 that
+presents the prediction system considered, Section 2.4 which addresses
+the explanation of the BO method, Section 2.5 that summarizes the
+experiments and results obtained and Section 2.6 that completes the
+study with some final remarks.
+
+#### 2.2 Wave energy resource: calculation of @xmath and @xmath
+
+In the evaluation of wave energy deployment systems such as WECs or WECs
+arrays, it is essential to previously characterize as accurately as
+possible the amount of wave energy available in a particular location,
+given by parameters such as @xmath and @xmath . In order to obtain these
+parameters, note that the wave energy resource in a region is caused by
+both local and far winds blowing over the ocean surface, which
+transports the wave energy. Focusing thus the attention on the water
+surface, and within the framework of the linear wave theory, the
+vertical wave elevation, @xmath , at a point @xmath on the sea surface
+at time @xmath can be assumed as a superposition of different
+monochromatic wave components [ Nieto2013 , Goda2010 ] . This model is
+appropriate when the free wave components do not vary appreciably in
+space and time (that is, statistical temporal stationarity and spatial
+homogeneity can be assumed [ Goda2010 ] ).
+
+In this model, the concept of “sea state” refers to the sea area and the
+time interval in which the statistical and spectral characteristics of
+the wave do not change considerably (statistical temporal stationarity
+and spatial homogeneity). The total energy of a sea state is the
+combined contribution of all energies from different sources. The “wind
+sea” occurs when the waves are caused by the energy transferred between
+the local wind and the free surface of the sea. The “swell” is the
+situation in which the waves have been generated by winds blowing on
+another far area (for instance, by storms), and propagate towards the
+region of observation. Usually, sea states are the composition of these
+two pure states, forming multi-modal or mixed seas.
+
+In a given sea state, the wave elevation @xmath with respect to the mean
+ocean level can be assumed as a zero-mean Gaussian stochastic process ,
+with statistical symmetry between wave maxima and minima. A buoy
+deployed at point @xmath can take samples of this process, @xmath @xmath
+, generating thus a time series of empirical vertical wave elevations.
+The Discrete Fourier Transform ( DFT ) of this sequence, using the Fast
+Fourier Transform ( FFT ) algorithm, allows for estimating the spectral
+density @xmath . Its spectral moments of order @xmath can be computed as
+follows:
+
+  -- -------- -- -------
+     @xmath      (2.1)
+  -- -------- -- -------
+
+The @xmath is a first indicator of the amount of wave energy available
+in a given area. @xmath , or power density per meter of wave crest [
+Cahill2013 ] can be computed as
+
+  -- -------- -- -------
+     @xmath      (2.2)
+  -- -------- -- -------
+
+where @xmath is the sea water density (1025 kg/m @xmath ), @xmath the
+acceleration due to gravity, @xmath is the spectral estimation of the
+@xmath , and @xmath is an estimation of the mean wave period, normally
+known as the period of energy, which is used in the design of turbines
+for wave energy conversion. Expression ( 2.2 ) (with @xmath in meters
+and @xmath in seconds) leads to @xmath kW/m, and helps engineers
+estimate the amount of wave energy available when planning the
+deployment of WECs at a given location.
+
+#### 2.3 The hybrid prediction system considered
+
+The prediction system is a hybrid wrapper approach, formed by the GGA
+(explained in depth in Section 1.2.2 ) for FS and the ELM to carry out
+the final prediction of @xmath or @xmath from a set of input data. The
+regressor chosen must be as accurate as possible, and also very fast in
+its training process, in order to avoid high computational burden for
+the complete algorithm. This is the main reason why the ELM is selected
+for the fitness function as well, and whose explanation is carried out
+in detail in Section 1.2.1 . Since the ELM is hybridized with the GGA,
+there are different ways of calculating the final fitness associated
+with each individual. In this case the following fitness function is
+considered, that uses a measure of the Root Mean Squared Error ( RMSE )
+of the prediction for the best group of features in the GGA:
+
+  -- -------- -- -------
+     @xmath      (2.3)
+  -- -------- -- -------
+
+where @xmath stands for the @xmath or @xmath measured for sample @xmath
+, and @xmath stands for the @xmath or @xmath estimated by the ELM in the
+group of the individual with less error (best group of features), for
+sample @xmath . Note that @xmath stands for the number of training
+samples.
+
+#### 2.4 Bayesian optimization of the prediction system
+
+Every ML algorithm or prediction system has its own set of parameters
+that must be adjusted to obtain an optimal performance. An example is a
+deep neural network in which one has to specify parameters such as the
+learning rate, the number of layers, the number of neurons in each
+layer, etc. [ LeCun2015 ] . Another example is stochastic gradient
+boosting in which one has to choose the number of terminal nodes in the
+ensemble trees, the number of trees, the regularization parameter, etc.
+[ Friedman2002 ] . In the particular setting in this study, in an ELM
+the number of units in the hidden layer has to be specified before
+training; and in the GA described in Section 1.2.2 , the probability of
+mutation and the number of epochs must be known initially.
+
+Changing the parameter values of a prediction system may have a strong
+impact in its performance. Parameter tuning is hence defined as the
+problem of finding the optimal parameter values of a prediction system
+on the problem considered. This task has traditionally been addressed by
+human experts, which often use prior knowledge to specify parameter
+values that are expected to perform well. However, such an approach can
+suffer from human bias. An alternative solution is to consider a grid or
+uniform search in the space of parameters to look for values that result
+in a good performance on a validation set. These methods, however,
+suffer when the dimensionality of the parameter space is very high [
+Bergstra2012 ] , requiring a large number of parameter evaluations.
+
+BO has emerged as practical tool for parameter selection in prediction
+systems. These methods provide an efficient alternative to a grid or
+uniform search of the parameter space [ Snoek2012 ] . Assume that the
+surface defined by the error of a prediction system that depends on some
+parameters is smooth. In that case, a search through the parameter space
+according to a criterion that exploits this smoothness property and
+avoids exhaustive exploration can be done. More precisely, BO methods
+are very useful for optimizing black-box objective functions that lack
+an analytical expression (which means no gradient information), are very
+expensive to evaluate, and in which the evaluations are potentially
+noisy [ Mockus1978 , Brochu2010 , Shahriari2016 ] . The performance of a
+prediction system on a randomly chosen validation set, when seen as a
+function of the chosen parameters, has all these characteristics.
+
+Consider a black-box objective @xmath with noisy evaluations of the form
+@xmath , with @xmath some noise term. BO methods are very successful at
+reducing the number of evaluations of the objective function needed to
+solve the optimization problem. At each iteration @xmath of the
+optimization process, these methods fit a probabilistic model, typically
+a GP to the observations of objective function @xmath collected so far.
+The uncertainty about the objective function provided by the GP is then
+used to generate an acquisition function @xmath , whose value at each
+input location indicates the expected utility of evaluating @xmath
+there. The next point @xmath at which to evaluate the objective @xmath
+is the one that maximizes @xmath . Importantly, @xmath only depends on
+the probabilistic model and can hence be evaluated with very little
+cost. Thus, this function can be maximized very quickly using standard
+optimization techniques. This process is repeated until enough data
+about the objective has been collected. When this is the case, the GP
+predictive mean for @xmath can be optimized to find the solution of the
+optimization problem. Algorithm 2 shows the details of such a process.
+
+The key for BO success is that evaluating the acquisition function
+@xmath is very cheap compared to the evaluation of the actual objective
+@xmath , which in this case requires re-training the prediction system.
+This is so because the acquisition function only depends on the GP
+predictive distribution for @xmath at a candidate point @xmath . Let the
+observed data until step @xmath of the algorithm be @xmath . The GP
+predictive distribution for @xmath is given by a Gaussian distribution
+characterized by a mean @xmath and a variance @xmath . These values are:
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (2.4)
+     @xmath   @xmath      (2.5)
+  -- -------- -------- -- -------
+
+where @xmath is a vector with the objective values observed so far;
+@xmath is a vector with the prior covariances between @xmath and each
+@xmath ; @xmath is a matrix with the prior covariances among each @xmath
+, for @xmath ; and @xmath is the prior variance at the candidate
+location @xmath . All these quantities are obtained from a covariance
+function @xmath which is pre-specified and receives as an input two
+points, @xmath and @xmath , at which the covariance between @xmath and
+@xmath has to be evaluated. A typical covariance function employed for
+BO is the Matérn function [ Snoek2012 ] . For further details about GPs
+the reader is referred to [ Rasmussen2006 ] .
+
+Thus, BO methods typically look for the best position very carefully to
+evaluate next the objective function with the aim of finding its optimum
+with the smallest number of evaluations. This is a very useful strategy
+when the objective function is very expensive to evaluate and it can
+save a lot of computational time. Three steps of the BO optimization
+process are illustrated graphically in Figure 2.1 for a toy minimization
+problem.
+
+Figure 2.1 shows a GP estimation of the objective @xmath over three
+iterations. The acquisition function is shown in the lower part of the
+plot. The acquisition is high where the GP predicts a low objective and
+where the uncertainty is high. Those regions in which it is unlikely to
+find the global minimum of @xmath have low acquisition values and will
+not be explored.
+
+Unlike BO methods, grid or uniform search strategies are based in a pure
+exploration of the search space. If the assumption that the objective
+function is smooth is made, doing a few evaluations in regions of the
+input space that look more promising (exploitation) is expected to give
+better results. In BO methods the acquisition function @xmath balances
+between exploration and exploitation in an automatic way. An example of
+an acquisition function is Expected Improvement ( EI ) [ Jones1998 ] .
+EI is obtained as the expected value under the GP predictive
+distribution for @xmath , of the utility function @xmath , where @xmath
+is the best value observed so far. That is, EI measures on average how
+much the current best solution by evaluating the objective at each
+candidate point will be improved on. An advantage of EI is that the
+corresponding acquisition function @xmath can be computed analytically:
+@xmath , where @xmath and @xmath and @xmath are respectively the c.d.f.
+and p.d.f. of a standard Gaussian. EI is the acquisition function
+displayed in Figure 2.1 .
+
+BO has been recently applied with success in different prediction
+systems for finding good parameter values. For example, it has been used
+to find the parameters of topic models based on latent Dirichlet
+allocation, Support Vector Machine ( SVM ), or deep convolutional NN [
+Snoek2012 ] . Furthermore, BO methods have also been used to optimize a
+logistic regression model for labelling Amazon product reviews [
+Dewancker2016 ] , or to optimize the weights of a neural network to
+balance vertical poles and lengths on a moving cart [ Frean2008 ] .
+Another applications of BO are found in the field of environmental
+monitoring, in the task of adjusting the parameters of a control system
+for robotics, in the optimization of recommender systems, and in
+combinatorial optimization [ Brochu2010 , Shahriari2016 ] . Finally, BO
+methods has been implemented in different software packages. An
+implementation in python is called Spearmint and is available at [
+Github ] , which is the BO implementation used in this work.
+
+#### 2.5 Experiments and results
+
+This section describes some experiments with the aim of showing the
+improvements obtained in the performance of the prediction system when
+its parameters are optimized with the Bayesian techniques introduced
+before. A real problem of @xmath prediction ( @xmath kW/m, [ Goda2010 ]
+) from marine buoys is considered. Figure 2.2 shows the three buoys
+considered in this study at the Western coast of the USA, whose data
+bases are obtained from [ NOAA2016 ] , and their main characteristics
+are shown in Table 2.1 . The objective of the problem is to carry out
+the reconstruction of buoy 46069 from a number of predictive variables
+from the other two buoys. Thus, 10 predictive variables measured at each
+neighbor buoy are considered (a total of 20 predictive variables to
+carry out the reconstruction). Table 2.2 shows details of the predictive
+variables for this problem. Data for two complete years (1st January
+2009 to 31st December 2010) are used, since complete data (without
+missing values in predictive and objective @xmath ) are available for
+that period in the three buoys. These data are divided into training set
+(year 2009) and test set (year 2010) to evaluate the performance of the
+proposed algorithm.
+
+This experimental section is divided into two different subsections.
+First, the performance of the BO techniques proposed in the optimization
+of the specific GGA-ELM prediction algorithm is shown. Second, it will
+presented how the prediction performance is improved when the system is
+run with the parameters obtained by the BO techniques, i.e. by comparing
+the performance of the system before and after tuning the parameters
+with BO.
+
+##### 2.5.1 Methodology
+
+The utility of the BO techniques described in Section 2.4 , for finding
+good parameters for the prediction system described in Section 2.3 ,
+will be evaluated. More precisely, the parameters that minimize the RMSE
+of the best individual found by the GGA on a validation set that
+contains @xmath of the total data available will be tried to find. The
+parameters of the GGA that are adjusted are the probability of mutation
+@xmath , the percentage of confrontation in the tournament @xmath , and
+the number of epochs @xmath . On the other hand, the parameters of the
+ELM that is used to evaluate the fitness in the GGA are also adjusted.
+These parameters are the number of hidden units @xmath and the logarithm
+of the regularization constant of a ridge regression estimator, that is
+used to find the weights of the output layer @xmath . Note that a ridge
+regression estimator for the output layer weights allows for a more
+flexible model than the standard ELM, as the standard ELM is retrieved
+when @xmath is negative and large [ Albert1972 ] .
+
+The BO method is compared with two techniques. The first technique is a
+random exploration of the space of parameters. The second technique is a
+configuration specified by a human expert. Namely, @xmath , @xmath ,
+@xmath , @xmath and @xmath . These are reasonable values that are
+expected to perform well in the specific application tackled. The
+computational budget to @xmath different parameter evaluations is set
+for both the BO and the random exploration strategy. After each
+evaluation, the performance of the best solution found is reported. The
+experiments are repeated for @xmath different random seeds and average
+results are informed. All BO experiments are carried out using the
+acquisition function EI and the software for BO Spearmint.
+
+##### 2.5.2 Results I: Bayesian optimization of the wave energy
+prediction system parameters
+
+Figures 2.3 and 2.4 show the average results obtained and the
+corresponding error bars for the task of predicting the @xmath and the
+task of predicting the wave height, respectively. Each figure shows the
+average RMSE of each method (BO and random exploration) on the
+validation set as a function of the number of configurations evaluated.
+The performance of the configuration specified by a human expert is also
+shown. It can be observed that the BO strategy performs best in each
+setting. In particular, after a few evaluations the BO method is able to
+outperform the results of the human expert and it provides results that
+are similar or better than the ones obtained by the random exploration
+strategy with a smaller number of evaluations.
+
+##### 2.5.3 Results II: Estimation of the generalization performance
+
+In a second round of experiments, the performance of the proposed
+prediction system after its optimization with the BO methodology is
+shown. Note that, after the FS process with the GGA-ELM approach, an ELM
+and a SVR [ Smola2004 , Salcedo2014b ] to obtain the final prediction of
+the @xmath and the @xmath are used.
+
+Table 2.3 shows the results obtained for the experiments carried out. It
+can be observed the comparison between ELM and SVR approaches in
+different scenarios: the prediction obtained with all the features, the
+prediction obtained with the hybrid algorithm GGA-ELM (without BO
+methodology), and finally the prediction acquired after the application
+of the BO process in the GGA-ELM approach. As Table 2.3 summarizes, it
+is easy to see how the hybrid GGA-ELM algorithm improves the results
+obtained by the ELM and SVR approaches (without FS). In fact, the SVR
+algorithm improves the values of the Pearson’s Correlation Coefficient (
+@xmath ) around 75% in the case of the FS method, against the poor 31%
+when all features are used. Moreover, these results are improved by
+means of the BO methodology, using ELM and SVR approaches after the
+GGA-ELM. In the case of the ELM, values of the @xmath around 77% against
+the 71% achieved with the GGA-ELM algorithm without the BO improvement
+are obtained. The same behavior is get for the SVR algorithm: values
+around 78% with the application of the BO methodology against the 75%
+obtained for the GGA-ELM approach when the parameters are fixed by a
+human expert. In addition, the reader can comparer the results with
+other measurement of the accuracy, the Mean Absolute Error ( MAE ).
+
+The results of the previous tables can be better visualized in the
+following graphics. In Figure 2.5 the temporary predictions carried out
+by the ELM and SVR approaches are shown. It can be seen how the cases
+(c) and (d) improve the approximation to the real values against the
+cases (a) and (b) where the BO methodology is not applied. The same
+situation can be seen in Figure 2.6 , where the scatter plots are
+presented for the results obtained with and without the BO methodology.
+
+The same procedure is carried out in the case of the @xmath . Table 2.4
+compares the results obtained in the different experiments. As it can be
+seen, the results are improved with the use of the BO methodology with
+values of the @xmath around 74% for the ELM and SVR predictions, against
+the 66% and 39% achieved for the ELM and SVR, respectively, with all
+features. The GGA-ELM algorithm improves these last results, but they
+are not so good like when the BO methodology is used. In Figures 2.7 the
+temporary predictions for the GGA-ELM-ELM, GGA-ELM-SVR, BO-GGA-ELM-ELM
+and BO-GGA-ELM-SVR are shown. The same is done for the scatter plots,
+whose Figures 2.8 , present the results mentioned above.
+
+In both predictions ( @xmath and @xmath ) the BO methodology improves
+the results, for this reason the generality of the proposed method can
+be highlighted.
+
+#### 2.6 Conclusions
+
+In this paper it has been shown how a hybrid prediction system for wave
+energy prediction can be improved by means of BO methodology. The
+prediction system is formed by a grouping GA for FS, and an ELM for
+effective prediction of the target variable, the @xmath and the @xmath
+in this case. After this FS process, the final prediction of the target
+is obtained by means of an ELM or a SVR approach. The paper describes in
+detail the BO methodology, and its specific application in the
+optimization of the GGA-ELM for a real problem of @xmath and @xmath
+prediction from buoys data in Western California USA. The results show
+that the BO methodology is able to improve the performance of the
+system, i.e., the prediction of the optimized system is significantly
+better than that of the system without the BO methodology applied. This
+improvement is related to the optimal selection of parameters carried
+out by the BO strategy. On the other hand, the main limitation of the
+proposed methodology is the increase in computation time. Nevertheless,
+this increase only affects the training phase and not the operation
+phase, in which predictions are made after training. Therefore, this
+limitation is not very important. Finally, note that this methodology
+can be extended to alternative prediction systems and other problems,
+specially to hybrid approaches involving ML algorithms with a high
+number of parameters to be tuned.
+
+### Chapter 3 Wind power ramps events prediction
+
+#### 3.1 Introduction
+
+Wind Power Ramp Events (WPREs) are large fluctuations of wind power in a
+short time interval, which lead to strong, undesirable variations in the
+electric power produced by a wind farm. Its accurate prediction is
+important in the effort of efficiently integrating wind energy in the
+electric system, without affecting considerably its stability,
+robustness and resilience. In this study, the problem of predicting
+WPREs by applying ML regression techniques is tackled. The proposed
+approach consists of using variables from atmospheric reanalysis data as
+predictive inputs for the learning machine, which opens the possibility
+of hybridizing numerical-physical weather models with ML techniques for
+WPREs prediction in real systems. Specifically, the feasibility of a
+number of state-of-the-art ML regression techniques are explored, such
+as SVR, ANN (MLPs and ELMs) and GPs to solve the problem. Furthermore,
+the ERA-Interim reanalysis from the European Center for Medium-Range
+Weather Forecasts is the one used in this work because of its accuracy
+and high resolution (in both spatial and temporal domains). Aiming at
+validating the feasibility of this predicting approach, an extensive
+experimental work using real data from three wind farms in Spain is
+carried out, discussing the performance of the different ML regression
+tested in this wind power ramp event prediction problem.
+
+##### 3.1.1 Motivation
+
+Wind power is currently one of the most important renewable energies in
+the world [ Kumar2016 ] in terms of penetration in the electric power
+system [ Brenna2017 , Mohagheghi2017 ] , economic impact and annual
+growth rate [ Ali2017 ] , both onshore [ Dai2016 ] and offshore [
+Colmenar2016 ] . Electric power generation is usually carried out in
+large wind farms [ Giebel2016 , Herbert2014 ] far from urban centers [
+Lunney2017 , Jangid2016 ] , though, in the last few years, urban wind
+power generation is also gaining impulse [ Simões2016 ] , including its
+use in smart grids [ Köktürk2017 ] .
+
+The counterpart of the benefits associated with the flourishing of wind
+energy throughout the world—mainly the reduction of CO @xmath emission,
+one of the causes of global warming [ Peters22013 ] and climate change [
+Bauer2015 ] —are problems related not only to the maintenance and
+management of wind farm facilities, but also to those of power grids.
+Regarding this, one of the most important problems yet to be solved is
+the efficient integration [ Jones2017 ] of an increasing number of wind
+energy generators in both the distribution and transmission power grids,
+which are becoming increasingly complex [ Cuadra2017 , Cuadra2015 ] .
+Such an intrinsically complex nature of power grids is further increased
+because of the inherent stochastic nature of wind energy [ Yan2015 ]
+that, depending on the weather conditions, can lead to intermittent
+generation [ Yan2015 ] . This can affect the stability, robustness and
+resilience [ Cuadra2017 , Cuadra2015 ] of electric power grids. A useful
+discussion of the technical differences between these interrelated, but
+distinct concepts can be found in [ Cuadra2015 ] .
+
+Aiming at preserving grid stability in a scenario with a high percentage
+of intermittent renewable sources—not only wind energy [ Colmenar2016 ]
+, but also photovoltaic [ Cabrera2016 ] and wave [ Cuadra2016 ]
+energies—power grids need to be made more flexible [ Kroposki2017 ] . In
+this effort, the emerging technologies associated with smart grids [
+Köktürk2017 ] and micro-grids [ Yoldaş2017 ] can be used to mitigate
+wind power intermittency. An illustrative, very recent proposal in this
+respect consists of increasing the penetration of Vehicle-to-Grid ( V2G
+) technologies [ Gough2017 ] to use the batteries of idle Electric
+Vehicles ( EV ) as power storage units [ Zhao2017 ] , absorbing peaks of
+intermittent overproduction.
+
+Wind power intermittency and its influence on power grids’ stability and
+performance are the main reasons why Wind Power Forecasting ( WPF ) [
+Renani2016 , Tascikaraoglu2014 ] is a key factor to improve its
+integration without unbalancing the rest of the grid components. Among
+the different issues in wind power prediction, one of the most
+significant is the existence of Wind Power Ramp Events. WPREs consist of
+large fluctuations of wind power in a short period of time, leading to a
+significant increasing or decreasing of the electric power generated in
+a wind farm [ Zhang2017 , Gallego2015a ] .
+
+The field of scientific research in WPREs’ prediction (or forecasting) [
+Ouyang2013 ] is a relatively recent topic driven by the need for
+improving the management of quick and large variations in wind power
+output, particularly in the aforementioned context of power grids with
+high renewable penetration [ Alizadeh2016 ] . A useful review of
+different WPREs’ definitions (in which there does not seem to be a clear
+consensus) and their types (increasing or decreasing, depending on the
+WPRE definition) can be found in [ Ferreira2011 ] . Among them, WPREs’
+severity is one of the important issues. Up and down WPREs can exhibit
+different fluctuating levels of severity, although down WPREs are
+usually more critical than up WPREs because of the availability of
+reserves [ Zhang2017 ] . WPREs are usually caused by specific
+meteorological processes—basically, crossing fronts [ Gallego2015b ] and
+fast changes in the local wind direction—and they involve at several
+scales (synoptic [ Ohba2016 ] , mesoscale [ Salcedo2009 ] and
+microscale). Surprisingly, it has been found recently that very large
+offshore farms, clustered together, can also generate large WPREs on
+time scales of less than 6 h [ Drew2017 ] . This gives an idea of the
+complexity of the WPRE phenomenon.
+
+WPREs’ prediction is not only important for power grid operators, but
+also for wind farm owners. In fact, the occurrence of WPREs in wind
+farms is critical not only because of the aforementioned undesired
+variations of power, but also due to their potential harmful effects in
+wind turbines, which leads to an increase of management costs associated
+with these facilities [ Cui2015 ] . Regarding this, the accurate
+prediction of WPREs has been reported as an effective method to mitigate
+the economic impact of these events in wind generation power plants [
+Gallego2015a , Cui2015 ] .
+
+According to [ Cui2015 , Foley2012 ] , the prediction of WPREs and their
+influence on electricity generation and grid stability have been
+recently tackled by using two major families of techniques: (1)
+“physical-based” models (or numerical approaches aiming to tackle the
+complexity of the physical equations, which rule the atmosphere to
+obtain a prediction); and (2) statistical approaches (usually
+data-driven models to obtain predictions). The first group of
+techniques, the physical-based approaches, include a set of equations
+that rules the atmospheric processes and their evolution over time
+and, because of their complexity and nonlinearity, are tackled by means
+of numerical methods. The second group of WRPE predicting techniques,
+the statistical approaches, are data-driven methods that are based on
+wind time series and include a variety of techniques ranging from
+conventional approaches—for instance, Autoregressive-Moving-Average (
+ARMA )—to Computational Intelligence ( CI ) approaches [ Salcedo2016 ] .
+These are physics-inspired meta-heuristics [ Salcedo2016 ] able to find
+approximate solutions to complex problems that otherwise could not be
+solved or would require very long computational time. They include,
+among others, three groups of bio-inspired techniques such as EC [
+De-Jong2006 ] , NC [ Ata2015 ] and FC [ Suganthi2015 ] . An introduction
+to the main concepts of bio-inspired CI techniques in energy
+applications can be found in [ Cuadra2016 , Salcedo2015b ] .
+
+##### 3.1.2 Purpose and Contributions
+
+The purpose of this work is to explore the feasibility of a novel hybrid
+WPRE prediction framework, which merges parts of numerical-physical
+models with state-of-the-art statistical approaches. When the term
+“hybrid algorithms” is used in this work, that means that this proposal
+combines data from numerical-physical methods (reanalysis, in this case)
+with ML approaches (specifically, regressors). Regarding what the hybrid
+approach means in this study, there are two points to note. The first
+one is that it would be possible to adapt the proposed regression
+techniques to operate with alternative data (not coming from numerical
+methods, reanalysis, in this study). The second one, which is the main
+novelty of this work, is that the use of data from numerical-physical
+methods could help achieve valuable prediction of WPREs in wind farms.
+
+The contributions of this work are:
+
+1.  The use of regression techniques in this kind of problem since, up
+    until now, the majority of WPRE prediction frameworks have been
+    based on classification approaches.
+
+2.  The use of reanalysis data as predictive variables of the ML
+    regression techniques. As will be shown, this is because the direct
+    application of regression algorithms makes unnecessary the use of
+    some pre-processing algorithms, which are necessary in other
+    approaches [ Dorado2017a , Cornejo2017 ] . Note that the
+    classification problems associated with WPREs are usually highly
+    unbalanced, which makes it difficult to put into practice
+    high-performance classification techniques without having to use
+    specific over-sampling or similar techniques [ Dorado2017a ,
+    Cornejo2017 ] .
+
+3.  The performance of the proposed system has been tested using real
+    data from three different wind farms in Spain.
+
+The rest of this chapter is organized as follows: Section 3.2 states the
+problem definition we tackle in this work, in which the WPRE prediction
+is formulated as a regression task. Section 5.1 presents the data and
+predictive variables involved in our proposal. In turn, Section 5.4
+shows the experimental work carried out, these results being obtained by
+the different tested algorithms in three WPRE prediction problems
+located at three distinct wind farms in Spain. Sections 3.4.2 and 3.5
+complete the study by giving some final concluding remarks on the work
+carried out.
+
+#### 3.2 Problem Definition
+
+Following previous works in the literature [ Gallego2015a , Dorado2017a
+, Cornejo2017 , Dorado2017b ] , a WPRE can be characterized by a number
+of parameters:
+
+-   Magnitude ( @xmath ): defined as the variation in power produced in
+    the wind farm or wind turbine during the ramp event (subscript “
+    @xmath ”).
+
+-   Duration ( @xmath ): time period during which the ramp event is
+    produced.
+
+In addition to the magnitude and duration of a wind ramp, the derived
+quantity called the ramp rate ( @xmath ) is used to define the intensity
+of the ramp.
+
+Taking these parameters into account, in the majority of previous works
+in the literature, the WPRE detection problem has been defined as a
+classification problem [ Bossavy2015 ] . Within this framework, let
+@xmath be the so-called ramp function, i.e., a criterion function that
+is usually evaluated to decide whether or not there is a WPRE. There are
+several definitions of @xmath , all of them involving power production (
+@xmath ) criteria at the wind farm (or wind turbine), but the two more
+common ones are the following [ Gallego2015a ] :
+
+  -- -------- -- -------
+     @xmath      (3.1)
+  -- -------- -- -------
+
+  -- -------- -- -------
+     @xmath      (3.2)
+  -- -------- -- -------
+
+Note that, in the ramp function @xmath stated by Equation ( 3.1 ), the
+power variation is referred to a given time interval @xmath . In the
+experimental work carried out throughout this work, such a time interval
+has been assumed to be @xmath h (the “reference time interval”) because
+of the reanalysis resolution.
+
+Using any of these definitions of the ramp function @xmath , the
+classification problem can be stated by defining a threshold value
+@xmath , in the way:
+
+  -- -------- -- -------
+     @xmath      (3.3)
+  -- -------- -- -------
+
+where @xmath is an “indicator function” to be used to label the data in
+the binary classification formulation of the problem.
+
+As will be shown later on, in this approach, first of all, the threshold
+value @xmath is set, and then, a WPRE is detected if the ramp function
+is larger than 50% of @xmath . It is worth mentioning that, if there is
+an interest in establishing a larger number of cases (for example, five
+classes of WPRE), it would need at least two thresholds to do so.
+
+The WPRE detection problem also involves a vector of predictive
+variables @xmath . Different types of inputs have been used as
+predictive variables in the literature. The key point here is that the
+meteorological process must be always considered, since they are
+physical precursors of WPREs. Different numerical weather prediction
+system outputs have been used to obtain these predictive variables,
+including reanalysis data [ Gallego2015b ] . This provides a long
+history record of meteorological variables to be used as predictive
+variables for WPRE prediction. Following these previous works, in this
+paper, the following version of the WPRE prediction problem is tackled:
+
+Let @xmath (with @xmath ) be time series of @xmath predictive variables
+and @xmath values of the ramp function @xmath (objective variables). The
+problem consists of training a regression model @xmath in a subset of
+@xmath (training set), in such a way that, when @xmath is applied to a
+given test set @xmath , an error measure @xmath is minimized.
+
+#### 3.3 Data and Predictive Variables
+
+A reanalysis project is a methodology carried out by some weather
+forecasting centers, which consists of combining past observations with
+a modern meteorological forecast model, in order to produce regular
+gridded datasets of many atmospheric and oceanic variables, with a
+temporal resolution of a few hours. Reanalysis projects usually extend
+over several decades and cover the entire planet, being a very useful
+tool for obtaining a comprehensive picture of the state of the Earth
+system, which can be used for meteorological and climatological studies.
+There are several reanalysis projects currently in operation, but one of
+the most important is the ERA-Interim reanalysis project, which is the
+latest global atmospheric reanalysis produced by the ECMWF [ Dee2011 ] .
+ERA-Interim is a global atmospheric reanalysis from 1979, continuously
+updated in real time. The data assimilation system used to produce
+ERA-Interim is based on a 2006 release that includes a four-Dimensional
+Variational analysis (4D-Var) with a 12-h analysis window. The spatial
+resolution of the dataset is approximately 15 km, on 60 vertical levels
+from the surface up to 0.1 hPa. ERA-Interim provides six-hourly
+atmospheric fields on model levels, pressure levels, potential
+temperature and potential vorticity and three-hourly surface fields.
+
+Aiming to tackle the WPRE prediction problem in this study, wind and
+temperature-related predictive variables is considered from ERA-Interim
+at some specific points in the neighborhood of the area under study. The
+variables considered as predictors (Table 3.1 ) are taken at different
+pressure levels (surface, 850 hPa and 500 hPa), in such a way that
+different atmospheric processes can be taken into account. A total of 12
+prediction variables per ERA-Interim node and four nodes surrounding the
+area under study (wind farm) are considered at time @xmath , i.e., in
+this problem, @xmath is formed by @xmath predictive variables. The
+ERA-Interim time resolution for the predictive variables (6 h) sets in
+this case the ramp duration taken into account ( @xmath ).
+
+Thus, each regression model analyzed in this work ( @xmath ) must be
+trained with the data @xmath or @xmath , where @xmath and @xmath are
+computed using Equations ( 3.1 ) and ( 3.2 ), respectively.
+
+#### 3.4 Experimental Work
+
+This section presents the experimental evaluation of the proposed
+approach in a real problem of WPRE prediction, by exploring the
+different ML regressors used in this work (SVR, ELM, GP and MLP). Prior
+to describing the experiments carried out, it is worth emphasizing the
+practical importance of using reanalysis data to test the accuracy and
+feasibility of the proposed hybrid approach with ML regressors.
+Non-hybrid approaches (the use of regression techniques in other
+alternative data, from measuring stations, for example) is also
+possible. However, note that, from the viewpoint of the repeatability of
+the experiments, reanalysis data are very convenient since they are
+freely available on the Internet, so that the experimental part of this
+work can be easily reproduced by other researchers.
+
+Starting with the detailed description of the experimental work carried
+out, three wind farms are considered in Spain, whose locations have been
+represented in Figure 3.1 . The three wind farms chosen (labeled “A”,
+“B” and “C” in Figure 3.1 ) are medium-sized facilities, with 32, 28 and
+30 turbines installed, respectively. Note that the wind farms selected
+cover different parts of Spain, north, center and south, characterized
+by different wind regimes. Different numbers of data were available for
+each wind farm: in wind farm “A”, data ranges 11/01/2002–29/10/2012,
+while in wind farm “B” ranges 23/11/2000–17/02/2013. In wind farm “C”,
+the data used are between 02/03/2002 and 30/06/2013.
+
+A pre-processing step to remove missing and corrupted data was carried
+out. Note that data every 6 h (00 h, 06 h, 12 h and 18 h) is only kept,
+to match the predictive variables from the ERA-Interim to the objective
+variables.
+
+The performance of the four ML regressors described in Section 1.2 , in
+WPREs prediction problems at each wind farm is shown in terms of
+different error measurements ( @xmath ), such as RMSE, MAE or
+“sensitivity”, @xmath , also called the true positive rate. This last
+measure is defined as:
+
+  -- -------- -- -------
+     @xmath      (3.4)
+  -- -------- -- -------
+
+where: (1) @xmath stands for the number of positive predictions, i.e.,
+the correct predictions of ascending ( @xmath ), descending ( @xmath )
+and no ramps (with the @xmath definition), and ramps or no ramps (with
+the @xmath definition) values in the experiments; (2) @xmath stands for
+the number of positive values in the test, i.e., the total real values
+of positive ramps, negative ramps, ramps or no ramps in the database.
+Note that this way, the experiments are performed with the two different
+definitions of the ramp function ( @xmath and @xmath ) given in Section
+3.2 .
+
+The following step to obtain the prediction of the WPREs is to train the
+considered ML regressors. A partition of the data into training (80%),
+and test (20%) sets is carried out. In the case of the SVR and MLP, a
+validation set from the training (5%) set is also considered. This
+validation set is used to obtain the best SVR hyper-parameters @xmath ,
+@xmath and @xmath , by means of a GS [ Smola2004 ] . The validation set
+is also used in the training of the MLP approach, in order to prevent
+the NN from overtraining. Both training and test sets have been randomly
+constructed from the available data after the cleaning pre-processing.
+The concrete configurations and the values used for the parameters of
+the considered ML regression models, @xmath , are listed in Table 3.2 .
+
+With all these previous considerations in mind, Sections 3.4.1 and 3.4.2
+, focus on showing the results obtained and on discussing them,
+respectively.
+
+##### 3.4.1 Results
+
+As mentioned in the description of the problem at hand, among the
+several definitions of ramp functions, @xmath , the most common ones are
+considered [ Gallego2015a ] , stated, respectively, by Equations ( 3.1 )
+and ( 3.2 ), because both include power production criteria ( @xmath )
+at the wind farm. The variation of power caused by a wind ramp, @xmath ,
+has been studied in the experiments below in the three wind farms
+(Figure 3.1 ) within a time interval @xmath h, which is determined by
+the resolution of the reanalysis data.
+
+In addition, in order to properly understand the analysis of the results
+obtained, it is convenient to point out that, by using the indicator
+function @xmath stated by Equation ( 3.3 ), the proposed methodology is
+able to successfully detect those WPREs that surpass the thresholds (
+@xmath or @xmath ), when using the @xmath ramp function definition, or
+the single threshold ( @xmath ), when using the @xmath definition. As
+will be shown later on, this is due to the fact that, with the first
+ramp definition ( @xmath ), it can be detected three types of events:
+ascending ramps (which are those whose power exceeds @xmath ),
+descending ramps (those surpassing @xmath ) and the existence of “no
+ramps” (when the generated electric power is in between the two
+thresholds). Conversely, in the case of using the @xmath ramp function
+definition, it is only necessary to determine whether or not there is a
+ramp, so that only a threshold is necessary.
+
+Taking these considerations into account and aiming at better explaining
+the results, the discussion is organized according to the objective
+function used, either @xmath or @xmath , leading to Sections 3.4.1 and
+3.4.1 , respectively.
+
+###### Results using @xmath as the Ramp Function Definition
+
+Table 3.3 shows the results obtained in this problem of WPRE prediction
+when considering @xmath as the objective function, in the three
+aforementioned wind farms in Spain (labeled “A”, “B” and “C” in Figure
+3.1 ). For each wind farm, the performance of any of the ML regressors
+explored (SVR, ELM, GP and MLP) has been measured using the metrics
+RMSE, MAE and sensitivity ( @xmath ( @xmath ramp), @xmath ( @xmath
+ramp), @xmath (no ramp)).
+
+Regarding the reasons why the mentioned metrics are used to the
+detriment of others, it is convenient to stress some aspects related to
+what, in fact, are two conceptually distinct groups of measures: metrics
+that measure errors (RMSE and MAE), on the one hand, and metrics that
+quantify success prediction rates (sensitivity), on the other. These
+facets to be highlighted are:
+
+-   With respect to the “conventional” metrics that measure errors,
+    there are two reason that have compelled us to include the RMSE and
+    MAE metrics. The first one is that they are the most commonly used
+    in the literature. Examples of relevant papers in which these
+    metrics are used for WPRE forecasting are [ Gallego2015a ,
+    Cutler2007 , Gallego2011 , Gallego2013 ] . Please see [ Gallego2015a
+    ] for a useful discussion on this issue. The second cause is, as
+    will be shown, that the utility of these error measures can be
+    complemented by using the sensitivity metric, the other class of
+    metrics that are chosen.
+
+-   The second couple of points that are important to be emphasized here
+    are just those related to the aforementioned sensibility in Equation
+    ( 3.4 ), one with respect to its meaning and the other regarding its
+    application. On the one hand, the physical meaning of sensitivity is
+    just the percentage of correct ramp predictions with respect to
+    actual measured data. Despite its apparent simplicity, this is,
+    however, an excellent measure of the extent to which the regressor
+    algorithm under test is efficient in detecting wind ramps. On the
+    other hand, regarding its application step in the proposed
+    methodology, the key point is that sensitivity is only used after
+    having predicted the ramp function with a regression technique and a
+    threshold has been defined. After applying the threshold, the number
+    of real WPREs is thus obtained and compared to the predicted number.
+    This way, the fact that the problem is highly unbalanced is not an
+    issue any longer; or, in other words, the regression techniques are
+    applied to the ramp function, and then, a threshold to classify
+    events is established. In this case, the percentage of correct WPRE
+    identifications is obtained. Note that the work’s objective is to
+    deal with a regression problem, it is enough to show the good
+    percentage of correct classification after the threshold setting in
+    the predicted ramp function.
+
+The analysis of Table 3.3 allows for elucidating some interesting
+conclusions:
+
+1.  The performance of the ML regressors is, in general, good in terms
+    of RMSE, MAE and sensitivity @xmath , although, as shown, there are
+    some ML regressors that work better than others.
+
+2.  Regarding the performance of one regressor with respect to that of
+    another, the results of Table 3.3 clearly indicate that the GP model
+    reaches the best results of all the regressors tested, with an
+    excellent reconstruction of the ramp function @xmath from the
+    ERA-Interim variables. Note in Table 3.3 that the values of the
+    metrics obtained by the GP regressor are marked in bold. Its RMSE
+    and MAE values are much lower (better) than those of the other ML
+    regressors explored. In terms of sensitivity, its performance is
+    even better. Specifically, its sensitivity @xmath (or percentage of
+    correct predictions (with respect to the real, measured data) stated
+    by Equation ( 3.4 )) is much higher (better) than those of the other
+    regressors: @xmath (+ramp) @xmath @xmath (+ramp) @xmath (for
+    ascending ramps) and @xmath ( @xmath ramp) @xmath @xmath ( @xmath
+    ramp) @xmath (for descending ramps). This confirms the validity of
+    the results measured with the error metrics and proves the
+    feasibility of the proposed methodology for predicting wind ramps,
+    both ascending and descending ramps.
+
+3.  The worst result corresponds to the MLP, with a poorer detection of
+    positive WPREs, when compared to the other ML regressors.
+
+4.  The SVR and ELM work well in between both GP and MLP, with
+    acceptable values of detection in positive WPREs.
+
+With this analysis in mind, Figures 3.2 – 3.4 show the estimation of
+@xmath obtained by the GP and ELM algorithms (the two best approaches
+tested in the experiments), when using @xmath as the objective function,
+for the wind farms A, B and C, respectively. Some aspects to correctly
+interpret these figures are:
+
+-   Aiming at clearly showing the algorithms’ performance, only the 300
+    first samples of the test set have been represented in these
+    figures.
+
+-   Furthermore, a threshold value @xmath (and the corresponding @xmath
+    ) has been marked in these figures, so it can be used to decide
+    whether or not the event is a ramp power event (see Equation ( 3.3
+    )). When a ramp occurs, it is possible to decide whether the ramp
+    event is ascending or descending.
+
+The results illustrated in Figure 3.2 (a) show two data series: the
+series of real measured WPRE (red @xmath ) and the series of predicted
+WPRE (blue @xmath ) values computed by using the proposed hybrid
+methodology. In the effort to better explain the results and the
+applicability of this proposal, Figure 3.2 is drawn in a more detailed
+way than the others, zooming into two shorter time excerpts, b and c.
+The insets b and c show how there are some WPREs that surpass any of the
+thresholds @xmath and @xmath . Specifically, and as mentioned before, a
+WPRE is detected in this approach if the ramp function is larger than
+50% of @xmath . Note that Figure 3.2 b,c show how the predicted WPREs
+(blue @xmath ) exceeding any thresholds ( @xmath or @xmath ) are
+correctly predicted when compared to the real, measured WPRE (red @xmath
+).
+
+Regarding such a threshold value, it is worth mentioning that @xmath is
+not used until the very end of the experiments, once the ramp function
+has been predicted with the ML regression algorithms. In this respect,
+it is also convenient to remark that, in the proposed approach, it does
+not look to optimize @xmath . Only @xmath is displayed as an indication
+(example) that the ML regression model @xmath applied can be turned into
+a classification for WPRE. Note, however, that the purpose of this study
+is to deal with it as a regression problem.
+
+The good performance observed in Figure 3.2 for the ELM is common (and
+even better) to those illustrated in Figures 3.3 and 3.4 .
+
+The joint analysis of both Figures 3.2 and 3.4 and Table 3.3 reveals the
+suitable throughput of the ML regression techniques (mainly the GP
+model), which hybridized with the ERA-Interim predictive values, assist
+in obtaining a robust decision system in terms of the existence or not
+of a power ramp, depending, of course, on the definition of the
+threshold @xmath .
+
+###### Results using @xmath as the Ramp Function Definition
+
+On the other hand, Table 3.4 and Figures 3.5 – 3.7 will assist us to
+explain the results when @xmath is the ramp function to be predicted.
+
+Table 3.4 presents the results (in terms of RMSE, MAE and sensitivity)
+corresponding to the estimation of the ramp function @xmath (Expression
+( 3.2 )) achieved by using the proposed approach as a function of the ML
+regressors explored (SVR, ELM, GP and MLP).
+
+A first aspect that stands out of Table 3.4 is that it has fewer columns
+related to sensitivity than those of Table 3.3 . This is an interesting
+points that arises from the different definitions of the ramp function
+@xmath , either @xmath or @xmath . Note that, for definition @xmath ,
+the sensitivity is the percentage of correctly predicted results (either
+ramp or no ramp) with respect to the actual measured data. This is the
+reason why @xmath has only two columns in Table 3.4 , @xmath (ramp) and
+@xmath (no ramp), whereas Table 3.3 exhibits three @xmath -related
+columns. This is because, in the case of the @xmath ramp definition,
+there are three events to be detected: ascending ramp ( @xmath ),
+descending ramp ( @xmath ) and no ramps.
+
+In the same way as Table 3.3 , Table 3.4 also reveals that, for @xmath ,
+the GP approach exhibits the best results, outperforming clearly the
+rest of the ML regressors tested, except the MLP. This has similar
+values only in its error metric, RMSE and MAE, but not in its @xmath
+(ramp) value, which is considerably worse than that of the GP. This is
+clear, for instance, in Wind Farm A, in which RMSE @xmath MW, less than
+that of the other regressors. Note that @xmath (ramp) @xmath @xmath
+(ramp) @xmath . In Wind Farm B, the performance of the GP (RMSE @xmath
+MW) is similar to that of the MLP and much better than that of SVR (RMSE
+@xmath MW) and SVR (RMSE @xmath MW). Note again that, although the GP
+model is similar to the MLP in error metrics, however, the GP exhibits
+much better sensitivity than the MLP, @xmath (ramp) @xmath @xmath (ramp)
+@xmath . This is true not only for the MLP (which has similar errors),
+but also for the rest of the ML, which are long surpassed by the GP
+model in the aim of detecting wind ramps. For clarity, this is marked in
+bold in Table 3.4 . This means that the GP is more efficient in
+predicting wind ramps (the very core of this approach) than the others,
+and this is the reason why the sensitivity helps supplement the
+information provided by the error metrics.
+
+Once the results shown in Table 3.4 have already been analyzed, it is
+convenient to have a look at its associated figures showing the data
+series, which involve both the estimated (predicted) and the measured
+values of the ramp function @xmath . Regarding this, Figures 3.5 – 3.7
+show the estimation of @xmath obtained by the GP (in Wind Farm A) and
+ELM algorithms, for the wind farms B and C, respectively.
+
+In Figures 3.5 – 3.7 a threshold value @xmath to mark the presence (or
+not) of a WPRE is also represented. As in the first objective function,
+the good performance of the ML regressors allows a significant detection
+of WPRE in wind farms.
+
+##### 3.4.2 Discussion
+
+The results obtained show that the proposed hybrid WPREs prediction
+approach—which combines data from numerical-physical models (reanalysis)
+with state-of-the-art statistical ML approaches (regressors)—is a
+feasible option to tackle this problem in wind farms. Regarding the
+proposed fusion of reanalysis data and ML regressors, the results have
+pointed out that:
+
+-   The use of reanalysis data as predictive variables for WPRE forecast
+    has the following beneficial properties:
+
+    1.  Reanalysis makes the training of the ML regressors easier if
+        there are enough measures of the objective variables. This is
+        just the case in this approach because reanalysis data provide
+        robust meteorological variable estimation back to 1979 in the
+        case of the ERA-Interim reanalysis, with high spatial and enough
+        temporal resolution to tackle this problem.
+
+    2.  The variables from reanalysis projects are similar to those by
+        any weather numerical forecast system, even meso-scale ones, so
+        it is straightforward to tackle the WPRE prediction by using
+        alternative models, such as the well-known Weather Research and
+        Forecasting (WRF) meso-scale model [ Skamarock2005 ] , to
+        predict future values of the predictive variables and, then, the
+        corresponding WPRE prediction for a given wind farm.
+
+    3.  The use of reanalysis data allows the repeatability of the
+        described experiments by other researchers since such data are
+        freely available on the Internet.
+
+-   The performance studies of the state-of-the-art ML regressors, the
+    other pillar this approach is based on, have shown that the GP
+    reaches the best results in both definitions of the wind power ramp
+    function considered:
+
+    1.  When using the @xmath definition, the results clearly show that
+        the GP model achieves the best results of all the regressors
+        tested, with an accurate reconstruction of the ramp function
+        from the ERA-Interim variables. Its RMSE and MAE vales are much
+        lower than those of the other ML regressors explored.
+        Furthermore, its sensitivity @xmath —or percentage of correct
+        predictions (with respect to the real, measured data)—is much
+        higher than those provided by the other regressors: @xmath
+        (+ramp) @xmath @xmath (+ramp) @xmath (for ascending ramps) and
+        @xmath ( @xmath ramp) @xmath @xmath ( @xmath ramp) @xmath (for
+        descending ramps). This demonstrates the feasibility of the
+        proposed methodology for predicting wind ramps, both ascending
+        and descending ones.
+
+    2.  Similarly, when using the @xmath ramp definition, the GP
+        approach also exhibits the best results, outperforming clearly
+        the rest of the ML regressors tested, except the MLP, which has
+        similar values only in its error metric, RMSE and MAE, but not
+        in its @xmath (ramp) value, which is considerably worse than
+        that of the GP. These sensitivity results point out that the GP
+        is more efficient in predicting wind ramps (the very core of
+        this approach) than the other regressors, this being the reason
+        why the sensitivity metric helps complement the information
+        provided by the error measures.
+
+Finally, the results show how the proposed approach allows the use of
+threshold values to detect whether or not a wind power ramp occurs. The
+method is also flexible enough to choose a ramp function definition in
+the aim of considering a multi-class problem. Although in the
+experiments carried out, the multi-class problem contains three classes
+(ascending, descending or not ramp, in the @xmath definition), more
+classes could be defined. The optimal selection of the threshold values
+is an open question in the literature that has not been considered in
+this case.
+
+#### 3.5 Conclusions
+
+In this work, the feasibility of a novel hybrid approach that—by
+combining data from numerical-physical models (reanalysis) and
+state-of-the-art statistical ML regressors—aims at predicting WPREs has
+been explored. The accurate prediction of WPREs—caused by large
+fluctuations of wind power in a short time interval lead—is of practical
+interest not only for utility companies and independent system operators
+(in the effort of efficiently integrating wind energy without affecting
+power grid stability), but also for wind power farm owners (to reduce
+damage in turbines).
+
+Specifically, several state-of-the-art statistical ML regressors—ranging
+from a MLP neural network to an ELM, a GP Regression or a SVR
+algorithm—have been applied to solve this problem in three different
+wind farms in Spain.
+
+This has been the first contribution of this proposal since the use of
+regressors has not been previously applied directly to this WPRE
+prediction problem. The second contribution has been the use of direct
+reanalysis data as input (predictive) variables of the ML regression
+techniques. In this regard, the use of data from the ERA-Interim
+reanalysis are proposed because it ensures a high resolution of the
+inputs, both spatial (grid of 0.125 @xmath 0.125 at global level) and
+temporal (6-h time horizon). Two other reasons why reanalysis is used
+are: (a) the use of reanalysis data allows the repeatability of the
+experiments by other researchers since such data are available on the
+Internet; (b) the variables from reanalysis are similar to those from
+weather numerical forecast systems, even mesoscale ones, so that it
+would be straightforward to tackle the WPRE prediction problem by using
+other alternative models. Note however that it would be possible to
+adapt the proposed regression techniques to operate with alternative
+data not coming from numerical methods (or reanalysis), but other types
+of input variables.
+
+This purpose has been modeling the wind ramp function as accurately as
+possible in terms of several input variables. This way of tackling the
+problem overcomes some problems associated with the WPRE defined as a
+binary classification task [ Dorado2017a , Cornejo2017 ] , or even
+ordinal classification [ Dorado2017b ] , such as the appearance of
+highly imbalanced problems.
+
+Two different definitions of the ramp function have been considered,
+those that are used the most in the literature. The experimental work
+has been carried out using data corresponding to three wind farms,
+located in different zones of Spain and having different atmospheric
+conditions, in the effort to obtain results as generalizable as
+possible. The experimental work carried out basically points out that:
+
+1.  The results show a good performance of the explored ML regression
+    techniques hybridized with the ERA-Interim reanalysis data,
+    especially those corresponding to the ELM and the GP ML regressors.
+    In particular, the GP has been found to exhibit the best results,
+    outperforming clearly the rest of the ML regressors tested. This has
+    been shown especially evident in terms of its sensitivity (or
+    percentage of correct predictions (with respect to the real,
+    measured data)), which is much higher than those provided by the
+    other regressors, showing the feasibility of the proposed
+    methodology for predicting WPREs.
+
+2.  The experimental work has also revealed that the use of reanalysis
+    data as predictive variables for WPRE forecast is beneficial:
+    reanalysis has been found to make the training of the ML regressors
+    easier since the ERA-Interim reanalysis provides robust
+    meteorological variable estimation back to 1979, with high spatial
+    and enough temporal resolution to tackle this problem.
+
+As a general conclusion, the results achieved by the proposed approach
+show that the hybrid method proposed is a feasible alternative to deal
+with the important problems that WPREs can cause in both the management
+of wind farms and in the balanced operation of power grids.
+
+## Part III Proposed contributions with numerical results in facilities
+management
+
+### Chapter 4 Accurate estimation of @xmath with SVR and marine radar
+images
+
+#### 4.1 Introduction
+
+The availability and accuracy of wave data play a crucial role in the
+better understanding of numerical [ WAMDI1988 , Tolman2009 ] and
+statistical wave models [ Durrant2013 , Casas2014 ] , wave forecasting
+for safe ship navigation, design and operation of WECs [ López2013 ] ,
+and the design of vessels and marine structures: oil platforms,
+breakwaters [ Comola2014 , Kim2014 ] , wave overtopping volumes [
+Nørgaard2014 ] , ports and harbours, etc. Thus, the topic has a clear
+impact on human safety, economics and clean energy production. One of
+the most important parameters to define the severity of a given ocean
+wave field is the @xmath . @xmath is usually estimated using in-situ
+sensors, such as buoys, recording time series of wave elevation
+information. Buoys provide reliable sea state information that
+characterizes wave field in a fixed position (i.e. the mooring point).
+In addition, as buoys are anchored in a hostile media (the ocean), the
+probability that measuring problems (and therefore missing data) occur
+in situations of severe weather is very high [ Rao2005 ] .
+
+Complementary to the punctual information that buoys’ measurements
+represent, an alternative way to estimate @xmath (and therefore an
+useful tool to reconstruct missing data from ocean buoys) consists of
+using remote sensing imaging methods, such as air and space borne
+Synthetic Aperture Radar ( SAR ) images [ Alpers1982 ] , on- and
+off-shore coherent radars [ Plant2008 , Nwogu2005 , Seemann2013 ] or
+conventional X-band marine radars [ Hessner2001 , Reichert2005 ,
+Izquierdo2005 ] , which are broadly installed in every moving ship, and
+off- and on-shore platforms.
+
+The analysis of the marine radar images of the sea surface is capable of
+estimating wave field and surface current information in real time for
+oceanographic monitoring purposes [ Young1985 , Nieto2000 , Senet2001 ,
+Reichert2005 , Izquierdo2005 , Chen2012 ] . Radar images of the ocean
+surface are produced by the backscattering phenomenon of the
+electromagnetic waves due to the roughness of the sea surface [
+Alpers1982 , Plant2008 ] . These radar images are then analyzed to
+obtain estimations of wave spectra in different spectral domains [
+Reichert2005 , Izquierdo2005 ] , which allow calculating typical sea
+state parameters, such as characteristic wave periods, wave lengths,
+wave propagation directions, etc. [ Hessner2001 , Hessner2014 ] .
+Estimating @xmath from the wave spectrum derived from the X-band marine
+radar analysis is not straightforward, since the physics of the imaging
+mechanisms has complex dependencies on environmental conditions,
+included both wave conditions and other environmental factors such as
+wind. The wave spectral estimations derived from the radar images are
+not properly scaled in the sense that their integral cannot provide
+values of the standard deviation of the wave elevation field, and
+therefore, a direct estimation of @xmath is not possible.
+
+Some approaches to estimate @xmath from marine radars take into account
+the geometrical shadowing effect of the lower waves by the higher waves
+to the radar antenna illumination [ Buckley1994 , Buckley1998 ,
+Salcedo2015a ] . An alternative approach to estimate @xmath from X-band
+marine radar considers that @xmath depends linearly with the squared
+root of the signal-to-noise ratio @xmath , where the signal is the
+spectral energy of the un-scaled wave spectrum, and the noise is related
+to the spectral energy of the speckle noise within the radar image [
+Nieto2008 ] . This technique is an extension of the methodology
+initially proposed by [ Alpers1982 ] to derive @xmath from SAR images of
+the sea surface. The @xmath -based method is more robust, from the
+operational point of view, than the shadowing-based method and it is
+widely used for the standard applications of wave monitoring activities
+using conventional X-band marine radars [ Hessner2001 , Chen2012 ] .
+Thus, the @xmath -based method is used as an standard technique for
+@xmath estimation. Note that the @xmath -based method needs a
+calibration campaign with an in-situ sensor, such as a buoy, to
+calibrate the marine radar. This calibration is not necessary in the
+method that analyzes the shadowing effect [ Salcedo2015a ] . Although
+the @xmath -based method to estimate @xmath is used all over the world,
+there are some limitations where this technique does not provide
+reliable values for @xmath , giving some indications that the @xmath
+estimation depends on more parameters than only @xmath [ Vicen2012 ] .
+
+In this work an extension to the @xmath -based method is proposed. This
+proposed extension uses SVR to estimate @xmath . The method takes into
+account additional sea state parameters than only @xmath . All those
+parameters are derived from the standard analysis of wave fields by
+using X-band marine radars. The work analyzes the relevant sea state
+parameters to estimate @xmath and compare the obtained results with the
+results derived from the Standard Method ( SM ), based only on the
+estimation of @xmath . For that purpose, a set of marine radar data in
+combination with @xmath values measured by buoys have been used. The
+data were recorded in three different geographical locations under
+different oceanographic conditions: the German basin and the Norwegian
+sector, both in the North Sea, and the Sable Field in South Africa.
+
+The rest of the chapter is structured as follows: Section 4.2 deals with
+the basics of the wave field analysis by using X-band marine radar data
+sets, including the @xmath estimation by the SM, and its limitations.
+Section 5.2 describes the geographical locations and the oceanographic
+conditions of the X-band radar and buoy data used in this work. Section
+5.4 shows the achieved results after applying the SVR algorithms to the
+used data. Finally, Section 5.5 summarizes the conclusions of the work.
+
+#### 4.2 Analysis of the sea surface from X-band radar
+
+As mentioned before, the analysis of wave fields from X-band marine
+radars is based on the acquisition of consecutive radar images of the
+sea surface. Hence, the data sets are time series of radar images where
+the spatio-temporal @xmath evolution of the sea surface can be analyzed.
+From these data sets, applying a three-dimensional Fourier decomposition
+the so-called image spectrum @xmath is obtained, where @xmath is the
+wave number vector and @xmath is the angular frequency. In practice,
+@xmath is estimated by using a three-dimensional FFT-based algorithm,
+therefore the @xmath values are defined in a discrete domain, where the
+sampling wave numbers @xmath depend on the spatial size of the radar
+images and their spatial resolutions given by the range and azimuthal
+resolutions of the radar system. The angular frequency resolution @xmath
+depends on the number of images in the radar image time series and its
+sampling time (i.e. the radar antenna rotation period). Hence, the
+spectral components are located within the spectra domain @xmath defined
+as
+
+  -- -------- -- -------
+     @xmath      (4.1)
+  -- -------- -- -------
+
+where @xmath , @xmath , and @xmath are the respective Nyquist limits in
+wave numbers and angular frequency given by the spatio-temporal
+resolution of the radar image time series. For the estimation of @xmath
+, the relevant spectral components @xmath of the three-dimensional image
+spectrum @xmath are classified in the following contributions (see the
+example illustrated in Figure 4.1 ):
+
+-   Static patterns caused by the long range dependence of the radar
+    backscatter intensity due to the radar equation [ Skolnik2002 ] . As
+    this dependence is not on the time domain, the spectral components
+    of this contribution of the image spectrum @xmath correspond to
+    those wave numbers @xmath , where @xmath [ Young1985 ] . To avoid
+    the static pattern components, the spectral domain @xmath defined in
+    Expression ( 4.1 ) includes only those frequencies higher than a
+    threshold value, @xmath [ Nieto2004 ] . For practical applications [
+    Nieto2008 ] , typical value of the threshold frequency is @xmath Hz
+    (i.e. @xmath ).
+
+-   Wave components that hold the dispersion relation of linear gravity
+    waves. These spectral @xmath -components are located in the surface
+    @xmath defined by the dispersion relation
+
+      -- -------- -- -------
+         @xmath      (4.2)
+      -- -------- -- -------
+
+    where @xmath , @xmath is the acceleration of the gravity, @xmath is
+    the water depth and @xmath is the so-called current of encounter [
+    Senet2001 ] responsible of the Doppler shift in frequency given by
+    the dot product @xmath . As in the case of the domain @xmath ,
+    @xmath includes the frequencies that holds the condition @xmath . In
+    practice, the domain @xmath is sampled with the spectral resolutions
+    @xmath given by the FFT algorithm. This sampled @xmath domain is
+    commonly known in the analysis of ocean waves by using marine radars
+    as dispersion shell [ Young1985 ] .
+
+-   Background noise: This spectral noise is caused by speckle noise due
+    to the roughness of the sea surface induce by the local wind. The
+    spectral noise appears in the image spectra of different radar
+    systems under different polarization and incidence conditions, such
+    as SAR [ Alpers1982 ] , or, like in this case, in X-band marine
+    radar images acquired at grazing incidence conditions [ Nieto2008 ]
+    .
+
+Taking into account these different spectral contributions to @xmath ,
+it is possible to retrieve sea state information by applying inversion
+modeling techniques [ Young1985 , Seemann1997 , Nieto2000 , Nieto2004 ]
+. The sea state information provided by the inversion modeling
+techniques are the current of encounter @xmath [ Senet2001 , Hessner2014
+] , the water depth @xmath [ Bell1999 , Bell2008 , Serafino2010 ,
+Bell2011 ] , as well as the directional and scalar wave spectra and
+their related sea state parameters, such as peak and mean wave
+directions, periods, and wave lengths, or directional spreading [
+Hessner2001 , Reichert2005 , Izquierdo2005 ] , among others. One of
+those parameters is the @xmath . The method to estimate @xmath is
+described in the following section.
+
+##### 4.2.1 Standard method to estimate @xmath from X-band radar image
+time series
+
+As mentioned before, the inversion modeling techniques need to be
+complemented with an additional algorithm that allows estimating @xmath
+from the analysis of the image spectrum @xmath .
+
+The @xmath estimation method that is operationally in use considers the
+existence of the background noise spectral components. Hence, in a
+similar way that is carried out for space borne SAR images of the sea
+surface [ Alpers1982 ] , @xmath is assumed to be proportional to the
+squared root of the signal-to-noise ratio @xmath [ Nieto2008 , Chen2012
+] . Taking into account the characteristics of the X-band marine radar
+(i.e. it is possible to acquire time series of radar images to define
+the image spectrum in the three-dimensional domain @xmath , rather than
+in a two-dimensional wave number domain like in the SAR case), @xmath is
+defined as the ratio of the spectral energy of the @xmath -components
+within the dispersion shell and the spectral energy of the background
+noise components. For marine radar @xmath is defined as [ Nieto2008 ]
+
+  -- -------- -- -------
+     @xmath      (4.3)
+  -- -------- -- -------
+
+where @xmath is an empirical modulation transfer function that takes
+into account the radar imaging mechanisms at grazing incidence for
+different wave numbers [ Ziemer1985 ] . Comparing the spectra derived
+from radar images with in-situ data, the dependence found for the
+modulation transfer function was @xmath [ Nieto2004 ] . In Equation (
+4.3 ), the integration domain @xmath is the dispersion shell defined in
+Equation ( 4.2 ), and @xmath denotes all those @xmath -components
+outside the dispersion shell. Note that the integration domains used in
+Equation ( 4.3 ) depend on the estimation of the parameters that affect
+the dispersion relation, such as @xmath and @xmath , which are usually
+derived from the inversion modeling scheme as it was mentioned above.
+From Equation ( 4.3 ), @xmath is estimated as
+
+  -- -------- -- -------
+     @xmath      (4.4)
+  -- -------- -- -------
+
+where @xmath and @xmath are calibration constants that are determined
+empirically by using in-situ sensor data, for example @xmath values
+acquired by a wave buoy. The values of @xmath and @xmath depend on the
+different installation conditions (i.e. angle of incidence, range of
+measurement, used radar system, etc. [ Hessner2001 ] ).
+
+###### Limitations of the SM estimation
+
+Expression ( 4.4 ) provides reliable results for operational purposes [
+Hessner1999 ] , permitting the estimation of @xmath in real time for sea
+state monitoring purposes from X-band radar data sets [ Hessner2001 ,
+Reichert2005 ] . However, a proper estimation of @xmath depends on a
+correct determination of @xmath by using Equation ( 4.3 ). Under some
+circumstances, the @xmath estimation does not suite the range
+applicability of Equation ( 4.4 ) [ Nieto1998 ] . For example, under the
+presence of low wind conditions, the spectral energy of the background
+noise takes small values, and the denominator in Equation ( 4.3 ) is too
+small as well.
+
+Consequently, this effect leads to high values of @xmath , which causes
+that Equation ( 4.4 ) overestimates the value of @xmath . In addition,
+another effect occurs for low amplitude swell, which induces low
+backscatter modulation [ Schmidt1995 , Rozenberg1996 ] . Consequently,
+the numerator in Equation ( 4.3 ) yields too small values of @xmath ,
+which leads Equation ( 4.4 ) to underestimate @xmath .
+
+It should be noted that the backscattering phenomenon at grazing
+incidence (i.e. the marine radar operational conditions) is not fully
+explained yet [ Plant2008 ] and the empirical modulation transfer
+function @xmath in Equation ( 4.3 ) does not take into account all the
+microwave backscattering imaging mechanisms present for the marine radar
+measuring conditions. Due to the reasons above mentioned, the estimation
+of @xmath should include more parameters than only @xmath given by
+Equation ( 4.3 ). Hence, Equation ( 4.4 ) needs to be improved to
+include additional parameters. One possible parameter could be the wind
+speed, but that would need an additional sensor. In this work only the
+sea state parameters delivered by the standard wave analysis of X-band
+data sets have been considered [ Izquierdo2005 , Reichert2005 ] . These
+parameters are delivered from the un-scaled estimation of the wave
+spectra, such as the peak wave number @xmath , the peak frequency @xmath
+, or the different estimations of the mean powers of the frequency
+derived from ratios of the spectral moments @xmath . They are related to
+different estimators of the mean period giving more weight to different
+regions of the frequency domain. Hence, the normalized spectral moment
+of @xmath -order is defined from the frequency spectrum @xmath as
+
+  -- -------- -- -------
+     @xmath      (4.5)
+  -- -------- -- -------
+
+Where the frequency @xmath . Note that the ratio given by Equation ( 4.5
+) does not depend on the scale of the spectrum @xmath because it is
+normalized by its own area.
+
+#### 4.3 Description of the data used
+
+The marine radar image time series used in this work were acquired by
+WaMoS-II systems [ Hessner2001 , Hessner2008 ] . WaMoS-II is an
+operational Wave Monitoring System built up for the specific purpose of
+wave and current measurement by X-band marine radars, which was
+originally developed at the German research institute HZG
+(Helmholtz-Zentrum Geesthacht). The measuring system consists of a
+conventional X-band marine radar, and a high-speed video digitizing and
+storage device connected to a computer. Hence, the analogue radar video
+signal is read out and digitized into a scale of grey levels. This
+information is transferred and stored on the computer where the wave
+analysis software carries out the estimation of the sea state
+parameters. For WaMoS-II measurements, radar raw data signals are
+needed. Hence, preprocessing filters, such as rain filter, anti clutter
+filter, image intensity amplification, etc., must be switched off. The
+marine radar image time series used in this work have been measured in
+different geographic locations, the North Sea and the Sable Field in
+South Africa:
+
+-   North Sea: WaMoS-II data from two stations located at the North Sea
+    have been used. During the measurement period of each station,
+    different sea state cases were recorded. These two North Sea
+    locations are:
+
+    1.  Fino 1 Research Platform ( [ FINO 12015 ] ): This platform is
+        located at the German basin of the North Sea (54 @xmath
+        00’53.5” N, 06 @xmath 35’15,5” E) at 45 km to the north of
+        Borkum island. The local water depth is about 30 m. The period
+        of data used for the analysis is from July 1 @xmath , 2004 to
+        August, 25 @xmath , 2009. The WaMoS-II system at Fino 1 measured
+        a radar image time series every 3 minutes.
+
+    2.  Ekofisk Oil Field Complex: This complex is located in Norwegian
+        sector of the North Sea (56 @xmath 32’57.11” N, 03 @xmath
+        12’35.95” E). The local water depth in the area is about 75 m.
+        The period of data used for the analysis is from October 10
+        @xmath , 2004 to November, 11 @xmath , 2009. The WaMoS-II system
+        at Ekofisk measured a radar image time series every 4 minutes.
+
+-   Sable Field: In this case, WaMoS-II data from only one station is
+    available. This location is:
+
+    1.  Glas Dowr: This area is located at the Bredasdorp basin about
+        150 km Southwest of Mossel Bay off South Africa (35 @xmath
+        12’25.7” S, 21 @xmath 19’18.4” E). The local water depth in the
+        area is about 100 m. The data were acquired by a WaMoS-II system
+        installed on board of FPSO Glas Dowr. The measurement period
+        cover the dates from March 1 @xmath , 2008 to August 31 @xmath
+        , 2008. During this measurement period, several cases of long
+        swell were acquired. The WaMoS-II system at Glas Dowr measured a
+        radar image time series every 3 minutes.
+
+For each location, the WaMoS-II systems were set-up in the standard way
+for operational wave spectral estimation to derive the related sea state
+parameters [ Hessner1999 , Nieto2000 , Hessner2001 , Reichert2005 ] .
+Hence, each radar measurement is composed of a time series of 32
+consecutive radar images, where the sampling time of those time series
+is the antenna rotation period ( @xmath s) and the sampling spatial
+resolution is given by the range and azimuthal resolutions of the radar
+system. These raw data defined in polar coordinates (range and azimuth)
+are interpolated onto a Cartesian grid to enable the proper computation
+of the image spectra by using FFT-based algorithms. The spatial
+resolution of the interpolated Cartesian grid used in this work is
+@xmath m @xmath . As reference in-situ data, @xmath estimations measured
+from a buoy deployed in the vicinity of each radar location were used.
+
+##### 4.3.1 Predictive variables
+
+There is a clear need to improve the robustness of @xmath . To do this,
+it is basic that the predictive variables contain as much information as
+possible about @xmath . Thus, it is considered to use not only the
+signal-to-noise ratio as predictive variables for the SVR (as in the
+SM), which is the proposed method to do the prediction, but also to
+include additional parameters related with the wave length and periods
+of the wave field and the normalized spectral moments @xmath given by
+Equation ( 4.5 ). The list of predictive variables considers that, as it
+was mentioned above, the radar imagery mechanisms depend on the
+modulation of the backscattering of the electromagnetic fields by the
+long waves (swell and/or wind sea wave fields) [ Schmidt1995 ,
+Rozenberg1996 , Nieto2004 , Plant2008 ] . As this modulation is produced
+in the spatial domain, it depends on wave lengths, or, alternatively, on
+wave periods. Hence, using the standard output parameter list derived
+from the operational WaMoS-II analysis, the natural choice was to
+consider parameters related to peak or mean periods, or wave numbers.
+The list is completed with the normalized third-order moment @xmath
+because this spectral moment is calculated giving more weight to higher
+frequencies than the other moments considered @xmath and @xmath , which
+give respectively the mean wave period estimator @xmath , and @xmath .
+Taking that into account, the following predictive variables have been
+used for the proposed SVR method for the prediction:
+
+-   @xmath : signal-to-noise ratio defined from Equation ( 4.3 ).
+
+-   @xmath : peak wave number derived from the wave number spectrum.
+
+-   @xmath : peak frequency derived from the frequency spectrum @xmath .
+
+-   @xmath : this normalized spectral moment is an estimator of the mean
+    frequency using the spectrum @xmath as weighting function. This
+    parameter is related to the @xmath estimator of the mean wave period
+    (i.e @xmath ).
+
+-   @xmath : this parameter is the estimation of the mean value of
+    @xmath . @xmath is related to the estimator of the mean wave period
+    @xmath .
+
+-   @xmath : this parameter is the estimation of the mean value of
+    @xmath . @xmath is the normalized spectral moment used in this work
+    that gives more weight to the high frequency tail of the spectrum
+    @xmath .
+
+As mentioned before, in addition of these parameters derived from the
+analysis of the radar data, values of @xmath from buoys moored in the
+vicinity of the sea surface area illuminated by the radar antenna were
+used to obtain @xmath using the SVR algorithm (Section 1.2 .
+
+#### 4.4 Experiments and results
+
+This section presents the @xmath estimations obtained by the proposed
+SVR method for three platforms (Fino 1, Ekofisk and Glas Dowr)
+considered in the study. The SVR objective is obtained by means of
+in-situ sensors (buoy). To validate the proposed method, these results
+are compared with those by the SM described in Section 4.2.1 . First of
+all, it is detailed how the databases obtained from the considered
+platforms are processed to train the SVR. After this step, the results
+obtained and the SVR and SM performances on this problem are described.
+
+##### 4.4.1 Pre-processing of the databases
+
+In order to proceed to the training of the SVR model, the values of the
+SVR hyper-parameters @xmath , @xmath and @xmath must be chosen. For this
+purpose, a GS guided by the performance measured by cross validation on
+a subset of the database, so-called validation set , will be used. The
+size of the validation set has been selected depending on the total
+number of samples available for each one of the platforms, making it
+large enough to prevent over-fitting but in such a way that the required
+computation time to perform the evaluation is not excessive. With this
+in mind, the size of the validation set for each one of the platforms
+is: Ekofisk (10% of the samples), Glas Dowr (8% of the samples) and
+Fino 1 (2.5% of the samples).
+
+Once the hyper-parameters have been set, the remaining data samples are
+divided into two subsets: Training set with 80% of the samples, and Test
+set with the remaining 20%. The SVR model obtained after the
+optimization of the hyper-parameters is then trained using the training
+set and its performance evaluated using the data from the Test set. The
+complete process to train the SVR is outlined in Figure 4.2 , whereas
+Table 4.1 shows how the specific databases obtained from the different
+platforms considered where divided to train the SVR.
+
+##### 4.4.2 Results obtained
+
+Figures 4.3 , 4.4 and 4.5 show the scatter plots ( @xmath estimated with
+the predictive method versus the real @xmath measured at buoy), for
+Fino 1, Ekofisk and Glas Dowr, respectively. In each figure the
+comparison of the SVR with the SM is carried out.
+
+Note that the plots have been depicted in color scale by @xmath , so the
+performance at different @xmath values can be observed. Table 5.2 shows
+a summary of the obtained results, including values for @xmath and Mean
+Squared Error ( MSE ) in all the platforms considered.
+
+It is easy to see how the SVR approach outperforms SM in all the
+platforms considered, with values of @xmath significantly better for
+Fino 1 (0.95 vs. 0.89), slightly better at Ekofisk (0.96 vs. 0.95) and
+also better at Glas Dowr (0.89 vs. 0.85). The MSE values for the three
+locations are 0.18 m vs. 0.08 m in Fino 1, 0.22 m vs. 0.16 m in Ekofisk,
+and 0.38 m vs. 0.30 m in Glas Dowr. In this latter case, the poorer
+performance of both approaches respect to the other platforms requires a
+deeper analysis. A first hypothesis is that the algorithms’ performance
+is affected by the number of training/test samples available. In order
+to clarify this point, some more experiments in Fino 1 platform data
+have been carried out, where different size for training/test partitions
+for the SVR have been used (60% train, 40% test, 40/60 and 20/80). Note
+that in the last case, the number of training samples is very reduced,
+as in the Glas Dowr case. Table 4.3 shows the results obtained in these
+experiments, where it can be seen that the performance of the SVR is
+affected somehow by the number of training samples.
+
+This indicates that there must be a different cause for the poor
+performance of the algorithms in this platform. A possible reason for
+this poor algorithms’ performance might be found in the sea state
+conditions. Therefore, as it was discussed before, the model used in the
+SM, which uses Equations ( 4.3 ) and ( 4.4 ) tends to provide not so
+accurate @xmath estimations under some circumstances. In order to obtain
+additional information of the sea state conditions, the value of the
+significant wave steepness have been calculated ( @xmath ) from the buoy
+data (i.e. the reference sensor) in all the locations considered (Table
+4.4 ).
+
+As can be seen, the significant steepness in Glas Dowr is significantly
+smaller (with averaged values of @xmath of swell sea state conditions [
+Goda2010 ] ) than in the other two platforms. Then, this may indicate
+that Glas Dowr is mainly dealing with situations in which swell is the
+dominant sea state, reducing the performance of the algorithms.
+
+The analysis of the SVR performance can be extended by showing the
+@xmath estimation obtained with this technique in the test set, in terms
+of the temporal variation of @xmath . Figures 4.6 (a), (b) and (c) show
+this temporal SVR performance in Fino 1, Ekofisk and Glas Dowr
+platforms, respectively.
+
+Figure 4.7 complements the temporal figures before by including a direct
+comparison in terms of @xmath differences (measured minus predicted,
+@xmath ) in all the locations considered.
+
+As it can be seen, the performance of the SVR in Fino 1 and Ekofisk
+platforms databases is extremely good, following the trend and getting
+all the peaks in @xmath . The performance in Glas Dowr is poorer, as
+previously reported. The SVR is able to catch the trend in @xmath , but
+the reconstruction is not so accurate as in the other platforms. Note
+that the trend in @xmath is mainly due to storms occurred in the zone,
+so it is easy to see that the SVR is able to catch the behavior of the
+@xmath during these storms. The fact that the number of training samples
+is low in this platform seems to explain part of the poorer behavior of
+the SVR respect to the other measuring stations considered, as stated
+above. An additional analysis of the performance the proposed SVR-based
+method can better explain the SVR poor performance at Glas Dowr
+platform. The analysis is based on the calculation of bivariate
+histograms of the relative error in the @xmath estimation ( @xmath )
+with the corresponding significant wave steepness @xmath derived from
+the buoy data. The histograms for the three measuring stations
+considered in this work are shown in Figure 4.8 .
+
+This figure shows the histograms for each measuring station and each
+@xmath estimation method (i.e. the results derived from SM in the left
+part of Figure 4.8 , and the results derived from SVR on the right part
+of that figure). From these results, the following conclusions can be
+extracted separately for each station:
+
+-   Fino 1: These results are shown in the upper part of Figure 4.8 .
+    The Fino 1 measurements cover a wider range of different sea state
+    conditions than the other two stations. It can be seen that SM
+    presents a higher scatter than SVR (predicted) results in the
+    estimation of @xmath . Furthermore, the SVR results present a higher
+    percentage of data closer to the zero relative error than SM. In
+    addition, it can be seen that, in most of the cases, the points
+    where SM presents worse estimations of @xmath correspond to low
+    values of @xmath . It can be seen that in those cases SM
+    overestimates more @xmath .
+
+-   Ekofisk: The results obtained for this station appear in the middle
+    part of Figure 4.8 . It can be seen that, although SVR does not
+    induce an improvement in the scatter presented in the histogram, the
+    higher percentage of data are closer to the zero value of the
+    relative error than SM, which has a higher bias than SVR.
+
+-   Glas Dowr: The results corresponding to this station are shown in
+    the lower part of Figure 4.8 . These data do not contain so higher
+    values of @xmath than the other measuring stations. In addition, the
+    scatter is reduced with SVR comparing with SM and there are a higher
+    percentage of data closer to the zero value of the relative error
+    for the SVR results.
+
+It is well known that swell presents in many cases smaller wave
+steepness than wind sea, because of the longer wave length that swell
+wave spectra normally contain. This indicates that SM should fail more
+when the wave steepness is low, but this is an implication only in one
+sense, i.e. it does not mean that for all the cases where the steepness
+is low, SM should fail. For example, in some cases of a very young wind
+sea, the steepness could be low (because the low values of @xmath ), but
+the roughness on the sea surface may be enough to get a proper value of
+@xmath for the @xmath estimation. In addition, the wave steepness
+affects the radar imagery mechanisms, i.e. due to the effect of the tilt
+modulation caused by the wave slopes [ Alpers1981 , Bahar1983 ,
+Feindt2013 , Schröter2015 , West1989 , Ziemer1985 ] .
+
+#### 4.5 Conclusions
+
+In this work, a method for obtaining @xmath estimations from
+non-coherent X-band marine radars images has been presented. This method
+is based on the use of the SVR methodology, for implementing a
+non-linear function that relates some selected input parameters with an
+objective value of @xmath . After analyzing the results achieved by the
+SVR-based method and comparing them with the ones achieved by a SM,
+which is commonly used for @xmath estimation from non-coherent X-band
+marine radars, it can be observed that the proposed method presents
+better results reducing the scatter of the @xmath estimation. Hence, SVR
+method is able to outperform the SM by reducing the MSE error and
+increasing the correlation coefficient of the @xmath time series.
+Similar performances are achieved for the different platforms, which
+indicates that the performances presented here can be maintained for new
+data sets processed in the future for the same platforms.
+
+### Chapter 5 Efficient prediction of low-visibility events at airports
+
+#### 5.1 Introduction
+
+According to the World Meteorological Organization [ WMO2011 ] , fog is
+defined as the reduction in horizontal visibility to less than 1000 m.
+When the observed horizontal visibility is at least 1000 m, but not more
+than 5000 m, the phenomenon is called mist . Fog is typically classified
+according to the physical process that produces saturation or
+near-saturation of the air, such as strong evaporation,
+rain/post-frontal fogs or radiation and advective phenomena. The
+occurrence of fog and mist impact on a wide variety of human activities.
+Among them, air transportation is probably one the most affected
+sectors: foggy days dramatically restrict airport activities and cause
+flight delays, diversions and cancellations [ Rebollo2014 ] , or
+accidents in the worst cases [ Ahmed2014 ] . According to [ Bergot2007 ]
+, the landing and take-off capacity at Paris-Charles de Gaulle
+International Airport is reduced by a factor of two during
+low-visibility conditions.
+
+To aid the aeronautical community in dealing with low-visibility
+conditions at airports, meteorological services prepare terminal
+aerodrome forecasts for the local area around an airfield in accordance
+with the regulations of the International Civil Aviation Organization,
+specifically those provided in Annex 3 to the Convention on
+International Civil Aviation [ Jeppesen2015 ] . Although terminal
+aerodrome forecasts are tailored to the needs of airlines and aircraft
+operators for flight planning (both pre-flight and intra-flight), they
+also assist air traffic and airport managers, for example, in activating
+specific procedures for ensuring safe operations during mist or fog
+conditions. Forecasting low-visibility conditions is frequently a
+difficult task requiring both knowledge of the meteorological causes of
+mist or fog formation, and a thorough awareness of the local topography.
+Consequently, aeronautical meteorological forecasters integrate
+different sources of information, such as observations, numerical
+weather prediction and other guidance tools to make a final robust
+decision on low-visibility forecasts. Hence, new techniques and
+methodologies are being developed to help forecasters improve the
+prediction of reduced-visibility events at airports facilities.
+
+Numerical weather prediction is one of the most widely-used approaches
+by meteorological service providers for forecasting reduced-visibility
+conditions due to fog at airports. The most common procedure is to
+analyze the outputs of three-dimensional global models, such as the
+Global Forecast System from the National Oceanic and Atmospheric
+Administration [ Kanamitsu1991 ] , the Integrated Forecasting System
+from the European Centre for Medium-Range Weather Forecasts [
+Simmons1989 ] , or mesoscale models, such as the Weather Research and
+Forecasting model [ Skamarock2008 ] and the High-Resolution Limited-Area
+Model [ Unden2002 ] . Nevertheless, as stated by many authors [
+Van-der-Velde2010 , Zhou2011 , Roman2012 , Steeneveld2015 ] , the
+forecasting of fog events by numerical weather prediction is
+particularly difficult, in part because fog formation is extremely
+sensitive to small-scale variations of atmospheric variables, such as
+wind-shifts or changes in the low-level stability. One of the most
+significant drawbacks is the extremely high vertical resolution required
+to accurately simulate fog formation in the lower boundary layer [
+Herman2016 ] . To help overcome this problem, several single-column
+models have been developed for the forecasting of fog events [
+Bergot1994 , Duynkerke1998 , Bott2002 , Terradellas2006 ] , with a
+higher vertical grid resolution and a more comprehensive description of
+cloud microphysical processes. Some authors have also combined
+single-column models with three-dimensional models to provide a detailed
+numerical simulation of the thermo-hydrodynamic state of the atmosphere
+[ Bartok2012 , Fedorova2013 ] .
+
+Other research topics related to numerical weather prediction focus on
+the development of ensemble-prediction systems, since small differences
+in either the initial conditions, or in the model itself, increase and
+become significantly large after a certain time increment due to the
+chaotic and highly nonlinear nature of the atmospheric system [
+Lorenz1965 ] . Thus, ensemble prediction systems account for the
+uncertainty in weather forecasts, where, for example, an ensemble
+prediction combined with the Weather Research and Forecasting model was
+developed to forecast fog events in 13 cities in East China [ Zhou2010 ]
+. Although some interesting results have been achieved with numerical
+models and ensemble prediction systems, the necessary computational and
+human resources, knowledge and facilities require major investments
+beyond that available.
+
+Another interesting research topic consists of using statistical
+methods. One of the first such attempts was the use of linear regression
+[ Koziara1983 ] . Subsequently, ANNs have also been used with
+statistical methods for fog prediction due to their capacity in dealing
+with complex nonlinear interactions among input and objective variables,
+and their performance in forecasting fog events based on more accessible
+observational variables. As an example, [ Fabbian2007 ] successfully
+assessed the ability of a MLP with a back-propagation training algorithm
+to forecast fog events at Canberra International Airport. More recently,
+[ Dutta2015 ] obtained good results with a MLP with a back-propagation
+learning technique to forecast 3-h visibility intervals during winter at
+Kolkata airport (India). [ Colabone2015 ] also used a very similar
+artificial neural network to predict the occurrence of fog events at the
+Academia da Força Aérea (Brasil). Other alternative
+artificial-intelligence techniques, such as FL [ Miao2012 ] or Bayesian
+decision networks [ Boneh2015 ] , have been applied to forecast
+low-visibility conditions.
+
+Here, the performance of different machine-learning-based regressors are
+examined in forecasting low-visibility conditions at airports, and
+propose state-of-the-art regressors, which, to our knowledge, have not
+been previously applied to the problem of hourly forecasting of
+low-visibility events in terms of the runway visual range at airports.
+SVRs, ELMs and GPs have been evaluated in the prediction of
+low-visibility events at the Valladolid airport (Spain). Also the extent
+to which the atmospheric input variables may be pre-processed with the
+wavelet transform is investigated, and show how the
+machine-learning-based regressors obtain excellent results in the
+prediction of low-visibility conditions at airport facilities.
+
+In the following section, the specific problem, including the processing
+of the relevant predictive variables is described. Section 5.3 presents
+the main characteristics of the regression methods adapted to
+low-visibility prediction, as well as the wavelet methodology for data
+pre-processing. Section 5.4 details experimental results obtained in the
+prediction of low visibility at the Valladolid airport during several
+winter months. Finally, Section 5.5 provides some final remarks
+concerning this research and future work.
+
+#### 5.2 Predictive Data and Objective Variables
+
+The prediction of low-visibility events is considered at the Valladolid
+airport, Spain (41.70 N, 4.88 W), shown in Figure 5.1 , which is the
+most important airport of the autonomous community of Castile-Leon in
+the “Montes Torozos” region (a very homogeneous and extensive area – 800
+km @xmath – on the northern plateau of the Iberian Peninsula), and is
+well-known for its foggy days. Due to the geographical and
+climatological characteristics of this area, radiation fog is by far the
+most frequent fog phenomenon [ Roman2016 ] , due partly to its proximity
+to the Duero river basin [ Morales1994 ] . A detailed climatology for
+Valladolid airport of the most important aeronautical-meteorological
+variables can be found in [ AEMET2012 ] , which analyzes, among other
+variables, the runway visual range for the period 1998–2011 to show
+November, December, January and February with the highest number of
+low-visibility events on average, while the summer months have the
+least.
+
+To study the occurrence of reduced-visibility conditions, it is used the
+data from a 100m meteorological tower located at the Research Centre for
+the Lower Atmosphere “José Casanova” (CIBA), which is located about 13
+km north-north-west of the airport. In situ information of the most
+basic parameters relevant to radiation fog at the airport is provided by
+meteorological data obtained from the two runway thresholds. The target
+variable is the runway visual range obtained from three visibilimetres
+deployed along the airport runway (the touchdown zone, the mid-point and
+stop-end of the runway), which belong to the aeronautical observation
+network of the Meteorological State Agency of Spain. Note that these
+instruments are managed under a quality-management system certified by
+ISO 9001:2008, which guarantees measurement accuracy, and ensures the
+compliance of the measurements with international standards. It is also
+important to note that although meteorological airport reports (also
+commonly known as METAR reports) are prepared with human intervention at
+the Valladolid airport, they are not a good source of information,
+because the Valladolid airport is not a 24-h airport, which means
+observational information is lacking between 1930 and 0430 local time in
+summer, and from 2030 to 0530 local time in winter. The complete list of
+input and target variables considered are summarized in Table 5.1 .
+Hourly data at the Valladolid airport from 2008 to 2013 is considered
+during the months when radiation fog is most intense according to [
+AEMET2012 ] (November, December, January and February). The prediction
+time horizon has been set to 1 h, which requires successful prediction
+of the visibility at the airport 1 h later than the timestamp of input
+data (predictive variables), though experiments with a larger time
+horizon are also considered.
+
+#### 5.3 Methods
+
+The machine-learning regressors, including the SVRs, MLPs, ELMs and GP
+are used in this study, and they are also defined in Section 1.2 . Note
+that all the regressors considered are state-of-the-art methods in
+regression problems that have been demonstrated to give very good
+results in previous applications. Some general characteristics of the
+methods are well known: for example, the ELM is a very fast training
+algorithm, since it is based on random weights and a pseudo-inverse
+calculation. In contrast, the GP is usually the most
+computationally-demanding approach to be trained, and has shown poor
+performance for large data (though not the case here). While the MLP
+with the Levenberg-Marquardt training algorithm is a strong regression
+approach, it is computationally more demanding than the ELM. In terms of
+computational requirements in the training phase, the SVR is comparable
+to the MLP approach. The specific performances of these algorithms in
+the prediction of the runway visual range at Valladolid airport are
+detailed in Section 5.4 .
+
+The description of the wavelet transform used is also included for
+pre-processing the input data in some of the experiments described
+below. Figure 5.2 a provides a general view of the proposed system
+structure, where the initial database is either directly passed to the
+regressors, or pre-processed with a wavelet methodology to give greater
+diversity in the variables. In any case, the considered regressors
+process this information to yield a final prediction. Figure 5.2 b shows
+the structure of the training/testing process. First, the initial
+database is split into training and testing datasets to train the
+regressors with the mathematical expressions given in Section 1.2 , and
+to evaluate the performances of the different methods, respectively.
+
+The explanation of the wavelet transform will be explained directly
+below because the rest of the regression algorithms used in this study
+are explained in depth in chapter 1 .
+
+##### 5.3.1 Discrete-Wavelet-Transformation Algorithm
+
+In some regression problems, a specific pre-processing of the input data
+improves the performance of the regressors, such as the use of wavelet
+transforms [ Deo2016 , Nourani2014 ] , whose basic aspects are outlined
+here. For further details, the interested reader may consult [
+Mallat1998 ] .
+
+For a continuous signal of interest @xmath , its wavelet transform is
+defined as [ Nourani2014 ]
+
+  -- -------- -- -------
+     @xmath      (5.1)
+  -- -------- -- -------
+
+where @xmath is a scale factor, @xmath is the temporal translation of
+the function @xmath , @xmath denotes the complex conjugate, and @xmath
+is the mother wavelet transform. As input data are usually composed of
+discrete values @xmath , it is necessary to use the discrete-wavelet
+transform to decompose the signal, for which the mother wavelet
+transform has the expression
+
+  -- -------- -- -------
+     @xmath      (5.2)
+  -- -------- -- -------
+
+where @xmath is the specified fine-dilation step equal to 2 in most
+cases, @xmath is the location parameter set to 1 in most cases, and
+@xmath and @xmath are integers that control the wavelet dilation and
+location, respectively. The discrete-wavelet transform usually considers
+the values of @xmath and @xmath based on powers of two. The mother
+wavelet in compact notation [ Mallat1998 ] is
+
+  -- -------- -- -------
+     @xmath      (5.3)
+  -- -------- -- -------
+
+whereby the wavelet coefficients with a scale @xmath and location @xmath
+are written as
+
+  -- -------- -- -------
+     @xmath      (5.4)
+  -- -------- -- -------
+
+where @xmath is the finite time series of interest, @xmath and @xmath is
+an integer power of 2, i.e., @xmath . Thus, the inverse discrete-wavelet
+transform (the reconstruction of the function @xmath ) is given by [
+Nourani2014 ]
+
+  -- -------- -- -------
+     @xmath      (5.5)
+  -- -------- -- -------
+
+where @xmath is the approximation sub-series at level @xmath , and
+@xmath is the detail of the sub-series at levels @xmath . In this case,
+one level of approximation and three levels of detail sub-series for
+each predictor is considered.
+
+Note that because of the wavelet coefficients, it is possible to analyze
+some details of the frequencies contained in the signal of interest in
+terms of the large scale (approximation) or small scale (detailed),
+resulting in a powerful pre-processing scheme in which different
+sub-series @xmath are generated and used to increase the information at
+the input of the prediction system. In this case, the wavelet
+pre-processing of the predictive variables for the problem of
+low-visibility prediction is carried out by specific functions contained
+in a Matlab toolbox [ Matlab2014 ] . Figure 5.3 shows an example of the
+signal decomposition into different sub-series (approximation and
+detailed parts). The wavelet transform is applied to the input data
+(predictive variables) to decompose the signal into approximation and
+detailed parts. An example is given below for a given variable of the
+prediction process (variable 1: air temperature at 96.6 m), which is
+carried out several times by applying the wavelet transform again to the
+approximation part resulting from the previous step, as seen in Figure
+5.3 .
+
+#### 5.4 Results
+
+Here it is presented the results obtained by the different regression
+algorithms in estimating the runway visual range at Valladolid airport.
+To provide an additional baseline for comparison, in addition to the
+several regressors already considered, the results are compared in terms
+of the root-mean-square error ( @xmath ) with that of the persistence
+model ( @xmath ), for which a skill score with a persistence model as a
+reference is defined as
+
+  -- -------- -- -------
+     @xmath      (5.6)
+  -- -------- -- -------
+
+where @xmath is the error (RMSE) of the forecast of the proposed
+methods, and @xmath is the RMSE of the persistence model. Note that the
+closer @xmath is to zero, the more similar the model @xmath is to the
+persistence. Note that positive values of @xmath means the model @xmath
+outperforms the persistence (baseline model for this problem), whereas
+negative values of @xmath imply the persistence is a better model for
+prediction than @xmath .
+
+First the importance of including wavelets is considered, as well as the
+external variables from the CIBA meteorological tower, for the
+assessment of the algorithms with and without these variables. Table 5.2
+shows the best results obtained by the machine-learning approaches, both
+with and without the wavelet method, in which all the variables from the
+CIBA tower are included in terms of the @xmath , the @xmath ,
+correlation coefficient ( @xmath ) and the skill score ( @xmath ). In
+all cases, each algorithm is trained using 80% of the data for train and
+20% for test, both sets randomly chosen. Without the wavelet method
+(left-hand column), it can be observed that the GP regression provides
+the best results for all the performance metrics, with a @xmath better
+than that of the MLP (second best), where @xmath . In contrast, the ELM
+and SVR show poorer results than the MLP and GP, where the SVR delivers
+the worst error values. Regarding the prediction of low-visibility
+events including a pre-processing step with the wavelet method
+(right-hand column), the results of the ELM are worsened for all the
+metrics, which, however, remain fairly constant with the exception of
+the @xmath metric, which increases slightly, but not enough to improve
+the skill score. A significant improvement in the MLP and the GP is
+detected when applying pre-processing with wavelets, where all
+performance metrics improve similarly in both cases.
+
+The @xmath is reduced by over 16 m in both approaches, which improves
+their accuracy. Similarly, the @xmath is reduced, which improves the
+sensitivity of the MLP and GP to large errors. The @xmath for both
+methods shows the same improvement trend, leading to better results than
+in the case without the wavelet pre-processing method. The skill score
+improves from @xmath to @xmath for the MLP, and from @xmath to @xmath
+for the GP. Therefore, based on these the latter results, it can be
+concluded that the MLP and GP with the wavelet pre-processing step
+improve the prediction of low-visibility events than the other
+regression methods.
+
+To complete this first aspect of the results, the performance of the
+different regressors is compared with wavelet pre-processing in Table
+5.3 without the CIBA-tower variables. Note that the performance of all
+the methods is clearly affected by the removal of the CIBA-tower
+variables for all metrics. With respect to the skill score, note that
+the best algorithm (GP) worsens from @xmath to @xmath , with the other
+algorithms suffering a similar performance when the CIBA-tower variables
+are removed, demonstrating the importance of considering these variables
+in predicting the runway visual range.
+
+The effect of considering different prediction time horizons (from 1 h
+to 4 h) is shown in Figure 5.4 , with and without the CIBA-tower
+variables, where the performance of all the considered regressors is
+slightly affected by increasing the prediction time horizon, and thereby
+obtaining worse results. In the case without CIBA-tower variables, it is
+possible to see the degree to which the performance of the GP and the
+MLP are similar for all the prediction time horizons. The inclusion of
+the CIBA-tower variables improves the GP over the MLP, which indicates
+that the GP takes superior advantage of the information provided by
+these variables.
+
+Figures 5.5 and 5.6 show two examples of the prediction of
+low-visibility events by the best algorithms tested including a wavelet
+pre-processing, where the prediction of the runway visual range and a
+normalized scatter plot are shown. Note that the MLP over-estimates the
+runway visual range in very low visibility conditions, whereas the GP
+gives a more accurate prediction, even in situations of very low
+visibility without a clear over-estimation of the runway visual range.
+Hence, it is this exceptional skill of the GP with wavelet
+pre-processing that makes it the best option for implementation in
+short-term low-visibility prediction systems in support of air
+navigation and airport services.
+
+More insight on the regressor performance is obtained by analyzing
+results when separating daytime (hours between sunrise and sunset) from
+nighttime (the remaining hours) cases. Since atmospheric conditions
+during the day and night are different in terms of boundary-layer
+stability, which conditions the degree of fog formation, the forecast
+time may impact the algorithm performance. Table 5.4 shows results for
+day and night cases, which indicate the GP is better in terms of @xmath
+during the night, where @xmath for the nighttime case, whereas @xmath
+for the daytime. The other regressors seem to perform better in the
+nighttime case in terms of the @xmath , @xmath and @xmath , though the
+skill score is quite similar for both the nighttime and daytime cases.
+Note that the GP is still the best performing algorithm, since it
+outperforms the other regressors for low-visibility events for both
+periods, indicating the superiority of the GP in the handling of the
+predictive variables compared with the other regressors.
+
+Algorithm performance in terms of classification accuracy is carried out
+by including thresholds at different runway visual ranges, whereby
+different procedures are triggered depending on the visibility
+conditions at the airport. The 1000-m threshold is considered because
+low-visibility procedures are activated at airports when the magnitude
+of the runway visual range is @xmath 1000 m. The 550-m and 300-m
+thresholds are also considered since they are the limits whereby
+category I and II precision-instrument approach and landing operations
+are performed, respectively. Table 5.5 shows the confusion matrices
+obtained after applying different thresholds (for visibilities @xmath
+1000 m, 550 m and 300 m) for the best algorithms (the MLP and GP), where
+the GP obtains better classification values than the MLP. The percentage
+of correct classification is @xmath 98% (also for the MLP) in visibility
+situations over the 1000-m threshold, and over 80% under the threshold
+(68% for the MLP). When the visibility threshold is lower, the correct
+classification percentage is evidently lower, and the false negatives
+given by the algorithms are much more frequent. Note that for the 300-m
+threshold, the MLP is not able to correctly classify any low-visibility
+runway visual ranges. In contrast, the GP makes the correct
+classification in some cases, and thus is the most reliable method among
+those tested here for the prediction of low-visibility events at
+airports.
+
+#### 5.5 Conclusions
+
+A model for the prediction of low-visibility events at airport
+facilities based on machine-learning regression techniques is proposed.
+The performance of several state-of-the-art machine-learning regressors
+is examined for a real case study at the Valladolid airport (Spain). The
+input data are atmospheric variables obtained from local measurements at
+the airport, as well as a meteorological tower nearby. As the objective
+variable, the runway visual range at the airport is obtained from three
+visibilimetres deployed along the runways (the touchdown zone, the
+mid-point and stop-end of the runway). A study of the variables
+contributing the most to the prediction of low-visibility events is also
+carried out, together with the application of a wavelet transform to
+further exploit the information of the input variables. While excellent
+results in the prediction of low visibility at the study area are
+obtained with the proposed model, the method requires the use of an
+instrumented tower nearby. Since most airports are not equipped with
+such extra instrumentation, the applicability of the proposed
+machine-learning techniques may be limited. Therefore, future work is to
+evaluate the performance of alternative data sources concerning the
+vertical structure within the lower part of the boundary layer, such as
+conventional radio-soundings (ground-based), satellite-based atmospheric
+soundings or aircraft meteorological data relays. Additional research to
+study extremely low visibility is also required, since these situations
+have a greater impact on airport operations and aeronautical navigation
+than situations with merely reduced visibility. For example,
+extreme-event probability distributions or related techniques could be
+combined with machine-learning approaches.
+
+## Part IV Final remarks and future research activities
+
+### Final remarks
+
+This Ph.D. thesis deals with the improvement of the optimization process
+in the exploitation of several renewable energies, as well as the study
+of the most important variables in meteorology whose influence is
+fundamental in the correct operation of facilities management in oceanic
+engineering and airports. The use of soft computing techniques, in
+particular neural approaches and EAs, are key in the development of the
+experiments carried out in this work.
+
+From the results of the research activity developed within this work,
+several conclusions can be extracted, and they are summarized in this
+chapter.
+
+-   A hybrid prediction system for wave energy prediction has been
+    proposed, and improved by means of a BO methodology. A FS method is
+    applied to obtain the best features for the final prediction, the
+    wave energy flux and significant wave height in the case under
+    study. This procedure demonstrates that is possible to obtain good
+    results without a high computational load. Once the selection
+    process is done, the final prediction is carried out with ELM or SVR
+    approach in order to compare the performance of both algorithms. In
+    any case, the application of BO is able to improve the performance
+    of the system. This improvement is related to the optimal selection
+    of parameters carried out, being the increase of computational time
+    the only inconvenient of the BO proposal. Nevertheless, this
+    increase only affects the training phase and not the operation
+    phase, in which predictions are made after training, therefore, this
+    limitation is not an issue.
+
+-   A hybrid approach is proposed for the prediction of WPREs in this
+    thesis. In this case the combination of data from numerical-physical
+    models (reanalysis) and state-of-the-art statistical ML regressors
+    is proposed. The first contribution of this proposal is the use of
+    the regressors to predict the WPREs, because these methods has not
+    been previously applied directly to WPRE prediction. The second
+    contribution is the use of direct reanalysis data as input
+    (predictive) variables of the ML regression techniques. The results
+    show good performance, especially those corresponding to ELM and GP
+    approaches. In fact, GP exhibits the best results, outperforming
+    clearly the rest of the ML regressors tested. Moreover, the use of
+    reanalysis data is specially relevant in this problem, making easier
+    the training of ML regressors since the ERA-Interim reanalysis
+    provides robust meteorological variable estimation back to 1979,
+    with high spatial and enough temporal resolution to tackle this
+    problem.
+
+-   A method for obtaining @xmath estimations from non-coherent X-band
+    marine radars images has been presented as first contribution of the
+    thesis to facilities management. After analyzing the results
+    achieved by the SVR-based method and comparing them with the ones
+    achieved by a standard method, which is commonly used for @xmath
+    estimation from non-coherent X-band marine radars, it can be
+    observed that the proposed method presents better results reducing
+    the scatter of the @xmath estimation. The SVR methodology is able to
+    increase the correlation coefficient of the @xmath time series.
+
+-   A model for prediction of low-visibility at airports is finally
+    presented in this thesis. The performance of several
+    state-of-the-art ML regressors is examined for a real case study at
+    the Valladolid airport (Spain). A study of the variables
+    contributing the most to the prediction of low-visibility events is
+    also carried out, together with the application of a wavelet
+    transform to further exploit the information of the input variables.
+    The method proposed requires the use of an instrumented tower
+    nearby. Since many small airports are not equipped with such an
+    extra instrumentation, the applicability of the proposed
+    machine-learning techniques may be limited.
+
+The results obtained in this research work have been presented at
+several international events and accepted or published in scientific
+publications in the Journal Citation Reports (JCR). In particular,
+during the last 3 years, 9 papers have been accepted for publication in
+relevant international journals, and other ones are currently under
+review. In addition, 6 papers have been presented in International
+conferences, and another one in a national congress. A complete list of
+the papers related to the research work performed in this Ph.D. thesis
+can be seen in V .
+
+### Future research lines
+
+Despite the different results obtained from this Ph.D. thesis, there are
+several directions in which subsequent studies could progress. Some of
+the detected areas to be addressed in depth in near future are:
+
+-   Due to the generality of the approaches used in the majority of
+    problems tackled in this work, the methodology used in the case of
+    ocean wave features prediction can be extended to alternative
+    prediction systems and other problems. Specially to hybrid
+    approaches involving ML algorithms with a high number of parameters
+    to be tuned.
+
+-   In this work several approaches belonging to the state-of-the-art ML
+    techniques are used. However, there are many advances in this field,
+    for instance, the Convolutional Neural Network ( CNN )s. A CNN
+    consists of a number of convolutional and subsampling layers
+    optionally followed by fully connected layers. The input of a CNN
+    used to be an image, therefore, the study of ocean wave parameters
+    can be done by means of images of the wave’s spectrum. The idea is
+    to obtain the prediction of the main parameters ( @xmath , @xmath ,
+    etc.) as of images which contain the spectrum in frequency of the
+    wave data from oceanographic buoys.
+
+-   In the case of low-visibility prediction at airports, since many
+    small airports are not equipped with a nearby measuring tower, the
+    applicability of the proposed machine-learning techniques may be
+    limited. Therefore, future work is to evaluate the performance of
+    alternative data sources concerning the vertical structure within
+    the lower part of the boundary layer, such as conventional
+    radio-soundings (ground-based), satellite-based atmospheric
+    soundings or aircraft meteorological data relays. Additional
+    research to study extremely low visibility is also required, since
+    these situations have a greater impact on airport operations and
+    aeronautical navigation than situations with merely reduced
+    visibility. For example, extreme-event probability distributions or
+    related techniques could be combined with machine-learning
+    approaches.
+
+-   Other research activities made during the Ph.D period which does not
+    appear in this work, but which are published in journals, are
+    related with the estimation of solar radiation by means of
+    neuro-evolutionary hybrid mechanisms. The modelling system at daily
+    forecast horizons could provide real-time energy utilization in
+    power grids at a short-term temporal scale. However, a future study
+    could validate the model for longer-term horizon, including seasonal
+    scales that may enable energy experts in decision-making in relation
+    to longer-term energy stainability projects. In addition, in
+    real-time systems, the data behavior issues (e.g.,
+    non-stationarities, trends and jumps in input time-series) due to
+    dynamical or stochastic nature of climate variables could also be
+    considered to improve the model. There is opportunity to apply the
+    model to some of the other solar-rich cities and regional sites
+    (incorporating the universally available satellite data) to help
+    enhance the practicality of the neuro-evolutionary wrapper
+    methodology proposed in this study.
+
+## Part V Appendix
+
+### Apendix A. List of publications
+
+This section presents a summary of scientific publications obtained
+during the research in this thesis.
+
+#### Papers in International Journals
+
+1.   L. Cornejo-Bueno , J. C. Nieto Borge, E. Alexandre, K. Hessner, S.
+    Salcedo-Sanz, “Accurate Estimation of Significant Wave Height with
+    Support Vector Regression Algorithms and Marine Radar Images”,
+    Coastal Engineering, vol. 114, pp. 233-243, 2016 (JCR 2016: 3.221)
+
+2.  A. Aybar-Ruiz, S. Jiménez-Fernández,  L. Cornejo-Bueno , C.
+    Casanova-Mateo, J. Sanz-Justo, P. Salvador-González, S.
+    Salcedo-Sanz, “A novel Grouping Genetic Algorithm-Extreme Learning
+    Machine Approach for Global Solar Radiation Prediction from
+    Numerical Weather Models Inputs”, Solar Energy, vol. 132, pp.
+    129-142, 2016 (JCR 2016: 4.018)
+
+3.   L. Cornejo-Bueno , J. C. Nieto Borge, P. Garcáa-Díaz, G.
+    Rodríguez, S. Salcedo-Sanz, “Significant Wave Height and Energy Flux
+    Prediction for Marine Energy Applications: A Grouping Genetic
+    Algorithm-Extreme Learning Machine Approach”, Renewable Energy, vol.
+    97, pp. 380-389, 2016 (JCR 2016: 4.357)
+
+4.  M. Dorado-Moreno,  L. Cornejo-Bueno , P.A. Gutiérrez, L. Prieto, C.
+    Hervás-Martínez, S. Salcedo-Sanz, “Robust Estimation of Wind Power
+    Ramp Events with Reservoir Computing”, Renewable Energy, vol. 11,
+    pp. 428-437, 2017 (JCR 2016: 4.357)
+
+5.   L. Cornejo-Bueno , C. Casanova-Mateo, J. Sanz-Justo, E.
+    Cerro-Prada, S. Salcedo-Sanz, “Efficient Low-Visibility Event
+    Prediction at Airports using Machine-Learning Regression
+    Techniques”, Boundary-Layer Meteorology, vol. 165, no. 2, pp.
+    349-370, 2017 (JCR 2016: 2.573)
+
+6.   L. Cornejo-Bueno , E.C. Garrido-Merchán, D. Hernández-Lobato, S.
+    Salcedo-Sanz, “Bayesian Optimization of a Hybrid System for Robust
+    Ocean Wave Features Prediction”, Neurocomputing, 2017 (JCR 2016:
+    3.317)
+
+7.  Z.M. Yaseena, R.C. Deo, A. Hilald, A.M. Abde,  L. Cornejo-Bueno , S.
+    Salcedo-Sanz, M.L. Nehdig, “Predicting Compressive Strength of
+    Lightweight Foamed Concrete using Extreme Learning Machine Model”,
+    Advances in Engineering Software, 2017 (JCR 2016: 3.000)
+
+8.  S. Salcedo-Sanz, R.C. Deo,  L. Cornejo-Bueno , C. Camacho-Gómez, S.
+    Ghimire, “An Efficient Neuro-Evolutionary Hybrid Modelling Mechanism
+    for the Estimation of Daily Global Solar Radiation in Sunshine State
+    of Australia”, Applied Energy, vol. 209, pp. 79-94, 2017 (JCR 2016:
+    7.182)
+
+9.   L. Cornejo-Bueno , L. Cuadra, S. Jiménez-Fernández, J.
+    Acevedo-RodrÃíguez, L. Prieto, S. Salcedo-Sanz, “Wind Power Ramp
+    Events Prediction with Hybrid Machine Learning”, Energies, vol. 10,
+    no. 11, pp. 1784-1811, 2017 (JCR 2016: 2.262)
+
+#### Papers in international conferences
+
+1.  R. Mallol-Poyato, S. Jiménez-Fernández,  L. Cornejo-Bueno , P.
+    Díaz-Villar and S. Salcedo-Sanz, “Nested Evolutionary Algorithms for
+    Joint Structure Design and Operation of Micro-grids under Variable
+    Electricity Prices Scenarios”, 10th edition of INISTA, Madrid,
+    Espa’na, pp. 114-118, 2015
+
+2.  P.A. Gutiérrez, J.C. Fernández, M. Pérez-Ortiz,  L. Cornejo-Bueno
+    , E. Alexandre-Cortizo, S. Salcedo-Sanz, and C. Hervás-Martínez,
+    “Energy Flux Range Classification by using a Dynamic Window
+    Autoregressive Model”, 13th International Work Conference on
+    Artificial Neural Networks, IWANN 2015. Lecture Notes in Computer
+    Science, vol. 9095, pp. 92-102, 2015
+
+3.   L. Cornejo-Bueno , A. Aybar-Ruiz, S. Jiménez-Fernández, E.
+    Alexandre, J. C. Nieto-Borge and S. Salcedo-Sanz, “A Grouping
+    Genetic Algorithm-Extreme Learning Machine Approach for Optimal Wave
+    Energy Prediction”, IEEE World Congress on Computational
+    Intelligence, Vancouver, Canadá, pp. 3817-3823, 2016
+
+4.  C. Camacho-Gómez, R. Mallol-Poyato, S. Jiménez-Fernández,  L.
+    Cornejo-Bueno and S. Salcedo-Sanz, “Optimal Placement of Distributed
+    Generation in Micro-grids with Binary and Integer-encoding
+    Evolutionary Algorithms”, IEEE World Congress on Computational
+    Intelligence, Vancouver, Canadá, pp. 3630-3637, 2016
+
+5.   L. Cornejo-Bueno , E. Garrido-Merchán, D. Hernández-Lobato and S.
+    Salcedo-Sanz, “Bayesian Optimization of a Hybrid Prediction System
+    for Optimal Wave Energy Estimation Problems”, IWANN, CÃ¡diz, Spain,
+    pp. 648-660, 2017
+
+6.   L. Cornejo-Bueno , A. Aybar-Ruiz, C. Camacho-Gómez, L. Prieto, A.
+    Barea-Ropero and S. Salcedo-Sanz, “A Hybrid Neuro-Evolutionary
+    Algorithm for Wind Power Ramp Events Detection”, IWANN, CÃ¡diz,
+    Spain, pp. 745-756, 2017
+
+#### Invited talks
+
+1.   L. Cornejo-Bueno , A. Aybar-Ruiz, J. C. Nieto-Borge and S.
+    Salcedo-Sanz, “A New Hybrid GGA-ELM Approach for Significant Wave
+    Height Prediction in Marine Energy Applications”, 15th EU/ME
+    Workshop on Metaheuristic Applications, Madrid, Espa’na, 2015
+
+#### National conferences
+
+1.   Laura Cornejo-Bueno , Carlos Camacho-Gómez, Adrián Aybar-Ruiz, Luis
+    Prieto and Sancho Salcedo-Sanz, “Feature Selection with a Grouping
+    Genetic Algorithm - Extreme Learning Machine Approach for Wind Power
+    Prediction”, XI Congreso Espa’nol de Metaheurísticas, Algoritmos
+    Evolutivos Y Bioinspirados (MAEB 2016), Salamanca, Espa’na, pp.
+    373-382, 2016
+
+### Apendix B. Awards
+
+1.  Accesit (second prize) of the Competition “Thesis in 3 minutes”, for
+    the branch of knowledge “Engineering and Architecture”. Universidad
+    Rey Juan Carlos and Universidad de Alcalá, July, 2016
+
+## Part VI Bibliography

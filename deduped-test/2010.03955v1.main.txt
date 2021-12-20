@@ -1,0 +1,1580 @@
+## Chapter 1 Introduction
+
+Tuning hyperparameters is considered a computationally intensive and
+tedious task, be it for neural networks, or complex physical instruments
+such as free electron lasers. Users for such applications could benefit
+from a ’one-click-search’ feature, which would find optimal parameters
+in as few function evaluations as possible. This project aims to find
+such an algorithm which is both efficient and holds certain convergence
+guarantees. We focus our efforts on Bayesian Optimization (BO) and
+revise techniques for high-dimensional BO.
+
+In Bayesian Optimization, we want to use a Gaussian Process to find an
+optimal parameter setting @xmath that maximizes a given utility function
+@xmath . The procedure consists of 1. generating such a surrogate
+surface, using Gaussian Processes, and 2. applying an acquisition
+function. The acquisition function allows for a tradeoff between
+exploitation of the best found global maximum so far, and exploration -
+searching for a configuration @xmath whose neighborhood was not picked
+yet.
+
+#### 1.0.1 Main Contributions
+
+Our main contributions are:
+
+1.  We conduct a systematic analysis of the state of the art and
+    identify shortcomings and strengths of some popular methods .
+
+2.  We define a new algorithm called "BORING," which is supposed to take
+    into consideration small perturbations that could yield marginal
+    improvement over standard algorithms. BORING also provides a more
+    robust framework than some other methods concerning the accuracy of
+    identified subspaces. One can say that BORING provides a fallback
+    mechanism when the matrix identification fails, and otherwise only
+    adds a small penalty concerning regret.
+
+3.  We demonstrate that the log-likelihood loss is not a single best
+    metric to optimize over, and demonstrate its correlation to the
+    angle-difference between embeddings for three different types of
+    functions. One cannot rely upon that the decreasing log-likelihood
+    will decrease the angle-difference between the real embedding matrix
+    and the found embedding matrix. However, the log-likelihood provides
+    a good heuristic for this task for most functions.
+
+4.  We conduct a short analysis to what extent linear dimensionality
+    reduction techniques can be used for feature selection.
+
+We will talk about the problems and possible solutions for the task at
+hand in the next section.
+
+## Chapter 2 Background
+
+### 2.1 Bayesian Optimization in high dimensions
+
+Many technical problems can be boiled down to some flavor of black box
+optimization. Such problems include neural architecture search (
+BayesianOptimizationNAS ) , hyper-parameter search for neural networks,
+parameter optimization for electron accelerators, or drone parameter
+optimization using safety constraints ( berkenkamp17saferl ) .
+
+Bayesian optimization methods are a class of sequential black-box
+optimization methods. A surrogate function surface is learned using a
+Gaussian prior, and a Gaussian likelihood function. Combining the prior
+and the likelihood results in the Gaussian posterior, which can then be
+used as a surface over which optimization can take place, with the help
+of a chosen acquisition function.
+
+Bayesian optimization is a method that has increasingly gained attention
+in the last decades, as it requires relatively few points to find an
+appropriate response surface for the function over which we want to
+optimize over. It is a sequential model based optimization function,
+which means that we choose the best point @xmath given all previous
+points @xmath . Given certain acquisition functions, it offers a good
+mixture of exploration and exploitation from an empirical standpoint (
+BOIncreasingPopularityEmpirically ) .
+
+However, as machine learning algorithms and other problems become more
+complex, Bayesian optimization needs to cope with the increasing number
+of dimensions that define the search space of possible configurations.
+Because BO methods lose effectiveness in higher dimensions due to the
+curse of dimensionality, this work explores Bayesian optimization
+methods that improve the optimization performance in higher dimensions.
+Finally, we propose a novel method that can take into consideration
+small perturbations of the function we want to optimize over.
+
+### 2.2 Gaussian Processes
+
+Bayesian Optimization (BO) aims at using a Gaussian Process as an
+intermediate representation to find an optimal parameter setting @xmath
+that maximizes a given utility function @xmath .
+
+Assume we have observations @xmath , each evaluated at a point @xmath .
+The relationship between the observations @xmath and individual
+parameter settings @xmath is @xmath where @xmath . Any quantity to be
+predicted has a subscript-star (e.g. @xmath is the function evaluation
+we want to predict).
+
+In it’s simplest form, a Gaussian Process is described by the following
+equation:
+
+  -- -------- -- -------
+     @xmath      (2.1)
+  -- -------- -- -------
+
+Where @xmath is a mean function, @xmath , @xmath and @xmath . Any new
+point @xmath is predicted given all previously sampled points @xmath by
+estimating the probability @xmath
+
+An acquisition function can then use these results, that described where
+to best sample the points next. Some popular acquisition functions
+include GP-UCB, Most probable improvement (MPI) and Expected Improvement
+(EI). The choice of the acquisition function has a significant influence
+on the performance of the optimization procedure.
+
+In the following, I provide a short derivation of the core formulae used
+for Gaussian Processes.
+
+#### 2.2.1 Derivation of the Gaussian Process Formula
+
+The prior for the Gaussian Process is the following (assuming the
+commonly chosen 0-mean-prior).
+
+  -- -------- -- -------
+     @xmath      (2.2)
+  -- -------- -- -------
+
+@xmath is a random variable following a Gaussian Process distribution
+and its probability distribution is given by a normal distribution:
+
+  -- -------- -- -------
+     @xmath      (2.3)
+  -- -------- -- -------
+
+Additional data @xmath can be observed. The Gaussian Process
+incorporates an error term that takes into consideration possible noise
+in the measurement of the experiment. Thus, @xmath has some noise term
+@xmath such that @xmath . The common assumption is taken that @xmath is
+normally distributed around @xmath with @xmath standard deviation. Given
+the sampled datapoints, and the inherent noise that these datapoints
+have, the likelihood of the Gaussian Process can be represented as
+follows:
+
+  -- -------- -- -------
+     @xmath      (2.4)
+  -- -------- -- -------
+
+Given the prior and likelihood of the Gaussian Process, the posterior of
+the Gaussian Process can be derived by simple application of Bayes rule.
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (2.5)
+  -- -------- -------- -------- -- -------
+
+From the above posterior, we now want to predict for an arbitrary @xmath
+the function value @xmath . Predicting @xmath for every possible @xmath
+in the domain results in the surrogate response surface that the GP
+models.
+
+We assume that the value @xmath we want to predict is also distributed
+as a Gaussian probability distribution. Because the @xmath that we want
+to predict relies on all the values collected in the past (which are
+again normally distributed), the probability distribution can be
+modelled as jointly Gaussian:
+
+  -- -------- -- -------
+     @xmath      (2.6)
+  -- -------- -- -------
+
+To compute this equation, we use the results from Murphy’s textbook (
+Murphy ) pages 110 to 111 to make inference in a joint Gaussian model.
+The transition from the Gaussian Process, to Bayesian Optimization lies
+in finding the argmax of the above term. This argmax can be sequentially
+estimated using the following estimation functions.
+
+### 2.3 Acquisition Functions
+
+Given the above formula for the posterior mean @xmath and the poster
+variance @xmath , Bayesian Optimization makes use of an acquisition
+function. The following is a summary of the most popular acquisition
+functions in recent literature. A good summary is given by (
+AcquisitionFunctionsMaximizing ) .
+
+#### 2.3.1 Upper Confident Bound (UCB)
+
+( UCBRegretProof ) shows a proof, that for a certain tuning of the
+parameter @xmath , the acquisition function has asymptotic regret
+bounds.
+
+The upper confidence bound allows the user to control exploitation and
+exploration through a parameter @xmath , which can be chosen as
+specified in ( UCBRegretProof ) to offer regret bounds. In addition to
+that, GP-UCB shows state-of-the-art empirical performance in numerous
+use-cases ( Djolonga2013 ) .
+
+  -- -------- -- -------
+     @xmath      (2.7)
+  -- -------- -- -------
+
+Here, the functions @xmath and @xmath are the predicted mean and
+variance of the Gaussian Process Posterior.
+
+#### 2.3.2 Probability of Improvement (PI)
+
+The (maximum) probability of improvement ( AcquisitionFunctions ) always
+selects the points where the mean plus uncertainty is above the maximum
+explored function threshold. The downside to this policy is that this
+leads to heavy exploitation. However, the intensity of exploitation can
+be controlled by a parameter @xmath .
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (2.8)
+              @xmath      (2.9)
+  -- -------- -------- -- -------
+
+#### 2.3.3 Expected Improvement (EI)
+
+As an improvement to the maximum probability of improvement, the
+expected improvement takes into consideration not only the probability
+that a point can improve the maximum found so far. The EI also takes
+into account the magnitude by which it can improve the maximum function
+value ( AcquisitionFunctions ) . As in MPI, one can control the rate of
+exploitation by setting the parameter @xmath , which was introduced by (
+Lizotte2008 ) .
+
+  -- -- -- --------
+           (2.10)
+  -- -- -- --------
+
+where
+
+  -- -------- -- --------
+     @xmath      (2.12)
+  -- -------- -- --------
+
+and where @xmath denotes the PDF, and @xmath denotes the CDF of the
+standard normal distribution respectively.
+
+Given one of the above acquisition functions, one can then use an
+optimizer such as @xmath or monte carlo sampling methods, to find an
+approximate global maximum of the respective function. The combination
+of Gaussian Processes and Acquisition function together result in a
+Bayesian Optimization algorithm, which has a prior assumption about the
+function to be learned and uses data-samples to create a likelihood to
+refine the posterior of the initial function assumption further.
+
+### 2.4 Resources
+
+For the experiments and code basis, most of our functions rely on the
+Sheffield Machine Learning - GPy library ( gpy2014 ) . In addition to
+that, I use the febo framework developed by Johannes Kirschner from the
+Learning and Adaptive Systems group at ETH Zurich.
+
+## Chapter 3 Related Work
+
+This section covers current methods solving Bayesian Optimization in
+high dimensions that are considered state-of-the-art. This document is
+not an exhaustive review. For each algorithm, I discuss the
+effectiveness with regards to the dataset or function that the
+respective paper evaluates on.
+
+Unless specified differently, I use the following terminology during my
+discussion.
+
+1.  @xmath is the real function to be optimized. Often I will use the
+    term approximate, as many algorithms rely on a surrogate
+    approximation of the function @xmath such that the global optimum
+    can be found.
+
+2.  Assuming the function @xmath is of the form @xmath with @xmath ,
+    where @xmath denotes the dimensionality of @xmath , then we define
+    the optimized value of @xmath to be @xmath .
+
+3.  @xmath and any subscripted or superscripted derivative of @xmath is
+    part of the surrogate function of @xmath .
+
+4.  Anything that has a "hat" on (caret symbol on f is @xmath ), refers
+    to an empirical estimate. @xmath would be an empirical estimate
+    given datapoints @xmath of @xmath .
+
+I will focus on three categories of 33Bayesian Optimization algorithms:
+Algorithms that make use of a projection matrix, algorithms that exploit
+additive substructures and "additional approaches" that are
+uncategorized.
+
+### 3.1 Projection matrix-based algorithms
+
+In my work, I focus on algorithms that optimize the black box function
+@xmath by using a lower-dimensional projection. I proceed with
+discussing some algorithms that I have implemented for my experiments in
+the next subsection (all except the algorithm "Active learning of linear
+subspaces"). For this family of algorithms, the approximation is a
+function of @xmath , where the properties of @xmath are
+algorithm-specific. The following descriptions aim at giving a brief
+overview of the methods at hand. I refer the curious reader to the
+individual paper for a more detailed and formal description of the
+respective topic.
+
+#### 3.1.1 Active learning of linear subspaces
+
+Although the active learning of linear subspaces is not a BO algorithm,
+it is still relevant, which is why I am presenting it here.
+
+0: @xmath kernel @xmath , mean function @xmath ; prior @xmath
+
+@xmath
+
+@xmath
+
+while budget not depleted do
+
+@xmath
+
+@xmath
+
+@xmath
+
+@xmath
+
+@xmath
+
+@xmath
+
+end while
+
+return @xmath
+
+Algorithm 1 Simultaneous active learning of functions and their linear
+embeddings (pseudocode) :: Active learning of linear subspace (
+Garnett2013 )
+
+( Garnett2013 ) The assumption of this algorithm is that @xmath depends
+only on @xmath with @xmath , @xmath and where @xmath . The algorithm
+learns a projection matrix @xmath and the surrogate function @xmath ,
+with @xmath .
+
+The Laplace approximation for @xmath is using the mode of the
+probability distribution @xmath as a mean, and the covariance is taken
+as the inverse Hessian of the negative logarithm of the posterior
+evaluated at the mean of the distribution. Together, this describes the
+probability distribution @xmath , where @xmath is the mean function, and
+@xmath is the covariance function.
+
+The approximate marginal subroutine is a novel method proposed in the
+paper that integrates over the different parameters in the paper. This
+marginal approximation does a local expansion of @xmath to @xmath .
+
+The sequential optimization of utility (choice of next best point) is
+done using Bayesian Active Learning by disagreement, where the utility
+function is the expected reduction in the mutual information, as opposed
+to uncertainty sampling reducing entropy, which is not well defined for
+all values.
+
+The metrics used in this paper are negative log-likelihoods for the test
+points and the mean symmetric kullback leiber divergence between
+approximate and true posteriors. The proposed method always outperforms
+the naive MAP method for the presented functions close to a factor of 2
+for both loss functions. Tests are conducted on a real, and synthetic
+dataset with up to @xmath and selecting @xmath observations.
+
+#### 3.1.2 Random embeddings (REMBO)
+
+REMBO is an algorithm that allows the optimizer to search in a smaller
+search space. The result of the optimized value @xmath is then projected
+to the higher dimensional space, to retrieve the actual optimized argmax
+value of the function @xmath . More specifically, REMBO proposes the
+following model for Bayesian Optimization:
+
+( Wang2013 ) Let @xmath and @xmath . Assume, that @xmath . We can
+generate @xmath by randomly generating this matrix. The space over which
+the user searches, as such, is @xmath -dimensional. This implies that
+REMBO is more efficient in sampling data points, and learning the
+structure of a neighborhood in the high-dimensional space (by using the
+neighborhood of the low-dimensional space).
+
+The elegance of REMBO lies in the fact that the matrix @xmath can be
+chosen as a random matrix. Through an experiment, the authors argue,
+that the chance of getting a bad projection matrix has a certain
+threshold if the optimization domain’s parameters are well-chosen.
+
+I now proceed with a more formal treatment of the intuitive concept
+explained above:
+
+Wang2013 A function @xmath is said to have effective dimensionality
+@xmath (where @xmath ), if there exists a linear subspace @xmath of
+dimension @xmath such that for all @xmath and @xmath , we have @xmath .
+@xmath is the orthogonal complement of @xmath .
+
+Assume @xmath has effective dimensionality @xmath . Given a random
+matrix @xmath (where @xmath ) with independent entries sampled from
+@xmath . For any @xmath , there exists a @xmath such that @xmath . The
+user now only need to optimize over all possible @xmath , instead of all
+possible @xmath .
+
+REMBO has a reasonably high probability of failing (more than 20% in the
+experiments conducted in the paper) by choosing an @xmath that lies
+roughly orthogonal the directions of highest change in the function
+@xmath . The authors propose interleaved runs, where for each @xmath
+’the point selection, a differently sampled orthogonal random matrix is
+chosen. The probability of generating a bad embedding lower with higher
+@xmath . However, each @xmath has a set of observations @xmath which is
+not shared across the different interleaved runs.
+Extensions to REMBO include ( RemboExtension ) .
+
+#### 3.1.3 GPs with builtin dimensionality reduction
+
+I put most emphasis on this algorithm during my experiments. As such, I
+will be more detailed with the description of this algorithm. During the
+rest of this dissertation, I will refer to this algorithm as "Tripathy’s
+method", or "Tripathy’s algorithm".
+
+( Tripathy ) This algorithm assumes that @xmath where @xmath and @xmath
+. @xmath again has the property that @xmath where @xmath denotes the
+identity matrix in @xmath dimensions. This algorithm does not require
+gradient-information. This makes it easier to implement, and more robust
+to noise according to the authors of this paper.
+
+I refer to the set of kernel parameters and the GP noise variance as
+GP-hyperparameters. I refer to the projection matrix @xmath as the
+projection matrix.
+
+The GP noise variance, kernel parameters, and @xmath can be found
+iteratively. The main idea of the algorithm is to first fix both the
+kernel parameters and the GP noise variance, and identify @xmath . Then,
+we fix @xmath and train over the GP-hyperparameters. This procedure is
+repeated until the change of the log-likelihood between iterations is
+below some @xmath , or if the maximum number of steps of optimization is
+reached. We repeat this procedure many times (as dictated by the number
+of restarts). Empirically, the probability of finding a good projection
+increases with the number of restarts, and the maximum number of
+iterations the algorithm is allowed to take during the optimization of
+the joint parameter set @xmath and the hyperparameters (as given in the
+next paragraphs).
+
+###### Formal description of the algorithm.
+
+The quantities of interest are the mean of the function @xmath and the
+variance @xmath . The authors assume that w.l.o.g., the search space of
+the projection matrices can be restricted to matrices on the Stiefel
+manifold. The argument for this is that the projected subspace does not
+change, merely the representation of the subspace. Here, the family of
+orthogonal matrices of dimension @xmath is denoted by @xmath . This
+quantity is also known as the Stiefel manifold (
+StiefelBayesianInference ) ( StatisticsStiefelIntro ) (
+StiefelNonparametric ) , where @xmath is the found effective dimension
+of the function, and @xmath is the real input dimension to the function.
+
+##### The Matern32 Kernel
+
+The optimization processes in the paper use the Matern-32 kernel
+function. This function has two input vectors @xmath and @xmath .
+
+  -- -------- -- -------
+     @xmath      (3.1)
+  -- -------- -- -------
+
+Because I want to avoid numerical testing and implementation, I use the
+derivative as provided in the GPy library. The @xmath are
+hyper-parameters of the kernel, referred to as the kernel-variance, and
+the kernel-lengthscales. The concatenated vector of all these kernel
+hyperparameters is denoted by @xmath .
+
+The only modification made to this kernel is the additional parameter
+@xmath :
+
+  -- -------- -- -------
+     @xmath      (3.2)
+  -- -------- -- -------
+
+where the kernel has the form
+
+  -- -------- -- -------
+     @xmath      (3.3)
+  -- -------- -- -------
+
+#### 3.1.4 Overview of the algorithm
+
+In the following, I will explain the individual steps of the algorithm.
+The shown two steps are repeated until the change of the log-likelihood
+reaches a certain threshold. This algorithm is repeated a number of
+restarts, as the initial sample of @xmath plays a significant role in
+finding a well converged embedding.
+
+##### Step 1.: Determine the active projection matrix W
+
+In this step, the algorithm optimizes @xmath while keeping the kernel
+hyperparameters @xmath and the GP noise variance @xmath fixed.
+
+To simplify calculations later, we define a function @xmath , where all
+parameters but @xmath are fixed. The other parameters are determined
+from previous runs, or are randomly initialized:
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (3.4)
+              @xmath      (3.5)
+              @xmath      (3.6)
+  -- -------- -------- -- -------
+
+where @xmath are fixed, and @xmath is the prior mean function, which is
+0 in our specific case.
+
+To optimize over the loss function, the algorithm defines the derivative
+of @xmath with regards to each individual element of the weights-matrix:
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (3.8)
+              @xmath      (3.9)
+  -- -------- -------- -- -------
+
+both these functions depend on the kernel @xmath , and it’s derivative
+@xmath .
+
+A more sophisticated algorithm is used to optimize over @xmath , that
+resembles iterative hill-climbing algorithms. First, the paper defines
+the function whose output is a matrix in the Stiefel manifold.
+
+  -- -------- -- --------
+     @xmath      (3.10)
+  -- -------- -- --------
+
+where @xmath is a fixed parameter, and @xmath is the variable which
+modifies the direction that we move on in the Stiefel manifold and with
+
+  -- -------- -- --------
+     @xmath      (3.11)
+  -- -------- -- --------
+
+One iteratively chooses fixed @xmath and does a grid-search over @xmath
+such that at each step, the log-likelihood @xmath is increased. The
+grid-size is between 5 and 100 for our experiments.
+
+##### Step 2.: Optimizing over GP noise variance and the kernel
+hyperparameters
+
+We determine the hyperparameters by optimizing over the following loss
+function, where @xmath are the input values, @xmath are the
+corresponding output samples. @xmath is the vector of the kernel
+hyperparameters and @xmath the GP noise variance.
+
+One keeps the @xmath fixed (either by taking @xmath from the last
+iteration, or freshly sampling it), and then defines the loss function.
+
+  -- -------- -- --------
+     @xmath      (3.12)
+  -- -------- -- --------
+
+To optimize this loss function, a simple optimization algorithm such as
+@xmath is used to individually maximize each element of the
+hyperparameter vector with regards to the log-likelihood. This is done
+for a maximum number of steps, or until the change of improvement
+becomes marginal.
+
+##### Additional details
+
+Because initialization is a major factor in this algorithm, these steps
+are iteratively applied for many hundred steps. There are also many tens
+or hundreds of restarts to ensure that the search on the Stiefel
+manifold results in a suitable local optimum, and does not get stuck on
+a flat region with no improvement. This algorithm is very sensitive to
+the initially sampled parameter @xmath .
+
+##### Identification of active subspace dimension
+
+One does not know the real active dimension of the optimization problem
+at hand. As such, the proposed to apply the above algorithms iteratively
+by increasing the selected active dimension @xmath . The moment where
+the relative change between the best-found matrix between two iterations
+is below a relative threshold @xmath , the previous active dimension is
+chosen as the real active dimension. The algorithm identifies the loss
+for each possible active dimension. It then chooses a dimension, where
+the relative difference to the previous loss (of the one-lower
+dimension) is below a certain threshold.
+
+### 3.2 Algorithms that exploit additive substructures
+
+Functions with additive substructures can be decomposed into a summation
+over subfunctions, such that @xmath where each @xmath may operate only
+on a subset of dimensions of @xmath .
+
+#### 3.2.1 Independent additive structures within the target function
+
+( Gardner2017 ) Assume that @xmath , i.e. @xmath is fully additive, and
+can be represented as a sum of smaller-dimensional functions @xmath ,
+each of which accepts a subset of the input-variables. The kernel also
+results in an additive structure: @xmath . The posterior is calculated
+using the Metropolis-Hastings algorithm. The two actions for the
+sampling algorithm are ’Merge two subsets’, and ’Split one set into two
+subsets’. @xmath models are sampled, and we respectively approximate
+@xmath , where @xmath denotes the partition amongst all input-variables
+of the original function @xmath .
+
+### 3.3 Additional approaches
+
+#### 3.3.1 Elastic Gaussian Processes
+
+( Rana2017 ) Use a process where the space is iteratively explored. The
+key insight here is that with low length-scales, the acquisition
+function is flat, but with higher length-scales, the acquisition
+function starts to have significant gradients. The two key-steps is to
+1.) additively increase the length-scale for the Gaussian process if the
+length-scale is not maximal and if @xmath . And 2.) exponentially
+decrease the length-scale for the Gaussian process if the length-scale
+is below the optimum length-scale and if @xmath .
+
+#### 3.3.2 High dimensional Gaussian bandits
+
+( Djolonga2013 ) This model assumes that there exists a function @xmath
+and a matrix @xmath with orthogonal rows, such that @xmath . Assume
+@xmath .
+
+The algorithm identifies @xmath by the
+
+0: @xmath , oracle for the function @xmath , kernel @xmath
+
+@xmath samples uniformly from @xmath
+
+for @xmath to @xmath do
+
+@xmath samples uniformly from @xmath
+
+end for
+
+@xmath Compute @xmath using Equation 1 from ( Djolonga2013 )
+
+select @xmath according to a UCB acquisition function, evaluate @xmath
+on it, and add it to the data samples found so far
+
+Algorithm 2 The SI-BO algorithm ( Djolonga2013 )
+
+The SI-BO algorithm consists of a subspace identification step, and an
+optimization step using GP-UCB.
+
+The subspace identification is treated as a low-rank matrix recovery
+problem as presented in ( CevherSubspaceIdentificationKrause ) .
+
+#### 3.3.3 Bayesian Optimization using Dropout
+
+( Li2018 ) propose that the assumption of an active subspace is
+restrictive and often not fulfilled in real-world applications. They
+propose three algorithms, to iteratively optimize amongst particular
+dimensions that are not within the @xmath ’most influential’ dimensions:
+1.) Dropout Random, which picks dimensions to be optimized at random,
+2.) Dropout copy, which continuous optimizing the function values from
+the found local optimum configuration, and 3.) which does method 1. with
+probability @xmath , and else method 2. The @xmath ’most influential’
+dimensions are picked at random at each iteration.
+
+Additional works I explored as background research or additional methods
+include ( KernelGibbsSampler ) , ( VirtualVsReal ) , ( SensorPlacement )
+, ( BatchedBO ) , ( GPforML ) .
+
+## Chapter 4 Analysis of the current state of the art
+
+### 4.1 Shortcomings of current methods
+
+I will enumerate select models from the section "related work," and will
+shortly discuss what the shortcomings of these models are:
+
+###### Rembo
+
+is a BO algorithm which finds @xmath in lower dimensions This @xmath is
+then projected to the higher dimension, which has a chance of being the
+optimal point @xmath .
+
+-    Suitable choice of the optimization domain: REMBO is not robust, as
+    there is a considerable probability that no suitable subspace will
+    be found. Empirically, the choice of the optimization domain
+    profoundly affects the duration and effectiveness of the
+    optimization. I have found that the proposed optimization domain
+    @xmath is not well chosen for smaller environments, such as the
+    Camelback function embedded in 5 dimensions. In any case, this is a
+    very sensitive hyperparameter.
+
+-    Identification of subspace: In some settings, including
+    optimization with safety constraints, knowing the subspace that the
+    model projects to is advantageous. REMBO is an implicit optimizer,
+    in that it does not find any subspace, but optimizes through a
+    randomly sampled matrix.
+
+-    Probability of failure: REMBO has a relatively high probability of
+    failure. The authors propose that restarting REMBO multiple times
+    would allow for a proper optimization domain to be found, which
+    leads to interleaved runs.
+
+###### Active subgradients
+
+can be a viable option if we have access to the gradients of the
+problem, from which we can learn the active subspace projection matrix
+in the manner by using that gradient matrices.
+
+-    Access to gradients: For optimization algorithms, the function we
+    want to optimize over is usually a black-box function. Practically,
+    many black-box functions do not offer access to gradient
+    information. To approximate the gradients using sampled points, this
+    would require a high number of data points per dimension. In
+    addition to that, these points would have to be evenly distributed,
+    such that the gradients can be adequately estimated for more than
+    one region.
+
+-    Robustness to noise: According to ( Tripathy ) , methods that
+    approximate gradients and use this gradient information to
+    approximate a subspace are very sensitive to noise. Depending on the
+    application, this can make the algorithm ineffective as it is not
+    robust to small variations in the response surface.
+
+Given the nature of real-world data, approximating the active subspace
+using the gradients of the data-samples is thus not a robust, and viable
+option.
+
+###### Bilinois et al.
+
+(which I also refer to as "Tripathy’s method" and refers to the "GP with
+builtin dimensionality reduction) argue that their method is more robust
+to real-world noise. It also does not rely on gradient information of
+the response surface. Bilinois’s method allows for a noise-robust way to
+identify the active subspace.
+
+-    Duration of optimization: In practice, Bilinois’s method takes a
+    long time, especially if the dimensions or the number of data-points
+    are high. This is due to the high number of matrix multiplications.
+    Especially for easier problems, it is often desirable if the running
+    time of optimizing for the next point is a few minutes or seconds,
+    rather than hours.
+
+-    Efficiency: In practice, Tripathy’s method relies on a high number
+    of restarts. From our observations, the number of steps to optimize
+    the orthogonal matrix becomes relevant as the number of dimensions
+    grow. Given the nature of accepting any starting point, it does not
+    allow for a very efficient way to search for the best possible
+    projection matrix. A more efficient way to search all possible
+    matrices - by incorporating heuristics for example - would be
+    desirable.
+
+-    Insensitive to small perturbations: Although Tripathy’s model finds
+    an active subspace, it completely neglects other dimensions which
+    could allow for small perturbations to allow for an additional
+    increase the global optimum value. Although we can control to what
+    extent small perturbations should be part of the active
+    subdimension, one usually wants to choose a significant cutoff
+    dimension, but still, incorporate additional small perturbations
+    without sacrificing the effectiveness of the projection.
+
+### 4.2 Evaluation methods
+
+In the following sections, we will discuss and show how we can improve
+on the shortcomings of the above methods. Because practicality is vital
+in our method, we will use synthetic functions to measure the efficiency
+of our method.
+
+Some terms that allow us to measure the performance of a Bayesian
+optimization algorithm or a GP surrogate function include:
+
+-   Test if the expectation
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    decreases / approaches zero (for methods that identify a projection
+    matrix). Often, the root mean square error is a good empirical
+    approximate of this quantity:
+
+      -- -------- -- -------
+         @xmath      (4.1)
+      -- -------- -- -------
+
+    The log-likelihood estimate is also an estimate which tests this
+    value for the training data.
+
+-   For optimization problems, one is often interested in the quantity
+    of cumulative regret. Regret is defined as the difference between
+    the best found function value so far, minus the function value
+    chosen at this timestep @xmath ( RegretDef ) .
+
+      -- -------- -- -------
+         @xmath      (4.2)
+      -- -------- -- -------
+
+    The cumulative regret sums all the entire episode of the run. This
+    is a measure of how fast an optimizer can learn the optima of a
+    function.
+
+-   Check if the test log-likelihood w.r.t. to the GP decreases for
+    functions that are provided by a finite number of data-points.
+
+-   Check if the angle between the real projection matrix and the found
+    projection matrix decreases, as given in ( AngleMeasurement ) .
+
+      -- -------- -------- -- -------
+         @xmath   @xmath      (4.3)
+                  @xmath      (4.4)
+      -- -------- -------- -- -------
+
+    where @xmath
+
+#### 4.2.1 Synthetic Datasets
+
+###### 5 dimensional function with 2 dimensional linear embedding
+
+One can evaluate synthetic functions at any point. This allows analyzing
+the regret of a specific BO algorithm. The following synthetic functions
+cover different use cases.
+
+###### 2D to 1D
+
+: A simple Parabola which is embedded in a 2D space. This function is
+meant as a sanity check. In other, this function is simple, and any
+algorithm taken into consideration should be able to find an effective
+subspace for this simple function.
+
+###### 3D to 2D
+
+: The Camelback function which is embedded in a 3D space. This checks
+how tight the model can approximate the 2D subspace, or if a 3D UCB
+performs better than our models.
+
+###### 5D to 2D
+
+: The Camelback function which is embedded in a 5D space. This checks if
+more complicated models can be found within higher dimensional spaces.
+
+###### 5D to 2D
+
+: The Sinusoidal Exponential function which is embedded in a 5D space.
+This is a function which consists of two additive subfunction. The first
+one has high perturbations amongst a given axis. The second has low
+perturbations amongst an axis orthogonal to the first one. This function
+allows for benchmarking to what extent the algorithm accounts for small
+perturbations.
+
+## Chapter 5 A New Model
+
+We now propose an algorithm which addresses the majority of the issues.
+I will first present that algorithm, and then point out, as to why each
+concern is addressed.
+
+### 5.1 The BORING Algorithm
+
+We propose the following algorithm, called BORING. BORING stands for B
+ayesian O ptimization using R andom and I de N tifyable subspace G
+eneration.
+
+The general idea of BORING can be captured in one formula, where @xmath
+stands for the real function that one wishes to approximate, and any
+subsequent function annotated by @xmath refers to a component of the
+right-hand side.
+
+  -- -------- -- -------
+     @xmath      (5.1)
+  -- -------- -- -------
+
+Where the following variables have the following meaning
+
+-   @xmath is the active subspace projection (an element of the Stiefel
+    manifold) learned through our algorithm, using Algorithm 1
+
+-   @xmath is a matrix whose subspace is orthonormal to the projection
+    of @xmath . We randomly generate @xmath using Algorithm 2.
+
+-   The subscript @xmath in the right additive term denotes that we view
+    each output dimension of @xmath as independent to the other output
+    dimensions.
+
+I will now proceed with a more detailed description.
+
+#### 5.1.1 Algorithm Description
+
+##### Overview
+
+We explore a novel method which is based on additive GPs and an active
+subspace projection matrix. We use different kinds of kernels. We want
+to calculate @xmath and @xmath as defined in 5.1 , such that the
+log-likelihood of the data we have accumulated so far is maximized.
+
+The following few steps are applied after a "burn-in" period, in which
+we use random sampling to acquire new points. We sample the data points
+using UCB. This provides a set of data points which we can use to
+identify the subspace and the projection matrix.
+
+In simple terms, the algorithm proceeds as follows:
+
+1.  Pick the first @xmath samples using UCB sampling. During this
+    period, we use UCB with a naive kernel, which has as many dimensions
+    as the domains dimensions. From the collected points, approximate
+    the active projection matrix @xmath using algorithm 1 from (
+    Tripathy ) .
+
+2.  Generate a basis that is orthonormal to every element in @xmath .
+    Concatenating these basis vectors @xmath amongst the
+    column-dimension gives us the passive projection matrix @xmath .
+
+3.  Maximize the GP for each individual expression of the space within
+    @xmath , and parallel to that also orthogonal to @xmath (as given by
+    @xmath ) individually.
+
+This addresses the curse of dimensionality, as we can freely choose
+@xmath to set the complexity of the second term while the first term
+still allows for creating proximity amongst different vectors by
+projecting the vectors onto a smaller subspace. The active subspace
+captures the direction of strongest direction, whereas the passive
+subspace projection captures an additional GP that adds to the
+robustness of the algorithm, should the subspace identification fail, or
+if the true function does not have a real subspace (i.e. is of the form
+@xmath . The additive terms that get projected onto the passive subspace
+also allow incorporating smaller perturbations in the space orthogonal
+to @xmath to occur.
+
+@xmath
+
+@xmath {Burn in rate - don’t look for a subspace for the first 100
+samples}
+
+@xmath
+
+while i < 100 do
+
+@xmath
+
+@xmath argmax @xmath acquisitionFunction @xmath using standard UCB over
+the domain of @xmath .
+
+Add @xmath to @xmath and @xmath to @xmath .
+
+end while
+
+@xmath Calculate active subspace projection using Algorithm 2 from the
+paper by Tripathy.
+
+@xmath Generate passive subspace projection using Algorithm 3.
+
+@xmath colwiseConcat( @xmath )
+
+@xmath dot @xmath
+
+kernel @xmath activeKernel + @xmath passiveKernel @xmath
+
+while we can choose a next point do
+
+@xmath argmax @xmath UCB @xmath
+
+Add @xmath to @xmath and @xmath to @xmath .
+
+end while
+
+return @xmath
+
+Algorithm 3 BORING Alg. 1 - Bayesian Optimization using BORING
+
+Where @xmath are the optimized kernel parameters for the activeKernel.
+The active projection matrix using the following algorithm, which is
+identical to the procedure described in ( Tripathy ) . The generation of
+the matrix @xmath is described next.
+
+##### Finding a basis for the passive subspace (a subspace orthogonal to
+the active subspace)
+
+  -- -------- -- -------
+     @xmath      (5.2)
+  -- -------- -- -------
+
+Given that we choose a maximal lower dimensional embedding (maximizing
+the log-likelihood of the embedding for the given points), some other
+axes may be disregarded. However, the axes that are disregarded may
+still carry information that can make search faster or more robust.
+
+To enable a trade-off between time and search space, we propose the
+following mechanism.
+
+Assume an embedding maximizing 5.2 is found. Then the active subspace is
+characterized by it’s column vector @xmath . We refer to the space
+spanned by these vectors as the active subspace .
+
+However, we also want to address the subspace which is not addressed by
+the maximal embedding, which we will refer to passive subspace . This
+passive subspace is characterized by a set of vectors, that are pairwise
+orthogonal to all other column vectors in @xmath , i.e., the vector
+space orthogonal to the active subspace spanned by the column vectors of
+@xmath .
+
+As such, we define the span of the active and passive subspace is
+defined by the matrix:
+
+  -- -------- -- -------
+     @xmath      (5.3)
+  -- -------- -- -------
+
+where @xmath describes the matrix that is orthogonal to the column space
+of @xmath . For this, @xmath consists of any set of vectors that are
+orthogonal to all other vectors in @xmath .
+
+The vectors forming @xmath is generated by taking a random vector and
+applying Gram Schmidt. This procedure is repeated for as many orthogonal
+vectors as we want. The procedure is summarised in Algorithm 3:
+
+0: @xmath a matrix to which we want to create @xmath for; @xmath , the
+number of vectors in @xmath .
+
+@xmath emptyMatrix() { The final concatenated @xmath will be @xmath . }
+
+for i = 1,…,n do
+
+@xmath
+
+while True do
+
+i++
+
+@xmath random vector with norm 1
+
+newBasis = apply gram schmidt single vector( @xmath )
+
+if dot(normed @xmath , newBasis) @xmath and @xmath newBasis @xmath
+@xmath then
+
+@xmath colwiseConcatenate( @xmath newBasis)
+
+break
+
+end if
+
+end while
+
+end for
+
+return @xmath
+
+Algorithm 4 BORING Alg. 3 - generate orthogonal matrix to A(A, n)
+
+##### Additive UCB acquisition function
+
+Because the function is decomposed into multiple additive components,
+the computation of the mean and variance needs to be adapted
+accordingly. Although I do not use this method in my experiments, it is
+still useful to mention one way to approximate these terms for higher
+dimensional input. The following method proposed in ( Rolland ) is used.
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (5.4)
+     @xmath   @xmath      (5.5)
+  -- -------- -------- -- -------
+
+where @xmath is the piecewise kernel operator for vectors or matrices
+@xmath and @xmath and @xmath . A single GP with multiple kernels (where
+each kernel handles a different dimension of @xmath ) is used. There are
+@xmath kernels (the @xmath comes from the first kernel being the kernel
+for the active subspace).
+
+Using this information about each individual kernel component results in
+the simple additive mean and covariance functions, which can then be
+used for optimization by UCB:
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (5.6)
+     @xmath   @xmath      (5.7)
+  -- -------- -------- -- -------
+
+One should notice that this additive acquisition function is an
+approximation of the real acquisition function. For lower dimensions -
+such as @xmath - it is not required to decompose the acquisition
+function into separate additive components.
+
+##### How does our algorithm address the shortcomings from chapter 4?
+
+1.  Our algorithm intrinsically uses multiple restarts. As such, bad
+    initial states and bad projection matrices are discarded as better
+    ones are identified. This makes our algorithm more reliable than
+    algorithms like naive REMBO (without interleavings).
+
+2.  Our algorithm allows to not only optimize on a given domain but also
+    identify the subspace on which the maximal embedding is allocated
+    on. In addition to that, no gradient information is needed.
+
+3.  Our algorithm uses a "burn-in-rate" for the first few samples, which
+    allows for efficient point search at the beginning, and later on
+    switches to finding the actual, real subspace. This means that we
+    need to compute the embedding only once, and can then apply
+    optimization on that domain. Our algorithm allows for a comfortable
+    choice of how much computation should be put into identifying the
+    subspace.
+
+4.  Our algorithm is more accurate and robust, as we do not assume that
+    there is a singular maximal subspace. We also take into
+    consideration that there might be a perturbation on lower
+    dimensions. In that sense, our algorithm mimics the idea of
+    projection pursuit ( ProjectionPursuit ) , as it identifies multiple
+    vectors to project to the lower subspace.
+
+## Chapter 6 Evaluation
+
+### 6.1 Evaluation Settings
+
+Appendix A presents a list of synthetic functions and real datasets that
+are used to evaluate the effectiveness of a Bayesian Optimization
+algorithm. I conduct experiments in the following settings as mentioned
+in chapter 4.2.1 . I must emphasize that I modified the algorithm of
+Tripathy et al., as it got stuck in local minima within the first five
+steps of algorithm 1. For this, I set up the constraint that @xmath
+(instead of @xmath ). This allowed for small perturbations that kept on
+improving the loss.
+
+### 6.2 Quantitative evaluation
+
+To recapitulate, I will use log-likelihood, angle-difference measure and
+cumulative regret to compare the performance of different algorithms. We
+present how the different algorithms perform on the regret measure using
+UCB as the acquisition function. It is important to point out that all
+experiments capped the matrix identification step to about 30 minutes.
+This is much less than in the original papers that we base the algorithm
+on. The reason for this is that we want to have an acceptable comparison
+for medium-sized experiments, where time and computational resources can
+be restrictive (like on a users laptop).
+
+I want to indicate whether the contribution of the performance comes
+from our subspace identification, or from the algorithm. For this, I
+start the discussion of every function with a plot that shows how the
+algorithm performs when the real subspace matrix @xmath is assumed to be
+found (Tripathy’s algorithm is not applied; instead we return the @xmath
+instead of an approximated @xmath ).
+
+To keep the measurements fair across algorithms, I fix the noise
+variance of the GP and the kernel hyperparameters for each function.
+
+I have multiple independent runs for each function. However, as most of
+the runs show similar results, I display only one of them unless
+something is interesting to see. The reader should notice that the
+individual runs do carry the same kernel parameters (unless an
+algorithm-specific function decides to change these). This means that
+the algorithms should theoretically have similar properties as UCB on
+the vanilla function if the active subspace is identified or the
+dimensionality is effectively reduced.
+
+In all of these graphs, we apply the subspace identification at the
+100th timestep. This means that we use the first 100 sampled points from
+UCB to identify a subspace. Any other future projected point is
+projected onto this subspace before one optimization is taken.
+
+Due to numerical errors recognized at later stages, the maximum
+dimension that I test over is 5. When I set the real dimensionality of
+an environment (not the active dimensionality), the property @xmath is
+violated. Apart from that, all algorithms were implemented from scratch.
+Any implemented gradients were unit-tested, and the respective
+analytical gradient was (successfully) compared with their numerical
+gradients. To test the functionality of the subspace identification
+algorithm, I also wrote tests to make sure that the log-likelihood
+increases, and that some other properties presented in the respective
+paper are satisfied.
+
+#### 6.2.1 Parabola
+
+The function to be learned and optimized over is the following:
+
+  -- -------- -- -------
+     @xmath      (6.1)
+  -- -------- -- -------
+
+where we have @xmath and @xmath .
+
+###### Assume @xmath
+
+: I present how the respective algorithms perform if we assume that
+Tripathy’s Stiefel Manifold optimization finds the perfect matrix. This
+measures how the algorithm performs when we assume perfect subspace
+identification.
+
+###### Assume @xmath
+
+: I now proceed with how different algorithms perform on the function
+described above. This measures how the algorithm performs, when subspace
+identification is a part of the optimization process.
+
+One can easily see that the performance on UCB using Tripathy’s matrix
+identification algorithm is similar to the case when we assume that
+Tripathy executes perfectly. BORING is equivalent to Tripathy’s
+performance, as the number of passive dimensions is set to 0.
+
+The log likelihood of the GP w.r.t the collected data points of the
+Tripathy GP with the real matrix is comparable to the log-likelihood of
+the GP of the Tripathy model, where the active projection matrix is
+calculated using the algorithm (values of @xmath and @xmath or for a
+different run values of @xmath and @xmath , where ranges are between
+@xmath and @xmath ). One should notice, however, that the angle between
+the found matrix and the real projection matrix is almost always at
+@xmath - a value that does not sound very intuitive, and for which the
+only reasonable explanation is that the optimization problem stays the
+same at this projection angle. The reader can view graphs in a
+subsequent subsection.
+
+#### 6.2.2 Camelback embedded in 3D
+
+The function to be learned and optimized over is the following:
+
+  -- -------- -- -------
+     @xmath      (6.2)
+  -- -------- -- -------
+
+where we have @xmath , and @xmath , @xmath and where @xmath denotes the
+first entry of the @xmath vector, and @xmath denotes the second element
+of the @xmath vector.
+
+###### Assume @xmath
+
+: Again, I present how the respective algorithms perform if we assume
+that Tripathy’s Stiefel Manifold optimization finds the perfect matrix.
+
+###### Assume @xmath
+
+: Again, I now proceed with the performance, when the subspace
+identification is part of the optimization process. Again, BORING equals
+Tripthay’s method, as setting the number of dimensions to 3 would make
+it use the entire search space (and thus not make it reduce the
+dimensionality).
+
+One can see that the subspace projection of Tripathy’s method from 3D to
+2D is not efficient. The difference between BORING and Tripathy is
+marginal, as they both rely on a similar algorithm. This is an
+indication that the subspace projection is not close to the real
+subspace, but potentially finds a subspace which is acceptable when
+higher dimensions are taken into consideration. To investigate this
+further, we increase the dimensionality of the domain in the next
+section. Again, BORING uses only a 1D active subsapce, and has
+passive-dimensions 1 (i.e. the number of random embedding vectors is 1).
+BORING performs similar to Tripathy’s method.
+
+#### 6.2.3 Camelback embedded in 5D
+
+  -- -------- -- -------
+     @xmath      (6.3)
+  -- -------- -- -------
+
+where we have
+@xmath , and @xmath , @xmath and where @xmath denotes the first entry of
+the @xmath vector, and @xmath denotes the second element of the @xmath
+vector.
+
+###### Assume @xmath
+
+: The following shows how tripathy performs when we assume perfect
+projection-matrix identification. BORING is identical to Tripathy’s
+method here.
+
+The linear curve may be the result of kernel parameters that were not
+set very well, which may lead to the same point chosen repeatedly over
+and over again. However, because the algorithm chooses these kernel
+parameters, I do not modify these to get square-root behaved UCB curves.
+
+###### Assume @xmath
+
+: The following curves present the performance of UCB when subspace
+identification is part of the optimization process.
+
+One can see for higher dimensions, Tripathy’s method performs well, as
+it can reduce the dimensionality of the optimization problem. However,
+one can see that the regret achieved from the empirical
+projection-matrix identification (the real projection-matrix is not
+found) is much higher. This poses the question of how well the found
+projection matrix is compared to the real projection matrix. BORING has
+a passive-dimension of 1 (the active dimensions is equal to Tripathy’s
+number of active dimensions minus 1, which is equal to 1). BORING
+achieves ok performance, as Tripathy’s method is not able to identify
+the real projection matrix very well. I analyze the log-likelihood of
+the GP to get a quick answer.
+
+The log likelihood of the GP w.r.t the collected data points of the
+Tripathy GP with the real matrix is not comparable to the log-likelihood
+of the GP of the Tripathy model, where the active projection matrix is
+calculated using the algorithm. For different runs, the log-likelihood
+of the GP including the real matrix is at @xmath and @xmath , whereas
+the log-likelihood of the GP with the estimated projection matrix is at
+@xmath and @xmath . Although the values @xmath and @xmath are close to
+each other, the pair ( @xmath , @xmath ) shows that the subspace
+identification task for this algorithm is much more unstable than that
+for the parabola. In later subsections, I will investigate this issue
+further.
+
+#### 6.2.4 Exponential Sinusoidal
+
+The function to be learned and optimized over is the following:
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (6.4)
+              @xmath      (6.5)
+  -- -------- -------- -- -------
+
+where we have
+@xmath , and @xmath , @xmath and where @xmath denotes the first entry of
+the @xmath vector, and @xmath denotes the second element of the @xmath .
+The reader can notice that for the domain at hand (where @xmath ), we
+have @xmath
+
+###### Assume @xmath
+
+: I present how the respective algorithms perform if we assume that
+Tripathy’s Stiefel Manifold optimization finds the perfect matrix. This
+measures how the algorithm performs when we assume perfect subspace
+identification.
+
+###### Assume @xmath and @xmath
+
+: I now proceed with how different algorithms perform on the function
+described above. This measures how the algorithm performs, when subspace
+identification is a part of the optimization process.
+
+One can see the performance of Tripathy’s method is superior to BORING.
+The reason for this may be one of following:
+
+1.  Hyperparameters are not optimized as part of the process, when
+    applying the BORING method (according to the new projection matrix
+    of BORING @xmath ).
+
+2.  BORING adds another dimension that the optimizer must take into
+    consideration. The overhead of this additional dimension is higher
+    than the potential gain that BORING could exploit by looking at the
+    smaller perturbations.
+
+To test the first assumption, I optimize the GP hyperparameters after
+the projection matrix (including the passive projection vectors) has
+been identified and generated. This yielded no recognizable improvement
+to the above curves. I was not able to test the second assumption, as my
+implementation of Tripathy’s method was not stable for dimensions bigger
+than 5, and as this would require a significant amount of time to fix.
+Thus, is it still an open question if it is advantageous to use BORING
+instead of Tripathy’s method for higher dimensions. The reason why
+BORING and Tripathy’s method perform similary in Camelback can be seen
+in the next subsection, where we show how well the subspace
+identification performs from a log-likelihood, and an angle-difference
+perspective.
+
+The log likelihood of the GP w.r.t the collected data points of the
+Tripathy GP with the real matrix is comparable to the log-likelihood of
+the GP of the Tripathy model, where the active projection matrix is
+calculated using the algorithm (values of @xmath and @xmath or for a
+different run values of @xmath and @xmath , where ranges are between
+@xmath and @xmath ). One should notice, however, that the angle between
+the found matrix and the real projection matrix is almost always at
+@xmath - a value that does not sound very intuitive, and for which the
+only reasonable explanation is that the optimization problem stays the
+same at this projection angle. The reader can view graphs in a
+subsequent subsection.
+
+###### Assume @xmath and active d=@xmath
+
+: For a quick sanity check, I now investigate how Tripathy’s method
+performs when we set the active number of dimensions to 2.
+
+At this point the reader may wonder why adding random orthogonal vectors
+to the orthogonal projection matrix is necessary, if one can simply
+increase the number of dimensions for Tripathy’s method. The answer to
+this is that each individual small perturbation term would need to have
+an individual vector added to the projection matrix. There number of
+vectors added to the projection matrix would be linear to the axis of
+small perturbations. By adding a random vector, we account for a
+multitude of such functional-components, without adding linearly many
+vectors to the projection matrix.
+
+#### 6.2.5 Log-Likelihood and Angle difference measures
+
+An interesting quantity to take into consideration is the log-likelihood
+of the sampled data with respect to the GP, and the angle between the
+found projection matrix, and the real projection matrix. In the
+following, I describe how these quantities change over a function of
+time. More specifically, the time refers to the number of steps that I
+allow for Tripathy’s method to optimize over these parameters.
+
+###### Parabola
+
+From the graphs, we can see that the parabola always seems to converge
+at a projection that is at a 45° to the real projection matrix.
+Intuitively, this seems odd. One should notice, that the maximum of the
+optimization problem is the same when the space is rotated by 45°.
+Another explanation could be that 100 data points on a 2D space are
+numerous enough, such that any matrix that does not directly map to the
+nullspace of the real projection matrix is an acceptable matrix. Why the
+algorithm always converges at a matrix at 45° to the real projection
+matrix, would be unclear however in this case.
+
+###### Camelback
+
+Because from the UCB experiments, we assume Camelback to be more
+unstable, we show the results of two independent runs that exhibit
+different behavior. This is evidence, which Tripathy’s algorithm on
+Camelback does not run stable, and has high variance (i.e., is not as
+robust).
+
+###### Sinusoidal
+
+: Although we do not show the UCB curves for the sinusoidal (which also
+prove to be successful, when this 2d function is hidden within a 5D
+space), good results can be obtained for subspace identification.
+
+### 6.3 Rembo
+
+The final algorithm I am investigating is REMBO, as described in chapter
+2. REMBO generally finds proper embeddings under the assumption, that
+optimization domain is normalized, and scaled to @xmath where @xmath is
+at least the effective dimensionality of the optimization function at
+hand. The reader should acknowledge that the algorithm that was used to
+create the below plots only allowed to sample orthogonal matrices
+(instead of random matrices in REMBO). This is a detail I noticed too
+late and could not change timely. However, running two experiments for
+each environment with the randomly sampled matrix (without the
+orthogonality constraint) yielded similar results with a higher number
+of bad projections. Because the results were similar besides the higher
+number of bad projections, I decided to keep the plots including the
+orthogonally sampled matrix.
+
+I shortly present results for UCB that use REMBO as their optimization
+algorithm. The high probability of failing implies a high variance
+amongst runs. As such, I perform three runs for each function addressed
+in the above section.
+
+###### Parabola
+
+As one can see, REMBO usually finds an embedding that is acceptable and
+accelerates the optimization process. However, run two shows that it can
+also fail in the simplest case of the parabola. In this regard,
+Tripathy’s method is more robust, as it does use some heuristic to check
+if the chosen matrix delivers good results.
+
+###### Camelback3D
+
+This example illustrates how REMBO can find an acceptable subspace.
+However, the straight lines are an indication for the hyperparameters to
+be no well chosen. I do not allow hyperparameter optimization, for the
+reason such that the results may be comparable to the other algorithm’s
+results. As one can see, Camelback3D also provides a difficult for
+REMBO, although REMBO does find an acceptable subspace projection.
+
+###### Camelback5D
+
+The linearity of the UCB curves is still attained. Similar to the result
+with Tripathy’s method, REMBO can reduce the dimensionality of the
+subspace in almost any case. The effectiveness of this reduction can be
+small though. The viewer can recognize well that there is a high
+variance in the performance amongst runs. This emphasizes how important
+the interleaved runs are, even though the number of data samples per
+projection is divided by the total number of projection (i.e., there is
+slower learning of the GP surface). However, dimensionality reduction is
+successful.
+
+### 6.4 Qualitative evaluation
+
+It is interesting to see, that amongst the 1000 restarts that I
+generated some of the resulting matrices are close to the real
+projection matrix up to an absolute value of 0.01. However, because the
+algorithm decides to choose the matrix with the highest likelihood,
+Tripathy’s algorithm, in general, does not select these matrices but
+chooses a matrix that is not amongst the matrices that are very similar
+to the real matrices.
+
+#### 6.4.1 Feature selection
+
+The goal of this task is to see if the revised active subspace
+identification algorithms can effectively apply feature selection. For
+this task, I set up a function @xmath that looks as follows:
+
+  -- -------- -- -------
+     @xmath      (6.6)
+  -- -------- -- -------
+
+where @xmath are constants.
+
+For this specific experiment, the function @xmath is chosen to be a
+one-dimensional parabola. As such, @xmath is chosen as a matrix on the
+Stiefel manifold with dimensions @xmath .
+
+Doing a feature extension over @xmath and @xmath , we can get the
+following feature representation:
+
+To run experiments, I instantiate the "real" matrix, which should be
+found by the algorithm with the values @xmath , @xmath (randomly sampled
+as a matrix on the Stiefel manifold), @xmath , @xmath (chosen by me as
+coefficients).
+
+I apply the algorithm 1. from ( Tripathy ) to identify the active
+projection matrix. The optimization algorithm has 50 samples to discover
+the hidden matrix, which it seemingly does up do a certain degree of
+accuracy. Similar results are achieved for repeated tries. The following
+figure shows the real matrix, and the matrix the algorithm has found.
+
+Although the element-wise difference between the two matrices 6.9 and
+6.10 is high (between @xmath and @xmath , one entry is above @xmath ),
+one can see that the matrix recovery is successful in finding an
+approximate structure that resembles the original structure of the
+features. One should observe that the found matrix is an approximate
+solution to the real matrix in the projection. I.e., the matrix found is
+close to the real matrix, but multiplied by @xmath .
+
+Because in this case, I applied the feature selection algorithm on a
+vector-matrix (only one column), one can quantify the reconstruction of
+the real matrix through the found matrix by the normalized scalar
+product. This quantity is a metric between @xmath and @xmath , where
+@xmath means that both vectors are orthogonal, and @xmath means that
+both vectors overlap.
+
+  -- -------- -- --------
+     @xmath      (6.11)
+  -- -------- -- --------
+
+where @xmath is the real vector, and @xmath is the found vector.
+
+Inserting the actual values into the field, we get @xmath , which is a
+good value for the feature vector found, and the trained number of data
+points which is 50.
+
+This experiment shows that algorithm 1. from ( Tripathy ) successfully
+allows a viable option to other feature selection algorithms, by
+providing a measure, where the optimal linear projection is found.
+However, one must notice that other feature selection algorithms (such
+as SVM ( SVMFeature ) ), are more efficient, and will provide better
+results with a higher probability if applied on a similar kernel.
+
+One observation I made was the increase in the log-likelihood of the
+data w.r.t. the projection matrix did not correlate with the decrease in
+the angle between the real vs. the found projection matrix. Also, most
+often, the angle was at around 40 degrees, which means that only slight
+improvements over an entirely random embedding were made.
+
+#### 6.4.2 Subspace identification
+
+One of the main reasons to use our method is because we allow for
+subspace identification. We have the following functions:
+
+1.  1D Parabola embedded in a 2D space
+
+2.  2D Camelback embedded in a 5D space
+
+3.  2D Sinusoidal and Exponential function embedded in a 5D space (see
+    Appendix)
+
+To be able to visualize the points, I proceed with the following
+procedure:
+
+I generate testing points (points to be visualized) within the 2D-space
+in a uniform grid. I then project these testing points to the dimension
+of the original function ( @xmath for parabola, else @xmath ). I then
+let each algorithm learn and predict the projection matrix, and GP mean
+predictions. If because the transformation from @xmath space to @xmath
+space and GP mean prediction is each bijective, we can visualize the
+@xmath points with the GP mean prediction right away. As such, the
+dimension of the embedding learned does not have an impact on the
+visualization.
+
+In the following figures, blue point shows the sampled real function
+value. Orange points show the sampled mean prediction of the trained GP.
+The GPs were each trained on 100 data points. The points shown below
+were not used for training at any point, as these are included in the
+test set.
+
+I set the number of restarts to @xmath and number of randomly sampled
+data points to 100. Notice that the Tripathy approximation is slightly
+more accurate than the BORING approximation. This is because one of
+Tripathy’s initial starting points were selected better, such that
+algorithm 3 ran many times before the relative loss terminated the
+algorithm. The active subspace projection matrix is of size @xmath
+
+I set the number of restarts to @xmath and number of randomly sampled
+data points to 100. The active subspace projection matrix is of size
+@xmath , as this is a function that lives in a 2D space, and has two
+strong principal components. Notice that Tripathy and BORING use the
+same algorithm, as the visualization does not allow to add a third axis.
+In other words, BORING does not add any additional orthogonal vector to
+the model. As such, it does not add any additional kernels to the model
+as well and is equivalent to Tripathy.
+
+## Chapter 7 Conclusion
+
+### 7.1 Future work
+
+Future work could incorporate the synthesis of different methods,
+including additive GPs and Tripathy’s method. Although Tripathy’s method
+is unbeaten in identifying the active subspace dimension, heuristics
+could be easily implemented to speed up the calculation time. To avoid
+the (small) possibility of identifying a bad subspace, one could make
+use of the idea of interleaved runs as used in REMBO on Tripathy’s
+method to marginalize this probability even further. One of the most
+critical aspects is hyperparameter tuning for the GP models itself.
+These can make or break the identification of the subspace. Choosing bad
+hyperparameters does not allow us to compare different methods
+effectively. In the future, it would be beneficial to address this issue
+to a stronger extent. Recalculating the search space for each new point
+may be too time-consuming, with which REMBO would still be considered
+state of the art regarding Bayesian Black Box Optimization.

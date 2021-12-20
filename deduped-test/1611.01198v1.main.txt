@@ -1,0 +1,4832 @@
+## 1 Introduction
+
+Spacetime symmetries are among the most powerful principles in physics.
+The prime example, Lorentz invariance, is pervasive in high energy
+physics and is efficiently implemented within the framework of
+pseudo-Riemannian geometry. Recent years have shown a great deal of
+activity in trying to impose similar restrictions in condensed matter
+settings. In this case however, relativistic symmetry is generically not
+available. ¹ ¹ 1 Among the most notable exceptions is of course the low
+energy theory graphene, which supports a Dirac mode with a relativistic
+dispersion relation. Rather Galilean invariance is the relevant symmetry
+of the problem.
+
+As one might expect from the relativistic example, applying Galilean
+invariance has proven quite fruitful. Early work by Greiter, Witten, and
+Wilczek [ 1 ] implemented Galilean invariance by demanding the equality
+of the momentum and charge currents
+
+  -- -------- -- -----
+     @xmath      (1)
+  -- -------- -- -----
+
+to restrict the low energy effective theory of superconductors,
+including a proof of the London Hall effect.
+
+The subject found renewed interest following work by Son and Wingate [ 2
+] , who demonstrated that Galilean invariance dramatically reduced the
+number of phenomenological parameters allowed in the effective theory of
+the unitary Fermi gas. A flurry of activity resulted over the next
+decade in which their method was applied especially to quantum Hall
+physics. In [ 3 ] it was demonstrated that the @xmath part of the Hall
+conductivity @xmath is determined entirely by the shift @xmath and the
+equation of state. ² ² 2 In an alternate approach, this was shown later
+[ 4 ] to be the result of non-relativistic Ward identities. As we shall
+see, these follow from coordinate invariance on a background with
+Galilean symmetry. A similar analysis in [ 5 ] found the chiral central
+charge could be determined by measuring the density response to applied
+curvature. Non-relativistic symmetry in conjunction with the lowest
+Landau level limit was used to construct a dynamical theory of the
+quantum Hall effect in [ 6 ] and used to demonstrate universal behavior
+of the polarization tensor up to order @xmath . This program was
+furthered in [ 7 ] , which proved a number of spectral sum rules for the
+traceless part of the stress tensor. Newton-Cartan geometry also
+features prominently in the work of [ 8 , 9 , 10 , 11 ] on the
+superfluid dynamics of neutron stars. In short, Galilean invariance has
+a number of powerful consequences and it’s worth understanding how to
+efficiently implement it.
+
+An approach to Galilean invariance exists in the general relativity
+literature, pioneered by Cartan in the 1920’s with the goal of providing
+a geometric picture of Newtonian gravity a la general relativity, now
+called Newton-Cartan geometry [ 12 , 13 ] . We give a brief overview of
+this subject in section 1.1 . For applications to non-relativistic
+supergravity theories, see [ 14 , 15 , 16 , 17 ] . Though used in
+varying degrees by the condensed matter references listed above, it is
+never adopted exclusively since this approach is poorly adapted to
+effective field theory in a few respects.
+
+The first is that the formalism, as presented by Cartan, is not
+convenient for the construction of invariant actions, a matter that we
+will discuss later in this introduction. The second is that, as we shall
+see, torsion is an essential ingredient in a number of condensed matter
+applications, particularly fluid dynamics and linear response theory.
+Cartan’s approach did not involve torsion because it did not need to for
+the task of describing Newtonian gravity. Furthermore, in contrast to
+the relativistic case, it also proved surprisingly difficult to adapt to
+a torsionful setting. We will discuss both of these matters in detail in
+section 1.1 .
+
+The point of this thesis is to present a reformulation of Cartan’s work
+that easily incorporates torsion in a Galilean invariant way and is well
+adapted to applications in condensed matter physics, allowing for
+automatic implementation of Galilean invariance within field theory in
+the same manner that Lorentz invariance is typically realized in the
+relativistic case. In their common domain of application this formalism
+reduces entirely to that articulated by Cartan. The formalism, which we
+call the extended vielbein formalism, is similar to the first-order
+formulation of pseudo-Riemannian geometry, the key difference being that
+the vielbein does not lie in the defining representation of gauge group,
+but rather a higher-dimensional representation which we call the
+extended representation. The vielbein then contains additional
+information beyond a basis for the tangent space. This information
+precisely encodes Newtonian gravitational effects.
+
+We present this formalism in chapter 2 , which principally draws from
+the work of this author and collaborators in [ 18 , 19 ] . The rest of
+the thesis is then dedicated to demonstrating how it is applied in
+practice. Chapter 3 defines the set of currents available in any
+non-relativistic theory and the Ward identities they satisfy by virtue
+of coordinate and Galilean invariance. This treatment collects the
+non-relativistic Ward identities found in [ 20 , 21 ] into a single,
+manifestly Galilean covariant presentation and generalizes them to the
+curved, torsionful backgrounds established in chapter 2 , a step that
+will be essential for the fluid analyses later on. The material of
+chapter 3 was developed over the course of several papers, beginning
+with [ 22 ] , which presented the Ward identities for the first time in
+a manifestly diffeomorphism covariant form but did not deal with
+Galilean invariance. A manifestly Galilean invariant formulation
+followed in [ 18 ] , which was then extended to the spinful case, with
+careful attention paid to the difference between the Cauchy and
+unphysical currents, in [ 23 ] .
+
+Chapter 4 gives simple examples, most of which also appear in [ 23 ] ,
+of how to construct Galilean invariant field theories and ends with a
+general effective action for quantum Hall systems that encodes response
+to an unrestricted Bargmann geometry. The additional freedom this
+provides gives us access to new quantized coefficients characterizing
+the topological phase that have not previously been considered. Chapter
+5 concludes with a number of applications within non-relativistic fluid
+dynamics, including linear response theory and the quantum Hall effect,
+drawing from material in [ 24 , 18 ] .
+
+Before we begin, a few words are due regarding the relevance of Galilean
+invariance in condensed matter. We have seen that it has a number of
+interesting an powerful consequences, but to be clear, Galilean
+invariance is often broken in the condensed matter setting by a variety
+of sources such as lattice effects and disorder. This however does not
+diminish the utility of a formalism that makes the Galilean invariance
+of the spacetime itself manifest. One may simply add the relevant
+Galilean breaking effects as additional data. In this thesis we will
+usually restrict ourselves to idealized systems with true Galilean
+invariance as a first step, in some cases breaking it with a finite
+temperature and chemical potential and/or applied electromagnetic fields
+as the need arises, keeping this in mind. Additional Galilean breaking
+effects may be considered on top of this if desired, but we will not
+consider them.
+
+Our index conventions will be as follows. Greek letters @xmath represent
+spacetime indices and can take on either temporal or spatial values
+@xmath . Indices that transform in the vector and covector
+representation of @xmath are denoted with lower case Latin letters
+@xmath while those in the vector or covector representation of @xmath
+use upper case Latin letters @xmath which can take on temporal or
+spatial values @xmath . Indices in the extended or dual extended
+representations of @xmath are denoted @xmath . We will often convert
+between coordinate indices and internal Galilean indices using the frame
+@xmath or coframe @xmath without note.
+
+### 1.1 Newton Cartan-Geometry
+
+We begin with a brief overview of Newton-Cartan geometry and then
+motivate the need to reformulate it. Our treatment is a much condensed
+version of Malament [ 25 ] which we refer the reader to for details and
+a complete list of references.
+
+A Newton-Cartan geometry is a @xmath -dimensional manifold @xmath with a
+closed non-vanishing one-form @xmath , a positive semidefinite symmetric
+tensor @xmath whose kernel is spanned by @xmath
+
+  -- -------- -- -----
+     @xmath      (2)
+  -- -------- -- -----
+
+and a derivative operator @xmath compatible with both structures
+
+  -- -------- -------- -- -----
+     @xmath   @xmath      (3)
+  -- -------- -------- -- -----
+
+This data has the following interpretation. The one-form @xmath
+determines the rate at which clocks tick and is called the clock form.
+An observer traversing a path @xmath between two events measures an
+elapsed time
+
+  -- -------- -- -----
+     @xmath      (4)
+  -- -------- -- -----
+
+which all such observers agree upon since @xmath is closed. It also
+determines a temporal orientation of @xmath . Those vectors @xmath for
+which @xmath are said to be future directed timelike and those for which
+@xmath are past directed timelike. ³ ³ 3 See Malament for a discussion
+of non-time orientable Newton-Cartan geometries [ 25 ] . We shall have
+no cause to consider them. Since @xmath is closed and non-vanishing, it
+is at least locally derived from a local time function @xmath so that we
+have a preferred time coordinate that foliates the manifold into spatial
+slices. ⁴ ⁴ 4 We shall always assume our spacetime is simply connected
+so that this may be taken to be a global time function. Of course, the
+data contained in @xmath and @xmath is equivalent, but we’ll soon need
+to relax the condition @xmath , in which case the only notion of elapsed
+time is given by ( 4 ) and is path dependent.
+
+The tensor @xmath serves as a spatial metric in the following sense. A
+vector @xmath is said to spatial if @xmath and the set of spatial
+vectors form a subspace @xmath of the tangent space at a point. Any
+spatial vector can be written as a one-form “raised” with @xmath ,
+though this expression is not unique.
+
+  -- -------- -------- -- -----
+     @xmath   @xmath      (5)
+  -- -------- -------- -- -----
+
+One then defines the length of @xmath as
+
+  -- -------- -- -----
+     @xmath      (6)
+  -- -------- -- -----
+
+which is not affected by the ambiguity ( 5 ).
+
+Why does one not simply use a metric with lowered indices? A rank-
+@xmath symmetric matrix with lowered indices defines a unique
+non-vanishing vector field @xmath with zero eigenvalue. This is most
+certainly not what we want in a theory of non-relativistic gravity as it
+defines a preferred class of observers with velocity @xmath and would
+explicitly break the principle of Galilean relativity. In what follows
+we must be careful not to at any point invoke a preferred vector field
+@xmath unless it is provided for by additional physical data or we can
+demonstrate that our results do not depend on that choice.
+
+The connection @xmath defines a notion of parallel transport and, as one
+would expect, encodes gravity. However, the manner in which it does so
+is qualitatively different from the relativistic case. In general
+relativity, the connection is totally equivalent to the data found in
+the metric as there is a single torsion free, metric compatible
+connection. On the contrary, there are many connections satisfying ( 3 )
+at fixed torsion. Unlike GR, gravity has nothing to do with the metric
+data @xmath and @xmath , but is instead contained in the unfixed part of
+the connection.
+
+For the time being, we consider only the torsionless case. Any two
+derivative operators @xmath and @xmath differ by a tensor field @xmath .
+For example
+
+  -- -------- -- -----
+     @xmath      (7)
+  -- -------- -- -----
+
+For both to be compatible with ( 3 ), this tensor must be of the form
+
+  -- -------- -- -----
+     @xmath      (8)
+  -- -------- -- -----
+
+where @xmath is a two-form whose index we have raised with @xmath . We
+will often use this convention, though one should be careful since
+@xmath is not invertible. An index, once raised, cannot be lowered and
+many standard manipulations in the pseudo-Riemannian case are forbidden.
+
+To show how this is related to gravity, we for the moment break
+covariance to follow the textbook treatment by Misner, Thorne, and
+Wheeler which we suspect is most familiar to readers [ 26 ] . Consider a
+Newton-Cartan geometry with a flat clock form and spatial metric in the
+sense that there exists a coordinate system where
+
+  -- -------- -------- -- -----
+     @xmath   @xmath      (9)
+  -- -------- -------- -- -----
+
+The @xmath components of the Christoffel symbol are left undetermined by
+metric compatibility. If we declare that they are of the form
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      (10)
+  -- -------- -------- -- ------
+
+then the geodesic equation reads
+
+  -- -------- -------- -------- -- ------
+     @xmath   @xmath   @xmath      (11)
+  -- -------- -------- -------- -- ------
+
+Here @xmath is the velocity vector of a causal curve (affinely
+parametrized in the sense @xmath ). That is, free fall in this
+Newton-Cartan geometry is equivalent to motion in a Newtonian
+gravitational potential. In the presence of a matter distribution @xmath
+, the potential is fixed by the Poisson equation @xmath . One may check
+using ( 10 ) that this is equivalent to a non-relativistic version of
+the Einstein equations in which stress energy is dominated by the mass
+density @xmath
+
+  -- -------- -- ------
+     @xmath      (12)
+  -- -------- -- ------
+
+with all other components of @xmath equal to zero.
+
+The covariant version of this is the Trautman recovery theorem [ 25 ] ,
+which says that, under certain conditions, a Newton-Cartan geometry may
+always be thought of as encoding a Newtonian gravitational potential.
+
+Theorem: Let @xmath be a Newton-Cartan geometry that satisfies the
+curvature conditions
+
+  -- -------- -- ------
+     @xmath      (13)
+     @xmath      (14)
+     @xmath      (15)
+  -- -------- -- ------
+
+For each point @xmath there exists a neighborhood @xmath of @xmath and a
+derivative operator @xmath and scalar field @xmath on @xmath such that
+
+1.  @xmath is compatible with @xmath and @xmath .
+
+2.  @xmath is flat @xmath .
+
+3.  For causal curves with velocity @xmath
+
+      -- -------- -------- -------- -- ------
+         @xmath   @xmath   @xmath      (16)
+      -- -------- -------- -------- -- ------
+
+4.  @xmath satisfies the Poisson equation
+
+      -- -------- -- ------
+         @xmath      (17)
+      -- -------- -- ------
+
+The derivative operator @xmath is said to be a geometrization of @xmath
+. If @xmath has compact support and we require that @xmath go to zero at
+spatial infinity, then @xmath is in fact the geometrization of a unique
+Newtonian potential. Before moving on, we note that while the above
+discussion may make it seem as though flatness is essential for an
+interpretation of Newton-Cartan geometry as a geometrization of
+Newtonian gravity, this is not the case. Even the torsionful geometries
+we will construct using the extended vielbein formalism can be
+interpreted in this way, though additional forces will also be present.
+
+### 1.2 Action Principles
+
+This formalism as presented is completely sufficient for the task it was
+designed for, that of describing non-relativistic gravity in a covariant
+fashion and that which we propose will reduce to it in the torsionless
+case. However, for condensed matter applications we will find it at best
+maladapted and at worst inadequate. Let’s take a minute to summarize the
+issues, beginning with it’s use in effective field theory.
+
+One of the advantages of a geometric formulation of relativistic
+kinematics is it’s utility in constructing action principles consistent
+with Lorentz invariance. Any term constructed by contracting fields and
+their derivatives with the metric is admissible. Spinor fields of course
+require reference to a vielbein and spin connection, but this is well
+understood and there is no essential complication. In contrast, there is
+no manifestly invariant form for even the simplest example of a
+non-relativistic field theory, the Schrödinger equation
+
+  -- -------- -- ------
+     @xmath      (18)
+  -- -------- -- ------
+
+that refers only to the data presented in ( 2 ) and ( 3 ). The
+Schrödinger Lagrangian is not invariant under boosts ⁵ ⁵ 5 In presenting
+the standard textbook treatment of Galilean invariance for the
+Schrödinger equation we have not been careful to distinguish internal
+boosts and diffeomorphisms, a mistake we will soon rectify.
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      (19)
+  -- -------- -------- -- ------
+
+unless one also specifies that @xmath transforms projectively, sending
+plane waves of momentum @xmath to those of momentum @xmath
+
+  -- -------- -- ------
+     @xmath      (20)
+  -- -------- -- ------
+
+In this treatment then, Galilean invariance relies on a careful
+cancellation between the time derivative and kinetic energy terms under
+a projectively realized boost transformation.
+
+The generalization of this treatment to curved spacetimes is perhaps
+somewhat less familiar
+
+  -- -------- -- -------- -- ------
+     @xmath      @xmath      (21)
+  -- -------- -- -------- -- ------
+
+Here we have subsumed the Newtonian potential into a Newtonian
+gravitational vector potential @xmath whose temporal component is @xmath
+. This Lagrangian also appears to break Galilean invariance since it
+refers to a preferred future-directed timelike vector field @xmath
+(again, normalized so that @xmath ), which is not available in the
+Newton-Cartan data. However, the action does not depend on this choice
+if we demand that @xmath transforms when we make a different selection
+of @xmath
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      (22)
+  -- -------- -------- -- ------
+
+where @xmath is an arbitrary one-form such that @xmath . Note that in
+this picture, @xmath does not transform at all under boosts. To our
+knowledge, this treatment of boost invariance, as well as the
+diffeomorphism invariant form of the Lagrangian ( 21 ), first appeared
+in [ 27 ] .
+
+Since @xmath has @xmath components that are pure gauge, it in fact
+contains no more information than the Newtonian potential and we shall
+call the gauge in which @xmath Newtonian gauge. ⁶ ⁶ 6 Note that this
+gauge is not @xmath gauge invariant since @xmath . Moreover, we see in
+this treatment that the coupling of a massive field to gravity follows
+directly from Galilean invariance, which further implies that the
+inertial mass (the mass the appears in the denominator of the kinetic
+energy) is equal to gravitational mass (the mass with which the density
+couples to @xmath ), which is rather satisfying.
+
+As one would hope, the two approaches just given are equivalent in the
+case of flat metric data. In this case, one can choose a coordinate
+system such that ( 21 ) reduces to ( 18 ) by selecting coordinates so
+that
+
+  -- -------- -------- -------- -- ------
+     @xmath   @xmath   @xmath      (23)
+  -- -------- -------- -------- -- ------
+
+If one made a different selection @xmath , then one must select
+different coordinates
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      (24)
+  -- -------- -------- -- ------
+
+to preserve the form of @xmath and @xmath . Of course there is now a new
+mass gauge field
+
+  -- -------- -- ------
+     @xmath      (25)
+  -- -------- -- ------
+
+but one can bring @xmath back into the desired form by a @xmath gauge
+transformation
+
+  -- -------- -------- -------- -- ------
+     @xmath   @xmath   @xmath      (26)
+  -- -------- -------- -------- -- ------
+
+after which @xmath . We see then that the projective transformation ( 20
+) follows from the diffeomorphism covariant transformation law ( 22 ) as
+the result of a combined internal boost plus @xmath gauge transformation
+to preserve the Newtonian form of the gravitational vector potential.
+The second approach will prove more useful to us since the projective
+transformation does not readily generalize to curved spacetimes.
+
+Newton-Cartan geometry then does not prove helpful in constructing the
+Schrödinger action, whose invariance is guaranteed rather by a careful
+cancellation between two separate, non-invariant terms under ( 22 ).
+There is nothing wrong with this so far as it goes, the action is after
+all invariant, but we can anticipate this issue will complicate attempts
+to construct other theories when the need arises. For instance, Greiter,
+Witten, and Wilczek argue that the Landau-Ginzburg theory for the
+superconducting order parameter must include higher derivative couplings
+to properly account for Galilean invariant sound propagation [ 1 ] . The
+higher derivative term they introduce is simply the square of ( 18 ),
+but this done we must in principle ask, what else appears at this order?
+Given our experience so far, answering this question within this
+approach is likely to be cumbersome. One may check manually that at this
+order, the combination
+
+  -- -------- -- ------
+     @xmath      (27)
+  -- -------- -- ------
+
+forms another acceptable possibility, but how would we generate this
+automatically and in a manner that could be easily generalized to even
+higher derivatives?
+
+A similar problem arises for non-relativistic Goldstones. Greiter,
+Witten, and Wilczek have demonstrated that the lowest order, Galilean
+invariant effective action of a non-relativistic Goldstone is given by
+
+  -- -------- -- ------
+     @xmath      (28)
+  -- -------- -- ------
+
+where @xmath is an arbitrary function that represents the pressure of
+the system as a function of chemical potential [ 1 ] . This is derived
+by arguing that in a non-relativistic theory, momentum arises purely
+from the motion matter, and so they set @xmath . Interpreting these
+currents as the Noether currents for translations and phase rotations,
+this reads
+
+  -- -------- -- ------
+     @xmath      (29)
+  -- -------- -- ------
+
+The Lagrangian in ( 28 ) is the solution to this differential equation.
+Again, Newton-Cartan geometry is not terribly helpful in reproducing
+this form. The approach is also specific to systems with excitations
+that have only a single charge to mass ratio @xmath and so does not
+apply to a wide class of physically relevant systems, for instance,
+mixtures of superfluid He-3 and He-4. The authors of [ 1 ] leave
+generalization of the above action to higher derivative,
+multi-constituent theories as an open question, one that we hope to
+address in future work [ 28 ] .
+
+In chapter 4 we present a simple and systematic method to ensure
+Galilean invariance. The key element is a chronically underused, @xmath
+-dimensional representation of the Galilean group which we call the
+extended representation, within which the non-Galilean covariant
+derivatives @xmath and @xmath are collected. The resulting derivative
+@xmath maps tensor and spinor fields into fields with an additional
+index valued in an internal space transforming under the extended
+representation of local Galilean transformations. One can then proceed
+to construct actions such as ( 18 ), ( 27 ), ( 28 ), and their
+generalizations along the same lines that one would construct a
+relativistic action, simply making sure all indices are properly
+contracted using good geometric objects.
+
+### 1.3 The Need for Torsion
+
+The remaining complication will prove more serious. As mentioned above,
+there are a number of condensed matter applications in which the
+presence of torsion is essential. For instance, torsion may be used to
+mock up the coarse grained effect of lattice defects in a solid [ 29 ] .
+The example that will be relevant to us is energy transport, which we
+shall find requires coupling to torsionful backgrounds. The key issue is
+that unlike the relativistic case, torsion cannot be chosen
+independently of the metric data and once torsion is nonzero, the
+freedom in choosing a connection cannot be fixed in the manner described
+above. Torsionful Newton-Cartan geometries originally figured
+prominently in a number of non-relativistic holographic applications [
+20 , 30 , 31 , 32 , 33 , 34 , 35 , 36 , 37 ] . The non-relativistic
+limits of electrodynamics on torsionful backgrounds were considered in [
+38 , 39 ] .
+
+Perhaps unsurprisingly, and as we shall see in detail in chapter 3 , the
+clock form serves as a source for energy current in non-relativistic
+theories. Defining the energy current and studying it’s linear response
+then requires introducing arbitrary perturbations to @xmath that bring
+us outside of the geometry given above. In particular, one finds for
+arbitrary @xmath , the compatibility condition @xmath implies
+
+  -- -------- -- ------
+     @xmath      (30)
+  -- -------- -- ------
+
+For a non-relativistic theory then, torsion cannot be specified
+independently of metric data, in stark contrast with the relativistic
+case.
+
+Even defining an energy current then requires understanding how to
+properly couple a Galilean theory to torsionful backgrounds.
+Unfortunately, the other key difference with the relativistic case, the
+ambiguity in the connection, complicates this issue and the manner in
+which we have fixed this freedom is no longer applicable in the presence
+of torsion.
+
+Indeed, after the discussion of the previous section, one might wonder
+if we have already committed an error. We have fixed the freedom in the
+connection using the Newtonian potential, but the Newtonian potential
+depends on a choice of @xmath . Fortunately, one can show the connection
+does not in fact depend on this choice, but this is no longer true in
+the presence of torsion. Attempting to do so results in a connection
+that depends on a choice of @xmath .
+
+For details we refer to [ 40 ] . In the condensed matter literature this
+has been dealt with either by continuing to fix the connection using
+only a Newtonian potential, or by demanding the “ambiguous part” of the
+connection to be zero. In either approach the auxiliary field @xmath
+takes on true physical significance and many of the benefits of a
+covariant treatment are lost. One of the principle advantages of the
+extended vielbein formalism is that the Galilean invariance of the
+connection will be automatic even in the presence of torsion, while in
+its absence it will reduce entirely to Cartan’s treatment.
+
+Finally, before we move on, let’s take a moment to consider the physical
+interpretation of spacetimes with temporal torsion. These no longer
+conform to standard notions of non-relativistic physics. In particular,
+the clock form will no longer be closed and so we lose any notion of
+absolute time. Time dilation occurs, even non-relativistically, as the
+elapsed time between events @xmath now depends on the path taken. Such
+spacetimes are not of direct physical relevance in the non-relativistic
+regime, but they do enter formally in an intermediate stage of some
+calculations (another example being the entropy current analysis to
+appear in chapter 5 ) and must be considered.
+
+Although such backgrounds do not have any counterpart in real world
+non-relativistic applications, they are still consistent backgrounds
+with sensible physics so long as we assume that
+
+  -- -------- -- ------
+     @xmath      (31)
+  -- -------- -- ------
+
+By the Frobenius theorem, this is equivalent to @xmath being integrable,
+that is, that one may locally construct a foliation of codimension one
+surfaces whose tangent spaces are everywhere orthogonal to @xmath . When
+@xmath we loose a notion of absolute time, but when @xmath we also loose
+an absolute notion of space.
+
+This isn’t a disaster in and of itself, but spacetimes with @xmath have
+other features that are far stranger. One can show that for each point
+@xmath where @xmath is not integrable, there is a neighborhood of @xmath
+within which any point may be reached by a null curve (null in the sense
+that it’s tangent is @xmath orthogonal) starting at @xmath . For a
+proof, see [ 41 ] . It’s not difficult to extend this proof to show that
+indeed any point may be reached by both a future-directed causal curve
+and a past-directed causal curve. In this neighborhood, all events are
+both in the future and the past of @xmath . We shall then call
+spacetimes for which ( 31 ) holds everywhere causal spacetimes and
+demand this throughout.
+
+## 2 Bargmann Geometry
+
+In this chapter we define the geometries on which the remainder of this
+thesis will be set. This is a covariant extension of the Newton-Cartan
+formalism to torsionful backgrounds. For now, we simply state the
+definition and devote the remainder of the chapter to explanation and
+discussion.
+
+A Bargmann geometry is a @xmath -dimensional spacetime manifold @xmath
+equipped with an extended coframe @xmath , an extended torsion two-form
+@xmath , and a Galilean connection one-form @xmath satisfying the first
+structure equation
+
+  -- -------- -- ------
+     @xmath      (32)
+  -- -------- -- ------
+
+As we shall see, the extended coframe is a collection of one-form fields
+@xmath , with @xmath which encode geometry and Newtonian gravity and
+transform in a @xmath -dimensional representation of the Galilean group.
+The extended torsion encodes both spacetime torsion @xmath , and a field
+strength @xmath that couples to mass as an external Lorentz force.
+
+The spacetime torsion has of course been considered before, but @xmath
+was introduced in our initial work on Bargmann geometries [ 19 , 18 ] ,
+as well as in the language of Koszul connections in [ 42 ] . By the
+transformation properties of @xmath , this external force cannot be
+consistently set to zero in a manner that respects Galilean invariance
+when the spacetime torsion is nonzero and is the missing element in
+previous approaches to torsionful Newton-Cartan geometries. Moreover, we
+will show that when @xmath , our formalism reduces entirely to the
+treatment given by Cartan.
+
+We introduce the Galilean group and it’s representations and establish
+notation that will be used in the rest of this thesis in section 2.1 .
+In section 2.2 we introduce the formalism summarized above and discuss
+it’s interpretation and relationship with previous approaches in section
+2.3 . In appendix A , we discuss how this approach may be obtained in
+terms of a formal symmetry breaking procedure.
+
+### 2.1 The Galilean Group
+
+In the standard treatment of Galilean relativity, different inertial
+coordinate systems are related by
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      (33)
+  -- -------- -------- -- ------
+
+where @xmath relates the relative orientation of coordinate axes and
+@xmath is their relative velocity. These transformations form a group
+called the Galilean group @xmath .
+
+For our purposes, the Galilean group is defined to be the group of
+@xmath -dimensional matrices @xmath that leave invariant a co-vector
+@xmath and positive semidefinite symmetric tensor @xmath
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      
+     @xmath   @xmath      (34)
+  -- -------- -------- -- ------
+
+These matrices are of the form
+
+  -- -------- -- ------
+     @xmath      (35)
+  -- -------- -- ------
+
+where @xmath . These matrices clearly mimic ( 33 ), but importantly,
+they act on an internal representation space and are distinct from
+diffeomorphisms.
+
+There is another, less familiar, @xmath -dimensional representation,
+given by matrices of the form
+
+  -- -------- -- ------
+     @xmath      (36)
+  -- -------- -- ------
+
+which we call the extended representation. Our conventions are that
+capital Latin indices @xmath transform in the vector/covector
+representations of @xmath , while lower case Latin indices @xmath
+transform under the @xmath subgroup. Capital Latin indices beginning
+with @xmath transform in the extended representation. For example,
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      
+     @xmath   @xmath      (37)
+  -- -------- -------- -- ------
+
+The extended representation also preserves a set of invariant tensors,
+one of which is, remarkably, a metric of Lorentzian signature
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      
+     @xmath   @xmath      (38)
+  -- -------- -------- -- ------
+
+We will denote the inverse to @xmath as @xmath and use the metric to
+raise and lower extended indices at will. Importantly, one does not lose
+information in doing so as one does when raising indices with the
+degenerate tensor @xmath . Due to the availability of a metric,
+manipulations of extended indices will often be easier than (co)vector
+indices.
+
+The vector and extended representations together also posses a mixed
+invariant
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      (39)
+  -- -------- -------- -- ------
+
+with which we may project extended indices to the vector representation
+or pull back covector indices to the extended representation. For
+example
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      (40)
+  -- -------- -------- -- ------
+
+Finally, since @xmath , the Galilean group also preserves the totally
+antisymmetric tensors @xmath and @xmath
+
+  -- -------- -- ------
+     @xmath      
+     @xmath      (41)
+  -- -------- -- ------
+
+where we will take @xmath . There is some potential for confusion with
+this notation since we will occasionally raise Galilean covector indices
+using the degenerate tensor @xmath . The epsilon tensor with raised
+indices is not the “raised index” version of the epsilon tensor with
+lowered indices in this sense. Indeed, the fully raised version of
+@xmath is simply zero.
+
+Let’s move on to the Lie algebra @xmath of the Galilean group. The
+representation induced by the defining representation ( 35 ) of the
+Galilean group consists of matrices of the form
+
+  -- -------- -- ------
+     @xmath      (42)
+  -- -------- -- ------
+
+where @xmath . Equivalently, they are the @xmath -dimensional matrices
+that satisfy
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      (43)
+  -- -------- -------- -- ------
+
+Similarly, the extended representation of @xmath is given by
+
+  -- -------- -- -------- -------- -- ------
+     @xmath      @xmath   @xmath      (44)
+  -- -------- -- -------- -------- -- ------
+
+One may also check that the projector @xmath is an intertwiner of the
+extended and defining representations of @xmath
+
+  -- -------- -- ------
+     @xmath      (45)
+  -- -------- -- ------
+
+Finally, note that the defining and extended representations of @xmath
+both contain precisely the same data as a totally antisymmetric matrix
+with lowered indices
+
+  -- -------- -- ------
+     @xmath      (46)
+  -- -------- -- ------
+
+and indeed, this can be used to give us a simple and useful
+characterization of the two representations given above
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      (47)
+  -- -------- -------- -- ------
+
+It will often be easier to write equations in terms of @xmath rather
+than @xmath or @xmath , despite the fact that it is not a representation
+of @xmath .
+
+### 2.2 A First-Order Formalism for Non-Relativistic Geometry
+
+The torsionful generalization of Newton-Cartan geometry is far more
+transparent within a first-order formalism. To motivate the definition
+of a Bargmann geometry then, let’s try constructing non-relativistic
+geometry in a first-order formalism in as close an analogy as possible
+with the well understood pseudo-Riemannian case and see what changes
+need to be made along the way. For an alternate approach to gauging
+Galilean symmetry, see [ 43 , 44 , 45 , 46 , 47 ] .
+
+To begin, introduce a Galilean coframe @xmath and torsion @xmath
+transforming in the vector representation of @xmath . As usual, the
+coframe is equivalent to the “metric” data of a Newton-Cartan geometry,
+which may be retrieved using the invariant tensors @xmath and @xmath
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      (48)
+  -- -------- -------- -- ------
+
+where @xmath is the frame field, defined by @xmath . It should be clear
+that these satisfy the requirements of a Newton-Cartan geometry: @xmath
+is positive semidefinite with kernel spanned by the non-vanishing form
+@xmath . We have however generalized somewhat since @xmath need not be
+closed.
+
+One then defines a spin connection @xmath in the Lie algebra ( 42 ) of
+the Galilean group via the first structure equation
+
+  -- -------- -- ------
+     @xmath      (49)
+  -- -------- -- ------
+
+This transforms in the usual manner
+
+  -- -------- -- ------
+     @xmath      (50)
+  -- -------- -- ------
+
+and defines a spacetime derivative operator @xmath through
+
+  -- -------- -- ------
+     @xmath      (51)
+  -- -------- -- ------
+
+Unfortunately, unlike the pseudo-Riemannian case, the first structure
+equation does not uniquely specify @xmath as one of the equations is
+pure constraint. Contracting ( 49 ) with @xmath we find that the spin
+connection drops out and we have merely
+
+  -- -------- -- ------
+     @xmath      (52)
+  -- -------- -- ------
+
+What remains of ( 49 ) is then a collection of only @xmath equations in
+@xmath unknowns and the connection is not completely fixed.
+
+Of course, the constraint is simply that observed previously in equation
+( 30 ) and is the reason we require torsion in the study of energy
+transport. Moreover, as recounted in section 1.1 , the fact that the
+connection is not simply fixed by the torsion and the metric data is the
+key feature of Newton-Cartan geometry. It is precisely in this freedom
+that the Newtonian potential sits and allows for the formalism to encode
+gravity. What we have done then is not wrong, but we need to figure out
+how to incorporate the Newtonian potential in a covariant way to
+complete our description.
+
+The key to doing so is to consider the transformation law ( 22 ) for the
+mass gauge field, which we reproduce here ⁷ ⁷ 7 The placement of the
+rotation matrix follows from restoring it in equation ( 20 ) and can
+also be justified by the Galilean symmetry breaking procedure discussed
+in appendix A .
+
+  -- -------- -- ------
+     @xmath      (53)
+  -- -------- -- ------
+
+As it stands, this is pretty inconvenient to work with due to it’s
+nonlinearity. However, we can collect @xmath along with the vielbein
+into a single covariant object using the extended representation ( 36 )
+of the Galilean group
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      (54)
+  -- -------- -------- -- ------
+
+which we call the extended vielbein. The coframe @xmath may always be
+covariantly isolated from this
+
+  -- -------- -- ------
+     @xmath      (55)
+  -- -------- -- ------
+
+but the final component @xmath may not.
+
+The extended vielbein is then an natural object to consider in a
+non-relativistic gravitational theory. Let’s also consider it’s
+covariant exterior derivative. This will be an object in the extended
+representation, which we call the extended torsion tensor
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      (56)
+  -- -------- -------- -- ------
+
+We can retrieve our original attempt ( 49 ) from this by simply applying
+the projector @xmath since @xmath . The key point is then that this
+equation includes both ( 49 ) and a single additional equation
+
+  -- -------- -- ------
+     @xmath      (57)
+  -- -------- -- ------
+
+Viewed as an algebraic equation for the connection, ( 56 ) is then a set
+of @xmath in @xmath unknowns and the data in @xmath and @xmath is
+entirely equivalent.
+
+An immediate consequence of these definitions are the Bianchi identities
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      (58)
+  -- -------- -------- -- ------
+
+where
+
+  -- -------- -- ------
+     @xmath      (59)
+  -- -------- -- ------
+
+is the curvature two-form and
+
+  -- -------- -- ------
+     @xmath      (60)
+  -- -------- -- ------
+
+is simply @xmath considered in the extended representation. From these
+identities one may obtain the symmetries of the Riemann tensor. These
+differ in some respects from their pseudo-Riemannian versions and may be
+found in appendix B .
+
+Before moving on we note that a Bargmann spacetime admits a natural
+volume element
+
+  -- -------- -- ------
+     @xmath      (61)
+  -- -------- -- ------
+
+which may be used to define integration over spacetime. There is
+similarly a “volume element” with raised indices
+
+  -- -------- -- ------
+     @xmath      (62)
+  -- -------- -- ------
+
+However, as in equation ( 2.1 ), @xmath is not simply @xmath with raised
+indices. In components
+
+  -- -------- -------- -- -------- -- ------
+     @xmath   @xmath      @xmath      (63)
+  -- -------- -------- -- -------- -- ------
+
+These are both annihilated by the derivative operator
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      (64)
+  -- -------- -------- -- ------
+
+### 2.3 Discussion
+
+What is the relationship between this approach and those given
+previously? Cartan’s formalism, recalled at the opening of section 1.1 ,
+can be retrieved immediately by going to the torsionless case @xmath .
+Projecting the extended vielbein gives the coframe @xmath and spacetime
+torsion @xmath , from which we may define the clock form and spatial
+metric via equation ( 48 ). ⁸ ⁸ 8 It may seem natural at this stage to
+also consider the “metric” @xmath . This is however not invariant under
+@xmath gauge transformations @xmath and so is not admissible. Moreover,
+the clock form is closed by equation ( 52 ) and the spacetime enjoys a
+(at least local) definition of absolute time. The derivative operator is
+defined by @xmath , from which metric compatibility follows
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      (65)
+  -- -------- -------- -- ------
+
+Finally, if we specialize to the flat case @xmath (note we have chosen
+Newtonian gauge), solving @xmath for the connection gives
+
+  -- -------- -- ------
+     @xmath      (66)
+  -- -------- -- ------
+
+with all other components zero. We thus see that the connection encodes
+Newtonian gravity as it should.
+
+Note that as soon as we generalize to torsionful spacetimes, there is no
+way to discard the final component @xmath of the extended torsion
+tensor, since this piece picks up factors of the spacetime torsion under
+a change of frame
+
+  -- -------- -- ------
+     @xmath      (67)
+  -- -------- -- ------
+
+In previous approaches to torsionful Newton-Cartan geometry in the
+condensed matter literature, this term was effectively set to zero. The
+non-invariance of the connection is an artifact of this.
+
+How are we to interpret the mass torsion @xmath physically? One may view
+it as an external Lorentz force that couples to mass. We shall see a
+much more general demonstration of this in section ( 3.3 ), where this
+is dictated by Ward identities. However, since our interpretation of
+@xmath in part relies on how it affects the equation of motion for a
+point particle, it seems appropriate to consider @xmath in this same
+light. Let’s then consider the simple case of a non-relativistic point
+particle moving on a background spacetime with nonzero @xmath . In flat
+space, the action of a point particle coupled to a gravitational
+potential is
+
+  -- -------- -- ------
+     @xmath      (68)
+  -- -------- -- ------
+
+from which we obtain the equation of motion @xmath . We would like a
+covariant version of this that will tell us how to couple the particle
+to the curved backgrounds under consideration. We will then consider how
+@xmath appears.
+
+The action that accomplishes this is
+
+  -- -------- -- -------- -------- -- ------
+     @xmath      @xmath   @xmath      (69)
+  -- -------- -- -------- -------- -- ------
+
+and @xmath is a parameterization of the particle’s path through
+spacetime. ⁹ ⁹ 9 One is also free to add a term proportional to @xmath .
+This gives rise to an additional Lorentz force exerted by @xmath on the
+particle’s energy current and will not affect our discussion. This is
+reparameterization invariant, Galilean invariant, and invariant under
+@xmath gauge transformations @xmath . To see this, note that in terms of
+the extended coframe a @xmath gauge transformation is given by @xmath
+and thus
+
+  -- -------- -- ------
+     @xmath      (70)
+  -- -------- -- ------
+
+for wordlines without endpoints. Furthermore, one may check that when
+@xmath , this action reduces precisely to ( 68 ). It also agrees with
+the coupling to curved backgrounds found in [ 48 , 49 , 40 ] .
+
+The equations of motion found from varying @xmath is a generalization of
+the geodesic equation to torsionful backgrounds
+
+  -- -------- -- ------
+     @xmath      (71)
+  -- -------- -- ------
+
+where for simplicity we have chosen an affine parameterization in the
+sense that @xmath . In writing this we have introduced the object @xmath
+, which denotes the unique null vector in the extended representation
+that projects to the particle velocity
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      (72)
+  -- -------- -------- -- ------
+
+In components this takes the form @xmath (this trick will be of great
+use in our fluid analysis in sections 5.2 and 5.3 and we will
+reintroduce it when the time comes).
+
+We see from equation ( 71 ) that the extended torsion couples to the
+point particle as an external force @xmath . ¹⁰ ¹⁰ 10 Note the
+similarity to the relativistic case where we have @xmath . In
+particular, the mass component of the torsion @xmath enters as an
+external Lorentz force coupling to the mass current
+
+  -- -------- -- ------
+     @xmath      (73)
+  -- -------- -- ------
+
+as we set out to show. This is perhaps rather unphysical since in the
+real world the only force we know that couples to mass exactly is
+gravity as dictated by the equivalence principle. However, the physical
+world is, at least to an excellent approximation, torsionless. If we
+insist on considering torsionful spacetimes, as our later applications
+will force upon us, Galilean invariance dictates that we must consider
+such a force. Since the equivalence principle is broken anyways on
+torsionful backgrounds, this is not a problem.
+
+## 3 Currents and Ward Identities
+
+We now begin to present some physical consequences of the formalism
+introduced above. This chapter concerns the currents present in any
+non-relativistic theory and the Ward identities they satisfy by virtue
+of diffeomorphism invariance and internal local Galilean invariance. As
+such, they are entirely general for theories with underlying Galilean
+symmetry. This chapter will also serve to set up some of the necessary
+framework for more targeted applications in chapter 5 .
+
+In section 3.1 we begin by defining the complete set of currents
+generated by our background. These include the stress, mass current,
+momentum current, energy current, and spin current. All of these have
+been studied in the past and energy current in particular was originally
+defined in the classic work of Luttinger as response to a fictitious
+potential (the “Luttinger potential”) that couples to energy [ 50 ] . As
+we shall see, the Luttinger potential lies naturally within the extended
+vielbein @xmath , which collects the background perturbations available
+in any Galilean invariant theory into a single covariant object.
+Specifically, it lies within the clock form @xmath , which is why it is
+necessary to couple a theory to torsional geometries when studying
+energy transport: we must must consider systems in an arbitrary clock
+form field and hence arbitrary temporal torsion @xmath .
+
+As has been pointed out by several authors, this approach has several
+advantages over Luttinger’s treatment. For one, it allows one to
+directly define energy current @xmath in a microscopic theory, whereas
+Luttinger’s treatment merely defines it so as to satisfy local energy
+conservation. Furthermore, in Luttinger’s work, the Luttinger potential
+was coupled to a theory assuming pre-existing knowledge of the energy
+density operator. The potential was then not used as a calculational
+tool to define energy current but rather as an intermediate step to
+derive Kubo formulas. Given the Luttinger potential’s appearance within
+@xmath and our knowledge of how to couple microscopic theories to
+torsionful geometries (see chapter 4 ), covariance will dictate how the
+clock form will enter our action so that we may directly derive the
+energy current operator in an arbitrary microscopic theory. This done,
+one may generate Kubo formulas for thermal transport, as done in section
+5.4 , of which Luttinger’s will be one example, and then compute them in
+whatever theory is relevant for application. So far as we are aware,
+this has not yet been done and would be an interesting extension of our
+work.
+
+To our knowledge, the Luttinger potential was originally identified
+within the Newton-Cartan data in [ 20 ] where the work-energy equation
+was derived as a Ward identity in flat backgrounds, and discussed
+further in [ 30 ] . The energy current was later studied in [ 22 ] ,
+where it’s Ward identity was generalized to curved torsionful
+backgrounds, though at this stage the extended torsion was still lacking
+so Galilean invariance was being implicitly broken (see equation ( 117 )
+for the corrected version). Further work in [ 51 , 24 , 52 ] studied
+energy transport in non-relativistic systems with both preserved and
+broken Galilean invariance.
+
+The treatment of currents presented here is that of [ 18 ] , which
+differs from previous work insofar as it gives a manifestly Galilean
+covariant presentation of the Ward identities. This requires collecting
+the mass, momentum, energy, and stress currents into a single covariant
+object in the extended representation @xmath , reflecting their
+transformation properties under @xmath . The Ward identities of previous
+treatments mixed under Galilean transformations and we here collect them
+into a single Galilean invariant Ward identity ( 117 ). We also present
+a Ward identity for the stress-mass tensor that follows from local
+Galilean transformations that to our knowledge is not present in the
+literature (see equation ( 125 ) and discussion below) and makes precise
+the intuition used by Greiter, Witten and Wilzcek [ 1 ] that Galilean
+invariance implies the proportionality of momentum and charge currents
+and demonstrates how it extends to the multi-component case.
+
+### 3.1 Non-Relativistic Currents
+
+In this section we define the currents discussed above. A Bargmann
+geometry defines a set of background data @xmath which may be perturbed
+to define the stress-energy tensor @xmath and spin current @xmath
+
+  -- -------- -- ------
+     @xmath      (74)
+  -- -------- -- ------
+
+By @xmath we mean the unique antisymmetric matrix whose first index
+raises to @xmath (see equation ( 47 )). From the transformation law for
+( 50 ) for @xmath it follows that
+
+  -- -------- -- ------
+     @xmath      (75)
+  -- -------- -- ------
+
+under a local internal Galilean transformation @xmath .
+
+The tilde’s indicate that the components of @xmath are not yet the
+physical currents measured in the lab. For instance, we shall see that
+in the presence of spinful matter, the stress part @xmath is not
+necessarily symmetric and so cannot be the Cauchy stress used in
+condensed matter and engineering applications. Properly defining the
+“true” currents is in some respects more subtle than in the relativistic
+case, an issue that we will turn to in section 3.2 . Until then, let’s
+assume that we are considering spinless matter and drop the tildes.
+
+The object @xmath collects response to the clock form @xmath , spatial
+vielbein @xmath and mass gauge field @xmath into a single covariant
+object. That is, it contains the energy current @xmath , stress tensor
+@xmath , momentum current @xmath , and mass current @xmath
+
+  -- -------- -- ------
+     @xmath      (76)
+  -- -------- -- ------
+
+Though it contains much more information than the name indicates, we
+shall call @xmath simply the stress-energy tensor for brevity. In a
+Galilean invariant theory, the components listed in ( 76 ) don’t have an
+independent existence, just as stress and energy do not in a
+relativistic theory. Separately, they depend on a choice of frame; but
+in @xmath they are collected into a single covariant object
+
+  -- -------- -- ------
+     @xmath      (77)
+  -- -------- -- ------
+
+whose components transform among each other as indicated by the index
+structure.
+
+We can however use the invariant tensors introduced in section ( 2.1 )
+to isolate some of this information in a frame independent way. For
+example, we may use @xmath to project out the stress-mass components of
+@xmath
+
+  -- -------- -- ------
+     @xmath      (78)
+  -- -------- -- ------
+
+where @xmath and @xmath . We shall refer to @xmath as the stress-mass
+tensor and it is the same as the boost invariant stress tensor of [ 40 ]
+. Similarly, the mass current @xmath may be completely separated from
+the others using @xmath (a preferred tensor that points in the “mass
+direction” @xmath )
+
+  -- -------- -- ------
+     @xmath      (79)
+  -- -------- -- ------
+
+Thus, there is an invariant way to separate the stress-mass tensor from
+the stress-energy, as well as a way to separate out the mass current
+from the stress-mass. However, we cannot isolate the stress or momentum
+from the mass current since different observers will disagree on the
+measured valued of @xmath and @xmath by terms proportional to @xmath .
+Similarly, there is no way to isolate the energy current from any of the
+other components of @xmath without additional data. We are then forced
+to discuss the entire object if we wish to consider energy current in a
+covariant fashion.
+
+Finally, let’s conclude this section with a word on the interpretation
+of these various currents. The interpretation of @xmath , @xmath and
+@xmath as the mass current, stress, and energy current should be
+relatively clear. Referring to @xmath as the momentum current may
+however seem somewhat ad hoc. To justify this, let’s compute @xmath on
+flat spacetime explicitly for a theory of a spinless massive field with
+single derivative couplings @xmath .
+
+Under a variation of the @xmath components of the coframe about the
+background @xmath , the temporal frame @xmath varies as @xmath . Now the
+natural covariantization of @xmath is @xmath which then changes as
+@xmath . The Lagrangian then varies as
+
+  -- -------- -- ------
+     @xmath      (80)
+  -- -------- -- ------
+
+from which we find
+
+  -- -------- -- ------
+     @xmath      (81)
+  -- -------- -- ------
+
+which is the canonical Noether current for translations on flat space.
+¹¹ ¹¹ 11 In this computation we have freely converted between @xmath and
+@xmath indices using @xmath . One can also ascertain this using the
+formalism of chapter 4 via equation ( 143 ) without the need to argue
+for natural covariantizations.
+
+#### 3.1.1 Currents as Measured by Observers
+
+Though the currents are naturally collected into the single object
+@xmath , in the presence of an observer with velocity @xmath , ¹² ¹² 12
+As always, we are normalizing so that @xmath . one can discuss the
+stress, momentum, and energy currents as measured by that particular
+observer. In this section we briefly discuss how to do this and so
+introduce a number of definitions that will be useful to us in the fluid
+analysis of section 5.3 .
+
+To begin with, the mass current measured by @xmath is simply @xmath and
+is agreed upon by every observer. Equivalently, one may check directly
+that the @xmath components of ( 77 ) do not transform under internal
+Galilean transformations. Given @xmath we may also isolate the momentum
+current and spatial stress
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      (82)
+  -- -------- -------- -- ------
+
+where we have introduced the @xmath -orthogonal projector @xmath , which
+satisfies
+
+  -- -------- -------- -------- -- ------
+     @xmath   @xmath   @xmath      (83)
+  -- -------- -------- -------- -- ------
+
+In general, whenever we introduce a frame-dependent quantity, we will
+denote it with an overset symbol labeling the frame as above, though we
+shall try to do this as infrequently as possible. Note that momentum and
+stress are purely spatial tensors in the sense that @xmath , @xmath .
+
+The energy current is contained within the temporal component of the
+extended stress-energy tensor @xmath and we need an extended vector that
+points in a temporal direction to extract it ( @xmath will not do since
+it points in the “mass direction” and moreover has been used to extract
+@xmath ). We can always construct such an object given a velocity field.
+As in our discussion of the point particle equation of motion ( 71 ), we
+need a vector @xmath in the extended representation that projects to
+@xmath . Of course, there are many such @xmath ’s, but we can fix this
+freedom by demanding that it be null with respect to the Lorentzian
+metric @xmath . That is, let @xmath be the unique extended vector
+satisfying
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      (84)
+  -- -------- -------- -- ------
+
+In components, this is
+
+  -- -------- -- ------
+     @xmath      (85)
+  -- -------- -- ------
+
+One may then define
+
+  -- -------- -- ------
+     @xmath      (86)
+  -- -------- -- ------
+
+which is the boost invariant energy current of [ 53 ] , though stated in
+a different language.
+
+The objects @xmath , @xmath , @xmath , and @xmath are then the natural
+objects that can be constructed from the stress-energy tensor @xmath and
+an observer’s spacetime trajectory and can be interpreted as the mass,
+momentum, stress, and energy current as measured by an observer with
+velocity @xmath . To lend additional support to this interpretation,
+let’s consider their relationship with the components of the stress
+energy tensor given in ( 77 ). To make our discussion as transparent as
+possible we will restrict ourselves to the case of a flat metric and
+clock form, as in equation ( 9 ).
+
+In components then we have
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      (87)
+  -- -------- -------- -- ------
+
+We can then compute the components of the stress-energy tensor in terms
+of @xmath , @xmath , and @xmath and find
+
+  -- -------- -- ------
+     @xmath      
+     @xmath      
+     @xmath      (88)
+  -- -------- -- ------
+
+In writing this we have used the Ward identity ( 125 ) for local
+Galilean transformations, which we will prove in section 3.3 . In
+particular, this implies the identity @xmath .
+
+This will look more familiar if we consider the case of an observer
+comoving with the mass current. In this case we have @xmath and the
+above simplifies to
+
+  -- -------- -- ------
+     @xmath      
+     @xmath      
+     @xmath      (89)
+  -- -------- -- ------
+
+If @xmath is the local momentum density measured by comoving observers,
+then we would expect it to vanish, as it indeed does. The final two
+equations are the standard textbook formulas for the stress and energy
+currents measured in the lab. The lab energy density @xmath includes
+both the energy density @xmath as measured by observers in the rest
+frame defined by @xmath , plus the kinetic energy @xmath , while the
+energy current includes that measured by the comoving observers, that
+induced by stress, and the flow of kinetic energy in the direction
+@xmath . Similarly, the lab frame stress @xmath includes both the stress
+measured by comoving observers and the standard kinetic contribution
+@xmath familiar from non-relativistic continuum dynamics. We see that
+all of these kinetic contributions are in fact fixed by Galilean
+invariance.
+
+### 3.2 Physical Currents
+
+In relativistic theories with spinful matter there are two possible
+definitions of the stress-energy. One can vary the action at fixed
+connection, as we have done above
+
+  -- -------- -- ------
+     @xmath      (90)
+  -- -------- -- ------
+
+or at fixed torsion
+
+  -- -------- -- ------
+     @xmath      (91)
+  -- -------- -- ------
+
+While both are good operators, the later is the more physically relevant
+of the two since it is @xmath that appears in the Einstein equations. It
+is also more natural from a condensed matter/engineering perspective for
+several reasons. For one, when local rotational invariance is unbroken,
+conservation of angular momentum ensures that the Cauchy stress tensor
+is symmetric [ 54 ] , which is true of @xmath but not @xmath . More
+directly, stresses in the lab are induced by a shear with the background
+torsion held fixed. We shall then refer to @xmath as the Cauchy, or
+true, stress tensor.
+
+Though not of direct physical relevance, @xmath is often useful as an
+intermediate step since it somewhat easier to compute. However one must
+remember to always then obtain the true stress, which in the torsionless
+case is related to @xmath by
+
+  -- -------- -- ------
+     @xmath      (92)
+  -- -------- -- ------
+
+a process we will refer to as “improvement”.
+
+Though well understood, we dedicate some space here to considering the
+non-relativistic case for completeness, but especially because because
+the energy current involves some subtleties not present in the
+relativistic example. The reason is the same that has troubled us
+before: it is impossible to introduce a perturbation to the clock form
+without introducing torsion. For this reason it will prove impossible to
+define improvements to @xmath (and thus the full stress-energy tensor
+@xmath , though we can improve @xmath ). We will argue below that the
+unimproved energy current defined above already corresponds to the true
+internal energy of the system, and so should not be improved in any
+case.
+
+#### 3.2.1 The Cauchy Stress-Mass Tensor
+
+Before we turn to the energy current however, let’s consider the
+stress-mass tensor, whose story is straightforward. The physical
+currents are to be defined at fixed torsion, so we will require that the
+variation of @xmath does not involve the clock form. This in turn
+implies that the variation may be written as the pullback of some form
+@xmath to the extended representation
+
+  -- -------- -------- -------- -- ------
+     @xmath   @xmath   @xmath      (93)
+  -- -------- -------- -------- -- ------
+
+By design, we then also have
+
+  -- -------- -------- -------- -- ------
+     @xmath   @xmath   @xmath      (94)
+  -- -------- -------- -------- -- ------
+
+for some @xmath . We then define the Cauchy stress-mass @xmath and spin
+current @xmath by the variation
+
+  -- -------- -- ------
+     @xmath      (95)
+  -- -------- -- ------
+
+To perform the translation between ( 74 ) and ( 95 ) we shall need the
+variation of the spin connection @xmath in terms of @xmath and @xmath .
+We can retrieve this from the first structure equation @xmath , which
+gives
+
+  -- -------- -- ------
+     @xmath      (96)
+  -- -------- -- ------
+
+Using @xmath , @xmath , and @xmath , this reads
+
+  -- -------- -- ------
+     @xmath      (97)
+  -- -------- -- ------
+
+which after some algebraic rearrangement gives
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      (98)
+  -- -------- -------- -- ------
+
+Finally, using @xmath and the definition ( 78 ) of the unimproved
+stress-mass tensor @xmath , we find that
+
+  -- -------- -------- -- ------
+     @xmath   @xmath      
+              @xmath      (99)
+  -- -------- -------- -- ------
+
+which implies
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (100)
+  -- -------- -- -------
+
+In particular, this gives a physical mass current @xmath
+
+  -- -------- -- -------
+     @xmath      (101)
+  -- -------- -- -------
+
+This is the physical mass current for non-scalar matter since the
+Newtonian gravitational potential is contained within the connection
+@xmath . That is, it is @xmath rather than @xmath that flows in response
+to a gravitational perturbation at fixed torsion.
+
+#### 3.2.2 The Stress-Energy Tensor
+
+Finally, let’s turn to the energy current and thus, by necessity, the
+full stress-energy tensor @xmath . A perturbation to the the clock form
+necessarily introduces temporal torsion and so we cannot perform a
+variation at fixed torsion as done above. One might hope there is a way
+around this, for instance, by performing the variation at fixed spatial
+torsion @xmath . However, since @xmath is merely the spatial component
+of the Galilean vector @xmath , there is no invariant way to do this.
+That is, since @xmath under a Galilean boost, once temporal torsion is
+present, there is no way to set spatial torsion to zero in a manner that
+all observers can agree upon.
+
+Let’s see what would go wrong if we tried to naively define the
+stress-energy at fixed extended torsion @xmath
+
+  -- -------- -- -------
+     @xmath      (102)
+  -- -------- -- -------
+
+Because @xmath , this is a constrained variation of the vielbein @xmath
+and we are free to add a term @xmath , where @xmath is an arbitrary
+antisymmetric tensor. This shifts the stress-energy tensor
+
+  -- -------- -- -------
+     @xmath      (103)
+  -- -------- -- -------
+
+which, comparing to equation ( 77 ), alters the energy current while
+leaving the stress, momentum, and mass components fixed. Thus we can
+unambiguously improve the @xmath , but not @xmath .
+
+Of course, this is unphysical. One considers the Cauchy stress since
+this is the stress measured in the lab, induced by shearing the system
+at fixed torsion. The energy measured in the lab of course has no such
+ambiguity. Moreover, the energy density @xmath already corresponds to
+the Hamiltonian density of the system and so truly is the physical
+energy density of the system.
+
+This can been seen in simple case of the spinful Schrödinger equation,
+whose action on the background @xmath is
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (104)
+  -- -------- -- -------
+
+and @xmath are the spin representation matrices. One then finds
+
+  -- -------- -- -------
+     @xmath      (105)
+  -- -------- -- -------
+
+whereas the Hamiltonian density for this system is
+
+  -- -------- -- -------
+     @xmath      (106)
+  -- -------- -- -------
+
+We see that @xmath is the Hamiltonian density minus coupling to external
+potentials and so corresponds to the internal kinetic and interaction
+energy of a system.
+
+While we have motivated this in the specific case of the Schrödinger
+theory, it is actually quite general. The proper, coordinate invariant
+definition of the Hamiltonian is given by Iyer and Wald in the appendix
+to [ 55 ] . Carrying out their analysis on a Bargmann geometry yields
+the same result.
+
+### 3.3 Ward Identities
+
+Finally, we turn to the principle results of this chapter, the Ward
+identities satisfied by the currents
+
+  -- -------- -- -------
+     @xmath      (107)
+  -- -------- -- -------
+
+as a result of diffeomorphism invariance, @xmath gauge invariance, and
+internal Galilean invariance. Note we have now included an external
+electromagnetic gauge field @xmath and its current @xmath for later
+applications. There is no essential complication in considering general
+non-abelian gauge fields and the generalization of our results to this
+case should be clear throughout. However, since we have an eye to
+quantum Hall applications, we shall restrict to @xmath for simplicity.
+In what follows we will refer to the mass and charge @xmath ’s as @xmath
+and @xmath respectively.
+
+We will first consider the consequences of @xmath invariance since this
+is the simplest case, and perform the calculation in detail. Under a
+@xmath transformation @xmath , the action varies as
+
+  -- -------- -- -------
+     @xmath      (108)
+  -- -------- -- -------
+
+where we have integrated by parts in the second equality. ¹³ ¹³ 13 Note
+that in the torsionful case, integration by parts also introduces a
+torsional term. This is because upon integration by parts, one generates
+the term @xmath . Since we assume the action is gauge invariant, this
+must be zero for all choices of @xmath and thus
+
+  -- -------- -- -------
+     @xmath      (109)
+  -- -------- -- -------
+
+Identities generated in this fashion are called Ward identities and are
+true on shell (since the variation of dynamical fields is proportional
+to the equations of motion, which we have set to zero). The Ward
+identity for @xmath invariance follows in exactly the same manner. After
+a variation @xmath , we generate the Ward identity
+
+  -- -------- -- -------
+     @xmath      (110)
+  -- -------- -- -------
+
+The next easiest Ward identity follows from local Galilean invariance
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (111)
+  -- -------- -------- -- -------
+
+In their infinitesimal forms @xmath , we have
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (112)
+  -- -------- -------- -- -------
+
+The action then transforms as
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+              @xmath      (113)
+  -- -------- -------- -- -------
+
+from which we find
+
+  -- -------- -- -------
+     @xmath      (114)
+  -- -------- -- -------
+
+Now we turn to the Ward identities for diffeomorphisms. Under an
+infinitesimal coordinate transformation @xmath , the background fields
+transform as
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      
+     @xmath      (115)
+  -- -------- -- -------
+
+These transformations aren’t terribly convenient since they refer to
+non-covariant objects such as @xmath and @xmath . However, they only
+differ from covariant expressions by a @xmath gauge transformation
+@xmath and an infinitesimal local Galilean transformation @xmath . Since
+our theory is assumed to be gauge and local Galilean invariant we may
+perform a simultaneous diffeomorphism, @xmath , and @xmath
+transformation, after which we have
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (116)
+  -- -------- -------- -------- -- -------
+
+Variation of the action then yields the Ward identity
+
+  -- -------- -- -------
+     @xmath      (117)
+  -- -------- -- -------
+
+The explicit appearance of @xmath may be concerning since it includes
+the @xmath connection @xmath , which is not gauge invariant. This is
+however not a problem since @xmath multiplies precisely the Ward
+identity ( 110 ) and so drops out of the equation. To see this, perform
+a @xmath transformation @xmath , after which we pick up a term
+proportional to @xmath .
+
+This identity may seem somewhat novel due to it’s unfamiliar
+presentation. It is however well known in the case of flat spacetimes.
+Setting @xmath and @xmath and churning through ( 117 ) in components (
+77 ), we find the @xmath and @xmath components of the Ward identity are
+respectively ¹⁴ ¹⁴ 14 Let’s consider spinless matter for now so that we
+can ignore the issues discussed in section 3.2 .
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (118)
+  -- -------- -------- -- -------
+
+where @xmath is the electric field, @xmath the magnetic field, and
+@xmath the gravitational field.
+
+These should be quite familiar. The first is simply the work-energy
+equation expressing the work done by external background fields on the
+system. The second is the continuum version of Newton’s second law, also
+known as the Cauchy momentum equation, expressing the local flow of
+momentum density subject to internal stresses @xmath and external
+electromagnetic and gravitational forces. Once supplied with
+constitutive relations in terms of local thermodynamic degrees of
+freedom, this is the Navier-Stokes equation. These equations,
+supplemented by local mass and charge conservation, collectively serve
+as fluid equations of motion [ 56 ] . The Ward identity ( 117 ) then
+collects the work-energy and Cauchy momentum equations into a single
+covariant package and generalizes them to the curved, torsionful
+geometries we are considering. It will serve as the starting point for
+our fluid analyses in chapter 5 .
+
+It will prove convenient later on to isolate the stress-mass part of
+equation ( 117 ). To do this, we raise the index using the spatial
+metric @xmath . Using the identity @xmath and ( 110 ), we find this
+gives
+
+  -- -------- -- -------
+     @xmath      (119)
+  -- -------- -- -------
+
+This also includes the local conservation of mass ( 110 ), which can be
+obtained by contracting with @xmath .
+
+#### 3.3.1 Ward Identities for the Cauchy Stress-Mass
+
+In summary, the Ward identities for diffeomorphism invariance, gauge
+invariance and local internal Galilean invariance are
+
+  -- -------- -- -------
+     @xmath      (120)
+     @xmath      (121)
+     @xmath      (122)
+     @xmath      (123)
+  -- -------- -- -------
+
+which in particular include
+
+  -- -------- -- -------
+     @xmath      (124)
+  -- -------- -- -------
+
+However, these are for the currents defined at fixed connection and we
+would like to state them for the physical currents.
+
+As discussed in section 3.2 , there is simply nothing we can do about
+@xmath as a whole and so ( 120 ) must remain as it is. We can however
+find the Ward identities satisfied by the Cauchy stress-mass @xmath .
+Plugging in the expressions ( 3.2.1 ) into ( 123 ) and using the
+identity ( 389 ), we find the antisymmetric part of the stress-mass
+tensor is fixed by the torsion and spin current
+
+  -- -------- -- -------
+     @xmath      (125)
+  -- -------- -- -------
+
+In particular, on torsionless backgrounds, @xmath is totally symmetric,
+which is indeed required of the Cauchy stress tensor @xmath when local
+rotational invariance is unbroken [ 54 ] . Referring to equation ( 78 ),
+we see that this also implies the equality of the momentum and mass
+currents
+
+  -- -------- -- -------
+     @xmath      (126)
+  -- -------- -- -------
+
+generalizing the relation ( 1 ) used by Greiter, Witten, Wilczek and
+many subsequent authors to impose Galilean invariance to the
+multi-constituent case. Satisfyingly, this identity is precisely the
+Ward identity for internal Galilean boosts.
+
+Similarly, in terms of the Cauchy stress-mass, equation ( 124 ) reads
+
+  -- -------- -- -------
+     @xmath      (127)
+  -- -------- -- -------
+
+where we have made use of the identity ( 389 ). We can remove the
+explicit dependence on the curvature by using the symmetry of the
+Riemann tensor under exchange of the first and second pairs of indices (
+392 ). One then finds
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (128)
+  -- -------- -------- -- -------
+
+In appendix B we have defined @xmath by the equation @xmath . Note that
+as such it is not necessarily the exterior derivative of a two-form (we
+use the notation since @xmath ). Contracting with @xmath we find that
+the physical mass current is also conserved
+
+  -- -------- -- -------
+     @xmath      (129)
+  -- -------- -- -------
+
+Equation ( 128 ) is the covariant generalization of the Cauchy momentum
+equation to general Bargmann spacetimes. In particular we see that there
+are external forces exerted by extended torsion in addition to the usual
+electromagnetic force. Also note that, as promised in section ( 2.2 ),
+the mass component of the extended torsion @xmath exerts a Lorentz force
+on the (unimproved) mass current. This is then a general feature of
+physics on Bargmann spacetimes and not merely of the non-relativistic
+point particle. While it may seem awkward to include the unimproved
+tensor @xmath in ( 128 ), having converted everything else to physical
+currents, this is something we must simply accept as we have shown there
+is no unambiguous way to improve the energy current. We simply observe
+that the external force exerted by extended torsion couples to the
+unimproved stress-energy.
+
+In summary then, we have the following (somewhat redundant) list of Ward
+identities for the physical currents
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      (130)
+  -- -------- -- -------
+
+In the torsionless case relevant for most applications these simplify to
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (131)
+  -- -------- -- -------
+
+## 4 Galilean Invariant Theories
+
+In chapter 3 , we considered very general consequences of Galilean and
+diffeomorphism invariance, valid in any theory that realizes them. Now
+we turn to the question of how to actually write down theories that do
+so. As overviewed in the introduction, the metric formalism of
+Newton-Cartan geometry isn’t terribly helpful in this regard, as both
+the Schrödinger and superfluid Lagrangians cannot be written with only
+the data @xmath . The Schrödinger action requires a careful cancellation
+between the kinetic and time derivative terms of ( 21 ), while the
+action ( 28 ) for superfluid Goldstones is instead solved for from a
+differential equation in the dependence of the Lagrangian on fields and
+their derivatives. It is lowest order in derivatives and specific to
+single-constituent superfluids. These are among the simplest and most
+useful actions we know of, so one might justifiably be concerned that
+writing down more complicated Galilean field theories will quickly
+become extremely cumbersome.
+
+One approach, common in the literature, is to construct such theories by
+writing down a “parent” relativistic theory in a Lorentzian spacetime of
+one higher dimension. One then demands a null isometry and chooses to
+keep modes of only a certain momentum in that direction, which will then
+be the mass of the resulting non-relativistic field. The resulting
+theory is guaranteed to realize Galilean symmetry. This method requires
+a fair amount of excess conceptual baggage though and can be
+computationally cumbersome. It is however a systematic means to churn
+out theories of the Schrödinger type.
+
+In this chapter we introduce a simple and efficient means to realize
+Galilean symmetry in Wilsonian effective actions. The key ingredient is
+a derivative operator @xmath , introduced in section 4.1 , that is
+valued in the extended representation of the Galilean group. We claim
+this is the natural derivative operator that can be defined on the
+@xmath bundle encoding the kinematics of massive non-relativistic
+fields. Only when operating on massless fields can @xmath be restricted
+to an invariant spacetime derivative operator @xmath .
+
+One can then systematically generate actions with manifest Galilean
+symmetry by writing them in terms of fields, their extended derivatives,
+and Galilean invariant tensors as we will do in section 4.2 . For
+massive fields, this generates the Schrödinger action at lowest order
+and easily produces higher derivative terms to any order one desires. We
+shall find that this is formally equivalent to the procedure of null
+reduction, but has the benefit of being intrinsic to the
+non-relativistic spacetime under consideration and not requiring any
+computation. In future work we will show how this method may also be
+used to reproduce Greiter, Witten, and Wilczek’s theory of superfluids
+in a systematic way that generalizes to the multi-constituent case [ 28
+] .
+
+We then consider theories of a different type, the non-relativistic
+analog of the Dirac equation. Such actions were originally considered by
+Levy-Leblond in [ 57 ] and generalized to a larger class of
+representations by de Montigny, Niederle, and Nikitn in [ 58 , 59 ] .
+Recently, Levy-Leblond’s action has been coupled to Newton-Cartan
+geometries [ 60 ] , though their method should also work for the more
+general Dirac-like representations of de Montigny et al. In section 4.3
+we review their constructions. While we are not aware of any physical
+systems that realize these possibilities (other than the
+non-relativistic electron with @xmath -factor 2, which may also be
+discussed in the Schrödinger approach), they are interesting to consider
+and one might hope nature will be kind enough to furnish us with
+examples some day. The content of section 4.3 is then entirely the
+product of other researchers. We include it here out of interest and a
+sense of completeness as another example of a collection of actions one
+may write down with manifest Galilean symmetry.
+
+### 4.1 The Extended Derivative Operator
+
+To recap from section 1.2 , generalizing the Schrödinger action to
+curved spacetimes requires referencing an auxiliary timelike vector
+field @xmath , which one uses to write down the time derivative term.
+Identifying this field with the timelike portion of the frame @xmath ,
+¹⁵ ¹⁵ 15 At this point, these are conceptually distinct. However, the
+actions we will write down in this section will naturally churn out
+theories with @xmath . we have
+
+  -- -------- -- -------
+     @xmath      (132)
+  -- -------- -- -------
+
+Here we are considering massive matter with arbitrary charge and spin.
+The covariant derivative is then
+
+  -- -------- -- -------
+     @xmath      (133)
+  -- -------- -- -------
+
+where @xmath is the charge, @xmath is the mass, and @xmath the rotation
+(and boost) operators acting on @xmath (see equation ( 367 )). For
+example, for a spin @xmath particle, @xmath where the @xmath ’s satisfy
+the Clifford algebra @xmath , and @xmath . ¹⁶ ¹⁶ 16 An important
+ingredient for Galilean invariance is that @xmath is boost trivial, that
+is, @xmath . As in the relativistic case, boosts cannot be realized
+unitarily and so the action would not be invariant under a non-trivially
+realized boost transformation. For further discussion see section 4.3 .
+
+Of course, @xmath is not boost invariant @xmath . Fortunately, the
+second term is not either, owing to the transformation of the mass gauge
+field @xmath . Galilean invariance of ( 132 ) then relies on a careful
+cancellation between the kinetic and time derivative terms as discussed
+in section 1.2 .
+
+In other words, the “covariant derivative” @xmath is not covariant at
+all, but transforms under Galilean boosts as
+
+  -- -------- -- -------
+     @xmath      (134)
+  -- -------- -- -------
+
+The key observation of this section is that it can however be collected
+into a larger derivative operator valued in the extended representation
+of the Galilean group
+
+  -- -------- -- -------- -- -------
+     @xmath      @xmath      (135)
+  -- -------- -- -------- -- -------
+
+One may then check by hand that if @xmath transforms in some
+representation @xmath of @xmath , it’s extended derivative also
+transforms covariantly
+
+  -- -------- -- -------
+     @xmath      (136)
+  -- -------- -- -------
+
+It is then @xmath rather than @xmath that is the natural derivative
+operator on massive non-relativistic fields.
+
+Note that for massless fields @xmath , we have @xmath . In this case the
+derivative operator may be written as the pullback of the usual
+derivative operator to the extended representation
+
+  -- -------- -- -------
+     @xmath      (137)
+  -- -------- -- -------
+
+In particular we may retrieve in this way the Newton-Cartan derivative
+operator @xmath which we know to be Galilean invariant, but this
+derivative operator does not act on massive fields.
+
+### 4.2 Schrödinger Fields
+
+Now let’s use this to start writing down theories. The first obvious
+thing to try is the “Klein-Gordon”-type action
+
+  -- -------- -- -------
+     @xmath      (138)
+  -- -------- -- -------
+
+which upon expanding yields precisely ( 132 ). We have thus found a
+manifestly invariant formulation of the Schrödinger equation. Moreover,
+it’s now a trivial matter to consider more general theories without
+breaking Galilean invariance.
+
+As an example, the first higher derivative term that appears is
+
+  -- -------- -- -------
+     @xmath      (139)
+  -- -------- -- -------
+
+The get a sense for this term, let’s expand it in flat space
+
+  -- -------- -------- -- -------
+     @xmath               
+              @xmath      
+              @xmath      (140)
+  -- -------- -------- -- -------
+
+After integration by parts, this is the term ( 27 ) given in the
+introduction to this thesis. One may check by explicit computation that
+this is in fact invariant under the projectively realized Galilean
+transformation that one uses to check boost invariance in the standard,
+textbook approach.
+
+One can now extend this method to any order in derivatives one wishes
+
+  -- -------- -- -------
+     @xmath      (141)
+  -- -------- -- -------
+
+So long as one properly contracts indices using the invariant metric
+@xmath , the resulting theory will be Galilean invariant. ¹⁷ ¹⁷ 17 One
+can also contract with @xmath , but this is rather trivial since @xmath
+.
+
+As promised, this method of generating non-relativistic theories is
+clearly equivalent to the procedure of null reduction. The extended
+derivative @xmath is simply the covariant derivative in the
+higher-dimensional spacetime, which of course should be contracted with
+a @xmath -dimensional Lorentzian metric. Selection of a particular
+momentum in the null direction is simply the fact that @xmath . We hope
+however that our formulation has certain conceptual advantages since it
+is intrinsic to the non-relativistic spacetime. It is certainly more
+streamlined from a calculational point of view, as one may write down
+theories directly, without the intervening steps of postulating a parent
+unphysical theory and performing reduction, which can be cumbersome in
+the presence of interacting modes.
+
+#### 4.2.1 Currents
+
+As an example, let’s compute the currents defined in chapter 3 for the
+Schrödinger field ( 138 ). For this we will need the variation of the
+extended derivative operator acting on @xmath . The non-covariant
+derivative @xmath simply varies with the mass gauge field @xmath , from
+which we find
+
+  -- -------- -- -------
+     @xmath      (142)
+  -- -------- -- -------
+
+Including the variation of the spin connection and electromagnetic gauge
+field then gives
+
+  -- -------- -- -------
+     @xmath      (143)
+  -- -------- -- -------
+
+Similarly, the variation of the volume element is
+
+  -- -------- -- -------
+     @xmath      (144)
+  -- -------- -- -------
+
+Using these formulas, it’s then not difficult to find the currents
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      
+     @xmath      (145)
+  -- -------- -- -------
+
+where importantly, by @xmath we do not mean the raised index version of
+the non-covariant derivative @xmath , but rather @xmath contracted with
+
+  -- -------- -- -------
+     @xmath      (146)
+  -- -------- -- -------
+
+Before writing the Cauchy currents, we note that the spin current for
+the Schrödinger field is conserved on-shell @xmath , as one would expect
+in a theory with no spin-orbit coupling
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      (147)
+  -- -------- -------- -- -------
+
+where in the second equality we have used the fact that @xmath is a
+massless ( @xmath invariant) field which implies that @xmath . Finally,
+the last line vanishes by the covariant form of Schrödinger’s equation
+(on torsionless backgrounds) @xmath .
+
+The physical currents are then
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      (148)
+  -- -------- -- -------
+
+where we have restricted to torsionless backgrounds for simplicity. In
+the above we have used ( 4.2.1 ) to write the stress-mass tensor in a
+manifestly symmetric form on shell, something which we know is
+guaranteed by the Ward identity for local Galilean transformations ( 125
+).
+
+Since this likely all looks rather unfamiliar, we also give component
+expressions of the above equations for a spin @xmath particle in flat,
+three-dimensional space. On shell, these are
+
+  -- -------- -- -------
+                 
+     @xmath      
+     @xmath      
+     @xmath      (149)
+  -- -------- -- -------
+
+where @xmath are the Pauli spin operators. Note the energy current is
+the anticommutator of the energy @xmath and velocity @xmath and
+represents kinetic energy being transported with the velocity of the
+particle.
+
+For the sake of familiarity, we have defined @xmath , ¹⁸ ¹⁸ 18 The
+formula @xmath is useful here. whose density is the spin density of
+standard quantum mechanics and whose current may also be interpreted
+along the lines of the energy current as it is half the anticommutator
+of the spin density and velocity. By virtue of ( 4.2.1 ), this is
+conserved on shell
+
+  -- -------- -- -------
+     @xmath      (150)
+  -- -------- -- -------
+
+The mass current is simply @xmath times the probability current, plus a
+magnetization term @xmath that can be very roughly interpreted as mass
+flow due to spinning matter whose rate of precession is not uniform. As
+usual, one should not take this too interpretation too seriously. Note
+in particular, variation in the spin density does not give rise to an
+electromagnetic magnetization current and the charge and mass currents
+are distinct even in the single-constituent case in the presence of
+spinful matter.
+
+Finally, the stress tensor is the familiar stress tensor for spinless
+Schrödinger fields, plus a contribution @xmath arising from
+non-uniformities in the spin current. Of course, we do not display the
+momentum current since it is equal to the mass current on shell.
+
+### 4.3 Non-Relativistic Dirac Fields
+
+There are some options for non-relativistic actions which we have not
+considered. If a massive field @xmath transforms under boosts, the
+action ( 138 ) is not invariant since boosts cannot be realized
+unitarily. Importantly, we are not referring to the projective boost
+transformation of equation ( 20 ), which we long ago absorbed into the
+the mass gauge field; rather, we are considering internal boosts
+
+  -- -------- -- -------- -- -------
+     @xmath      @xmath      (151)
+  -- -------- -- -------- -- -------
+
+parametrizes an arbitrary @xmath transformation and the generators
+@xmath are nontrivial. To our knowledge, a general theory of the
+finite-dimensional representations of the Galilean group has not been
+developed and finding them is a surprisingly difficult task, but in four
+spacetime dimensions, a complete list with spin 1 and lower has been
+obtained and may be found in equation (11) and Table 1 of [ 58 ] . To
+convert their results to our conventions, one should take @xmath ,
+@xmath .
+
+Of those representations with @xmath , there is one with spin @xmath and
+eight with spin 1. The spin @xmath representation for instance contains
+two spin @xmath fields
+
+  -- -------- -- -------
+     @xmath      (152)
+  -- -------- -- -------
+
+that transform into each other under boosts
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (153)
+  -- -------- -------- -- -------
+
+and was originally discovered by Levy-Leblond in [ 57 ] . The
+non-relativistic Dirac equation ( 155 ) for this field is precisely the
+@xmath limit of the relativistic 4-component Dirac equation: the second
+spinor is auxiliary and integrating it out yields the Schrödinger
+equation with a @xmath -factor of 2. We are unfortunately not aware of
+physical realizations of the other boost-nontrivial representations
+listed in [ 58 ] .
+
+However, given a field in one of these representations @xmath , one may
+follow the standard procedure to construct a Dirac equation for it. In a
+follow up to [ 58 ] , the authors find a collection of matrices @xmath
+for each @xmath such that [ 59 ]
+
+  -- -------- -- -------
+     @xmath      (154)
+  -- -------- -- -------
+
+The non-relativistic Dirac action is then
+
+  -- -------- -- -------
+     @xmath      (155)
+  -- -------- -- -------
+
+where we have taken the liberty of minimally coupling their action to a
+Bargmann spacetime. The @xmath -matrices they obtain may be found in
+equation (10) and equations (42-45) of [ 59 ] . ¹⁹ ¹⁹ 19 In comparing to
+[ 59 ] , we have @xmath . For the Leby-Leblond representation they are
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (156)
+  -- -------- -------- -------- -- -------
+
+The non-relativistic Dirac equation obtained from ( 155 ) is then
+precisely the @xmath limit of the relativistic 4-component Dirac
+equation (see also [ 60 ] ). Expanding this out we have
+
+  -- -------- -- -------
+     @xmath      (157)
+  -- -------- -- -------
+
+The bottom component @xmath is auxiliary, satisfying the constraint (we
+are now restricting to flat spacetimes)
+
+  -- -------- -- -------
+     @xmath      (158)
+  -- -------- -- -------
+
+Plugging this in on torsionless backgrounds then gives, after
+integration by parts, the Schrödinger action with a @xmath -factor of 2
+for the top spinor @xmath
+
+  -- -------- -- -------
+     @xmath      (159)
+  -- -------- -- -------
+
+where @xmath is the magnetic field and @xmath is the spin operator. Note
+that the @xmath -factor also induces a non-minimal coupling to the Ricci
+scalar @xmath . This follows from the same commutator of derivatives
+giving rise to the magnetic moment.
+
+#### 4.3.1 Currents
+
+From the action ( 155 ) we find the stress-energy and spin current to be
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (160)
+  -- -------- -------- -- -------
+
+where we have defined @xmath and as usual @xmath . Computing the
+components of @xmath from ( 153 ) and ( 156 ), we find that @xmath is in
+fact totally antisymmetric in its indices. Given this total
+anti-symmetry, it’s independent components are
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (161)
+  -- -------- -------- -- -------
+
+The Cauchy stress-mass in torsionless backgrounds is then
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      
+     @xmath      (162)
+  -- -------- -- -------
+
+In simplifying this we have used the total antisymmetry of @xmath and
+used the Ward identity @xmath since we are considering the on shell
+currents.
+
+This form has the benefit of being manifestly Galilean covariant, but is
+perhaps somewhat mysterious. To get a feel for this let’s restrict to
+the Levy-Leblond representation and simplify using the constraint ( 158
+). In components we then have
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      (163)
+  -- -------- -- -------
+
+In particular, we have the standard charge and mass currents, plus
+magnetization currents arising from the magnetic moments that the @xmath
+-factor attaches to particles. Note that the mass magnetization enters
+as though it had @xmath -factor 1. In comparison to the Schrödinger
+case, these currents also have additional terms in the energy current
+and stress arising from the non-minimal coupling terms
+
+  -- -------- -- -------
+     @xmath      (164)
+  -- -------- -- -------
+
+### 4.4 Quantum Hall EFT
+
+We conclude with an application to the quantum Hall effect, writing down
+most general effective action (to our order in power counting)
+consistent with Galilean invariance for systems gapped by a
+non-vanishing magnetic field @xmath . This problem has been considered
+by numerous authors, beginning with [ 61 , 62 , 63 , 64 ] , which
+characterized the long distance physics of quantum Hall systems by the
+quantized coefficients of the Chern-Simons and Wen-Zee terms (we shall
+specialize to the case of the integer quantum Hall states in this
+section and not consider the heirarchical construction).
+
+Additional restrictions owing to Galilean invariance were considered in
+[ 3 ] , which also imposed an additional symmetry
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (165)
+  -- -------- -------- -- -------
+
+specific to single particle systems (see [ 65 ] ). In this section we
+enlarge the the backgrounds considered by previous authors to general
+Bargmann spacetimes and impose Galilean invariance without resort to (
+165 ), so finding the most general effective action to our order in
+power counting, applicable to systems composed of arbitrary numbers of
+fundamental constituents. The added generality leads us to introduce
+three new Chern-Simons-type terms with quantized coefficients @xmath ,
+and @xmath . These terms attach mass to vorticity, charge to vorticity,
+and mass to curvature respectively.
+
+All results will be stated on torsionless backgrounds. Hence though
+torsion will be essential to carry out the variations correctly, it will
+not appear in the final formulas for the variations themselves.
+
+#### 4.4.1 Setup
+
+As is usual, we shall assume slowly varying fields and so adopt a power
+counting scheme in which derivatives are small
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (166)
+  -- -------- -------- -- -------
+
+We are concerned with backgrounds in which there is a large magnetic
+field @xmath gapping the system and so
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (167)
+  -- -------- -------- -- -------
+
+The power counting is chosen so that @xmath , but electric fields are
+small @xmath . Although in experimental setups, the other background
+curvatures @xmath , @xmath , and @xmath are small or vanishing, it will
+be convenient to consider all potentials on the same level as the
+electromagnetic one
+
+  -- -------- -------- -------- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath   @xmath   @xmath   @xmath      (168)
+  -- -------- -------- -------- -------- -------- -------- -- -------
+
+The most general effective action to order @xmath is then
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (169)
+              @xmath      (170)
+  -- -------- -------- -- -------
+
+where we have made the following definitions. First of all, since we
+have a nowhere vanishing magnetic field, we may define the drift
+velocity 3-vector
+
+  -- -------- -- -------
+     @xmath      (171)
+  -- -------- -- -------
+
+where @xmath .
+
+The gravitational vector potential @xmath is not boost invariant,
+however in the presence of a preferred frame such as @xmath we may
+define @xmath to be @xmath measured in that frame. One convenient way to
+do this is
+
+  -- -------- -- -------
+     @xmath      (172)
+  -- -------- -- -------
+
+@xmath is then simply @xmath in the frame where @xmath . The one-form
+@xmath is the spatial part of the spin connection @xmath
+
+  -- -------- -- -------
+     @xmath      (173)
+  -- -------- -- -------
+
+It is not possible to involve the boost part of the connection @xmath to
+this order.
+
+Finally, the equation of state @xmath is a function of the curvatures
+
+  -- -------- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath   @xmath      (174)
+  -- -------- -------- -------- -------- -- -------
+
+where
+
+  -- -------- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath   @xmath      (175)
+  -- -------- -------- -------- -------- -- -------
+
+@xmath is of course the magnetic field and @xmath the curvature of a
+spatial slice. The other two curvatures may require some comment on
+interpretation however. In flat space, the third may be calculated to be
+
+  -- -------- -- -------
+     @xmath      (176)
+  -- -------- -- -------
+
+and so is the vorticity of the quantum Hall fluid. The term @xmath
+ensures the boost invariance of @xmath and can be thought of as the
+Coriolis contribution to the vorticity in a rotating frame. The
+curvature @xmath is proportional to @xmath and so is nonzero only in
+spacetimes that are not causal. While not physical, considering non-zero
+@xmath is a useful intermediate step to derive energy currents and has
+been used for this purpose in a number of works [ 51 , 52 ] .
+
+In what follows, it will be convenient to introduce the definitions
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (177)
+  -- -------- -------- -------- -- -------
+
+These are the “electric” components of their associated field strengths
+in the frame where @xmath . Note in particular that in the case of pure
+Newtonian gravity @xmath ²⁰ ²⁰ 20 There is always a Galilean frame in
+which this is true.
+
+  -- -------- -- -------
+     @xmath      (178)
+  -- -------- -- -------
+
+so @xmath represents the Newtonian gravitational force. Of course, there
+is no comoving electric field in the frame defined by the drift
+velocity: @xmath . The field strengths then have the decomposition
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (179)
+     @xmath   @xmath      (180)
+     @xmath   @xmath      (181)
+     @xmath   @xmath      (182)
+  -- -------- -------- -- -------
+
+where
+
+  -- -------- -- -------
+     @xmath      (183)
+  -- -------- -- -------
+
+is the @xmath -orthogonal spatial volume form. One may check that @xmath
+is @xmath orthogonal in it’s first index, @xmath -orthogonal in it’s
+second index, and squares to itself, so that
+
+  -- -------- -- -------
+     @xmath      (184)
+  -- -------- -- -------
+
+#### 4.4.2 The Stress-Energy Tensor
+
+Let’s begin by calculating the stress energy tensor @xmath for the
+action ( 169 ). We’ll begin with the (non-gravitational) field strengths
+@xmath , @xmath , and @xmath . The covariant vorticity @xmath is more
+involved due to @xmath ’s dependence on the extended tetrad and we
+return to it in a moment. For this we need the variation of the “spatial
+volume element” @xmath . Using @xmath we find
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (185)
+  -- -------- -------- -- -------
+
+so that
+
+  -- -------- -- -------
+     @xmath      (186)
+  -- -------- -- -------
+
+where in the final step we have plugged in ( 179 ). The same steps also
+lead to
+
+  -- -------- -- -------
+     @xmath      (187)
+  -- -------- -- -------
+
+the additional term arising from the fact that @xmath . Similarly
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (188)
+  -- -------- -------- -- -------
+
+Note the terms resulting from @xmath vanish since we are varying about
+torsionless backgrounds.
+
+Since @xmath and @xmath both depend on the drift velocity @xmath , we
+must find how this changes under a geometric perturbation @xmath to
+continue. From the expression for @xmath , we find
+
+  -- -------- -- -------
+     @xmath      (189)
+  -- -------- -- -------
+
+Now the variation of the null extended frame @xmath is determined by
+@xmath and @xmath , which are solved by the formula
+
+  -- -------- -- -------- -- -------
+     @xmath      @xmath      (190)
+  -- -------- -- -------- -- -------
+
+is the @xmath and @xmath -orthogonal extended projector, which one may
+check satisfies @xmath .
+
+Finally, we turn to @xmath
+
+  -- -------- -- -------
+     @xmath      (191)
+  -- -------- -- -------
+
+where in the final step we have noted that @xmath , which may be checked
+by noting that both sides of this equation are @xmath and @xmath
+orthogonal in their extended indices, and that both sides project to
+@xmath upon application of @xmath . From this, we obtain the variation
+of the covariant vorticity
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+              @xmath      (192)
+  -- -------- -------- -- -------
+
+The variations in hand, it is now a straightforward exercise to compute
+the stress-energy tensor. Let’s begin with the unimproved mass current,
+which is
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+              @xmath      (193)
+  -- -------- -------- -- -------
+
+The unimproved stress-mass is then simply a pressure term, plus
+contributions determined by the mass current (here @xmath )
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (194)
+  -- -------- -- -------
+
+The full stress-energy contains these contributions, plus energy
+transport
+
+  -- -------- -- -------
+     @xmath      (195)
+  -- -------- -- -------
+
+where @xmath is the comoving energy current
+
+  -- -------- -- -------
+     @xmath      (196)
+  -- -------- -- -------
+
+We postpone a discussion of the physical content of these formulas until
+we pass to the Cauchy stress-mass.
+
+#### 4.4.3 The Cauchy Stress-Mass Tensor
+
+To pass to the Cauchy stress-mass, we need to first calculate the
+spin-current @xmath . This is rather easier than finding @xmath , the
+only necessary variations being
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (197)
+  -- -------- -------- -- -------
+
+The spin current is then @xmath with
+
+  -- -------- -- -------
+     @xmath      (198)
+  -- -------- -- -------
+
+It will prove convenient to write this as
+
+  -- -------- -- -------
+     @xmath      (199)
+  -- -------- -- -------
+
+where @xmath is the spin density
+
+  -- -------- -- -------
+     @xmath      (200)
+  -- -------- -- -------
+
+and
+
+  -- -------- -- -------
+     @xmath      (201)
+  -- -------- -- -------
+
+In terms of @xmath , the Cauchy stress-mass is
+
+  -- -------- -- -------
+     @xmath      (202)
+  -- -------- -- -------
+
+where we have used ( 3.2.1 ) and @xmath , which follows from ( 198 ). An
+easy way of computing this is to decompose it into its @xmath -parallel
+and @xmath -orthogonal parts
+
+  -- -------- -- -------
+     @xmath      (203)
+  -- -------- -- -------
+
+where @xmath and compute these separately. Explicitly, @xmath and @xmath
+. From ( 202 ), the improved mass current is
+
+  -- -------- -- -------
+     @xmath      (204)
+  -- -------- -- -------
+
+Finally, the spin contribution to @xmath is
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      (205)
+  -- -------- -------- -- -------
+
+We have used the identity @xmath to simplify the final term in the
+second line. Moreover we have introduced the shear tensor
+
+  -- -------- -- -------
+     @xmath      (206)
+  -- -------- -- -------
+
+and it’s dual
+
+  -- -------- -- -------
+     @xmath      (207)
+  -- -------- -- -------
+
+Perturbing around flat space, it’s coefficient is the Hall viscosity.
+
+#### 4.4.4 Summary
+
+The currents encoded in the action ( 169 ) are given bellow. We see that
+the new quantized gravitational coefficients @xmath , @xmath , and
+@xmath lead to the following effects. @xmath attaches mass to vorticity
+and leads to mass transport transverse to the gravitational field.
+@xmath attaches mass to curvature in the same manner @xmath attaches
+charge. It also leads to a Hall viscosity proportional to vorticity and
+transverse response to time dependent metric perturbations encoded in
+@xmath . This is all summarized in the formulas below. Though we have
+not carried out the computation of @xmath here, it proceeds along lines
+entirely similar to those given above.
+
+Let’s begin with the charge current
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      
+     @xmath      (208)
+  -- -------- -- -------
+
+and @xmath is the expansion. The Cauchy stress-mass is
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+              @xmath      (209)
+  -- -------- -------- -- -------
+
+where @xmath is the Cauchy mass current
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (210)
+  -- -------- -------- -- -------
+
+and
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (211)
+  -- -------- -------- -- -------
+
+@xmath is the spin density and we see receives contributions not only
+from the Wen-Zee coefficient @xmath , but also the “gravitational”
+Wen-Zee coefficient @xmath , which leads to a Hall viscosity
+contribution proportional to the vorticity and the tying of mass to
+curvature.
+
+The full stress-energy on the other hand is
+
+  -- -------- -- -------
+     @xmath      (212)
+  -- -------- -- -------
+
+where @xmath is the comoving energy current
+
+  -- -------- -- -------
+     @xmath      (213)
+  -- -------- -- -------
+
+and @xmath and @xmath are the unimproved stress-mass and mass currents
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (214)
+     @xmath   @xmath      (215)
+  -- -------- -------- -- -------
+
+## 5 Non-Relativistic Fluid Dynamics
+
+In this chapter we apply the formalism established in the previous
+chapters to non-relativistic fluid dynamics and linear response. As a
+phenomenological theory given in a derivative expansion, this is a
+particularly easy setting within which to enforce symmetry principles
+and indeed, the fluid equations of motion are themselves the Ward
+identities of spacetime symmetries. We will review these aspects and
+develop the theory of non-relativistic fluids on Bargmann spacetimes in
+section ( 5.1 ).
+
+Fluid mechanics is a theory of nearly-thermal systems when fluctuations
+occur on length and time scales much larger than any microscopic scales
+characterizing it. As such, it is an extremely powerful tool for probing
+the near-equilibrium physics of a variety of systems whose microscopic
+descriptions are resistant to traditional field-theoretic techniques.
+One such system we will be interested in is the fractional quantum Hall
+states, which are known to form an incompressible quantum fluid at zero
+temperature [ 66 ] .
+
+In section 5.2 , we consider the fluid dynamics of a system constrained
+by energetics to lie in the lowest Landau level, allowing us to extract
+universal predictions for quantum Hall states at finite temperature with
+@xmath , so long as the temperature lies far below the cyclotron gap. We
+find that the results are strongly constraining: to first order in a
+derivative expansion charge transport is determined entirely by the
+equation of state while energy response includes only an independent
+thermal conductivity, Righi-Leduc or thermal Hall conductivity, and
+magnetization. Many of these constraints follow from consistency of the
+fluid description on torsionful backgrounds and so demand the treatment
+of chapter 2 to be consistent with Galilean invariance. In section 5.3
+we turn to the standard @xmath -dimensional fluid in a perturbing
+electromagnetic field. Kubo formulas for all response coefficients are
+given in section 5.4 .
+
+### 5.1 Generalities
+
+In this section we discuss the generalities that will be necessary for
+our later studies of quantum Hall fluids and standard multi-component
+fluids. The general form of the Ward identities on curved torsionful
+spacetimes has already been given in section 3.3 , but in section 5.1.3
+we rephrase these in terms of the currents measured by comoving fluid
+observers. In section 5.1.4 we supply constitutive relations to leading
+order in a derivative expansion and obtain the curved space perfect
+fluid equations of motion. Technical aspects of fluid frame
+transformations are recalled in sections 5.1.5 and 5.1.6 .
+
+The program of fluid dynamics is to describe the fluctuations of
+thermodynamic variables in slightly out of equilibrium media. These
+variables include the temperature and velocity @xmath as well as a
+chemical potential for each conserved charge. For us, there are two such
+quantities, the electric charge and mass, whose associated chemical
+potentials we will denote @xmath and @xmath . In all we have @xmath
+degrees of freedom
+
+  -- -------- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath   @xmath      (216)
+  -- -------- -------- -------- -------- -- -------
+
+where the velocity has been normalized so that @xmath and thus
+represents @xmath degrees of freedom. The equilibrium properties of the
+system are then completely characterized by an equation of state @xmath
+, which expresses the pressure as a function of the state variables. The
+entropy, charge, mass, and energy densities are then defined by
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (217)
+  -- -------- -------- -- -------
+
+Just out of equilibrium, the thermodynamic variables are allowed to vary
+slowly in space and time, where slow is compared to the mean free path
+and mean free time, so that local equilibrium is always a good
+approximation. The Ward identities
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (218)
+  -- -------- -- -------
+
+are then sufficient to serve as equations of motion since they are the
+same in number as the thermodynamic variables. We need only constitutive
+relations for the currents in terms of these degrees of freedom and
+their derivatives. In ( 5.1 ) and for most of this chapter we will
+principally restrict our attention to spinless fluids, except for the
+quantum Hall fluid which we take to be spin polarized and minimally
+coupled to curvature. It would be interesting to generalize our results
+beyond this case.
+
+Since we are perturbing away from equilibrium, these constitutive
+relations naturally organize themselves in a gradient expansion where
+higher derivatives of ( 216 ) take on diminishing importance. To
+complete our power counting scheme, one needs also specify the
+backgrounds to be perturbed around. In this paper we shall assume a
+trivial spacetime background background
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (219)
+  -- -------- -------- -- -------
+
+in equilibrium so that
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (220)
+  -- -------- -------- -- -------
+
+are first order in derivatives.
+
+This is not a unique selection and corresponds to a choice of regime in
+which we expect our results to be applicable. The power counting for
+@xmath will depend on the problem at hand. The quantum Hall fluid is
+gapped by a large magnetic field and fluctuations are assumed to be
+small enough to not significantly alter the size of the gap. We will
+then take the magnetic field to be order zero in derivatives in our
+study of the LLL fluid in section 5.2 , but order one in the standard
+fluid in section 5.3 .
+
+The constitutive relations so obtained are not in general sensible and
+could lead to an on shell decrease in entropy, the canonical example
+being that of a negative shear viscosity [ 56 ] . As such we must also
+impose the second law of thermodynamics as an additional constraint on
+fluid flows, diminishing the freedom present in the gradient expansion
+and returning a reduced set of transport coefficients. This procedure is
+known as an entropy current analysis and has been carried out in many
+systems including @xmath -dimensional relativistic normal fluids [ 67 ]
+and @xmath -dimensional relativistic superfluids [ 68 ] . In this thesis
+we will work to first order in derivatives. It’s well known that even at
+first order, the dynamics is very rich in the parity odd sector when
+@xmath and so we shall eventually restrict to two-dimensional fluids.
+
+#### 5.1.1 Comoving Currents
+
+As we have seen, the stress-energy tensor @xmath cannot in general be
+separated into it’s constituent currents in a manner that is consistent
+with Galilean invariance. Notions of energy, stress, and momentum are
+then observer dependent and can be retrieved from knowledge of their
+spacetime trajectory as discussed in section 3.1.1 . In the hydrodynamic
+setting however, Galilean invariance is broken by the boost invariant
+fluid velocity @xmath , which defines a preferred rest frame: the frame
+of observers comoving with the fluid.
+
+It will thus prove natural to organize our calculation in terms of the
+comoving currents
+
+  -- -------- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath   @xmath      (221)
+  -- -------- -------- -------- -------- -- -------
+
+in terms of which the stress-energy and stress-mass tensors decompose as
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (222)
+  -- -------- -- -------
+
+In the above we have defined a @xmath orthogonal “inverse” @xmath to
+@xmath , with which we have lowered the index on the projector
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (223)
+  -- -------- -------- -------- -- -------
+
+Of course, since the stress-mass tensor is symmetric in the spinless
+case (equation ( 125 )), the spatial stress is symmetric and the
+comoving momentum is simply the @xmath orthogonal part of the mass
+current
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (224)
+  -- -------- -------- -- -------
+
+Note that for notational simplicity we have dropped the over-script
+@xmath ’s of section 3.1.1 since these are the only currents with which
+we shall have to deal with for most of this analysis. One should always
+keep in mind however that all of these quantities are as measured in by
+comoving observers. To distinguish them from the components of @xmath ,
+we will refer to these as the “lab” currents
+
+  -- -------- -- -------
+     @xmath      (225)
+  -- -------- -- -------
+
+#### 5.1.2 Incorporating Torsion
+
+As we have seen, knowing how to covariantly couple to torsion is
+necessary for a sensible derivation of the energy current of a given
+theory. It will thus prove necessary in any microscopic calculation of
+the transport coefficients to be discussed (see section 5.4 for a
+collection of Kubo formulas). In our fluid analysis it will however play
+a different role.
+
+The key idea, introduced in [ 67 ] , is that the more general a
+background a system is placed on, the more constraining the entropy
+current analysis is. For example, in this work the authors demonstrate
+entropy flow induced by acceleration @xmath sources entropy density
+
+  -- -------- -- -------
+     @xmath      (226)
+  -- -------- -- -------
+
+Since this term is sign indefinite, one concludes that the coefficient
+@xmath must vanish. Thus, even if one is studying fluids in flat
+spacetime, considering them on a curved space is a useful theoretical
+experiment. Time evolution should still be consistent with the second
+law of thermodynamics and imposing this yields additional relations not
+apparent in flat space.
+
+We will also get a lot of mileage out this reasoning and further find it
+useful to extended the analysis to torsionful spacetimes. Spatial
+torsion may be interpreted in the condensed matter setting as a
+coarse-grained Burgers vector density and so is necessary in the study
+of media with dislocation defects [ 29 ] . However, we will be mainly
+concerned with temporal torsion @xmath , since it may be used to mock up
+the effect of steady state temperature gradients.
+
+To see why, consider a system in equilibrium subjected to a static but
+spatially varying clock form
+
+  -- -------- -- -------
+     @xmath      (227)
+  -- -------- -- -------
+
+and consider the flow induced in the energy current with constitutive
+relations
+
+  -- -------- -- -------
+     @xmath      (228)
+  -- -------- -- -------
+
+Since @xmath couples to energy density, under a perturbation @xmath ,
+energy will flow from higher @xmath to lower @xmath until equilibrium is
+regained. This occurs when [ 50 ]
+
+  -- -------- -- -------
+     @xmath      (229)
+  -- -------- -- -------
+
+We thus see that in thermodynamic equilibrium, non-relativistic fluids
+on backgrounds with temporal torsion do not have uniform temperature,
+similar to the Tolman-Ehrenfest effect [ 69 ] for fluids in a
+gravitational background in general relativity.
+
+Once equilibrium is reached, energy must cease to flow @xmath . ²¹ ²¹ 21
+Or at the very least, longitudinal flow vanishes. Persistent currents
+proportional to the curl of @xmath (so-called “magnetization” currents)
+may remain since they do not lead to a buildup of energy density. This
+constrains the constitutive relations so that
+
+  -- -------- -- -------
+     @xmath      (230)
+  -- -------- -- -------
+
+a torsional version of the Einstein relation @xmath relating the
+longitudinal conductivity and diffusion coefficients @xmath . As
+reasoned by Luttinger, even if we cannot turn on @xmath in the lab, this
+is an extremely useful relation since it allows us to derive Kubo
+formulas for thermal transport since @xmath may be viewed as a
+background field perturbing a microscopic system.
+
+This relation and many others will follow from the entropy current
+analysis on torsionful spacetimes @xmath , so the additional
+complications torsion introduces are worth the effort. We will however
+restrict to causal spacetimes @xmath since there is otherwise no
+consistent notion of future or past, making the second law of
+thermodynamics meaningless (see the concluding paragraph of chapter 1 ).
+²² ²² 22 The entropy current analysis may still be carried out formally
+in this case. However, we find that no new relations amongst the
+physical coefficients are imposed upon doing so since the proliferation
+of new terms proportional to @xmath out-paces the number of additional
+constraints.
+
+To simplify the analysis, we shall also take spatial torsion to vanish,
+though generalization to the fully torsionful case would be an
+interesting extension of our work. However, as discussed in the
+paragraph below equation 101 , there is no Galilean invariant notion of
+spatial torsion once we allow temporal torsion to be nonzero. To settle
+this, we agree that space will be torsionless for comoving fluid
+observers
+
+  -- -------- -- -------- -- -------
+     @xmath      @xmath      (231)
+  -- -------- -- -------- -- -------
+
+The full extended torsion is then of the form
+
+  -- -------- -- -------
+     @xmath      (232)
+  -- -------- -- -------
+
+where @xmath is the mass torsion measured in the comoving frame. As we
+have seen, this acts as an external Lorentz force coupling to @xmath .
+Including @xmath is natural in the presence of timelike torsion (it must
+be nonzero for some observers and generically will be for fluid
+observers in particular) and does not really complicate the analysis.
+Unfortunately it doesn’t lead to any interesting relations either.
+
+#### 5.1.3 The Navier-Stokes and Work-Energy Equations
+
+In this section we restate the Ward identity for diffeomorphisms in
+terms of the comoving currents. Plugging the extended torsion ( 232 )
+into stress-energy conservation ( 5.1 ), we find
+
+  -- -------- -- -------
+     @xmath      (233)
+  -- -------- -- -------
+
+where we have introduced the shorthand @xmath and @xmath . As we saw in
+equation ( 128 ), the spatial components of this identity, obtained by
+raising the index with @xmath give the Cauchy equation
+
+  -- -------- -- -------
+     @xmath      (234)
+  -- -------- -- -------
+
+which will serve as the Navier-Stokes equation once we provide
+constitutive relations.
+
+We saw previously (equation ( 118 )) that the temporal component of the
+diffeomorphism Ward identity contains the work-energy equation. We can
+obtain the covariant version of this by contracting the Ward identity
+with @xmath . In doing so, the following identity is useful
+
+  -- -------- -- -------
+     @xmath      (235)
+  -- -------- -- -------
+
+Using this equation and mass conservation, one finds
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+     @xmath   @xmath      (236)
+  -- -------- -------- -- -------
+
+where @xmath and @xmath are the comoving electric fields for charge and
+mass.
+
+To simplify the final term, we note that @xmath , so there is a @xmath
+orthogonal tensor @xmath such that @xmath . Contracting this equation
+with @xmath we find that @xmath and so
+
+  -- -------- -- -------
+     @xmath      (237)
+  -- -------- -- -------
+
+Plugging this in, one finds the work-energy equation for the comoving
+energy current is
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (238)
+  -- -------- -------- -- -------
+
+where we have lowered the index on the stress-mass tensor with @xmath .
+In summary, in addition to the work done by external fields, the
+comoving energy density is dissipated by fluid shear coupling to the
+stress-mass tensor. ²³ ²³ 23 That energy is dissipated rather than
+sourced will follow from the constitutive relations and upcoming entropy
+current analysis.
+
+In summary, we may restate the Ward identities in terms of the comoving
+currents as the work-energy equation and Cauchy momentum equation, plus
+conservation laws for charge and mass
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      (239)
+  -- -------- -- -------
+
+#### 5.1.4 Perfect Fluids
+
+These Ward identities serve as dynamical equations once constitutive
+relations have been supplied, specifying the currents @xmath , @xmath ,
+@xmath and @xmath in terms of the thermodynamic degrees of freedom
+
+  -- -------- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath   @xmath      (240)
+  -- -------- -------- -------- -------- -- -------
+
+At zeroth order in derivatives, the most general tensors we can
+construct using these variables and the Newton-Cartan structure are
+
+  -- -------- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath   @xmath      (241)
+  -- -------- -------- -------- -------- -- -------
+
+Here @xmath , @xmath , @xmath and @xmath are functions of @xmath . They
+are the thermodynamic charge density, mass density, energy density and
+pressure and satisfy the relations ( 217 ).
+
+Feeding these into the Ward identities ( 5.1.3 ), we obtain the perfect
+fluid equations of motion
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (242)
+  -- -------- -- -------
+
+where @xmath is the fluid expansion and @xmath the acceleration. In
+these equations and those that follow, dotted objects indicate the
+material derivative, @xmath . The final equation is simply Newton’s
+second law and an obvious covariant generalization of Euler’s equation [
+56 ] .
+
+#### 5.1.5 Fluid Frames
+
+To go beyond perfect fluids one needs to expand the currents to first
+order in derivatives. The constitutive relations are then the perfect
+fluid ones plus @xmath corrections
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+     @xmath   @xmath      (243)
+  -- -------- -------- -- -------
+
+In the above the, vector corrections are defined to be transverse
+
+  -- -------- -- -------
+     @xmath      (244)
+  -- -------- -- -------
+
+while the tensor correction is traceless
+
+  -- -------- -- -------
+     @xmath      (245)
+  -- -------- -- -------
+
+( @xmath is of course already transverse since @xmath is). This is
+convenient as it separates the first order corrections into irreducible
+representations of @xmath .
+
+The decomposition ( 5.1.5 ) is subject to a well known ambiguity
+stemming from the need to define @xmath , @xmath , @xmath , and @xmath
+out of equilibrium. Any such definition is admissible so long as it
+reduces to the equilibrium values at order zero and so is subject to a
+@xmath parameter @xmath field redefinition
+
+  -- -------- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath   @xmath      (246)
+  -- -------- -------- -------- -------- -- -------
+
+called a fluid frame transformation (not to be confused with a Galilean
+frame transformation). To deal with this ambiguity we may either fix the
+frame by imposing extra conditions, or work in a manifestly frame
+invariant manner.
+
+Frame transformations are worked out in detail in [ 53 ] (see [ 68 ] for
+the relativistic case) and in this section and the next, we refer the
+reader to this treatment for the details. For our purposes we only note
+that (besides those related to the entropy, which we have saved for the
+next section) the complete set of first order frame invariants is
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (247)
+  -- -------- -- -------
+
+Although we shall usually take @xmath to be a function of temperature
+and the chemical potentials, here we have taken @xmath and the partial
+derivatives @xmath , @xmath and @xmath are defined accordingly. Note we
+have an additional vector frame invariant @xmath compared to either the
+relativistic case or non-relativistic single-component case due to the
+independence of the mass and charge currents.
+
+#### 5.1.6 The Canonical Entropy Current
+
+There is an additional frame invariant involving the entropy, which we
+treat separately due to it’s importance in the ensuing calculation. This
+is the “canonical entropy current”
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (248)
+  -- -------- -- -------
+
+Intuitively, this is designed to match the combination of currents found
+in the equilibrium identity ( 217 ), but it’s true importance stems from
+it’s manifest frame invariance. Out of equilibrium the entropy flow will
+in general deviate from the canonical part
+
+  -- -------- -- -------
+     @xmath      (249)
+  -- -------- -- -------
+
+Of course, since @xmath is a frame invariant, @xmath is as well. It’s
+divergence is a quadratic form in first order data
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (250)
+  -- -------- -------- -- -------
+
+Here we have performed a decomposition of @xmath into @xmath and @xmath
+orthogonal tensors
+
+  -- -------- -- -------
+     @xmath      (251)
+  -- -------- -- -------
+
+where
+
+  -- -------- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath   @xmath      (252)
+  -- -------- -------- -------- -------- -- -------
+
+Since these are all @xmath orthogonal tensors, there is no information
+lost in lowering their indices with @xmath , as we have done above and
+shall continue to do throughout.
+
+### 5.2 Hydrodynamics on the Lowest Landau Level
+
+In this section we turn to the quantum Hall effect, whose study inspired
+much of the initial interest in Newton-Cartan geometry within the
+condensed matter literature [ 6 ] . Since its discovery, the fractional
+quantum Hall (FQH) effect [ 70 ] has been subjected to intense study and
+proven a fruitful playground for new concepts in both condensed matter
+and high energy physics. Beyond its quantized Hall conductance, FQH
+states exhibit a number of interesting features including anyonic
+excitations [ 71 , 72 ] , edge states [ 73 ] , and are prime examples of
+topological phases of matter [ 74 ] . Beginning with the Laughlin wave
+function [ 66 ] , it has been attacked with numerous approaches
+including Chern-Simons field theory [ 75 , 76 ] and the
+composite-fermion approach [ 77 ] .
+
+One reason it has proven such fruitful ground for theoretical studies is
+that it is a famously difficult problem exhibiting a variety of physics
+in different regimes. The integer quantum Hall effect arises from the
+Landau level quantization (with gap of order of the cyclotron frequency)
+of free electrons combined with Anderson localization [ 78 ] , while the
+fractional quantum Hall effect relies on intra-Landau level strong
+coupling physics (with gap of order the Coulomb energy). For systems
+with temperature on the order of than the Coulomb gap, little can be
+said.
+
+However, the zero temperature integer and fractional quantum Hall states
+both form an incompressible quantum fluid [ 66 ] . At finite temperature
+and slightly out of equilibrium, one might ask what are the dynamics of
+this fluid? In this section we will answer this question by
+supplementing the formalism introduced in section 5.3 with a lowest
+Landau level projection.
+
+The results are applicable whenever the temperature lies far below the
+cyclotron gap. We are thus interested in the universal properties of
+systems constrained to the lowest Landau level. In this regime, response
+is very simple and highly constrained: we can have an equation of state
+@xmath , the usual suite of viscosities @xmath , a thermal conductivity
+@xmath , magnetization currents @xmath and @xmath for the charge and
+energy currents, and a thermal Hall conductivity @xmath
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      (253)
+  -- -------- -------- -- -------
+
+Note we also have a mass magnetization current and vorticity induced
+pressure tied to the spin density. Here @xmath denotes the spin of the
+approximately spin polarized electrons that make up the quantum Hall
+fluid. @xmath , @xmath and @xmath are the traceless shear, expansion and
+vorticity of the drift velocity @xmath , and @xmath . For instance, in
+the case of flat space and uniform magnetic field, they read
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+     @xmath   @xmath      (254)
+  -- -------- -------- -- -------
+
+Finally, we present a set of generalized Středa formulas. We find a
+fractional quantum Hall fluid in thermodynamic equilibrium has
+persistent mass, electric, and energy currents,
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      (255)
+  -- -------- -------- -- -------
+
+where
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath               (256)
+  -- -------- -------- -- -------
+
+of which @xmath may be recognized as the familiar Středa formula of [ 79
+] . The remaining formulas generalize this result to persistent currents
+driven by non-uniform magnetic fields and a Luttinger potential (here
+@xmath ). We note that these Stěda formula do not agree with those given
+in [ 51 ] , we believe due to differing factors of the Luttinger
+potential. Of course, throughout this section we will be specializing to
+the case @xmath .
+
+#### 5.2.1 The LLL Projection
+
+We begin by addressing how to perform the lowest Landau level projection
+within the hydrodynamic setting. The idea is to take the massless limit
+@xmath , or more precisely,
+
+  -- -------- -- -------
+     @xmath      (257)
+  -- -------- -- -------
+
+in which the temperature and chemical potential are much less than the
+Landau level splitting @xmath . Electrons are then overwhelmingly likely
+to be found in the lowest Landau level. Unfortunately, this limit is
+typically singular due the ground state energy of the lowest Landau
+level, which also goes as @xmath .
+
+This is however not the case for electrons whose @xmath -factor is
+precisely two. Consider the Schrödinger action with arbitrary @xmath
+-factor @xmath . The curved space generalization of this action is
+
+  -- -------- -- -------
+     @xmath      (258)
+  -- -------- -- -------
+
+In writing this down we have assumed spinless electrons and specialized
+to causal spacetimes @xmath , where we can always choose coordinates in
+which @xmath , and parameterized the Luttinger potential as @xmath . We
+have also defined a spatial epsilon tensor @xmath whose spatial
+components are @xmath .
+
+The matrix @xmath has eigenvalues @xmath and so the value @xmath is
+distinguished, for the matrix @xmath is degenerate. In terms of the
+zweibein @xmath , we have
+
+  -- -------- -- -------
+     @xmath      (259)
+  -- -------- -- -------
+
+The eigenvectors of @xmath are the chiral basis vectors
+
+  -- -------- -- -------
+     @xmath      (260)
+  -- -------- -- -------
+
+in terms of which we have the convenient formulas
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (261)
+  -- -------- -------- -- -------
+
+Hence the @xmath action may be written as
+
+  -- -------- -- -------
+     @xmath      (262)
+  -- -------- -- -------
+
+In flat space, @xmath and we see the degeneracy direction corresponds
+precisely to electrons in the LLL. Using a Hubbard-Stratonovich
+transformation, we write this as
+
+  -- -------- -- -------
+     @xmath      (263)
+  -- -------- -- -------
+
+The @xmath limit is then manifestly regular and the higher Landau levels
+are now completely trivial to integrate out as @xmath and @xmath simply
+become Lagrange multipliers enforcing the constraint
+
+  -- -------- -- -------
+     @xmath      (264)
+  -- -------- -- -------
+
+which is the curved space equation for the LLL wave function. The
+many-body problem of electrons confined to the LLL can then be
+understood as a system of interacting particles with no kinetic energy
+
+  -- -------- -- -------
+     @xmath      (265)
+  -- -------- -- -------
+
+for which path integration is carried out subject to the holomorphic
+constraint ( 264 ).
+
+Of course, the @xmath -factor is generally not equal to 2 (for GaAs, it
+is in fact nearly zero: @xmath [ 80 ] ), but we can can consider a
+fictitious, placeholder system with @xmath by absorbing the @xmath
+-factor term into the electromagnetic vector potential. That is, perform
+a redefinition of fields
+
+  -- -------- -- -------
+     @xmath      (266)
+  -- -------- -- -------
+
+If we denote the action ( 258 ) by @xmath , then we have
+
+  -- -------- -- -------
+     @xmath      (267)
+  -- -------- -- -------
+
+and one may simply consider @xmath as the theory of interest. In this
+section we will take @xmath so as to render the massless limit finite.
+
+This doesn’t actually do anything physical, the two theories are the
+same by construction. One can think of this procedure simply as a
+redefinition of currents to separate out the divergent parts. That is,
+if @xmath and @xmath are the currents of the original theory, the
+currents @xmath and @xmath defined by taking @xmath and @xmath as the
+independent variables are related to the physical ones by
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (268)
+  -- -------- -- -------
+
+where @xmath as usual, which one may derive by varying @xmath . When
+@xmath , the primed currents are finite in the massless limit, while the
+unprimed currents are not. In what follows we will always work with the
+finite @xmath currents and drop the subscripts, translating back to the
+physical @xmath -factor when all is said and done. Note this procedure
+is unique to single constituent fluids, which we will be implicitly
+assuming throughout. ²⁴ ²⁴ 24 Also note we have not included a @xmath
+-factor for @xmath . This may be done in a Galilean invariant manner,
+but takes some care and is not particularly needed here.
+
+To this point, we have also assumed spinless electrons, while in reality
+electrons in quantum Hall samples are nearly spin polarized. If we
+assume only minimal coupling to curvature
+
+  -- -------- -- -------- -- -------
+     @xmath      @xmath      (269)
+  -- -------- -- -------- -- -------
+
+(the physical value being @xmath ), then we may similarly perform a
+redefinition
+
+  -- -------- -- -------
+     @xmath      (270)
+  -- -------- -- -------
+
+to change the spin from @xmath to @xmath . That is,
+
+  -- -------- -- -------
+     @xmath      (271)
+  -- -------- -- -------
+
+For convenience we will use this freedom to set @xmath throughout this
+section. This alters the definition of the spin current in the manner
+@xmath . Using the improvement formula ( 3.2.1 ) we then find
+
+  -- -------- -- -------
+     @xmath      (272)
+  -- -------- -- -------
+
+while the charge and energy currents are not altered. Performing this
+redefinition, we may assume a vanishing spin current throughout, which
+greatly simplifies the fluid analysis. Note that while taking @xmath is
+simply a matter of convenience, the choice @xmath is essential to our
+logic.
+
+#### 5.2.2 The LLL Fluid
+
+Returning to the hydrodynamic regime, we may then perform the lowest
+Landau level limit by taking @xmath , in which case the mass current
+vanishes ²⁵ ²⁵ 25 Of course, it is the unimproved mass current @xmath
+that vanishes, but these are the same since we have set @xmath .
+
+  -- -------- -- -------
+     @xmath      (273)
+  -- -------- -- -------
+
+The hydrodynamic equations of motion ( 5.1.3 ) for the comoving currents
+then reduce to
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      
+     @xmath      (274)
+  -- -------- -- -------
+
+We must now specify constitutive relations for the currents in terms of
+background fields and the hydrodynamic degrees of freedom ( 240 ).
+However, in the massless limit we lose three of these. The mass chemical
+potential @xmath drops out since there is no longer a conserved mass.
+Furthermore, note that the stress-mass tensor reduces to simply the
+stress tensor @xmath , which only has spatial components. A more radical
+consequence of the massless limit is then that stress-mass conservation,
+the continuum analog of Newton’s second law, loses it’s time derivatives
+and becomes a force-free constraint. That is, since the fluid is
+massless it is obliged to flow in a manner such that the applied and
+internal forces exactly cancel. We may use this constraint to eliminate
+any two dynamical degrees of freedom, which we will take to be the fluid
+velocity @xmath .
+
+#### 5.2.3 Constitutive Relations
+
+Having done so, the currents are to be specified in terms of background
+fields, the temperature, and the charge chemical potential, which we
+will denote simply as @xmath
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (275)
+  -- -------- -------- -- -------
+
+We will do so about equilibrium in flat spacetime with a large constant
+magnetic field. That is, constitutive relations are organized into a
+derivative expansion in which
+
+  -- -------- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath   @xmath      (276)
+  -- -------- -------- -------- -------- -- -------
+
+are specified to be order @xmath and their derivatives order @xmath ,
+etc. Note in particular the magnetic field
+
+  -- -------- -- -------
+     @xmath      (277)
+  -- -------- -- -------
+
+is large and nowhere vanishing.
+
+As before, to zeroth order we have
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (278)
+  -- -------- -------- -------- -- -------
+
+where these are arbitrary functions of our zeroth order scalars @xmath ,
+and @xmath , so that in particular
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (279)
+  -- -------- -------- -- -------
+
+where @xmath is the magnetization density. Importantly, the pressure
+that appears in the stress tensor is not the thermodynamic pressure
+@xmath but the so-called internal pressure @xmath . To see this, note
+that the variation of the grand canonical partition function @xmath
+picks up a term from the variation of @xmath with respect to the metric.
+In what follows, the analysis is simplified if we exchange @xmath for
+@xmath and take all functions of thermodynamic variables to be functions
+of @xmath , @xmath , and @xmath .
+
+Now, to zeroth order the equations of motion then read simply
+
+  -- -------- -- -------
+     @xmath      (280)
+  -- -------- -- -------
+
+which we use to solve for @xmath
+
+  -- -------- -- -------
+     @xmath      (281)
+  -- -------- -- -------
+
+which one may check is the unique zero eigenvector of @xmath . That is,
+unsurprisingly, the LLL projection constrains the fluid to move at the
+drift velocity @xmath in equilibrium. Note that if we define @xmath , we
+have the useful identities
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (282)
+  -- -------- -------- -- -------
+
+which we will often use in computations that follow.
+
+Let’s continue our expansion. Organized into representations of @xmath ,
+the complete set of first order data is
+
+                               Independent Data
+  ---------------------------- ------------------
+  Scalar                       @xmath
+  Vector                       @xmath
+  Traceless Symmetric Tensor   @xmath .
+
+The material derivative of all three thermodynamic variables are not
+included since one may always be eliminated by the constraint
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (283)
+  -- -------- -------- -------- -- -------
+
+where the magnetic field is viewed as a function @xmath . This follows
+from the Bianchi identity @xmath . Note we have used the decomposition (
+251 ) of @xmath , which we repeat here
+
+  -- -------- -- -------
+     @xmath      (284)
+  -- -------- -- -------
+
+Of course, the comoving electric field @xmath is zero by definition and
+does not appear.
+
+Not all of this data is independent on shell and we may choose to
+eliminate some in favor of the others by solving the equations of
+motion. In our case, there are two scalar equations: the continuity
+equation and the work-energy equation. We use these to eliminate the
+material derivatives of @xmath and @xmath , as indicated by parentheses.
+
+We have not included the acceleration and vorticity amongst the allowed
+data since these necessarily involve the mass vector potential @xmath .
+We can show this quite easily in the simple case of a flat metric and
+clock form, in which case @xmath and @xmath are the only independent
+non-zero Christoffel components. Then
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (285)
+  -- -------- -------- -- -------
+
+The first equation exhibits the expected appearance of the gravitational
+potential in the acceleration which is the hallmark of Newton-Cartan
+geometry, while the appearance of @xmath in the vorticity encodes the
+Coriolis effect. In either case, a massless, spinless theory cannot
+couple to @xmath and so @xmath and @xmath are off limits.
+
+Finally, a few words are due on the fluid frame invariants ( 5.1.5 )
+before we expand them in first order data. Typically, under a frame
+transformations, the transverse corrections @xmath , @xmath vary as
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (286)
+  -- -------- -------- -- -------
+
+(see section 4.2 of [ 53 ] ). However, since in our case the fluid
+velocity is no longer a dynamical variable but rather a constrained
+function of background fields, there is no freedom to redefine it. Hence
+@xmath and @xmath are themselves frame invariant. Indeed, since the mass
+current vanishes, we have
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (287)
+  -- -------- -------- -- -------
+
+Now let’s expand the frame invariants in our data
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+     @xmath   @xmath      
+              @xmath      
+     @xmath   @xmath      
+              @xmath      
+     @xmath   @xmath      
+              @xmath      (288)
+  -- -------- -------- -- -------
+
+To save on notation, we have used a tilde to denote oddness under
+parity.
+
+#### 5.2.4 Force-Free Flows
+
+We first turn to consistency with the force-free constraint. As
+mentioned previously, we may use the force balance constraint to solve
+for the charge current @xmath
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+     @xmath   @xmath      (289)
+  -- -------- -------- -- -------
+
+All charge transport coefficients are thus determined by the equation of
+state. Also note that all longitudinal responses are zero. This is
+because the Lorentz force must cancel forces from pressure gradients and
+the magnetic field always produces a force perpendicular to the current.
+Hence the current must be perpendicular to pressure gradients.
+
+#### 5.2.5 Entropy Current Analysis
+
+The constitutive relations ( 5.2.3 ) and ( 5.2.4 ) are the most general
+possible that are consistent with the equations of motion and
+constraint. However, it is still possible to generate flows that violate
+the second law of thermodynamics. For example, it is well known that a
+negative shear viscosity allows one to remove entropy from an isolated
+system and so we should have @xmath [ 56 ] . To derive all such
+restrictions, we perform an entropy current analysis along the lines of
+[ 67 ] . This involves imposing the second law of thermodynamics
+locally. For non-negative entropy production between all spatial slices,
+we must have
+
+  -- -------- -- -------
+     @xmath      (290)
+  -- -------- -- -------
+
+We begin by considering the terms in @xmath that involve genuine second
+order data. That is, terms that are not simply products and contractions
+of the first-order data given above. Since the divergence of the
+canonical entropy current is a quadratic form in first order data (see
+250 ), this gives merely
+
+  -- -------- -- -------
+     @xmath      (291)
+  -- -------- -- -------
+
+where we have used the Newton-Cartan identities @xmath and @xmath (which
+follow from the causality of spacetime and the Bianchi identity @xmath
+respectively). Since each term is sign indefinite and independent, these
+coefficients must all vanish for entropy production to be strictly
+non-negative.
+
+The remaining first order data is then
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      
+              @xmath      
+              @xmath      
+              @xmath      
+              @xmath      
+              @xmath      
+              @xmath      (292)
+  -- -------- -------- -- -------
+
+Note that by @xmath we mean the partial derivative with respect to the
+chemical potential, not a spacetime derivative. For clarity we will
+always use @xmath for the spacetime derivative.
+
+The @xmath , @xmath , and @xmath terms need not be separately
+constrained. We obtain a less stringent condition by setting @xmath , in
+which case they arrange into a perfect square
+
+  -- -------- -- -------
+     @xmath      (293)
+  -- -------- -- -------
+
+We note in passing that in thermal equilibrium there can be no entropy
+production. This implies
+
+  -- -------- -- -------
+     @xmath      (294)
+  -- -------- -- -------
+
+or @xmath in coordinates where @xmath . The physics of this was
+discussed below equation ( 227 ). Heat will tend to flow from regions of
+higher @xmath to lower @xmath . Equilibrium is reached once the
+temperature profile is such that ( 294 ) is satisfied. That is, we have
+proven ( 229 ) and the torsional Einstein relation.
+
+From this we immediately obtain the expected signs of the parity even
+viscosities and thermal conductivity
+
+  -- -------- -- -------
+     @xmath      (295)
+  -- -------- -- -------
+
+Meanwhile the remaining terms place new restrictions on the energy and
+entropy coefficients
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+     @xmath   @xmath      (296)
+  -- -------- -------- -- -------
+
+Note that the final set of constraints is obtained only by considering
+fluids on backgrounds with temporal torsion @xmath , or equivalently, a
+nontrivial Luttinger potential.
+
+We seek the most general solution to these constraints. Begin by
+eliminating the entropy coefficients by taking the curl of the third
+equation and plugging in the second
+
+  -- -- -- -------
+           (297)
+  -- -- -- -------
+
+Since the left hand side is the curl of a vector, the right hand side is
+divergenceless and it appears as if we might obtain another constraint.
+However one may check that this is automatically satisfied by virtue of
+the constraints ( 5.2.4 ) and the thermodynamic identities ( 279 ).
+
+We may simplify the partial differential equations ( 297 ) by a
+substitution that isolates the energy response’s dependence on the
+equation of state and @xmath
+
+  -- -------- -- -------
+     @xmath      
+                 (298)
+  -- -------- -- -------
+
+Since @xmath is curl free, it must be the gradient of some function
+
+  -- -------- -- -------
+     @xmath      (299)
+  -- -------- -- -------
+
+The transverse energy response is then determined by the equation of
+state and the two free functions @xmath and @xmath . In what follows,
+the formulas will be significantly simplified by the redefinition of
+coefficients
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (300)
+  -- -------- -------- -- -------
+
+In summary, the most general set of constitutive relations compatible
+with equations of motion and thermodynamics is given by an equation of
+state @xmath , three parity even coefficients @xmath and three parity
+odd coefficients @xmath and @xmath , all of which are arbitrary
+functions of the thermodynamic variables
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      
+     @xmath      (301)
+  -- -------- -- -------
+
+where
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (302)
+  -- -------- -------- -------- -- -------
+
+As we shall see, these are the bulk viscosity, shear viscosity, and
+thermal conductivity, which indeed should carry the signs given above.
+
+#### 5.2.6 Physical Interpretation
+
+This completes the entropy current analysis, so let’s begin to untangle
+what these results mean physically. To make them clearer, lets select a
+fluid frame (the so-called Landau frame) where @xmath . That is, we are
+defining temperature and chemical potential out of equilibrium so that
+physical charge and energy density match their local thermodynamic
+values: @xmath and @xmath . We then have @xmath and the currents are
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+              @xmath      
+     @xmath   @xmath      (303)
+  -- -------- -------- -- -------
+
+We thus see that @xmath , and @xmath are the bulk, shear, and Hall
+viscosities respectively, @xmath is a thermal Hall coefficient, and
+@xmath an energy magnetization.
+
+The primes are to remind us that these currents are defined at @xmath
+and @xmath , where the lowest Landau level limit is regular. To obtain
+the true currents we need to transform back to the physical values of
+the spin and @xmath -factor using ( 5.2.1 ) and ( 272 ). To do so we
+first note that in passing back to the physical electromagnetic field
+@xmath we find the drift velocity becomes
+
+  -- -------- -- -------
+     @xmath      (304)
+  -- -------- -- -------
+
+The magnetic field is also altered to @xmath , but this does not alter
+our formulas to the order in derivatives that we are working. The
+magnetic field dependent shift to @xmath also alters the chemical
+potential
+
+  -- -------- -- -------
+     @xmath      (305)
+  -- -------- -- -------
+
+Finally, the physical currents are given by ²⁶ ²⁶ 26 In this
+computation, one must also remember that these currents are the comoving
+ones measured relative to @xmath , not @xmath . For instance @xmath
+while @xmath .
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      (306)
+  -- -------- -------- -- -------
+
+where @xmath . Note that in passing to the physical spin @xmath , we
+pick up a momentum current that is pure magnetization and tied to the
+variation in the spin density @xmath . Using these formulas, we find
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+              @xmath      
+     @xmath   @xmath      (307)
+  -- -------- -------- -- -------
+
+where
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath               (308)
+  -- -------- -------- -------- -- -------
+
+Here primed objects are evaluated at the primed chemical potential, say
+@xmath . Those unprimed coefficients not listed in ( 5.2.6 ) are
+trivially related to their primed counterparts in the manner @xmath .
+
+The physics of this should be fairly clear: the shift to the energy
+density corresponds to the energy cost of a magnetic moment in a
+magnetic field, the shift to @xmath simply keeps track of the increased
+magnetic moment assigned to each particle, while the shift to the Hall
+viscosity accounts for our underestimation of the spin density of the
+liquid. In all, the form of the constitutive relations ( 5.2.6 ) does
+not change except for the mass magnetization current that is introduced
+in the presence of a varying spin density @xmath and the vorticity
+induced pressure @xmath , also fixed to the spin density of the liquid.
+Of course, one will have to perform the shift ( 5.2.6 ) in a
+hypothetical calculation of the coefficients in the lowest Landau level
+limit @xmath .
+
+Finally, recall that we have been working with the currents measured by
+observers moving with the drift velocity @xmath . The lab currents (the
+components of @xmath ) must be obtained from ( 3.1.1 ). However, in the
+massless limit most of the modifications drop out and we find to first
+order in derivatives ²⁷ ²⁷ 27 Note that in passing to @xmath one
+introduces terms proportional to the unimproved mass current @xmath
+since one should not improve the energy current. Hence these terms are
+zero.
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath               
+              @xmath      
+     @xmath   @xmath      (309)
+  -- -------- -------- -- -------
+
+#### 5.2.7 Středa Formulas
+
+One notable feature of these formulas is the currents that persist in
+thermal equilibrium. We now turn to these, deriving a set of Středa-like
+formulas for two-dimensional fluids. Throughout we shall consider flat
+space @xmath with a perturbing Luttinger potential @xmath , @xmath .
+First note that in thermal equilibrium we have @xmath and @xmath , where
+@xmath is the external force exerted by the potential @xmath . The
+equilibrium currents are then
+
+  -- -------- -- -------
+     @xmath      (310)
+  -- -------- -- -------
+
+Expressing these in terms of the externally applied fields @xmath ,
+@xmath , and @xmath we have
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+     @xmath   @xmath      (311)
+  -- -------- -------- -- -------
+
+Defining equilibrium responses by
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (312)
+  -- -------- -------- -- -------
+
+and using some Maxwell relations, we have
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+     @xmath   @xmath      (313)
+  -- -------- -------- -- -------
+
+where we have set @xmath in these formulas. The first is the well-known
+Středa formula [ 79 ] . The following two are Středa-like formulas for
+currents induced by inhomogeneities in @xmath and an external Luttinger
+potential.
+
+Similarly working with the energy current
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (314)
+  -- -------- -------- -- -------
+
+we find that all equilibrium currents are determined by the
+magnetization @xmath and energy magnetization @xmath .
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+     @xmath               (315)
+  -- -------- -------- -- -------
+
+A similar collection of Středa formulas was presented in [ 51 ] ,
+however they do not agree with ours due to a difference in the Luttinger
+potential factors.
+
+Finally, there are also equilibrium persistent mass currents due to the
+spin of the electron. By the same reasoning as above, we find
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (316)
+  -- -------- -------- -- -------
+
+where
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (317)
+  -- -------- -- -------
+
+### 5.3 Fluids in @xmath Dimensions
+
+In this section we carry out the same analysis but for standard @xmath
+-dimensional multi-constituent fluids in a perturbing external
+electromagnetic field. In the relativistic case, @xmath -dimensional
+fluids are known to exhibit a rich collection of transport coefficients
+in the parity odd sector [ 67 ] and we find the same here.
+
+In the parity even sector, the entropy current analysis returns four
+sign semidefinite functions of @xmath , and @xmath : a bulk viscosity,
+shear viscosity, conductivity, and thermal conductivity
+
+  -- -------- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath   @xmath      (318)
+  -- -------- -------- -------- -------- -- -------
+
+as well as an unconstrained transverse thermo-electric coefficient
+
+  -- -------- -- -------
+     @xmath      (319)
+  -- -------- -- -------
+
+The parity odd sector on the other hand admits six arbitrary
+coefficients, a Hall viscosity, Hall conductivity, thermal Hall
+conductivity, thermo-electric Hall coefficient, magnetization and energy
+magnetization
+
+  -- -------- -------- -------- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath   @xmath   @xmath   @xmath      (320)
+  -- -------- -------- -------- -------- -------- -------- -- -------
+
+The magnetization determines the magnetic field induced pressure via the
+coefficient
+
+  -- -------- -- -------
+     @xmath      (321)
+  -- -------- -- -------
+
+where @xmath is the pressure as a function of energy, charge and mass
+density. Kubo formulas for these coefficients are presented in section
+5.4 .
+
+In flat backgrounds with no Luttinger potential the constitutive
+relations are
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      (322)
+  -- -------- -- -------
+
+where @xmath is the mass current, @xmath the charge current, @xmath the
+energy current and @xmath the spatial stress in the lab frame, @xmath is
+the fluid velocity and the fluid shear @xmath , expansion @xmath , and
+vorticity @xmath are defined by
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (323)
+  -- -------- -------- -------- -- -------
+
+In summarizing these results we have made the choice of fluid frame (
+348 ).
+
+#### 5.3.1 Constitutive Relations
+
+The analysis proceeds much along the lines of the previous section, but
+a few words are due on the setup before we proceed. We are considering
+slightly out of equilibrium fluids to first order in a derivative
+expansion about flat spacetime and zero electromagnetic field. That is,
+the extended vielbein is @xmath plus first order perturbations and
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (324)
+  -- -------- -------- -------- -- -------
+
+are all counted as first order in derivatives.
+
+We are considering fluids with independently conserved mass and charge
+and so have five dynamical degrees of freedom, the temperature, a
+chemical potential for mass and charge each, and the fluid velocity
+
+  -- -------- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath   @xmath      (325)
+  -- -------- -------- -------- -------- -- -------
+
+where the velocity has been normalized so that @xmath . The equilibrium
+properties of the system are then completely characterized by an
+equation of state such as @xmath , which expresses the pressure as a
+function of the state variables. The thermodynamic entropy, charge,
+mass, and energy densities are then defined by
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (326)
+  -- -------- -------- -- -------
+
+The formulas will prove somewhat simpler if we instead take our
+independent variables to be
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (327)
+  -- -------- -------- -------- -- -------
+
+In terms of @xmath and @xmath , the thermodynamic identities read
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (328)
+  -- -------- -------- -- -------
+
+Now consider the available first order data
+
+  -- -------- -------- -------- -------- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath   @xmath   @xmath   @xmath   @xmath      (329)
+  -- -------- -------- -------- -------- -------- -------- -------- -- -------
+
+where recall we have defined @xmath . Now let’s separate this data into
+irreducible representations of @xmath .
+
+                               Data
+  ---------------------------- --------
+  Scalar                       @xmath
+                               @xmath
+  Vector                       @xmath
+                               @xmath
+  Symmetric Traceless Tensor   @xmath
+
+where
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath               (330)
+  -- -------- -------- -- -------
+
+Recall that by @xmath we mean the “spatial volume element” @xmath ,
+while @xmath , both of which are boost invariant, though the lowered
+index version is defined with respect to the comoving frame.
+
+In the above we have also introduced the form @xmath . This is a boost
+invariant version of the Newtonian gravitational 3-potential. In
+components it reads
+
+  -- -------- -- -------
+     @xmath      (331)
+  -- -------- -- -------
+
+and is simply @xmath measured in the comoving frame. The mass torsion
+@xmath is in fact completely determined by @xmath and the data in the
+tensor @xmath . To see this, use @xmath and equations ( 237 ) and ( 251
+) with @xmath . One then finds
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+              @xmath      (332)
+  -- -------- -------- -- -------
+
+We have chosen to use @xmath as part of our independent data rather than
+@xmath . Since @xmath satisfies the Bianchi identity @xmath , we will
+find below that this is the easier object to work with.
+
+Not all this data is independent on shell. We may thus use the
+Navier-Stokes equation to eliminate one vector degree of freedom and one
+scalar each for mass conservation, charge conservation and the
+work-energy equation. The eliminated data is indicated by parentheses in
+the above table.
+
+Finally, the most general first-order constitutive relations for the
+frame invariants consistent with spacetime symmetries are
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      (333)
+  -- -------- -- -------
+
+In this we have defined the “dual” operation
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (334)
+  -- -------- -------- -- -------
+
+on vectors and symmetric two tensors. It has the properties
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (335)
+  -- -------- -------- -- -------
+
+#### 5.3.2 Entropy Current Analysis
+
+Now let’s move on to determining those constraints that result from
+imposing the second law of thermodynamics
+
+  -- -------- -- -------
+     @xmath      (336)
+  -- -------- -- -------
+
+Start by considering the genuine second order data in the entropy
+production, that is, terms that are not products of first order data
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+where we have used the Bianchi identities @xmath , which imply
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (337)
+  -- -------- -------- -------- -- -------
+
+We conclude that all the coefficients listed above must vanish and so
+@xmath only has contributions from the remaining parity odd part
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (338)
+  -- -------- -------- -- -------
+
+The rest of the divergence of @xmath is then
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      
+              @xmath      
+              @xmath      
+              @xmath      
+              @xmath      (339)
+  -- -------- -------- -- -------
+
+which is supplemented by the canonical entropy production @xmath
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      
+              @xmath      
+              @xmath      
+              @xmath      
+              @xmath      
+              @xmath      
+              @xmath      
+              @xmath      
+                          (340)
+  -- -------- -------- -- -------
+
+In the above we have made the identifications @xmath and @xmath so that
+the entropy production due to electrical and thermal conductivity
+factors into a perfect square. ²⁸ ²⁸ 28 What one should do is demand
+that the quadratic form defined by these transport coefficients be
+degenerate and positive semidefinite (degenerate so that that
+equilibrium solutions exist in non-zero background fields). This
+immediately gives these identities.
+
+Demanding the second law then requires
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      (341)
+  -- -------- -- -------
+
+To untangle the differential constraints, begin by defining
+
+  -- -------- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath   @xmath      (342)
+  -- -------- -------- -------- -------- -- -------
+
+These then read
+
+  -- -------- -- -------
+     @xmath      
+                 (343)
+  -- -------- -- -------
+
+This leads to several consistency relations on the four functions ( 342
+)
+
+  -- -- -- -------
+           (344)
+  -- -- -- -------
+
+The first comes from comparing the final component of the second
+equation to the first component of the third while the second follows
+from comparing the final component of the first equation to the second
+of the third. The final condition results from combining the second
+component of the first equation, the first component of the second, and
+the final component of the third. The vector @xmath is then curl free as
+so must be the gradient of some function @xmath
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (345)
+  -- -------- -------- -------- -- -------
+
+#### 5.3.3 Summary of Results
+
+This solves the full set of restrictions imposed by the second law.
+Before summarizing results, the following redefinition of transport
+coefficients will simplify the final answer
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+after which frame invariants are
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      (347)
+  -- -------- -- -------
+
+This gives the set of response coefficients listed at the beginning of
+this section.
+
+To get a feel for these results, it’s helpful to fix a fluid frame and
+write them for the non-covariant currents defined in ( 77 ). We choose
+our frame so the physical mass, charge and energy correspond with the
+thermodynamic ones and the velocity is that of the mass current
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (348)
+  -- -------- -------- -- -------
+
+The frame invariants @xmath and @xmath are then simply the first-order
+deviations @xmath and @xmath . In components, the currents are then
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      (349)
+  -- -------- -- -------
+
+In this and what follows @xmath is defined to be the electric field in
+the lab frame so that the comoving electric field used earlier is ²⁹ ²⁹
+29 We hope the reader will forgive the notational dissonance.
+
+  -- -------- -- -------
+     @xmath      (350)
+  -- -------- -- -------
+
+@xmath and @xmath are the curved space quantities defined in ( 251 ) .
+Explicitly, these are
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+              @xmath      
+              @xmath      
+     @xmath   @xmath      (351)
+  -- -------- -------- -- -------
+
+where @xmath is the covariant derivative on a spatial slice and
+
+  -- -------- -- -------
+     @xmath      (352)
+  -- -------- -- -------
+
+### 5.4 Kubo Formulas
+
+In this section we collect the relevant Kubo formulas for calculating
+the response coefficients found in the previous two sections. They are
+stated in terms of the retarded correlators
+
+  -- -------- -------- -- -------
+     @xmath               
+     @xmath   @xmath      
+     @xmath   @xmath      
+     @xmath               (353)
+  -- -------- -------- -- -------
+
+and are to be evaluated on the trivial spacetime background @xmath (and
+in the LLL case in a constant background magnetic field). We will denote
+their Fourier transforms by
+
+  -- -------- -- -------
+     @xmath      (354)
+  -- -------- -- -------
+
+where @xmath for small, positive @xmath .
+
+#### 5.4.1 LLL Fluid
+
+There are a very small number of coefficients available in the lowest
+Landau level theory. Let’s begin with the viscosities
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (355)
+  -- -------- -- -------
+
+where we have introduced the projectors
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (356)
+  -- -------- -------- -- -------
+
+and @xmath is the inverse compressibility at fixed chemical potential
+and field strength @xmath (not fixed @xmath ). To derive these we have
+used
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (357)
+  -- -------- -------- -- -------
+
+under a variation @xmath . We recommend [ 4 ] for a careful discussion
+of these Kubo formulas.
+
+There is also an energy magnetization
+
+  -- -------- -- -------
+     @xmath      (358)
+  -- -------- -- -------
+
+and the thermal conductivities
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (359)
+  -- -------- -- -------
+
+which one may obtain by noting that @xmath under a variation of the
+clock form.
+
+#### 5.4.2 Standard Fluid
+
+For the standard, parity braking, @xmath -dimensional fluid, the
+transport coefficients we have found are for the most part quite
+familiar and have been subjected to extensive study in the literature
+and calculated for a number of systems.
+
+First of all, we again have the viscosities ( 5.4.1 ) but with @xmath .
+The equations for the conductivity and thermoelectric conductivities are
+prototypical examples and first found in [ 81 , 82 ]
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      
+     @xmath   @xmath      (360)
+  -- -------- -------- -- -------
+
+Kubo formulas for the thermal conductivities were first computed in the
+classic work [ 50 ] , where the Luttinger potential was introduced. We
+find them to be
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (361)
+  -- -------- -------- -- -------
+
+The attentive reader may have noted that the the thermoelectric and
+thermal Hall conductivities differ from the parity odd response to the
+chemical and Luttinger potentials by magnetizations @xmath and @xmath
+respectively, unlike the standard formulas found in [ 82 , 50 ] . This
+is because these works assumed vanishing equilibrium currents, as
+pointed out in the footnote below equation (4.10) of [ 82 ] . In
+general, pure curl persistent equilibrium currents may arise, and in
+this case the proper relationship is that given above.
+
+The Kubo formulas for @xmath and @xmath are completed by expressions for
+the magnetizations
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (362)
+  -- -------- -------- -- -------
+
+## Appendix A A Formal Construction
+
+In this appendix we motivate the definition of a Bargmann geometry,
+given in chapter 2 , via a formal symmetry breaking procedure. Since
+this procedure has been used to motivate previous attempts to define
+non-relativistic geometries that are not equivalent to our own, we feel
+an appendix dedicated to this topic may be of some interest.
+Mathematical preliminaries are established in section A.1 and the
+analysis is performed in section A.2 , which concludes with a comparison
+to previous attempts.
+
+### a.1 The Bargmann Group
+
+The Bargmann group is the non-relativistic analogue of the Poincaré
+group, including time and space translations in addition to the Galilean
+group @xmath . It can be concretely realized by it’s action on @xmath
+
+  -- -------- -- -------
+     @xmath      (363)
+  -- -------- -- -------
+
+However, this symmetry is realized projectively for massive fields as
+recollected in section 1.2 . This is similar to the case of spinning
+fields in the pseudo-Riemannian case, but there is one key difference.
+For spinor representations, one can pass to the universal cover of of
+the gauge group, which is then linearly realized. One cannot do this in
+our case since realizing the projective representation ( 20 ) as a true
+representation of some group alters the local structure: boosts and
+translations commute to a phase factor. That is, we must pass to the
+central extension of the Bargmann group [ 83 ] .
+
+The centrally extended Bargmann group, which we shall simply refer to
+simply as the Bargmann group @xmath from now on, may be realized by it’s
+action on @xmath and now includes translations along the internal circle
+in addition to spacetime translations
+
+  -- -------- -- -------
+     @xmath      (364)
+  -- -------- -- -------
+
+where @xmath . It should be clear from ( 364 ) that spacetime
+translations plus @xmath phase rotations form a normal subgroup of
+@xmath , which has the semidirect product decomposition
+
+  -- -------- -- -------
+     @xmath      (365)
+  -- -------- -- -------
+
+where @xmath indicates that @xmath acts on @xmath in the extended
+representation. Many of the novel features of the extended vielbein
+formalism follow from the need to pass to the centrally extended
+Bargmann group. In section A.2 we shall find the Newtonian gravitational
+potential will arise as a gauge field @xmath for translations along the
+@xmath factor and it’s collection into the extended representation along
+with the spacetime vielbein @xmath is dictated by ( 365 ).
+
+In it’s standard basis, the Lie algebra of the Bargmann group is ³⁰ ³⁰
+30 Our conventions are that a finite rotation is executed by @xmath , a
+boost by @xmath , time translations by @xmath , space translations by
+@xmath , and @xmath rotations by @xmath .
+
+  -- -------- -------- -- -------
+     @xmath               
+     @xmath   @xmath      
+     @xmath   @xmath      (366)
+  -- -------- -------- -- -------
+
+where @xmath are rotation generators, @xmath are boosts, @xmath spatial
+translations, @xmath temporal translations, and @xmath is the mass
+operator that performs @xmath rotations.
+
+We shall find it convenient to restate these commutation relations in a
+manner that makes their transformation under the Galilean group
+manifest. We can do this by collecting generators together in the
+following way
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (367)
+  -- -------- -------- -- -------
+
+Then ( A.1 ) is equivalent to
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (368)
+  -- -------- -- -------
+
+where @xmath .
+
+This is a sensible definition since these objects do in fact transform
+as indicated under the adjoint action of @xmath . An arbitrary Galilean
+group element is of the form
+
+  -- -------- -- -------- -- -------
+     @xmath      @xmath      (369)
+  -- -------- -- -------- -- -------
+
+and @xmath is totally antisymmetric. We may then calculate how @xmath
+and @xmath transform using the Hausdorff formula and find
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (370)
+  -- -------- -------- -- -------
+
+where @xmath and @xmath are simply the vector and extended
+representations of the Galilean group used in the previous sections
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      
+     @xmath      
+     @xmath      (371)
+  -- -------- -- -------
+
+### a.2 Bargmann Symmetry Breaking
+
+In this section we use a formal symmetry breaking procedure to generate
+Galilean invariant geometry beginning with the Bargmann group. It is a
+purely formal construction, one does not in actuality have a physical
+Bargmann bundle in the real world, but it is a quick and systematic way
+to generate consistent transformation laws and has been used by several
+authors in the past to motivate constructions of Galilean invariant
+geometry, so we feel it is worth taking the time to present in some
+detail. Our approach differs from from these in a few key respects which
+we will outline at the end of the section.
+
+In this approach, one considers a group @xmath and a connection one-form
+@xmath valued in the Lie algebra @xmath of @xmath . Under local
+transformations @xmath , the @xmath -connection transforms as
+
+  -- -------- -- -------
+     @xmath      (372)
+  -- -------- -- -------
+
+Here @xmath is interpreted as the local symmetry group of some physical
+system. We imagine breaking it to a subgroup @xmath and seek to write
+down locally @xmath invariant actions.
+
+Now suppose we can decompose the connection into a sum of broken and
+unbroken generators @xmath
+
+  -- -- -- -------
+           (373)
+  -- -- -- -------
+
+such that ³¹ ³¹ 31 This is in fact automatic for compact semisimple
+@xmath , but is not guaranteed in the case of interest @xmath .
+
+  -- -------- -- -------
+     @xmath      (374)
+  -- -------- -- -------
+
+If this is the case, then these are good objects with which to construct
+invariant actions since the broken and unbroken parts of the connection
+transform under @xmath covariantly and as an @xmath -connection
+respectively
+
+  -- -------- -- -- -------
+     @xmath         (375)
+  -- -------- -- -- -------
+
+One may now easily construct gauge invariant actions by using @xmath
+-covariant derivatives and the field strength
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (376)
+  -- -------- -------- -- -------
+
+As an example, let’s perform this procedure on the Poincaré group,
+breaking it to the Lorentz group. In this case @xmath is the Poincaré
+algebra
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (377)
+  -- -------- -- -------
+
+which decomposes as @xmath , where @xmath is the closed subalgebra of
+translations. Due to the semidirect product structure @xmath , where
+@xmath denotes the vector representation, the condition ( 374 ) is
+automatically satisfied. The @xmath valued form then naturally breaks up
+into a translation part and a Lorentz part
+
+  -- -------- -- -------
+     @xmath      (378)
+  -- -------- -- -------
+
+By virtue of the transformations @xmath , @xmath , we find that the
+coefficients @xmath and @xmath then transform as indicated
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (379)
+  -- -------- -------- -- -------
+
+The Poincaré curvature is then
+
+  -- -------- -- -------
+     @xmath      
+     @xmath      (380)
+  -- -------- -- -------
+
+exactly reproducing the geometrical structure of torsionful relativistic
+spacetimes. We would like to emphasize however that this is a purely
+formal procedure used to generate a set of consistent transformation
+laws and define the geometry, not a derivation of the kinematics of
+general relativity since there is no physical Poincaré bundle. ³² ³² 32
+In the language of the coset construction, there are no Nambu-Goldstone
+bosons that @xmath and @xmath are secretly functions of and there are no
+@xmath transformations we are trying to realize nonlinearly.
+
+This in mind, let’s take @xmath to be the centrally extended Bargmann
+group and break it to a subgroup @xmath . Since we seek geometries with
+Galilean symmetry, @xmath must at least include the Galilean group. We
+must also be careful to satisfy the condition ( 374 ), which is
+automatic for compact semisimple @xmath but not for us. However, since
+the centrally extended Bargmann group has semidirect product structure
+@xmath , we can guarantee that this is satisfied by taking the broken
+generators to include both spacetime translations @xmath and the mass
+generator @xmath to be in the broken subalgebra, which as we have
+already noted, transform among each other in the extended representation
+@xmath . If we did not include @xmath , the commutation relation @xmath
+would violate the consistency of our procedure.
+
+We then have @xmath , @xmath , while @xmath is the commutative algebra
+of translations and @xmath rotations. In the standard basis ( A.1 ), (
+367 ) for the Bargmann algebra this reads
+
+  -- -------- -- -------
+     @xmath      (381)
+  -- -------- -- -------
+
+where @xmath . The transformation rules ( 375 ) along with ( 370 )
+immediately imply that @xmath and @xmath transform as their index
+placement suggests. That is, under @xmath we have
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (382)
+  -- -------- -------- -- -------
+
+To obtain the Galilean spin connection considered previously, we merely
+need raise the first index on @xmath and the result transforms as
+expected
+
+  -- -------- -- -------
+     @xmath      (383)
+  -- -------- -- -------
+
+That data in @xmath and @xmath is however equivalent. Similarly, the
+field strength contains the torsion and curvature tensors
+
+  -- -- -------- -- -------
+        @xmath      
+        @xmath      (384)
+  -- -- -------- -- -------
+
+The coset construction thus precisely reproduces the geometry given in
+section 2.2 .
+
+Finally, let’s take a moment for comparison with previous applications
+of this construction. To our knowledge it was first applied in [ 84 ] ,
+but with a different symmetry breaking pattern in which @xmath and
+boosts are broken. This breaking pattern is consistent with ( 374 ) and
+so yields sensible results, but as noted in appendix B of [ 40 ] , the
+geometry is rather applicable to the case of broken Galilean symmetry.
+The resulting data includes an invariant vector field @xmath and thus a
+preferred family of observers from the outset and a number of the
+results of Galilean invariance, such as the equality of the inertial and
+gravitational masses, are violated. The analysis given in [ 40 ] then
+proceeds using the same breaking pattern as given above and arrives at
+the same results we have, but the author discards the mass torsion
+@xmath , which we have seen above breaks Galilean invariance on
+torsionful spacetimes and so results in a non-invariant connection. This
+approach has also been used to gauge the Schödinger algebra as in [ 35 ]
+, though in this application the authors then impose various constraints
+on the curvature and torsion that we have left unfixed. Very recently,
+the authors of [ 85 ] performed the above analysis including dilations,
+and their results indeed reduce to ( 381 ) when dilations are discarded.
+
+## Appendix B Symmetries of the Riemann Tensor
+
+In the main text, we required the symmetries of the Newton-Cartan
+Riemann tensor to derive equation ( 128 ). These identities involve a
+few subtleties not present in the pseudo-Riemannian case, so we collect
+their derivations here. Since we are interested in the Ward identities
+on unrestricted Bargmann geometries, we will present these symmetries on
+spacetimes with general extended torsion @xmath . They are
+
+  -- -------- -- -------
+     @xmath      (385)
+     @xmath      (386)
+     @xmath      (387)
+     @xmath      (388)
+  -- -------- -- -------
+
+The derivation of ( 128 ) requires only the first three of these
+identities, but we include the Bianchi identity for completeness.
+Contracting equation ( 386 ) with @xmath , we also find
+
+  -- -------- -- -------
+     @xmath      (389)
+  -- -------- -- -------
+
+The first identity follows trivially from the definition of @xmath while
+the derivations of ( 386 ) and ( 388 ) from
+
+  -- -------- -- -------- -- -------
+     @xmath      @xmath      (390)
+  -- -------- -- -------- -- -------
+
+are identical to the pseudo-Riemannian case. The only identity that
+requires some care is ( 387 ), which is most easily stated when valued
+in the extended representation. By @xmath we mean the curvature
+two-form, valued in the extended representation of @xmath , with
+spacetime indices pulled back to the extended representation using the
+Galilean invariant projector
+
+  -- -------- -- -------
+     @xmath      (391)
+  -- -------- -- -------
+
+Since all indices in equation ( 387 ) are @xmath orthogonal, it is
+simply the pullback of an equation valued in the covector representation
+of @xmath
+
+  -- -------- -- -------
+     @xmath      (392)
+  -- -------- -- -------
+
+where we have used @xmath and defined @xmath by @xmath . However, the
+proof of this identity is most naturally carried out in it’s extended
+form.
+
+One should take care here, since @xmath is not the exterior derivative
+of the (in general Galilean non-covariant) two-form @xmath . In
+components
+
+  -- -------- -- -------
+     @xmath      (393)
+  -- -------- -- -------
+
+whereas the exterior derivative of @xmath is
+
+  -- -------- -- -------
+     @xmath      (394)
+  -- -------- -- -------
+
+They are the same if and only if the temporal torsion vanishes, in which
+case we also have @xmath and @xmath is indeed covariant. The notation
+@xmath is still a useful one though since it’s index raises to @xmath ,
+which is truly the exterior derivative of the two-form @xmath
+
+  -- -------- -- -------
+     @xmath      (395)
+  -- -------- -- -------
+
+as one may explicitly check in components.
+
+To prove ( 387 ) we begin with
+
+  -- -------- -- -------
+     @xmath      (396)
+  -- -------- -- -------
+
+which written in tensor notation reads
+
+  -- -------- -- -------
+     @xmath      (397)
+  -- -------- -- -------
+
+Now let’s pull this back to an equation involving only extended indices
+using @xmath . One may check by an explicit computation in components
+that
+
+  -- -------- -- -------
+     @xmath      (398)
+  -- -------- -- -------
+
+where @xmath . ³³ ³³ 33 One can check by hand that @xmath indeed
+transforms covariantly as indicated. Since @xmath , the second term
+drops out and we find
+
+  -- -------- -- -------
+     @xmath      (399)
+  -- -------- -- -------
+
+This is simply the extended index version of ( 386 ), which one can
+obtain from here by noting that both sides are @xmath orthogonal in all
+their indices. ( 387 ) then follows exactly as in the pseudo-Riemannian
+case by repeated applications of this equation along with
+
+  -- -------- -- -------
+     @xmath      (400)
+  -- -------- -- -------

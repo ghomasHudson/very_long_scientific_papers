@@ -1,0 +1,1456 @@
+## Chapter 1 Introduction
+
+We are living in a world which is getting more and more interconnected
+and, as physiological effect, the interaction between the entities
+produces more and more information. A structure to store, represent and
+manage such information is a graph. Graphs are mathematical objects
+consisting in a vertex set @xmath which represents the entities and an
+edge set @xmath representing the links between them. Graphs are
+ubiquitous, representing a variety of natural processes as diverse as
+friendships between people, communication patterns and interactions
+between neurons in the brain. Often the chosen data structure to
+represent a graph is its adjacency matrix @xmath , which can be binary,
+corresponding to whether there exists an interaction between two
+vertices, or numerical, corresponding to the strength of the connection.
+
+This high throughput generation calls for techniques able to reduce the
+volume of the data but still able to preserve the knowledge that carry.
+The data mining community has taken a strong interest in the task since
+devising techniques that are able to cope with the intrinsic complexity
+and dimension of data imply several advantages. The trivial advantage is
+the reduction of data volume and storage but we can also store only
+meaningful patterns by filtering the noise which data naturally have.
+Data compression and summarization techniques are one of the possible
+approaches to face such problems. The survey of Liu et al [ 1 ] provides
+a comprehensive overview of the state-of-the-art methods for summarizing
+graph data. The essence of such techniques is to transform the input
+graph to a more concise representation by preserving the essential
+patterns which carry the most relevant information to describe the
+phenomenon under study.
+
+In particular, we exploit the power of Szemerédi’s Regularity Lemma to
+devise a well-found framework for compressing large graphs. The
+Regularity Lemma was introduced by the Abel laureate Endre Szemerédi in
+the mid 70’s as a tool to prove his famous theorem on arithmetic
+progressions. This tool roughly states that we can approximate every
+large graph by partitioning it into a small number of parts such that
+the bipartite subgraph between almost every pair of parts is
+random-like. The Lemma guarantees that the partitioning, which in fact
+represent the compression of the graph, when properly decompressed,
+preserves some topological properties of the input graph.
+
+The first formulation of the Regularity Lemma is an existence predicate,
+Szemerédi proved the existence of a regular partition but he did not
+provide a method to obtain it. In the last decades several
+mathematicians devised constructive versions of the Regularity Lemma.
+However, all these algorithms hide a tower constant that makes the
+implementation unfeasible.
+
+Sperotto and Pelillo [ 2 ] reported arguably the first practical
+application of the Regularity Lemma, the original motivation was to
+study how to take advantage of the partitions in a pairwise clustering
+context. In particular, they proposed the first approximate version of
+the exact algorithm introduced by Alon et al. [ 3 ] .
+
+In the past few years different approximate algorithms, explicitly
+inspired by the Regularity Lemma, have been applied in pattern
+recognition, bioinformatics and social network analysis. The reader can
+refer to [ 4 ] for a survey of these emerging techniques. The last
+improved version based on the Alon et al. algorithm has been introduced
+by Fiorucci et al. [ 5 ] where they improved the work proposed by
+Sperotto and Pelillo by introducing new heuristics. This thesis tries to
+further improve and investigate the conditions of application of the
+proposed algorithm.
+
+### 1.1 Contributions
+
+This thesis aims to improve and further investigate the conditions of
+application of Fiorucci et al.’s approximate version [ 5 ] of Alon et
+al.’s algorithm [ 3 ] . In particular, the first contribution of this
+thesis relies on the introduction of a new heuristic for the refinement
+step which exploits the internal properties of the classes composing a
+regular partition. The heuristic idea relies on intuitive motivation
+which has its roots on the combinatorial nature of the lemma. It tries
+to mitigate the required tower bound proved by Gowers [ 6 ] on the
+number of the classes composing a regular partition, making, as we will
+see, the algorithmic implementation able to find partitions even in
+medium graphs.
+
+The second and even more important contribution is the definition of a
+pipeline that we called CoDec. The pipeline first compresses a graph
+using our new version of Alon et al.’s algorithm, and then decompresses
+the obtained structure into another graph. After the decompression it
+exploits a new post-decompression step which aims to improve the
+structural preservation quality.
+
+The work then points out the limits and possible strengths of the
+technique through an extensive batch of experiments both conducted over
+synthetic graphs and real networks. We will then analyze the results and
+draw some considerations on the devised technique.
+
+Last but not least, the outline of the thesis provides, as much as it
+could, a progressive and concise dive into such deep topic. Several
+figures and simple conceptual explanations of the mathematical formulas
+which constitutes the nature of this powerful lemma, have been reported
+to offer an accessible reading to whom approaches this topic for the
+first time. The work deliberately does not report all the proofs of the
+theorems and lemmas cited since we can find them in the original papers,
+a reference will point us to the correct resource.
+
+### 1.2 Structure of the work
+
+This thesis has been divided in chapters each of which tries to give a
+full description of the topic discussed by giving the essential
+informations needed to understand the core idea. In particular:
+
+-   In Chapter 2 we will briefly see the two main mathematical areas
+    where Szemerédi’s Regularity Lemma originated. It is important to
+    understand the mathematical nature of the lemma to fully grasp its
+    details. Then, we will progressively dive into its specifications
+    until we will be able to fully state it and complete it with the
+    correct details. After understanding the origins and the power of
+    Szemerédi’s Regularity Lemma, we will study Alon et al.’s algorithm
+    which basically is the reformulation of the lemma in algorithmic
+    terms, that is the algorithm that we exploited and tweaked to
+    constitute the compression step of the CoDec procedure.
+
+-   In Chapter 3 we will describe the CoDec procedure in all its steps
+    and specifications. In particular, we will give a brief overview of
+    the main steps accompanied with several sketch figures to clarify
+    the logic behind. Then we will describe all its steps that are
+    Compression (we will only focus on the new heuristic developed since
+    the algorithm is explained in Section 2.3 ), Decompression and
+    Post-Decompression Filtering.
+
+-   In Chapter 4 we will discuss the experimental results. Firstly we
+    define the measures used to validate the experiments, then we will
+    move on to describe how the synthetic data is created and where real
+    data is taken from in order to test the framework. We will provide
+    an exhaustive description of the experiments and we will report them
+    through several images and tables. Then we perform some analysis and
+    make some considerations of the results obtained.
+
+-   In Chapter 5 we will draw some conclusions that emerged from the
+    experimental results. Then we will point out further investigations
+    that could improve the framework.
+
+## Chapter 2 Context and Background
+
+In this section we will see the background needed to understand the
+nature of the technique devised during this work, in particular we will
+briefly describe and illustrate some examples of the problem treated in
+the mathematical areas from which Szemerédi’s Regularity Lemma comes
+from. It is very important to point out the the origins of the method
+exploited in our work since it gives the right philosophy in order to
+think in the correct terms.
+
+### 2.1 Extremal Graph Theory and Ramsey Theory
+
+Szemerédi’s Regularity Lemma is one of the most powerful tools in
+Extremal Graph Theory and it is widely used by mathematicians to prove
+theorems which require to demonstrate the existence of some substructure
+in a graph. In fact these kind of questions are the questions mainly
+posed by these two mathematical areas: Extremal Graph Theory and Ramsey
+Theory.
+
+#### Extremal Graph Theory
+
+Extremal Graph Theory is a sub-area of Combinatorics which focuses on
+the study of any discrete or finite system, in particular, the
+mathematical objects treated are finite Sets, Colourings and Graphs. It
+is maybe one of the oldest subareas of Combinatorics and an example of
+the problems that treats is:
+
+###### Question.
+
+What is the maximum number of edges in a triangle-free graph of @xmath
+vertices?
+
+A complete bipartite graph (with part sizes as equal as possible) has
+@xmath edges and no triangle, this result comes from Mantel’s theorem
+which has been proven in 1907 and later generalized by Turán in 1943.
+The proof is pretty simple and a visual representation is given by
+Figure 2.1 . If we add a single edge in a complete bipartite graph we
+are, in fact, creating a triangle, so the maximum number of edges of a
+triangle free graph is the one given by Mantel. More generally the
+objective of Extremal Graph Theory is to suppose the existence (or not)
+of a certain sub-structure and then discover how large the graph should
+be for that sub-structure to exists (or not).
+
+#### Ramsey Theory
+
+A closely related field of Extremal Graph theory is Ramsey Theory. What
+it basically aims to do is finding “order in chaos”. It is slightly more
+general than Extremal Graph Theory and the questions which asks treat,
+not only graphs, but also different mathematical objects.
+
+We could roughly describe Ramsey Theory as the collection of problems
+where you have some Coloring of some object and you’re looking for some
+very structured subset. If a given object is very very large and colored
+in an arbitrary way however it is colored you will find the the
+sub-object you’re looking for. Since the Regularity Lemma has been used
+as a tool to prove the main Szemerédi Theorem which treats arithmetic
+progressions, we will illustrate a simple example of the problems
+studied in Ramsey Theory using arithmetic progressions, but before
+seeing it let’s give two definitions:
+
+###### Definition.
+
+An arithmetic progression is a sequence of @xmath natural numbers of
+constant difference @xmath with an initial value @xmath .
+
+For example the progression with @xmath is @xmath .
+
+###### Definition.
+
+A colouring of a non-empty set @xmath with @xmath colours is just a
+colourful way of denoting a map @xmath . The number of @xmath are
+usually the colours, and @xmath is painted with colour @xmath if @xmath
+
+###### Example
+
+Now we are ready to illustrate the example: By colouring the natural
+numbers using only two colours, say red and blue , it is easy to see
+that 9 consequent numbers e.g. @xmath , are needed to ensure that there
+is an arithmetic progression of length 3. Why? Let us try to prove the
+opposite, so suppose the sequence @xmath does not contain arithmetic
+progressions of length 3. For this reason, number 1, 5 and 9 cannot be
+all equally coloured. So assume first that 1 and 5 are red, and 9 is
+blue. Since 1 and 5 are red, 3 has to be blue. But 9 is also blue, so 6
+has to be red. Now 5 and 6 are red, forcing 4 and 7 to be blue. Number 8
+has to be red since 7 and 9 are blue, and number 2 has to be red since 3
+and 4 are blue. But then 2 , 5 and 8 are all red, which is a
+contradiction. The case where 1 and 9 are red and 5 is blue is treated
+similarly. On the other hand, the sequence of length 8, given by R B R B
+- B R B R has no arithmetic progressions of length 3. Thus 9 is a sharp
+bound for this property. This is also called van der Waerden number
+W(2,3)=9.
+
+### 2.2 Szemerédi’s Regularity Lemma
+
+Szemerédi’s Regularity Lemma arises from the composition of the two
+above areas, as we said it is a powerful lemma which Szermerédi used as
+a tool to prove his famous theorem on the arithmetic progressions, which
+let him win the prestigious Abel Prize in 2012. The theorem is a
+generalization of a much older problem posed by Erdös and Turán in 1936.
+
+By defining upper density of a set @xmath as:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and by denoting @xmath the set of all positive integers from 1 to @xmath
+, the conjecture says:
+
+###### Conjecture (Erdös and Turán, 1936).
+
+If @xmath , then @xmath contains arbitrarily long arithmetic
+progressions.
+
+In 1953, Klaus Friedrich Roth proved that any subset of the integers
+with positive upper density contains an arithmetic progression of length
+3. In 1969, Endre Szemerédi proved that the subset must contain an
+arithmetic progression of length 4, and then in 1975 proved that any
+subset with positive upper density must contain arithmetic progressions
+of arbitrary length, known as Szemerédi’s Theorem [ 7 ] . The theorem
+has been proven in several different ways for example Furstenberg [ 8 ]
+proved it through Ergodic Theory, Gowers [ 9 ] using Harmonic Analysis
+and many other, according to Terry Tao there are at least 16 different
+ways to prove it. Each of these proves really opened a new area of
+mathematics, so this conjecture is sometimes described as: “the greatest
+triumph of Hungarian school of mathematics” , which says that if you ask
+the right question, and try to solve it, the connections between
+different areas will show themselves and you will discover the theory
+anyway instead of building it.
+
+In order to prove his famous theorem, which is very intricate, Szemerédi
+had to introduce several other mathematical lemmas and tools, the
+Regularity Lemma is one of these. The Lemma can be put into words with
+the following statement:
+
+###### Vague Version
+
+Every graph @xmath can be “well approximated” by a bounded number of
+“quasi-random graphs”
+
+Surely any graph does not look like a random graph, but maybe any graph
+looks like a combination of random graphs, that’s what he claimed and
+proved. The interesting thing is that both the approximation of the
+graph and the amount of randomness of the random graphs only depend by
+one parameter @xmath . The number of graphs needed is @xmath a function
+of @xmath . In order to understand it better we introduce another less
+vague version.
+
+###### Less Vague Version
+
+Given any graph @xmath , we can partition the vertex set @xmath into a
+bounded number of classes (at most @xmath , say), such that “almost
+every” pair @xmath is well approximated by a quasi-random bipartite
+graph.
+
+To quantify the “almost every” statement we can say that there could be
+some pairs which are not “quasi-random” and which we can say nothing
+about, but the fraction of those will only be @xmath as well. Another
+important thing is that each classes pair has its own density, Figure
+2.2 visualize the concept
+
+###### Technical Version
+
+Now we can enter into the technical details of the Lemma. First we
+introduce the notion of density of a classes pair. Let @xmath be an
+undirected graph with no self-loops, and let @xmath be two disjoint
+subsets of vertices of @xmath .
+
+###### Definition.
+
+(Pair Density) We define the edge density of the pair @xmath as:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+This is just the amount of edges shared by the two sets divided by the
+maximum number of edges that there could be between the two sets,
+naturally the quantity lies between 0 and 1.
+
+Now we are going to define what it means to a pair to be “quasi-random”,
+in particular we will call the pair @xmath -regular and the property is
+defined as follows:
+
+###### Definition.
+
+( @xmath -regularity) A pair @xmath of sets in @xmath are @xmath
+-regular if @xmath such that @xmath we have:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Which translated says: given a pair of vertices sets @xmath , we say
+they are @xmath -regular if by taking two sufficiently small subsets of
+the two the density between them is roughly the same as the density of
+@xmath . This indicates some sort of homogeneity of the structure of the
+pairs.
+
+In order to define Szemerédi’s Regularity Lemma we last need another
+tool which is the Embedding Lemma (also known as Key Lemma) introduced
+by Komlos et al. [ 10 ] [ 11 ] , that actually represents the crucial
+property of @xmath -regularity. Before stating the lemma we need to
+clarify some notation: Given a graph @xmath and an integer @xmath , let
+@xmath denote the graph obtained by “blowing up” each vertex of @xmath
+to size @xmath , i.e., each vertex @xmath is replaced by a set @xmath of
+size @xmath . Thus @xmath has vertex set @xmath , and edge set @xmath
+for some @xmath .
+
+Given a graph @xmath , an integer @xmath and @xmath , let @xmath denote
+the family of graphs @xmath such that @xmath , and @xmath is @xmath
+-regular and has density at least @xmath whenever @xmath .
+
+###### Lemma.
+
+(Embedding Lemma) For every @xmath there exist a @xmath such that if
+@xmath Let @xmath , let @xmath , and let @xmath . Let @xmath be a graph,
+let @xmath with @xmath , and let @xmath with maximum degree at most
+@xmath . If @xmath and @xmath , then @xmath contains at least @xmath
+copies of H.
+
+Which translated says that for the purpose of finding small subgraphs in
+a graph @xmath , we can treat sufficiently dense @xmath -regular pairs
+like complete bipartite graphs. A consequence of the latter fact is that
+the graph that we want to approximate should have a fairly high density,
+it is very important to keep this in mind because the lemma does not
+apply for very sparse graphs. Ultimately it states that the topological
+structure of the graph which approximates the original one, is
+guaranteed to be present inside the original one at least a certain
+number of times. This lemma guarantees the fact that we are able to
+compress/approximate a graph with a regular partition and still being
+able to preserve topological structures. Now we are ready to fully
+states the regularity lemma.
+
+###### Lemma.
+
+(Szemerédi’s Regularity Lemma) Let @xmath . There exists @xmath such
+that for any graph @xmath there exists a partition ¹ ¹ 1 sometimes also
+called equitable partition @xmath where @xmath such that:
+
+-   @xmath
+
+-   @xmath
+
+-   @xmath is @xmath -regular, for all but @xmath pairs @xmath with
+    @xmath
+
+###### Notes
+
+All the classes must have the same cardinality except for the set @xmath
+that can have less nodes inside. As already pointed out there could be
+some irregular pairs, the fraction admitted can not exceed @xmath .
+Another very important requirement, has been already mentioned: the
+analyzed graph should be sufficiently dense, it is a direct consequence
+of the Embedding Lemma. We also absolutely need to report this important
+theorem from Gowers [ 6 ] :
+
+###### Theorem.
+
+(Gowers 1997) For any @xmath , there is a graph so that any application
+of the Regulrity Lemma requires that the number of clusters is at least
+a number which is a tower of twos of height proportional to @xmath .
+
+It says that the smaller the @xmath parameter (the approximation factor)
+the more clusters (classes) we need to have in a @xmath -regular
+partition, in fact we should have a huge number of classes since there
+is a tower constant to be respected. This implies that the original
+graph size is astronomically big and this constitutes the major factor
+which makes the implementation infeasible.
+
+Said that and with these assumptions in mind, we now move to the
+algorithmic formulation.
+
+### 2.3 Alon et al.’s Algorithm
+
+In their original paper Alon et al. [ 3 ] showed that the complexity of
+deciding if a given partition is @xmath -regular is more difficult than
+actually building one then they devised an algorithm to build one. In
+fact they showed that creating an @xmath -regular partition can be done
+with a feasible temporal complexity @xmath . Let’s dig into the
+algorithm: we will report only the main theorem and some definitions
+which are crucial to understand the structure of the algorithm.
+
+The following theorem is the core of Alon et al.’s algorithm, take note
+that we are not going to prove any theorem since all the proofs can be
+read in the original paper and are all quite long to handle.
+
+###### Theorem.
+
+(Alon et al., 1994) For every @xmath and every positive integer @xmath
+there is an integer @xmath such that every graph with @xmath vertices
+has an @xmath -regular partition into @xmath classes, where @xmath . For
+every fixed @xmath and @xmath such a partition can be found in @xmath
+sequential time, where @xmath is the time for multiplying two @xmath
+matrices with 0,1 entries over the integers. It can also be found in
+time @xmath on an EREW PRAM with a polynomial number of parallel
+processors.
+
+As we already said, the theorem simply states that it exists an
+algorithm to build such partition and it has a feasible temporal
+complexity (but keep in mind that we still have the tower constant from
+Gowers on the number of classes required by a partition). The next
+question now is: How can we do this? Before moving on we need several
+other definitions.
+
+Let @xmath be a bipartite graph with equal color classes @xmath , from
+now on it will represent one of the pair of the final partition. We
+define the average degree of @xmath as:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the degree of vertex @xmath .
+
+For two distinct vertices @xmath define the neighbourhood deviation of
+@xmath and @xmath with:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the set of nighbours of vertex @xmath . For a subset
+@xmath the deviation of @xmath is defined as:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let @xmath . It can be shown that if there exists @xmath such that
+@xmath , then at least one of the following cases occurs:
+
+1.  @xmath ( @xmath is @xmath -regular)
+
+2.  there exists in @xmath a set of more than @xmath vertices whose
+    degree deivate from @xmath by at least @xmath
+
+3.  there are subsets @xmath and @xmath
+
+In case the first two points does not hold one must find @xmath sets as
+described in point 3 . Now the proof of the latter Lemma provides an
+intuitive way to find the given subsets but, as we said, it is not
+reported here. Anyway, the main idea is that the procedure selects a
+subset of the nodes whose degree “deviate” the most from the average.
+More formally: for each @xmath with @xmath we find the set of vertices
+@xmath . The proof given in the original paper guarantees the existence
+of at least one such @xmath for which @xmath . The subsets @xmath and
+@xmath are the required ones. These two subsets represent the collection
+of nodes that contribute more to the irregularity of the pair @xmath ,
+in fact they play an important role and we will address them as
+certificates. We will call complements all the other nodes of the class
+which are not part of the certificates.
+
+Alon et al.’s algorithm allows us to find the certificates which
+contribute more to the irregularity of a pair, before stating the
+algorithm we will report an important result of Szemerédi which combined
+with Alon et el.’s algorithm allows us to build such partitions. Given
+an @xmath -regular partition @xmath of a graph @xmath into @xmath
+classes Szemerédi [ 12 ] defines a measure called index of partition:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since @xmath , it can be seen that @xmath
+
+In his main proof, Szemerédi state that if a partition @xmath violates
+the regularity condition, then it can be refined by a new partition and,
+in this case, the latter measure should increase.
+
+###### Alon et al.’s Alogirhtm
+
+Now we are ready to see the main algorithm:
+
+1.  Create the initial partition: Arbitrarily divide the vertices of
+    @xmath into an equitable partition @xmath with classes @xmath where
+    @xmath hence @xmath
+
+2.  Check Regularity: For every pair @xmath of @xmath , verify if it is
+    @xmath -regular or find @xmath such that @xmath
+
+3.  Count regular pairs: if there are at most @xmath pairs that are not
+    @xmath -regular then, stop. @xmath is an @xmath -regular partition
+
+4.  Refine: Apply the refinement algorithm and obtain a partition @xmath
+    with @xmath classes
+
+5.  Go to step 2.
+
+Besides all the notation and mathematics here we have an algorithm which
+guarantees the possibility to reach an @xmath -regular partition that
+respects the strong regularity conditions. Several other algorithms have
+been created most of them relaxed the conditions of @xmath -regularity
+to a weak notion, in particular the Frieze-Kannan algorithm [ 13 ] is
+the most famous one, which is based on an intriguing relation between
+the regularity conditions and the singular values of matrices.
+
+## Chapter 3 Description of the devised technique
+
+### 3.1 Overview of the CoDec Procedure
+
+Thanks to the previous sections we now have a basic context and idea of
+the domain of the devised technique. In particular, now we have a grasp
+on how Alon et al’s algorithm works, therefore we can describe the CoDec
+Procedure (Co-mpression Dec-ompression) which is the core of the work
+done during this thesis. We will split the algorithm in different steps
+as Figure 3.1 shows, but before describing the work, let’s just clarify
+some aspects that are valid throughout all the description.
+
+###### Notes
+
+-   Since we are entering to a more algorithmic description of the work,
+    from now on we will use matrices as data structures to represent any
+    undirected graph with no self loops. In particular the matrices are
+    symmetric with an empty diagonal (no self loops).
+
+-   From now on with the words “reduced graph” or “compression” we will
+    refer to a @xmath -regular partition @xmath (of size @xmath ) of an
+    undirected graph with no self loops achieved by running the
+    approximated version of Alon et al.’s algorithm in addition with the
+    new heuristic. We sometimes address it with the symbol @xmath or in
+    its matrix representation with @xmath (from REDuced graph).
+
+###### Description
+
+The procedure takes as input an undirected (weighted or unweighted)
+graph of @xmath nodes, expressed as a symmetric @xmath matrix @xmath ,
+then:
+
+1.  It searches and collect different @xmath -regular partitions @xmath
+    by running several approximated Alon et al.’s algorithm instances in
+    conjunction with the new refinement heuristic, over a set of @xmath
+    candidates. In particular, the procedure uniformly sample the @xmath
+    parameter space in the interval @xmath .
+
+2.  We select the best partition @xmath from the collected ones. The
+    partition is the one which both maximizes the partition cardinality
+    @xmath (therefore maximizes the Szemerédi Index according to its
+    formulation) and minimizes the value of the parameter @xmath (the
+    resulted graph should be a better approximation of the graph
+    according to the theory). We then build a @xmath matrix to contain
+    the compression of the matrix @xmath that we will call @xmath .
+
+3.  The procedure decompress @xmath by exploiting the Embedding Lemma
+    (Section 3.3 ), giving us a weighted @xmath matrix that we will call
+    @xmath and which should carry the structural properties of the
+    graph.
+
+4.  We then apply a filtering @xmath technique to the matrix to
+    highlight the patterns in the @xmath matrix giving us the final
+    @xmath matrix @xmath or @xmath . This procedure is described in
+    Section 3.4 .
+
+1: procedure codec ( @xmath )
+
+2: for @xmath in @xmath with step of @xmath do
+
+3: @xmath approx_alon ( @xmath )
+
+4: Store @xmath in a vector @xmath
+
+5: @xmath best_partition ( @xmath )
+
+6: @xmath = compress ( @xmath )
+
+7: @xmath decompression ( @xmath )
+
+8: @xmath post-decompression ( @xmath )
+
+Algorithm 1 CoDec Procedure
+
+###### Observations
+
+In point 1 a smarter approach has been considered but not tested yet, it
+consists in a binary search with a parametrized step size over the
+@xmath parameter space @xmath . This improvement would significantly
+reduce the number of runs and speed up the overall running time,
+although the required time for a single run in a medium-size graph (
+@xmath ) is acceptable. This is possible due to the fact that,
+experimentally, it has been noted that the cardinality of the partitions
+found grows as @xmath grows until we are no more able to find any useful
+partition.
+
+The compression in point 3.1 is expressed with a mapping from the nodes
+to their membership to a particular class trough a @xmath vector, which
+encodes the nodes class membership @xmath , plus a @xmath matrix @xmath
+to encode the densities between the classes ¹ ¹ 1 We use only half of
+the matrix achieving a @xmath space complexity with @xmath constant
+factor .
+
+### 3.2 A New Refinement
+
+In this Section we see the main idea that this work proposes as
+heuristic for the refinement procedure of Alon et al.’s approximated
+algorithm.
+
+As we said, in the original paper of Alon et al. they show that the
+Regularity Lemma can be formulated in algorithmic terms, but they do not
+provide a constructive version of how to reach the desired partition
+through the refinement step. Other works tried to implement some kind of
+heuristics [ 14 ] but the choices are pretty simple and only take in
+consideration properties of the nodes. With this thesis we introduce a
+new heuristic which exploits more grounded intuitions.
+
+###### Idea
+
+The key idea of this refinement is that we now try to reach the final
+partition by exploiting properties of the classes instead of the nodes.
+In particular it can be drawn a correspondence between the average
+internal degree of the nodes in a class and a particular graph coloring.
+As can be seen in Fig. 3.2 when we drive the internal degree ² ² 2 By
+internal degree we mean the degree of a node with respect to the nodes
+in the same class of the nodes inside a class, we are coloring the graph
+by highlighting some regular patterns. We then assume that the
+information to be preserved is represented in the repetition of some
+sub-patterns and we drive the refinement to keep these substructures
+between the classes. By trusting the Alon algorithm intuition we then
+aim to converge to a meaningful partition which highlights the structure
+of the input graph. Obviously the analyzed graph must have some
+intrinsic patterns in order for this idea to work.
+
+###### Details
+
+We need to specify some details and decisions made to fully understand
+the heuristic:
+
+-   At the very beginning we need to provide a starting partition for
+    the approximated Alon et al.’s algorithm, the choice is to split the
+    graph in 4 classes and distribute the nodes in a random way.
+
+-   In the original definition the number of classes at each iteration
+    should grow astronomically with a tower function as lower bound.
+    Since this detail is computationally infeasible we decided that the
+    number of classes always doubles at each iteration.
+
+###### Notations
+
+We need to clarify the notation since there are several entities to be
+considered:
+
+-   @xmath : certificates of the irregular pair @xmath @xmath
+
+-   @xmath : complements of the irregular pair @xmath @xmath . Just to
+    be clear: @xmath
+
+-   @xmath : density between the two classes as specified in Section 2.2
+    . If @xmath then we consider the internal density (or in-density)
+    defined as
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+-   @xmath : notation to express the two new classes created from an
+    irregular pair ³ ³ 3 just for clarity there must be @xmath too, but
+    for brevity we just consider the class @xmath over the whole
+    description
+
+-   indegree : degree of a node calculated with respect to the nodes of
+    the same class
+
+-   in-hubs : hub nodes with respect to the indegree i.e. nodes with
+    highest indegree value
+
+###### Description
+
+We are now ready to define the new refinement procedure. Given a
+partition @xmath at some iteration @xmath of approximated Alon et al.’s
+algorithm:
+
+1.  Randomly pick a class @xmath
+
+2.  If @xmath is irregular with other classes then choose the candidate
+    @xmath which maximizes the following score:
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    Now we have a classes pair candidate @xmath ready to be refined ⁴ ⁴
+    4 each class will be split in two, giving birth to 4 new classes
+    @xmath . We then process the two certificates of the pair, in
+    particular we have two possible scenarios for each certificate. We
+    consider only @xmath for the sake of illustration, but the exact
+    same steps will be applied for @xmath :
+
+    1.  Case @xmath (Densification)
+
+        1.  Sort @xmath nodes by indegree to reveal in-hubs @xmath
+
+        2.  Unzip hubs to new classes : @xmath and @xmath
+
+        3.  Fill @xmath and @xmath up to @xmath by taking the ‘‘most’’ ⁵
+            ⁵ 5 Weighted case: the nodes with the highest value.
+            Unweighted case: just the nodes which share the most
+            connections with the considered set connected nodes from the
+            union of the complements @xmath
+
+    2.  Case @xmath (Sparsification)
+
+        1.  Random sampling @xmath nodes into @xmath and @xmath
+
+        2.  Fill @xmath and @xmath up to @xmath by taking the “least”
+            connected nodes from the union of the complements @xmath
+
+3.  If class @xmath is @xmath -regular with all the other classes
+
+    1.  Sort @xmath nodes by indegree to reveal in-hubs @xmath
+
+    2.  Unzip nodes to new classes : @xmath and @xmath
+
+4.  Repeat the above points until there are no more classes left.
+
+5.  Since the new refinement split each class in two, it could happen
+    that we have an odd cardinality of a class, in this case we put the
+    exceeding node in the “trash-set” @xmath . When the cardinality of
+    this set exceeds @xmath and we have enough nodes, we equally
+    distribute them between the classes, otherwise the procedure
+    declares the partition irregular.
+
+1: procedure refinement ( @xmath )
+
+2: for each class @xmath in @xmath do
+
+3: if @xmath is @xmath -regular with all the other classes then
+
+4: @xmath sort_by_indegree ( @xmath )
+
+5: @xmath unzip ( @xmath ) @xmath This statement may add a node to
+@xmath if @xmath is odd
+
+6: else
+
+7: Select @xmath with most similar internal structure
+
+8: Get certificates @xmath and complements @xmath of the pair
+
+9: if @xmath then
+
+10: @xmath sparsification ( @xmath ) @xmath This statement may add a
+node to @xmath
+
+11: else
+
+12: @xmath densification ( @xmath ) @xmath This statement may add a node
+to @xmath
+
+13: Perform step 9,10,11,12 for @xmath
+
+14: if @xmath and @xmath then
+
+15: Uniformly distribute nodes of @xmath between all the classes
+
+16: else
+
+17: return @xmath
+
+18: return @xmath
+
+Algorithm 2 Refinement step performed at the @xmath -th iteration of the
+approximated Alon et. al’s algorithm
+
+###### Observations
+
+Since this new refinement is a heuristic we don’t have any formal proof
+of the correctness, but we can give some intuitive explanations of the
+procedure.
+
+The point 2 defines a score in order to select the irregular pair @xmath
+that we will refine (split in @xmath and @xmath ) in the next step. In
+particular this score aims to select pairs who share the most similar
+internal structure, this is to follow the intuition of the heuristic
+which has been illustrated with Figure 3.2 . By selecting the most
+similar classes pair we aim to select a particular topological
+substructure, at least this should be the connection. After that we
+proceed to purify the two classes with step 2a and 2b in other words we
+aim to converge to a pattern.
+
+The Densification branch 2a also contribute to maximize the Szemerédi
+index since we are unzipping in-hub nodes to the new two classes,
+therefore this should result in a higher density between the new classes
+and a higher Szemerédi index (recall: the Szemerédi Index grows if we
+have a very dense graph or if we have a huge amount of classes).
+
+### 3.3 Graph Decompression
+
+In this Section we describe the decompression phase where we take the
+structure that represents the best partition and we decompress it to
+have a weighted matrix of the same size of the original one. In this
+particular phase we fully exploit the Embedding Lemma that, as we said,
+is the reason why the Regularity Lemma is useful. At this point we have
+selected the best partition @xmath coded through a @xmath vector which
+represents a mapping of the nodes to their respective class, plus a
+@xmath matrix @xmath to encode the densities between the classes.
+
+The procedure decompresses the matrix by fully connecting the nodes of
+each @xmath -regular classes pair. It is mandatory to fully connect the
+nodes because that’s a requirement of the Embedding Lemma as we already
+described in Section 2.2 . In particular given an @xmath -regular pair
+with density @xmath we will fully connect the nodes by assigning a
+weight equal to @xmath . This means that the decompression phase
+generates a weighted undirected graph even if the input graph is
+unweighted. The resulting matrix encodes the structural patterns of the
+original graph, ideally higher the density between the pair the more
+structure we captured. The latter consideration is a consequence of the
+fact that higher density pairs contribute the most to the partition
+index, therefore it means that a pair with high density should contain
+more “structural information”. We will call the
+reconstructed/decompressed @xmath weighted matrix @xmath .
+
+The reconstruction used in the experiments is very simple and it is
+label-preserving, this is a very important feature because allows us to
+visualize the results and compute some error measures. In order to
+follow the theory, the reconstruction phase does not put edges between
+nodes of the same class, or between the @xmath -irregular pair, although
+the framework provides such possibility. In particular if we also
+connect the irregular pairs the result would be a fully connected
+approximated graph, experimentally it has been noted that this feature
+does not significantly improve the results.
+
+Another decompression feature has been taken in consideration: we can
+try to keep track also of the internal densities of the classes. The
+idea is to exploit this information when we blow up the reduced matrix.
+In particular we could create an Erdös-Rényi graph with probability
+equal to the internal density of the class in order to approximate its
+internal structure. Unfortunately this feature has not been extensively
+studied, so the results has been omitted.
+
+### 3.4 Post-Decompression filtering
+
+In this phase we abstract the notion of the graph and we treat its data
+representation i.e. the matrix purely as an image in order to perform
+some morphological operations. This turns out to be a good trick to
+mitigate the approximation of our algorithm and to let the structural
+pattern emerge from the decompressed matrix.
+
+In particular after the Alon compression and reconstruction, we filter
+the matrix @xmath with a fixed size median kernel giving birth to the
+@xmath matrix. Median filtering is a nonlinear morphological operation
+mainly used in Computer Vision since it is very effective at removing
+“salt and pepper” noise in images Figure 3.4 illustrate such
+application. It works by moving a kernel through the image pixel by
+pixel, replacing each value with the median value of neighbouring
+pixels.
+
+The pattern of neighbours is called the “kernel” (or window) and it
+slides over the entire image. The median is calculated by first sorting
+all the pixel values from the window into numerical order, and then
+replacing the pixel being considered with the middle (median) pixel
+value (50 percentile). The filtering phase is essential to clean up the
+reconstructed matrix since in the reconstruction phase we fully connects
+the classes and obviously we could add some extra edges. In particular,
+as we mentioned in the decompression section, the edges with higher
+weight should carry more structural information, to filter the noise of
+the low density weights we run a median kernel that should highlight the
+matrix structural properties.
+
+Experimentally we decided to use a fixed window size, but in principle
+one can study the optimal size in function of some graph invariant
+although this possibility has not been taken in consideration since a
+fixed size provided a good solution.
+
+When we apply any filter in images there is a problem when taking in
+account the pixels in the border of the image, in our case we adopted a
+reflection padding technique to handle matrix borders. There is not a
+strong motivation to use a reflection padding, it is purely an
+implementation detail since it does not severely affect the result.
+
+## Chapter 4 Experimental Results
+
+In this section we report the experimental setup, the results obtained
+and we will draw some considerations. First of all let’s clarify that
+two different experiments have been conducted. The first one reported in
+Section 4.2 studies the CoDec Procedure applied to various Synthetic
+Graphs, the objective is to do a deep study of the devised technique.
+The second type of experiments reported in Section 4.3 uses Real
+Networks, the aim is to verify the procedure over real cases and to
+assert the approximation feature of the framework.
+
+Almost all the experiments involving medium size graphs ( @xmath nodes),
+have been conducted with my personal machine: an Intel Core i5 @ 2.60GHz
+HP Pavilion 15 Notebook with 8GB of RAM (DDR3 Synchronous 1600 MHz)
+running Arch-Linux with kernel version 4.14.4-1, but the experiments
+involving graphs with @xmath have been conducted in the SCSCF which is
+the scientific computational cluster made of 7 nodes of the Ca’ Foscari
+university. The reason for the latter choice is for both time (since we
+performed a lot of repetitions) and resources reasons (my personal
+Notebook we are able to process single runs of graphs up to 17000 nodes,
+but it couldn’t work all day for several days without causing damage to
+the hardware).
+
+### 4.1 Evaluation measures
+
+In order to validate the results, in the experimental evaluation we have
+used three main measures. The first two are somehow a “direct”
+estimation of dissimilarity between any two matrices, to evaluate the
+approximation quality of the method. As we will discuss we could argue
+if these two provide a good estimation. In fact we will discuss it later
+on the consideration section. The last measure estimates the structural
+preservation of the technique by comparing two clustering vectors.
+
+#### Direct Measures
+
+Two direct measures have been used to compute the dissimilarity between
+the original graph and the result of our procedure. To illustrate the
+measures let’s define two matrices @xmath and @xmath both of size @xmath
+:
+
+-   Normalized @xmath -distance
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+-   Normalized @xmath -distance
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    A high value of one of the two measure means that the two matrices
+    are very “distant” or dissimilar, while lower values means similar
+    matrices. We would like to have low values.
+
+#### Structural Preservation Measure
+
+In order to measure the preservation of the structure in cluster-like
+graphs, it has been implemented a column-wise Knn Voting System
+clustering technique (we will call it KVS). Given a graph, the KVS
+produces a clustering vector, to validate the correctness of the
+grouping, then we calculate the Adjusted Rand Index ( @xmath ) between
+the graph’s original clustering @xmath and the predicted one @xmath .
+
+###### KVS Description
+
+KVS-clustering technique works as follows:
+
+1.  Given a weighted matrix, for each row of the matrix we take the
+    column positions of the @xmath highest values
+
+2.  We check, in the these positions, which are the true clustering
+    labels by looking at the respective positions in @xmath , giving us
+    @xmath labels predictions
+
+3.  We set the current row label prediction to the label which is the
+    most repeated in the @xmath predictions
+
+Since the KVS-clustering requires a parameter @xmath to run, we try
+different values and then we pick the one which maximizes the ARI,
+specifically we tried with three different values of @xmath we must be
+sure that @xmath is an odd number to always have point 3 satisfied.
+
+###### ARI Description
+
+The KVS clustering technique outputs a @xmath array of predicted labels
+@xmath , when we calculate the Adjusted Rand Index with respect to the
+labeling vector @xmath , the similarity score is between -1 and 1. A
+random prediction clustering has an ARI close to 0 while 1 stands for
+perfect match, -1 means completely opposite labeling.
+
+This estimation has been introduced by Hubert et al. [ 16 ] and it is a
+measure to compare two clusterings. If L is a ground truth clustering
+vector and @xmath is the clustering that we want to evaluate, let us
+define @xmath and @xmath as:
+
+-   @xmath : the number of pairs of elements that are in the same set in
+    @xmath and in the same set in @xmath
+
+-   @xmath : the number of pairs of elements that are in different sets
+    in @xmath and in different sets in @xmath
+
+The raw (unadjusted) Rand Index (RI) is then given by:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Where @xmath is the total number of possible pairs in the dataset
+(without ordering). However the RI score does not guarantee that random
+label assignments will get a value close to zero (especially if the
+number of clusters is in the same order of magnitude as the number of
+samples). To counter this effect we can discount the expected Rand Index
+@xmath of random labelings by defining the adjusted Rand index as
+follows:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+### 4.2 Synthetic Graphs Experiments
+
+#### Synthetic Graph Generation
+
+In this subsection we will see how the synthetic graphs, used for the
+experiments, has been generated. As already said, we are interested to
+undirected graphs that can be seen as a composition of “structure” which
+carries the knowledge of the phenomenon, plus some “noise”.
+
+That said, we can formalize a bit the notion of the graphs that we will
+analyze, in particular we can see them as:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Where @xmath represents the graph, @xmath (namely Ground Truth)
+represents the structure and @xmath represents the noise.
+
+Given a graph @xmath of @xmath nodes, we model the noise with
+Erdös-Renyi Graph (ERG) of size @xmath with probability of connection
+between two nodes @xmath (from now on we will call this parameter
+inter-cluster noise level, or inter-noise). The structural part @xmath
+is a graph of @xmath nodes with @xmath disconnected groups (cluster) of
+nodes of variable size.
+
+For the evaluation of the experimental results, we also need a vector of
+labels @xmath that represents the correct clustering of the nodes
+according to the ground truth. The labeling vector is a @xmath vector
+which indicates the membership of a node to the respective cluster.
+Figure 4.1 exemplifies the creation of a synthetic graph.
+
+###### Basic Version
+
+Now we describe the basic procedure to generate unweighted Synthetic
+Graphs:
+
+-   Generate a @xmath adjacency matrix @xmath with @xmath equal to a
+    realization of a @xmath r.v..
+
+-   If @xmath inter-noise level then put an edge (we’re creating the ERG
+    i.e. @xmath )
+
+-   Create @xmath disconnected cliques (clusters) on the diagonal, each
+    one with size @xmath where @xmath (we’re creating a @xmath made of
+    balanced cliques).
+
+This procedure outputs an unweighted adjacency matrix @xmath which
+represent an undirected unweighted Synthetic Graph.
+
+###### Extension
+
+Now we can extend this generation procedure to produce a wide spectrum
+of graphs, in particular let’s consider these possibilities:
+
+-   Adding weights both to noise and to the structure.
+
+-   Imbalance the clusters by varying the size of each one.
+
+-   Introducing noise inside the clusters (we will refer to this noise
+    as intra-noise or corrosion).
+
+In this work not all the combination of the extensions have been
+analyzed since the spectrum is almost infinite, but the generation tool
+provides such possibility.
+
+#### Experimental Setup
+
+In this section we will describe the setup of the experiments conducted
+and we will introduce the naming conventions used to report in the
+results.
+
+###### Experiment 1
+
+-   For the first experiment several dimensions of the graphs have been
+    considered. In particular we tried graphs with size @xmath .
+
+-   In particular, fixing a size @xmath , we then generate 5 different
+    graphs with @xmath .
+
+-   We run the CoDec Procedure and calculate the measures specified in
+    Section 4.1 to validate the results.
+
+-   We performed a thresholding to unweight the FSZE matrix by
+    minimizing this quantity:
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    Which translated means that we tried to threshold the weights of the
+    @xmath matrix by minimizing @xmath measure. This operation gives
+    birth to the @xmath (Unweighted Filtered SZEmeredi matrix) (fourth
+    column of the visual representation in Figure 4.4 ). This step has
+    been inserted in order to study some possible relation between the
+    values of the matrix produced by the CoDec Procedure and the density
+    of the original graph.
+
+-   The experiment has been repeated a certain number of times @xmath to
+    generate some statistics. With medium size graphs the repetitions
+    are 20 while with big graphs 5 or 3.
+
+-   We then visualize a single run
+
+###### Experiment 2
+
+-   For the second experiment we considered a fixed dimension for the
+    synthetic graphs @xmath .
+
+-   Given a fixed size @xmath , we generated imbalanced and balanced
+    cluster-like graphs, by varying both internoise and intranoise,
+    exploring all the combinations of these values: @xmath .
+
+-   We run the CoDec Procedure and calculate the Adjusted Random Index
+    measure specified in Section 4.1 to validate the preservation of the
+    structural properties.
+
+-   The experiment has been conducted one time, therefore there is no
+    repetition.
+
+-   We then visualize a single run of a single graph.
+
+### 4.3 Real Network Experiments
+
+The majority of the experiments have been conducted with synthetic
+graphs because we have a ground truth to validate the structural
+preservation of the CoDec procedure. Since our framework is able to both
+approximate the given graph and highlight the underlying structural
+pattern we opted to test the first property with real world data.
+Although one of the requirements of the algorithm is to have a dense
+graph, we tested the devised procedure with real world datasets which,
+instead, are very sparse. The problem is that we don’t have the ground
+truth and we can only calculate direct dissimilarity measures between
+the output matrix and the original one. The datasets have been taken
+from two famous repositories of real networks: the Stanford Large
+Network Dataset Collection SNAP [ 17 ] and from the Konect repository of
+the University Koblenz-Landau Konect [ 18 ] .
+
+The setup of the experiments is very simple and we describe it as
+follows:
+
+-   All the networks used are unweighted and undirected.
+
+-   We read the network in a matrix data structure and we apply the
+    CoDec Procedure.
+
+-   Since we don’t have the ground truth to test the structural
+    preservation we calculate the @xmath and the @xmath metrics to
+    measure the dissimilarity of the two matrices.
+
+-   Every network has been processed with 20 repetitions (just to show
+    that the results does not significantly vary).
+
+The table reports some statistics for each dataset, here is the naming
+convention:
+
+-   k : the cardinality of the best partition, namely @xmath .
+
+-   @xmath : the corresponding epsilon of the best partition found.
+
+-   nirr: number of irregular pair of the final partition.
+
+-   @xmath : the Szemerédi Index described in Section 2.3 .
+
+-   tcompress: time to compute the best partition and express it though
+    @xmath (step 1 and 2 of the CoDec Procedure described in Section 3.1
+    ). It is expressed in seconds.
+
+-   tdecompress: time to reconstruct the matrix and decompress the
+    @xmath matrix to the @xmath (step 3 of the CoDec Procedure described
+    in Section 3.1 ). It is expressed in seconds.
+
+-   tfiltering: time to apply the median filter on the @xmath matrix
+    giving @xmath (step 4 of the CoDec Procedure described in Section
+    3.1 ).
+
+### 4.4 Analysis and considerations
+
+##### Analysis of Synthetic Graphs Experiments
+
+The whole framework can be seen as a graph compression technique, beside
+the characteristic that allows us to store large graphs with less
+requirements, the procedure seems to preserve the underlying structural
+patterns which hold the information.
+
+As can be seen from all the tables, our compression algorithm based on
+an approximated version of Alon et al.’s algorithm plus the new devised
+heuristic, finds best partitions with epsilon value varying between
+@xmath to @xmath . We recall that in order to have a faithful
+approximation of the original graph, we should be able to find
+partitions with very low values of epsilon. This is very difficult to
+achieve since one of the theoretical requirements is the astronomical
+size of the input graph (due to the tower constant on the cardinality of
+the partition). Of course even with a framework able to handle very big
+graphs we would still need a perfect implementation of Alon et al.’s
+algorithm. Said that, and keeping in mind that the epsilon parameter
+controls the approximation factor, we could say that it is a good
+result. In fact we are able to process medium/big size graphs and
+achieve a very good compression with preservation of the structure.
+
+As far as regards the compression property if we take in consideration
+Table 4.5 , we can calculate the compression rate with graphs of 25000
+nodes. In particular a @xmath matrix has been compressed in a @xmath
+matrix plus a @xmath vector. If we weight each entry of a matrix and
+each entry of a vector as one byte (for simplicity) we have:
+
+-   Storage requirements for the graph: @xmath MB
+
+-   Storage requirements for the compressed graph: @xmath MB
+
+-   Storage requirements for the membership vector: @xmath KB
+
+This constitutes a compression ratio of @xmath and we save @xmath of the
+space required. This is surely a very good result especially if we want
+to send the structure through a channel. This should suspect us since a
+compression rate such high it’s uncommon, but this is a lossy
+compression and when the structure is decompressed it’s meant to loose
+all the information which do not carry structural patterns, namely we
+only preserve useful informations.
+
+From the visual inspection reported in Figure 4.4 the CoDec Procedure
+first property is that it preserves the underlying structure of the
+graph @xmath . This property should be stronger as the graph dimension
+grows, this point is also verified from the experimental results
+conducted with Experiment 1, in particular from the Adjusted Random
+Index of the KVS-clustering reported in Tables 4.1 , 4.2 , 4.3 , 4.4 ,
+4.5 . We can clearly see that we achieve better results as the dimension
+of the graph increases, in fact with @xmath we are still able to filter
+an inter-noise of @xmath with an Adjusted Random Index of @xmath , while
+with @xmath it is not the case. This confirms that as the dimension of
+the graph grows we are in fact capturing and preserving important
+information, therefore we can derive the fact that our approximated
+implementation of Alon et al.’s algorithm plus the new heuristic is
+indeed behaving according to the original formulation.
+
+Anther point is that Alon et al.’s algorithm does not tell us how to
+reach a regular partition at each iteration of the algorithm. In other
+words it does not fully specify the refinement step. Our new refinement
+heuristic has an underlying motivation which follows the combinatorial
+nature of the lemma and aims to mitigate the effect of the tower
+constant. In fact we find partitions with relatively small cardinality
+in medium/big graphs. The good side of this, is that we are able to
+compress the structure to very high rates and we are able to process
+small network too. There is also a bad side: since we have a low
+cardinality of the best partition it means that we will loose
+information in the decompression phase. That is because the internal
+structure of the partition classes is unknown and will be lost in the
+decompression phase. As we discussed in Section 3.3 we could keep track
+of the internal densities and later expand them through a random graph
+with probability of connection of two nodes equal to the internal
+density, but this has not been extensively tested and worth be further
+explored.
+
+We then tried to study a possible relation between the density of the
+input graph and the optimal thresholding value of the @xmath matrix
+which minimize the dissimilarity with the @xmath . The study have been
+reported in Figure 4.9 . There seems to be a pattern for high densities,
+but as it decrease the distribution of the optimal threshold value it’s
+much wider. Maybe with more data and further investigations we can draw
+an empirical rule to optimally threshold the output of the CoDec
+procedure to produce an unweighted graph and to completely filter the
+noise by preserving only the structural part.
+
+In Experiment 2 Figure 4.3 we tested the CoDec procedure robustness when
+both intranoise and internoise are added to a graph with balanced
+clusters as structure. We decided to use every combination of the values
+of the noise ranging from @xmath to @xmath since it represents the range
+where we achieve the best results and because of the computational time
+required. As said, we introduced both noisy edges between the clusters
+and corruption of the structure of the clusters. We can see that as the
+number of clusters increase the preservation is more difficult. This
+result can be explained by the fact that as the number of cliques
+increases the density of the original graph decreases, therefore we are
+getting far from the ideal conditions for the lemma to apply. Another
+important consideration is that the procedure is not able to preserve
+structure in total absence of noise, this is interesting since
+highlights the fact that the framework needs it to work and reinforce
+the denoisation property of the method.
+
+The same experiment has been conducted with imbalanced clusters, as
+reported in Figure 4.2 , one can immediately see that we have better
+results with respect to the balanced cluster case. The procedure
+preserves structure in many more combinations of intra and inter noise.
+We can see that as the intranoise increases (corruption of structure) we
+achieve worse preservation that is, again, due to the fact that as we
+corrupt we are in fact decreasing the density of the graph. It is not
+the case in the balanced cluster case, maybe because the critical
+threshold is higher due to the different morphology of the graphs.
+
+##### Analysis of Real Networks Experiments
+
+Even if we assumed that the procedure needs a structural part of the
+graph make made of cluster-like groups, the algorithm is still able to
+highlight some of the pattern of the graphs. We can not provide a
+measure of preservation since we don’t have a ground truth, but it can
+be verified from the visual inspection of the matrices in Figures 4.5 ,
+4.6 , 4.7 , 4.8 . This point is fundamental since it highlights the fact
+that this procedure is able to preserve the patterns of the graphs. In
+fact we could see it as if the graph @xmath is just a corroded version
+of a @xmath which is well represented by the output of the procedure.
+
+Another important thing to notice is that even if we use graphs of
+medium size with a really low density, the framework is still able to
+find partitions and provide a visually appealing reconstruction with low
+@xmath dissimilarities.
+
+Perhaps the most important result obtained is the one that we got when
+the CoDec procedure has been applied to the Facebook network. In fact we
+obtain better results than the algorithm proposed by Riondato et al. [
+24 ] which, according to this survey [ 1 ] , is one of the algorithm at
+the sate-of-the-art. The result reported by Riondato at al. is a @xmath
+dissimilarity measure which is slightly different from our measure since
+it is not normalized by @xmath but instead by @xmath . In order to
+compare the results we just need to multiply our dissimilarity value by
+the size of the graph, namely @xmath . The results of Riondato et al.
+have been reported in Figure 4.10 in particular we achieve an @xmath
+while their best average is @xmath computed with 5 different runs. In
+order to fully compare the two techniques we should use the same graphs,
+unfortunately Riondato et al. tested their method with very big graphs
+that our developed framework can not yet handle. A workaround to test
+the two procedures would be to perform a sampling of the bigger graphs,
+but it requires an extensive study to select the best methodology to
+preserve the structural properties of the sampled graphs.
+
+Another important fact is that the algorithms of Riondato et al. mainly
+use graphs with clusters, and they point out that there is a relation
+between a weakly-regular partitions and the minimization of the CutNorm
+Error measure that they defined. In particular each class of the
+partition represent a cluster in the original graph. Our technique
+abstract this notion and in fact it is able also to highlight different
+patterns as we already discussed.
+
+Said that, we could strongly argue if the @xmath measure is a good proxy
+to measure how much structure has been preserved. In fact it is easy to
+see that as the graphs get more and more sparse we are closer to an
+empty graph which, unless our reconstruction adds a lot of noise, always
+gives low @xmath values. In Section 5.1 we discuss some other measures.
+
+## Chapter 5 Conclusions
+
+In this thesis it has been devised a new pipeline for compressing and
+decompressing a graph by exploiting powerful Szemerédi’s Regularity
+Lemma. In particular, it has been developed a procedure called CoDec
+(Compression-Decompression) that uses an approximated algorithmic
+formulation of the strong Regularity Lemma given by Alon et al. as
+compression step, then after the decompression phase (which simply
+exploits the Embedding Lemma) it introduces a post-decompression step to
+better highlight the structural properties of the reconstructed graph.
+
+We provided a new heuristic for the refinement step which exploits the
+internal structures of the classes of a regular partition. As the
+experiments show, the new heuristic mitigates the problematic tower
+constant on the number of classes which should compose a regular
+partition. In fact when prompted with sufficiently dense graphs, the
+framework always find regular partitions of different cardinalities.
+
+We then provided an extensive experimental evaluation to measure how
+robust is the framework as we both corrupt the structures of the
+synthetic graphs, which carries the information, and add noisy edges
+between them. As we reported, the procedure is less robust to the
+corruption of the structure since it implies a decrement in the density
+of the graph. This is coherent to the requirements to the Regularity
+Lemma which finds its ideal usage in dense graphs. In fact, CoDec
+achieves good structural preservation properties when we add noise
+between the structures.
+
+We also tested the pipeline as the graphs dimension increase. Turns out
+that our implementation seems to confirm the theoretical requirements
+needed by the strong Regularity Lemma, so by processing bigger graphs we
+achieve better results.
+
+### 5.1 Future Works
+
+In this Section we report some ideas that can be further explored in the
+future. In particular, we could study how the results of the procedure
+change when the threshold of the Sparsification and Densification branch
+of the new heuristic vary. This could be another experiment to better
+understand the properties of the new heuristic and could possibly open
+new insights.
+
+Surely we should also perform several tests on weighted graphs. In
+particular, we could study if there is any relation between weighted
+internoise and intranoise of the input graph and the CoDec structural
+preservation ability. The introduction of weighted noise and the
+introduction of weighted structures could open new aspects of the
+algorithm both in positive and negative.
+
+Another very important aspect would be to use different technologies to
+implement the framework. The whole pipeline has been coded using Python
+3.6 (with heavy usage of the Numpy library). We have some limitations on
+the dimension of the graphs that we can process due to the choice of
+using matrices as data structure representation for the graphs. We could
+use different data structures and we could of course make use of some
+dedicated libraries like GraphTools or NetworkX which are simply born
+for such applications. Another option would be to port the framework
+into another language like C++ to achieve a speedup on the running time,
+but the migration would not be immediate due to the complexity of the
+project and target language. A big improvement would be to redefine the
+framework in a distributed environment, this surely open new possibility
+to process bigger graphs and to explore different refinements.
+
+As we said in the analysis of the result, the @xmath metric does not
+provide a good evaluation to compare the similarity of two graphs, this
+is always the case when we are evaluating techniques that offers an
+approximation of the graph. In particular, we would like a measure of
+how similar are the two structural part of the graphs considered. An
+idea would be to use an indirect measure based on a feature vector of
+some statistics of the graphs, like: average local clustering
+coefficient from Watts et al. [ 25 ] , global clustering coefficient
+from Luce et al. [ 26 ] , average degree and so on, and then measure the
+distance between the two feature vectors. This is an indirect measure of
+similarity, the problem of computing such feature vector is that we need
+more computational time and it may be a problem when dealing with huge
+graphs.
+
+There is also the possibility to use the spectral norm that is defined
+as the square root of the maximum eigenvalue of the squared adjacency
+matrix. Since it combines the squared adjacency matrix (which counts the
+number of paths of length two), and eigenvalues (which are highly
+connected with spectral clustering), it could be a good proxy to
+evaluate the structural similarity of two (cluster like) graphs.
+
+In this work we used the notion of strong regularity to compress an
+input graph while preserving some structural properties. However, we can
+relax the notion to produce weak regular partition exploiting Frieze and
+Kannan’s [ 13 ] weak version of the Regularity Lemma. There would be
+some benefits to move from a strong to a weak regularity notion mainly
+because we are no longer required to work with very big graphs and
+because there are many papers continuously improving the tower bounds
+and providing new approximation algorithms like the last by Fox et al. [
+27 ] .

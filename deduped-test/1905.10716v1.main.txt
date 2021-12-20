@@ -1,0 +1,2583 @@
+## Chapter 1 Introduction
+
+For a univariate data set of @xmath points with unknown distribution,
+consider the problem of computing a point (location estimator) which
+best summarizes the data set. One may answer this problem by introducing
+the mean of data set as the desired point. This answer is acceptable as
+the points are some minimum relative distance apart. However, in
+general, it is not the best choice because it is enough to move one of
+the data points very far away from the rest. This causes the mean to
+follow such single point, but not the majority of the data points. From
+this example, it can be deduced that the high level of robustness is an
+important characteristic that a location estimator should have [ 18 ] .
+This characteristic of an estimator can be measured by a factor called
+the breakdown point , which is the portion of data points that can move
+to infinity before the estimator does the same [ 64 , 36 ] . By this
+definition, the breakdown point of the mean is @xmath , whereas the
+breakdown point of the median is @xmath . It is proven that the maximum
+breakdown point for any location estimator is @xmath [ 65 ] . As such,
+median is an appropriate location estimator for an ordered univariate
+data set [ 17 ] .
+If one attempts to generalize the concept of median to higher
+dimensions, an additional problem will occur. In this case, it is not
+clear how to define a multivariate order that can be applied to compute
+the median of data set. One approach is to use the notion of data depth
+which we study in this thesis.
+
+### 1.1 General Definition of Data Depth
+
+Generally speaking, a data depth is a measure in non-parametric
+multivariate data analysis that indicates how deep (central) a point is
+located with respect to a given data set in @xmath ( @xmath ). In other
+words, data depth introduces a partial order relation on @xmath because
+it assigns a corresponding rank (the depth of point with respect to a
+given data set) to every point in @xmath . As a result, applying a data
+depth on a data set generates a partial ordered set ( poset ) ¹ ¹ 1 A
+poset is a set together with a partial ordering relation which is
+reflexive, antisymmetric and transitive. of the data points. Considering
+different depth values, each data depth determines a family of regions .
+Each region contains all points in @xmath with the same depth values.
+Among all regions, the central region also known as the median set is
+the one whose depth is maximum. Inside the central region a point in
+@xmath (not necessarily from the data set) with the largest depth is
+called the median of the data set.
+As discussed above, defining a multivariate order and generalizing the
+concept of median are not straightforward. Over the last few decades,
+various notions of data depth have been introduced as powerful tools in
+non-parametric multivariate data analysis. Most of them have been
+defined to solve specific problems. A short list of the most important
+and well-known depth functions is as follows: halfspace depth [ 49 , 93
+, 99 ] , simplicial depth [ 59 ] , Oja depth [ 78 ] , regression depth [
+82 ] , majority depth [ 62 ] , Mahalanobis depth [ 66 ] , projection
+depth [ 103 ] , Zonoid depth [ 38 ] , spherical depth [ 39 ] . These
+depth functions are different in application, definition, and geometry
+of their central regions. Each data depth has different properties and
+requires different time complexity to compute. In 2000, Zuo and Serfling
+[ 103 ] provided a general framework for statistical depth functions. In
+this framework, a data depth is a real valued function that possesses
+the following properties: affine invariance , maximality at the center ,
+monotonicity on rays , and vanishing at infinity . However depending on
+the particular application, not every depth function needs to fit in
+this framework. For example, in a medical study that includes patient
+data such as height and weight perhaps the affine invariance is not an
+important requirement because the height and weight axes are meaningful.
+In fact, we need the data depth used in this medical study to be
+invariant under scaling of the axes. Given this property, the results
+would be independent from the measuring systems.
+The concept of data depth is widely studied by statisticians and
+computational geometers. Some directions that have been considered by
+researchers include defining new depth functions, developing new
+algorithms, improving the complexity of computations, computing both
+exact and approximate depth values, and computing depth functions in
+lower and higher dimensions. Two surveys by Aloupis [ 11 ] and Small [
+93 ] can be referred as overviews of data depth from a computational
+geometer’s and a statistician’s point of view, respectively. Some
+research on algorithmic aspects of planar depth functions can be found
+in [ 10 , 13 , 21 , 25 , 26 , 30 , 61 , 67 , 82 ] .
+The main focus of this thesis is on the geometric and algorithmic
+concepts of three depth functions: halfspace depth ( @xmath ),
+simplicial depth ( @xmath ), and @xmath -skeleton depth ( @xmath ),
+briefly reviewed in Section 1.2 . More detailed definitions and
+properties of these depth functions are explored in Chapter 3 . The
+@xmath -skeleton depth is not as well-known as the other depth
+functions. However, it is easy to compute even in higher dimensions.
+
+### 1.2 Quick Review of @xmath, @xmath, and @xmath
+
+In 1975, Tukey generalized the definition of univariate median and
+defined the halfspace median as a point in which the halfspace depth is
+maximized, where the halfspace depth is a multivariate measure of
+centrality of data points. Halfspace depth is also known as Tukey depth
+or location depth. In general, the halfspace depth of a query point
+@xmath with respect to a given data set @xmath is the smallest fraction
+of data points that are contained in a closed halfspace through @xmath [
+16 , 21 , 90 , 99 ] . The halfspace depth function has various
+properties such as vanishing at infinity, affine invariance, and
+decreasing along rays. These properties are proved in [ 35 ] . Many
+different algorithms for the computation of halfspace depth in lower
+dimensions have been developed [ 21 , 22 , 25 , 86 ] . The bivariate and
+trivariate case of halfspace depth can be computed exactly in @xmath and
+@xmath time [ 84 , 96 ] , respectively. However, computing the halfspace
+depth of a query point with respect to a data set of size @xmath in
+dimension @xmath is an NP-hard problem if both @xmath and @xmath are
+part of the input [ 51 ] . Due to the hardness of the problem, designing
+efficient algorithms to compute and approximate the halfspace depth of a
+point remains an interesting task in the research area of data depth [ 2
+, 15 , 27 , 46 ] .
+In 1990, another generalization of univariate median was presented by
+Liu [ 59 ] . This generalization is based on this fact that the median
+of a data set @xmath is a point in @xmath which is contained in the
+maximum number of closed intervals, formed by any pair of data points.
+Liu replaced the closed intervals by closed simplices ² ² 2 A simplex in
+@xmath is a line segment, in @xmath is a triangle, in @xmath is a
+tetrahedron, etc. in higher dimensions and presented the definition of
+simplicial median . In some references (e.g. [ 60 ] ) open simplices are
+considered. In this thesis, we only consider closed simplices as
+originally used by Liu in the definition of simplicial median. For a
+data set @xmath , the simplicial median set is a set of points in @xmath
+which are contained in the maximum number of closed simplices formed by
+any @xmath data points from @xmath . The definition of simplicial median
+provides another measure of centrality of point @xmath with respect to
+the data set @xmath . This measure is known as simplicial depth which is
+the proportion of all closed simplices obtained from @xmath that contain
+@xmath . The straightforward algorithm to compute the simplicial depth
+takes @xmath time. The simplicial depth is affine invariant [ 59 ] . It
+is proved that the breakdown point of the simplicial median is worse
+than the breakdown point of the halfspace median [ 28 ] . For a set of
+@xmath points in general position ³ ³ 3 A data set in @xmath is in
+general position if no three points are collinear. in @xmath , the depth
+of the simplicial median multiplied by @xmath is @xmath [ 9 ] . The
+bivariate case of simplicial depth can be computed optimally in @xmath
+time [ 84 , 12 ] .
+In 2006, Elmore, Hettmansperger, and Xuan [ 39 ] defined another notion
+of data depth named spherical depth . It is defined as the proportion of
+all closed hyperballs with the diameter @xmath , where @xmath and @xmath
+are any pair of points in the given data set @xmath . These closed
+hyperballs are known as influence regions of the spherical depth
+function. In 2011, Liu and Modarres [ 63 ] , modified the definition of
+influence region, and defined lens depth . Each lens depth influence
+region is defined as the intersection of two closed hyperballs @xmath
+and @xmath . These influence regions of spherical depth and lens depth
+are the multidimensional generalization of Gabriel circles and lunes in
+the definition of the Gabriel Graph [ 42 ] and Relative Neighbourhood
+Graph [ 97 ] , respectively. In 2017, Yang [ 102 ] , generalized the
+definition of influence region, and introduced a familly of depth
+functions called @xmath -skeleton depth, indexed by a single parameter
+@xmath . The influence region of @xmath -skeleton depth is defined to be
+the intersection of two closed hyperballs given by @xmath and @xmath ,
+where @xmath and @xmath are some combinations of @xmath and @xmath .
+Spherical depth and lens depth can be obtained from @xmath -skeleton
+depth by considering @xmath and @xmath , respectively. The @xmath
+-skeleton depth has some nice properties including symmetry about the
+center, maximality at the centre, vanishing at infinity, and
+monotonicity. Depending on whether Euclidean distance or Mahalanobis
+distance is used to construct the influence regions, the @xmath
+-skeleton depth can be orthogonally invariant or affinely invariant. All
+of these properties are explored in [ 39 , 63 , 101 , 102 ] . A notable
+characteristic of the @xmath -skeleton depth is that its time complexity
+is @xmath which grows linearly in the dimension @xmath .
+
+### 1.3 Overview of this Thesis
+
+In this chapter we have introduced the notion of data depth, and
+reviewed the definitions of the halfspace depth, simplicial depth, and
+@xmath -skeleton depth. In Chapter 2 we recall some concepts in
+computational geometry and statistics which are used in this thesis.
+Chapter 3 includes a general framework for depth functions. The
+properties and the previous results related to the halfspace depth,
+simplicial depth, and @xmath -skeleton depth are also explored in this
+chapter. The main contributions of this thesis are provided in the
+following chapters.
+In Chapter 4 , we study the @xmath -skeleton depth from a geometric
+perspectives. We obtain an exact bound @xmath for the combinatorial
+complexity of the arrangement ⁴ ⁴ 4 An arrangement of some geometric
+objects is a subdivision of space formed by a collection of such
+objects. of planar @xmath -influence regions.
+In chapter 5 , we present an optimal algorithm to compute the planar
+spherical depth (i.e. @xmath -skeleton depth, @xmath ) of a query point.
+This algorithm takes @xmath time. In Theorem 5.2.1 , we prove that
+computing the planar @xmath -skelton depth of a query point can be
+reduced to a combination of at most @xmath range counting problems. This
+reduction and the results in [ 4 , 14 , 45 , 92 ] , allow us to develop
+an algorithm for computing the planar @xmath -skeleton depth. This
+algorithm takes @xmath query time. In the last section of this chapter,
+we present an @xmath algorithm for computing the planar halfspace depth.
+Although there exist another algorithm with the same running time for
+this problem [ 9 ] , our algorithm is much simpler in terms of
+implementation. We use the specialized halfspace range query that is
+explored in Algorithm 5 .
+Chapter 6 includes a proof of the lower bound for computing the planar
+@xmath -skeleton depth for cases @xmath , and @xmath , separately. In
+each case, we reduce the problem of Element Uniqueness ⁵ ⁵ 5 Element
+Uniqueness problem: Given a set @xmath of real numbers, is there a pair
+of indices @xmath with @xmath such that @xmath ? which takes @xmath to
+the problem of computing the planar @xmath -skeleton depth of a query
+point.
+In Chapter 7 , we study the relationships among different depth notions
+in this thesis. These relationships are explored in two different ways.
+First, we use the geometric properties of the influence regions, and
+prove that the simplicial depth has an upper bound in terms of a
+constant factor of @xmath -skeleton depth (i.e. @xmath ). Secondly, for
+every pair of depth functions, we employ a fitting function to
+approximate one data depth using another one. For example, considering a
+certain amount of error, we approximate the planar halfspace depth by a
+polynomial function of planar @xmath -skeleton depth, @xmath . In the
+last Section 7.4 , some experimental results are provided to support the
+the theoretical results in this chapter.
+Finally, Chapter 8 is the conclusion of this thesis.
+
+## Chapter 2 Background
+
+In this chapter, we present some background for the later chapters of
+this thesis. The background is provided in two sections: computational
+geometry review (Section 2.1 ) and non-computational geometry review
+(Section 2.2 ).
+
+### 2.1 Computational Geometry Review
+
+Some concepts in computational geometry which are frequently referred to
+in this thesis are briefly reviewed in this section.
+
+#### 2.1.1 Model of Computation
+
+One of the fundamental steps in any study of algorithms is to specify
+the adopted model of computation. In particular, it is not possible to
+determine the complexity of an algorithm without knowing the primitive
+operations ¹ ¹ 1 The primitive operations are those whose costs are
+constant for the fixed-length operands. employed in such algorithm.
+Choosing an appropriate model of computation is closely related to the
+nature of given problem. The problems in computational geometry are of
+different types. However, they may be generally categorized as: Subset
+Selection , Computation , and Decision . Naturally, for each of subset
+selection and computation problems, there is a decision problem. As an
+example, a YES/NO answer is needed for the question: ”For a given set
+@xmath , does the the set @xmath satisfies a certain property @xmath ?”.
+It can be discussed that we need to deal with the real numbers to answer
+some problems in the above categories. Suppose, for example, that in a
+given set of points with integer coordinates, the distance between a
+pair is requested. As such, we need a random-access machine in which
+each storage location is capable to hold a single real number. The
+related model of computation is known as the real RAM [ 6 , 79 ] . The
+primitive operations with unit cost in this model are as follows:
+
+-   arithmetic operations ( @xmath , @xmath , @xmath , @xmath ).
+
+-   comparison between two real numbers ( @xmath , @xmath , @xmath ,
+    @xmath , @xmath , @xmath ).
+
+-   indirect addressing of memory
+
+-   @xmath -th root, trigonometric functions, exponential functions, and
+    logarithmic functions.
+
+The execution of a decision making algorithm in the real RAM can be
+described as a sequence of operations of two types: arithmetic and
+comparisons. Depending on the outcome of the arithmetic, the algorithm
+has a branching option at each comparison. Hence, the computation which
+is executed by the real RAM can be considered as a path in a rooted
+tree. In the literature, this rooted tree is known as the algebraic
+decision tree model of computation [ 32 , 80 , 81 , 95 ] . An algebraic
+decision tree on a set of variables @xmath is a program with a finite
+sequence of statements. Each of these statements is obtained based on
+the result of @xmath , where @xmath is an algebraic function and @xmath
+denotes any comparison relation. For a set of @xmath real elements,
+Ben-Or proved that any algebraic computation tree that solves the
+element uniqueness problem must have the complexity of at least @xmath [
+19 ] .
+
+#### 2.1.2 Arrangements
+
+Suppose that @xmath is a finite collection of geometric objects in
+@xmath . The arrangement @xmath ) is the subdivision of @xmath into
+connected cells of dimensions @xmath induced by @xmath , where each
+@xmath -dimensional cell is a maximal connected subset of @xmath
+determined by a fixed number of @xmath . The arrangement @xmath is
+planar if @xmath . In the planar arrangement @xmath , a @xmath
+-dimensional cell is a vertex , a @xmath -dimensional cell is an edge ,
+and a @xmath -dimensional cell is a face . As an illustration, Figure
+2.1 represents the arrangement of @xmath given lines in the plane.
+
+In studying arrangements, one of the fundamental questions that needs to
+be answered is how complex each arrangement can be. Computing the
+combinatorial complexity ( @xmath ) of each arrangement helps to answer
+this question, where the @xmath of an arrangement @xmath is the total
+number of cells of @xmath . For example, in Figure 2.1 , @xmath because
+there are @xmath edges, @xmath vertices, and @xmath faces in the
+arrangement. Every planar arrangement @xmath can be presented by a
+planar graph @xmath such that @xmath if and only if face @xmath .
+Furthermore, @xmath if and only if @xmath and @xmath are two adjacent
+faces of @xmath . We recall Euler’s Formula [ 41 , 50 ] which is one of
+the most useful facts regarding a planar graph.
+
+###### Theorem 2.1.1.
+
+Euler’s Formula If @xmath is a planar graph with @xmath vertices, @xmath
+edges, and @xmath faces,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Because we study depth functions in this thesis, we define a nonstandard
+terminology that is frequently referred to in Chapter 4 .
+
+###### Definition 2.1.1.
+
+In a planar arrangement @xmath , we define a depth region to be the
+maximal connected union of faces with the same depth value.
+
+Further and more detailed results on the arrangements of hyperplanes,
+spheres, simplices, line segments can be found in [ 5 , 20 , 44 ] .
+
+#### 2.1.3 Range Query
+
+Range query is among the central problems in computational geometry. In
+fact, many problems in computational geometry can be represented as a
+range query problem. In this thesis, computing the depth value of a
+query point in some cases is converted to a range query problem (see
+Chapter 5 ). In a typical range query problem, we are given a data set
+@xmath of @xmath points, and a family @xmath of ranges (i.e. subsets of
+@xmath ). @xmath should be preprocessed into a data structure such that
+for a query range @xmath , all points in @xmath can be efficiently
+reported or counted. In addition to range counting and range reporting ,
+another type of range query problems is range emptiness (i.e. checking
+if @xmath ). Due to the nature of related problems in data depth among
+the three types of range query problems, range reporting is not used in
+this thesis. Typical example of ranges in range query problems include
+halfspaces, simplices, rectangle. However, in many applications we may
+need to deal with ranges bounded by nonlinear functions. In other words,
+the ranges are some semialgebraic sets ² ² 2 A semialgebraic set is a
+subset of @xmath obtained from a finite Boolean combination of @xmath
+-variate polynomial equations and inequalities. . In this case, the
+problem is known as semialgebraic range query [ 3 , 4 , 44 , 92 ] . The
+recent results on some range query problems are reviewed in Chapter 5 .
+In some problems such as halfspace and simplex range query, solving the
+exact range counting is expensive which means that no exact algorithm
+with both near linear storage complexity and preprocessing time, and low
+query time exists [ 1 ] . This issue is a motivation for seeking some
+approximation techniques that can be applied to approximate a range
+counting problem. One way to achieve such technique is through the
+notion of @xmath -approximation, which is defined in the following.
+
+###### Definition 2.1.2.
+
+Given a set @xmath , a parameter @xmath , and a semialgebraic range
+@xmath with constant description complexity, we say that algorithm
+@xmath computes an @xmath -approximation @xmath if
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+### 2.2 Non Computational Geometry Review
+
+In this section, we provide some background regarding the concepts of
+partially ordered set (poset), fitting function, and the measures of
+goodness of statistical models. These concepts are used in Sections 7.2
+and 7.3 , where we approximate depth functions using the idea of a
+fitting function.
+
+#### 2.2.1 Poset
+
+For a finite set @xmath , it is said that @xmath is a poset if @xmath is
+a partial order relation on @xmath , that is, for all @xmath :
+
+-   @xmath .
+
+-   @xmath and @xmath implies that @xmath .
+
+-   @xmath and @xmath implies that @xmath , where @xmath is the
+    corresponding equivalence relation.
+
+Poset @xmath is called a chain if any two elements of @xmath are
+comparable, i.e., given @xmath , either @xmath or @xmath . If there is
+no comparable pair among the elements of @xmath , the corresponding
+poset is an anti chain. Figure 2.2 illustrates different posets with the
+same elements.
+
+#### 2.2.2 Fitting Function
+
+One method to represent a set of data is to use the notion of fitting
+function. This representation technique involves choosing values for the
+parameters in a function to best describe the data set. Depending on
+whether the number of parameters is known or unknown in advance, the
+method is called parametric fitting or nonparametric fitting ,
+respectively [ 43 ] . In depth function approximation that we study in
+this thesis, the number of parameters is known; therefore, we focus on
+the parametric fitting. Consider a set @xmath , where @xmath and @xmath
+are two given vectors. The goal is to obtain a function @xmath that best
+describe @xmath (i.e. @xmath captures the trend among the elements of
+@xmath ). For every element in @xmath , @xmath , where @xmath is the
+error corresponding to the approximation of @xmath .
+Obviously, there may be more than one candidate for @xmath . The
+question is how to measure the goodness of fit in order to obtain the
+best fitting function.
+
+#### 2.2.3 Evaluation of Fitting Function
+
+In this section we review some methods and criteria that can be employed
+to measure how good a fitting function is. Based on the values of these
+methods, we can select the best fitting function for our data points.
+
+##### 2.2.3.1 Coefficient of Determination
+
+For two vectors @xmath and @xmath , suppose that @xmath is a function
+such that @xmath . Let @xmath , where @xmath is the average of all
+@xmath . The coefficient of determination [ 88 ] of @xmath is indicated
+by @xmath (or @xmath ), and defined by:
+
+  -- -------- -- -------
+     @xmath      (2.1)
+  -- -------- -- -------
+
+To avoid confusion between @xmath and @xmath , hereafter in this thesis,
+the coefficient of determination is represented by @xmath alone. In
+statistics and data analysis, @xmath is applied as a measure that
+assesses the ability of a model in predicting the real value of a
+parameter. From Equation ( 2.1 ), it can be deduced that the value of
+@xmath is always within the interval @xmath . Generally, a high value of
+@xmath related to a model fitted to a set of data indicates that the
+model is a good fit for such data. Obviously, the interpretations of fit
+depend on the context of analysis. For example, a model with @xmath
+explains @xmath of the variability of the response data around its mean.
+This percentage may be considered as a high value in a social study.
+However, it is not a high enough value in some other research areas
+(e.g. biochemistry, chemistry, physics), where the value of @xmath could
+be much closer to @xmath percent.
+
+##### 2.2.3.2 @xmath and @xmath
+
+In statistics, Akaike Information Criterion ( @xmath ) [ 7 ] and the
+Bayesian information criterion ( @xmath ) [ 87 ] are two commonly used
+criteria to select the best model among a collection of candidates that
+fit to a given data set. These two criteria provide a standardized way
+to achieve a balance between the goodness of fit and the simplicity of
+the model. The model with the lowest value of @xmath (and/or the lowest
+value of @xmath ) is preferred. Among a finite number of candidate
+models @xmath fitted to a data set @xmath , both AIC and BIC involve
+choosing the model with the best penalized log-likelihood. The
+likelihood function corresponding to each model @xmath is a conditional
+probability given by @xmath , where @xmath is the parameter vector of
+@xmath . In the literature, it is more common to use the log-likelihood
+@xmath [ 76 ] . Considering the above notations, the @xmath and @xmath
+values of every model can be computed using the following equations.
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (2.2)
+     @xmath   @xmath      (2.3)
+  -- -------- -------- -- -------
+
+where @xmath represents the number of parameters of @xmath and @xmath is
+the size of data set @xmath . From Equations ( 2.2 ) and ( 2.3 ), it can
+be seen that @xmath penalizes the model complexity more heavily. In
+particular, @xmath prefers the models with less parameters as the size
+of @xmath increases, whereas @xmath does not penalize the model based on
+the size of @xmath .
+
+## Chapter 3 Properties of Data Depth
+
+In this chapter we review general properties of a depth function. We
+also discuss different notions of data depth such as halfspace depth,
+simplicial depth, and @xmath -skeleton depth that are studied in this
+thesis.
+
+### 3.1 General Framework
+
+A data depth @xmath , @xmath is a real-valued function defined at any
+arbitrary point @xmath with respect to a given data set @xmath . A
+typical depth function @xmath satisfies the following conditions which
+are known as the general framework for data depth, introduced in [ 103 ]
+,.
+
+-    Affine invariance [ 35 , 98 ] : For invertible matrix @xmath and
+    constant vector @xmath , @xmath is affinely invariant if
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    See Figure 3.1 . If this equation holds for any orthogonal matrix
+    @xmath (i.e. @xmath ), @xmath is orthogonally invariant which is
+    weaker than affine invariant. Transforming data points is commonly
+    used in processing a data set; therefore, it is important for a data
+    depth to be invariant in some sense.
+
+-    Vanishing at infinity [ 59 , 103 ] : @xmath vanishes at infinity if
+    for every sequence @xmath with @xmath ,
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    Figure 3.2 is a visualization of this property.
+
+-    Monotone on rays [ 17 , 65 , 62 ] : For @xmath as a center point
+    (with maximal depth value), @xmath is monotone on the rays if
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    where the point @xmath is a convex combination of @xmath and @xmath
+    . As an illustration, see Figure 3.3 .
+
+-    Upper semi-continuity [ 37 , 72 ] : For @xmath , @xmath is upper
+    semi-continuous if @xmath is a closed set, where
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    The outer boundary of @xmath is called the contour of depth @xmath [
+    35 ] . See Figure 3.4 .
+
+In addition to these four properties, some other conditions such as high
+breakdown point and level-convex are discussed for depth functions [ 35
+, 36 , 65 ] .
+
+-    High breakdown point [ 36 , 65 ] : The breakdown point of a
+    location estimator @xmath (i.e. the center point of @xmath in @xmath
+    ) is a number between zero and one, introducing the proportion of
+    data points that must be moved to infinity before @xmath moves to
+    infinity. In other words, the breakdown point @xmath can be defined
+    by
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    where @xmath , @xmath , @xmath , and @xmath is an arbitrary set in
+    @xmath .
+
+-    Level-convex [ 35 ] : Data depth @xmath is level-convex if all of
+    its corresponding contours @xmath are convex.
+
+### 3.2 Halfspace Depth
+
+The halfspace depth of a query point @xmath with respect to a given data
+set @xmath is defined as the minimum portion of points of @xmath
+contained in any closed halfspace that has @xmath on its boundary. Using
+the notation of @xmath , the above definition can be presented by ( 3.1
+).
+
+  -- -------- -- -------
+     @xmath      (3.1)
+  -- -------- -- -------
+
+where @xmath is the normalization factor ¹ ¹ 1 Instead of the
+normalization factor @xmath which is common in literature, we use @xmath
+in order to let the halfspace depth of @xmath to be achievable. , @xmath
+is the class of all closed halfspaces in @xmath that pass through @xmath
+, and @xmath denotes the number of points within the intersection of
+@xmath and @xmath . As illustrated in Figure 3.5 , @xmath and @xmath ,
+where @xmath is a given set of points in the plane and @xmath are two
+query points not in @xmath .
+
+For a given data set @xmath and a query point @xmath , it can be
+verified that @xmath is equal to zero if and only if @xmath is outside
+the convex hull ² ² 2 The convex hull of a data set @xmath is the
+smallest convex set in @xmath that contains @xmath . of @xmath (see
+Figure 3.6 ).
+
+The halfspace depth satisfies all desirable properties of depth
+functions presented in Section 3.1 [ 99 , 35 ] . Furthermore, for a data
+set in general position ³ ³ 3 It is said that a data set, in @xmath , is
+in general position if no @xmath points of the data points lie on a
+common hyperplane. in @xmath , the breakdown point of the halfspace
+median is at least @xmath , and at most @xmath for @xmath [ 35 , 34 ] .
+Another nice property of the halfspace depth is that the depth contours
+are all convex and nested, i.e. the contour of unnormalized depth @xmath
+is convex, and geometrically surrounded by the contour of unnormalized
+depth @xmath which is also convex [ 35 ] .
+Among all data depths, halfspace depth, perhaps, is the most extensively
+studied data depth. Many algorithms to compute, or approximate, the
+halfspace median have been developed in recent years [ 2 , 22 , 25 , 31
+, 55 , 67 , 86 , 100 ] . A summary of these results is as follows.
+
+-   A complicated @xmath algorithm to compute the halfspace depth of a
+    point in @xmath is implemented by Rousseeuw and Ruts in [ 85 ] .
+
+-   An optimal randomized algorithm for computing the halfspace median
+    is developed by Chan [ 25 ] . This algorithm requires @xmath
+    expected time for @xmath non-degenerate data points.
+
+-   An @xmath algorithm to compute the bivariate halfspace median is
+    presented by Matousek in [ 67 ] . The algorithm consists of two main
+    steps: an @xmath algorithm to compute any point with depth of at
+    least @xmath , and a binary search on @xmath to find the median.
+
+-   By improving the Matousek’s algorithm, Langerman provided an
+    algorithm which computes the bivariate halfspace median in @xmath [
+    56 ] .
+
+-   For a set on @xmath non-degenerate points in @xmath , the halfspace
+    median can be computed in @xmath expected time (Theorem @xmath in [
+    25 ] ).
+
+-   The halfspace depth of @xmath with respect to @xmath can be computed
+    in @xmath time, where @xmath is the value of the output and @xmath
+    denotes the running time for solving a linear program with @xmath
+    constraints and @xmath variables (Theorem @xmath in [ 21 ] ).
+
+-   In a worst case scenario in @xmath , when the data points all are on
+    the convex hull, it takes at least @xmath to find all of the
+    halfspace depth contours [ 69 ] .
+
+-   A center point of @xmath , a point whose halfspace depth is at least
+    @xmath , can be computed in @xmath [ 23 ] .
+
+-   Computing the halfspace of a query point in @xmath can be done in
+    @xmath time [ 9 , 12 ] .
+
+### 3.3 Simplicial Depth
+
+The simplicial depth of a query point @xmath with respect to @xmath is
+defined as the total number of the closed simplices formed by data
+points that contain @xmath . This definition can be given by ( 3.2 ).
+
+  -- -------- -- -------
+     @xmath      (3.2)
+  -- -------- -- -------
+
+where @xmath is the normalization factor, the convex hull @xmath is a
+closed simplex formed by @xmath points of @xmath , and @xmath is the
+indicator function. For @xmath in @xmath , Figure 3.7 illustrates that
+@xmath and @xmath .
+
+Liu [ 60 ] proved that the simplicial depth satisfies the affine
+invariance condition. Depending on the distribution of data points, the
+simplicial depth has completely different characteristics. For a
+Lebesgue-continuous distribution [ 47 ] , the simplicial depth changes
+continuously (Theorem @xmath in [ 59 ] ), decreases monotonously on the
+rays, and has a unique central region [ 59 , 73 ] . Furthermore, the
+contours defined by simplicial depth are nested (Theorem @xmath in [ 59
+] ). However, if the distribution is discrete, these characteristics are
+not necessary applicable [ 103 ] . Unlike the contours of halfspace
+depth which are convex, the contours of the simplicial depth are only
+starshaped (Section @xmath in [ 73 ] ). It has been proven that the
+breakdown point of the simplicial median is always worse than the
+breakdown point of halfspace median [ 28 ] . The behaviour of simplicial
+depth contours is not as nice as the behaviour of half-space depth
+contours [ 48 , 69 ] . As an example, Figure 3.8 illustrates that the
+simplicial depth contours may not be nested. It can be seen that the
+contour enclosing all points of depth @xmath and up is not surrounded by
+the contour enclosing depth of @xmath and up.
+Simplicial depth is widely studied in the literature. Some of the
+results regarding simplicial depth can be listed as follows.
+
+-   The simplicial depth of a query point in @xmath can be computed
+    using an optimal algorithm which takes @xmath time [ 9 , 12 , 54 ] .
+
+-   The simplicial depth of a point in @xmath can be computed in @xmath
+    , and in @xmath the fastest known algorithm needs @xmath time [ 29 ]
+    . In the higher dimension @xmath , no better algorithm is known than
+    the brute force method with @xmath time.
+
+-   The maximum simplicial depth in @xmath can be computed in @xmath [ 9
+    ] .
+
+### 3.4 @xmath-skeleton Depth
+
+To introduce the @xmath -skeleton depth, first, we need to define the
+@xmath -influence region.
+
+###### Definition 3.4.1.
+
+For @xmath , the @xmath -influence region of vectors @xmath and @xmath (
+@xmath ) is defined as follows:
+
+  -- -------- -- -------
+     @xmath      (3.3)
+  -- -------- -- -------
+
+where @xmath , @xmath , and @xmath . In the case of @xmath , the @xmath
+-skeleton influence region is defined as a slab determined by two
+halfspaces perpendicular to the line segment @xmath at the end points.
+Figure 3.9 shows the @xmath -skeleton influence regions for different
+values of @xmath .
+
+###### Note 3.4.1.
+
+For @xmath in literature, the ball based version of @xmath is also
+defined. In this case, the @xmath is given by the union of the balls,
+instead of the intersection of them in equation 3.3 . For example, the
+hatching area in Figure 3.9 denotes the ball based version of the @xmath
+. Since the definition of the @xmath -skeleton depth is given based on
+the lune based @xmath alone [ 71 ] , by @xmath we only mean its lune
+based version hereafter in this study.
+
+###### Definition 3.4.2.
+
+For parameter @xmath and @xmath , the @xmath -skeleton depth of a query
+point @xmath with respect to @xmath , is defined as the proportion of
+the @xmath -influence regions that contain @xmath . Using notation
+@xmath for @xmath -skeleton depth, this definition can be presented by
+Equation ( 3.4 ).
+
+  -- -------- -- -------
+     @xmath      (3.4)
+  -- -------- -- -------
+
+where @xmath is the normalization factor.
+
+It can be verified that @xmath is equivalent to the inequality of @xmath
+. The straightforward algorithm for computing the @xmath -skeleton depth
+of @xmath takes @xmath time because the inequality should be checked for
+all @xmath [ 101 , 63 ] . The @xmath -skeleton depth is a family of
+statistical depth functions including the spherical depth when @xmath [
+39 ] , and the lens depth when @xmath [ 63 ] .
+It is proved that the @xmath -skeleton depth functions satisfy the data
+depth framework provided by Zuo and Serfling [ 103 ] because these depth
+functions are monotonic (Theorem @xmath , [ 101 ] ), maximized at the
+center, and vanishing at infinity (Theorem @xmath , [ 101 ] ). The
+@xmath -skeleton depth functions are also orthogonally (affinely)
+invariant if the Euclidean (Mahalanobis) distance is used to construct
+the influence regions of @xmath -skeleton depth influence regions
+(Theorem @xmath , [ 101 ] ). The breakdown point of @xmath -skeleton
+median is at least @xmath (Theorem @xmath , [ 101 ] ). Regarding the
+geometric properties of @xmath -skeleton depth, some of the results are
+as follows. The depth regions with the same depth value are not
+necessarily connected (see the regions with the depth of @xmath in
+Figures 4.4 and 4.5 ). However, the depth regions are nested (Lemma
+@xmath , [ 101 ] ) which means that the contour with depth of @xmath is
+geometrically surrounded by the contour with depth of @xmath , where
+@xmath . For example, in Figure 3.10 , the contour with the depth of
+@xmath is surrounded by the contour with the depth of @xmath . Another
+property is that the only depth regions which are convex are the central
+regions (see Theorem 4.2.1 ). We explore some other geometric properties
+related to the @xmath -skeleton depth in Chapter 4 .
+
+#### 3.4.1 Spherical Depth and Lens Depth
+
+As discussed above, the @xmath -skeleton depth includes the spherical
+depth when @xmath , and the lens depth when @xmath . From Equations (
+3.3 ) and ( 3.4 ), the definitions of spherical depth ( @xmath ) and
+lens depth ( @xmath ) of a query point @xmath with respect to a given
+data set @xmath in @xmath are as follows:
+
+  -- -------- -- -------
+     @xmath      (3.5)
+  -- -------- -- -------
+
+  -- -------- -- -------
+     @xmath      (3.6)
+  -- -------- -- -------
+
+where the influence regions @xmath and @xmath are equivalent to @xmath
+and @xmath , respectively. The influence region of the spherical depth
+is also know as the Gabriel sphere .
+
+## Chapter 4 Geometric Results in @xmath
+
+In this chapter we discuss the @xmath -skeleton depth in @xmath from a
+geometric point of view. The geometric results provide some guidance to
+the algorithms for computing @xmath -skeleton depth. As an example, in
+Section 4.1 , we explore that computing the entire arrangement of @xmath
+-influence regions in @xmath is not an efficient approach to compute the
+planar @xmath -skeleton depth. Given a set of collinear points in @xmath
+, we compute the combinatorial complexity ( @xmath ) of the arrangement
+of @xmath -influence regions. Some geometric properties of the @xmath
+-skeleton depth are also explored in this chapter.
+
+### 4.1 Combinatorial Complexity
+
+For the @xmath -influence regions obtained from a set of collinear
+points in @xmath , we present exact bounds for the number of edges,
+faces, and vertices in the corresponding arrangement.
+
+###### Definition 4.1.1.
+
+The @xmath of an arrangement in @xmath is equal to the total number of
+faces, edges, and vertices (intersection points and data points) in the
+arrangement.
+
+###### Example 4.1.1.
+
+For a set of four collinear points @xmath and @xmath in @xmath ,
+consider the arrangement of corresponding @xmath -influence regions (
+@xmath ). The @xmath of this arrangement is equal to @xmath because the
+arrangement includes the total number of @xmath faces, @xmath edges, and
+@xmath vertices. For the case of @xmath , see Figure 4.1 .
+
+###### Theorem 4.1.1.
+
+For the arrangement of all Gabriel circles obtained from @xmath distinct
+collinear points in @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+We construct the arrangement of Gabriel circles incrementally, and
+define some strategies to count the number of faces, edges, and vertices
+in the arrangement. Starting with the two leftmost points in the data
+set, we have one Gabriel circle to consider. In this step, there are
+only two faces (inside the circle and outside the circle), two edges,
+and two vertices. Henceforward we add the data points one by one from
+left to right. We count the number of created faces, edges, and vertices
+after adding each Gabriel circle obtained from the new point and any
+previously added data points. We write the numbers of new faces, edges,
+and vertices in rows corresponding to faces, edges, and vertices,
+respectively. The new cells are obtained from the intersection of
+recently added circle and the cells in the previous arrangement.
+Finally, it is enough to sum up all obtained corresponding numbers in
+order to get the total number of all faces, edges, and vertices. These
+strategies are represented in the triangular forms in Tables 4.1 , 4.2 ,
+and 4.3 . These representations help to obtain a general formula for
+every element of the tables. Figure 4.2 illustrates how to obtain the
+numbers for @xmath from the previous step (see the rows @xmath and
+@xmath in Tables 4.1 , 4.2 , and 4.3 ). Note that we respectively define
+@xmath , @xmath , and @xmath to be the number of recently created faces,
+edges, and vertices after including the new Gabriel circle @xmath in the
+previously updated arrangement.
+
+We define a function @xmath which helps us to formulate @xmath , @xmath
+, and @xmath in Tables 4.1 , 4.2 , and 4.3 , respectively.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The elements @xmath , @xmath , and @xmath can be presented by following
+equations.
+
+  -- -------- -- -------
+     @xmath      (4.1)
+  -- -------- -- -------
+
+  -- -------- -- -------
+     @xmath      (4.2)
+  -- -------- -- -------
+
+  -- -------- -- -------
+     @xmath      (4.3)
+  -- -------- -- -------
+
+We employ the Telescoping Substitution to solve the recurrences in
+Equations ( 4.1 ), ( 4.2 ), and ( 4.3 ) as follows. For @xmath and
+@xmath ,
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+Therefore,
+
+  -- -------- -- -------
+     @xmath      (4.4)
+  -- -------- -- -------
+
+Similarly, we can solve @xmath and @xmath and obtain the following
+relations.
+
+  -- -------- -- -------
+     @xmath      (4.5)
+  -- -------- -- -------
+
+  -- -------- -- -------
+     @xmath      (4.6)
+  -- -------- -- -------
+
+To compute the @xmath of the arrangement, we need to calculate @xmath ,
+@xmath , and @xmath representing the total numbers of faces, edges, and
+vertices, respectively. These values can be similarly computed using
+Equations ( 4.4 ), ( 4.5 ), and ( 4.6 ), respectively. We provide the
+computation of @xmath in the following. However, to avoid repetitions,
+we omit the computations of @xmath and @xmath , and present only their
+final values.
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The proof is complete because
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+∎
+
+###### Note 4.1.1.
+
+Recalling that the Gabriel circles and @xmath -influence regions are
+equivalent when @xmath , one can generalize Lemma 4.1.1 by considering
+@xmath -influence regions ( @xmath ) instead of Gabriel circles. This
+generalization can be made because the corresponding combinatorics does
+not change for @xmath -influence regions if @xmath . However, the case
+of @xmath does not follow this generalization. In this case, @xmath
+because @xmath (including one face outside all edges and @xmath faces
+among the edges), @xmath (including @xmath distinct parallel lines
+passing through data points), and @xmath (including @xmath data points
+and @xmath intersection points at infinity). We recall that for @xmath
+distinct collinear points in @xmath , the @xmath -influence regions form
+some parallel slabs if @xmath .
+
+###### Lemma 4.1.1.
+
+Every distinct pair of @xmath -influence regions cut each other in at
+most @xmath points.
+
+###### Proof.
+
+Every @xmath -influence region can be represented by a pair of circular
+arcs. For @xmath , these circular arcs are some half circles, whereas
+for @xmath , they are smaller than half circles. We prove the lemma by
+considering two cases: @xmath and @xmath . For the case @xmath , the
+proof is trivial because two distinct @xmath -influence regions (i.e.
+circles) cut each other in at most two points. For the case @xmath ,
+suppose that @xmath and @xmath are two arbitrary and distinct @xmath
+-influence regions. Figure 4.3 is an illustration of the @xmath
+-influence regions ( @xmath ) and their corresponding circular arcs.
+Suppose that @xmath , as a pair of circular arcs @xmath and @xmath ,
+arbitrarily cuts @xmath . Each one of @xmath and @xmath is smaller than
+its corresponding half circle. This implies that, after cutting the
+boundary of @xmath in at most two points, none of @xmath and @xmath
+would turn back towards the boundary of @xmath . As such, two @xmath
+-influence regions @xmath and @xmath cut each other in at most @xmath
+points.
+
+∎
+
+###### Lemma 4.1.2.
+
+The trivial upper bound for the @xmath of the arrangement of all @xmath
+-influence regions obtained from @xmath arbitrarily distributed data
+points in @xmath is @xmath .
+
+###### Proof.
+
+From Lemma 4.1.1 , the boundaries of every two @xmath -influence regions
+intersect each other in at most @xmath points. It means that we have at
+most @xmath intersection points in the arrangement of the @xmath @xmath
+-influence regions. Since every arrangement is a representation of a
+planar graph, we can use Euler’s Formula @xmath (Theorem 2.1.1 ) in
+planar graphs to compute the number of faces, edges, and vertices in the
+arrangement. The number of vertices and the number of edges in the
+planar graphs are related to each other by the inequality @xmath (see
+Theorem @xmath in [ 8 ] ). Considering the intersection points from the
+above discussion and the number of data points, @xmath and consequently
+@xmath , @xmath , and @xmath can be computed as follows:
+
+  -- -------- -------- --
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+∎
+
+###### Note 4.1.2.
+
+Lemma 4.1.1 indicates that the trivial upper bound @xmath for the @xmath
+related to the arrangement of @xmath -influence regions is achievable.
+
+###### Conjecture 4.1.1.
+
+The collinear configuration of @xmath planar points minimizes the number
+of intersections (and consequently, edges and faces) among the
+corresponding @xmath -influence regions.
+
+Proving Conjecture 4.1.1 would imply a lower bound for the @xmath of the
+arrangement of @xmath -influence regions for every arbitrary set of
+points in @xmath . Furthermore, it would also imply that the obtained
+upper bound in Lemma 4.1.2 is optimal. Without loss of generality, it
+can be assumed that @xmath .
+
+### 4.2 Geometric Properties of @xmath-skeleton Depth
+
+In this section, some geometric properties of the @xmath -skeleton depth
+are investigated. Among all of the @xmath -influence regions, we only
+consider the case @xmath (i.e. Gabriel circles) related to the spherical
+depth. One can easily generalize the results to the other value of
+@xmath .
+
+As we discussed in Section 3.4 , similar to the property of halfspace
+depth in Section 3.2 , the contours of @xmath -skeleton depth are
+nested. However, we may have more than one contour per depth value. For
+example, in Figures 4.4 and 4.5 , it can be seen that there are two
+separate contours with the depth of @xmath . If there exists more than
+one contour for a depth value, we have some locally deepest regions in
+the arrangement. Consequently, the central regions may not be connected
+(see Figures 4.4 and 4.5 ). Another geometric property of @xmath
+-skeleton depth is that the only convex depth regions are the locally
+deepest regions. These last two properties can be deduced from Lemma
+4.2.1 and Theorem 4.2.1 .
+
+###### Lemma 4.2.1.
+
+For every arbitrary pair of neighboring faces ¹ ¹ 1 Two faces are
+neighbors if they have a common edge in their boundaries. @xmath and
+@xmath in the arrangement of Gabriel circles obtained from a data set
+@xmath ,
+
+  -- -------- -- -------
+     @xmath      (4.7)
+  -- -------- -- -------
+
+where @xmath .
+
+###### Proof.
+
+The proof is immediate from the fact that every edge of the arrangement
+corresponds to some Gabriel circle @xmath . One of the two faces bounded
+by this edge is entirely contained in @xmath , and the other face is
+entirely outside of @xmath . ∎
+
+###### Note 4.2.1.
+
+Lemma 4.2.1 implies that the faces with the same depth can be connected
+only in discrete points.
+
+###### Note 4.2.2.
+
+Considering two neighboring regions ² ² 2 Two regions are neighbors if
+they have a common border. instead of two neighboring faces, one can
+generalize Lemma 4.2.1 . To obtain such generalization, it is enough to
+apply Lemma 4.2.1 on any arbitrary pair of neighboring faces in the
+neighboring regions.
+
+###### Theorem 4.2.1.
+
+Consider the arrangement of Gabriel circles obtained from data set
+@xmath . A face (region) in this arrangement is locally deepest if and
+only if it has no concave edge. In other words, a face is locally
+deepest if and only if it is a convex face.
+
+###### Proof.
+
+@xmath ) Suppose that @xmath is a locally deepest face in the
+arrangement of Gabriel circles obtained from @xmath . We prove that
+@xmath has no concave edge. To obtain a contradiction, assume that
+@xmath is a concave edge of @xmath . Consequently, there exists a
+neighboring face @xmath , in the arrangement, whose boundary contains
+@xmath . Lemma 4.2.1 and the characteristics of concave edge in the
+arrangement of Gabriel circles imply that @xmath . This result
+contradicts the assumption that @xmath is locally deepest.
+@xmath ) Suppose that @xmath is a face that has no concave edge in the
+arrangement of Gabriel circles obtained from @xmath . We prove that
+@xmath is locally deepest. Assume that the boundary of @xmath is
+composed of the convex edges @xmath , and thus @xmath has neighboring
+faces @xmath ( @xmath ). Hence @xmath and every @xmath ( @xmath ) have
+at least one common edge @xmath ( @xmath ). From Lemma 4.2.1 and the
+characteristics of concave edge, it can be seen that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+This means that @xmath is a locally deepest because it is the deepest
+face among all of its neighboring faces @xmath . ∎
+
+## Chapter 5 Algorithmic Results in @xmath
+
+The previous best algorithm for computing the @xmath -skeleton depth of
+a point @xmath with respect to a data set @xmath is the brute force
+algorithm [ 102 ] . This naive algorithm needs to check all of the
+@xmath @xmath -skeleton influence regions obtained from the data points
+to figure out how many of them contain @xmath . Checking all of such
+influence regions causes the naive algorithm to take @xmath time. In
+this chapter, we present an optimal algorithm for computing the planar
+spherical depth ( @xmath ) and a subquadratic algorithm to compute the
+planar @xmath -skeleton depth when @xmath . In these algorithms, we need
+to solve some halfspace and some circular range counting problems, where
+all of the halfspaces have one common point. The circles also have the
+same characteristic. Furthermore, computing the planar @xmath -skeleton
+depth is reduced to a combination of some range counting problems. In
+the special case @xmath , we investigate a specialized halfspace range
+query method that leads to a @xmath algorithm (Algorithm 5 ) for @xmath
+-skeleton depth. Finally, we present a simple and optimal algorithm
+(Algorithm 7 ) that computes the planar halfspace depth in @xmath time.
+This algorithm is similar to the Aloupis’s algorithm in [ 9 ] . After
+sorting the points by angle, Aloupis employed the counterclockwise
+sweeping of a specific halfline. However, in our algorithm, we use the
+specialized halfspace range query that is explored in Algorithm 5 .
+
+### 5.1 Optimal Algorithm to Compute Planar Spherical Depth
+
+Instead of checking all of the spherical influence regions, we focus on
+the geometric aspects of such regions in @xmath . The geometric
+properties of these regions lead us to develop an @xmath algorithm for
+the computation of planar spherical depth of @xmath .
+
+###### Theorem 5.1.1.
+
+For arbitrary points @xmath , @xmath , and @xmath in @xmath , @xmath if
+and only if @xmath .
+
+###### Proof.
+
+If @xmath is on the boundary of @xmath , Thales’ Theorem ¹ ¹ 1 Thales’
+Theorem also known as the Inscribed Angle Theorem : If @xmath , @xmath ,
+and @xmath are points on a circle where @xmath is a diameter of the
+circle, then @xmath is a right angle. suffices as the proof in both
+directions. For the rest of the proof, by @xmath we mean @xmath .
+@xmath ) For @xmath , suppose that @xmath (proof by contradiction). We
+continue the line segment @xmath to cross the boundary of the @xmath .
+Let @xmath be the crossing point (see the left figure in Figure 5.1 ).
+Since @xmath , then, @xmath is greater than @xmath . Let @xmath . From
+Thales’ Theorem, we know that @xmath is a right angle. The angle @xmath
+because @xmath . Summing up the angles in @xmath , as computed in ( 5.1
+), leads to a contradiction. So, this direction of proof is complete.
+
+  -- -------- -- -------
+     @xmath      (5.1)
+  -- -------- -- -------
+
+@xmath ) If @xmath , we prove that @xmath . Suppose that @xmath (proof
+by contradiction). Since @xmath , at least one of the line segments
+@xmath and @xmath crosses the boundary of @xmath . Without loss of
+generality, assume that @xmath is the one that crosses the boundary of
+@xmath at the point @xmath (see the right figure in Figure 5.1 ).
+Considering Thales’ Theorem, we know that @xmath and consequently,
+@xmath . The angle @xmath because @xmath . If we sum up the angles in
+the triangle @xmath , the same contradiction as in ( 5.1 ) will be
+implied. ∎
+
+###### Algorithm 5:
+
+Using Theorem 5.1.1 , we present an algorithm to compute the spherical
+depth of a query point @xmath with respect to @xmath . This algorithm is
+summarized in the following steps. The pseudocode of this algorithm is
+provided at the end of this chapter.
+
+-    Translating the points: Suppose that @xmath is a translation by
+    @xmath . We apply @xmath to translate @xmath and all data points
+    into their new coordinates. Obviously, @xmath .
+
+-    Sorting the translated data points: In this step we sort the
+    translated data points based on their angles in their polar
+    coordinates. After doing this step, we have @xmath which is a sorted
+    array of the translated data points.
+
+-    Calculating the spherical depth: For the @xmath element in @xmath ,
+    we define @xmath and @xmath as follows:
+
+      -- -------- -- -------
+         @xmath      (5.2)
+      -- -------- -- -------
+
+    Thus the spherical depth of @xmath with respect to @xmath , can be
+    computed by:
+
+      -- -------- -- -------
+         @xmath      (5.3)
+      -- -------- -- -------
+
+    To present a formula for computing @xmath , we define @xmath and
+    @xmath as follows:
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    Figure 5.2 illustrates @xmath , @xmath , @xmath , and @xmath in two
+    different cases. Considering the definitions of @xmath and @xmath ,
+
+      -- -------- -- -------
+         @xmath      (5.4)
+      -- -------- -- -------
+
+This allows us to compute @xmath using a pair of binary searches.
+
+###### Time complexity of Algorithm 5:
+
+The first procedure in the algorithm takes @xmath time to translate
+@xmath and all data points into the new coordinate system. The second
+procedure takes @xmath time. Due to using binary search for every @xmath
+, the running time of the last procedure is also @xmath . The rest of
+the algorithm contributes some constant time. In total, the running time
+of the algorithm is @xmath .
+
+###### Note 5.1.1.
+
+Coordinate system: In practice it may be preferable to work in the
+Cartesian coordinate system. Sorting by angle can be done using some
+appropriate right-angle tests (determinants). Regarding the other angle
+comparisons, they can be done by checking the sign of dot products.
+
+### 5.2 Algorithm to Compute Planar @xmath-skeleton Depth when @xmath
+
+We recall from the definition of @xmath -influence region that @xmath
+forms some lenses, and @xmath forms some slabs for each pair @xmath and
+@xmath in @xmath . Using some geometric properties of such lenses and
+slabs, we prove Theorem 5.2.1 . This theorem along with some results
+regarding the range counting problems in [ 4 ] help us to compute @xmath
+in @xmath time, where @xmath and @xmath are in @xmath .
+
+###### Definition 5.2.1.
+
+For an arbitrary non-zero point @xmath and parameter @xmath , @xmath is
+a line that is perpendicular to @xmath at the point @xmath . This line
+forms two halfspaces @xmath and @xmath . The closed halfspace that
+includes the origin is @xmath and the other halfspace which is open is
+@xmath .
+
+###### Definition 5.2.2.
+
+For a disk @xmath with the center @xmath and radius @xmath , @xmath is
+the intersection of @xmath and @xmath , and @xmath is the intersection
+of @xmath and @xmath , where @xmath and @xmath is an arbitrary non-zero
+point in @xmath . For the case of @xmath , @xmath .
+
+Figure 5.3 is an illustration of these definitions for different values
+of parameter @xmath .
+
+###### Theorem 5.2.1.
+
+For non-zero points @xmath , and parameter @xmath , @xmath if and only
+if the origin @xmath is contained in @xmath , where @xmath , @xmath ,
+and @xmath .
+
+###### Proof.
+
+First, we show that @xmath is a well-defined set meaning that @xmath
+intersects @xmath . We compute @xmath , the distance of @xmath from
+@xmath , and prove that this value is not greater than @xmath . It can
+be verified that @xmath . Let @xmath ; the following calculations
+complete this part of the proof.
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+We recall the definition of @xmath -influence region given by @xmath ,
+where @xmath and @xmath . Using this definition, following equivalencies
+can be derived from @xmath .
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+By solving these inequalities for @xmath which is equal to @xmath , we
+obtain Equation ( 5.5 ).
+
+  -- -------- -- -------
+     @xmath      (5.5)
+  -- -------- -- -------
+
+For a fixed point @xmath , the inequalities in Equation ( 5.5 )
+determine one halfspace and one disk given by ( 5.6 ) and ( 5.7 ),
+respectively.
+
+  -- -------- -- -------
+     @xmath      (5.6)
+  -- -------- -- -------
+
+  -- -------- -- -------
+     @xmath      (5.7)
+  -- -------- -- -------
+
+The proof is complete because for a point @xmath , the set of all points
+@xmath containing in the feasible region defined by Equations ( 5.6 )
+and ( 5.7 ) is equal to
+@xmath . ∎
+
+###### Proposition 5.2.1.
+
+For @xmath , the boundary of the given halfspace in ( 5.6 ) passes
+through the center of the given disk in ( 5.7 ).
+
+###### Proof.
+
+It is enough to substitute @xmath in the given halfspace with @xmath
+which is the center of the given disk.
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+∎
+
+###### Algorithm 6:
+
+Using Theorem 5.2.1 , we present an algorithm to compute the @xmath
+-skeleton depth of @xmath with respect to @xmath . This algorithm is
+summarized in two steps. The pseudocode of this algorithm can be found
+at the end of this chapter.
+
+-    Translating the points: This step is exactly the same step as in
+    Algorithm 5 .
+
+-    Calculating the @xmath -skeleton depth: Suppose that @xmath is an
+    element in @xmath (translated @xmath ). We consider a disk and a
+    line as follows:
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    where @xmath , @xmath , @xmath , and @xmath are defined in Theorem
+    5.2.1 . From Theorem @xmath in [ 4 ] , we can compute @xmath with
+    @xmath storage, @xmath expected preprocessing time, and @xmath query
+    time, where @xmath is the number of all elements of @xmath that are
+    contained in @xmath . For the elements of @xmath , @xmath which is
+    defined as the number of elements containing in the interior of
+    @xmath can also be computed with the same storage, expected
+    preprocessing time, and query time. We recall that @xmath is the
+    intersection of halfspace @xmath and disk @xmath , where @xmath ,
+    @xmath , and @xmath are some functions of @xmath . Finally, @xmath
+    which is equal to @xmath can be computed by Equation ( 5.8 ).
+
+      -- -------- -- -------
+         @xmath      (5.8)
+      -- -------- -- -------
+
+    Referring to Definitions 5.2.1 and 5.2.2 , @xmath and @xmath can be
+    computed in constant time.
+
+Theorem 5.2.1 and Algorithm 6 are valid for @xmath . However, the case
+@xmath (Algorithm 5 for spherical depth) can also be included in this
+result. In this case, @xmath , and consequently, @xmath . Therefore,
+@xmath which is equal to @xmath can be computed by:
+
+  -- -------- -- -------
+     @xmath      (5.9)
+  -- -------- -- -------
+
+###### Time complexity of Algorithm 6:
+
+The translating procedure as is discussed in Algorithm 5 , takes @xmath
+time. With the @xmath expected preprocessing time, the second procedure
+takes @xmath time. In this procedure, the loop iterates @xmath times,
+and the range counting algorithms take @xmath time. The expected
+preprocessing time @xmath is required to obtain a data structure for the
+aforementioned range counting algorithms. The rest of the algorithm
+takes some constant time per loop iteration, and therefore the total
+expected running time of the algorithm is @xmath .
+
+### 5.3 Algorithm to Compute Planar Halfspace Depth
+
+To compute the halfspace depth of query point @xmath with respect to
+data set @xmath , we need to find the minimum portion of data points
+separated by a halfspace through @xmath . In this section, we develop an
+optimal algorithm to compute the planar halfspace depth of a query
+point. Identical to Aloupis’ [ 9 ] algorithms, our algorithm takes
+@xmath time. After sorting data points by angle, Aloupis employed the
+counterclockwise sweeping of a specific halfline. However, to obtain our
+algorithm, we reuse most of Algorithm 5 , and employ the specialized
+halfspace range counting that is explored in Section 5.1 .
+
+###### Algorithm 7:
+
+Suppose that @xmath and @xmath are given. We summarize the algorithm in
+the following steps.
+
+-    Translating the points: This step is the same as the first step in
+    Algorithm 5 .
+
+-    Computing the halfspaces In Equation ( 3.1 ), it is not practical
+    to compute @xmath for all halfspaces @xmath that pass through the
+    query point. Instead of considering all of the halfspaces, we define
+    @xmath to be a finite set of the desired halfspaces such that we can
+    obtain all possible values of @xmath if @xmath . Computation of
+    @xmath can be done as follows:
+
+    -   Project all of the nontrivial ² ² 2 @xmath is nontrivial if
+        @xmath elements of @xmath (translated @xmath ) on the unit
+        circle @xmath .
+
+    -   Construct @xmath , where @xmath is generated in @xmath .
+
+    -   Using an @xmath sorting algorithm, sort the elements of @xmath
+        by angle in counterclockwise order.
+
+    -   Remove the duplicates in the sorted @xmath .
+
+    -   Let @xmath be the middle point of each pair of successive
+        elements in the sorted array in @xmath . Suppose that @xmath is
+        the line that passes through the points @xmath and @xmath . Each
+        line @xmath forms two halfspaces @xmath and @xmath . As such,
+        @xmath can be defined by:
+
+          -- -------- --
+             @xmath   
+          -- -------- --
+
+-    Calculating the halfspace depth: Similar to the computation of
+    @xmath in Equation ( 5.4 ), a pair of binary searches can be applied
+    to compute each of @xmath , where @xmath and @xmath . Therefore,
+    @xmath which is equal to @xmath can be computed by:
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+###### Time complexity of Algorithm 7:
+
+Referring to the analysis of Algorithm 5 , the Translating procedure
+takes @xmath time. Sorting the elements of @xmath causes the second
+procedure to take @xmath time. The rest of work in the second procedure
+takes some linear time. Finally, the depth calculation procedure takes
+@xmath because for every element in @xmath , two binary searches are
+called. Since @xmath contains at most @xmath elements, the outer loop
+takes @xmath . The binary searches take @xmath . The rest of the
+algorithm run in some constant time per loop iteration. From the above
+analysis, the overall running time of this algorithm is @xmath .
+
+### 5.4 Pseudocode
+
+In this section we provide the pseudocode of the presented algorithms in
+sections 5.1 , 5.2 , and 5.3 . First, we define some procedures which
+are used in the depth calculation algorithms.
+
+1: Data set @xmath and Query point @xmath
+
+2: Translated data set @xmath
+
+3:
+
+4: for each @xmath do
+
+5: @xmath
+
+6: return @xmath
+
+Algorithm 1 Translation @xmath
+
+1: Data set @xmath
+
+2: Sorted array @xmath
+
+3:
+
+4: for each @xmath do
+
+5: @xmath
+
+6: Using an @xmath sorting algorithm, sort @xmath based on @xmath
+
+7: return @xmath
+
+Algorithm 2 Sorting-by-angle @xmath
+
+###### Note 5.4.1.
+
+Instead of using polar coordinates in Algorithm 2 , sorting can also be
+done by applying the suggested method in Note 5.1.1 .
+
+1: Data set @xmath
+
+2: Partition @xmath into two sets @xmath and @xmath
+
+3:
+
+4: Initialize @xmath , @xmath
+
+5: for each @xmath do
+
+6: if @xmath
+
+7: @xmath
+
+8: else
+
+9: @xmath
+
+10: return @xmath
+
+Algorithm 3 Trivial-and-Nontrivial @xmath
+
+1: Data set @xmath
+
+2: Projection of @xmath on circle @xmath
+
+3:
+
+4: Initialize @xmath
+
+5: for each @xmath do
+
+6: @xmath
+
+7: @xmath
+
+8: return @xmath
+
+Algorithm 4 Projection @xmath
+
+1: Data set @xmath and Query point @xmath
+
+2: @xmath
+
+3:
+
+4: Initialize @xmath
+
+5: @xmath Translation @xmath
+
+6: @xmath Sorting-by-angle @xmath
+
+7: for each @xmath do
+
+8: Initialize @xmath and @xmath
+
+9: Using two binary search calls , update the values of @xmath and
+@xmath
+
+10: if ( @xmath )
+
+11: @xmath
+
+12: @xmath
+
+13: else-if ( @xmath )
+
+14: @xmath
+
+15: @xmath
+
+16: else
+
+17: @xmath
+
+18: @xmath
+
+19: if @xmath
+
+20: @xmath
+
+21: else
+
+22: @xmath
+
+23: @xmath
+
+24: return @xmath
+
+Algorithm 5 Computing the planar @xmath -skeleton depth, @xmath
+(spherical depth)
+
+###### Note 5.4.2.
+
+To avoid unusual notations in Algorithm 5 , we use the variables @xmath
+and @xmath instead of @xmath and @xmath , respectively in the text.
+
+1: Data set @xmath , Query point @xmath , Parameter @xmath
+
+2: @xmath
+
+3:
+
+4: Initialize @xmath
+
+5: @xmath Translation @xmath
+
+6: for each @xmath do
+
+7: Using two @xmath range counting algorithms, compute @xmath
+
+8:
+
+9:
+
+10: @xmath
+
+11: return @xmath
+
+Algorithm 6 Computing the planar @xmath -skeleton depth, @xmath
+
+1: Data set @xmath , Query point @xmath
+
+2: @xmath
+
+3:
+
+4: Initialize @xmath
+
+5: @xmath Translation @xmath
+
+6: @xmath Trivial-and-Nontrivial @xmath
+
+7: @xmath Projection @xmath
+
+8: @xmath Sorting @xmath
+
+9: @xmath Removing-Duplicates @xmath
+
+10: for each @xmath in @xmath do
+
+11: @xmath line passing through @xmath and @xmath
+
+12: @xmath the set of all halfspaces @xmath defined by @xmath , where
+@xmath
+
+13: for each @xmath in @xmath do
+
+14: Using a pair of binary searches, compute @xmath (similar to the
+
+15:
+
+16: @xmath
+
+17: @xmath
+
+18: return @xmath
+
+Algorithm 7 Computing the planar halfspace depth
+
+1: Sorted array @xmath
+
+2: Sorted array @xmath with unique elements
+
+3:
+
+4: Define @xmath with dynamic size
+
+5: Initialize @xmath , @xmath
+
+6: for @xmath to @xmath do
+
+7: if @xmath
+
+8: @xmath
+
+9: @xmath
+
+10: return @xmath
+
+Algorithm 8 Removing-Duplicates @xmath
+
+## Chapter 6 Lower Bounds
+
+As discussed in Chapter 3 , computing each of simplicial depth and
+halfspace depth in @xmath requires @xmath time. In this chapter we prove
+that computing the planar @xmath -skeleton depth also requires @xmath ,
+@xmath . We reduce the problem of Element Uniqueness to the problem of
+computing the @xmath -skeleton depth in three cases @xmath , @xmath ,
+and @xmath . It is known that the question of Element Uniqueness has a
+lower bound of @xmath in the algebraic decision tree model of
+computation proposed in [ 19 ] .
+
+### 6.1 Lower Bound for the Planar @xmath-skeleton Depth, @xmath
+
+###### Theorem 6.1.1.
+
+Computing the planar spherical depth ( @xmath -skeleton depth, @xmath )
+of a query point in the plane takes @xmath time.
+
+###### Proof.
+
+We show that finding the spherical depth allows us to answer the
+question of Element Uniqueness. Suppose that @xmath , for @xmath is a
+given set of real numbers. We suppose all of the numbers to be positive
+(negative), otherwise we shift the points onto the positive @xmath
+-axis. For every @xmath we construct four points @xmath , @xmath ,
+@xmath , and @xmath in the polar coordinate system as follows:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath and @xmath . Thus we have a set @xmath of @xmath points
+@xmath , for @xmath . See Figure 6.1 . The Cartesian coordinates of the
+points can be computed by:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We select the query point @xmath , and present an equivalent form of
+Equation ( 5.2 ) for @xmath as follows:
+
+  -- -------- -- -------
+     @xmath      (6.1)
+  -- -------- -- -------
+
+We compute @xmath in order to answer the Element Uniqueness problem.
+Suppose that every @xmath is a unique element. In this case, @xmath
+because, from ( 6.1 ), it can be figured out that the expanded @xmath is
+as follows:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let @xmath be the unnormalized form of @xmath . Referring to Theorem
+5.1.1 and Equation ( 5.3 ),
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Now suppose that there exist some @xmath such that @xmath in @xmath . In
+this case, from Equation  ( 6.1 ), it can be seen that:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath (see Figure 6.1 ). As an example, for @xmath , @xmath
+because the expanded form of these two sets is as follows: (without loss
+of generality, assume @xmath )
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Theorem 5.1.1 and Equation ( 5.3 ) imply that:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Therefore the elements of @xmath are unique if and only if the spherical
+depth of @xmath with respect to @xmath is @xmath . This implies that the
+computation of spherical depth requires @xmath time. It is necessary to
+mention that the only computation in the reduction is the construction
+of @xmath which takes @xmath time. Finally, we mention that the
+reduction does not depend on the sorted order of the elements. ∎
+
+###### Note 6.1.1.
+
+Instead of four copies of the elements of @xmath , we could consider two
+copies of such elements to construct @xmath as used in section 6.2 .
+However, the depth calculation becomes more complicated in this case.
+
+### 6.2 Lower Bound for the Planar @xmath-skeleton Depth, @xmath
+
+First, we prove the lower bound for the planar lens depth where @xmath
+in @xmath -skeleton depth. Using the same reduction technique, we
+generalize the result to all values of @xmath .
+
+###### Lemma 6.2.1.
+
+For @xmath and @xmath , suppose that @xmath and @xmath are two sets of
+polar coordinates as follows:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+For a unique element @xmath , @xmath .
+
+###### Proof.
+
+Suppose that @xmath . We prove that such @xmath does not exist. If
+@xmath , it is obvious that @xmath and @xmath cannot be an element of
+@xmath . For the case @xmath , by definition of @xmath , @xmath . From
+Definition 3.4.1 for @xmath ,
+
+  -- -------- -------- -- -------
+     @xmath   @xmath      (6.2)
+              @xmath      (6.3)
+              @xmath      (6.4)
+  -- -------- -------- -- -------
+
+From the cosine formula ¹ ¹ 1 Cosine formula: For a triangle @xmath ,
+
+@xmath
+
+in triangle @xmath , we have
+
+  -- -------- -- -------
+     @xmath      (6.5)
+  -- -------- -- -------
+
+Equations ( 6.4 ) and ( 6.5 ) imply that:
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+This result contradicts the assumption of @xmath ∎
+
+###### Theorem 6.2.1.
+
+Computing the lens depth of a query point in the plane takes @xmath
+time.
+
+###### Proof.
+
+Suppose that @xmath , for @xmath is a given set of real numbers. Without
+loss of generality, we let these numbers to be positive (see the proof
+of Theorem 6.1.1 ). For @xmath , we construct set @xmath of @xmath
+points in the polar coordinate system such that @xmath and @xmath . See
+Figure 6.2 . We select the query point @xmath , and define @xmath as
+follows:
+
+  -- -------- -- -------
+     @xmath      (6.6)
+  -- -------- -- -------
+
+Using Equation ( 6.6 ), the unnormalized form of Equation ( 3.6 ) can be
+presented by:
+
+  -- -------- -- -------
+     @xmath      (6.7)
+  -- -------- -- -------
+
+We solve the problem of Element Uniqueness by computing @xmath . Suppose
+that every @xmath is a unique element. In this case, Lemma 6.2.1 implies
+that @xmath . From Equation ( 6.7 ), we have
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Now assume that there exists some @xmath such that @xmath in @xmath . In
+this case,
+
+  -- -------- --
+     @xmath   
+     @xmath   
+  -- -------- --
+
+As such, for @xmath and @xmath ,
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+For the case of having more duplicated elements in @xmath ,
+
+  -- -------- -- -------
+     @xmath      (6.8)
+  -- -------- -- -------
+
+where @xmath is the number of duplicates. Therefore the elements of
+@xmath are unique if and only if @xmath in Equation ( 6.8 ). This
+implies that the computation of lens depth requires @xmath time. Note
+that all of the other computations in this reduction take @xmath . ∎
+
+###### Lemma 6.2.2.
+
+For @xmath , suppose that @xmath is a fixed intersection point between
+the two disks constructing the @xmath . @xmath .
+
+###### Proof.
+
+From Definition 3.4.1 ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath and @xmath . It can be verified that @xmath . Suppose that
+@xmath is the middle point of @xmath and @xmath . See Figure 6.3 . The
+value of @xmath can be computed as follows.
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+     @xmath   @xmath   
+  -- -------- -------- --
+
+The cosine formula in triangle @xmath implies that
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+∎
+
+###### Theorem 6.2.2.
+
+For @xmath , computing the @xmath -skeleton depth of a query point in
+the plane requires @xmath time.
+
+###### @xmath.
+
+It is enough to generalize the reduction technique in Theorem 6.2.1 . As
+Lemma 6.2.2 suggests, we need to choose @xmath to construct @xmath ,
+where @xmath and @xmath defined in the proof of Theorem 6.2.1 . Figure
+6.4 illustrates that for every unique element @xmath , there exists only
+one element in @xmath such that the corresponding @xmath -influence
+region contains @xmath . As can be seen in this figure, @xmath is not
+contained in the @xmath -influence region @xmath . Similar to the proof
+of Theorem 6.2.1 , it can be deduced that @xmath if every element in
+@xmath is unique. However, @xmath if there exist @xmath duplicates among
+the elements of @xmath . Note that we use the real RAM model of
+computation in order to calculate @xmath , where we need the square root
+of a real number to be computed in constant time.
+
+### 6.3 Lower Bound for the Planar @xmath-skeleton Depth, @xmath
+
+Suppose that @xmath is a set of positive real numbers as introduced in
+the proof of Theorem 6.2.1 . From the proof of Theorem 6.2.2 , the
+rotation angle @xmath is equal to @xmath if @xmath . It means that there
+is not a proper rotation angle to make the second copy of the data
+points. However, it is enough to shift up the points by some constant
+(e.g. @xmath ), and construct @xmath (see Figure 6.5 ).
+
+We select @xmath , and define
+
+  -- -------- -- -------
+     @xmath      (6.9)
+  -- -------- -- -------
+
+From Definition 3.4.1 , it can be verified that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Suppose that every @xmath is a unique element. In this case,
+
+  -- -------- -- --------
+     @xmath      (6.10)
+  -- -------- -- --------
+
+From Equation ( 6.9 ), the unnormalized form of Equation ( 3.4 ) for
+@xmath can be presented by:
+
+  -- -------- -- --------
+     @xmath      (6.11)
+  -- -------- -- --------
+
+Equations ( 6.10 ) and ( 6.11 ) imply that
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+  -- -------- -------- --
+
+Now assume that for some @xmath , @xmath in @xmath . Without loss of
+generality, suppose that @xmath . In this case,
+
+  -- -------- -- --------
+     @xmath      (6.12)
+  -- -------- -- --------
+
+  -- -------- -- --------
+     @xmath      (6.13)
+  -- -------- -- --------
+
+As such, for @xmath and @xmath , Equations ( 6.10 ), ( 6.11 ), ( 6.12 ),
+and ( 6.13 ) can be used to compute @xmath as follows.
+
+  -- -------- --
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+  -- -------- --
+
+For the general case of having @xmath duplicates among the elements of
+@xmath ,
+
+  -- -------- -- --------
+     @xmath      (6.14)
+  -- -------- -- --------
+
+Therefore the elements of @xmath are unique if and only if @xmath in
+Equation ( 6.14 ). The above results imply that the computation of
+@xmath -skeleton depth, where @xmath , requires @xmath time.
+
+## Chapter 7 Relationships and Experiments
+
+In this chapter we study the relationships among different depth
+functions such as @xmath -skeleton depth, halfspace depth, and
+simplicial depth in two different ways. First, we focus on the geometric
+properties of the influence regions. Second, the idea of fitting
+function is applied to approximate one data depth using another one. Our
+main motivation to study the relationships among different depth
+functions is derived from the complexity of computations, especially in
+higher dimensions. For example, computing the @xmath -skeleton depth
+using brute force algorithm is much easier and relatively faster than
+computing most of the other depth functions such as halfspace depth and
+simplicial depth. Unlike halfspace depth and simplicial depth, the time
+complexity of @xmath -skeleton depth grows linearly in the dimension.
+Recall that the time complexity of @xmath -skeleton depth using a brute
+force algorithm in dimension @xmath is @xmath . Whereas, the best known
+algorithm for computing the simplicial depth in the higher dimension
+@xmath is brute force which takes @xmath time. Computing the halfspace
+depth is an NP-hard problem when the dimension @xmath is a part of
+input. See Sections 3.2 , 3.3 , and 3.4 .
+
+### 7.1 Geometric Relationships
+
+Some geometric properties related to the @xmath -influence regions and
+simplices are explored in this section. These properties help to bound
+each one of @xmath -skeleton depth and simplicial depth in terms of the
+other one.
+
+#### 7.1.1 Convergence of @xmath-skeleton Depth
+
+###### Lemma 7.1.1.
+
+For @xmath and @xmath , @xmath , where the @xmath -influence region
+@xmath is the intersection of two disks @xmath and @xmath , @xmath , and
+@xmath .
+
+###### Proof.
+
+To prove @xmath which is equivalent with Equation ( 7.1 ),
+
+  -- -------- -- -------
+     @xmath      (7.1)
+  -- -------- -- -------
+
+it suffices to prove both inclusion relationships @xmath and @xmath . We
+only prove the first one, and the second one can be proved similarly.
+Suppose that @xmath . It is trivial to check that two disks @xmath and
+@xmath meet at @xmath . See Figure 7.1 . Let @xmath be an extreme point
+of @xmath . This implies that
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+The last equality means that @xmath . Hence,
+
+  -- -------- --
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+     @xmath   
+  -- -------- --
+
+From the above calculations, every extreme point of @xmath is an
+interior point of @xmath ; therefore, @xmath . ∎
+
+###### Lemma 7.1.2.
+
+Suppose that @xmath . For a query point @xmath and given data set @xmath
+in @xmath , @xmath .
+
+###### Proof.
+
+For any arbitrary pair of points @xmath and @xmath in @xmath , Lemma
+7.1.1 implies that @xmath . Hence, Equation ( 7.2 ) is sufficient to
+complete the proof.
+
+  -- -------- -- -------
+     @xmath      (7.2)
+  -- -------- -- -------
+
+∎
+
+###### Definition 7.1.1.
+
+A query point @xmath is generic with respect to a data set @xmath if for
+all @xmath , @xmath does not lie on the boundary of @xmath or, on the
+line segment @xmath .
+
+###### Lemma 7.1.3.
+
+Suppose that @xmath is a given data set and @xmath is a set of generic
+query points. Assuming that @xmath is a large enough finite range that
+contains @xmath and @xmath , for two distinct elements @xmath and @xmath
+in @xmath , and @xmath ,
+
+  -- -------- -- -------
+     @xmath      (7.3)
+  -- -------- -- -------
+
+There also exists a @xmath that satisfies ( 7.3 ) for all @xmath .
+
+###### Proof.
+
+Suppose that @xmath is a generic query point, @xmath is the middle point
+of @xmath , and @xmath is a line parallel to the boundaries of @xmath ,
+through @xmath . We consider two lines @xmath , through @xmath and
+@xmath , and @xmath , through @xmath and @xmath . Obviously, each of
+@xmath and @xmath intersects @xmath . Between these two intersections,
+let @xmath be the farthest one. See Figure 7.2 (right). The desired
+value of @xmath in Equation ( 7.3 ) can be computed using Lemma 6.2.2 as
+follows.
+
+  -- -------- -- -------
+     @xmath      (7.4)
+  -- -------- -- -------
+
+where @xmath is the smaller angle at @xmath . Since @xmath is a generic
+query point, @xmath . Equation ( 7.4 ) provides the desired value for
+@xmath in Equation ( 7.3 ). The proof is complete because
+
+  -- -------- -- -------
+     @xmath      (7.5)
+  -- -------- -- -------
+
+###### Another proof:
+
+Suppose that @xmath is a generic query point, and @xmath . Let @xmath be
+a line passing through @xmath , and perpendicular to the boundaries of
+slab @xmath in points @xmath and @xmath . See Figure 7.2 (left). Every
+value of @xmath that meets the following requirements can be considered
+as the desired @xmath .
+
+-   @xmath is large enough such that @xmath is cut by @xmath .
+
+-   @xmath , where @xmath is a fixed intersection point between @xmath
+    and @xmath .
+
+The value of @xmath can be chosen as in Equation ( 7.5 ). ∎
+
+###### Theorem 7.1.1.
+
+For data set @xmath and a generic query point @xmath given in a large
+enough finite range @xmath , the @xmath -skeleton depth functions
+converge. In other words,
+
+  -- -------- -- -------
+     @xmath      (7.6)
+  -- -------- -- -------
+
+###### Proof.
+
+It is enough to prove that there exists a @xmath such that
+
+  -- -------- -- -------
+     @xmath      (7.7)
+  -- -------- -- -------
+
+@xmath Lemma 7.1.1 is obviously enough because
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+@xmath To prove this direction, Lemma 7.1.3 suggests that it is enough
+to choose
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+∎
+
+#### 7.1.2 @xmath-skeleton Depth versus Simplicial Depth
+
+First, we study the relationship between spherical ( @xmath -skeleton,
+@xmath ) depth and simplicial depth. From Lemma 7.1.2 , we can
+generalize the obtained results for every value of @xmath .
+
+###### Definition 7.1.2.
+
+For a point @xmath and a data set @xmath , we define @xmath to be the
+set of all closed spherical influence regions, out of @xmath possible of
+them, that contain @xmath . We also define @xmath to be the set of all
+closed triangles, out of @xmath possible defined by @xmath , that
+contain @xmath .
+
+###### Lemma 7.1.4.
+
+Suppose that @xmath is a point inside @xmath , where @xmath is a given
+data set. @xmath is covered by the union of spherical influence regions
+defined by @xmath .
+
+###### Proof.
+
+Let @xmath . By Caratheodory’s theorem [ 24 ] , there is at least one
+triangle, defined by the vertices of @xmath , that contains @xmath . We
+prove that the union of the spherical influence regions defined by such
+triangle contains @xmath . See Figure 7.3 . This statement can be proved
+by contradiction. Suppose that @xmath is covered by none of @xmath ,
+@xmath , and @xmath . Therefore, Theorem 5.1.1 implies that none of the
+angles @xmath , @xmath , and @xmath is greater than or equal to @xmath
+which is a contradiction because at least one of these angles should be
+at least @xmath in order to get @xmath as their sum. ∎
+
+###### Lemma 7.1.5.
+
+Suppose that @xmath is a set of points in @xmath . For every @xmath , if
+@xmath , then @xmath .
+Another form of Lemma 7.1.5 is that if @xmath , then @xmath falls inside
+at least two spherical influence regions out of @xmath , @xmath , and
+@xmath . The equivalency between these two forms of the lemma is clear.
+We prove the first one.
+
+###### Proof.
+
+From Lemma 7.1.4 , @xmath . Suppose that @xmath . If @xmath is one of
+the vertices of @xmath , it is clear that @xmath . Without loss of
+generality, we suppose that @xmath falls in @xmath . For the rest of the
+proof, we focus on the relationships among the angles @xmath , @xmath ,
+and @xmath (see Figure 7.3 ). Since @xmath is inside @xmath , @xmath .
+Consequently, at least one of @xmath and @xmath is greater than or equal
+to @xmath . So, Theorem 5.1.1 implies that @xmath is in at least one of
+@xmath and @xmath . Hence, @xmath contradicts @xmath which means that
+@xmath . As an illustration, in Figure 7.3 , for the points in the
+hatched area @xmath . ∎
+
+###### Lemma 7.1.6.
+
+For a data set @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+Suppose that @xmath . There exist at most @xmath triangles in @xmath
+such that @xmath is an edge of them. We consider @xmath to be one of
+such triangles (see Figure 7.4 as an illustration). Referring to Lemma
+7.1.5 , @xmath belongs to at least one of @xmath and @xmath . Similarly,
+there exist at most @xmath triangles in @xmath such that @xmath
+(respectively @xmath ) is an edge of them. In the process of computing
+@xmath , triangle @xmath is counted at least two times, once for @xmath
+and another time for @xmath (or @xmath ). Consequently, for every sphere
+area in @xmath , there exist at most @xmath distinct triangles,
+triangles with only one common side, in @xmath . As a result, Equation (
+7.8 ) can be obtained.
+
+  -- -------- -- -------
+     @xmath      (7.8)
+  -- -------- -- -------
+
+∎
+
+###### Theorem 7.1.2.
+
+For a data set @xmath and a query point @xmath in @xmath , @xmath .
+
+###### Proof.
+
+From Definition 7.1.2 the definitions of spherical depth and simplicial
+depth, ( 7.9 ) and ( 7.10 ) can be easily verified.
+
+  -- -------- -- -------
+     @xmath      (7.9)
+  -- -------- -- -------
+
+  -- -------- -- --------
+     @xmath      (7.10)
+  -- -------- -- --------
+
+Using these two equations, the ratio of spherical depth and simplicial
+depth can be calculated as follows:
+
+  -- -------- -- --------
+     @xmath      (7.11)
+  -- -------- -- --------
+
+Equation ( 7.11 ) and Lemma 7.1.6 imply that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+∎
+
+###### Theorem 7.1.3.
+
+Suppose that @xmath is a given data set consisting of @xmath points in
+general position in @xmath . For @xmath and @xmath , @xmath .
+
+###### Proof.
+
+The proof can be derived from Lemma 7.1.2 and Theorem 7.1.2 . ∎
+
+### 7.2 Relationships via Dissimilarity Measures
+
+In this section we define two dissimilarity measures between every pair
+of depth functions, and approximate these depth functions by one another
+with a certain amount of error. A notable application of this
+approximation technique is that we can approximate the halfspace depth,
+which is an NP-hard problem in higher dimension @xmath , by the @xmath
+-skeleton depth which takes only @xmath time (see Section 7.3 ). The
+dissimilarity measures in this technique are defined based on the
+concepts of fitting function and Hamming distance . We train the
+halfspace depth function by the @xmath -skeleton depth values obtaining
+from a given data set. The goodness of approximation can be determined
+using the dissimilarity measures and the sum of squares of error values.
+
+#### 7.2.1 Fitting Function and Dissimilarity Measure
+
+To determine the dissimilarity between two vectors @xmath and @xmath ,
+the idea of fitting functions can be applied. Considering the goodness
+measures of fitting functions in Section 2.2.3 , assume that @xmath is
+the best function fitted to @xmath and @xmath . In other words, @xmath ;
+@xmath and @xmath . Let @xmath , where @xmath is the average of @xmath (
+@xmath ). In Equation ( 7.12 ), we define @xmath , as a function of
+@xmath and @xmath , to measure the dissimilarity between @xmath and
+@xmath .
+
+  -- -------- -- --------
+     @xmath      (7.12)
+  -- -------- -- --------
+
+where @xmath is the coefficient of determination. We recall from
+Equation ( 2.1 ) that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since @xmath , @xmath . A smaller value of @xmath represents more
+similarity between @xmath and @xmath .
+
+#### 7.2.2 Dissimilarity Measure Between two Posets
+
+The idea of defining the following distance comes from the proposed
+structural dissimilarity measure between posets in [ 40 ] . Let @xmath
+be a finite set of posets, where @xmath is a given data set. For @xmath
+we define a matrix @xmath by:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We use the notation of @xmath to define the dissimilarity between two
+posets @xmath as follows:
+
+  -- -------- -- --------
+     @xmath      (7.13)
+  -- -------- -- --------
+
+It can be verified that @xmath , where the closer value to @xmath means
+the less similarity between @xmath and @xmath . This measure of
+similarity is a metric on @xmath because for all @xmath ,
+
+-   @xmath
+
+-   @xmath
+
+-   @xmath
+
+-   @xmath
+
+Proving these properties is straightforward. We prove the last property
+which is less trivial.
+
+  -- -------- -------- --
+     @xmath   @xmath   
+              @xmath   
+              @xmath   
+              @xmath   
+  -- -------- -------- --
+
+### 7.3 Approximation of Halfspace Depth
+
+We use the proposed method in Section 7.2 to approximate the halfspace
+depth. Motivated by statistical applications and machine learning
+techniques, we train the halfspace depth function using the values of
+@xmath -skeleton depth. Among all depth functions, the @xmath -skeleton
+depth is chosen because it is easy to compute and its time complexity,
+i.e. @xmath , grows linearly with the dimension @xmath .
+
+#### 7.3.1 Approximation of Halfspace Depth and Fitting Function
+
+Suppose that @xmath is a given data set. By choosing some subsets of
+@xmath as training samples, we consider the problem of learning the
+halfspace depth function using the @xmath -skeleton depth values. In
+particular, we use the cross validation and information criterion to
+obtain the best function @xmath such that @xmath . The function @xmath
+can be considered as an approximation function for halfspace depth.
+Finally, @xmath as the error of approximation can be computed using
+Equation ( 7.12 ).
+
+#### 7.3.2 Approximation of Halfspace Depth and Poset Dissimilarity
+
+In some applications, the structural ranking among the elements of
+@xmath is more important than the depth value of single points. Let
+@xmath be a given data set and @xmath be a depth function. Applying
+@xmath on @xmath with respect to @xmath generates a poset. In fact,
+@xmath is a chain because for every @xmath , the values of @xmath and
+@xmath are comparable. For halfspace depth and @xmath -skeleton depth,
+their dissimilarity measure of rankings can be obtained by Equation (
+7.13 ) as follows:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The smaller value of @xmath , the more similarity between @xmath and
+@xmath in ordering the elements of @xmath .
+In sections 7.3.1 and 7.3.2 , instead of @xmath -skeleton, any other
+depth function can be considered to approximate halfspace depth.
+Considering any other depth function, we can compute the goodness of
+approximation using dissimilarity measures @xmath and @xmath .
+
+### 7.4 Experimental Results
+
+In this section we provide some experimental results to support Sections
+7.1 , 7.2 , and 7.3 . The results are summarized in some tables and
+graphs presented in Sections 7.3.1 and 7.3.2 . To obtain these results,
+we computed the depth functions and their relationships for three sets
+@xmath , @xmath , and @xmath of planar query points with respect to data
+sets @xmath , @xmath , and @xmath of planar points, respectively. The
+cardinalities of @xmath and @xmath are as follows: @xmath , @xmath ,
+@xmath , @xmath , @xmath , @xmath . The elements of @xmath and @xmath (
+@xmath ) are some randomly generated points (double precision floating
+point) within the square @xmath . The following lines of code, in
+MATLAB, are used to generate the elements of @xmath and @xmath .
+
+    % To Generate the Sets of Random Data Points and  Query Points:
+    n = 3; % the number of decimal places
+    d = 2; % dimension of points
+    kS = 10000; % number of data points
+    kQ = 2500; % number of query points
+    % [l_range,u_range] is the interval where the
+    % random points are generated within
+    l_range = -10; u_range = 10;
+    S = randi([l_range,u_range]*10^n,[kS,d])/10^n;
+    Q = randi([l_range,u_range]*10^n,[kQ,d])/10^n;
+
+The implementations are done in Java. The source codes and detailed
+results are publicly available at
+https://github.com/RasoulShahsavari/Data-Depth-Source-Codes .
+
+#### 7.4.1 Experiments for Geometric Relationships
+
+To support the obtained relationships in Section 7.1 , we compute the
+spherical depth, lens depth, and the simplicial depth of the points in
+three random sets @xmath , @xmath , and @xmath with respect to data sets
+@xmath , @xmath , and @xmath , respectively. The results of our
+experiments are summarized in Table 7.1 . Every cell in the table
+represents the corresponding depth of query points in @xmath with
+respect to data set @xmath . As can be seen, there are some gaps between
+obtained experimental bounds for random points and the theoretical
+bounds in Theorem 7.1.3 and Lemma 7.1.2 . For example, the experiments
+suggests @xmath as a lower bound for @xmath , whereas Theorem 7.1.3
+introduces the lower bound @xmath . More research on this topic is
+needed to figure out if the real bounds are closer to the experimental
+bounds or to the current theoretical bounds.
+
+#### 7.4.2 Experiments for Approximations
+
+In this section some experimental results are provided to support
+Theorem 7.1.1 , and our proposed method of approximation in Section 7.3
+. We compute the planar halfspace depth and planar @xmath -skeleton
+depth of @xmath with respect to @xmath for different values of @xmath ,
+where @xmath and @xmath are introduced in Section 7.4 . The results of
+our experiments are summarized in Tables 7.2 , 7.3 , and 7.4 . For each
+row of these three tables, a plot labelled by the corresponding fitting
+function is provided (Figures 7.5 - 7.19 ). As can be seen in the last
+two rows of Table 7.2 , considering @xmath , Theorem 7.1.1 is supported
+by these experiments. From Table 7.3 , it can be seen that the halfspace
+depth can be approximated by a quadratic function of the @xmath
+-skeleton depth with relatively small values of @xmath and @xmath . In
+particular, @xmath if @xmath . The results in Table 7.4 indicate that
+the halfspace depth function can also be approximated via a power model.
+In particular, @xmath if @xmath . Referring to the results in Tables 7.3
+and 7.4 and Figures 7.10 - 7.19 , the power model suggests a better fit
+both theoretically and visually. For example, the values of @xmath in
+the Table 7.4 are smaller than the corresponding values in Table 7.3 .
+Furthermore, from Figures 7.14 and 7.19 , it can be seen that the power
+model captures the curvature of the data better than the quadratic model
+does. We recall that @xmath represents the structural dissimilarity
+between the exact values of two depth functions; hence, the values of
+@xmath are not affected by the choice of fitting model. In short, our
+experimental results on approximating the halfspace depth by @xmath
+-skeleton depth show that the power model behaves slightly better than
+the quadratic model. However, depending on the application, the
+quadratic model might be preferred because of its simplicity.
+
+## Chapter 8 Conclusion
+
+In this thesis we have presented a study of several depth functions such
+as halfspace depth, simplicial depth, and @xmath -skeleton depth.
+Emphasis was given to the studying of @xmath -skeleton depth from both
+geometric and algorithmic viewpoints in @xmath . Furthermore, lower
+bounds for computing the planar @xmath -skeleton depth ( @xmath ), and
+approximation of different depth functions are also studied in this
+thesis. Finally, we provide some experimental results to support our
+approximation technique, and to illustrate the relationships among the
+aforementioned depth functions.
+
+### 8.1 Contributions
+
+Regarding the geometric perspective, in Chapter 4 , we proved that the
+exact bound @xmath for the combinatorial complexity of the arrangement
+of planar @xmath -influence regions is achievable. The connectivity and
+convexity of @xmath -skeleton depth regions are also studied in Chapter
+4 .
+For the algorithmic part, in Chapters 5 and 6 , we presented an optimal
+algorithm for computing the planar spherical depth (i.e. @xmath
+-skeleton depth, @xmath ) of a query point. This algorithm takes @xmath
+time that matches the corresponding lower bound @xmath proved in Chapter
+6 . For the other values of @xmath , employing the results on
+semialgebraic range counting problems in the literature, we developed an
+algorithm to compute the planar @xmath -skeleton depth of a query point.
+This algorithm takes @xmath time. In developing this algorithm, we
+reduced the problem of computing the planar @xmath -skeleton depth of a
+query point to a combination of at most @xmath range counting problems,
+where @xmath is the size of the data set (Theorem 5.2.1 ). In Section
+5.3 , we presented a simple and optimal algorithm for computing the
+planar halfspace depth. This algorithm takes @xmath time. There are
+other optimal algorithms for this problem by Aloupis in [ 9 ] , and by
+Chan in [ 25 ] . We used our specialized halfspace range counting method
+to obtain the number of data points in each halfspace whereas in
+Aloupis’s algorithm the idea of sweeping halfline is employed to obtain
+such number.
+The results in Chapter 6 include proving lower bounds for the complexity
+of computing planar @xmath -skeleton depth, @xmath . In this chapter,
+using different reductions, we proved that computing the planar @xmath
+-skeleton depth of a query point allows us to answer the problem of
+Element Uniqueness, which takes @xmath time. As such, computing the
+planar @xmath -skeleton depth also requires @xmath time.
+Finally, in Chapter 7 , we investigated some relationships among the
+influence regions of @xmath -skeleton depth and simplicial depth. We
+employed these relationships to prove that there exists @xmath such that
+for all @xmath , and all @xmath in any finite range @xmath that contains
+@xmath , the values of @xmath and @xmath are equal. Also, we proved that
+the @xmath -skeleton depth has a lower bound in terms of a constant
+factor of simplicial depth (in particular, @xmath ). In the remainder of
+Chapter 7 , we proposed a method of approximation, using the idea of
+fitting functions, to approximate one depth function by another one. To
+support the theoretical results in Chapter 7 , we provided some
+experimental results. As an example, the experimental results suggest
+that with a reasonable amount of error, the halfspace depth can be
+approximated by a quadratic function of the @xmath -skeleton depth (
+@xmath if @xmath ).
+
+### 8.2 Open Problems and Directions for Future Work
+
+###### Open problem 8.2.1.
+
+In Chapter 6 , we proved that planar @xmath -skeleton depth requires
+@xmath time. However, our best algorithm for computing the planar @xmath
+-skeleton depth ( @xmath ) takes @xmath time. Is it possible to develop
+an @xmath algorithm for this problem. Note that for the case of @xmath ,
+we presented such an algorithm.
+
+###### Open problem 8.2.2.
+
+In studying the relationships among different depth functions, we proved
+that @xmath . Is there some constant @xmath such that for all query
+points within the convex hull @xmath .
+
+###### Open problem 8.2.3.
+
+In Section 5.2 , we used the existing results on semialgebraic range
+counting and developed Algorithm 6 with @xmath query time, @xmath
+storage, and @xmath expected preprocessing time. Can the query time be
+reduced to @xmath by spending @xmath time and space on the
+preprocessing. Or, is it possible to answer a semialgebraic range query
+in @xmath time by spending @xmath time and space on the preprocessing.
+
+#### 8.2.1 Future Work
+
+Some of the directions for future work include:
+
+-   developing efficient algorithms to compute the @xmath -skeleton
+    median (central point).
+
+-   studying the @xmath -skeleton depth in higher dimensions.
+
+-   using the @xmath -skeleton depth to find outliers in a data set.
+    This direction can be pursued to develop an efficient intrusion
+    detection system. Regarding this application of @xmath -skeleton
+    depth: Algorithm 5 is used in an intrusion detection method proposed
+    in [ 91 ] .

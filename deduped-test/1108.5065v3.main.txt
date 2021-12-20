@@ -1,0 +1,4271 @@
+##### Contents
+
+-    I Introduction
+    -    1 Preliminary information
+        -    1.1 Preface
+        -    1.2 Structure of the thesis
+        -    1.3 A short introduction to quantum mechanics
+        -    1.4 Schmidt decomposition
+        -    1.5 Von Neumann entropy and its properties
+        -    1.6 Quantum channels and their representations
+            -    1.6.1 Representation of a complementary channel
+        -    1.7 One–qubit channels
+        -    1.8 Correlation matrices
+            -    1.8.1 Gram matrices and correlation matrices
+        -    1.9 Kraus operators constructed for an ensemble of states
+        -    1.10 Quantum fidelity
+            -    1.10.1 Geometrical interpretation of fidelity
+        -    1.11 Mutual information
+        -    1.12 Holevo quantity
+-    II Bounds on the Holevo quantity
+    -    2 Holevo quantity and the correlation matrix
+        -    2.1 Other inequalities for the Holevo quantity
+            -    2.1.1 Some consequences
+        -    2.2 Discussion on the Lindblad inequality
+        -    2.3 Inequalities for other entropies
+        -    2.4 Searching for the optimal bound
+            -    2.4.1 Optimal bound for two matrices
+        -    2.5 Jensen Shannon Divergence
+    -    3 Conjecture on three–fidelity matrix
+        -    3.1 A strategy of searching for a proof of the conjecture
+            -    3.1.1 Three density matrices of an arbitrary dimension
+            -    3.1.2 Three density matrices of dimension @xmath
+            -    3.1.3 Fidelity matrix for one–qubit states
+            -    3.1.4 Special case of the correlation matrix
+            -    3.1.5 Hierarchy of estimations
+        -    3.2 Fidelity bound on the Holevo quantity for a special
+            class of states
+            -    3.2.1 Proof of the fidelity bound
+-    III Minimal output entropy and map entropy
+    -    4 Entropies for one-qubit channels
+        -    4.1 Structure of the set of Pauli channels
+        -    4.2 Depolarizing channels
+        -    4.3 Transformations preserving minimal output entropy
+    -    5 Davies maps for qubits and qutrits
+        -    5.1 Quantum Markov process
+        -    5.2 Characterization of the model
+        -    5.3 Matrix representation of Davies maps
+        -    5.4 Physical examples
+        -    5.5 Minimal output entropy of Davies maps
+        -    5.6 Multiplicativity of maximal output norm of one–qubit
+            Davies maps
+            -    5.6.1 Outline of the proof of multiplicativity
+            -    5.6.2 Details of the proof of multiplicativity
+        -    5.7 Davies maps acting on qutrits
+            -    5.7.1 Logarithm of a stochastic matrix of size three
+    -    6 Concluding remarks and open problems
+
+## Part I Introduction
+
+### 1 Preliminary information
+
+#### 1.1 Preface
+
+It is not easy to give a satisfactory definition of information in sense
+in which this word is used in everyday life. For instance one could ask,
+how much information is contained in an allegorical baroque painting of
+Vermeer. There exist, of course, many interpretations and therefore,
+many kinds of information concerning this picture. However, nowadays we
+are willing to distinguish some sort of information necessary to
+communicate a message independently on the interpretation. Due to our
+experience with computers we are used to problems how to encode the
+information into a string of digital symbols, transmit it and decode it
+in order to obtain the original message in another place. Imagine that
+we need to send the information contained in the Vermeer’s picture. We
+have to encode it into digital data, transmit it to the other place and
+recover the picture on the screen of the receiver’s computer. In a sense
+we send almost all the information without knowing what interpretations
+it may carry.
+
+The problem rises what is the minimal amount of information measured in
+binary digits that enable the receiver to reliably recover the original
+message. In considered example we can divide the image of the Vermeer’s
+picture into small pieces, decode colours of each piece into digital
+strings and transmit the description of colours one after another.
+However, we can also save some amount of digits when we menage to
+describe shapes of regions of the same colours in the picture and send
+only information about colours, shapes and patterns. How to do that in
+the most efficient way? This is a major problem for experts working on
+the information theory and computer graphics. Some rules of the optimal
+coding were used intuitively during construction of the Morse alphabet.
+The letters which occur in the English language more frequently are
+encoded by a smaller amount of symbols.
+
+In communication and computer sciences the problem of data compression
+is a subject of a great importance. To what extend the data can be
+compressed to still remain useful? Claude Shannon worked on the problem
+of transmission of messages through telecommunication channels. In 1958
+he published his famous paper [ 1 ] opening the new branch of knowledge
+known as the theory of information. In this theory a message is composed
+of letters occurring with specified frequencies related to
+probabilities. Every letter of a message can be encoded as a string of
+digital units. Every digital unit can appear in one of @xmath possible
+configurations. Shannon found what is the minimal average amount of
+digital units per symbol which encodes a given message. This smallest
+average number of digital units is related to the information contained
+in the message and is characterized by a function of the probability
+distribution @xmath of letters, now called the Shannon entropy ,
+
+  -- -------- -- -----
+     @xmath      (1)
+  -- -------- -- -----
+
+where @xmath , @xmath is a number of letters and the base of the
+logarithm @xmath characterizing the amount of configurations of a chosen
+digital unit can be chosen arbitrary. If the base is equal to @xmath ,
+the unit of entropy is called binary unit or bit .
+
+The idea of efficient coding concerns in replacing more frequent letters
+by means of a smaller amount of bits. Shannon treated the message as a
+sequence of letters generated independently according to the probability
+distribution @xmath specified for a given language. The original
+reasoning of Shannon proceeds as follows. There are so many possible
+messages as the amount of typical sequences of letters with a given
+probability distribution in the string of length @xmath . Atypical
+sequences such as strings of letters @xmath repeated @xmath times are
+unlikely and are not taken into account. The amount of possible messages
+is given by the amount of typical sequences, which is of order of @xmath
+if the base of the logarithm is equal to 2. This number is justified by
+methods of combinatorics. Hence, every typical message of length @xmath
+can be represented by a string of bits of size @xmath . Therefore, the
+entropy @xmath can be interpreted as the smallest average amount of bits
+per letter needed to reliably encode each typical message.
+
+The information theory treats, as well, the information as a measure of
+uncertainty about the outcome of a random experiment. Looking for a
+function which is suitable as a measure of the uncertainty about the
+concrete result of experiment, provided the probabilities of all
+experimental outcomes are given, Shannon formulated a few postulates for
+the information measure [ 1 ] :
+
+-   It is a continues function of the probability distribution.
+
+-   If all events are equally likely the function of uncertainty is an
+    increasing function of their number.
+
+-   If one of the events is split into two, the new function of
+    uncertainty is equal to the sum of the original uncertainty and the
+    uncertainty of the new division weighted by the probability of the
+    divided event.
+
+The only function which satisfies these postulates is the Shannon
+entropy @xmath . Therefore, the uncertainty or lack of information on
+the outcome of an experiment is the second interpretation of the entropy
+@xmath .
+
+Taking a weaker set of axioms allows one to generalize the definition of
+the measure of uncertainty and to find other functions of probability
+vector @xmath , which in special case converge to the Shannon entropy (
+1 ). For instance, Rényi introduced one parameter family of generalized
+entropy functions. Since, the information of an experiment consisting of
+two independent experiments should be given by the sum of the
+information gained in both experiments, the measure of information
+should be additive. The Shannon entropy of the joint probability
+distribution of two independent variables is additive. Rényi noticed [ 2
+] that the additivity of information is not equivalent to the third
+postulate of Shannon. However, if one replaces the third postulate by
+additivity of information of independent events, yet another axiom
+should be postulated to obtain back the Shannon’s formula ( 1 ). This
+additional postulate specifies the way of calculating the mean values.
+If one considers the linear mean, the Shannon entropy is singled out by
+this set of postulates. However, other definition of the mean value also
+can be taken. In consequence, the new set of postulates implies an one
+parameter family of generalized entropy functions known as the Rényi
+entropy of order @xmath :
+
+  -- -------- -- -----
+     @xmath      (2)
+  -- -------- -- -----
+
+Here, @xmath denotes the free parameter depending on the definition of
+the average. Another generalization of entropy function was analysed by
+Tsallis [ 3 , 4 ] . The Tsallis entropy of order @xmath is defined as
+follows,
+
+  -- -------- -- -----
+     @xmath      (3)
+  -- -------- -- -----
+
+Hence the information theory concerns entropies, however, it also
+investigates communication sources and communication channels which can
+introduce some errors to messages. Information theory defines such
+quantities as the relative entropy and the mutual information [ 1 ] .
+Using these concepts the channel capacity is defined. It is the maximal
+rate of information which can be reliably decoded after passing through
+the channel. The channel capacity is measured in bits per a unit of
+time.
+
+The theory of quantum information, which considers quantum systems as
+carriers of information, should enable one to generalize the notions of
+classical information theory such as the channel capacity. To formulate
+a quantum counterpart of the Shannon concepts such as the relative
+entropy or channel capacity the theory of open quantum systems, quantum
+statistical processes, statistical operators, density matrices, partial
+traces and generalized measurements should be applied. In the early
+stage of the stochastic theory of open quantum systems, it was developed
+by Davies [ 5 ] , and Kossakowski [ 6 ] . Moreover, other important
+results on accessible information transmitted through a noisy quantum
+channel were obtained by Holevo [ 7 ] .
+
+There are many advantages of using quantum resources to transform and
+transmit the information [ 8 ] . In particular, there exist a famous
+protocols of superdense coding [ 9 ] of information into a quantum
+carrier. Furthermore, some computational problems can be solved in
+framework of the quantum information processing faster than classically
+[ 10 , 11 , 12 ] . Quantum world gives also new communication protocols
+like quantum teleportation [ 9 , 13 ] which is possible due to quantum
+entanglement [ 14 , 15 ] . In quantum case, entangled states can
+increase the joint capacity of two channels with respect to the sum of
+the two capacities [ 16 , 17 , 18 ] . Also a new branch of cryptography
+was developed due to the quantum theory [ 19 ] . Although, these new
+possibilities are promising, manipulation of quantum resources is
+difficult in practice. In particular, the quantum states carrying the
+information are very sensible to noise, which can completely destroy
+quantum information. Moreover, probabilistic nature of quantum theory
+does not allow us to extract uniquely the information from quantum
+sources. Many restrictions and laws of quantum information theory are
+formulated in terms of inequalities of quantum entropies. The most
+significant quantum entropy is the one defined by von Neumann [ 20 , 21
+] , which is a counterpart of the Shannon entropy. However, the other
+quantum entropies such like the Rényi entropy [ 2 ] or Tsallis entropy
+are also considered [ 3 , 4 , 22 ] .
+
+The issue of transmitting a classical information through a noisy
+channel is an important issue in the information theory [ 1 , 23 , 24 ]
+. Among problems concerning the information channels one can specify the
+following questions: How to encode the information in order to transmit
+it reliably through the channel in the most efficient way [ 1 , 25 ] ?
+What is the maximal rate of the information transmission? What is the
+capacity of a given communication channel [ 26 , 27 , 28 , 29 ] ? Which
+states are the most resistant to errors occurring in the a channel [ 30
+, 31 ] ? What are the efficient strategies of the error correction [ 32
+] ?
+
+Similar questions can also be formulated in the framework of quantum
+information theory. The quantum channels, also called quantum operations
+, are transformations in the set of states [ 33 , 34 , 35 , 36 ] . They
+describe evolution of an open quantum system interacting with an
+environment in discrete time.
+
+The set of all quantum channels is still not completely understood.
+Merely the set of one–qubit channels is satisfactory explored [ 37 , 38
+] . However, even in this simplest case some interesting problems are
+open. For instance, it is not clear, whether the capacity of one–qubit
+channels is additive [ 18 ] . Another approach to quantum channels
+suggests to analyse only certain special classes of them, motivated by
+some physical models [ 39 , 40 , 41 , 42 , 43 ] .
+
+Quantum channels are also formally related to measurement processes in
+quantum theory [ 35 , 45 ] . As a measurement process changes the
+quantum state and in general cannot perfectly distinguish measured
+states, there is a fundamental restriction on the information which can
+be obtained from the message encoded into quantum states [ 7 ] . These
+restrictions are also formulated in terms of entropies.
+
+The different aspects of quantum channels mentioned above suggest that
+entropies which characterize the channels play an important role in the
+information theory. This thesis is devoted to investigation of quantum
+channels and some entropies used to characterize them: the minimal
+output entropy [ 39 , 18 ] , the map entropy [ 46 , 47 , 48 ] and the
+exchange entropy [ 29 ] .
+
+#### 1.2 Structure of the thesis
+
+The thesis is partially based on results already published in articles [
+46 , 49 , 50 , 51 , 52 , 53 ] , which are enclosed at the end of the
+thesis. In a few cases some issues from these papers are discussed here
+in a more detailed manner. The thesis contains also some new,
+unpublished results and technical considerations not included in the
+published articles.
+
+The structure of the thesis is the following. The thesis is divided into
+three parts. The first part is mostly introductory and contains a short
+review of the literature. This part provides basic information useful in
+the other parts of the thesis and fixes notation used in the entire
+work. In part I only the result from Section 1.6.1 concerning the Kraus
+representation of a complementary channels and Section 1.9 on the Kraus
+operators constructed for an ensemble of states are obtained by the
+author.
+
+Part II contains results based on papers [ 49 , 52 , 46 ] , not known
+before in the literature. However, some results not published previously
+are also analysed there.
+
+Chapter 2 contains the most important result of the thesis – the
+inequality between the Holevo information related to an ensemble of
+quantum states and the entropy of the state of environment taking part
+in preparation of the ensemble. As the entropy of the environment can be
+treated equivalently as the entropy of an output of the complementary
+channel, or the entropy of a correlation matrix, or the entropy of a
+Gram matrix of purifications of mixed states, or as the entropy
+exchange, this relation might be considered as a new and universal
+result in the theory of quantum information. Consequences of this
+inequality have not been analysed so far. Chapter 2 contains also the
+discussion of the particular cases for which the inequality is
+saturated. This result has not been published before. Section 2.1
+describes proofs of known entropic inequalities which are related to the
+bound on the Holevo quantity. Some new and unpublished consequences of
+these inequalities are presented in Section 2.1.1 . Original, new
+results are also contained in Sections 2.2 and 2.3 .
+
+Part II contains, moreover, the conjecture on the inequality between the
+Holevo information of a quantum ensemble and the entropy of the matrix
+of square root of fidelities. Several weaker inequalities are analysed
+here in a greater detail than it was done in [ 52 ] . Section 3.2
+presents a confirmation of the conjecture for a special class of
+ensembles of quantum states.
+
+Part III of the thesis is based on the results presented in [ 51 , 50 ]
+. Article [ 51 ] described partially in Chapter 4 considers the relation
+between minimal output entropy and the map entropy. Section 4.2 contains
+a proof of additivity of the map entropy with respect to the tensor
+product of two maps, already published in our work [ 51 ] . These
+results allow us to specify a class of quantum channels for which
+additivity of the minimal output entropy is conjectured.
+
+The Davies maps acting on one–qubit and one–qutrit quantum systems are
+analysed in Chapter 5 . Conditions for the matrix entries of a quantum
+operation representing a Davies map are given along the lines formulated
+in our work [ 50 ] . Multiplicativity of the maximal output norm of
+one–qubit Davies maps, entirely based on the analogical proof for
+bistochastic maps [ 54 ] , is presented in Section 5.6 . However, this
+result cannot be treated as a new one, since multiplicativity of the
+maximal output two norm was proved earlier for all one–qubit quantum
+channels [ 18 ] . Section 5.7 contains graphical representations of
+stochastic matrices of order three which correspond to quantum Davies
+maps, which has not been published yet.
+
+#### 1.3 A short introduction to quantum mechanics
+
+The formalism of quantum mechanics can be derived from a few postulates
+(axioms) which are justified by experiments. The set of axioms defining
+the quantum theory differs depending on the author [ 55 ] . However,
+some features occur common in every formulation, either as axioms or as
+their consequences. One of such key features is the superposition
+principle . It is justified by several experimental data as interference
+pattern in double slit experiment with electrons or interference of a
+single photon in the Mach–Zender interferometer [ 56 ] . The
+superposition principle states that the state of a quantum system, which
+is denoted in Dirac notation by @xmath , can be represented by a
+coherent combination of several states @xmath with complex coefficients
+@xmath ,
+
+  -- -------- -- -----
+     @xmath      (4)
+  -- -------- -- -----
+
+The quantum state @xmath of an @xmath level system is represented by a
+vector from the complex Hilbert space @xmath . The inner product @xmath
+defines the coefficients @xmath in ( 4 ). The square norm of @xmath is
+interpreted as the probability that the system described by @xmath is in
+the state @xmath . To provide a proper probabilistic interpretation a
+vector used in quantum mechanics is normalized by the condition @xmath .
+
+Quantum mechanics is a probabilistic theory. One single measurement does
+not provide much information on the prepared system. However, several
+measurements on identically prepared quantum systems allow one to
+characterize the quantum state.
+
+A physical quantity is represented by a linear operator called an
+observable . An observable @xmath is a Hermitian operator, @xmath ,
+which can be constructed by a set of real numbers @xmath (allowed values
+of the physical quantity) and a set of states @xmath determined by the
+measurement, @xmath . The physical value corresponds to the average of
+the observable in the state @xmath ,
+
+  -- -------- -- -----
+     @xmath      (5)
+  -- -------- -- -----
+
+One can consider the situation in which a state @xmath is not known
+exactly. Only a statistical mixture of several quantum states @xmath
+which occur with probabilities @xmath is given. In this case the average
+value of an observable has the form
+
+  -- -------- -- -----
+     @xmath      (6)
+  -- -------- -- -----
+
+which can be written in terms of an operator on @xmath called a density
+matrix @xmath as
+
+  -- -------- -- -----
+     @xmath      (7)
+  -- -------- -- -----
+
+A density matrix describes a so called mixed state . In a specific basis
+the density matrices characterizing an @xmath level quantum system are
+represented by @xmath matrices @xmath which are Hermitian, have trace
+equal to unity and are positive. Let us denote the set of all such
+matrices by @xmath ,
+
+  -- -------- -- -----
+     @xmath      (8)
+  -- -------- -- -----
+
+This set is convex. Extremal points of this set are formed by projectors
+of the form @xmath called pure states , which correspond to vectors
+@xmath of the Hilbert space.
+
+The state of composed quantum system which consists of one @xmath –level
+system and one @xmath –level system is represented by a vector of size
+@xmath from the Hilbert space which has a tensor product structure,
+@xmath . Such a space contains also states which cannot be written as
+tensor products of vectors from separate spaces,
+
+  -- -------- -- -----
+     @xmath      (9)
+  -- -------- -- -----
+
+and are called entangled states . States with a tensor product structure
+are called product states . If the state of only one subsystem is
+considered one has to take an average over the second subsystem. Such an
+operation is realized by taking the partial trace over the second
+subsystem and leads to a reduced density matrix,
+
+  -- -------- -- ------
+     @xmath      (10)
+  -- -------- -- ------
+
+A density matrix describes therefore the state of an open quantum system
+.
+
+The evolution of a normalized vector in the Hilbert space is determined
+by a unitary operator @xmath . The transformation @xmath is related to
+Hamiltonian evolution due to the Schrödinger equation,
+
+  -- -------- -- ------
+     @xmath      (11)
+  -- -------- -- ------
+
+where @xmath denotes the Hamiltonian operator of the system, while
+@xmath represents time and @xmath is the Planck constant. A discrete
+time evolution of an open quantum system characterized by a density
+operator @xmath is described by a quantum operation which will be
+considered in Chapter 1.6 .
+
+According to a general approach to quantum measurement [ 35 , 57 ] , it
+can be defined by a set of @xmath operators @xmath forming a positive
+operator valued measure (POVM). The index @xmath is related to a
+possible measurement result, for instance the value of the measured
+quantity. The operators @xmath are positive and satisfy the identity
+resolution,
+
+  -- -------- -- ------
+     @xmath      (12)
+  -- -------- -- ------
+
+The quantum state is changing during the measurement process. After the
+measurement process that gives the outcome @xmath as a result, the
+quantum state @xmath is transformed into
+
+  -- -------- -- ------
+     @xmath      (13)
+  -- -------- -- ------
+
+where @xmath . The probability @xmath of the outcome @xmath is given by
+@xmath . Due to relation ( 12 ), the probabilities of all outcomes sum
+up to unity.
+
+A quantum state characterizing a @xmath –level system is called qubit
+and its properties are discussed in more detail in Section 1.7 .
+
+#### 1.4 Schmidt decomposition
+
+The theorem known as Schmidt decomposition [ 58 ] provides a useful
+representation of a pure state of a bi–partite quantum system.
+
+###### Theorem 1 (Schmidt).
+
+Any quantum state @xmath from the Hilbert space composed of the tensor
+product of two Hilbert spaces @xmath of dimensions @xmath and @xmath ,
+respectively, can be represented as
+
+  -- -------- -- ------
+     @xmath      (14)
+  -- -------- -- ------
+
+where @xmath and @xmath are orthogonal basis of the Hilbert spaces
+@xmath and @xmath respectively, and @xmath .
+
+###### Proof.
+
+Choose any orthogonal basis @xmath of @xmath and any orthogonal basis
+@xmath of @xmath . In this product basis, the bi–partite state @xmath
+reads
+
+  -- -------- -- ------
+     @xmath      (15)
+  -- -------- -- ------
+
+Singular value decomposition of a matrix @xmath of size @xmath with
+entries @xmath gives @xmath . Here @xmath and @xmath are entries of two
+unitary matrices, while @xmath are singular values of @xmath . Summation
+over indexes @xmath and @xmath cause changes of two orthogonal bases
+into
+
+  -- -------- -- ------
+     @xmath      (16)
+     @xmath      (17)
+  -- -------- -- ------
+
+The number o nonzero singular values is not larger than the smaller one
+of the numbers @xmath . ∎
+
+The Schmidt decomposition implies that both partial traces of any
+bi–partite pure state have the same nonzero part of the spectrum:
+
+  -- -------- -- ------
+     @xmath      (18)
+     @xmath      (19)
+  -- -------- -- ------
+
+The Schmidt coefficients @xmath are invariant under local unitary
+transformations @xmath applied to @xmath . The number of non–zero
+coefficients @xmath is called the Schmidt number . Any pure state which
+has the Schmidt number greater than 1 is called entangled state . A pure
+state for which all Schmidt coefficients @xmath are equal to @xmath is
+called a maximally entangled state .
+
+Another important consequence of the Schmidt decomposition is that for
+any mixed state @xmath there is a pure state @xmath of a higher
+dimensional Hilbert space such that @xmath can be obtained by taking the
+partial trace,
+
+  -- -------- -- ------
+     @xmath      (20)
+  -- -------- -- ------
+
+Such a state @xmath is called a purification of @xmath . The Schmidt
+decomposition gives the recipe for the purification procedure. It is
+enough to take square roots of eigenvalues of @xmath in place of @xmath
+and its eigenvectors in place of @xmath . Any orthogonal basis in @xmath
+provides a purification of @xmath , which can be written as
+
+  -- -------- -- ------
+     @xmath      (21)
+  -- -------- -- ------
+
+where @xmath is an arbitrary unitary transformation and @xmath .
+
+#### 1.5 Von Neumann entropy and its properties
+
+Many theorems concerning the theory of quantum information can be
+formulated in terms of the von Neumann entropy [ 59 ] of a quantum
+state,
+
+  -- -------- -- ------
+     @xmath      (22)
+  -- -------- -- ------
+
+which is equivalent to the Shannon entropy ( 1 ) of the spectrum of
+@xmath . The entropy characterizes the degree of mixing of a quantum
+state. Assume that @xmath is a density matrix of size @xmath . The value
+of @xmath is equal to zero if and only if the state @xmath is pure. It
+gains its maximal value @xmath for the maximally mixed state @xmath
+only.
+
+Von Neumann entropy has also an important interpretation in quantum
+information theory, as it plays the role similar to the Shannon entropy
+in the classical theory of optimal compression of a message [ 25 ] . Let
+the letters @xmath of the message, which occur with probabilities @xmath
+, be encoded into pure quantum states @xmath from the Hilbert space
+@xmath . Sequences of @xmath letters are encoded into a Hilbert space of
+dimension @xmath . A long message can be divided into sequences of size
+@xmath . Among them one can distinguish sequences in typical subspaces
+and such which occur with negligible probability. A unitary
+transformation applied to the sequence of quantum systems can transmit
+almost all the information into a typical subspace. The space of a
+typical sequence has the smallest dimensionality required to encode the
+message reliably with negligible probability of an error. This smallest
+dimensionality per symbol is shown [ 25 ] to be equal to the von Neumann
+entropy of the state @xmath . Therefore, quantum coding consists in
+taking states from the smaller subspace of dimension @xmath instead of a
+space of dimension @xmath to encode the same message. If the state
+@xmath represents completely random set of states there is no
+possibility to compress the message, since @xmath , where logarithm is
+of base 2. The entropy, therefore, describes the capability of
+compression of the message encoded in a given set of states, or the
+smallest amount of qubits needed to transmit a given message.
+
+The von Neumann entropy, as the entropy of eigenvalues of a density
+matrix, describes also the uncertainty of measuring a specific state
+from the set of the eigenvectors. The most important properties of the
+von Neumann entropy are [ 20 ] :
+
+-   The von Neumann entropy is a non negative function of any @xmath .
+
+-   It is invariant under unitary transformations, @xmath .
+
+-   It is a concave function of its argument, @xmath , where @xmath for
+    any @xmath and @xmath .
+
+-   It is subadditive
+
+      -- -------- -- ------
+         @xmath      (23)
+      -- -------- -- ------
+
+    where @xmath is a bi–partite state of a composite system and the
+    partial traces read @xmath and @xmath .
+
+-   The von Neumann entropy satisfies the relation of strong
+    subadditivity [ 60 ] ,
+
+      -- -------- -- ------
+         @xmath      (24)
+      -- -------- -- ------
+
+    where the state @xmath is a composite state of three subsystems
+    @xmath and the other states are obtained by its partial traces.
+
+#### 1.6 Quantum channels and their representations
+
+One distinguishes two approaches to describe time evolution of an open
+quantum system. One of them starts from a concrete physical model
+defined by a given Hamiltonian which determines the Shrödinger equation
+( 11 ) or the master equation, [ 45 ] . Solving them one may find the
+state of the quantum system at any moment at time. An alternative
+approach to the dynamics of an open quantum system relies on a
+stroboscopic picture and a discrete time evolution. It starts from a
+mathematical construction of a quantum map, @xmath , allowed by the
+general laws of quantum mechanics. This approach is often used in cases
+in which the physical model of the time evolution is unknown. This fact
+justifies the name "black box" model to describe the evolution
+characterized by a quantum map @xmath . Such a model is also considered
+if one wants to investigate the set of all possible operations
+independently on whether the physical context is specified. Main
+features and some representations of the map @xmath , which describes a
+"black box" model of non–unitary quantum evolution, are given below.
+
+The quantum map @xmath describes the dynamics of a quantum system @xmath
+which interacts with an environment. It is given by a nonunitary quantum
+map @xmath . Any such map is completely positive, and trace preserving [
+33 , 34 , 35 , 36 ] . "Complete positivity" means that an extended map
+@xmath , which is a trivial extension of @xmath on the space of any
+dimension @xmath , transforms the set of positive operators into itself.
+A completely positive and trace preserving quantum map is called quantum
+operation or quantum channel .
+
+Due to the theorem of Jamiołkowski [ 34 ] and Choi [ 33 ] the complete
+positivity of a map is equivalent to positivity of a state corresponding
+to the map by the Jamiołkowski isomorphism . This isomorphism determines
+the correspondence between a quantum operation @xmath acting on @xmath
+dimensional matrices and density matrix @xmath of dimension @xmath which
+is called Choi matrix or the Jamiołkowski state
+
+  -- -------- -- ------
+     @xmath      (25)
+  -- -------- -- ------
+
+where @xmath is a maximally entangled state. The dynamical matrix @xmath
+corresponding to a trace preserving operation satisfies the partial
+trace condition
+
+  -- -------- -- ------
+     @xmath      (26)
+  -- -------- -- ------
+
+The quantum operation @xmath can be represented as superoperator matrix
+. It is a matrix which acts on the vector of length @xmath , which
+contains the entries @xmath of the density matrix ordered
+lexicographically. Thus the superoperator @xmath is represented by a
+square matrix of size @xmath . The superoperator in some orthogonal
+product basis @xmath is represented by a matrix indexed by four indexes,
+
+  -- -------- -- ------
+     @xmath      (27)
+  -- -------- -- ------
+
+The matrix representation of the dynamical matrix is related to the
+superoperator matrix by the reshuffling formula [ 15 ] as follows
+
+  -- -------- -- ------
+     @xmath      (28)
+  -- -------- -- ------
+
+To describe a quantum operation, one may use the Stinespring’s dilation
+theorem [ 61 ] . Consider a quantum system, described by the state
+@xmath on @xmath , interacting with its environment characterized by a
+state on @xmath . The joint evolution of the two states is described by
+a unitary operation @xmath . Usually it is assumed that the joint state
+of the system and the environment is initially not entangled. Moreover,
+due to the possibility to purification the environment, its initial
+state is given by a pure one. The evolving joint state is therefore:
+
+  -- -------- -- ------
+     @xmath      (29)
+  -- -------- -- ------
+
+where @xmath and @xmath is a unitary matrix of size @xmath . The state
+of the system after the operation is obtained by tracing out the
+environment,
+
+  -- -- -- ------
+           (30)
+  -- -- -- ------
+
+where the Kraus operators read, @xmath . In matrix representation the
+Kraus operators are formed by successive blocks of the first
+block–column of the unitary evolution matrix @xmath . Here the state
+@xmath can be equivalently given as
+
+  -- -- -- ------
+           (31)
+  -- -- -- ------
+
+A transformation @xmath is obtained by an isometry @xmath , where
+
+  -- -------- -- ------
+     @xmath      (32)
+  -- -------- -- ------
+
+Due to the Kraus theorem [ 35 ] any completely positive map @xmath can
+be written in the Kraus form,
+
+  -- -------- -- ------
+     @xmath      (33)
+  -- -------- -- ------
+
+The opposite relation is also true, any map of the Kraus form ( 33 ) is
+completely positive.
+
+##### 1.6.1 Representation of a complementary channel
+
+Consider a quantum channel @xmath described by the Kraus operators
+@xmath ,
+
+  -- -------- -- ------
+     @xmath      (34)
+  -- -------- -- ------
+
+where notation from Section 1.6 is used. The channel @xmath
+complementary to @xmath is defined by
+
+  -- -------- -- ------
+     @xmath      (35)
+  -- -------- -- ------
+
+and it describes the state of the @xmath –dimensional environment after
+the interaction with the principal system @xmath . One can derive the
+relation between operators @xmath and @xmath from the last equation by
+substituting @xmath as in ( 31 ). This relation can be rewritten as
+
+  -- -------- -- ------
+     @xmath      (36)
+  -- -------- -- ------
+
+Comparison of the matrix elements of both sides gives
+
+  -- -------- -- ------
+     @xmath      (37)
+  -- -------- -- ------
+
+where matrix elements are indicated by lower indexes and the Einstein
+summation convention is applied. Hence, for any quantum channel @xmath
+given by a set of Kraus operators @xmath , one can define the Kraus
+operators @xmath representing the complementary channel @xmath as
+
+  -- -------- -- ------
+     @xmath      (38)
+  -- -------- -- ------
+
+#### 1.7 One–qubit channels
+
+One–qubit channels acting on density matrices of size @xmath have many
+special features which cause that the set of these channels is well
+understood [ 37 , 38 , 54 ] . However, many properties of one–qubit maps
+are not shared with the quantum maps acting on higher dimensional
+systems. Since one–qubit quantum channels are often considered in this
+thesis, the following section presents a brief review of their basic
+properties.
+
+A quantum two level state is called quantum bit or qubit . It is
+represented by a @xmath density matrix. Any Hermitian matrix of size two
+can be represented in the basis of identity matrix and the three Pauli
+matrices @xmath ,
+
+  -- -------- -- ------
+     @xmath      (39)
+  -- -------- -- ------
+
+One qubit state @xmath decomposed in the mentioned basis is given by the
+formula
+
+  -- -------- -- ------
+     @xmath      (40)
+  -- -------- -- ------
+
+Positivity condition, @xmath , implies that @xmath . The vector @xmath
+is called the Bloch vector . All possible Bloch vectors representing
+quantum states form the Bloch ball . Pure one–qubit states form a sphere
+of radius @xmath .
+
+Any linear one–qubit quantum operation @xmath transforms the Bloch ball
+into the ball or into an ellipsoid inside the ball. The channel @xmath
+transforms the Bloch vector @xmath representing the state @xmath into
+@xmath which corresponds to @xmath . This transformation is described by
+
+  -- -------- -- ------
+     @xmath      (41)
+  -- -------- -- ------
+
+Here the matrix @xmath is a square real matrix of size @xmath . A
+procedure analogous to the singular value decomposition of the matrix
+@xmath gives @xmath , where @xmath represents an orthogonal rotation and
+@xmath is diagonal. Up to two orthogonal rotations, one before the
+transformation @xmath and one after it, the one–qubit map @xmath can be
+represented by the following matrix
+
+  -- -- -- ------
+           (42)
+  -- -- -- ------
+
+The absolute values of the parameters @xmath are interpreted as the
+lengths of the axes of the ellipsoid which is the image of the Bloch
+ball transformed by the map. The parameters @xmath form the vector
+@xmath of translation of the center of the ellipsoid with respect to the
+center of the Bloch ball.
+
+Due to complete positivity of the map @xmath and the trace preserving
+property, the vectors @xmath and @xmath are subjected to several
+constraints. They can be derived from the positivity condition of a
+dynamical matrix given by [ 37 , 15 ] :
+
+  -- -- -- ------
+           (43)
+  -- -- -- ------
+
+The channels which preserve the maximally mixed state are called
+bistochastic channels. The structure of one–qubit bistochastic channels
+is discussed in more detail in Section 4.1 .
+
+#### 1.8 Correlation matrices
+
+A general measurement process is described in quantum mechanics by
+operators forming a positive operator valued measure (POVM). Products of
+matrices @xmath representing the POVM are positive and determine the
+identity resolution, @xmath . During the measurement of a quantum state
+@xmath the output @xmath occurs with probabilities @xmath . The identity
+resolution guarantees that @xmath .
+
+The outcomes of a quantum measurement are not perfectly distinguishable,
+unless different POVM operators project on orthogonal subspaces, @xmath
+. Probability distribution of the outcome states does not contain any
+information on indistinguishability of outcomes. Therefore, a better
+characterization of the measurement process is given by the following
+correlation matrix @xmath with entries
+
+  -- -------- -- ------
+     @xmath      (44)
+  -- -------- -- ------
+
+Its diagonal contains the probabilities of measurement outputs, while
+the off–diagonal entries are related to probabilities that the state
+@xmath has been determined by the measurement as the state @xmath . The
+correlation matrix depends on both, the measured state and the
+measurement process.
+
+The operators @xmath , satisfying @xmath , can also be treated as Kraus
+operators ( 30 ) characterizing the quantum channel, @xmath . In such an
+interpretation of operators @xmath , the correlation matrix ( 44 ) is
+equivalent to the state of environment given by the output of the
+complementary channel @xmath specified in Eq. ( 36 ).
+
+The entropy of the state @xmath produced by a complementary channel
+@xmath is called the exchange entropy , since, if the initial states of
+the system and the environment are pure, then @xmath is equal to the
+entropy which is gained by both the state and the environment [ 29 ] .
+If the initial state is maximally mixed, @xmath , where @xmath is the
+dimensionality of @xmath , the entropy of the output of the
+complementary channel is equal to the map entropy @xmath [ 46 ] (see
+also discussion in Section 2.1.1 ),
+
+  -- -------- -- ------
+     @xmath      (45)
+  -- -------- -- ------
+
+where the dynamical matrix @xmath is given by Eq. ( 25 ). This entropy
+is equal to zero if @xmath represents any unitary transformation. It
+attains the largest value @xmath for completely depolarizing channel
+which transform any state into the maximally mixed state. Therefore the
+map entropy can characterize the decoherence caused by the channel.
+
+Due to the polar decomposition of an arbitrary non normal operator
+@xmath , we can write @xmath , where @xmath is a Hermitian matrix and
+@xmath is unitary. One can observe that @xmath . Therefore the entries
+of the correlation matrix ( 44 ) can be written as:
+
+  -- -------- -- ------
+     @xmath      (46)
+  -- -------- -- ------
+
+As noticed above, the correlation matrix characterizing the quantum
+measurement can be equivalently treated as the state of an environment
+after evolution given by a quantum channel. The following section
+indicates a third possible interpretation of the correlation matrix
+@xmath . It can be formally treated as a Gram matrix of purifications of
+mixed states @xmath .
+
+Purification of a given state @xmath is given by a pure state @xmath
+(see Eq. ( 21 )),
+
+  -- -------- -- ------
+     @xmath      (47)
+  -- -------- -- ------
+
+The purification @xmath of given state @xmath can be written explicitly,
+
+  -- -------- -- ------
+     @xmath      (48)
+  -- -------- -- ------
+
+where @xmath are eigenvectors of @xmath . Notice that a purification of
+a given state @xmath is not unique. The degree of freedom is introduced
+by the unitary transformation @xmath . Moreover, any purification of
+given state @xmath can be given by such a form. Since eigenvectors of
+@xmath denoted by @xmath form an orthonormal basis in the Hilbert space,
+a unitary transformation @xmath can transform it into the canonical
+basis @xmath . The purification ( 48 ) can be described as
+
+  -- -------- -- ------
+     @xmath      (49)
+  -- -------- -- ------
+
+The overlap between two purifications of states @xmath and @xmath
+emerging from a POVM measurement is given by
+
+  -- -------- -- ------
+     @xmath      (50)
+  -- -------- -- ------
+
+where @xmath . For any two operators @xmath and @xmath the following
+relation holds, @xmath [ 62 ] . Hence the overlap ( 50 ) reads
+
+  -- -------- -- ------
+     @xmath      (51)
+  -- -------- -- ------
+
+where the unitary matrix @xmath . Therefore the matrix elements of
+@xmath ( 46 ) are equal to the scalar product of purifications of
+respective mixed states @xmath and @xmath as follows @xmath .
+
+##### 1.8.1 Gram matrices and correlation matrices
+
+In previous chapter it was shown that the correlation matrix can by
+defined by the set of purifications of states emerging from the quantum
+measurement. Therefore, the correlation matrix can be identified with
+the normalized Gram matrix of the purifications.
+
+The Gram matrix is an useful tool in many fields. It can receive a
+geometrical interpretation, as it consists of the overlaps of normalized
+vectors. If vectors are real the determinant of their Gram matrix
+defines the volume of the parallelogram spanned by the vectors [ 63 , 64
+] . The Gram matrix of the evolving pure state is analyzed in [ 65 ] .
+The spectrum of this matrix can determine whether the evolution is
+regular or chaotic.
+
+The Gram matrix @xmath ,
+
+  -- -------- -- ------
+     @xmath      (52)
+  -- -------- -- ------
+
+has the same eigenvalues as
+
+  -- -------- -- ------
+     @xmath      (53)
+  -- -------- -- ------
+
+The proof of this fact [ 66 ] uses the pure state,
+
+  -- -------- -- ------
+     @xmath      (54)
+  -- -------- -- ------
+
+where states @xmath form the set of orthogonal vectors. Since the state
+( 54 ) is pure, its complementary partial traces equal to ( 52 ) and (
+53 ) have the same entropy
+
+  -- -------- -- ------
+     @xmath      (55)
+  -- -------- -- ------
+
+The entropy of the Gram matrix ( 52 ) can be used in quantum information
+theory to describe the ability of compression of quantum information [
+67 ] . The authors of [ 67 ] describe the fact that it is possible to
+enlarge the information transmitted by means of set of states which are
+pairwise less orthogonal and thus more indistinguishable. This fact
+encourages us to consider global properties of quantum ensemble which,
+sometimes, are not reduced to joint effects of each pair considered
+separately. In Chapter 3 some efforts will be made to define the
+quantity characterizing fidelity between three states.
+
+#### 1.9 Kraus operators constructed for an ensemble of states
+
+The previous section concerns the ensembles @xmath formed by the outputs
+of a given quantum channel and a given input state. In the following
+section it will be shown that for any ensemble @xmath the suitable Kraus
+operators @xmath can be constructed and the corresponding initial state
+@xmath can be found.
+
+Initial state is constructed from the states of the ensemble by taking
+
+  -- -------- -- ------
+     @xmath      (56)
+  -- -------- -- ------
+
+where the unitary matrices @xmath are arbitrary. The Kraus operators
+constructed for ensemble @xmath and unitaries @xmath are defined by
+
+  -- -------- -- ------
+     @xmath      (57)
+  -- -------- -- ------
+
+Notice that @xmath and the Hermitian conjugation, @xmath . Due to the
+choice of @xmath in ( 56 ) the identity resolution holds,
+
+  -- -- -- ------
+           (58)
+  -- -- -- ------
+
+In the special case of @xmath states in an ensemble, by choosing
+
+  -- -------- -- ------
+     @xmath      (59)
+  -- -------- -- ------
+
+one obtains @xmath equal to square root fidelity between states @xmath
+and @xmath , as follows @xmath .
+
+In consequence of the above considerations one can say that the ensemble
+emerging from POVM measurement can be arbitrary and for any ensemble
+@xmath we can construct the set of operators @xmath and the
+corresponding initial state @xmath .
+
+#### 1.10 Quantum fidelity
+
+An important problem in the theory of probability is how to distinguish
+between two probability distributions. The so called fidelity is a
+quantity used for this purpose. Assume that @xmath and @xmath are two
+probability distributions. The fidelity between @xmath and @xmath is
+defined as,
+
+  -- -------- -- ------
+     @xmath      (60)
+  -- -------- -- ------
+
+This function has several properties:
+
+-   it is real,
+
+-   positive, @xmath ,
+
+-   symmetric, @xmath ,
+
+-   smaller or equal to unity, @xmath .
+
+-   equal to one if and only if two distributions are the same,
+    @xmath .
+
+These properties are shared by fidelities defined for quantum states
+given below.
+
+Quantum counterpart of the fidelity for the pure states @xmath and
+@xmath is given by the overlap
+
+  -- -------- -- ------
+     @xmath      (61)
+  -- -------- -- ------
+
+A probability distribution can be considered as a diagonal density
+matrix. Generalization of two formulas ( 60 ) and ( 61 ) for arbitrary
+mixed states @xmath and @xmath is given by
+
+  -- -------- -- ------
+     @xmath      (62)
+  -- -------- -- ------
+
+To show a relation to previous definitions of fidelity consider two
+commuting quantum states. They can be given, in the same basis, as
+@xmath , and @xmath . Hence the fidelity between them reads
+
+  -- -- -- ------
+           (63)
+  -- -- -- ------
+
+This gives a relation between fidelity between mixed quantum states ( 62
+) and fidelity of probability distributions which are composed by the
+eigenvalues of the states ( 60 ). Consider now pure states, @xmath such
+that the partial trace over the first subspace reads, @xmath . There
+exists a relation between formula ( 62 ) for fidelity between two mixed
+states and overlaps of their purifications.
+
+###### Theorem 2 (Uhlmann [62]).
+
+Consider two quantum states @xmath and @xmath and their purifications
+@xmath and @xmath . Then
+
+  -- -- -- ------
+           (64)
+  -- -- -- ------
+
+where the maximization is taken over all purifications @xmath of the
+state @xmath .
+
+###### Proof.
+
+The proof starts from purification formula ( 49 ),
+
+  -- -------- -- ------
+     @xmath      (65)
+  -- -------- -- ------
+
+where @xmath is an unnormalized vector, @xmath . The overlap of two
+purifications ( 50 ) is given by
+
+  -- -------- -- ------
+     @xmath      (66)
+  -- -------- -- ------
+
+where the unitary matrix @xmath . The maximization over purifications is
+equivalent to maximization over the unitary matrix @xmath . An
+inequality @xmath provides the required lower bound
+
+  -- -------- -- ------
+     @xmath      (67)
+  -- -------- -- ------
+
+The upper bound is attained by the unitary matrix @xmath equal to the
+unitary part of the polar decomposition of @xmath . This finishes the
+proof. ∎
+
+##### 1.10.1 Geometrical interpretation of fidelity
+
+Consider two one–qubit states in the Bloch representation ( 40 ),
+
+  -- -------- -- ------
+     @xmath      (68)
+     @xmath      (69)
+  -- -------- -- ------
+
+where @xmath is the vector of Pauli matrices ( 39 ). Fidelity of the
+pair of states @xmath and @xmath reads
+
+  -- -------- -- ------
+     @xmath      (70)
+  -- -------- -- ------
+
+If the states @xmath and @xmath are both pure then @xmath and the
+fidelity can be given by
+
+  -- -------- -- ------
+     @xmath      (71)
+  -- -------- -- ------
+
+where the angle @xmath is formed by two Bloch vectors which represent
+the pure states @xmath and @xmath at the Bloch sphere. One can use this
+statement to define the angle between two states as a function of the
+fidelity. The generalization of such an angle for arbitrary two mixed
+states is given by
+
+  -- -------- -- ------
+     @xmath      (72)
+  -- -------- -- ------
+
+It was proved [ 68 ] that such an angle satisfies the axioms of a
+distance and leads to a metric.
+
+#### 1.11 Mutual information
+
+The goal of quantum information is to efficiently apply quantum
+resources for information processing. Consider the following situation.
+A sender transmits the letters of the message from the set @xmath . The
+letters occur with probabilities @xmath , where @xmath . The message is
+transmitted by a communication channel, which can be noisy and can
+change some of the letters. The receiver performs a measurement and
+obtains outputs @xmath with a possibly different probability
+distribution. According to the Shannon information theory [ 1 ] the
+amount of information contained in the message characterized by
+probability distribution @xmath is given by the entropy @xmath . Entropy
+describes the average amount of digits per letter necessary to transmit
+the message characterized by this probability distribution in an optimal
+encoding scheme.
+
+The receiver knowing the letters @xmath has only a part of information
+contained in the original message @xmath . The information which @xmath
+and @xmath have in common is characterized by the mutual information
+@xmath defined by
+
+  -- -------- -- ------
+     @xmath      (73)
+  -- -------- -- ------
+
+where @xmath is the Shannon entropy of the joint probability
+distribution of the pairs of letters, one from @xmath and one from
+@xmath .
+
+The errors caused by a channel can be perfectly corrected if the mutual
+information is equal to the entropy of the initial probability
+distribution. Otherwise the mutual information is bounded by the entropy
+of an initial distribution [ 8 ] ,
+
+  -- -------- -- ------
+     @xmath      (74)
+  -- -------- -- ------
+
+Following properties of the mutual information hold [ 8 ] :
+
+-   Mutual information does not change @xmath if the system @xmath is
+    uncorrelated with @xmath .
+
+-   Mutual information does not increase if any process is made on each
+    part, @xmath , where prime denotes the states after the
+    transformation.
+
+-   If part of a system is discarded the mutual information decreases
+    @xmath .
+
+Mutual information can also be defined for quantum composite systems in
+terms of the von Neumann entropy . The definition is analogous to ( 73
+):
+
+  -- -------- -- ------
+     @xmath      (75)
+  -- -------- -- ------
+
+where states of subsystems are given by partial traces, for example,
+@xmath . Mutual information @xmath for quantum states satisfies
+properties analogous to these listed above for the classical mutual
+information @xmath .
+
+#### 1.12 Holevo quantity
+
+Holevo @xmath quantity (Holevo information) of the ensemble @xmath is
+defined by the formula
+
+  -- -------- -- ------
+     @xmath      (76)
+  -- -------- -- ------
+
+It plays an important role in quantum information theory. As the bound
+on the mutual information [ 7 ] , Holevo quantity is related to
+fundamental restriction on the information achievable from measurement
+allowed by quantum mechanics. It directly reflexes these features of
+quantum mechanics which distinguishes this theory from classical
+physics. In classical information theory the mutual information between
+the sender and the receiver is bounded only by the Shannon entropy of
+the probability distribution describing the original message. In the
+case of an ideal channel between two parts the mutual information is
+equal to the upper bound. In quantum case, even without any noise
+present during the transmission process, the mutual information is
+restricted by the Holevo quantity which is smaller than the entropy
+associated with the original message, unless the states used to encode
+the message are orthogonal.
+
+The theorem of Holevo [ 7 ] is presented below together with its proof.
+
+###### Theorem 3 (Holevo).
+
+Let @xmath be a set of quantum states produced with probabilities @xmath
+from the distribution @xmath . Outcomes of a POVM measurement performed
+on these states are encoded into symbols with probabilities @xmath from
+probability distribution @xmath . Whichever measurement is done, the
+accessible mutual information is bounded from above,
+
+  -- -------- -- ------
+     @xmath      (77)
+  -- -------- -- ------
+
+###### Proof.
+
+Consider a three partite state, where its parts are denoted by the
+letters @xmath and @xmath
+
+  -- -------- -- ------
+     @xmath      (78)
+  -- -------- -- ------
+
+Three parts of the system @xmath , @xmath and @xmath can be associated
+with the preparation state, quantum systems, and the measurement
+apparatus respectively. The state @xmath describes the quantum system
+before the measurement, since the state of the apparatus is independent
+on the quantum states.
+
+Assume that the state @xmath is subjected to the quantum operation
+acting on the subsystem @xmath as follows, @xmath . The Kraus operators
+of this quantum operation form a POVM measurement since @xmath . The
+state after this measurement is given by
+
+  -- -- -- ------
+           (79)
+  -- -- -- ------
+
+Properties of the mutual information listed in section 1.11 imply the
+key inequality of the proof:
+
+  -- -------- -- ------
+     @xmath      (80)
+  -- -------- -- ------
+
+To prove inequality ( 77 ) it is enough to calculate the quantities
+occurring in ( 80 ) for the state ( 78 ) and ( 79 ) respectively. Since
+@xmath , the left hand side of ( 80 ) is given by
+
+  -- -------- -- ------
+     @xmath      (81)
+  -- -------- -- ------
+
+where @xmath . This is the Holevo quantity which does not depend on the
+measurement operators @xmath . To compute the right hand side of ( 80 ),
+@xmath , consider a state ( 79 ). The observation that @xmath leads to
+
+  -- -------- -- ------
+     @xmath      (82)
+  -- -------- -- ------
+
+where @xmath and @xmath . This is the mutual information between the
+probability distributions describing the outcomes of the measurement and
+the original message. That finishes the proof of the Holevo bound on the
+mutual information of message encoded into quantum systems. ∎
+
+Above theorem is one of the most important applications of the Holevo
+quantity. Quantum information theory uses also the Holevo quantity
+@xmath to define channel capacity. There exist several definitions of
+quantum capacity of a channel depending on whether the entanglement
+between the input states is allowed or not. In the case that quantum
+states in a message are not entangled the Holevo capacity of channel
+@xmath is defined by
+
+  -- -------- -- ------
+     @xmath      (83)
+  -- -------- -- ------
+
+The Holevo quantity @xmath , which can be interpreted as the Holevo
+capacity of the identity channel, bounds the capacity @xmath for any
+channel [ 8 ] :
+
+  -- -------- -- ------
+     @xmath      (84)
+  -- -------- -- ------
+
+Yet another application of the Holevo quantity concerns the ensembles of
+quantum states. Formula ( 76 ) can be given by the average relative
+entropy
+
+  -- -------- -- ------
+     @xmath      (85)
+  -- -------- -- ------
+
+where the relative entropy is defined as @xmath . It defines an average
+divergence of every state from the average state. Average ( 85 ) is
+known as the quantum Jensen Shannon divergence [ 69 ] . Its classical
+version, for probability measures, is considered in [ 70 ] . From
+mathematical point of view, the Holevo quantity can be treated as a
+quantity which characterizes the concavity of the entropy function.
+
+The Holevo information will be the main object considered in Part II of
+this thesis.
+
+## Part II Bounds on the Holevo quantity
+
+### 2 Holevo quantity and the correlation matrix
+
+In the following chapters several inequalities for the Holevo
+information (Holevo quantity) will be given. It is well-known [ 8 ] that
+the Shannon entropy of the probability vector @xmath is an upper bound
+for the Holevo quantity of an ensemble @xmath :
+
+  -- -------- --
+     @xmath
+  -- -------- --
+
+Since the Holevo quantity forms a bound on accessible mutual
+information, the difference between entropy of probability vector @xmath
+and the Holevo quantity specifies how the chosen set of density matrices
+differs from the ideal code, which can be decoded perfectly by the
+receiver. The upper bound on the Holevo quantity can be used for
+estimating this difference. One of the estimation for the Holevo
+quantity is presented in the following section.
+
+As discussed in Section 1.8 the correlation matrix @xmath can be
+equivalently interpreted in several ways. If the set of the Kraus
+operators @xmath defines a quantum channel, @xmath , the correlation
+matrix @xmath characterizes the output state of the complementary
+channel, @xmath , or the state of the environment after the quantum
+operation. As mentioned in Section 1.8.1 , @xmath defines also the Gram
+matrix of purifications of the states @xmath . The entropy @xmath is
+related to the exchange entropy or the entropy which the environment
+gains during a quantum operation provided the initial state of the
+environment is pure. In the following analysis a quantum channel @xmath
+is treated as a device preparing an ensemble of quantum states @xmath ,
+where
+
+  -- -------- -- ------
+     @xmath      (86)
+  -- -------- -- ------
+
+The described situation is illustrated in Fig. 1 .
+
+Independently of the interpretation of the Kraus operators @xmath the
+following theorem proved in [ 49 ] holds.
+
+###### Theorem 4.
+
+Let @xmath be the identity decomposition and @xmath an arbitrary quantum
+state. Define the probability distribution @xmath and a set of density
+matrices @xmath . The Holevo quantity @xmath is bounded by the entropy
+of the correlation matrix, @xmath :
+
+  -- -------- -- ------
+     @xmath      (87)
+  -- -------- -- ------
+
+where @xmath is the Shannon entropy of the probability distribution
+@xmath .
+
+###### Proof.
+
+The right hand side of the inequality: @xmath , is a consequence of the
+majorization theorem, see e.g. [ 15 ] . Since the probability vector
+@xmath forms a diagonal of a correlation matrix, we have @xmath . The
+left hand side of the inequality ( 87 ) is proved due to the strong
+subadditivity of the von Neumann entropy [ 60 ] . The multipartite state
+@xmath is constructed in such a way that entropies of its partial traces
+are related to specific terms of ( 87 ).
+
+The multipartite state @xmath is constructed by using an isometry @xmath
+. The state @xmath is given explicitly by the formula
+
+  -- -------- -- ------
+     @xmath      (88)
+  -- -------- -- ------
+
+States of the subsystems @xmath are given by partial traces over the
+remaining subsystems, for example, @xmath and so on.
+
+Let us introduce the following notation @xmath . In this notation the
+quantities from the Theorem 4 take the form @xmath and @xmath . Notice
+that
+
+  -- -------- -- ------
+     @xmath      (89)
+     @xmath      (90)
+  -- -------- -- ------
+
+Moreover
+
+  -- -------- -------- -- ------
+     @xmath   @xmath
+              @xmath      (91)
+  -- -------- -------- -- ------
+
+The strong subadditivity relation in the form which is used most
+frequently
+
+  -- -------- -- ------
+     @xmath      (92)
+  -- -------- -- ------
+
+does not lead to the desired form ( 87 ). However, due to the
+purification procedure and the fact that a partial trace of a pure state
+has the same entropy as the complementary partial trace, inequality ( 92
+) can be rewritten in an alternative form [ 21 ] :
+
+  -- -------- -- ------
+     @xmath      (93)
+  -- -------- -- ------
+
+This inequality applied to the partial traces of the state ( 88 ) proves
+Theorem 4 . ∎
+
+For an ensemble of pure states @xmath , the left hand side of ( 87 )
+consists of the term @xmath only. The correlation matrix @xmath in the
+case of pure states is given by the Gram matrix. Due to the simple
+observation ( 55 ), the left inequality ( 87 ) is saturated in case of
+any ensemble @xmath consisting of pure states only.
+
+Using a different method an inequality analogous to Theorem 4 has been
+recently proved in [ 71 ] for the case of infinite dimension. It can be
+also found in [ 72 ] in context of quantum cryptography. The authors
+analyse there the security of a cryptographic key created by using so
+called ’private qubits’. In such a setup an inequality analogous to ( 87
+) appears as a bound on the information of the eavesdropper.
+
+#### 2.1 Other inequalities for the Holevo quantity
+
+Methods similar to that used to prove Theorem 4 can be applied to prove
+other useful bounds.
+
+###### Proposition 1.
+
+Consider a POVM measurement characterized by operators @xmath which
+define the outcome states, @xmath and their probabilities, @xmath . The
+average entropy of the output states is smaller than entropy of the
+initial state,
+
+  -- -------- -- ------
+     @xmath      (94)
+  -- -------- -- ------
+
+###### Proof.
+
+Due to the fact that the transformation @xmath in Eq. ( 88 ) is an
+isometry, the three-partite state @xmath has the same nonzero spectrum
+as the initial state @xmath . Hence @xmath and @xmath have the same
+entropy. Due to equality ( 91 ) and the Araki–Lieb inequality [ 76 ] :
+
+  -- -------- -- ------
+     @xmath      (95)
+  -- -------- -- ------
+
+one completes the proof of Proposition 94 . ∎
+
+Note that concavity of entropy implies also another inequality @xmath .
+Proposition 94 has been known before [ 77 ] as the quantum information
+gain .
+
+Definition of the channel capacity ( 83 ) encourages one to consider
+bounds on the Holevo quantity for the concatenation of two quantum
+operations. Treating the probabilities @xmath and states @xmath as the
+outputs from the first channel one can replace maximization over @xmath
+in ( 83 ) by maximization over the initial state @xmath and the quantum
+operation @xmath . The strategy similar to that used in Theorem 4 allows
+us to prove the following relations.
+
+###### Proposition 2.
+
+Consider two quantum operations: @xmath and @xmath . Define @xmath and
+@xmath . The following inequality holds:
+
+  -- -------- -- ------
+     @xmath      (96)
+  -- -------- -- ------
+
+###### Proof.
+
+Let us consider the four–partite state:
+
+  -- -------- -- ------
+     @xmath      (97)
+  -- -------- -- ------
+
+where @xmath , and the strong subadditivity relation in the form
+
+  -- -------- -- ------
+     @xmath      (98)
+  -- -------- -- ------
+
+Notice that
+
+  -- -------- --
+     @xmath
+     @xmath
+     @xmath
+  -- -------- --
+
+The third equality is due to the fact that an isometry, @xmath , does
+not change the nonzero part of spectrum. This property is also used to
+justify the following equation
+
+  -- -------- -- ------
+     @xmath      (99)
+  -- -------- -- ------
+
+Substituting these quantities to the strong subadditivity relation ( 98
+) we finish the proof. ∎
+
+Inequality 96 is known [ 8 ] as the property that the Holevo quantity
+decreases under a quantum operation @xmath .
+
+Consider notation used in the proof of Proposition 96 . Concavity of the
+entropy gives
+
+  -- -------- -- -------
+     @xmath      (100)
+  -- -------- -- -------
+
+where @xmath and probabilities @xmath . Using Theorem 4 and concavity of
+entropy ( 100 ) one proves:
+
+###### Proposition 3.
+
+Consider two quantum operations: @xmath and @xmath . Define @xmath and
+@xmath . The following inequality holds:
+
+  -- -------- -- -------
+     @xmath      (101)
+  -- -------- -- -------
+
+where the output of the complementary channel to @xmath is denoted as
+@xmath .
+
+##### 2.1.1 Some consequences
+
+This section provides three applications of theorems proved in Sections
+2 and 2.1 . One of them concerns the coherent information . This
+quantity is defined for a given quantum operation @xmath and an initial
+state @xmath as follows [ 73 ]
+
+  -- -------- -- -------
+     @xmath      (102)
+  -- -------- -- -------
+
+where @xmath is the output state of the channel complementary to @xmath
+. To some extent, coherent information in quantum information theory
+plays a similar role to mutual information in classical information
+theory. It is known [ 8 ] that @xmath . That is a relation similar to (
+74 ). Moreover, it has been shown that only if @xmath the process @xmath
+can be perfectly reversed. In this case the perfect quantum error
+correction is possible [ 73 ] . The coherent information is also used to
+define the quantum capacity of a quantum channel [ 74 ]
+
+  -- -------- -- -------
+     @xmath      (103)
+  -- -------- -- -------
+
+The definition of the coherent information ( 102 ) can be formulated
+alternatively [ 73 ] by means of an extended quantum operation @xmath
+acting on a purification @xmath of an initial state, @xmath . This fact
+is justified as follows. The purification of @xmath determines as well
+the purification @xmath of the state @xmath in ( 29 ),
+
+  -- -------- -- -------
+     @xmath      (104)
+  -- -------- -- -------
+
+The partial trace over the environment (subspace @xmath ) reads
+
+  -- -------- -- -------
+     @xmath      (105)
+  -- -------- -- -------
+
+It has the same entropy as the partial trace over the second and third
+subspace, @xmath which is a state of environment after evolution,
+
+  -- -- -- -------
+           (106)
+  -- -- -- -------
+
+and @xmath .
+
+Coherent information ( 102 ) can be written as
+
+  -- -------- -- -------
+     @xmath      (107)
+  -- -------- -- -------
+
+The classical counterpart of the coherent information can be defined by
+using the Shannon entropy instead of the von Neumann entropy and
+probability vectors instead of density matrices in Eq. ( 107 ). The
+classical coherent information is always negative, since the entropy of
+a joint probability distribution cannot be smaller than its marginal
+distribution.
+
+Inequalities proved in Theorem 4 and Proposition 94 together provide the
+following bound on the coherent information,
+
+  -- -------- -- -------
+     @xmath      (108)
+  -- -------- -- -------
+
+where @xmath and @xmath are defined by Kraus representations of the
+channel, @xmath . The equality between coherent information and the
+entropy of initial state @xmath guarantees that @xmath is reversible.
+Inequality ( 108 ) implies a similar, weaker statement: only if the
+following equality holds @xmath , the quantum operation @xmath can be
+reversed.
+
+Another consequence of inequalities proved in Section 2.1 concerns the
+so called degradable channels . These channels are considered in quantum
+information theory in the context of their capacity [ 42 ] . A channel
+@xmath is called degradable if there exists a channel @xmath such that
+@xmath . Substituting the degradable channel @xmath and the additional
+channel @xmath to inequality in Proposition 96 one obtains a lower bound
+for the average entropy of @xmath , where @xmath are output states from
+the channel @xmath ,
+
+  -- -------- -- -------
+     @xmath      (109)
+  -- -------- -- -------
+
+where @xmath . The left inequality is due to inequality ( 108 ).
+Therefore Proposition 96 provides some characterization of the channel
+@xmath which is associated with a degradable channel.
+
+The third application of propositions from Section 2.1 is given as
+follows. The Jamiołkowski isomorphism [ 34 ] gives a representation of a
+quantum map @xmath which acts on @xmath dimensional system by a density
+matrix on the extended space of size @xmath . This state can be written
+as:
+
+  -- -------- -- -------
+     @xmath      (110)
+  -- -------- -- -------
+
+where @xmath is the maximally entangled state. A rescaled state @xmath
+is called the dynamical matrix . In the special case, if the initial
+state is maximally mixed, @xmath , the entropy of the correlation matrix
+@xmath written in ( 106 ) is equal to the entropy of the dynamical
+matrix.
+
+A quantum map @xmath can by defined using its Kraus representation ( 30
+). Since the Kraus representation is not unique [ 15 ] , one can
+associate many different correlation matrices with a given quantum
+operation @xmath depending on both, the initial state and the set of
+Kraus operators. However the entropy of the dynamical matrix @xmath is
+invariant under different decompositions. This entropy characterizes the
+quantum operation and is called the entropy of a map [ 49 ] , denoted by
+@xmath as defined in Eq. ( 45 ).
+
+Due to Theorem 4 the entropy of a map has the following interpretation.
+It determines an upper bound on the Holevo quantity ( 76 ) for a POVM
+measurement defined by the Kraus operators of @xmath if the initial
+state is maximally mixed @xmath . Moreover, the entropy of a map is an
+upper bound for the Holevo quantity for POVM given by any set of Kraus
+operators @xmath which realize the same quantum operation @xmath ,
+
+  -- -------- -- -------
+     @xmath      (111)
+  -- -------- -- -------
+
+where @xmath .
+
+Proposition 3 provides also an alternative lower bound for the entropy
+of composition of two quantum maps given by Theorem 3 in [ 46 ] . The
+inequality for the entropy of composition of two maps can be now stated
+as
+
+  -- -------- -- -------
+     @xmath      (112)
+  -- -------- -- -------
+
+where @xmath and @xmath . The lower bound proved in our earlier paper [
+46 ] could be smaller than @xmath . The improved bound is always greater
+than @xmath due to concavity of entropy.
+
+#### 2.2 Discussion on the Lindblad inequality
+
+Lindblad [ 75 ] proved an inequality which relates the von Neumann
+entropy of a state @xmath , its image @xmath and the entropy of the
+correlation matrix @xmath equal to the output state of the complementary
+channel @xmath ,
+
+  -- -------- -- -------
+     @xmath      (113)
+  -- -------- -- -------
+
+Another two Lindblad inequalities are obtained by permuting the states
+@xmath and @xmath in this formula. The proof of Lindblad proceeds in a
+similar way to the proof of Theorem 4 . It involves a bi–partite
+auxiliary state @xmath , where the identity @xmath is due to an isometry
+similar to @xmath in ( 88 ). The Araki–Lieb inequality [ 76 ] , @xmath
+applied to @xmath proves the left hand side inequality of ( 113 ), while
+the subadditivity relation @xmath applied to @xmath proves the right
+hand side inequality of ( 113 ).
+
+Inequalities from Theorem 4 and Proposition 94
+
+  -- -------- -- -------
+     @xmath      (114)
+     @xmath      (115)
+  -- -------- -- -------
+
+use a three–partite auxiliary state @xmath . As in the case of the
+Lindblad inequality ( 113 ), the identity @xmath holds due to isometry.
+The strong subadditivity relation applied to @xmath proves inequality (
+114 ), while the Araki–Lieb inequality applied for @xmath proves
+inequality ( 115 ). Notice that an extension of the auxiliary state and
+application of the strong subadditivity relation allows one to use the
+average entropy to new inequalities for interesting quantities: the
+entropy of the initial state, the entropy of the output state of a
+quantum channel @xmath and the entropy of the output state of the
+complementary channel @xmath .
+
+In the case @xmath (e.g. for any bistochastic operations) the result (
+114 ) gives a better lower constraints for @xmath than the Lindblad
+bound ( 113 ). In this case
+
+  -- -------- -- -------
+     @xmath      (116)
+  -- -------- -- -------
+
+due to Prop. 94 . However, if @xmath the result of Lindblad can be more
+precise depending on the values of @xmath , @xmath and the average
+entropy @xmath . In consequence, due to Lindblad inequality ( 113 ) and
+the inequality ( 111 ) one obtains another lower bound for the entropy
+of a map:
+
+  -- -------- -- -------
+     @xmath      (117)
+  -- -------- -- -------
+
+where @xmath .
+
+#### 2.3 Inequalities for other entropies
+
+Inequality ( 87 ) uses the strong subadditivity relation in the form (
+93 ) which is a specific feature of the von Neumann entropy. Relation (
+93 ) can be equivalently formulated in terms of relative von Neumann
+entropies.
+
+The relative von Neumann entropy @xmath is defined as follows
+
+  -- -------- -- -------
+     @xmath      (118)
+  -- -------- -- -------
+
+and is finite for @xmath , otherwise it becomes infinite.
+
+Monotonicity of relative entropy states that for any three–partite
+quantum state @xmath and its partial traces the following inequality
+holds:
+
+  -- -------- -- -------
+     @xmath      (119)
+  -- -------- -- -------
+
+It is an important and nontrivial property of the von Neumann entropy [
+60 ] , [ 78 ] . Monotonicity of the von Neumann entropy ( 119 )
+rewritten using the definition ( 118 ) leads to the strong subadditivity
+relation:
+
+  -- -------- -- -------
+     @xmath      (120)
+  -- -------- -- -------
+
+Complementary partial traces of any multipartite pure state have the
+same entropy. This fact can be applied to purifications of @xmath .
+Therefore, relation ( 120 ) is equivalent to ( 93 ) which can be applied
+to the specific three–partite state ( 88 )
+
+  -- -------- -- -------
+     @xmath      (121)
+  -- -------- -- -------
+
+and used to prove the upper bound on the Holevo quantity in terms of a
+correlation matrix @xmath . Hence, inequality ( 87 ) is a consequence of
+the monotonicity of the relative von Neumann entropy.
+
+Monotonicity of entropy holds also for some generalized entropies e.g.
+Tsallis entropies of order @xmath [ 79 ] or Rényi entropies of order
+@xmath [ 80 ] . Direct generalization of @xmath is not so easy, since
+the key step in the proof was the strong subadditivity form ( 93 ). In
+case of generalized entropies such a form cannot be obtained from the
+monotonicity of relative entropy.
+
+The Holevo quantity can be expressed by the relative entropy. Consider
+the state ( 121 ) and the notation: @xmath , and @xmath . The relative
+entropy reads:
+
+  -- -- -------- -------- -- -------
+                 @xmath      (122)
+        @xmath   @xmath      (123)
+        @xmath   @xmath      (124)
+        @xmath   @xmath      (125)
+        @xmath   @xmath      (126)
+  -- -- -------- -------- -- -------
+
+The equality between the Holevo quantity and relative entropy holds also
+for the Tsallis entropies of any order @xmath
+
+  -- -------- -- -------
+     @xmath      (127)
+  -- -------- -- -------
+
+where the relative Tsallis entropy @xmath of order @xmath is defined as
+[ 79 ]
+
+  -- -------- -- -------
+     @xmath      (128)
+  -- -------- -- -------
+
+It is now possible to compute the Tsallis–like generalized relative
+entropy @xmath between a bipartite state @xmath and the product of its
+partial traces which leads to the generalized Holevo quantity @xmath .
+If one considers the state ( 121 )
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (129)
+              @xmath   @xmath      (130)
+              @xmath   @xmath      (131)
+              @xmath   @xmath      (132)
+  -- -------- -------- -------- -- -------
+
+In a similar way we can work with the Rényi entropy @xmath . The
+corresponding relative Rényi entropy reads [ 81 ]
+
+  -- -------- -- -------
+     @xmath      (133)
+  -- -------- -- -------
+
+and the Rényi–Holevo quantity is given by
+
+  -- -------- -- -------
+     @xmath      (134)
+  -- -------- -- -------
+
+Equality between the generalized Rényi–Holevo quantity ( 134 ) and the
+Rényi relative entropy ( 133 ) holds if relative entropy concerns
+partial traces of ( 121 ) and the state @xmath as follows
+
+  -- -------- -- -------
+     @xmath      (135)
+  -- -------- -- -------
+
+The Holevo quantity ( 135 ) is smaller than @xmath [ 81 ] .
+
+The monotonicity of relative entropy for three considered types of
+generalized entropies: von Neumann entropy, Tsallis entropy of order
+@xmath and Rényi entropy of order @xmath gives
+
+  -- -------- -- -------
+     @xmath      (136)
+     @xmath      (137)
+     @xmath      (138)
+  -- -------- -- -------
+
+These relations state that the Holevo quantity is bounded by the
+relative entropy between the joint state of the quantum system and its
+environment and the states of these subsystems taken separately.
+
+In case of von Neumann entropy, inequality ( 136 ) can be written
+explicitly as
+
+  -- -------- -- -------
+     @xmath      (139)
+  -- -------- -- -------
+
+Notice that @xmath is an initial state and @xmath due to isometry
+transformation, @xmath . Relation ( 139 ) joints entropies of the
+initial state, the final state, the state of the environment and the
+Holevo quantity in a single formula. Inequality ( 139 ) which can be
+rewritten as
+
+  -- -------- -- -------
+     @xmath      (140)
+  -- -------- -- -------
+
+gives a finer bound than that provided by the Lindblad inequality:
+@xmath . Inequality ( 139 ) can be written as @xmath , where @xmath ,
+due to one of the Lindblad inequalities. In some cases this inequality
+confines the relation ( 87 ).
+
+#### 2.4 Searching for the optimal bound
+
+The state @xmath can be defined for a triple consisting of a probability
+distribution, set of @xmath density matrices of size @xmath and a set of
+@xmath unitary matrices, @xmath . Every triple @xmath defines uniquely
+the pure state @xmath which is the purification of state @xmath as
+follows
+
+  -- -------- -- -------
+     @xmath      (141)
+  -- -------- -- -------
+
+as shown in ( 49 ). The Holevo quantity depends only on @xmath .
+Therefore, Theorem 4 can be reformulated as follows:
+
+###### Theorem 5.
+
+For any ensemble @xmath the Holevo quantity is bounded by the entropy of
+the correlation matrix @xmath minimized over all unitary matrices @xmath
+
+  -- -------- -- -------
+     @xmath      (142)
+  -- -------- -- -------
+
+where @xmath and @xmath .
+
+The last equality of ( 142 ) holds since the correlation matrix @xmath
+can be represented as the Gram matrix of purifications of @xmath . It is
+known that for any Gram matrix equality ( 55 ) holds.
+
+Finding minimization of @xmath over unitaries is not an easy problem in
+general. In the following chapter the problem will be solved for the
+ensemble of @xmath states, and the solution is written in terms of
+square root of the fidelity between both states. A conjecture that the
+matrix of the square roots of fidelities also bounds the Holevo quantity
+for ensembles of @xmath states will be formulated and some weaker bounds
+will be proved in the next section.
+
+##### 2.4.1 Optimal bound for two matrices
+
+The tightest upper bound on the Holevo quantity occurring in Theorem 5
+is obtained by taking minimum of @xmath over the set of unitaries. This
+is equivalent to the POVM which minimizes the correlation matrix among
+all POVM which give the same output states. For two output states @xmath
+and @xmath occurring with probabilities @xmath the correlation matrix is
+given by
+
+  -- -------- -- -------
+     @xmath      (143)
+  -- -------- -- -------
+
+Its entropy is the lowest, if the absolute values of the off–diagonal
+elements are the largest. As has been shown in Eq. ( 67 ) the expression
+@xmath attains its maximum over unitary matrices at the value
+
+  -- -------- -- -------
+     @xmath      (144)
+  -- -------- -- -------
+
+where for brevity we use @xmath instead of @xmath . This quantity is
+equal to the square root fidelity ( 62 ). Therefore the correlation
+matrix of the smallest entropy can be rewritten in terms of the square
+root fidelity,
+
+  -- -------- -- -------
+     @xmath      (145)
+  -- -------- -- -------
+
+#### 2.5 Jensen Shannon Divergence
+
+Minimal entropy of the correlation matrix characterizing an ensemble of
+two density matrices is related to the distance between them in the set
+of density matrices. If the probability distribution in ( 145 ) is
+uniform, @xmath , the square root of the von Neumann entropy of @xmath
+forms a metric [ 53 ] . It is called the entropic distance @xmath
+
+  -- -------- -- -------
+     @xmath      (146)
+  -- -------- -- -------
+
+Inequality ( 142 ) provides the relation between this metric and another
+one defined by means of the Jensen–Shannon Divergence . The
+Jensen–Shannon Divergence @xmath has been initially defined [ 69 ] , [
+82 ] as the divergence of classical probability distributions @xmath
+occurring with probabilities @xmath
+
+  -- -------- -- -------
+     @xmath      (147)
+  -- -------- -- -------
+
+where @xmath denotes the Shannon entropy of the probability distribution
+@xmath , @xmath is the relative entropy between @xmath and @xmath ,
+while the average probability distribution reads @xmath .
+
+The square root of the Jensen-Shannon divergence between two probability
+distributions @xmath and @xmath ,
+
+  -- -------- -- -------
+     @xmath      (148)
+  -- -------- -- -------
+
+where @xmath , forms a metric in the set of classical probability
+distributions [ 82 ] , [ 83 ] called the transmission distance @xmath ,
+
+  -- -------- -- -------
+     @xmath      (149)
+  -- -------- -- -------
+
+A probability distribution can be considered as a diagonal density
+matrix. Therefore, Eq. ( 142 ) in Theorem 5 demonstrates a relation
+between functions of two distances in the set of diagonal density
+matrices. Fig. 2 and Fig. 3 shows the comparison between these two
+distances for exemplary probability distributions.
+
+A quantum counterpart of the Jensen–Shannon divergence, in fact
+coinciding with the Holevo quantity, was also considered [ 69 ] , [ 82 ]
+. Inequality ( 142 ) provides thus an upper bound on the quantum
+Jensen–Shannon divergence.
+
+### 3 Conjecture on three–fidelity matrix
+
+The minimization problem for the entropy of the correlation matrix ( 143
+) has been solved for an ensemble consisting of @xmath quantum states.
+In this case the solution is given by the square root fidelity matrix.
+In the case of @xmath states in the ensemble the optimization over the
+set of three unitary matrices is more difficult. Our numerical tests
+support the following conjecture, which is a generalization of the bound
+found for the case of @xmath .
+
+###### Conjecture 1.
+
+For an ensemble of @xmath quantum states, @xmath the entropy of the
+square root fidelity matrix @xmath gives the upper bound on the Holevo
+quantity,
+
+  -- -- -- -------
+           (150)
+  -- -- -- -------
+
+where fidelity between two quantum states reads @xmath .
+
+It has been shown [ 84 ] , [ 52 ] that the matrix @xmath containing
+square root fidelities is positively semi–defined for @xmath . However,
+the square root fidelity matrix is in general not positive for @xmath .
+Numerical tests provide several counterexamples for positivity of @xmath
+for @xmath , even in case of an ensemble of pure states. Note that the
+matrix @xmath is not a special case of the correlation matrix @xmath ,
+which is positive by construction.
+
+Theorem 4 implies that Conjecture 1 holds for ensembles containing three
+pure states. Inequality ( 87 ) is in this case saturated as discussed in
+section 2 . Square root fidelity matrix @xmath is obtained from the Gram
+matrix of given pure states by taking modulus of its matrix entries.
+Taking modulus of entries of a positive @xmath matrix does not change
+neither the trace nor the determinant of the matrix. Only the second
+symmetric polynomial of the eigenvalues is growing. Since the entropy is
+a monotonic increasing function of the second symmetric polynomial [ 67
+] , the entropy of the square root fidelity matrix @xmath is larger than
+the entropy of the Gram matrix and therefore it is also larger than the
+Holevo quantity.
+
+#### 3.1 A strategy of searching for a proof of the conjecture
+
+The proof of Theorem 4 consist of two steps. In the first step one has
+to find suitable multipartite state. In the second step the strong
+subadditivity relation of entropy has to be applied for the constructed
+multipartite state. The same strategy will be used searching for the
+proof of Conjecture 1 or for proving other weaker inequalities.
+
+For the purpose of obtaining the Holevo quantity from suitable terms of
+the strong subadditivity relation, the multipartite state @xmath should
+have a few features:
+
+-   it is a block matrix which is positive,
+
+-   blocks on the diagonal should contain states @xmath multiplied by
+    probabilities @xmath ,
+
+-   traces of off-diagonal blocks should give square root fidelities, or
+    some smaller numbers if one aims to obtain a weaker bound.
+
+The following matrix satisfies above conditions,
+
+  -- -------- -- -------
+     @xmath      (151)
+  -- -------- -- -------
+
+where in place of @xmath one can put any matrix, provided the matrix
+@xmath remains positive. If in place of @xmath one substitutes zeros,
+the strong subadditivity relation implies the known formula that @xmath
+. Examples presented in the next section use described strategy to prove
+some entropic inequalities for the Holevo quantity.
+
+The main problem is to find a suitable positive block matrix. In order
+to check positivity the Schur complement method [ 85 ] is very useful.
+
+###### Lemma 1 (Schur).
+
+Assume that @xmath is invertible and positive matrix, then
+
+  -- -------- -- -------
+     @xmath      (152)
+  -- -------- -- -------
+
+is positive if and only if @xmath is positive semi–definite:
+
+  -- -------- -- -------
+     @xmath      (153)
+  -- -------- -- -------
+
+The matrix @xmath is called the Schur complement.
+
+##### 3.1.1 Three density matrices of an arbitrary dimension
+
+The strategy mentioned in the previous section will be used to prove the
+following
+
+###### Proposition 4.
+
+For a three states ensemble @xmath the following bound for the Holevo
+quantity @xmath holds
+
+  -- -- -- -------
+           (154)
+  -- -- -- -------
+
+where @xmath .
+
+###### Proof.
+
+It will be assumed that considered density matrices @xmath are
+invertible. After [ 106 ] the square root of the product of two density
+matrices @xmath will be defined as follows:
+
+  -- -------- -- -------
+     @xmath      (155)
+  -- -------- -- -------
+
+In this notation the fidelity between two states @xmath and @xmath can
+be written as:
+
+  -- -------- -- -------
+     @xmath      (156)
+  -- -------- -- -------
+
+Formula ( 156 ) can be generalized for non-invertible matrices [ 52 ] .
+
+One can use the Schur complement Lemma 1 to prove positivity of the
+block matrix:
+
+  -- -------- -- -------
+     @xmath      (157)
+  -- -------- -- -------
+
+In this case the matrices @xmath and @xmath , which enter the Lemma 1 ,
+take the form: @xmath , assume that it is invertible, and @xmath .
+Notice that
+
+  -- -------- -------- -- -- -------
+     @xmath   @xmath         (158)
+              @xmath         (159)
+  -- -------- -------- -- -- -------
+
+therefore in the case of matrix ( 157 ), @xmath and @xmath . Hence the
+following matrix @xmath is also positive:
+
+  -- -- -- -------
+           (160)
+  -- -- -- -------
+
+Using strong subadditivity as described in section 3.1 to the
+multipartite state @xmath extended by some rows and columns of zeros,
+one proves inequality ( 154 ) for @xmath . To prove relation ( 154 ) for
+@xmath a small modification of matrix ( 160 ) is needed. The
+off–diagonal elements can be multiplied by the number @xmath without
+changing the positivity of the block matrix. ∎
+
+##### 3.1.2 Three density matrices of dimension @xmath
+
+Proposition 4 can be amended for the case of @xmath by decreasing the
+parameter @xmath to the value at least @xmath .
+
+###### Proposition 5.
+
+For an ensemble of three states of size two, @xmath one has
+
+  -- -- -- -------
+           (161)
+  -- -- -- -------
+
+with @xmath .
+
+###### Proof.
+
+The main task in the proof is to show that the block matrix
+
+  -- -------- -- -------
+     @xmath      (162)
+  -- -------- -- -------
+
+is positive for @xmath as well as the analogous matrix enlarged by
+adding rows and columns of zeros in order to have a matrix of the form (
+151 ). The Schur complement method described in section 3.1 will be
+used, where:
+
+  -- -------- -- -------
+     @xmath      (163)
+  -- -------- -- -------
+
+  -- -------- -- -------
+     @xmath      (164)
+  -- -------- -- -------
+
+Due to the fact that @xmath is positive one needs to prove the
+positivity of @xmath :
+
+  -- -------- -- -------
+     @xmath      (165)
+  -- -------- -- -------
+
+To prove positivity of ( 162 ) the Schur complement @xmath should be
+positive. One can apply the Schur complement Lemma second time to the
+matrix @xmath . Positivity condition required by Lemma 1 enforces that
+
+  -- -------- -- -------
+     @xmath      (166)
+  -- -------- -- -------
+
+where @xmath For @xmath matrices one can assume without lost of
+generality that @xmath . It is so because the matrix @xmath is a unitary
+matrix and its determinant is equal to @xmath , therefore its
+eigenvalues are two conjugate numbers. The matrix @xmath , which
+consists of sum of the unitary matrix and its conjugation, is
+proportional to identity. If it is negative one can change @xmath into
+@xmath and @xmath into @xmath in ( 162 ). Transformation changing the
+sign does not act on the final result because off-diagonal blocks do not
+take part in forming the Holevo quantity and in the case of @xmath
+matrices we can take modulus of each element of the matrix without
+changing its positivity.
+
+Let us take @xmath in the positivity condition ( 166 ). This condition
+implies @xmath . Knowing that ( 162 ) is a positive matrix, the rest of
+the proof of ( 161 ) goes like in section 3.1 . ∎
+
+##### 3.1.3 Fidelity matrix for one–qubit states
+
+In previous section some bounds on the Holevo quantity were established.
+These bounds are weaker than the bound postulated by Conjecture 1 ,
+since decreasing the off–diagonal elements of a matrix one increases its
+entropy. In previous proposition the square root fidelities were divided
+by numbers greater than @xmath . In the following section the squares of
+the off–diagonal elements of the matrix @xmath in ( 150 ) will be taken.
+For such modified matrices the following proposition holds for an
+arbitrary number of @xmath states in the ensemble.
+
+###### Proposition 6.
+
+Consider the ensemble @xmath of arbitrary number @xmath of one-qubit
+states and their probabilities. The Holevo information @xmath is bounded
+by the entropy of the auxiliary state @xmath which acts in the @xmath -
+dimensional Hilbert space,
+
+  -- -------- -- -------
+     @xmath      (167)
+  -- -------- -- -------
+
+where @xmath .
+
+###### Proof.
+
+A positive block matrix @xmath is constructed in the following way:
+
+  -- -------- -- -------
+     @xmath      (168)
+  -- -------- -- -------
+
+where @xmath are block vectors of size @xmath and @xmath and @xmath are
+sub–blocks of size @xmath . The blocks of the block matrix @xmath read
+
+  -- -------- -- -------
+     @xmath      (169)
+  -- -------- -- -------
+
+This formula can be compared with an expression for the square root of
+any @xmath positive matrix @xmath
+
+  -- -------- -- -------
+     @xmath      (170)
+  -- -------- -- -------
+
+Therefore the block matrix ( 168 ) is given by
+
+  -- -------- -- -------
+     @xmath      (171)
+  -- -------- -- -------
+
+The matrix @xmath is positive by construction. Partial trace of this
+matrix gives matrix of fidelities (without square root). The rest of the
+proof of Proposition 6 goes in analogy to proofs analysed in Section 3.1
+. ∎
+
+This proposition holds for one-qubit states only since we applied
+relation ( 170 ), which holds for matrices of dimension @xmath .
+
+The fidelity matrix @xmath is not positive for a general @xmath and
+general dimensionality of @xmath . However the fidelity matrix is
+positive and bounds the Holevo quantity in the case of an ensemble
+containing an arbitrary number of pure quantum states of an arbitrary
+dimension. This is shown in the following proposition.
+
+###### Proposition 7.
+
+Let @xmath be a set of vectors, then
+
+  -- -------- -- -------
+     @xmath      (172)
+  -- -------- -- -------
+
+where @xmath .
+
+###### Proof.
+
+Introduce a complex conjugation @xmath by taking complex conjugations of
+all coordinates of the state in a given basis. Hence for any choice of
+@xmath one has
+
+  -- -------- -- -------
+     @xmath      (173)
+  -- -------- -- -------
+
+The matrix @xmath can be rewritten as
+
+  -- -------- -- -------
+     @xmath      (174)
+  -- -------- -- -------
+
+This last matrix is the Gram matrix of the set of product states @xmath
+and therefore is positively defined.
+
+The next part of the proof continues according to the scheme presented
+in Section 3.1 . We use the multipartite state
+
+  -- -------- -- -------
+     @xmath      (175)
+  -- -------- -- -------
+
+Its positivity is shown by taking the partial trace of the Gram matrix
+
+  -- -------- -- -------
+     @xmath      (176)
+  -- -------- -- -------
+
+The proof is completed by considering partial traces of the state @xmath
+and using the strong subadditivity relation. ∎
+
+##### 3.1.4 Special case of the correlation matrix
+
+The previous propositions use the strategy from the proof of Theorem 4
+and apply it to positive block matrices which are not necessary related
+to the correlation matrices. Construction of multipartite states allows
+one to obtain the matrices containing fidelities after a partial trace.
+The following section deals again with the correlation matrices @xmath .
+Since the Holevo quantity does not depend on unitaries @xmath , these
+matrices can be chosen in such a way that the three–diagonal of @xmath
+consists of the square fidelity matrices, @xmath , where @xmath . This
+construction is used in the following proposition.
+
+###### Proposition 8.
+
+Consider an ensemble @xmath consisting of arbitrary number @xmath of
+invertible states of an arbitrary dimension . The Holevo information
+@xmath is bounded by the exchange entropy @xmath ,
+
+  -- -------- -- -------
+     @xmath      (177)
+  -- -------- -- -------
+
+where the correlation matrix @xmath is given by:
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (178)
+     @xmath   @xmath   @xmath      (179)
+  -- -------- -------- -------- -- -------
+
+and the upper off-diagonal matrix elements, where @xmath , read:
+
+  -- -------- -- -------
+     @xmath      (180)
+  -- -------- -- -------
+
+while lower off diagonal satisfy @xmath .
+
+The matrix @xmath has a layered structure presented here for @xmath ,
+
+  -- -------- -- -------
+     @xmath      (181)
+  -- -------- -- -------
+
+with entries of this matrix equal to @xmath specified in Proposition 8 .
+
+###### Proof.
+
+Consider a correlation matrix:
+
+  -- -------- -- -------
+     @xmath      (182)
+  -- -------- -- -------
+
+where unitaries @xmath are chosen in such a way that elements @xmath are
+square root fidelities: @xmath . Hence
+
+  -- -------- -- -------
+     @xmath      (183)
+  -- -------- -- -------
+
+where @xmath is the unitary matrix from the polar decomposition,
+
+  -- -------- -- -------
+     @xmath      (184)
+  -- -------- -- -------
+
+Here the Hermitian conjugated unitary matrix @xmath reads:
+
+  -- -------- -- -------
+     @xmath      (185)
+  -- -------- -- -------
+
+The first unitary @xmath can be chosen arbitrarily. The recurrence
+relation ( 183 ) allows one to obtain formula ( 180 ). ∎
+
+To analyse properties of the matrix @xmath consider, for example, the
+matrix element @xmath .
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (186)
+                       @xmath   @xmath
+                       @xmath   @xmath
+  -- -------- -------- -------- -------- -------
+
+Using Eq. ( 185 ) one obtains
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (187)
+                       @xmath   @xmath
+                       @xmath   @xmath
+  -- -------- -------- -------- -------- -------
+
+that gives the matrix element @xmath of ( 180 ). The assumption that the
+matrices are invertible is used in ( 185 ) where the unitary matrix of
+the polar decomposition of @xmath is given explicitly. However, the same
+strategy of the proof leads to analogous proposition involving
+non–invertible matrices. Only the equations ( 185 ) and ( 180 ) are
+changed in this case.
+
+##### 3.1.5 Hierarchy of estimations
+
+One can compare average values of entropies from Conjecture 1 and
+Propositions 4 , 6 and 8 . The average values are situated on the scale
+in which the Holevo quantity is set to @xmath and the entropy @xmath of
+probability distribution is set to unity. The variable @xmath is used,
+where @xmath is replaced by the entropy of respective state. The
+standard deviations are also computed. The probability distributions are
+generated according to the Dirichlet measure, while the set of @xmath
+density matrices is chosen randomly according to the Hilbert–Schmidt
+measure [ 86 ] on the set of density matrices of size @xmath .
+
+-   @xmath
+
+-   @xmath , where @xmath corresponds to the entropy from Conjecture 1 .
+
+-   @xmath , where @xmath corresponds to the entropy from Proposition 8
+    for @xmath states in the ensemble.
+
+-   @xmath , where @xmath corresponds to the entropy from Proposition 6
+    for @xmath states in the ensemble.
+
+-   @xmath , where @xmath corresponds to the entropy from Proposition 4
+    .
+
+-   @xmath .
+
+For an ensemble of @xmath one–qubit states Conjecture 1 is the
+strongest, as it gives on average the lowest bound, while among the
+statements proved in Propositions 4 , 6 and 8 the tightest bound (on
+average) is provided by Proposition 8 .
+
+#### 3.2 Fidelity bound on the Holevo quantity for a special class of
+states
+
+Although, Conjecture 1 has been confirmed in several numerical tests, it
+has been proved so far for the set of pure states (Section 3 ) only. The
+aim of the following section is to prove that the square root fidelity
+matrix bounds the Holevo quantity for a restricted set of states. It
+will be shown that for one–qubit states among which two are pure and one
+is mixed and for the uniform probability distribution, @xmath ,
+Conjecture 1 holds.
+
+###### Proposition 9.
+
+Consider @xmath one–qubit states @xmath among which two are pure @xmath
+, @xmath , and the state @xmath is mixed. The square root fidelity
+matrix @xmath for these states and the uniform distribution @xmath
+bounds the Holevo quantity,
+
+  -- -------- -- -------
+     @xmath      (188)
+  -- -------- -- -------
+
+where @xmath .
+
+The proof goes as follows. First proper parameters characterizing three
+states will be chosen. After that the formulas for the left and right
+side of inequality ( 188 ), which are functions of two variables only,
+will be given. The fact that one of these functions is greater than the
+other is shown graphically.
+
+Notice that the left hand side of Eq. ( 188 ) depends only on the
+lengths of the Bloch vectors which represent the mixed state @xmath and
+the average state @xmath inside the Bloch ball. The same average @xmath
+can be realized by many triples @xmath where @xmath are pure and @xmath
+is mixed of given length of the Bloch vector. The family of such triples
+is parametrized by two numbers @xmath and @xmath as shown in Fig. 4 .
+The points @xmath denote the following states: @xmath which is mixed,
+@xmath and @xmath , while @xmath represents the average state. The
+vector @xmath of length @xmath denotes the Bloch vector of the average
+state @xmath , the vector @xmath of length @xmath characterizes the
+mixed state @xmath . The position of the vector @xmath with respect to
+@xmath can be parametrized by an angle @xmath . These two vectors,
+@xmath and @xmath , determine, but not uniquely, two pure states from
+the same triple characterized by @xmath and @xmath . Equivalently one
+can rotate the vectors @xmath and @xmath by an angle @xmath around the
+axis @xmath and obtain pure states denoted by @xmath and @xmath . The
+ratio @xmath is equal to @xmath because in this case the average @xmath
+is the barycenter of three points @xmath , @xmath and @xmath or a triple
+@xmath , @xmath and @xmath . The method of obtaining the points @xmath
+and @xmath , when @xmath and @xmath are given, is presented in Appendix
+1. Given a pair of parameters @xmath distinguishes the family of triples
+@xmath characterized by two angles @xmath and @xmath . The range of
+@xmath is given by condition @xmath , it is
+
+  -- -------- -- -------
+     @xmath      (189)
+  -- -------- -- -------
+
+while the range of @xmath is @xmath .
+
+Left hand side of Eq. ( 188 ) depends only on the lengths @xmath and
+@xmath , and is independent of the concrete realization of the triple.
+Therefore to prove ( 188 ) for given @xmath and @xmath one has to find
+minimum of the entropy of the square root fidelity matrix over all
+triples parametrized by the angles @xmath and @xmath .
+
+The entropy of the square–root fidelity matrix defined @xmath in Eq. (
+188 ) is a function of roots of the characteristic polynomial:
+
+  -- -------- -- -------
+     @xmath      (190)
+  -- -------- -- -------
+
+where
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (191)
+     @xmath   @xmath   @xmath      (192)
+  -- -------- -------- -------- -- -------
+
+The parameter @xmath determines the second symmetric polynomial @xmath
+of eigenvalues of the square root fidelity matrix @xmath
+
+  -- -------- -- -------
+     @xmath      (193)
+  -- -------- -- -------
+
+The roots of equation ( 190 ) are equal to:
+
+  -- -------- -- -------
+     @xmath      (194)
+  -- -------- -- -------
+
+where @xmath .
+
+The entropy of the square root fidelity matrix is a function of @xmath
+and @xmath , which determine the second symmetric polynomial of
+eigenvalues ( 193 ) and the third symmetric polynomial is in this case
+equal to the determinant of the @xmath matrix @xmath . The von Neumann
+entropy is a monotonically increasing function of all symmetric
+polynomials of eigenvalues [ 67 ] . The parameter @xmath is a function
+of @xmath , while parameter @xmath depends only on @xmath and @xmath
+which is shown in following lemma:
+
+###### Lemma 2.
+
+For any triple of two pure and one mixed state of an arbitrary dimension
+the sum of fidelities depends only on the purity of the mixed state and
+the barycenter of the ensemble.
+
+###### Proof.
+
+Denote by @xmath the barycenter of a mixed state @xmath and two pure
+states, @xmath , @xmath ,
+
+  -- -------- -- -------
+     @xmath      (195)
+  -- -------- -- -------
+
+The purity of @xmath is given by
+
+  -- -- -- -------
+           (196)
+  -- -- -- -------
+
+After reordering the terms one gets
+
+  -- -------- -- -------
+     @xmath      (197)
+  -- -------- -- -------
+
+where
+
+  -- -------- -- -------
+                 (198)
+     @xmath      (199)
+     @xmath      (200)
+  -- -------- -- -------
+
+Since @xmath and @xmath , the parameter @xmath defined in ( 191 ) does
+not depend on the angles @xmath and @xmath . This completes the proof of
+Lemma 2 . ∎
+
+The parameter @xmath and the second symmetric polynomial ( 193 ) does
+not depend on the angles @xmath and @xmath . Therefore, for given @xmath
+and @xmath , the entropy of the square root fidelity matrix attains its
+minimum over @xmath and @xmath for minimal value of the determinant of
+@xmath , since the entropy is an increasing function of the determinant.
+The determinant is given by
+
+  -- -------- -- -------
+     @xmath      (201)
+  -- -------- -- -------
+
+It is the smallest for the smallest value of the parameter @xmath which
+is the function ( 192 ) of the off–diagonal elements of the matrix.
+During computations of the minimal value of @xmath another lemma will be
+useful:
+
+###### Lemma 3.
+
+Among triples of one–qubit states which realize the same barycenter,
+where one state is mixed of a given purity and two others are pure, the
+product of three pairwise fidelities is the smallest if three states and
+the average lie on the plane containing the great circle of the Bloch
+ball, i.e. @xmath .
+
+###### Proof.
+
+The function @xmath is given explicitly in Appendix 2 based on Appendix
+1. For given @xmath and @xmath this function has minimum only at @xmath
+and equivalently for @xmath . ∎
+
+In consequence, searching for the minimum of the entropy of the square
+root fidelity matrix we can restrict our attention to the case @xmath .
+In fact, for our purpose it suffices to take the specific value of
+@xmath which is shown in the following lemma.
+
+###### Lemma 4.
+
+Among triples of one–qubit states which realize the same barycenter, in
+which one state is mixed of given purity and two others are pure, the
+product of three pairwise fidelities is the smallest when two pure
+states are symmetric with respect to the mixed state i.e. @xmath and
+@xmath or @xmath .
+
+###### Proof.
+
+The function @xmath is given directly in Appendix 1. It has only one
+minimum at @xmath but in certain cases, depending on @xmath and @xmath ,
+the value on the edge of variable range, i.e. at @xmath or @xmath is
+smaller. ∎
+
+##### 3.2.1 Proof of the fidelity bound
+
+To prove inequality ( 188 ) the smallest entropy of the square root
+fidelity matrix for three states consistent with the left hand side of
+this inequality should be found. Entropy is a function of four
+parameters, @xmath . The left hand side of ( 188 ), which is the Holevo
+quantity depends on two parameters @xmath as follows
+
+  -- -------- -- -------
+     @xmath      (202)
+  -- -------- -- -------
+
+For given parameters @xmath and @xmath lemmas 1, 2 and 3 allows us to
+find specific @xmath and @xmath for which minimization of right hand
+side of ( 188 ) is obtained. One can fix @xmath or @xmath and @xmath .
+That means, that minimal entropy of the square root fidelity @xmath over
+the angles is obtained if the three states @xmath are lying on the great
+circle and the two pure states are symmetric with respect to the mixed
+state. In this case the matrix @xmath is characterized by two
+parameters, @xmath and @xmath . Here @xmath is the fidelity between the
+pure state @xmath and the mixed state @xmath whereas @xmath characterize
+the length of the Bloch vector of the mixed state @xmath . The matrix
+@xmath reads
+
+  -- -------- -- -------
+     @xmath      (203)
+  -- -------- -- -------
+
+where @xmath is a function of @xmath , such that @xmath , and @xmath is
+the length of the Bloch vector representing the barycenter of two pure
+states @xmath and @xmath . The fidelity @xmath is equal to @xmath if
+@xmath tends to @xmath . The parameter @xmath determines also the
+projection of the Bloch vector of the pure state @xmath on the Bloch
+vector of the mixed state @xmath . The absolute value @xmath is equal to
+the square root fidelity between the two pure states. The range of
+variables are @xmath and @xmath .
+
+Considered case is shown in Fig. 5 . There are two surfaces – functions
+of two parameters @xmath and @xmath . The lower surface represents the
+Holevo quantity @xmath , and the upper surface denotes the entropy of
+the square root fidelity matrix ( 203 ). The surface @xmath lies always
+above @xmath and is composed of two smooth functions characterizing
+cases in which all vectors lay on the same semicircle or pure states and
+the mixed state belong to the opposite semicircles.
+
+Fig. 5 suggests that in the case of three pure states, @xmath , laying
+on the same semicircle the inequality is saturated, @xmath . In this
+case, @xmath , the rank of the square root fidelity matrix is equal to
+@xmath , and the nonzero eigenvalues are @xmath , where @xmath is the
+length of the Bloch vector of the average state @xmath . In general we
+have @xmath . In case of @xmath the Holevo quantity is equal to the
+entropy of the average state @xmath . This finishes the proof of
+Proposition 9 .
+
+## Part III Minimal output entropy and map entropy
+
+### 4 Entropies for one-qubit channels
+
+The question on additivity of the channel capacity is one of the most
+interesting problems in quantum information theory [ 40 ] . Shor showed
+[ 39 ] that this problem has several equivalent formulations. One of
+them concerns the minimal output entropy,
+
+  -- -------- -- -------
+     @xmath      (204)
+  -- -------- -- -------
+
+In the case of one–qubit channel the minimal output entropy is the
+entropy of a state characterized by point on the ellipsoid, which is the
+image of the Bloch sphere, the closest to this sphere. The pure state
+which is transformed into a state of the minimal entropy is called
+minimizer.
+
+For any setup in which minimal output entropy is additive the quantum
+channel capacity is additive as well. Additivity implies that an
+entangled state cannot increase capacity of two channels with respect to
+the sum of their capacities taken separately. The additivity conjecture
+can also be formulated as a statement that capacity of two channels is
+minimized for a product state.
+
+The conjecture was confirmed in many special cases. For instance,
+additivity holds, if one of the channels is arbitrary and the second one
+is: bistochastic one–qubit map [ 87 ] , a unitary transformation [ 40 ]
+, generalized depolarizing channel [ 41 ] , entanglement breaking
+channel [ 88 ] , very noisy map [ 89 ] and others. A useful review on
+this subject was written by Holevo [ 90 ] . Different strategies of
+proving the additivity conjecture are analyzed there. For a recent
+relation on the additivity conjecture see also [ 18 ] .
+
+Also counterexamples to the additivity conjecture have been found. One
+of them was presented by Hastings [ 16 ] . He found the lower bound for
+the output entropy of some channels when the input was a product state.
+Next he estimated the output entropy for a maximally entangled input.
+Due to such estimations it was shown that the entangled state decreases
+channel capacity below the value achievable for product states.
+
+The proof of Hastings used pairs of complementary channels. His argument
+was not constructive and works in high dimensional spaces.
+Counterexamples for the additivity hypothesis are also studied in [ 17 ]
+.
+
+It is still an open question, whether the additivity holds for an
+arbitrary one–qubit channel. Originally, the hypothesis on additivity of
+minimal output entropy was formulated for the von Neumann entropy. One
+of the approaches to the problem uses a one–parameter family of
+entropies, called Rényi entropies characterized by a parameter @xmath ,
+
+  -- -------- -- -------
+     @xmath      (205)
+  -- -------- -- -------
+
+Calculations are sometimes easier when the Rényi entropies are
+considered. The quantity @xmath tends to the von Neumann entropy in the
+limit @xmath . Additivity of the minimal output Rényi entropy has been
+proved only in some range of the parameter @xmath depending on the
+channels considered [ 87 , 41 , 18 ] .
+
+Although the Rényi entropy is sometimes computationally more feasible,
+finding minimum over entire set of quantum states is still a hard
+problem. One of the ideas how to omit this difficulty tries to use some
+relations between minimal output entropy and other quantities which are
+easier to calculate. In the following chapter the Rényi entropy of a map
+(the map entropy) will be used to estimate the minimal output entropy.
+Map entropy (entropy of a map) is defined by the entropy of the
+Choi-Jamiołkowski state ( 28 ) corresponding to the map. This quantity
+is easy to obtain. Numerical tests presented in Fig. 7 , 9 , 10 show
+that there is no simple functional relation between the map entropy and
+the minimal output entropy. Nevertheless being aware of the structure of
+the set of quantum maps projected on the plane @xmath can be useful.
+Knowledge of entropies of maps at the boundaries of the allowed set can
+be used to estimate the minimal output entropy by the entropy of the
+map.
+
+#### 4.1 Structure of the set of Pauli channels
+
+Quantum channels which preserve the maximally mixed state are called
+bistochastic. All bistochastic one–qubit channels can be represented as
+a convex combination of the identity matrix @xmath and three Pauli
+matrices @xmath ( 39 )
+
+  -- -------- -- -------
+     @xmath      (206)
+  -- -------- -- -------
+
+Bistochastic one–qubit quantum operations are thus called Pauli channels
+. The structure of the set of all Pauli channels forms a regular
+tetrahedron @xmath as shown in Fig. 6 a . There are many channels
+characterized by the points of tetrahedron which can be obtained from
+other channels following a unitary transformation. Our considerations
+are often restricted to the asymmetric tetrahedron @xmath (see Fig. 6 b
+) which is a subset of @xmath . All maps in @xmath can be obtained from
+channels of @xmath by concatenation these channels with unitary
+transformations. The set @xmath is formed by the convex combination of
+four vectors @xmath from ( 206 ), @xmath , and @xmath .
+
+Extremal lines of the asymmetric tetrahedron correspond to the following
+families of maps: @xmath - dephasing channels, @xmath - classical
+bistochastic maps, @xmath and @xmath - depolarizing channels. The
+families mentioned above are also shown in Fig. 7 which presents
+boundaries of the set of all one–qubit bistochastic channels projected
+onto the plane @xmath . A following proposition proved in [ 51 ]
+characterizes this projection.
+
+###### Proposition 10.
+
+Extremal lines of asymmetric tetrahedron correspond to boundaries of the
+set of all bistochastic one–qubit maps on the plot @xmath .
+
+#### 4.2 Depolarizing channels
+
+Fig. 9 and Fig. 10 show the projection of the Pauli channels on the
+plane @xmath with parameter @xmath different than @xmath . Comparison of
+these figures with Fig. 7 shows that the structure of the set of
+channels on the plane @xmath is the simplest in case of the Rényi
+entropy of order @xmath . In this case, the depolarizing channels form
+one of the edges of the set of all quantum one–qubit maps projected onto
+the plane. Indeed the following theorem proved in [ 51 ] confirms the
+special role of depolarizing channels in the set of all quantum channels
+acting on states of arbitrary dimension @xmath .
+
+###### Theorem 6.
+
+Depolarizing channels have the smallest map Rényi entropy @xmath among
+all channels with the same minimal output Rényi entropy @xmath .
+
+The family of depolarizing channels is represented in the plane @xmath
+by the continuous line on the entire range of @xmath . The minimal
+output entropy of a depolarizing channel @xmath acting on @xmath is the
+following function of the map entropy
+
+  -- -- -- -------
+           (207)
+  -- -- -- -------
+
+This is a monotonously increasing function from @xmath to @xmath .
+Therefore the following theorem holds.
+
+###### Theorem 7.
+
+Depolarizing channels have the greatest minimal output Rényi entropy
+@xmath among all maps of the same Rényi entropy of a map @xmath .
+
+One can try to use the extremal position of depolarizing channels to
+estimate the minimal output entropy of some channels. In the case of
+Hastings’ counterexample for the additivity conjecture the author showed
+that due to a maximally entangled input state one can obtain smaller
+output entropy of the product of two channels than in the case of any
+product state taken as an input. Let us estimate the Rényi @xmath output
+entropy for a product channel when the input is maximally entangled.
+Following proposition proved in [ 51 ] presents one of estimations.
+
+###### Proposition 11.
+
+For any entropy @xmath which is subadditive the following inequality
+holds
+
+  -- -------- -- -------
+     @xmath      (208)
+  -- -------- -- -------
+
+where @xmath is a maximally entangled state.
+
+###### Proof.
+
+The proof starts form the Lindblad inequality [ 75 ] , which is based on
+the subadditivity of the von Neumann entropy,
+
+  -- -- -- -------
+           (209)
+  -- -- -- -------
+
+where @xmath and @xmath is a purification of @xmath as in ( 106 ). The
+entropy of this state, @xmath , is the exchange entropy which does not
+depend on the choice of purification [ 29 ] . The state @xmath defined
+for a channel @xmath and the maximally mixed state @xmath is equal to
+the normalized dynamical matrix of @xmath ( 25 ),
+
+  -- -------- -- -------
+     @xmath      (210)
+  -- -------- -- -------
+
+The entropy of this state defines @xmath . Since the map @xmath is trace
+preserving, the condition @xmath holds, see ( 26 ). Apply Lindblad
+formula ( 209 ) to the state
+
+  -- -------- -- -------
+     @xmath      (211)
+  -- -------- -- -------
+
+where @xmath is the maximally mixed state which is a purification of
+@xmath . Expression ( 209 ) applied to this state gives
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath
+              @xmath   @xmath
+  -- -------- -------- -------- --
+
+The exchange entropy @xmath is the same as @xmath since a purification
+of @xmath is as well the purification of @xmath and the exchange entropy
+does not depend on a purification. Due to the trace preservation
+formula, @xmath , the state @xmath which completes the proof. ∎
+
+Proposition 11 is applicable for any entropy which is subadditive. The
+Rényi entropy of order @xmath is not subadditive, however, it is a
+function of the Tsallis entropy of order @xmath for which the
+subadditivity holds. Therefore Proposition 11 can be used to estimate
+the output Rényi @xmath entropy of a product channel if the input state
+is maximally entangled. The following inequality corresponds to Rényi
+@xmath version of the lower bound in ( 208 ),
+
+  -- -------- -- -------
+     @xmath      (213)
+  -- -------- -- -------
+
+It is possible to find channels @xmath and @xmath such that the left
+hand side of ( 213 ) is greater than @xmath of depolarizing channel
+@xmath , which has the same map entropy as @xmath . Notice that for any
+two channels the map entropy of their tensor product is characterized by
+the following result.
+
+###### Proposition 12.
+
+The Rényi map entropy @xmath is additive with respect to tensor product
+of quantum maps for any parameter @xmath :
+
+  -- -------- -- -------
+     @xmath      (214)
+  -- -------- -- -------
+
+###### Proof.
+
+The map entropy @xmath is defined as the entropy of normalized dynamical
+matrix @xmath . The matrix representation of @xmath is related to
+superoperator matrix of the quantum operation @xmath , due to formula (
+28 ). Using explicit calculations on matrix elements one can show that
+@xmath is unitarily equivalent with @xmath . That implies the additivity
+of the map entropies, since the quantum Rényi entropy of any order of a
+given state is a function of its spectrum.
+
+Consider a set of @xmath -dimensional matrices equipped with the
+Hilbert-Schmidt inner product
+
+  -- -------- -- -------
+     @xmath      (215)
+  -- -------- -- -------
+
+In this space the matrix units @xmath form an orthonormal basis. The
+elements of this basis are denoted by @xmath . A quantum operation
+@xmath is represented by a matrix @xmath :
+
+  -- -------- -- -------
+     @xmath      (216)
+  -- -------- -- -------
+
+hence
+
+  -- -------- -- -------
+     @xmath      (217)
+  -- -------- -- -------
+
+Due to the reshuffling procedure ( 28 ), the entries of the dynamical
+matrix @xmath read
+
+  -- -------- -- -------
+     @xmath      (218)
+  -- -------- -- -------
+
+The entries of @xmath are obtained by using unnormalized maximally
+entangled state @xmath according to definition ( 25 ) as follows
+
+  -- -------- -------- -- -------
+     @xmath   @xmath
+              @xmath      (219)
+  -- -------- -------- -- -------
+
+Now expression ( 217 ) is used and the matrix elements of @xmath read
+
+  -- -------- -- -------
+     @xmath      (220)
+  -- -------- -- -------
+
+Since @xmath is expressed in terms of Kronecker deltas @xmath and @xmath
+analogously, the summation over the Greek indexes gives,
+
+  -- -------- -------- -- -------
+     @xmath   @xmath
+              @xmath      (221)
+  -- -------- -------- -- -------
+
+The matrix @xmath is related to @xmath by a unitary matrix
+@xmath . Therefore both matrices have the same eigenvalues and the same
+entropies. ∎
+
+Since minimal output entropy of a depolarizing channel @xmath is a
+function of its map entropy ( 207 ), the estimation on the left hand
+side of ( 213 ) can be made in terms of such @xmath for which @xmath .
+As a result of this estimation one obtains condition on the pair of
+channels, for which a maximally mixed input state does not decrease the
+output entropy below the smallest value obtained by the product input
+state,
+
+  -- -------- -- -------
+     @xmath      (222)
+  -- -------- -- -------
+
+where @xmath acts on @xmath and @xmath on @xmath .
+
+Fig. 8 presents the region defined by ( 222 ). Such a set is not empty
+and contains maps, for which @xmath or @xmath . The dotted line
+represents the set of complementary channels for which both map
+entropies are equal. This set contains the channels breaking the
+conjecture of additivity of minimal output entropy according to the
+proof of Hastings. The region defined by ( 222 ) does not intersect the
+set. It was also shown [ 40 ] , [ 89 ] that additivity holds if one of
+the channels is unitary or if one of the channels is very noisy. These
+both cases are covered by condition ( 222 ). These examples support
+formulation of
+
+###### Conjecture 2 ([51]).
+
+The additivity of minimal output Rényi @xmath entropy holds for pair of
+channels satisfying inequality ( 222 ).
+
+Recent literature does not answer the question, whether the additivity
+conjecture is broken for low dimensional channels and the Rényi entropy
+of order @xmath . Our Conjecture 2 suggests for which pairs of channels
+finding a counterexample of additivity is unlikely.
+
+Conjecture 2 uses the map entropy and is formulated for the Rényi
+entropy of order @xmath , for which the theorem about extremal position
+of the depolarizing channels was proved. This is the key theorem which
+allows us to derive estimations ( 213 ) and ( 222 ). Numerical tests
+(Fig. 9 and 10 ) suggest that the depolarizing channels are not situated
+at the boundary of the set of all channels in the plane @xmath for
+@xmath , while their extremal position could be confirmed in case @xmath
+. Nevertheless, the Rényi entropy is a smooth function of @xmath .
+Therefore, a conjecture similar to Conjecture 2 may hold also for other
+values of the Rényi parameter @xmath .
+
+#### 4.3 Transformations preserving minimal output entropy
+
+In previous chapter the set of one–qubit quantum operations was
+considered in context of the plot @xmath . One could ask, whether the
+family of maps lying at the same vertical or horizontal line can be
+characterized. The following section gives a partial answer to this
+question. Transformations of one qubit maps which preserve the minimal
+output entropy will be considered. Such a transformation changes the
+quantum channel and moves the corresponding point in the plane @xmath
+along a given horizontal line. In the following section we consider the
+geometrical picture of one–qubit maps acting on the set of pure states.
+One–qubit quantum operation transforms the Bloch ball into an ellipsoid
+inside the ball. A transformation of quantum operation which changes the
+lengths of the axes of the ellipsoid and their orientation and leaves
+the minimal output entropy unchanged will be studied.
+
+Consider the superoperator matrix of a one–qubit quantum operation:
+
+  -- -------- -- -------
+     @xmath      (223)
+  -- -------- -- -------
+
+Parameters @xmath and @xmath are real, the complex conjugation of @xmath
+is denoted by @xmath . The form ( 223 ) guarantees that the dynamical
+matrix of @xmath is Hermitian and the trace preserving condition ( 26 )
+is satisfied.
+
+Assume that the quantum operation @xmath has the output entropy
+minimizer at the point
+
+  -- -------- -- -------
+     @xmath      (224)
+  -- -------- -- -------
+
+Such an assumption is not restrictive since one can always treat the
+operation @xmath as a concatenation of a given operation with a unitary
+rotation which does not change the minimal output entropy. The quantum
+operation ( 223 ) acting on a pure state
+
+  -- -------- -- -------
+     @xmath      (225)
+  -- -------- -- -------
+
+gives an output state
+
+  -- -------- -------- -------- -------
+     @xmath   @xmath            (226)
+                       @xmath
+  -- -------- -------- -------- -------
+
+which attains the minimum entropy if @xmath .
+
+-   Transformation changing the lengths of the axes of the ellipsoid.
+
+    Consider a quantum operation @xmath , which transforms the Bloch
+    ball into such an ellipsoid that the end of its longest axis touches
+    the Bloch sphere in the "North Pole",
+
+      -- -------- -- -------
+         @xmath      (227)
+      -- -------- -- -------
+
+    Suitable rotations of the Bloch ball before and after the action of
+    @xmath guarantees that the point of contact with the Bloch sphere is
+    the minimizer of @xmath . Therefore the concatenation of @xmath has
+    the same minimal output entropy and the same minimizer that @xmath .
+    The rotation operation is given by
+
+      -- -------- -- -------
+         @xmath      (228)
+      -- -------- -- -------
+
+    where @xmath is defined by the minimizer of output entropy for
+    @xmath . This transformation changes the lengths of axes of the
+    ellipsoid but it does not change the point at the ellipsoid which is
+    the closest to the Bloch sphere. In other words, this transformation
+    does not change the directions of the axes of the image of @xmath
+    into the Bloch ball, but only their lengths.
+
+-   Transformation changing directions of the axis.
+
+    The next transformation changes directions of axes of an ellipsoid
+    but preserves the entropy minimizer. In particular, if the image of
+    the minimizer is on the longest axis of an ellipsoid, after the
+    transformation the point which is the closest to the Bloch sphere is
+    no longer on the main axis of the ellipsoid.
+
+    Entropy of an output state ( 226 ) is a function of its determinant.
+    The minimum of the determinant determines the minimum of the
+    entropy. Consider a transformation which preserves the value of the
+    determinant and compute its derivative in a minimizer. It is useful
+    to introduce the compact notation of Eq. ( 226 ):
+
+      -- -------- -- -------
+         @xmath      (229)
+      -- -------- -- -------
+
+    where matrices @xmath and @xmath correspond to the matrices ( 226 ).
+    Consider a transformation @xmath . The output of @xmath is given by
+
+      -- -------- -- -------
+         @xmath      (230)
+      -- -------- -- -------
+
+    where @xmath is a matrix, which is hermitian and has trace equal to
+    zero. Moreover, the matrix @xmath satisfies the condition
+    guaranteeing that @xmath is completely positive. The state @xmath
+    coincides with ( 229 ) if @xmath . Moreover, the derivative of
+    formula ( 229 ) with respect to @xmath is the same as the derivative
+    of Eq. ( 230 ) at the point @xmath . Therefore, the determinants of
+    ( 229 ) and ( 230 ) are the same and the derivative at @xmath is
+    equal to zero. A proper choice of parameters in @xmath guarantees
+    that there is a minimum at point @xmath . Hence both maps, @xmath
+    and @xmath have the same minimal output entropy.
+
+    The part @xmath can be characterized by two parameters @xmath ,
+
+      -- -------- -- -------
+         @xmath      (231)
+      -- -------- -- -------
+
+Such a form guarantees that the output state of @xmath is given by Eq. (
+230 ).
+
+The map @xmath of the same minimal output entropy as @xmath obtained by
+joint action of three transformations, @xmath , @xmath and @xmath , on
+@xmath can be given by:
+
+  -- -------- -- -------
+     @xmath      (232)
+  -- -------- -- -------
+
+We are not able to prove that this transformation contains all
+possibilities of obtaining maps with the same minimal output entropy as
+a given one, however, the transformation is characterized by @xmath
+parameters and also @xmath parameters are needed to have all different
+(up to one rotation) ellipsoids tangent to the sphere on its inner side
+in a given point. Three parameters are associated with the lengths of
+axes @xmath , while two parameters define the direction of the longest
+axis @xmath .
+
+Above considerations introduce a @xmath -parameter transformation of a
+quantum map @xmath . The transformation preserves the minimal output
+entropy. Therefore, it determines the family of maps which are situated
+at the same horizontal line of the plot @xmath . Characterization of the
+family of quantum maps parametrized by the minimal output entropy can be
+useful to further investigations of relations between @xmath and @xmath
+and their consequences.
+
+### 5 Davies maps for qubits and qutrits
+
+Explicit description of general continuous dynamics of an open quantum
+system is difficult in practice. Exact formulas describing the time
+evolution are known in some special cases only. One of the cases in
+which the problem can be solved uses the assumption of a week coupling [
+91 ] of a low dimensional quantum system interacting with much bigger
+reservoir in the thermal equilibrium. Such an interaction changes only
+the state of the system whereas the state of the environment remains
+unchanged. By analogy to the classical process, in which the evolution
+of a state does not depend on the history, such an evolution is called a
+Markov process .
+
+However, while analysing the continuous evolution of the input state,
+sometimes there is no need to know the entire time evolution since only
+the output state is relevant. The "black box" description is useful in
+such cases. A "black box" acts like an evolution discrete in time and
+can be described using completely positive maps, represented as matrices
+of superoperators.
+
+The following chapter distinguishes a concrete class of physical
+processes described by a Davies map [ 92 ] . Such a process is
+compatible with the interaction of a quantum state with an environment
+in a given temperature, see Fig. 11 . Due to a suitable choice of the
+entries of a superoperator matrix @xmath and relations between them one
+can say whether some continuous time evolution is described by a given
+discrete quantum map. The solution concerns the maps acting on
+one–qubit, @xmath , and one–qutrit, @xmath . In the case of one-qubit
+maps we determine the state which is the most resistant on Davies
+channels. It will be shown that the maximal output @xmath –norm of
+Davies maps is additive with respect to the tensor product of two such
+maps.
+
+#### 5.1 Quantum Markov process
+
+The quantum Markov process is characterized by quantum maps belonging to
+the one-parameter completely positive semigroup, @xmath , where @xmath
+denotes a generator and positive parameter @xmath is associated with
+time.
+
+The most general form of the generator of a completely positive
+semigroup was given by Gorini, Kossakowski, Sudarshan [ 93 ] and
+Lindblad [ 43 ] . It can be written as
+
+  -- -------- -- -------
+     @xmath      (233)
+  -- -------- -- -------
+
+where @xmath , given by the commutator with the effective Hamiltonian of
+the system @xmath , describes the unitary part of the evolution. The
+dissipative part @xmath has the Lindblad form
+
+  -- -------- -- -------
+     @xmath      (234)
+  -- -------- -- -------
+
+where @xmath is anticommutator, while operators @xmath can be associated
+with the Kraus representation of the quantum operation.
+
+Deciding whether a given superoperator matrix belongs to the completely
+positive semigroup was shown [ 94 ] to be a problem ’NP’ hard with
+respect to the dimension @xmath . Nevertheless, some additional
+assumptions allow one to characterize matrices from completely positive
+semigroups at least for a few low dimensions. In following chapter, such
+a solution will be given for @xmath , and @xmath , under additional
+conditions: independence of unitary and dissipative parts of the
+evolution and the detailed balance condition. These three conditions
+define the so–called Davies maps [ 92 ] . Sometimes the uniqueness of
+the invariant state is also added to the definition.
+
+#### 5.2 Characterization of the model
+
+Consider a quantum @xmath - level system characterized by the
+Hamiltonian in its eigenbasis,
+
+  -- -------- -- -------
+     @xmath      (235)
+  -- -------- -- -------
+
+Assume that such a system is weekly coupled to the environment of a
+given temperature @xmath , see Fig. 11 . An interaction with the
+environment preserves one invariant state, which is the Gibbs state
+
+  -- -------- -- -------
+     @xmath      (236)
+  -- -------- -- -------
+
+where @xmath is a partition function and @xmath . Here @xmath represents
+the Boltzmann constant. A quantum map @xmath satisfies the detailed
+balance condition if it is Hermitian with respect to the scalar product
+defined by the Gibbs state
+
+  -- -------- -- -------
+     @xmath      (237)
+  -- -------- -- -------
+
+where @xmath and @xmath are arbitrary observables and @xmath the quantum
+operation in the Heisenberg picture. Detailed description of this
+condition can be found in [ 96 ] .
+
+The name "detailed balance" was taken from the theory of stochastic
+processes. Detailed balance means that in an equilibrium state any two
+levels of the evolving system remain in an equilibrium: the rate of
+transition from the level @xmath to @xmath and the transition rate from
+@xmath to @xmath are equal. Mathematical formula describing this fact
+reads
+
+  -- -------- -- -------
+     @xmath      (238)
+  -- -------- -- -------
+
+where @xmath are entries of a stochastic transition matrix and @xmath
+represent the components of the invariant probability vector.
+
+#### 5.3 Matrix representation of Davies maps
+
+One qubit map in the "black box" description is represented by a
+superoperator matrix. It is a matrix acting on the vector formed by the
+entries of a density matrix ordered in a single column. A superoperator
+@xmath represents a Davies map, if the following conditions are
+satisfied.
+
+-   The map @xmath is completely positive.
+
+    This condition is guaranteed if the Choi–Jamiołkowski matrix @xmath
+    ( 25 ) of the map is positive. One has to reshuffle the elements of
+    the matrix @xmath according to ( 28 ) and check positivity of the
+    resulting dynamical matrix @xmath .
+
+-   Superoperator @xmath belongs to the semigroup of completely positive
+    maps.
+
+    This is equivalent to existence of a generator @xmath of the
+    Lindblad form ( 234 ) and the parameter @xmath such that @xmath .
+    Knowing the logarithm of @xmath one has to determine whether it is
+    of the Lindblad form. It was shown in [ 95 ] that if the
+    Choi-Jamiołkowski matrix of a given generator is positive in the
+    subspace orthogonal to the maximally entangled state, then the
+    generator can be written in the Lindblad form.
+
+    It is not a trivial task to write an analytical expression for the
+    logarithm of a given matrix if its dimension is greater than two.
+    Such a problem for @xmath stochastic matrices is discussed in the
+    last section of the following chapter.
+
+-   Since the rotational part of the evolution is independent of the
+    dissipative (contractive) part, the structure of the superoperator
+    is restricted to the block diagonal form. Off–diagonal elements of
+    the density matrix are just multiplied by numbers, while the
+    diagonal elements can be mixed between themselves. More detailed
+    discussion on this property is given in Section 5.7 .
+
+-   The detailed balance condition introduces further restrictions on
+    the elements of the block acting on the diagonal part of the density
+    matrix. This block is a stochastic matrix, the entries of which
+    satisfy Eq. ( 238 ).
+
+Since now, only the dissipative part of the evolution will be
+considered. Due to the above conditions the dissipative part of the
+generator of the one–qubit Davies maps can be written as
+
+  -- -------- -- -------
+     @xmath      (239)
+  -- -------- -- -------
+
+while the corresponding superoperator acting on two-dimensional states
+(in the Hamiltonian basis) has the form
+
+  -- -------- -- -------
+     @xmath      (240)
+  -- -------- -- -------
+
+Here, @xmath is a function of temperature, @xmath , which determines the
+invariant state
+
+  -- -------- -- -------
+     @xmath      (241)
+  -- -------- -- -------
+
+Notice that ( 240 ) has a block diagonal form which is a consequence of
+independence of rotational and contractive evolution. This is also
+equivalent to independence of changes in diagonal and off–diagonal
+entries of a density matrix. The detailed balance condition @xmath
+implies the form of the outer block in Eq. ( 240 ). One–qubit Davies
+maps form a three-parameter family characterized by @xmath , where
+@xmath is a function of the temperature. Conditions that such a matrix
+is an element of the semigroup of completely positive maps introduce the
+following restrictions on the parameters @xmath :
+
+  -- -------- -- -------
+     @xmath      (242)
+  -- -------- -- -------
+
+Equality @xmath allows one to write explicit formulas for time
+dependence of parameters @xmath and @xmath ,
+
+  -- -------- -- -------
+     @xmath      (243)
+  -- -------- -- -------
+
+where @xmath and @xmath are parameters such that @xmath . The entire
+paths of the semigroup are showed in Fig. 12
+
+One–qubit Davies map can be written using the Bloch parametrization ( 42
+)
+
+  -- -- -- -------
+           (244)
+  -- -- -- -------
+
+where @xmath denote the lengths of axes of the ellipsoid and @xmath is
+the translation vector. These parameters are related to the parameters
+@xmath
+
+  -- -------- -- -------
+     @xmath
+     @xmath      (245)
+  -- -------- -- -------
+
+The image of the set of pure states under an action of one–qubit Davies
+map is shown in Fig. 13 . The image of the Bloch ball forms an ellipsoid
+with rotational symmetry. Fig. 13 presents the image of an exemplary
+one–qubit Davies map for which @xmath , however conditions ( 242 )
+admits also the case @xmath .
+
+#### 5.4 Physical examples
+
+Qubit maps of the structure similar to ( 244 ) were analysed before in
+context of quantum optics. The unitary evolution is induced by the laser
+field, while the dissipative dynamics is caused by an interaction with
+the environment. The state of a two level atom is characterized by the
+Bloch vector @xmath , where @xmath represents the difference between the
+diagonal entries of a density matrix equal to the inversion of
+populations of the atomic levels. Variables @xmath and @xmath are
+associated with the atomic dipole operators. The evolution in this set
+has been defined by means of variables describing the decay rate @xmath
+of the coherences and the rate @xmath of attaining the equilibrium
+state. These parameters correspond to the variables considered in the
+Section 5.3 , @xmath and @xmath which are related to squeezing of the
+axes of the ellipsoid. Formula ( 242 ) corresponds to the relation
+between the decay rates:
+
+  -- -------- -- -------
+     @xmath      (246)
+  -- -------- -- -------
+
+This relation was obtained by analysing a concrete physical model of the
+evolution of the two level system by means of Bloch equations [ 97 ] .
+The one–qubit operations ( 244 ) were also studied by [ 98 ] .
+
+#### 5.5 Minimal output entropy of Davies maps
+
+In context of transmission of quantum information, it is natural to ask,
+which pure states are the most resistant with respect to the changes
+caused by the Davies maps. The answer depends on the selected measure of
+decoherence. Such a measure can be described, for example, by means of
+some matrix norm of the output state maximized over the input states.
+Among quantities measuring the decoherence, the minimal output entropy
+is of special importance because some questions concerning the channel
+capacity, such as additivity problem, can be related with similar
+problem written in terms of minimal output entropy. The minimal output
+entropy is related to the maximal norm of the output state if the input
+is pure.
+
+Since a Davies map has rotational symmetry, the minimizer can be chosen
+to be a real state:
+
+  -- -------- -- -------
+     @xmath      (247)
+  -- -------- -- -------
+
+where @xmath since the state is pure. After an action of the operation (
+240 ) this state is transformed into
+
+  -- -------- -- -------
+     @xmath      (248)
+  -- -------- -- -------
+
+where @xmath . Computing the eigenvalues and minimizing the entropy over
+@xmath one can characterize the minimizer in two cases:
+
+-   If @xmath the minimizer is characterized by @xmath and it forms an
+    eigenstate of the Hamiltonian @xmath .
+
+-   If @xmath the minimizer is characterized by
+
+      -- -------- -- -------
+         @xmath      (249)
+      -- -------- -- -------
+
+    It is no longer the eigenvalue of the Hamiltonian, however, after
+    some time of the evolution @xmath the second case changes into the
+    first one and the minimizer is a state @xmath . This is an
+    eigenstate of the Hamiltonian. The situation that the minimizer is
+    in the vector @xmath reminds the classical evolution of
+    two–dimensional vector governed by the stochastic matrix. In this
+    case the extremal vector like @xmath is the minimizer of the Shannon
+    entropy of the output.
+
+#### 5.6 Multiplicativity of maximal output norm of one–qubit Davies
+maps
+
+As discussed in the introduction to Chapter 4 , the question of
+additivity of minimal output von Neumann entropy with respect to the
+tensor product of quantum operations is one of the most interesting
+problem in quantum information theory. This problem can be equivalently
+stated in terms of channel capacity. In general, the conjecture on
+additivity of channel capacity is false, however, there is still an
+interesting problem, for which class of maps the conjecture can be
+confirmed.
+
+Recent studies of the problem use the notion of the Rényi entropy of
+order @xmath . This entropy tends to the von Neumann version as @xmath .
+The problem of additivity of minimal output Rényi @xmath entropy is
+directly related to multiplicativity of the maximal output Schatten
+@xmath –norm. This norm is defined as
+
+  -- -------- -- -------
+     @xmath      (250)
+  -- -------- -- -------
+
+where @xmath . Maximal Schatten @xmath norm of a quantum map @xmath is:
+
+  -- -------- -- -------
+     @xmath      (251)
+  -- -------- -- -------
+
+where maximization is taken over the entire set of density matrices
+@xmath . The Rényi entropy of order @xmath of a state @xmath can be
+defined as follows [ 107 ]
+
+  -- -------- -- -------
+     @xmath      (252)
+  -- -------- -- -------
+
+Due to logarithm in this formula the multiplicativity of maximal @xmath
+–norm is equivalent to the additivity of minimal output entropy @xmath .
+
+In this section, multiplicativity of operator 2–norm induced by the
+Euclidean vector norm will be proved for the quantum one–qubit Davies
+maps. This vector induced norm is not related to the Rényi entropy by
+such an elegant formula like it is in the case for Schatten norm,
+however, it is a bit easier to calculate than the Schatten counterpart.
+These particular results support the general solution for
+multiplicativity problem for Schatten 2–norm which implies the
+additivity property for minimal output Rényi entropy of order 2 and
+which has been already proved for general one–qubit quantum operations [
+99 ] (see also [ 18 ] ).
+
+##### 5.6.1 Outline of the proof of multiplicativity
+
+The Euclidean norm (2–norm) of a vector @xmath is defined as:
+
+  -- -------- -- -------
+     @xmath      (253)
+  -- -------- -- -------
+
+This vector norm induces the 2–norm of an operator @xmath :
+
+  -- -------- -- -------
+     @xmath      (254)
+  -- -------- -- -------
+
+One of the property of this norm (see [ 100 ] ) is that @xmath is equal
+to square root of the spectral radius of @xmath or equivalently to the
+greatest singular value of the matrix @xmath ,
+
+  -- -------- -- -------
+     @xmath      (255)
+  -- -------- -- -------
+
+where a spectral radius @xmath and @xmath are eigenvalues of @xmath . In
+this section the maximal two norm of the output of a quantum map @xmath
+will be considered
+
+  -- -------- -- -------
+     @xmath      (256)
+  -- -------- -- -------
+
+One can ask, whether the maximal two–norm is multiplicative in a sense:
+
+  -- -------- -- -------
+     @xmath      (257)
+  -- -------- -- -------
+
+It will be shown that if @xmath is one–qubit Davies map and @xmath is an
+arbitrary quantum map acting on @xmath –dimensional state the
+multiplicativity holds.
+
+The idea of the proof of the theorem given below is borrowed from the
+paper of King and Ruskai [ 54 ] . These authors prove an analogical
+theorem about a bistochastic quantum map @xmath . They noted that the
+same proof holds as well for stochastic one–qubit maps. Here we will
+present an explicit calculations for the case of Davies maps with @xmath
+.
+
+###### Theorem 8.
+
+Let @xmath be an one–qubit Davies map and @xmath be an arbitrary quantum
+map. The maximal two norm of the output is multiplicative:
+
+  -- -------- -- -------
+     @xmath      (258)
+  -- -------- -- -------
+
+In this section the sketch of the proof will be given, while some
+details of the calculation will be presented in the next section. In
+order to present the proof we need to introduce the following set. An
+arbitrary density matrix on @xmath can be written as a block matrix
+
+  -- -- -- -------
+           (259)
+  -- -- -- -------
+
+where @xmath are @xmath matrices and the trace condition @xmath is
+satisfied. The output state of the product of two quantum operations
+@xmath , can be described by:
+
+  -- -- -- -------
+           (260)
+  -- -- -- -------
+
+Here @xmath denotes an one–qubit operation, while the map @xmath acts on
+@xmath . Also other block matrices will occur and their positivity will
+play an important role during the proof. The Schur complement lemma [
+101 ] ensures positivity of block matrices, see Lemma 1 , Section 3.1 .
+
+To demonstrate additivity ( 258 ) we shall analyse the inequality @xmath
+which is almost immediate since the equality is attained by a product of
+states which maximize output norm of each map. Because the entire set of
+states is larger, it contains product and entangled states, the result
+of maximizing over the entire set can give only a better result.
+Therefore to prove multiplicativity of maximal output @xmath –norm with
+respect to the tensor product of two maps it is enough to show that
+
+  -- -------- -- -------
+     @xmath      (261)
+  -- -------- -- -------
+
+Insert the block matrix form ( 260 ) to ( 261 ). Due to the Schur
+complement lemma the right hand side of ( 261 ) is positive if and only
+if
+
+  -- -------- -- -------
+     @xmath      (262)
+  -- -------- -- -------
+
+Notice that this inequality holds if
+
+  -- -------- -- -------
+     @xmath      (263)
+  -- -------- -- -------
+
+since using the general property @xmath one gets:
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (264)
+              @xmath   @xmath      (265)
+  -- -------- -------- -------- -- -------
+
+Therefore the positivity of @xmath and @xmath and inequality ( 263 ) are
+the only relations needed to prove Theorem 258 . These relations will be
+proved in the next section for the case of @xmath being an arbitrary
+one–qubit Davies map with @xmath .
+
+##### 5.6.2 Details of the proof of multiplicativity
+
+###### Proof.
+
+of Theorem 258 . It is necessary to find the specific form of @xmath an
+@xmath in ( 260 ), then to check positivity of @xmath and @xmath , and
+finally to prove ( 263 ). Let us restrict our considerations to the case
+of Davies maps @xmath , for which @xmath in ( 244 ) as discussed in
+Section 5.6.1 .
+
+-   Maximal 2–norm of the output, @xmath .
+
+    Use the Bloch parametrization of @xmath as in ( 244 ), let it act on
+    the Bloch vector @xmath , where @xmath are real. Moreover @xmath
+    guarantees restriction to pure states. It is enough to take pure
+    input state because the 2–norm is convex on the set of density
+    matrices and it attains maximum at the boundary of the set. The
+    spectral radius of the square of the output state reads according to
+    ( 255 ):
+
+      -- -------- -- -------
+         @xmath      (266)
+      -- -------- -- -------
+
+    Since the image of the Davies map has rotational symmetry, there are
+    no parameters @xmath and @xmath in this formula. Second derivative
+    of the function ( 266 ) with respect to @xmath is negative under the
+    condition: @xmath . Therefore function ( 266 ) has a maximum:
+
+      -- -------- -- -------
+         @xmath      (267)
+      -- -------- -- -------
+
+-   Output of a product map.
+
+    Now the explicit form of matrices @xmath and @xmath of the output
+    state ( 260 ) will be given. Consider an one–qubit input state. A
+    vector @xmath corresponds to the density matrix:
+
+      -- -- -- -------
+               (268)
+      -- -- -- -------
+
+    Its image with respect to a Davies map ( 244 ) reads:
+
+      -- -- -- -------
+               (269)
+      -- -- -- -------
+
+    In the analogous way the initial state in a space @xmath can be
+    given by ( 259 )
+
+      -- -- -- -------
+               (270)
+      -- -- -- -------
+
+    where @xmath and @xmath are @xmath matrices. The output state of a
+    map @xmath is:
+
+      -- -------- -- -------
+         @xmath      (271)
+
+      -- -------- -- -------
+
+    Finally the matrices @xmath and @xmath are defined by comparison of
+    suitable blocks of two block matrices:
+
+      -- -- -------- -------- --
+
+            @xmath   @xmath
+      -- -- -------- -------- --
+
+-   Multiplicativity.
+
+    One can use the property @xmath ( 256 ) to show that @xmath is
+    positive. It is so if
+
+      -- -------- -- -------
+         @xmath      (273)
+      -- -------- -- -------
+
+    Notice that @xmath . To show that the above inequality is true, it
+    is sufficient to prove:
+
+      -- -------- -- -------
+         @xmath      (274)
+      -- -------- -- -------
+
+    Taking the square of both sides one gets the expression:
+
+      -- -------- -- -------
+         @xmath      (275)
+      -- -------- -- -------
+
+    This implies that @xmath . In a similar way we prove the positivity
+    of @xmath . The last step is to prove inequality ( 263 ). Consider a
+    positive block matrix @xmath . Assume that @xmath (if @xmath one can
+    add @xmath to @xmath and eventually take the limit @xmath ). Due to
+    the inequality @xmath one can write
+
+      -- -------- -- -------
+         @xmath      (276)
+      -- -------- -- -------
+
+    Due to the Schur complement lemma we have @xmath and therefore,
+
+      -- -------- -- -------
+         @xmath      (277)
+      -- -------- -- -------
+
+    Hence the inequality @xmath holds. This inequality together with
+    definition ( 256 ) implies
+
+      -- -------- -- -------
+         @xmath      (278)
+      -- -------- -- -------
+
+    Denote @xmath by @xmath . To prove inequality ( 263 ) it is enough
+    to show that the second inequality holds in the expression below
+
+      -- -- -- -------
+               (279)
+      -- -- -- -------
+
+    and this is true if
+
+      -- -------- -- -------
+         @xmath      (280)
+      -- -------- -- -------
+
+    This inequality can be shown by taking the function which is the
+    difference between the right hand side and the left hand side. The
+    second derivative of this function is equal to @xmath . Therefore
+    whenever @xmath the difference is a convex function which has
+    minimum at @xmath . That finishes the proof of the last inequality.
+    Therefore inequality ( 263 ) holds and it proves Theorem 258 .
+
+∎
+
+In the case @xmath the proof goes analogously. The maximal output norm (
+267 ) has in this case a simpler form, since the maximizer is a pure
+state described by the Bloch vector @xmath . The specific form of the
+Davies map was used in this proof in ( 267 ) when the formula of the
+maximal output norm was computed and in formula ( 271 ). Moreover,
+positivity of @xmath is used in ( 274 ).
+
+#### 5.7 Davies maps acting on qutrits
+
+In this chapter a characterization of the Davies maps for qutrits,
+@xmath , will be given. Going to higher dimensions demands more abstract
+and systematic approach than in the case of one–qubit maps. The entire
+evolution consists of the unitary part and the dissipative part and such
+is the structure of the generator @xmath . The unitary evolution @xmath
+is governed by the Hamiltonian which in its eigenbasis has a form @xmath
+, where @xmath . Differences of energies @xmath are called Bohr
+frequencies. They are eigenvalues of the unitary part of the evolution,
+@xmath given by @xmath , while the eigenvectors of @xmath are @xmath for
+@xmath . Assume that the set of Bohr frequencies is not degenerated
+beside the zero frequency case, @xmath . The subspace related to the
+zero frequency is @xmath –dimensional. Since the dissipative part @xmath
+of the evolution commutes with the unitary part, it has the same
+eigenvectors and therefore it does not couple the non-degenerated
+subspaces. Thus the off diagonal entries of a density matrix are not
+mixed with the diagonal ones, if the matrix is written in the eigenbasis
+of the Hamiltonian.
+
+Like in the case of one–qubit maps only the dissipative part of the
+evolution will be analysed. An one–qutrit Davies map has a structure
+
+  -- -- -- -------
+           (281)
+  -- -- -- -------
+
+where @xmath and @xmath parametrize the map. The off–diagonal elements
+are related by the detailed balance formula
+
+  -- -------- -- -------
+     @xmath      (282)
+  -- -------- -- -------
+
+Here @xmath determine the invariant Gibbs state ( 236 ). The
+Choi-Jamiołkowski matrix of ( 281 ) preserves the same structure:
+
+  -- -- -- -------
+           (283)
+  -- -- -- -------
+
+The generator and its Choi-Jamiołkowski matrix have also the same
+structure.
+
+Block of the superoperator @xmath of the Davies quantum operation which
+is related to zero frequency space is a @xmath stochastic matrix
+
+  -- -- -- -------
+           (284)
+  -- -- -- -------
+
+where @xmath Due to the definition of the quantum detailed balance
+condition ( 237 ) the Davies map is Hermitian with respect to scalar
+product @xmath and therefore it has a real spectrum. Moreover, the
+spectrum is positive, since there is real logarithm of the matrix @xmath
+represented the Davies map. The positivity of the zero frequency block
+implies that
+
+  -- -------- -- -------
+     @xmath      (285)
+  -- -------- -- -------
+
+The question considered in this chapter concerns explicit analytical
+relations for entries of the superoperator ( 281 ), which imply that the
+superoperator represents a Davies map. One of the condition for @xmath
+is that there exists an exponential form
+
+  -- -------- -- -------
+     @xmath      (286)
+  -- -------- -- -------
+
+Operator @xmath is the zero frequency part of the contractive part of
+the generator of completely positive Davis semigroup. It is
+parameterized as follows:
+
+  -- -- -- -------
+           (287)
+  -- -- -- -------
+
+This is only the zero frequency block which satisfies the detailed
+balance condition. The entire dissipative part of the generator is
+represented by a @xmath matrix. Its Choi matrix has on diagonal elements
+@xmath . Since the Choi state of the generator has to be positive on the
+subspace perpendicular to the maximally entangled state we need to
+require that @xmath .
+
+In the next section an explicit calculation of the logarithm of a
+stochastic matrix of order three ( 284 ) is presented.
+
+##### 5.7.1 Logarithm of a stochastic matrix of size three
+
+To compute analytically the logarithm of a positive matrix ( 284 ) one
+may relay on the following construction. As matrix @xmath has the
+eigenvalues @xmath , where
+
+  -- -------- -- -------
+     @xmath      (288)
+  -- -------- -- -------
+
+the logarithm has the form
+
+  -- -- -- -------
+           (289)
+  -- -- -- -------
+
+where @xmath is a unitary matrix which transforms @xmath into its
+diagonal form. Let us evaluate @xmath without computing the matrix
+@xmath explicitly. One can write that
+
+  -- -------- -- -------
+     @xmath      (290)
+  -- -------- -- -------
+
+where
+
+  -- -- -- -------
+           (291)
+  -- -- -- -------
+
+The matrix @xmath can be given in terms of @xmath :
+
+  -- -------- -- -------
+     @xmath      (292)
+  -- -------- -- -------
+
+This relation allows one to compute @xmath Formula for @xmath can be
+calculated by taking the square of this equation and using the fact that
+@xmath and that @xmath . The last formula holds since operator @xmath is
+defined in the subspace for which @xmath is the identity,
+
+  -- -------- -- -------
+     @xmath      (293)
+  -- -------- -- -------
+
+Therefore the logarithm of the matrix @xmath can be expressed according
+to Eq. ( 290 ). By comparing a suitable entries of @xmath with the
+parameters of @xmath , one gets the parameter @xmath as a function of
+@xmath ,
+
+  -- -------- -- -------
+     @xmath      (294)
+  -- -------- -- -------
+
+where @xmath and @xmath are given by Eq. ( 288 ) and
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (295)
+     @xmath   @xmath               (296)
+  -- -------- -------- -------- -- -------
+
+The set of points @xmath , which defines the set of symmetric
+bistochastic matrices from the dynamical semigroup, is shown in Fig. 14
+and Fig. 15 denoted by @xmath . This set is inside the set of all
+bistochastic @xmath matrices which is denoted by @xmath . The boundaries
+of the set are stated by the constraints @xmath .
+
+Expression ( 294 ) allows one to check that the set of stochastic
+matrices belonging to the semigroup of completely positive maps with the
+detailed balance condition is not convex. Consider two exemplary points
+which lie near the border of the cross-section and belong to the set (
+@xmath ): @xmath and @xmath . Their convex combination does not belong
+to the set. Therefore the set of Davies map is not convex. Fig. 15
+presents the cross-section of the set of bistochastic matrices which
+form the zero frequency part of the Davies map represented in the space
+of parameters @xmath . Fig. 15 b plots a non–convex cross–section of the
+set @xmath by the plane @xmath .
+
+In order to obtain a full characterization of the Davies map for
+qutrits, not only its zero frequency par have to be analysed. One needs
+to take into consideration also the complete positivity condition and
+the condition on the semigroup related to the Choi–Jamiołkowski matrices
+of the superoperator and its generator. These conditions allow us to
+specify the matrix entries @xmath from Eq. ( 281 ).
+
+In this way the full characterization of the Davies channels for
+one–qubit and one–qutrits is provided.
+
+### 6 Concluding remarks and open problems
+
+The aim of this thesis was to investigate quantum channels on different
+levels of generality and using different approaches. For instance,
+general properties of quantum channels were considered in Chapter 2 ,
+while some particular classes of one–qubit and one–qutrit quantum
+channels were analysed in Part III of these thesis. The Davies maps
+motivated by a specific physical model were studied in Chapter 5 . Some
+useful characteristics of a quantum channel are provided by different
+kinds of entropies. Among them we used the minimal output entropy, the
+entropy of a map, the entropy of an environment which takes part in an
+evolution described by a channel. Apart of the standard von Neumann
+entropy which is the quantum counterpart of the Shannon entropy, the
+quantum Rényi and Tsallis entropies were also applied.
+
+In Part II the universal entropic inequality for an arbitrary ensemble
+of quantum states is proved for the von Neumann entropy. This part of
+the thesis treats a quantum channel as a device preparing a quantum
+ensemble. The Holevo quantity of this ensemble is shown to be bounded by
+the entropy of an environment, used in the preparation process. The
+state of the environment after a quantum operation @xmath is equivalent
+to the output of the complementary channel @xmath .
+
+One can define selfcomplementary channels for which @xmath for any
+@xmath . Relation ( 38 ) between the Kraus operators of @xmath and the
+Kraus operators of @xmath is useful to specify selfcomplementary
+channels. Since the coherent information ( 102 ) of such channels is
+equal to @xmath , the same holds also for the quantum channel capacity (
+103 ). Identification of selfcomplementary channels, as well as
+investigation of their properties are worth to be studied in future.
+
+Chapter 3 contains the conjecture which establishes a relation between
+the Holevo quantity, and the matrix of fidelities. This leads to a
+geometric characterization of the states in the ensemble. The bound on
+the Holevo quantity proved in Chapter 2 can be also related to other
+notions of quantum information theory, such as the quantum discord [ 102
+] , [ 103 ] which measures the quantum correlations in a two–partite
+system.
+
+The study of quantum channels is an important task of the modern theory
+of quantum information. For example, the problem of additivity of the
+channel capacity, or equivalently, additivity of the minimal output
+entropy remains open even for channels acting on a single qubit. Results
+presented in this thesis could be further developed to investigate the
+additivity conjecture for different classes of quantum channels.
+
+Some results of Chapter 4 concern general properties of quantum
+channels. For instance we proved the additivity of the map entropy ( 214
+), and Theorem 6 establishing the extremal position of depolarizing
+channels in the set of all channels characterized by the Rényi entropies
+@xmath and @xmath . These results allow us to pose Conjecture 2
+specifying pairs of maps for which the additivity of channel capacity
+may hold.
+
+In Part III , some specific types of channels are investigated.
+Properties of one–qubit channels are analysed in Chapter 4 . Some
+transformations on one–qubit quantum channels defined in Section 4.3
+lead to new results on the characterization of the set of quantum
+channels in the plane @xmath . The aim of this analysis is to find some
+conditions that enable one to estimate the minimal output entropy, which
+is difficult to compute, by the entropy of the map easy to calculate.
+
+The Davies channels, which correspond to a concrete physical model, are
+studied in Chapter 5 . Superoperators of the Davies maps are specified
+in the case of one–qubit maps and one–qutrit maps. The question whether
+the channel capacity of the Davies maps is additive is still open,
+although, Davies maps acting on @xmath –level system compose the set of
+only @xmath dimensions, while the set of all quantum operations acting
+on system of the same @xmath has @xmath dimensions.
+
+The quantum information theory is a modern field of science which
+creates an environment for new future applications and opens new paths
+for development of technology. Quantum channels, which describe any
+possible evolution of a quantum state, play an important role in
+possible applications. Quantum channels describe decoherence caused by
+the interaction with an environment. Knowledge of their properties
+allows one to choose the most efficient quantum protocols for a given
+purpose. Theoretical investigations uncover new possibilities, new laws
+and fundamental restrictions on processing of quantum information.
+
+The classical theory of information began with investigations on
+communication in a given language through given technological tools.
+However, very fast, the laws of information became treated as
+fundamental properties of nature. Therefore, studies in the field of
+quantum information are so exciting.
+
+Appendix 1
+
+In Appendix we analyze ensembles of three one–qubit states @xmath and
+provide calculations related to Fig. 4 necessary to prove Lemma 4 in
+Section 3.2 .
+
+The Bloch vector characterizing the average states can be given by
+
+  -- -------- -- -------
+     @xmath      (297)
+  -- -------- -- -------
+
+The Bloch vector representing the mixed state @xmath is parameterized by
+an angle @xmath
+
+  -- -------- -- -------
+     @xmath      (298)
+  -- -------- -- -------
+
+The vector @xmath is chosen in such a way that the ratio @xmath is
+@xmath . Therefore one has
+
+  -- -------- -- -------
+     @xmath      (299)
+  -- -------- -- -------
+
+The point @xmath is in the center of the interval @xmath , between two
+pure states @xmath and @xmath characterized by the points @xmath and
+@xmath . Both vectors @xmath and @xmath form with vector @xmath the
+angle @xmath so that
+
+  -- -------- -- -------
+     @xmath      (300)
+  -- -------- -- -------
+
+This is in turn the square root of the fidelity @xmath , because the
+angle @xmath is half of the angle between two pure states,
+
+  -- -------- -- -------
+     @xmath      (301)
+  -- -------- -- -------
+
+The fidelity between two one–qubit states represented by Bloch vectors
+@xmath and @xmath reads
+
+  -- -------- -- -------
+     @xmath      (302)
+  -- -------- -- -------
+
+The scalar product of @xmath and @xmath is equal to:
+
+  -- -------- -- -------
+     @xmath      (303)
+  -- -------- -- -------
+
+Hence
+
+  -- -------- -- -------
+     @xmath      (304)
+  -- -------- -- -------
+
+The third fidelity @xmath can by obtained using Lemma 2 . For @xmath the
+product of three fidelities used in Lemma 4 is a function @xmath given
+by
+
+  -- -------- -- -------
+     @xmath      (305)
+     @xmath      (306)
+     @xmath      (307)
+  -- -------- -- -------
+
+Appendix 2
+
+In this appendix we present computations necessary to prove Lemma 3 . It
+is convenient to change the basis such that the vector @xmath (see Fig.
+4 ) is transformed into
+
+  -- -------- -- -------
+     @xmath      (308)
+  -- -------- -- -------
+
+Denote the angle @xmath , where @xmath is the angle between @xmath and
+@xmath . The vectors @xmath and @xmath in the new basis can be obtained
+by rotating the state @xmath around the axis @xmath by angles:
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (309)
+     @xmath   @xmath   @xmath      (310)
+  -- -------- -------- -------- -- -------
+
+The vectors @xmath and @xmath are obtained by rotating the above vectors
+around the axis @xmath by angle @xmath . Such a rotation can be defined
+as an action of a unitary matrix @xmath on vectors ( 309 ). The unitary
+matrix is given by
+
+  -- -------- -- -------
+     @xmath      (311)
+  -- -------- -- -------
+
+where the rotation matrices read
+
+  -- -------- --
+     @xmath
+     @xmath
+  -- -------- --
+
+One can use formula ( 302 ) to calculate the product of three fidelities
+for three considered states, @xmath and @xmath as a function of the
+angle @xmath .
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath
+              @xmath   @xmath
+  -- -------- -------- -------- --
+
+The product of three pairwise fidelities attains its minimum at @xmath
+as stated in Lemma 3 .

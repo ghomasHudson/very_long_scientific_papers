@@ -1,0 +1,2899 @@
+## Chapter \thechapter Introduction
+
+### 1 Motivation
+
+Space is a basal part of the existence of all creatures. The ability to
+cope with the spatial environment is thus a primary survival skill of
+even the smallest insects.
+All physical entities are located in space and their spatial properties,
+like location, orientation or shape, might change. Because humans are
+able to deal with spatial knowledge effectively we can deliberately and
+intelligently utilise this environment. We obtain and modify this
+knowledge by what we perceive from the external world and by our ability
+to derive new knowledge. The communication of spatial knowledge is an
+essential skill of human beings.
+
+The elementary concept of space has thus been a central subject of study
+in Cognitive Science and Artificial Intelligence. To perceive space, to
+represent space, to reason about space and to communicate space is an
+important task in Artificial Intelligence research. Artificial
+Intelligence  is a highly diversified discipline with influences from
+different classical areas such as Computer Science, Logic, Engineering,
+Psychology and Philosophy.
+
+The two primary methods to deal with space are the quantitative approach
+and the qualitative approach. The quantitative approach is the classical
+way which is used in many traditional disciplines like computational
+geometry, computer vision and robotics. It uses numerical values within
+a coordinate system to store the spatial information. The qualitative
+methods abstract from the exact numerical values and use a finite
+vocabulary to handle spatial information. Qualitative representation of
+spatial knowledge  and reasoning about qualitative spatial knowledge  is
+more "human-like" or "cognitively adequate" than classical approaches.
+
+Artificial Intelligence and in particular spatial reasoning have many
+applications, but an increasingly important one is robotics. Non-static
+robots most often solve spatial problems like maintaining information
+about their position, path-finding, way-planning, map-building or
+goal-finding. Communicating with humans about spatial knowledge is
+another important aspect of robotics. Topological information are often
+useful, but for robotics the most important spatial information  is the
+positional information. Qualitative approaches are very suited for
+dealing with spatial knowledge  in robotics because they can handle
+imprecise sensor data and omit unnecessary details.
+
+The goal of this thesis is to develop a new qualitative calculus for
+spatial reasoning about positions. Most often it is sufficient to reason
+about points and to abstract from the extend of the objects. Many
+existing qualitative spatial representations are too coarse for some
+applications, especially for robotics. Thus a calculus for more
+"Fine-grained Qualitative Spatial Reasoning about Point Positions" is
+being presented in this thesis. This thesis is written with regard to
+robotics but the calculus can be used for other applications that need
+to reason about positional information as well.
+
+### 2 Structure of this thesis
+
+This thesis will first introduce the reader to the foundations of
+qualitative spatial reasoning. State of the art calculi are presented in
+following chapter. After the new approach is developed, ways of
+improving it and it’s implementation are explained. A summary followed
+by the discussion and the outlook is presented after a comparison of the
+new calculus with other approaches.
+
+The first section of Chapter id1 , which introduces the terms and
+definitions required, is about spatial representations in general. It
+presents different important aspects of space like topology,
+orientation, distance and shape. Section 4 introduces to spacial
+reasoning and the unary and binary operations that are needed for it.
+General constraint based reasoning is explained as well as the special
+features of spatial reasoning. The next Section ( 5 ) presents the
+qualitative representation, its properties and it gives reasons why to
+use it. Later in this section qualitative spatial representation and
+reasoning is introduced. The last section of Chapter id1 (Section 6 ) is
+about the applications in which qualitative spatial reasoning is used.
+
+Chapter sec:StateOfTheArt introduces state of the art calculi. The first
+calculus in Section 7 is about topological aspects of space. The Dipole
+approach over intrinsic orientation knowledge is presented in Section 8
+. Section 9 introduces the Ternary Point Configuration Calculus from
+which the calculus developed in this thesis derives. The
+Distance/orientation-interval propagation is a quantitative approach
+which is used for the computation of the composition (Section 10 ). The
+Granular Point Position Calculus introduced in Section 11 is recently
+developed and similar to this thesis’s approach.
+
+The calculus of this diploma thesis is being developed in Chapter id1 .
+The absolute distance representation is presented in Section 12.1 and
+the relative orientation representation is introduced in Section 12.2 .
+Section 12.3 combines those latter two to represent positional
+knowledge. The reasoning techniques for the new calculus are explained
+in Section 13 and the conceptual neighborhoods are defined. The
+algorithm for the composition as well as the unary operations are
+developed and improved in this section, for example by using Pavlidis
+contour tracing algorithm. Section 14 shows code fragments of the
+implementation as well as the output of an example program while Section
+15 compares some important state of the art calculi with the newly
+developed one.
+
+Chapter id1 provides a summary of the results achieved in this thesis as
+well as a discussion and an outlook for future research possibilities.
+
+The appendix contains in depth definitions for the Ternary Point
+Configuration Calculus ( id1 ), for the Distance/orientation-interval
+propagation ( id1 ) and for the Region Connection Calculus ( id1 ) as
+well as the Bibliography.
+
+## Chapter \thechapter Foundations
+
+### 3 Spatial Representation
+
+There are tasks within robotics that can be performed without the need
+of spatial representations. Behavior-based robotics does not use an
+internal model of the environment. The robot rather acts by directly
+using the input from the sensors and thus reacting to the changes in its
+environment. One very early example of behavior-based robotics is
+Walter’s turtle. There, a light indicates the position of a recharge
+station. The turtle has a photo sensor which leads it to the recharge
+station if the batteries run low on power and makes it flee from the
+light once the batteries are full again, [ Walter ] . Other great
+contributions to behavior-based robotics have been done by Braitenberg
+who developed the famous Braitenberg-vehicles [ Braitenberg ] as well as
+by Ronald Arkin [ Arkin ] .
+
+More complex demands on robots require the use of spatial knowledge. In
+order to use this spatial knowledge  and perform tasks like reasoning
+with this information it is necessary to have an adequate
+representation. There are two common ways to represent spatial
+knowledge: the qualitative and the quantitative (it is also known as
+numerical) approach which are closely introduced in section 5 .
+
+There are different aspects of space that are represented by different
+kinds of spatial relationships. The one dimensional Temporal logic will
+be presented briefly as it had great influence on qualitative spatial
+reasoning. Topology representations are inherently qualitative whereas
+orientation and distance information can also be expressed
+quantitatively. The latter two combined form the positional information.
+Those aspects of space are often not independent from each other,
+especially if orientated objects with extension are represented.
+
+#### 3.1 Temporal Logic
+
+James F. Allen introduced a temporal logic in 1983 based on intervals, [
+Allen ] . Without using the term "qualitative", Allen defined some
+conditions for his algorithm: It should allow imprecision (relative
+relations rather than absolute data are used) and uncertainty of
+information (constraints between two times may exist although the
+relationship between two times may be unknown). Furthermore the
+algorithm should vary in its grain of reasoning (years, days,
+milliseconds etc.) and it should support persistence (facilitate default
+reasoning).
+
+Allen uses intervals of time because he observed that there don’t seem
+to be any atoms in time. All possible events in time might be broken up
+into two or more individual events thus forming an interval of time.
+
+In table 1 we can see the thirteen possible relationships between
+intervals that Allen identified. Convenience allows the collapse of the
+three during relations (d, s, f) into one relationship called dur and
+the three containment relations (di, si, fi) into a relationship called
+con.
+
+The time intervals constitute nodes of a network, while the arcs between
+those nodes are labeled with one or more of those thirteen relationships
+(allowing uncertainty for disjunction of relations). Allen presented an
+algorithm to calculate the transitive closure of such a network using a
+"transitivity table" (composition table). He also introduced reference
+intervals to group clusters of intervals and thus reduced the space
+requirements of the representation without greatly affecting the
+inferential power of his mechanism. [ Allen ]
+
+A generalization of Allen’s approach was introduced in 1990 by Christian
+Freksa,
+[ FreksaTemporal ] . Rather than reasoning about intervals of time he
+used semi-intervals. The start and end-points (which themselves can be
+seen as semi-intervals on higher levels of granularity) now define the
+intervals using the relations before (<), equal (=) and after (>). Thus
+all relations of intervals can be uniquely defined by using a maximum of
+two relations of beginnings and endings. This is possible because of two
+domain-inherent conditions: beginnings take place before endings and the
+relations (<, =, >) are transitive.
+
+Freksa’s approach uses the "Conceptual Neighborhood" of relations which
+allows for inferring neighbors of relations between objects about which
+neighborhoods of relations to some other object are known. It is more
+efficient in regards of inferencing while the full reasoning power is
+maintained, thus this calculus is cognitively plausible. We see, for
+example, that having less knowledge corresponds to a simpler
+representation rather than Allen’s method, which adds more relation
+disjunctions, if less is known. This also allows for a drastic
+compaction of the inferencing knowledge base.
+
+[ FreksaTemporal ]
+
+Efforts have been made to extend temporal logic into spatial dimensions
+such as using the temporal distinctions for the two axes of a Cartesian
+coordinate system [ Guesgen ] . These approaches lack cognitive
+plausibility because humans don’t decompose the world into two axes nor
+consider relations on each of them.
+
+It must be noted that there are (although both are one dimensional)
+important differences between time and a one-dimensional space. The most
+important is, that time always moves forward whereas space has no fixed
+direction. Therefore spatial representations differ greatly from
+temporal logic.
+
+#### 3.2 Topology
+
+Topological distinctions between spatial entities are a fundamental
+aspect of spatial knowledge. Because those distinctions are inherently
+qualitative they are particularly interesting for qualitative spatial
+reasoning.
+
+Topological representations usually describe relationships between
+spatial regions which are subsets of some topological space. Most
+approaches that formalize topological properties of spatial regions use
+a single primitive relation (the binary connectedness relation) to
+define many other relations. In topology, formal definitions like
+neighborhood, interior, exterior, boundary etc. can be used to define
+relations like disjoint, meet, overlap, contain etc. for two regions.
+
+#### 3.3 Orientation
+
+Orientation is also a very interesting field for spatial representation
+and reasoning. Relative orientation of spatial entities is a ternary
+relationship depending on the referent, the relatum and the frame of
+reference (reference system) which can be specified either by a third
+object (origin) or by a given direction. The orientation is determined
+by the direction in which the referent is located in relation to the
+frame of reference.
+
+Three reference systems can be distinguished:
+
+-   In the Intrinsic Reference System the orientation is determined by
+    an inherent feature of the relatum.
+
+-   The Absolute Reference System (also called extrinsic reference
+    system) uses external parameters like global coordinate systems to
+    give the relatum an orientation.
+
+-   A third object (origin) is used in the Relative Reference System
+    (also called deictic reference system) so that the orientation is
+    defined by the "point of view" this third object has to the
+    reference system.
+
+Most spatial representations use points in a two-dimensional space as
+basic spatial entities since developing spatial orientations between
+extended objects is much more difficult.
+
+#### 3.4 Distance
+
+The scalar entity distance is, together with topology and orientation,
+one of the most important aspects of space. In human communication
+qualitative descriptions of distance are used. There are absolute
+distance relations that specify distances between two objects like
+"close to", "far" or "very far". There also are relative distance
+relations that compare the distance between two objects with the
+distance to a third object like "closer than" or "further than".
+Qualitatively described absolute distances depend on the relative scale
+of space (for example objects on a desktop, in a home or in a city).
+
+Combining distance relations not only depends on distance but also on
+orientation. If an object A is far from B and another object C is also
+far from B we cannot say anything certain about the distance between A
+and C. If the objects were on a line in the sequence of A B C, A would
+be very far from C, but if they were on a line in the order of A C B
+then A could be close to C. It is thus appropriate to use distance in
+combination with orientation which is called positional information.
+
+#### 3.5 Positional information
+
+In this thesis I’ll use the term "positional information" for
+information structures that combine the orientation and distance
+representation. That means, that the position of an object is described
+by a combination of a qualitative orientation and a qualitative
+distance. Usually the number of possible relations (atomic relations) is
+the number of possible relations of the orientation representation
+multiplied with the number of relations of the distance representation.
+This may not be true for special cases, for example if relations are
+considered where objects are on the same location.
+
+Hernández [ hernandez1994 ] on contrast uses the term "positional
+information" for combinations of orientation information with
+topological information.
+
+#### 3.6 Orientated objects with extension
+
+All real world objects have an extension. If spatial representations
+would avail this fact improvements could be achieved for some
+applications. The extension is usually described by size and shape of
+the objects. The shape of an object could affect the frame of reference
+of an relation - in an intrinsic reference system it determines the
+orientation of this object. The size on the other hand has influence on
+how humans describe spatial relations. They prefer large, salient
+objects as reference objects: Humans rather say "The bicycle is in front
+of the cathedral" than "The cathedral is behind the bicycle".
+
+Problems with extended objects arise if they overlap. Two orientations
+could then describe the same configuration. [ hernandez1994 ]
+
+#### 3.7 Shape
+
+Shape is difficult to describe qualitatively. Using topology one can say
+whether an object has holes or whether it is in one piece or not. For
+finer grained distinctions shape primitives could be used. Other
+approaches characterize the boundary of an object using a sequence of
+different types of boundary segments or curvature extrema. Furthermore
+shape could be described with polygons that qualitatively define for
+each corner whether it is convex or concave, whether it is obtuse or
+right-angled or acute and with an qualitative description of the
+direction of the corner. Shape representations can make statements
+solely about the boundary or about the interior of an object [ Cohn2001
+] , [ Jungert ] .
+
+#### 3.8 Motion
+
+Motion is a spatio-temporal information that can be quite easily
+expressed qualitatively. An example for such an qualitative
+representation is given in [ brauer-qualitative ] . In this approach,
+the motion of an object is observed from an deictic point of view with a
+fixed frame rate. The two components orientation and distance, that
+establish a vector, are used to describe the change of position of the
+object from one frame to the next. If the object is standing still the
+orientation and distance are 0. If two subsequent qualitative motion
+vectors are equal one can increment an index. A motion could be for
+example (distance,orientation):
+@xmath close,forward @xmath , @xmath close,left @xmath , @xmath 0,0
+@xmath , @xmath far,forward @xmath .
+
+Another method of representation is one with an intrinsic frame of
+reference given by the orientation of the previous vector (the first
+vector is always "forward"). Now the frame rate is only used for
+standstills, in other cases a new qualitative value, the velocity, is
+used. A motion would now look like this:
+@xmath short-dist,forward,slow @xmath , @xmath medium-dist,left,slow
+@xmath , @xmath 0,0 @xmath , @xmath far,right,fast @xmath .
+
+A quite abstract representation is the propositional one. It identifies
+a set of movement shapes like "straight-line", "left-turn",
+"right-turn", "u-turn", "loop", etc. that can have relations between
+them that describe differences in magnitude, orientation and velocity. [
+brauer-qualitative ]
+
+### 4 Spatial Reasoning
+
+To make use of their spatial knowledge, most applications have to use
+reasoning mechanisms to derive the knowledge needed. Respectively, in
+order for a representation to be useful, we most often have to consider
+not only its constituents and how they correspond to what is being
+represented, but also the operations on them. Only if simple search for
+matching relations is sufficient, one can disregard spatial reasoning.
+This is for example the case, if a robot perceives a configuration of
+objects and has to search for an object a user specifies by verbally
+describing an object configuration (like "go to the box that is right of
+the basket").
+Other applications like navigation or computer vision that are presented
+in section 6 make serious use of reasoning algorithms. Spatial reasoning
+is not possible without the presence of a spatial representation and the
+quality of the results the reasoning generates depends heavily on the
+underlying representation.
+To deal with commonsense knowledge is important for any intelligent
+system and it has been early recognized as one of the central topics of
+Artificial Intelligence  to represent and reason about commonsense
+knowledge. The question can be raised if the formal logic or the
+physical space is more fundamental for reasoning processes, [ freksa1992
+] . The aim of research on reasoning is to develop efficient algorithms,
+since the brute-force "generate-and-test" approach is always available
+but most often unusable due to it’s complexity.
+
+Reasoning can perform many tasks. Most importantly it can infer
+knowledge that is implicit in the knowledge base and make it thus
+explicit. That way the knowledge base is extended. Reasoning can also
+answer queries that are given with only partial knowledge and with a
+specific context. Various types of consistency can be maintained using
+reasoning techniques that simplify the use of the knowledge base. In
+general reasoning is used to acquire and process new knowledge.
+
+#### 4.1 Algebraic structure
+
+In this section some basic reasoning techniques over spatial
+representations are presented. In order to do so, an assumption is made
+which actually holds for many calculi, especially for the calculi
+relevant for this thesis. The assumption is, that the relations between
+the objects that are being manipulated are ternary. Ternary relations
+are being made over three objects: the first argument is the origin, the
+second one is the relatum and the third one the referent. The relation
+describes the referent with respect to the frame of reference (or
+reference system) determined by the origin and the relatum.
+
+In qualitative representations each representation has a finite number
+of atomic relations corresponding to the finite number of spatial
+configurations that are distinguished by the representation. The
+relation over the three objects corresponds to the spatial configuration
+of those objects. Special cases usually occur when two of the three the
+objects are on the same position. In order for the algebra to recognize
+those cases they are added to the set of atomic relations.
+
+In general the three objects partition the space and the set of atomic
+relations is given by this partition.
+
+General relation A (general) relation is any subset of the set of all
+atomic relations. The interpretation of such a relation @xmath is as
+follows:
+@xmath .
+The atomic relations are designed to be Jointly Exhaustive and Pairwise
+Disjoint (JEPD). That means, given any three objects @xmath , there
+exists one and only one atomic relation @xmath such that @xmath .
+
+##### 4.1.1 Unary operations
+
+The ternary relations have three arguments and thus there are 3! = 6
+possible permutations for the arrangement of those arguments. Following
+[ zimmfre1996 ] the terminology shown in table 2 is used for those
+transformations.
+
+##### 4.1.2 Binary operations
+
+Composition
+
+The composition @xmath of two relations @xmath and @xmath is the most
+specific relation @xmath such that:
+@xmath .
+Given four objects @xmath and two atomic relations @xmath and @xmath the
+conjunction @xmath is trivially inconsistent if either of the following
+holds:
+@xmath
+@xmath
+For atomic relations for which the above holds the result of the
+composition is empty: @xmath
+
+In general a compositional inference is a deduction from two relational
+facts of the form @xmath and @xmath to a relational fact of the form
+@xmath , involving only a and c. The validity of compositional
+inferences does, in many cases, not depend on the specific elements
+involved but only on the logical properties on the relations. In such a
+case the composition of pairs of relations can be abstracted by table
+look up as and when required. Given the set of n JEPD atomic relations,
+one can store in a @xmath composition table the relationships between
+@xmath and @xmath for a pair of relations @xmath and @xmath . In
+general, each entry can be a disjunction of the base relations.
+
+For the ternary relations those tables have to be made available for the
+following two cases:
+@xmath and
+@xmath
+
+For a representation using a limited set of binary relations, the
+simplicity of the compositional inference makes it an attractive means
+of effective reasoning.
+
+Intersection The intersection of two relations @xmath and @xmath is the
+relation @xmath which consists of the set-theoretic intersection of the
+atomic relation sets from @xmath and @xmath : @xmath .
+
+[ moratz1999 ]
+
+#### 4.2 Constraint Based Reasoning
+
+The constraint satisfaction problem is identified as an abstract
+formulation of many difficult problems in Artificial Intelligence. Given
+that qualitative representations can be expressed in form of relations,
+general constraint satisfaction techniques can be applied for various
+kinds of inference. Constraint satisfaction techniques play an important
+role in Computer Science as a whole, and in Artificial Intelligence in
+particular. Many difficult problems involving search from areas such as
+(robot) navigation, temporal reasoning, graph algorithms and machine
+design and manufacturing can be considered to be special cases of the
+constraint satisfaction problem (CSP).
+
+Constraint Satisfaction Problems (CSP) generally consist of:
+
+-   a set of variables @xmath ,
+
+-   a discrete domain for each variable @xmath so that each variable
+    @xmath has a finite set @xmath of possible values,
+
+-   a set @xmath of constraints, defined over some subset of the
+    variable domains, @xmath , and showing the mutually compatible
+    values for a variable subset @xmath . Those constraints are
+    restricting the values the variables can simultaneously take.
+
+The problem is to find an assignment of values to variables such that
+all constraints are satisfied. Variants of the problem are to find all
+such assignments, the best one, if there exists any at all, etc.
+
+The constraints are restricted to be unary or binary because those are
+the operations we defined for the spatial representation. Furthermore it
+is assumed that all variable domains have the same cardinality.
+
+The straightforward approach to find a satisfying assignment is a
+backtracking algorithm that corresponds to an uninformed systematic
+search. If, after having instantiated all variables relevant to a set of
+constraints, any of them is not valid, the algorithm backtracks to the
+most recently instantiated variable that still has untried values
+available. The run-time complexity of this algorithm is exponential,
+making it useless for realistic input sizes. This inefficiency arises
+because the same computations are repeated unnecessarily many times.
+Possible solutions to this problem are the modification of the search
+space, the use of heuristics to guide the search or the use of the
+particular problem structure to orient the search. The latter one is
+especially interesting for spatial reasoning as we will see later.
+
+#### 4.3 Consistency improvement
+
+The goal of modifying the search space is to avoid useless computation
+without missing any of the solutions of the original space. In other
+words, we are looking for a smaller but equivalent search space. This
+can be achieved either prior the search (by improving the consistency of
+the network through constraint propagation) or, in hybrid algorithms,
+during the search.
+
+One way of reducing the number of repeated computations is constraint
+propagation. There those values are removed from a domain that do not
+satisfy the corresponding unary predicates, as well as those values for
+which no matching value can be found in the adjacent domains such that
+the corresponding binary predicates are satisfied. The former process
+achieves node consistency, the latter arc consistency. Expressed
+differently one can say that this process of constraint relaxation is
+triggered by incompatible constraints. This concept of local consistency
+can be generalized to any number of variables. A set of variables is
+@xmath -consistent if for each set of @xmath variables with satisfying
+values, it is possible to find a value for the @xmath th variable such
+that all constraints among the @xmath variables are satisfied. A set of
+variables is strong @xmath -consistent if it is @xmath -consistent for
+all @xmath . Of special interest is strong 3-consistency, which is
+equivalent to arc consistency plus path consistency. A network is path
+consistent if any value pair permitted in @xmath is also allowed by any
+other path from @xmath to @xmath . The process of achieving consistency
+in a network of constraints is called constraint propagation. Several
+authors give different definitions of constraint propagation, whose
+equivalence is not obvious.
+
+One such definition is that constraint propagation is a way of deriving
+stronger (i.e., more restrictive) constraints by analyzing sets of
+variables and their related constraints. The value elimination
+consistency procedures mentioned above assume a very general extensional
+form of constraints as sets of satisfying value pairs. Whenever a value
+of the domain of a variable involved in more than one constraint is
+removed, a satisfying value pair might have to be removed from one or
+more of the other constraints, thus making them more restrictive.
+
+Another view of constraint propagation is as the process of making
+implicit constraints explicit, where implicit constraints are those not
+recorded directly in compatible value pairs, but implied by them. This,
+however, can be seen as a side effect of the consistency procedures. The
+universal constraint, that allows any value pair, holds implicitly
+between two variables not explicitly linked together. If the domains of
+the two variables @xmath and @xmath are restricted to a few values, then
+the implicit constraint @xmath can be made explicit as the set of
+combinations of the two domains.
+
+Note that the global full constraint propagation is equivalent to
+finding the minimal graph of the CSP, where each value permitted by any
+explicit constraint belongs to at least one problem solution. Full
+constraint propagation is thus as hard as the CSP itself (in general
+NP-complete). The local constraint propagation techniques used to
+achieve node-, arc- and path-consistency have polynomial complexities
+and can be used as pre-processors that substantially reduce the need to
+backtrack during the search for a global solution.
+
+Unfortunately, arc- and path-consistency do not eliminate in general the
+need to backtrack during the search because constraints are propagated
+only locally.
+
+#### 4.4 Spatial reasoning
+
+Spatial inferencing is concerned with the qualitative spatial analysis
+of the spatial configurations, often in two-dimensional Euclidean space.
+It uses the reasoning techniques presented in the previous sections. The
+composition of spatial relations is very under-determinate. The
+resulting relation sets tend to contain too many atomic relations. But
+often the structure of the spatial domain inherits certain constraints
+that allow further improvements for constraint based reasoning.
+
+In section 3.1 it is shown how Freksas approach uses constraints of the
+temporal domain to improve reasoning about time. An example for these
+constrains in the spatial domain is, that distinct solid objects never
+occupy the same point in space. Hernández [ hernandez1994 ] , giving
+another example, uses "abstract maps" that contain for each object in a
+scene a data structure with the same neighborhood structure as the
+domain required for the task at hand. A change in of the point of view
+can then be easily accomplished diagrammatically by rotating the labels
+of the orientation. Hernández also observed, that the composition of
+pairs of topological and orientation information yields more specific
+results.
+
+In [ Freksa1991 ] Freksa shows, that spatial location representations of
+physical objects consist of connected parts (their "neighbors", see
+section 5.3 ) and that movement in space is only possible between
+neighboring locations. Therefore a general representation should not
+explicitly check if these constraints hold; the constraints should
+rather be "build-in" in the representation and reasoning system.
+
+### 5 Qualitative spatial calculi
+
+Qualitativeness can be best explained in contrast with it’s counterpart
+Quantitativeness. First we gonna take a look at the American Heritage
+Dictionary entries for these two terms:
+
+-   quantity: 1. A specified or indefinite number or amount. An exact
+    amount or number. 2. The measurable, countable, or comparable
+    property or aspect of a thing.
+
+-   quality: 1. The essential character of something; nature. 2. An
+    inherent or distinguishing characteristic; property.
+
+The most important words for quantity are number and measurable, because
+spatial quantities are measured which implies that a number is assigned
+to represent a magnitude. Usually the assignment can be made by a simple
+comparison. The magnitude of the quantity is compared to a standard
+quantity, the magnitude of which is arbitrarily chosen to have the
+measure 1.
+
+The term quality is more difficult to explain. The qualitative
+representations can be characterized by establishing a correspondence
+between the abstract entities in the representation and the actual
+magnitudes. Quantitative knowledge is obtained whenever a standardized
+scale is used for anchoring the represented magnitudes. The use of a
+scale is also the context in which issues of granularity and resolution
+are meaningful, since a scale defines a smallest unit of possible
+distinction below which we are not able to say anything about a
+quantity.
+[ brauer-qualitative ]
+
+Qualitative representation provides mechanisms for representing only
+those features that are unique or essential, whereas a quantitative
+representation allows to represent all those values that can be
+expressed with respect to a predefined unit. Although qualitative
+reasoning allows inferences to be made in absence of complete knowledge,
+it is not a probabilistic or fuzzy approach but it refuses to
+differentiate between certain quantities.
+
+One primary goal of qualitative spatial representations is to provide a
+general vocabulary for performing efficient symbolic spatial inferences
+and analysis. Although the semantics of the vocabulary may not be
+unique, the discrete values for its definition over the continuous
+domains should allow computationally efficient spatial inference and
+less ambiguous spatial descriptions (i.e., with sufficient precision).
+
+A mathematical definition for a qualitative abstraction can look like
+this:
+Let @xmath be a quantitative variable, such that @xmath , and @xmath .
+If the entire domain @xmath is partioned into a finite set of mutually
+disjoint subdomains @xmath , i.e., @xmath , and, furthermore, all
+numerical values lying within @xmath are treated as being equivalent and
+named symbolically by Label @xmath , then the qualitative variable
+@xmath corresponding to @xmath is defined as follows:
+
+@xmath
+
+where Label @xmath is called a primitive qualitative value.
+
+[ planningbuch ]
+
+#### 5.1 Properties of qualitative representations
+
+This section is a citation from [ brauer-qualitative ] who pointed out
+many of the useful properties of qualitative representations perfectly.
+
+-   Qualitative representations make only as many distinctions as
+    necessary to identify objects, events, situations, etc. in a given
+    context (recognition task) as opposed to those needed to fully
+    reconstruct a situation (reconstruction task).
+
+-   All knowledge about the physical world in general, and space in
+    particular, is based on comparisons between magnitudes. As
+    representations that capture such comparisons, qualitative
+    representations reflect the relative arrangement of magnitudes, but
+    not absolute information about magnitudes.
+
+-   The search for distinctive features that characterizes the
+    qualitative approach has an important side effect: It structures the
+    domain according to the particular viewpoint used. Some of the
+    qualitative distinctions being made are conceptually closer to each
+    other than others. This structure is reflected in the set of
+    relations used to represent the domain.
+
+-   Qualitative representations are "under-determined" in the sense that
+    they might correspond to many "real" situations. The reason they
+    still can be effectively used to solve spatial problems is that
+    those problems are always embedded in a particular context. The
+    context, which for simplicity can be taken to be a set of objects,
+    should constrain the relative information enough to allow spatial
+    reasoning, for example by making it possible to find a unique order
+    along a descriptional dimension. In other words, a representation
+    that can count on being used together with some particular context
+    does not need to contain as much specific information itself.
+
+-   Qualitative representations handle vague knowledge by using coarse
+    granularity levels, which avoid having to commit to specific values
+    on a given dimension. With other words, the inherent
+    "under-determination" of the representation absorbs the vagueness of
+    our knowledge.
+
+-   In qualitative representations of space, the structural similarity
+    between the representing and the represented world prevents us from
+    violating constraints corresponding to basic properties of the
+    represented world, which in propositional systems would have to be
+    restored through revision mechanisms at great cost.
+
+-   Unlike quantitative representations, which require a scale to be
+    fixed before measurements can take place, qualitative
+    representations are independent of fixed granularities. The
+    qualitative distinctions made may correspond to finer or coarser
+    differences in the represented world, depending on the granularity
+    of the knowledge available and the actual context.
+
+-   The informative content of qualitative relations varies. Some
+    describe what would correspond to a large range of quantitative
+    values of the same quality, while others may single out a unique
+    distinctive value.
+
+-   While the discrimination power of single qualitative relations is
+    kept intentionally low, the interaction of several relations can
+    lead to arbitrarily fine distinctions. If each relation is
+    considered to represent a set of possible values, the intersections
+    of those sets correspond to elements that satisfy all constraints
+    simultaneously.
+
+[ brauer-qualitative ]
+
+#### 5.2 Reasons for qualitative approaches
+
+Of course quantitative representations are very useful for many
+applications (CAD, 3D Graphics etc), but there are good reasons why
+quantitative approaches are to be preferred in many other systems:
+
+-   Advantages in Input and Output
+
+    -   Partial and uncertain information: A value may not be exactly
+        known (determined by the priori fixed scale) due to imprecise
+        sensor data or vague human descriptions. It then either has to
+        be ignored or assigned to a range of possible values in
+        quantitative approaches. In the latter case there will be more
+        computation needed. Qualitative approaches have no problems
+        handling such information.
+
+    -   Transformation: The transformation of a quantitative value to a
+        qualitative one is done more easily and exactly than in the
+        opposite direction.
+
+    -   Qualitative input: The input for reasoning processes is often
+        qualitative - it is often the result of a comparison rather than
+        a quantitative description. It is thus better to use qualitative
+        reasoning.
+
+    -   Real world input: Spatial reasoning (in the real world) is in
+        most cases driven by qualitative abstractions rather than by
+        complete a priori quantitative knowledge.
+
+    -   Reasoning goal: The goal of reasoning is always qualitative. A
+        decision is being processed not a quantitative value.
+
+-   Interaction with humans
+
+    -   Missing adequacy: Humans are not very good at determining exact
+        length, orientations ect. but they can easily perform
+        context-dependent comparisons. In quantitative approaches humans
+        would be forced to use quantities to express facts.
+
+    -   Human reasoning: Humans also do qualitative reasoning more
+        easily (and sometimes better).
+
+    -   Communication: Humans are used to communicate spatial facts
+        qualitatively. This is thus their preferred way to interact with
+        computers, too.
+
+    -   Human cognition: Qualitative representations are more
+        transparent and intuitive to humans because it is believed that
+        this is the method humans themselves use to reason about space.
+
+-   Computation issues
+
+    -   Transformational impedance: As a consequence of the missing
+        adequacy described above, spatial reasoning systems based on
+        quantitative values might have to transform back and forth
+        between their internal representation and the qualitative one
+        which is used to communicated with humans. Information might get
+        lost during these transformations.
+
+    -   Robustness: Qualitative approaches are more robust against
+        errors than numerical methods.
+
+    -   Falsifying effects: Quantitative models might falsify the
+        representation by forcing discrete decisions.
+
+    -   Unnecessary details: With qualitative representations
+        unnecessary details can be omitted which yields to smaller and
+        more transparent representations.
+
+    -   Properties: Quantitative approaches do not have the nice
+        properties that their analytical counterparts have.
+
+-   Complexity
+
+    -   Cheapness: Qualitative knowledge is cheaper than quantitative
+        knowledge because it is less informative in a certain sense.
+
+    -   Complexity: The number of values that a descriptional value may
+        take affects indirectly the complexity of the algorithms
+        operating on them. Not only are more involved computations
+        required, but the granularity of the representation, as
+        determined by the fixed scale chosen, may make more distinctions
+        than necessary for a given task. For example, the exact
+        positions of all objects in the room are not necessary, if all
+        we need to know is what objects are at a wall that is to be
+        painted.
+
+[ freksa1992 ] [ hernandez1994 ]
+
+#### 5.3 Qualitative spatial representation
+
+Quantitative representations usually store the spatial information  in a
+common global or local coordinate system. Agents might have a local
+coordinate system derived from the inherent orientation of the agent or,
+in contrast, in the global coordinate system all entities and objects
+use the same common system which can, for example, be oriented on a
+building’s floor plan or the cardinal directions. Agents can communicate
+their spatial knowledge  by mapping their local coordinate systems to a
+global one. That can only be done if all agents have access to the
+global coordinate system. The relevant global coordinates can then be
+exchanged.
+
+Using quantitative representations, it is difficult to handle
+indeterminate or inexact knowledge. For a quantitative representation
+the precise position and the size of all objects must be known.
+Furthermore, detecting certain spatial configurations is quite difficult
+but it is often needed to trigger certain actions or behaviors. In the
+numerical approach reasoning is done with numerical or geometrical
+methods like computing a tangent to an object or closest points of two
+objects to each other. [ qsrrenz ]
+
+The qualitative approach is representing spatial knowledge without exact
+numerical values. It uses a finite vocabulary that describes a finite
+number of possible relationships. This is, compared to the quantitative
+approach, closer to how humans represent spatial knowledge. In natural
+language the human says something like "A is above B" or "A is next to
+B" to express spatial information. Those information are usually
+sufficient to identify an object or follow a route. It is easy to
+represent indefinite or uncertain knowledge with qualitative methods.
+For example, one could say "A is left or behind B". Furthermore are
+rules easy to define "Do something if A is in front of B".
+
+Qualitative spatial knowledge is not inexact, even though no numerical
+values are used. This is because distinctions are only made if necessary
+and they depend on the level of granularity that was chosen. Both, the
+quantitative approach and the qualitative approach, have their own right
+because both have applications where they are best suited. Robots that
+interact with humans usually take advantage of using a qualitative
+representation. If available, exact coordinate based knowledge should be
+used. The parallel use and transformation of both representation
+approaches is often useful, for example for a car navigation system by
+giving directions that guide the way in an unknown city using its street
+map and data from the Global Positioning System.
+
+##### 5.3.1 Points versus areas
+
+Qualitative spatial knowledge can be represented using spatially
+extended objects or abstract points. For the one dimensional time Allen
+[ Allen ] pointed out good reasons why to use intervals of time instead
+of points. He showed that every event in time (for example "finding a
+letter") can be decomposited into a time interval ("looking at a letter"
+-> "realizing that it is the one that is searched for"). This also holds
+true for space since every real life point can be magnified to an area
+(at least as one stays above nano-sized structures). Another reason why
+Allen preferred intervals of time is the problem of open or closed
+intervals that occurs if one models intervals of time with points of
+time. Considering a situation where a light is switched off there is a
+point in time where the light is neither on or off assuming open
+intervals. With closed intervals there would be a point in time where
+the light is both - on and off. Allan solved there problems very
+elegantly with his Temporal logic 3.1 .
+
+In two dimensional space Allens intervals corresponds to the aspects
+topology and shape. It is clear that it is needed to consider areas and
+not points if one wants to reason about topology or shape. But problems
+arise in two dimensional space because there are lots of possible
+classes of shapes which cannot be handled equally well. Freksa [
+freksa1992 ] showed that it is more convenient to use points, especially
+for other aspects of space like orientation and distance. One reason is,
+that the properties of points and their spatial relations hold for the
+entire spatial domain. Another, that shapes can be represented using
+points at different levels of abstraction. Lastly Freksa explained, that
+it is desirable to be flexible with respect to the spatial entities and
+their resolution. That means, that in one context one might be purely
+interested in 0-dimensional points such as points on a map. Other
+applications might be interested in 1-dimensional information like the
+width of a river or the length of a road. 2-dimensional projections
+(e.g. area of a lake) or 3-dimensional shapes of objects might be of
+interest in other contexts.
+
+##### 5.3.2 Orientation
+
+Orientation is a ternary relationship depending on the referent, the
+relatum and the frame of reference which can be specified either by a
+third object (origin) or by a given direction (see section 3.3 ). If the
+frame of reference is given the orientation can be expressed using
+binary relationships. For 2-dimensional space Freksa [ freksa1992 ]
+defined orientation as a 1-dimensional feature which is determined by an
+oriented line. The oriented line is defined by an ordered set of two
+points. An orientation is then denoted by an oriented line ab through
+the two points a and b (see figure 5.3.2 ). ba denotes the opposite
+orientation. The relative orientation in 2-dimensional space is then
+given by two oriented lines (which are represented by two ordered sets
+of points). The two ordered sets of points can share one point without
+loss of generality because the feature orientation is independent of
+location and vice versa. One can thus describe the orientation of a line
+bc relative to the orientation line ab . This way the ternary
+relationship is again achieved. Three special cases arise if the
+locations of (1) a or (2) c or (3) both are identical with the location
+of b . In the first special case ( a = b ) no orientation information
+can be represented. In the second ( c = b ) and the third case ( a = b =
+c ) orientation information is unavailable, too, but location
+information of c is still available. The point c is called the referent
+(also primary object or located object), b the relatum (also reference
+object) and a is called origin (also parent object).
+
+From this point different approaches use diverse methods to determine
+the qualitative orientation values. A simple distinction can be made by
+defining four qualitatively different orientation values labeled same ,
+opposite , left and right . If the point c is on the line ab on the
+other side of b than a the orientation is same and if it is on the line
+ab on the other side of a than b the orientation is opposite . The
+orientation is left if the point c is located on the left semi-plane of
+the oriented line ab and it is right if c is located on the right
+semi-plane of the oriented line ab . Freksa observed that unlike in the
+case of linear dimensions, incrementing quantitative orientation leads
+back to previous orientations. In this sense, orientation is a circular
+dimension.
+
+A substantial gain of information can be achieved by introducing a
+front/ back dichotomy. In this so called cardinal direction
+representation the eight different orientation labels straight-front ,
+right-front , right-neutral , right-back , straight-back , left-back ,
+left-neutral and left-front are distinguished (see figure 5.3.2 ). Frank
+[ frank ] called this method "projection-based" and Ligozat [
+ligozat1998 ] "cardinal algebra". Ligozat also found that reasoning with
+this cardinal algebra is NP-complete. Another approach to augment the
+number of orientation values is called "cone-based" by Frank. Here nine
+different relations are distinguished: north , north-east , east ,
+south-east , south , south-west , west , north-west and equal (see
+figure 5.3.2 ). In this method the plane is split into eight slices of
+45° by three lines. All eight segments have the same scope unlike in the
+cardinal algebra, where the -front and -back relations correspond to an
+infinite number of angles (as in the cone-based approach) while the
+straight- and neutral- relations correspond to a single angle.
+
+Other approaches are presented more detailed in the chapter id1 State of
+the Art.
+
+##### 5.3.3 Distance
+
+Distance is, unlike topology and orientation, a scalar entity. As
+mentioned in section 3.4 one has to distinguish between absolute
+distance relations and relative distance relations. Absolute distance
+relations indicate the distance between two points and divide the real
+line into a different number of sectors depending on the chosen level of
+granularity. They can be represented quantitatively or qualitatively and
+depend on an uniform global scale. Absolute distance relations name
+distances whereas relative distance relations compare the distance of
+two points with the distance to a third point. Next to the obvious
+predicates <, =, > more relations for relative distances can be defined
+if needed (e.g. "much shorter", "a little bit less", "much longer").
+
+In [ hernandez1997 ] a general framework for representing qualitative
+distances at different levels of granularity has been developed. The
+space around the relatum @xmath is partitioned according to a number of
+totally ordered distance distinctions @xmath , where @xmath is the
+distance closest to the relatum and @xmath is the one farthest away
+(which can go to infinity). Distance relations are organized in distance
+systems @xmath defined as:
+
+@xmath
+
+where:
+
+-   @xmath is the totally ordered set of distance relations;
+
+-   @xmath is an acceptance function defined as @xmath , such that,
+    given a reference object (relatum) @xmath and a set of objects
+    @xmath , @xmath returns the geometric interval @xmath corresponding
+    to the distance relation @xmath ;
+
+-   @xmath is an algebraic structure with operations and order relations
+    defined over a set of intervals @xmath . @xmath defines the
+    structure relations between intervals.
+
+Each distance relation can be associated to an acceptance area
+surrounding a reference object (relatum) which will be circular in
+isotropic space (that is space which has the same cost of moving in all
+directions).
+
+Homogeneous distance systems are those in which all distance relations
+have the same structure relations. That means, the size of the geometric
+intervals @xmath follows a recurrent pattern. The general type of
+distance systems where this is not the case is called accordingly
+heterogeneous . More restrictive properties of the structure of these
+intervals include monotonicity (each interval is bigger or equal than
+its previous) and range restriction (any given interval is bigger than
+the entire range from the origin to the previous interval).
+
+The frame of reference (see section 3.3 ) is important for distance
+systems, too. In the intrinsic reference system the distance is
+determined by some inherent characteristics of the relatum, like its
+topology, size or shape (e.g. 50 meters can be considered far away from
+a small house but they seem to be close if standing next to a
+skyscraper). The distance is determined by some external factor in the
+extrinsic reference system, like the arrangement of objects, the
+traveling time or the costs involved. The deictic reference system uses
+an external point of view to determine the distance, like if the objects
+are visually perceived by an observer.
+
+##### 5.3.4 Conceptual Neighbors
+
+For higher-level reasoning and knowledge abstraction the conceptual
+neighborhood relation provides several advantages. It was originally
+developed by Freksa for temporal knowledge [ FreksaTemporal ] ,
+generalizing Allens temporal logic (see section 3.1 ). Later Freksa
+successfully applied the conceptual neighborhood principle to spatial
+knowledge [ freksa1992 ] .
+
+In a representation two relations are conceptual neighbors, if there
+exists an operation in the represented domain that causes a direct
+transition from one relation to the other. Those operations can be
+either spatial movement or deformations for the physical space. In the
+cone-based approach described above each relation except equal has three
+conceptual neighbors. The conceptual neighbors of north , for example,
+are north-east , north-west and equal because it is possible to make a
+direct move there without the need to traverse any other relation. East
+on the other hand is not a conceptual neighbor of north because there is
+no direct transition from north to east - possible ways either have to
+cross north-east , equal or even detour by traversing through north-west
+. But this only holds for the cone-based representation presented here -
+other representations have other conceptual neighbors and for more
+coarse ones there might be a direct way from north to east. The
+conceptual neighbors for a distance relation @xmath in the distance
+representation above are obviously those two distance relations in the
+totally ordered set @xmath that are next to @xmath , viz @xmath and
+@xmath (there is only one neighbor for the first ( @xmath ) and last).
+
+A great benefit of conceptual neighborhood structures is, that they
+intrinsically reflect the structure of the represented real world with
+their operations. This makes it possible to implement reasoning
+strategies which are strongly biased toward the operations in the
+represented domain. Conceptual neighborhoods allow to only consider
+operations which are feasible in the specific domain which can restrict
+the problem space and thus achieve nice computational advantages.
+
+#### 5.4 Qualitative spatial reasoning
+
+In order to use the reasoning techniques introduced in section 4 the
+unary and binary operations have to be defined for the spatial
+representation. In this section these operations are illustrated by
+using the cardinal direction representation presented in the orientation
+section above (see figure 5.3.2 c) ).
+
+The first example will be the unary operation of a spatial arrangement
+where c , the referent, is at the left-back of ab , where a is the
+origin and b the relatum. Now we might need to exchange the origin and
+the relatum. That is done by using the inverse ( Inv ) operation (see
+table 2 ). B is now the origin and a the relatum. The result of that
+operation is ambiguous, as can be seen in figure 5.4 . The space is now
+partitioned differently because the front/ back dichotomy now divides
+the space through a . Of course the labels changed, too. For example,
+what was left is now right and vice versa because the direction has been
+changed by 180°. Because of the qualitative nature of the representation
+we cannot say whether the point c is right-back , right-neutral or
+right-front of ba . The result of this operation is thus a disjunction
+of all three possible atomic relations.
+
+The binary composition operation can have ambiguous results as well. We
+now have four points a, b, c and d and two spatial relations - one
+between a, b, and c and the other between b, c and d (always origin,
+relatum and referent in this order). The composition of these two
+relations answers the question where the point d is in relation to a and
+b (see figure 5.4 - the possible locations of d (for an assumed position
+of c ) are indicated gray). In both input-relations the referent ( c
+respectively d ) is located in the right-front . It is clearly visible
+that the composition result, which describes the location of d (gray)
+with a as origin and b as relatum, consist of the atomic relations
+right-front , right-neutral and right-back . The result of this
+composition is thus a disjunction of all three possible atomic
+relations.
+
+### 6 Applications of qualitative spatial reasoning
+
+Qualitative representations of space can be used in various application
+areas in which spatial knowledge plays a role. It is in particular used
+in those systems which are characterized by uncertainty and
+incompleteness.
+This coarse knowledge often occurs in early stages of design projects,
+in which verbally expressed spatial requirements and raw sketches are
+very common. Examples for such application areas include spatial and
+geographical information systems, computer aided systems for
+architectural design and urban planning, document analysis, computer
+vision, natural language processing (input and output), visual
+(programming) languages, qualitative simulations of physical processes
+and of course navigation, robot-navigation and robot-control.
+Although so many areas exists, there are quite few existing applications
+present. One reason for that is, that most applications require more
+than just one aspect of space. But since the different aspects of space
+are not independent of each other it is not possible to simply add
+different approaches covering single aspects of space to achieve the
+desired functionality. Another reason for the lack of existing
+applications is, that many approaches have no or not complete reasoning
+mechanisms without which the spatial representations are less useful [
+qsrrenz ] .
+
+##### 6.0.1 Geographical Information Systems (GIS)
+
+GIS are these days commonplace, but they have major problems with
+interaction with the user. GISs have access to a vast size of vectorized
+information, without the ability to sufficiently support intuitive
+interaction with humans. Users may wish to perform queries that are
+essentially, or at least largely, qualitative. Egenhofers concept of
+Naive Geography [ Egenhofer:95 ] employs qualitative reasoning
+techniques to enhance the human - GIS interface.
+
+##### 6.0.2 Robotics
+
+Robotic navigation can make use of qualitative approaches in high level
+planning. Besides that, robots may navigate using qualitative spatial
+representations if the robot’s model of its environment is imperfect,
+which would lead to an inability to use standard robot navigation
+techniques if numerical representations had been chosen. Research in
+qualitative methods for robotics concentrates in robust qualitative
+representations and inference machines for exploration, mapping and
+navigation.
+
+In [ FreMo2000 ] an approach to high level interaction with autonomous
+robots by means of schematic maps was outlined. Schematic Maps are
+knowledge representation structures that encode qualitative spatial
+information about a physical environment. In the presented scenario an
+autonomous mobile robot with rudimentary sensory abilities to recognize
+the presence as well as certain distinguishing features of obstacles had
+the task to move to a given location within a structured dynamic spatial
+environment. In order to achieve that task the robot has to implement
+certain abilities: It has to determine where to go to reach the target
+location which needs spatial knowledge. It further has to compute what
+actions are to be made in order to move there. This needs knowledge
+about the relation between motor actions and movements and it also needs
+knowledge of the relation between movement and the robots spatial
+location.
+In robotics there are no detailed, complete information about the
+spatial structure of the environment available for several reasons.
+First it is hard to provide detailed spatial knowledge which agrees with
+the physical space. Secondly there is no persistence - that means that
+the spatial configurations might change for unpredictable reasons.
+Lastly the actions of the robots in physical space are typically not
+fully predictable due to slipping wheels and imprecise sensors and
+motors.
+One main reason why autonomous robotics is so difficult is, that the
+robot lives in two worlds simultaneously. It exists in the physical
+world of objects and space as well as in the abstract world of
+representation and computation. Those worlds are incommensurable: There
+is no theory that can treat both worlds in the same way. Classical
+Artificial Intelligence approaches try to develop formal theories about
+space that are sufficiently precise to describe all that is needed to
+perform the actions on the level of the representation (successful
+examples: board games). Qualitative theories on the other hand only deal
+with some aspects of the physical world and leave other aspects to be
+dealt with separately.
+In robotics maps are used for communication between the robot and humans
+as well as interaction interfaces between the robot and its environment.
+The power of maps as representation media for spatial information stems
+from the strong correspondence between spatial relations in the map and
+spatial relations in the real world. Thus spatial relations may be
+directly read from the map, even if those have not been entered into the
+representation explicitly. Maps distort spatial relations to some
+extent, most obviously they transform the scale.
+
+Schematic Maps distort beyond the distortions required for
+representational reasons to omit unnecessary details, to simplify shapes
+and structures, or to make the maps more readable. Typical examples for
+schematic maps are public transportation maps or tourist city maps which
+may severely distort distances and orientations between objects.
+Schematic maps provide suitable means for communicating navigation
+instructions to robots: spatial relationships like neighborhood,
+connectedness of places, location of obstacles, etc. can be represented.
+Those maps can be encoded in terms of qualitative spatial relations and
+qualitative spatial reasoning can be used to infer relationships needed
+for solving the navigation task. For the correspondence between the map
+and the spatial environment coarser low-resolution information is more
+suitable. A large number of rare or unique configurations can be found
+this way. If relations from the map and the environment do not match
+perfectly, the conceptual neighborhood knowledge (see section 5.3.4 )
+can be used to determine appropriate matches.
+Schematic maps may be created in at least three different ways: A human
+may acquire knowledge about the spatial layout and build the schematic
+map by entering the relevant relationships, perhaps with the help of a
+computerized design tool. The robot itself may explore its environment
+in its idle time and create a schematic map that reflects landmarks and
+spatial relationships between notable entities discovered from the
+robots perspective. Furthermore a spatial data base could be used to
+create schematic maps.
+
+The navigation planning and execution starts with the initial schematic
+map that provides the robot with survey knowledge about its environment.
+Important features are extracted from the map for identification in the
+environment. The robot can also enter discoveries into the map that it
+made during its own perceptual explorations. A coarse plan for the route
+is being produced using global knowledge from the map and local
+knowledge from its own perception. The resulting plan is a qualitative
+one. During its execution, the robot will change its local environment
+through locomotion. This enables it to instantiate the coarse plan by
+taking into account temporary or unpredicted obstacles. Also, the local
+exploration may unveil serious discrepancies between the map and the
+environment that prevent the instantiation of the plan. In this case,
+the map can be updated by the newly accumulated knowledge and a revised
+plan can be generated.
+
+##### 6.0.3 Linguistics
+
+Humans naturally communicate using qualitative expressions. Thus humans
+can construct schematic maps rather easily. Therefore schematic maps can
+be used for two-way communication between humans and robots. The
+instructor can give a verbal description of the goal. If the robot fails
+to generate a working plan for some reason it can communicate with the
+instructor and possibly give an indication about it’s (spatial) problem.
+However, in natural language, the use and interpretation of spatial
+propositions tend to be ambiguous. There are multiple ways in which
+natural language spatial relationships can be used.
+[ FreMo2000 ]
+
+##### 6.0.4 Voronoi graphs
+
+In [ cosy_Moratz_03_Spatial ] Moratz and Wallgrün used the
+Distance/orientation-interval propagation  presented in section 10 to
+build an environmental map for mobile robot navigation. The foundation
+of this map is a generalized Voronoi graph (GVG), which is the graph
+corresponding to the generalized Voronoi diagram of the robots free
+space that is annotated with additional information (see figure 6.0.4 ).
+The nodes of the GVG correspond to the meet points and the edges
+correspond to the Voronoi curves. This graph only represents the
+topology of the GVD and it is annotated with additional information,
+including DOI information between the neighboring vertices.
+
+This representation brings together advantages stemming from the use of
+topological maps and from the use of Voronoi diagrams in mobile robot
+applications. Path planning can be done directly by using graph search
+to search through the GVG. Since only qualitatively different paths are
+represented path planning becomes very efficient. [
+diplomWallgruenVoronoi ] The DOI information stored in the graph can be
+used for cycle detection. The DOIs are propagated along the path through
+the GVG that connects the vertices that are checked to be identical.
+
+## Chapter \thechapter State of the Art
+
+### 7 Rcc-8
+
+In 1992 Randell, Cui and Cohn developed the Region Connection Calculus [
+Randell ] . In this theory topological relations are used as a basis for
+qualitative spatial representation and reasoning.
+
+RCC-8 is a subset of eight relations from RCC. Those eight base
+relations are: "A is disconnected from B", "A is externally connected to
+B", "A partially overlaps B", "A is equal to B", "A is a tangential
+proper part of B", "A is a non-tangential proper part of B" and the
+converse of the latter two relations (A and B are spatial regions).
+RCC-8 also contains all possible unions of these base relations. RCC-8
+is the spatial counterpart of Allen’s temporal interval algebra - the
+eight base relations correspondent to Allen’s base relations. Most other
+relations in RCC are refinements of the RCC-8 base relations.
+
+RCC-8 semantics of base relations can be described using propositional
+logics rather than first-order logic needed in RCC [ Bennett ] . Thus
+reasoning about TCC-8 relations is decidable.
+
+RCC is a fully axiomatized first-order theory for representing
+topological relations. All spatial entities are regarded as spatial
+regions. See appendix id1 for detailed definitions in the RCC calculus [
+qsrrenz ] .
+
+### 8 The Dipole Calculus
+
+An approach for dealing with intrinsic orientation information is
+presented in
+[ dipol ] . It uses orientated line segments called dipole that are
+formed by a pair of points - a start point ( @xmath for a dipole A) and
+an end point ( @xmath for a dipole A). These dipoles are used to
+represent two-dimensional extended spatial objects with an intrinsic
+orientation (see figure 8 ). The local orientation of the dipoles is
+even simpler as those relation presented in section 5.3.2 . In the
+dipole representation a point can only be left (l), right (r) and on the
+straight line (o) of the referring dipole, merging the atomic relations
+same and opposite of figure 5.3.2 b) into one. With the left and right
+relations between a dipole and the start and end points of another
+dipole, 24 JEPD atomic relations can be distinguished, given that no
+more than two points are allowed to be on a line (this is called general
+position) with the exception that two dipoles may share one point.
+
+Given two dipoles A and B with their start points @xmath , @xmath and
+their end points @xmath , @xmath , the atomic relations between them can
+be described as follows:
+
+@xmath with @xmath
+
+If @xmath is @xmath or @xmath (meaning that @xmath is on the same point
+as @xmath ( @xmath ) or @xmath ( @xmath )), @xmath can only be @xmath or
+@xmath and vice versa ( @xmath and @xmath exchanged), since dipoles
+share maximal one point. This also holds for @xmath and @xmath .
+A short form of the term above can be written as: @xmath (see figure 8 )
+
+#### 8.1 Constraint based reasoning with the Dipole Calculus
+
+The Dipole Calculus forms a relation algebra - it is closed under the
+binary composition operation and under the unary intersection,
+complement and converse operation. It also supports an empty relation,
+an universal relation and an identity relation. Compound relations are
+sets of atomic relations. The composition results of atomic relations
+are obtained in an composition table. The composition of compound
+relations can be obtained as the union of the compositions of the
+corresponding atomic relations. Dipoles Constraint Satisfaction Problems
+can be solved using the methods presented in section 4.2 . It has been
+shown that the Dipole Calculus is NP-hard and in PSPACE.
+
+Freksas double-cross calculus describes relations between triples of
+points, which can be regarded as relationships between a dipole and an
+isolated point. In contrast to Freksas ternary relations, the dipole
+relations are binary relations which makes reasoning much easier. Also,
+Freksa distinguishes more possible relations between a dipole and a
+point than the dipole.
+A difficulty of the the Dipole Calculus is, that it presumes intrinsic
+objects although the intrinsic character of objects may not be existent
+or invisible for an application’s sensor.
+
+### 9 Ternary Point Configuration Calculus
+
+The Ternary Point Configuration Calculus  (TPCC) is a qualitative
+spatial reasoning  calculus that uses ternary relations of points
+developed by Reinhard Moratz
+[ moratzTPCC ] . The distinctions in TPCC are less coarse then in the
+calculi described above and thus TPCC permits more useful
+differentiations for realistic application scenarios.
+
+#### 9.1 Flip-Flop
+
+In TPCC we again have point-like objects on a 2D-plane. A relative
+reference system is given by an origin and a relatum. The origin and the
+relatum define the reference axis. The spatial relation between the
+reference system and the referent is then described qualitatively by
+naming the part of the partition in which the referent lies.
+
+Ligozat [ Ligozat1993 ] suggested a system which he called flip-flop
+calculus. In this calculus the reference axis partitions the 2D-plane
+into two parts - left and right. The spatial relation between the
+reference system and the referent is described qualitatively by naming
+the part of the partition in which the referent lies. The referent can
+not only be on the left or the right - it can also be on the reference
+axis itself. In this case Ligozat distinguishes five configurations. The
+referent can either be behind the relatum (back - ba), at the same
+position as the relatum (same as relatum - sr), in front of the relatum
+(front - fr), at the same point at the origin (same as origin - so) or
+behind the origin (behind origin - bo). shows this partition. The
+partition is shown in figure 9.1 .
+
+Points A, B and C can be examples for origin, relatum and referent. Isli
+and Moratz [ IsliMoratz1999 ] observed two additional configurations in
+which origin and relatum have exactly the same location. In the first
+configuration the origin and relatum are at the same point and the
+referent at some other (double point - dou). Secondly all three points
+can be at the same location (triple point - tri).
+
+Infix notation is used to describe configurations. The reference system
+consisting of origin and relatum are written in front of the relation
+symbol - the referent is written behind it.
+
+Vorweg et al. [ vorweg ] showed empirically that the acceptance regions
+for front and back need similar extensions like left and right. In the
+flip-flop calculus front and back only have linear acceptance regions.
+
+Freksa [ freksa1992 ] extended the flip-flop calculus by partitioning
+the 2D-plane with a cross. Therefore the left and right side is
+respectively divided into a front and back
+
+#### 9.2 Representation in TPCC
+
+The TPCC calculus is derived from the cardinal direction calculus and
+provides finer differentiations than the cardinal direction calculus
+(see Section 5.3.2 ). Its 2D-plane is divided into eight slices by
+adding another cross which is rotated 45°. Additionally the distance
+from the relatum to the referent is compared to the distance from the
+relatum to the origin to provide a distinction between the two ranges.
+(See figure 9.2 )
+
+The letters f, b, l, r, s, d, c in figure 9.2 stand for front, back,
+left, right, straight, distant, close. The TPCC has 8 different
+orientations and 4 precise orientations. With 2 distances and three
+special cases there are 27 possible configurations ( (8 + 4) @xmath 2 +
+3 = 27).
+
+For the mathematical definition of the Ternary Point Configuration
+Calculusplease see the appendix id1 on page id1 .
+
+Sets of TPCC definitions can be used as described in . The notation for
+set configurations is to write the relations of the set in parentheses,
+separated by commas - e.g. @xmath would be described by @xmath .
+
+#### 9.3 Reasoning with TPCC
+
+The unary and binary operations introduced in sections 4 and 5.4 are
+used with TPCC as well. In order to keep the transformation and
+composition tables small Moratz introduced an iconic representation for
+the TPCC-relations seen on table 9.2 . Segments corresponding to a
+relation are illustrated as filled segments, sets of base relations have
+several segments filled. This representation is easier to translate into
+its semantic content compared with a representation that uses the
+textual relations symbols.
+
+The transformation table 9.3 shows that results of transformations may
+constitute subsets of the base relations.
+
+Composition
+
+TPCC is not closed under strong composition. Therefore a weak
+composition operation was introduced with the specific relation such
+that:
+
+@xmath
+
+The table for the weak composition can be found in [ moratzTPCC ] . More
+than 700 results of the weak composition are represented in this table.
+
+Constraint-based Reasoning
+
+Constraint satisfactory problems are solved as described in section 4.2
+. To express the calculus in terms of relation algebras is one
+prerequisite for using this standard constraint algorithm. But the
+Ternary Point Configuration Calculus is not closed under transformations
+and under compositions so this algorithm doesn’t achieve
+path-consistency. Nevertheless, it is possible to perform simple
+path-based inferences. This is done when the last two relations of a
+path are composed and the reference system is incrementally moved toward
+the beginning of the path in a form of a backward chaining. This can be
+used to detect cyclic paths. Moratz showed that reasoning with TPCC is
+in PSPACE.
+
+### 10 Distance/orientation-interval propagation
+
+The Distance/orientation-interval propagation(DOI) by Reinhard Moratz [
+cosy_Moratz_03_Spatial ] proposes an approach to model the typically
+imprecise sensor data about orientations and distances. This approach
+propagates orientation and distance intervals to produce global
+knowledge.
+
+#### 10.1 DOI Introduction
+
+The Distance/orientation-interval propagation(DOI) was designed as a
+calculus for mobile robot indoor exploration. Therefore it reflects the
+imprecise sensor data robots usually provide. Furthermore the data
+delivered by the sensors may be not only imprecise but also incomplete.
+This poses serious problems for the integration of local spatial
+knowledge into survey knowledge which is, for example, required for
+robot explorations in unknown environments. Navigation tasks require
+calculi that handle orientation and distance information - pure
+topological information is not sufficient. [ roefer1999 ]
+
+The DOI uses a relative reference system which utilizes continuous
+interval borders for modeling imprecision. Therefore it is not a
+qualitative calculus but it can be seen as an extension to the
+qualitative approaches. Benefits of qualitative approaches are combined
+with metric measurements by using DOI. Qualitative calculi can represent
+imprecise spatial knowledge while metric representations are good at
+distinguishing different spatial entities. The DOI propagation can be
+combined with a representation based on the generalized Voronoi graph of
+a robots free space developed by Wallgrün. The DOIs are used here to
+specify the relative positions of the vertices in the Voronoi graph.
+
+#### 10.2 The DOI definition
+
+The Distance/orientation-interval propagation is based on continuous
+distance orientation-intervals. There is again, on a 2D-plane, a
+point-like object. The DOI uses this point together with a reference
+direction as anchor and it has four additional parameters: @xmath and
+@xmath .
+
+A DOI d is a set of polar vectors ( @xmath ) with:
+@xmath
+
+There is a special case which represents the spatial arrangement where
+the goal location can be the same as the reference point. This case is
+represented by the following values: @xmath , @xmath and @xmath .
+
+In all other cases @xmath holds and for convenience it is assumed that
+@xmath and @xmath
+
+#### 10.3 DOI composition
+
+The composition between two DOIs is the basic step for propagation along
+paths (see figure 10.3 ).
+
+Two DOIs ( @xmath ) can be compositioned into a third ( @xmath ).
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+It holds:
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+                       @xmath   
+  -- -------- -------- -------- --
+
+with: @xmath
+
+The functions @xmath and @xmath are defined this way:
+
+@xmath
+
+and
+@xmath
+
+The values for the minimum and maximum of @xmath thus the cases for
+which @xmath and @xmath have their minimum or maximum and can be listed
+by geometric analysis. These formulas are given in appendix id1 .
+
+The composition is only an approximation in form of an upper bound of
+the area consisting of the vectors @xmath which can be directly composed
+by vectors @xmath and @xmath from @xmath and @xmath respectively. A
+typical spatial layout of these areas is shown in figure 10.3 .
+
+A DOI can be viewed as a set of difference vectors between two points
+expressed in polar coordinates relative to the reference direction. A
+function @xmath maps two points and a reference direction to the
+corresponding difference vector. The function @xmath maps two points and
+a reference direction from the first point to the second. The relation
+between points can now be expressed in imprecise relative position and
+the respective DOIs:
+
+@xmath
+
+Now the DOI composition can be used to propagate local, relative spatial
+knowledge along a path. There is an anchor point @xmath , a reference
+direction @xmath and a sequence of points which determine the path
+segments @xmath , @xmath , … @xmath , … @xmath . Each Point @xmath on
+the path has an associated DOI @xmath . A stepwise composition
+recursively beginning with the end of the path yields the relative
+position of the end point with respect to the anchor point @xmath and
+the reference direction @xmath :
+@xmath
+
+[ cosy_Moratz_03_Propagation ] [ cosy_Moratz_03_Spatial ]
+
+### 11 Granular Point Position Calculus
+
+In [ moratzGPPC ] Reinhard Moratz developed a calculus called Granular
+Point Position Calculus ( Gppc ). Two points define a relative reference
+system in two dimensional space. The calculus is partitioning the space
+in several orientations and distances.
+
+The special cases for the origin @xmath , the relatum @xmath and the
+referent @xmath are:
+
+@xmath dou @xmath
+@xmath tri @xmath
+
+The relative radius for the other cases is defined as:
+
+@xmath
+
+@xmath sam @xmath
+
+For @xmath the relative angle is defined as:
+
+@xmath
+
+Gppc allows different levels of granularity and figure 11 shows an
+example configuration of an Gppc with the granularity level m of three.
+A Gppc @xmath has @xmath base relations which are defined as follows:
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+The DOI calculus presented in the section above is used to calculate the
+composition table for the Gppc . This is possible because the flat
+segments and their borders are summarized obtaining a quasi-partition. [
+moratzGPPC ]
+
+## Chapter \thechapter The Fspp  Approach
+
+The calculus that is being developed in this thesis designed for usage
+in indoor robotics, but it can be used for other applications that
+reason about positional information, as well.
+
+For current robotic navigation and communication systems it is
+sufficient to work with two dimensional space. Reasons for that are,
+that the movement most often happens on the ground, that the sensors as
+well as the maps are two dimensional and also because humans most often
+communicate this way if there is not a good reason to do otherwise. Of
+course two dimensional reasoning is much easier than three dimensional
+reasoning, while it is simply not possible to do two dimensional
+navigation with one dimensional calculi.
+It is also assumed that the space is isometric and homogeneous.
+Isometric means, that the cost of moving is the same in all directions
+while a homogeneous space is one that has the same properties at all
+locations. These constraints are made because otherwise it would be
+really difficult to develop an adequate representation.
+
+The most important spatial aspects for distinguishing objects are shape,
+topology and position. Representing the shape of an object is
+independent from its position and vice versa if an absolute or relative
+reference system is used. Therefore it does not influence the calculus
+developed here and it is thus disregarded for it. It is further assumed
+that all considered spatial entities are disjoint. Reasons for that are,
+that sensors anyways have problems to distinguish objects that meet each
+other, that most objects actually are disjoint from each other and if
+they shouldn’t be disjoint it is most often not important to recognize
+that fact. Therefore the most interesting spatial aspect of space for
+robotics is the position, consisting of orientation information and
+distance information [ musto ] .
+
+There are already some calculi representing orientation, distance or
+position information, as it has been shown in chapter id1 . Some of them
+already have been used quite successfully in robotic context [ Dialog ]
+. Nevertheless the new approach for representing and reasoning about
+positional information presented here should be advantageous over these
+calculi.
+
+The Dipole calculus premises extended objects with an intrinsic
+orientation which are quite difficult to recognize for sensors. As
+discussed in section 5.3 it is more convenient to use points for
+representing orientation and distance.
+The Ternary Point Configuration Calculus has already been used in some
+applications. For the given tasks it was rather successful but it became
+apparent that is was too coarse in many situations. The 8 orientations
+and two distances generate 16 flat acceptance areas in TPCC - too less
+in scenarios with many object or greater distances.
+The Distance/orientation-interval propagation has a quite accurate
+representation for single objects. It is however not a qualitative
+approach. It doesn’t support disjunctions of base relations and has thus
+difficulties in representing different possible positions - those have
+to be fitted into the characteristicly shaped DOI acceptance area which
+may mean a loss of precision.
+The Granular Point Position Calculus is advantageous over the three
+latter approaches. It is a qualitative approach that represents point
+position with an arbitrary level of granularity in both distance and
+orientation. Although it is quite similar to the approach developed in
+this thesis, it differs in some important points from the Fspp . A
+comparison of these two calculi will be made in section 15 .
+
+The name of the new calculus is "Fine-grained Qualitative Spatial
+Reasoning about Point Positions" ( Fspp ). It already highlights the
+major properties of the representation.
+
+### 12 Fspp Representation
+
+Fspp has an arbitrary level of granularity. Depending on the scenario a
+very fine-grained representation could be chosen or a quite coarse one
+which would be less memory and time consuming. Very little changes need
+to be done in order to change the granularity.
+
+The Fspp is defined over ternary points: the origin, the relatum and the
+referent (see section 5.3.2 ). The three points are needed for the
+qualitative orientation, because it will use a relative frame of
+reference. The qualitative distance will, however, make not use of the
+origin as you will see in the next section.
+
+#### 12.1 Fspp Distance
+
+Hernández distance definitions from [ hernandez1995 ] and [
+hernandez1997 ] , which already have been summarized in section 5.3.3 ,
+will be used for Fspp , too.
+
+The distance system @xmath is defined over a totally ordered set of
+distance relations @xmath , an acceptance function @xmath and an
+algebraic structure @xmath : @xmath (see section 5.3.3 ). @xmath , given
+a level of granularity with @xmath distance distinctions. The width of
+an acceptance area corresponding to a distance symbol @xmath is denoted
+with @xmath whereas @xmath denotes the maximum distance that a relatum
+can have to the referent for still falling into the acceptance are of
+the distance symbol @xmath (see figure 12.1 ).
+
+Fspp uses an absolute distance representation. The area around the
+relatum is partitioned into a number of circular acceptance areas using
+a global scale. In the indoor robotics scenario the action radius is
+quite low compared to the distance of objects within the robots sensor
+input. It is thus acceptable to use a monotone distance system.
+
+The absolute representation was chosen because the quantitative data
+input (from sensors or maps) allows an easy abstraction to an absolute
+distance representation (opposed to orientation). It is desirable to
+keep those absolute distance information, because it is very difficult
+to find out an metric distance for the robot using only relative
+distance relations. Absolute distances also yield in better composition
+results and easier usage in maps and other high level applications. A
+drawback is the more difficult human-robot communication.
+
+For the distance part of Fspp the origin is not needed. The distance is
+solely defined over the relatum and the referent. That leads to the fact
+that all unary operations except Id and Sc (see table 2 ) loose all
+distance information - the resulting Fspp s only have orientation
+information, all distances are possible for any possible orientation.
+But that is no disadvantage. During the constrain propagation process
+(see section 4.2 ) the distance information will be restored if it has
+been available in the initial set of constraints (relations).
+
+In the absolute distance system for length @xmath of the first interval
+@xmath has to be specified. It’s value strongly depends on the number of
+distance distinctions @xmath as well as on the distance system chosen.
+The following values seem to be quite plausible and are thus used later
+on:
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+The last distance interval @xmath has a size of @xmath ( @xmath ) and
+the maximum distance would be at @xmath . The Fspp should consider
+distances greater than the maximum distance to fall into the last
+distance interval. The size of @xmath and @xmath is thus infinite.
+Besides that exception all distance intervals @xmath bigger than ten (
+@xmath ) than have about 20% of the size of the total distance @xmath .
+This seems to be a good value - but it isn’t suggested by cognitive
+articles known to the author.
+
+#### 12.2 Fspp Orientation
+
+Fspp uses a relative frame of reference for orientation. The advantages
+of relative positions are, that no intrinsic characteristics of objects
+have to be distinguished and that no global coordinate system has to be
+used which is often not available in indoor scenarios.
+
+The space around the relatum is partitioned according to a number of
+ordered orientation distinctions @xmath . The acceptance function
+defines acceptance areas around the relatum which correspond to the
+orientation relations ( @xmath ).
+
+Depended on the granularity chosen, different numbers of orientation
+relations are possible. The number of orientations @xmath is always
+even. This way the origin is always located on the border between the
+acceptance areas of the orientation relations @xmath and @xmath . These
+special cases where objects are located directly on the border between
+two acceptance areas are very unlikely to happen in real life scenarios.
+It is thus acceptable to define, that in such cases all bordering
+acceptance areas are to be considered as possible locations for the
+referent. This is called quasi-partition.
+
+The acceptance function for an angle @xmath are defined by the following
+formula:
+
+@xmath in @xmath
+
+#### 12.3 The Position
+
+Now the distance and the orientation are put together. This is done by
+defining the Cartesian product of the set of distance relations @xmath
+and the set of orientation relations @xmath : @xmath . Thus Fspp has a
+set @xmath of @xmath atomic relations @xmath :
+
+@xmath
+
+The Fspp is defined over three points: the origin @xmath with it’s
+coordinates @xmath , the relatum @xmath and the referent @xmath . The
+following definitions are similar to those in the Gppc (see section 11 )
+because both calculi use similar acceptance areas.
+
+First the three special cases that can occur in all ternary calculi are
+defined:
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+                                
+                                
+                                
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+                                
+                                
+                                
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+The acceptance areas for the Fspp representation are defined according
+to the distance and orientation relations above:
+
+@xmath
+
+For the first and the last distances the following definitions are made:
+@xmath
+@xmath infinite
+
+In figure 12.3 an Fspp with 416 (exempt the three special cases) base
+relations is shown. For display improvements only 13 distances are used
+rather than the suggested 24, but the distance system follows the @xmath
+formula. 32 orientations are differentiated. The origin is indicated on
+the left (it’s distance to relatum and referent is unknown), the relatum
+is in the middle while the referent is the object that is to be located.
+In figure 12.3 an example for possible locations of the referent are
+indicated gray. The referent object has equal probabilities of being in
+one of the 22 indicated base relations. The displayed Fspp relation thus
+consists of a disjunction of those 22 base relations.
+
+### 13 Fspp Reasoning
+
+The unary operations and the binary composition are needed for
+constraint based reasoning. But those operation are not trivial in the
+given representation.
+
+#### 13.1 Composition
+
+The Fspp was developed so that it can make use of the
+Distance/orientation-interval propagation . The DOI provides easy access
+to composition results. The atomic relations of the Fspp are exactly
+shaped like DOIs so that it is no problem to use the DOI composition for
+the atomic relations. This is done on demand and not prior due to the
+huge composition table that would have to be created. The composition
+result of a general Fspp relation is then the union of the composition
+results of the atomic relations.
+
+#### 13.2 Unary operations
+
+The unary operations are more difficult to develop. The problem is here,
+that the distance of the origin to the relatum and the referent is
+unknown which leads to quite ambiguous results. The unary operations are
+calculated as follows (the identity operation Id is trivial and thus
+exempted):
+
+##### 13.2.1 Inversion Inv
+
+For the computation of the inversion the composition is used. First a
+temporary Fspp is created. It represents the possible location of the
+origin A to the relatum B - A is always at the border in the back and it
+has an unknown distance. The Fspp thus looks like in figure 13.2.1 . Now
+the composition of this temporary Fspp with the original has the
+inversion as a result.
+
+##### 13.2.2 Short cut Sc
+
+The short cut reorders the Fspp (ABC) to (ACB). That means, that the
+distance information is preserved (since the distance BC is the same as
+CB). But the orientation is ambiguous after that operation because of
+the unknown distance of the origin A. The Sc is calculated as follows:
+
+The result of Sc @xmath is for @xmath : all orientations in the range
+from @xmath to @xmath . For @xmath : all orientations in the range from
+@xmath to @xmath . Figure 13.2.2 shows the original Fspp on the left and
+the result of the Sc on the right.
+
+##### 13.2.3 Sci, Hm and Hmi
+
+The remaining unary operations can be calculated using those two above:
+
+  -- -- -------- -- --
+        @xmath      
+        @xmath      
+        @xmath      
+  -- -- -------- -- --
+
+#### 13.3 Conceptual neighborhood of the Fspp
+
+The definition of the conceptual neighborhood of the Fspp is quite
+straight forward. Movement is only possible between the acceptance areas
+that share an edge since quasi-partition is used. The conceptual
+neighbors of an Fspp @xmath are thus @xmath , @xmath , @xmath and @xmath
+. The first two conceptual neighbors are those with the same distance
+but neighboring orientations. It is necessary to use the modular
+operation since the orientation is circular - the "last" basic
+orientation relation is next to the "first" one. The latter two
+conceptual neighbors are those with the same orientation but with
+smaller and bigger distance. Those are only existent, of course, if
+@xmath respectively @xmath . See figure 13.3 for an example. The dark
+gray atomic relations are the Fspp relation and the light gray relations
+are it’s conceptual neighborhood. The geometric neighborhoods introduced
+in the next section have similarities with the conceptual neighborhood,
+but those concepts are defined over different basics and for different
+applications so that they are only partly comparable.
+
+#### 13.4 Improvement for the composition: Contour tracing
+
+Complexity issues are an important topic not only for Artificial
+Intelligence  but also for qualitative spatial reasoning [
+cosy:dylla:2004:TPCC_Complexity ] . A quite easy way of reducing the
+number of computations needed will be presented in this section.
+
+A problem in the composition approach described above is, that if the
+Fspp have more than a few basic relations, the number of DOIs that have
+to be computed is rapidly growing. Many of those calculations are
+unnecessary since they often lead to results (basic Fspp relations) that
+already have been found to be possible locations of the referent. A good
+way to avoid these computations is to only calculate the composition of
+those atomic relations that are bordering to atomic relations that are
+known to not contain the referent.
+
+An efficient way of finding those relations will be shown in this
+section. The approach is called contour tracing, but it is also known as
+border or boundary following. In order to introduce the actual algorithm
+some definitions have to be made.
+
+##### 13.4.1 Geometrical neighborhood
+
+The geometrical neighborhoods that are interesting for this thesis are
+defined on a two dimensional plane that is divided with square
+tessellation. The resulting squares are considered to have either a
+value of 0 or 1. Although the Fspp basic relations are no squares
+because two of their edges are round, they can still be used for these
+approaches. Since contour tracing is a computer graphics problem the
+squares are being referred as pixels which can have the color white for
+the value 0 and black for the value 1. That way it is also easier to
+understand the following terms and algorithm.
+
+##### 13.4.2 Moore Neighborhood
+
+The Moore neighborhood of a pixel, @xmath , is the set of 8 pixels which
+share a vertex or edge with that pixel. These pixels are called @xmath ,
+@xmath , @xmath , @xmath , @xmath , @xmath , @xmath and @xmath beginning
+with the top left one and circling clockwise around the pixel @xmath
+(see figure 13.4.2 ). The Moore neighborhood (also known as the
+8-neighbors or indirect neighbors) is an important concept that
+frequently arises in the literature.
+
+##### 13.4.3 4-neighborhood
+
+The 4-neighborhood is a subset of the 8-neighborhood. It only consists
+of the pixels that share an edge with the pixel @xmath . Those are the
+pixels @xmath , @xmath , @xmath and @xmath of the Moore Neighborhood.
+
+##### 13.4.4 Border pixels
+
+Along the lines of neighborhoods the border pixels can be defined as
+8-border pixels or 4-border pixels. A black pixel is an 8-border pixel
+if it shares a vertex or edge with at least one white pixel. Using the
+neighborhood definitions from above we can say that a black pixel is an
+8-border pixel if at least one of the pixels of its Moore Neighborhood
+are white.
+
+4-border pixels are thus black pixels which have at least one white
+pixel in their 4-neighborhood. Those pixels share an edge with one or
+more white pixels.
+
+##### 13.4.5 Connectivity
+
+A connected component is a set of black pixels, @xmath , such that for
+every pair of pixels @xmath and @xmath in @xmath , there exists a
+sequence of pixels @xmath such that:
+
+1.  all pixels in the sequence are in the set @xmath (they are black)
+    and
+
+2.  every 2 pixels that are adjacent in the sequence are neighbors.
+
+A component is 4-connected if 4-neighborhood used in the second
+condition and it is 8-connected if the Moore Neighborhood is used.
+
+##### 13.4.6 Pavlidis contour tracing algorithm
+
+In 1982 Theo Pavlidis introduced his contour tracing algorithm [
+Pavlidis ] . With this algorithm it is possible to extract 4-connected
+borders as well as 8-connected ones. It is important to keep track of
+the direction in which you entered the pixel which is currently active.
+
+The first task that has do be done using this algorithm is to find a
+black start pixel. The only restriction to this pixel is, that its left
+neighbor ( @xmath in the Moor Neighborhood model) is white. From now on
+the only important pixels are the ones in front of the current pixel
+(left, ahead and right front: @xmath , @xmath and @xmath ). Four
+different cases have to be considered now:
+
+1.  If @xmath is black it is declared as our new current pixel and the
+    current direction is changed by turning left (-90°). @xmath is also
+    added to the set of border pixels @xmath . (see figure 13.4.6 )
+
+2.  If the first failed ( @xmath is white) and @xmath black the new
+    current pixel is @xmath which is also added to the set of border
+    pixels @xmath . The current direction is not being changed. (see
+    figure 13.4.6 )
+
+3.  If the first two cases failed ( @xmath and @xmath white) but @xmath
+    is black the new current pixel is @xmath . @xmath is added to the
+    set of border pixels @xmath and the direction is not being changed.
+    (see figure 13.4.6 ).
+
+4.  If first three cases failed (all three pixels @xmath , @xmath and
+    @xmath are white) the current direction is changed by turning right
+    (90°).
+
+These above computations are repeated till one of the following two exit
+conditions is met:
+
+1.  The algorithm will terminate after turning right three times on the
+    same pixel or,
+
+2.  after reaching the start pixel.
+
+The above algorithm returns a border that is 8-connected. If a
+4-connected border is needed the first and the third case have to be
+altered. For the first case pixel @xmath has to be black, too, or the
+first case fails. If @xmath is black it also has to be added to @xmath
+after proceeding as stated above. In the third case @xmath has to be
+black, too, or this case fails. If it is black is has to be added to
+@xmath , too, and the algorithm proceeds as above.
+
+[ Pavlidis ]
+
+##### 13.4.7 Using Pavlidis algorithm in Fspp
+
+For Fspp the 8-connected border is sufficient because it corresponds to
+the conceptual neighborhood of the calculus. Figure 13.4.7 shows a
+random Fspp on the left. On the right the border atomic relations of
+this random Fspp are indicated dark while the inner atomic relations are
+light gray.
+
+The result of a composition that used at least one Fspp with border
+segments is likely to not be solid but to have holes in it’s
+representation that need to be filled (i.e. atomic relations that are
+needed to be activated). For this task Pavlidis algorithm is used again.
+This time not only the border relations are stored but also those
+outside atomic relations that are neighbors of the border segments and
+that do not contain the referent. Those outside segments then enclose
+the the actual Fspp relation. Now all atomic relations, that are
+neighbors of relations that are already activated, are activated, too,
+if they are not one of those enclosing segments calculated above. This
+way a fast filling algorithm for the Fspp is implemented.
+
+During the constraint propagation it is only needed to fill the Fspp
+when doing intersections. For all other operations it is sufficient to
+use the border relations. It thus might be a good idea not to use the
+contour tracing algorithm after every operation but maybe only after
+every second or third. At the end of the inference process the resulting
+Fspp s should be filled.
+
+### 14 Fspp Impelementation
+
+The Fspp is implemented in C. It uses a Distance/orientation-interval
+propagation implementation which also has been written in C by the
+author. The representation of the basic relations is done by setting
+bits in an byte array. The naming conventions in the implementation are
+different to those in this theses, mainly because the implementation
+started before this document reached the actual Fspp chapter. The number
+of orientations @xmath is defined as "ROT_SLICES" (for rotation) and the
+number of distances @xmath is defined as "TRANS_SLICES" (for
+translation). Fspp s are named "Pieces". The various input and output
+functions come pairwise - the ones with an A at the end request the
+orientation and the distance index of the atomic relation whereas the
+ones with an B at the end request the bit-number of the atomic relation.
+The            BYTE_NUM(x) (x/8)           and
+           BIT_NUM(x) (x%8))           directives are used to access the
+actual bit in the array. Some short exemplary functions are shown to
+demponstrate the Fspp implementation.
+
+The procedures to set a specific atomic relation to an value (either 0
+or 1) look like this:
+
+    void setA(Pieces *pcs, int rot, int trans, int value){
+        setB(pcs,rot+trans*ROT_SLICES,value);
+    }
+
+    void setB(Pieces *pcs, int which, int value){
+        if(value==0){
+            pcs->pPcs[BYTE_NUM(which)] =
+                ~(1 << BIT_NUM(which)) & pcs->pPcs[BYTE_NUM(which)];
+        }else{
+            pcs->pPcs[BYTE_NUM(which)] =
+                1 << BIT_NUM(which) | pcs->pPcs[BYTE_NUM(which)];
+        }
+    }
+
+The get functions:
+
+    int getA(Pieces *pcs, int rot, int trans){
+        return getB(pcs, rot+trans*ROT_SLICES);
+    }
+
+    int getB(Pieces *pcs, int which){
+        return (((1 << BIT_NUM(which)) & pcs->pPcs[BYTE_NUM(which)]) > 0);
+    }
+
+The union of two FSPPs:
+
+    void pieceORpiece(Pieces *rtn, Pieces *pcs1, Pieces *pcs2){
+        int i;
+
+        // setting the last unused bits in the last byte to 0
+        pcs1->pPcs[BYTES_USED-1] &= ~(255<<BIT_NUM(PIECES));
+        pcs2->pPcs[BYTES_USED-1] &= ~(255<<BIT_NUM(PIECES));
+
+        for(i=0; i<BYTES_USED; i++){
+            rtn->pPcs[i] = (pcs1->pPcs[i] | pcs2->pPcs[i]);
+        }
+    }
+
+The composition using DOI:
+
+    void composition(Pieces *rtn, Pieces *pcs1, Pieces *pcs2){
+        DoiTyp doi1, doi2, comp;
+        Pieces tmp;
+        Searchy search1,search2;
+        int x,y;
+
+        tmp.pPcs = getPiecesArray();
+
+        search1.pPiece = pcs1;
+        search1.number = -1;    // initializing the serach
+        search2.pPiece = pcs2;
+        // searching through the first FSPP for atomic relations
+        while((x = getNextTrue(&search1))>= 0){
+            search2.number = -1; // initializing the serach
+            // searching through the second FSPP for atomic relations
+            while((y = getNextTrue(&search2))>= 0){
+                singleDoiB(&doi1,x); // generating a DOI with
+                                     // the atomic relation x
+                singleDoiB(&doi2,y); // generating a DOI with
+                                     // the atomic relation y
+                // the composition
+                composition_exact(&doi1,&doi2,&comp,"");
+                clearPiece(&tmp);
+                // now a FPSS is being generated out of
+                // the DOI composition result
+                doiToAnder(&tmp,&comp);
+                // the union of this atomic composition result
+                // with the former composition results
+                pieceORpiece(rtn,rtn,&tmp);
+            }
+        }
+        free(tmp.pPcs);
+    }
+
+The unary operation Short cut Sc :
+
+    void scCalc(Pieces *rtn, Pieces *in){
+        Searchy search;
+        int x,oldRot,oldTrans,i;
+
+        search.pPiece = in;
+        search.number = -1;
+        while((x = getNextTrue(&search))>= 0){
+            oldRot      = getRot(x);
+            oldTrans    = getTrans(x);
+
+            if(oldRot < ROT_SLICES/2){
+                for(i = ROT_SLICES/2; i <= ROT_SLICES/2+oldRot; i++){
+                    setA(rtn,i,oldTrans,1);
+                }
+            }else{
+                for(i = oldRot-ROT_SLICES/2; i < ROT_SLICES/2; i++){
+                    setA(rtn,i,oldTrans,1);
+    }}}}
+
+Test if two Fspp s are equal.
+
+    int testEqual(Pieces *pcs1, Pieces *pcs2){
+
+        // set the unused bits at the end to 0
+        pcs1->pPcs[BYTES_USED-1] &= ~(255<<BIT_NUM(PIECES));
+        pcs2->pPcs[BYTES_USED-1] &= ~(255<<BIT_NUM(PIECES));
+
+        return (memcmp(pcs1->pPcs,pcs2->pPcs,BYTES_USED)==0);
+    }
+
+A program that is successfully demonstrating the Sc operation, Pavlidis
+algorithm and the the composition.
+
+    int main(int argc, char* argv[])
+    {
+        // the FSPPs
+        Pieces a,b,c,d,e,f;
+        // testing if the defines are set correctly
+        pretest();
+
+        // allocate memory for the byte arrays
+        initPieces(&a);
+        initPieces(&b);
+        initPieces(&c);
+        initPieces(&d);
+        initPieces(&e);
+        initPieces(&f);
+
+        // initialize an FSPP by spezifing atomic relations
+        // using their orientation and distance index
+        setA(&a,6,3,1);
+        setA(&a,6,4,1);
+        setA(&a,5,3,1);
+
+        // initialize an FSPP using a metric coordinate system
+        setPoint(&b,6,39,1);
+
+        // initialize an FSPP by spezifing atomic relations
+        // using their bit number in the array
+        setB(&c,58,1);
+        setB(&c,59,1);
+
+        // ASCII output of the FSPPs
+        printf(" FSPP a \n");
+        printPieces(&a);
+        printf(" FSPP b \n");
+        printPieces(&b);
+        printf(" FSPP c \n");
+        printPieces(&c);
+
+        // calculate the short cut of b - store the result in d
+        unary(&d,&b,2);
+
+        // print the Sc of b
+        printf("\n\n result of SC b \n");
+        printPieces(&d);
+
+        // set all atomic relation to 0
+        clearPiece(&d);
+
+        // composition of a and b - store the result in d
+        composition(&d,&a,&b);
+
+        // print the result of the composition
+        printf("\n\n composition result 1\n");
+        printPieces(&d);
+
+        // composition of a and d - store the result in e
+        composition(&e,&a,&d);
+
+        // do contour tracing and set the FSPP to the contour
+        calcBoundaryPavlidi(&d);
+        setPcsLikeBoundary(&d);
+
+        // output of the contour
+        printf("\n\n contour of composition \n");
+        printPieces(&d);
+
+        // composition with the contour
+        composition(&f,&a,&d);
+
+        // output to compare the compusition results with
+        // and without contour
+        printf("\n\n composition 2 (calculated without contour)\n");
+        printPieces(&e);
+        printf("\n\n composition 2 (calculated out contour)\n");
+        printPieces(&f);
+
+        // using a function to test for equality
+        printf("\n e and f equal ? %d \n",testEqual(&e,&f));
+
+        // do contour tracing and set the FSPP to the contour
+        calcBoundaryPavlidi(&f);
+        setPcsLikeBoundary(&f);
+
+        // print the contour
+        printf("\n\n contour of composition \n");
+        printPieces(&f);
+
+        // freeing the memory
+        free(a.pPcs);
+        free(b.pPcs);
+        free(c.pPcs);
+        free(d.pPcs);
+        free(e.pPcs);
+        free(f.pPcs);
+    }
+
+This is the output of the program above (it uses 18 orientation
+distinctions and 20 distances).
+
+     FSPP a
+              TRANS
+             00        10        20
+             |    .    |    .    |
+       000 : 00000000000000000000
+     R 001 : 00000000000000000000
+     O 002 : 00000000000000000000
+     T 003 : 00000000000000000000
+       004 : 00000000000000000000
+       005 : 00010000000000000000
+       006 : 00011000000000000000
+       007 : 00000000000000000000
+       008 : 00000000000000000000
+       009 : 00000000000000000000
+             |    .    |    .    |
+       010 : 00000000000000000000
+       011 : 00000000000000000000
+       012 : 00000000000000000000
+       013 : 00000000000000000000
+       014 : 00000000000000000000
+       015 : 00000000000000000000
+       016 : 00000000000000000000
+       017 : 00000000000000000000
+     FSPP b
+              TRANS
+             00        10        20
+             |    .    |    .    |
+       000 : 00000000000000000000
+     R 001 : 00000000000000000000
+     O 002 : 00000000000000000000
+     T 003 : 00000000000000000000
+       004 : 00000000000000010000
+       005 : 00000000000000000000
+       006 : 00000000000000000000
+       007 : 00000000000000000000
+       008 : 00000000000000000000
+       009 : 00000000000000000000
+             |    .    |    .    |
+       010 : 00000000000000000000
+       011 : 00000000000000000000
+       012 : 00000000000000000000
+       013 : 00000000000000000000
+       014 : 00000000000000000000
+       015 : 00000000000000000000
+       016 : 00000000000000000000
+       017 : 00000000000000000000
+     FSPP c
+              TRANS
+             00        10        20
+             |    .    |    .    |
+       000 : 00000000000000000000
+     R 001 : 00000000000000000000
+     O 002 : 00000000000000000000
+     T 003 : 00000000000000000000
+       004 : 00010000000000000000
+       005 : 00010000000000000000
+       006 : 00000000000000000000
+       007 : 00000000000000000000
+       008 : 00000000000000000000
+       009 : 00000000000000000000
+             |    .    |    .    |
+       010 : 00000000000000000000
+       011 : 00000000000000000000
+       012 : 00000000000000000000
+       013 : 00000000000000000000
+       014 : 00000000000000000000
+       015 : 00000000000000000000
+       016 : 00000000000000000000
+       017 : 00000000000000000000
+
+
+
+
+
+
+
+
+     result of SC b
+              TRANS
+             00        10        20
+             |    .    |    .    |
+       000 : 00000000000000000000
+     R 001 : 00000000000000000000
+     O 002 : 00000000000000000000
+     T 003 : 00000000000000000000
+       004 : 00000000000000000000
+       005 : 00000000000000000000
+       006 : 00000000000000000000
+       007 : 00000000000000000000
+       008 : 00000000000000000000
+       009 : 00000000000000010000
+             |    .    |    .    |
+       010 : 00000000000000010000
+       011 : 00000000000000010000
+       012 : 00000000000000010000
+       013 : 00000000000000010000
+       014 : 00000000000000000000
+       015 : 00000000000000000000
+       016 : 00000000000000000000
+       017 : 00000000000000000000
+
+
+     composition result 1
+              TRANS
+             00        10        20
+             |    .    |    .    |
+       000 : 00000000000000000000
+     R 001 : 00000000000000000000
+     O 002 : 00000000000000000000
+     T 003 : 00000000000000000000
+       004 : 00000000000000000000
+       005 : 00000000000000000000
+       006 : 00000000000000000000
+       007 : 00000000000000000000
+       008 : 00000000000000111100
+       009 : 00000000000000111100
+             |    .    |    .    |
+       010 : 00000000000000111100
+       011 : 00000000000000111100
+       012 : 00000000000000000000
+       013 : 00000000000000000000
+       014 : 00000000000000000000
+       015 : 00000000000000000000
+       016 : 00000000000000000000
+       017 : 00000000000000000000
+
+
+     contour of composition
+              TRANS
+             00        10        20
+             |    .    |    .    |
+       000 : 00000000000000000000
+     R 001 : 00000000000000000000
+     O 002 : 00000000000000000000
+     T 003 : 00000000000000000000
+       004 : 00000000000000000000
+       005 : 00000000000000000000
+       006 : 00000000000000000000
+       007 : 00000000000000000000
+       008 : 00000000000000111100
+       009 : 00000000000000100100
+             |    .    |    .    |
+       010 : 00000000000000100100
+       011 : 00000000000000111100
+       012 : 00000000000000000000
+       013 : 00000000000000000000
+       014 : 00000000000000000000
+       015 : 00000000000000000000
+       016 : 00000000000000000000
+       017 : 00000000000000000000
+
+
+
+
+     composition 2 (calculated without contour)
+              TRANS
+             00        10        20
+             |    .    |    .    |
+       000 : 00000000011111111000
+     R 001 : 00000000001111111000
+     O 002 : 00000000001111000000
+     T 003 : 00000000000000000000
+       004 : 00000000000000000000
+       005 : 00000000000000000000
+       006 : 00000000000000000000
+       007 : 00000000000000000000
+       008 : 00000000000000000000
+       009 : 00000000000000000000
+             |    .    |    .    |
+       010 : 00000000000000000000
+       011 : 00000000000000000000
+       012 : 00000000001111110000
+       013 : 00000000011111110000
+       014 : 00000000011111110000
+       015 : 00000000011111110000
+       016 : 00000000011111111000
+       017 : 00000000011111111000
+
+
+     composition 2 (calculated out contour)
+              TRANS
+             00        10        20
+             |    .    |    .    |
+       000 : 00000000011111111000
+     R 001 : 00000000001111111000
+     O 002 : 00000000001111000000
+     T 003 : 00000000000000000000
+       004 : 00000000000000000000
+       005 : 00000000000000000000
+       006 : 00000000000000000000
+       007 : 00000000000000000000
+       008 : 00000000000000000000
+       009 : 00000000000000000000
+             |    .    |    .    |
+       010 : 00000000000000000000
+       011 : 00000000000000000000
+       012 : 00000000001111110000
+       013 : 00000000011111110000
+       014 : 00000000011111110000
+       015 : 00000000011111110000
+       016 : 00000000011111111000
+       017 : 00000000011111111000
+
+     e and f equal ? 1
+
+
+     contour of composition
+              TRANS
+             00        10        20
+             |    .    |    .    |
+       000 : 00000000010000001000
+     R 001 : 00000000001000111000
+     O 002 : 00000000001111000000
+     T 003 : 00000000000000000000
+       004 : 00000000000000000000
+       005 : 00000000000000000000
+       006 : 00000000000000000000
+       007 : 00000000000000000000
+       008 : 00000000000000000000
+       009 : 00000000000000000000
+             |    .    |    .    |
+       010 : 00000000000000000000
+       011 : 00000000000000000000
+       012 : 00000000001111110000
+       013 : 00000000010000010000
+       014 : 00000000010000010000
+       015 : 00000000010000010000
+       016 : 00000000010000001000
+       017 : 00000000010000001000
+
+### 15 Comparison
+
+A comparison and classification of important calculi presented in this
+thesis is done in this section. This is done to help to choose the
+proper approach for spatial problems. It should also show, that the
+Fine-grained Qualitative Spatial Reasoning about Point
+Positions calculus developed in this thesis has unique properties which
+are useful in some context.
+
+#### 15.1 TPCC vs Fspp
+
+TPCC, which is presented in Section 9 , has a predetermined set of
+atomic relations. It differentiates two relative distances and eight
+orientations. Additionally four linear directions that are derived from
+the cardinal direction calculus (see Section 5.3.2 ) can be represented
+(straight front and back, left and right neutral) which give the
+calculus nice algebraic properties. For robotic applications these
+linear relations are less important because objects will almost
+certainly not be located directly on the straight line. The constant
+number of relatively few atomic relations enables a fast composition
+using table lookup. TCPP has already been used for robotic applications
+[ Dialog ] . During the test series it became apparent, that, although
+it is often possible to achieve good results with TPCC, the calculus is
+too coarse for robust robotic applications.
+
+The advantages of Fspp over TPCC are quite straight forward - it
+supports more orientation distinctions and more distance distinctions
+than TPCC. In both calculi the relative orientation is defined over
+three points. Fspp s absolute distance system is favorably for robotic
+representations while the relative distance in TPCC is better suited for
+interaction with humans.
+
+In applications such as described in [ Dialog ] Fspp is expected to
+perform significantly better if a high granularity is chosen. Due to
+it’s finer grain far less ambiguous situations are expected, that are
+situations in which more than one real life object is located in the
+acceptance areas of the relation. In situations where no real life
+object is found the Fspp , the relation can be expanded by the
+conceptual neighbors of the atomic relations. This would not be possible
+with TPCC because it instantly would lead to very ambiguous results.
+
+#### 15.2 DOI vs Fspp
+
+The Distance/orientation-interval propagation presented in Section 10 is
+a very mathematical calculus. The fact that is does not have atomic
+relations shows that it is not a qualitative approach. DOIs are
+successfully used in the robotic context, for example in maps using
+Voronoi graphs, as mentioned in Section 6 .
+
+The Fspp uses the Distance/orientation-interval propagation to calculate
+the composition. It is apparent that the composition algorithm of the
+Fspp has a bad complexity, especially compared to the DOI calculus who
+just needs one (DOI) calculation for it. But in this paper measures have
+been described to keep even high resolution Fspp s usable for robotic
+applications. The main advantage of Fspp over the DOI approach is, that
+it is, to some extent, a qualitative calculus. Thus the fine properties
+described in Section 5.1 are still available for Fspp .
+
+#### 15.3 Gppc vs Fspp
+
+Gppc (see Section 11 ) is quite similar to Fspp . A minor difference is,
+that Gppc has fixed levels of granularity whereas the number of
+orientation and distance differentiations in Fspp can be chosen freely.
+Gppc thus limits the number of different resolution modes which might
+make it more user friendly. The granularity of Fspp on the other hand
+can easily be adjusted to the users needs, for example with many
+distances but few orientations.
+
+The most important difference between the both is clearly, that Gppc
+uses relative distances while Fspp has an absolute distance system. The
+relative distance system of Gppc yields to quite accurate results of the
+unary operations while it causes more ambiguous composition relations.
+The situation for the Fspp is reverse. It has good composition results
+but the results of the unary operations are quite inexact. The
+composition is surely the more important operation, but I think that the
+disadvantages cancel each other out since both unary and binary
+operations are needed during constraint based reasoning. The relative
+distance system of Gppc is better suited for interactions with humans
+while the absolute distances used in Fspp have advantages for maps.
+
+#### 15.4 Classification of the calculi
+
+Only few calculi are absolutely qualitative. Many have more or less
+quantitative features. The transition from qualitative to quantitative
+representations is gradual. Figure 15.4 shows a classification of
+different calculi on a line. More qualitative calculi are inserted on
+the left while the quantitative DOI calculus is on the right. The
+topological RCC is entirely qualitative, while TPCC can be seen as more
+number cumbering as the cardinal algebra because of the relatively
+higher number of basic relations.
+
+This classification also corresponds to the amount of positional
+information the calculi can represent (except of RCC which represents
+topological knowledge). Approaches to the left are more coarse than
+those on the right. Gppc and even more Fspp don’t have a fixed position
+on this line because of the different levels of granularity they offer.
+
+An extreme version of Fspp with just four orientations and one distance
+is more coarse than TPCC. It thus would have to be inserted at the X1
+mark in the figure. A slightly finer Fspp with, for example, eight
+orientations and three distances would be located at the X2 mark while
+even higher resolutions can be at the X3 mark. DOIs will always be more
+accurate than Fspp with even the highest level of granularity because
+they use real numbers for the orientation and the range. Therefore X4
+indicates the rightmost mark possible for Fspp . In this classification
+Gppc can be located in similar regions as the Fspp .
+
+## Chapter \thechapter Conclusion
+
+### 16 Summary
+
+In this diploma thesis a new calculus for reasoning about qualitative
+positional information with the name "Fine-grained Qualitative Spatial
+Reasoning about Point Positions" ( Fspp ) has been developed. The basic
+terms and definition have been defined in Section 3 . Representation and
+reasoning techniques as well as the properties of qualitative spatial
+reasoning are presented there. State of the art approaches have been
+outlined in Section id1 . The Ternary Point Configuration
+Calculus (TPCC) is of special interest because not only the Fspp
+calculus is derived from it. The Distance/orientation-interval
+propagation is important because it is needed for the reasoning process
+of Fspp . The Granular Point Position Calculus is a recently developed
+approach that has many similarities with the one developed in this
+thesis.
+
+The representation of the Fspp has been developed in Section id1 . The
+absolute distance system and the relative orientation are outlined and
+merged into the ternary position representation. Unary and binary
+operations are needed for the reasoning process. The algorithms for both
+operations are presented. The composition makes use of the
+Distance/orientation-interval propagation  while the unary inversion (
+Inv ) operation makes use of the composition. The algorithm for the
+unary short cut ( Sc ) operation is presented so that the other
+operations can be calculated using Inv and Sc . The conceptual
+neighborhood concept can be applied to Fspp , too.
+
+An important improvement for the calculation of the composition is the
+use of a contour trancing algorithm beforehand. The terms that have
+their origin in computer graphics have been introduced and the
+application of the contour tracing algorithm of Theo Pavlidis to Fspp
+has been explained. The implementation of the Fspp calculus was shown to
+confirm the usability of this approach. The advantages and disadvantages
+of the Fspp compared to other important calculi have been pointed out
+and a classification was developed over them.
+
+### 17 Discussion and Outlook
+
+This thesis was written with the aim to develop a new calculus for
+qualitative spatial reasoning in the robotic context. An arbitrary level
+of granularity for representing positional knowledge was intended. I
+think that the Fspp approach at hand satisfies these expectations. It is
+defined over three points and offers a free number of distance and
+orientation distinctions. The relative orientation and absolute distance
+offer a good representation of positional knowledge. The necessary unary
+operations are defined. Because of the the absolute distance they are
+quite ambiguous. This is especially the case for those operations that
+are defined indirectly over the Inv and Sc operations. Future research
+could be done to define the unary Sci , Hm and Hmi operations directly
+to get better results during the reasoning process.
+
+In Fspp the composition is done using the DOI composition of the atomic
+relations. This leads to a huge number of DOI operations for very
+fine-grained representations. An effective way of reducing this number
+is presented by only using the border relations during the composition.
+During the extensive tests that have been done with the implementation
+of the Fspp it was shown that this border-composition is as exact as a
+composition with all basic relations. This is however not proved and
+thus a topic for future research. Related to this topic is the question,
+if 8-connectivity is really sufficient for the border-composition or if
+there are special cases in which 4-connectivity is required.
+
+Another interesting topic for future research is the question, which
+level of granularity and what distance systems for the Fspp
+representation are advisable for typical application scenarios.
+Especially the distance system is interesting and cognitive research and
+test series could be done to find representations that are optimal for
+interaction with humans as well as for usage in maps and other
+applications.
+
+The comparison with other state of the art calculi revealed that Fspp
+has unique properties which are useful in the robotic context. It also
+became apparent that the recently developed Gppc has many similarities
+with the Fspp . It could be interesting to find algorithms that allow to
+transform knowledge represented with those calculi forth and back. That
+way the advantages of both approaches could be used.
+
+## Chapter \thechapter TPCC definition
+
+The formal definition of the TPCC relations are described by geometric
+configurations on the basis of a cartesian coordinate system represented
+by @xmath .
+
+Special Cases for @xmath :
+@xmath
+@xmath
+
+For cases with @xmath a relative radius @xmath and a relative angle
+@xmath are defined:
+
+@xmath
+
+@xmath
+
+Spatial relations:
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+## Chapter \thechapter DOI composition formula
+
+The resulting DOI @xmath of a composition of the DOIs @xmath and @xmath
+has its minimum and maximum radius and angle to be computed:
+
+@xmath
+@xmath
+@xmath
+@xmath
+
+For @xmath 12 geometric cases have to be considered @xmath . The @xmath
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+                       @xmath   
+     @xmath   @xmath   @xmath   
+                       @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+For @xmath the geometric analysis shows seven distinct cases over which
+the maximum @xmath has to be computed:
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+The algorithm for @xmath and @xmath have been debugged. First the cases
+are calculated:
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+The values of @xmath are modified to be in the range of @xmath . After
+that @xmath are sorted by their value. The difference between the
+neighboring cases are calculated, with the biggest and the smallest
+value being neighbors, too, since the values are angles on a circle! The
+values that have the biggest difference between each other are taken
+into account now - they are the new @xmath and @xmath - with the smaller
+value being min and the bigger being max.
+
+If the difference between the newly calculated @xmath and @xmath is
+greater than 180° the special case with @xmath , @xmath and @xmath is
+set because the goal location can be at the reference point now! The
+same holds if the following conditions are met: @xmath or @xmath or
+@xmath .
+
+## Chapter \thechapter Topology definition
+
+Definition : topology, topological space: Let @xmath be a non-empty set,
+the universe. A topology on @xmath is a family @xmath of subsets of
+@xmath that satisfies the following axioms:
+
+1.  @xmath and @xmath belong to @xmath ,
+
+2.  the union of any number of sets in @xmath belongs to @xmath ,
+
+3.  the intersection of any two sets of @xmath belongs to @xmath .
+
+A topological space is a pair @xmath . The members of @xmath are called
+open sets.
+
+In a topological space @xmath , a subset @xmath of @xmath is called a
+closed set if its complement @xmath is an open set, i.e. if @xmath
+belongs to @xmath . By applying the DeMorgan laws, we obtain the
+properties of closed sets:
+
+1.  @xmath and @xmath are closed sets,
+
+2.  the intersection of any number of closed sets is a closed set,
+
+3.  the union of any two closed sets is a closed set.
+
+If the particular topology @xmath on a set @xmath is clear or not
+important, the @xmath can be referred to as the topological space.
+Closely related to the concept of an open set is that of a neighborhood.
+
+Definition : neighborhood, neighborhood system. Let @xmath be a
+topological space and @xmath be a point in @xmath .
+
+-   @xmath is said to be a neighborhood of @xmath if there is an open
+    subset @xmath such that @xmath .
+
+-   The family of all neighborhoods of @xmath is called the neighborhood
+    system of @xmath , denoted as @xmath .
+
+A neighborhood system @xmath has the property that every finite
+intersection of members of @xmath belongs to @xmath . Based on the
+notion of neighborhood it is possible to define certain points and areas
+of a region.
+
+Def interior, exterior, boundary, closure. Let @xmath be a topological
+space, @xmath be a subset of @xmath and @xmath be a point in U.
+
+-   @xmath is said to be an interior point of @xmath if there is a
+    neighborhood @xmath of @xmath contained in @xmath . The set of all
+    interior points of @xmath is called the interior of @xmath , denoted
+    @xmath .
+
+-   @xmath is said to be an exterior point of @xmath of there is a
+    neighborhood @xmath of @xmath that contains no point of @xmath . The
+    set of all exterior points of @xmath is called the exterior of
+    @xmath , denoted @xmath .
+
+-   @xmath is said to be a boundary point of @xmath if every
+    neighborhood @xmath of @xmath contains at least one point in @xmath
+    and one point is not in @xmath . The set of all boundary points of
+    @xmath is called the boundary of @xmath , denoted @xmath .
+
+-   The closure of @xmath , denoted @xmath , is the smallest closed set
+    which contains @xmath .
+
+The closure of a set is equivalent to the union of its interior and its
+boundary. Every open set is equivalent to its interior, every closed set
+is equivalent to its closure.
+
+Def regular open, regular closed. Let @xmath be a subset of a
+topological space @xmath .
+
+-   @xmath is said to be regular open if @xmath is equivalent to the
+    interior of its closure, i.e. @xmath .
+
+-   @xmath is said to be regular closed if @xmath is equivalent to the
+    closure of its interior, i.e. @xmath .
+
+Two sets of a topological space are called separated if the closure of
+one set is disjoint from the other set, and vice-versa. A subset of a
+topological space is internally connected if it cannot be written as a
+union of two separated sets.
+
+Topological spaces can be categorized according to how points or closed
+sets can be separated by open sets. Different possibilities are given by
+the separation axioms @xmath . A topological space @xmath that satisfies
+axiom @xmath is called a @xmath space. Three of these separation axioms
+which are important for this work are the following:
+
+@xmath : Given any two distinct points @xmath , each point belongs to an
+open set which does not contain the other point. @xmath : Given any two
+distinct points @xmath , there exist disjoint open sets @xmath
+containing @xmath and @xmath respectively. @xmath If @xmath is a closed
+subset of @xmath and @xmath is a point not in @xmath , there exist
+disjoint open sets @xmath containing @xmath and @xmath respectively.
+
+A connected space is a topological space which cannot be partitioned
+into two disjoint open sets, a topological space is regular, if it
+satisfies axioms @xmath and @xmath .

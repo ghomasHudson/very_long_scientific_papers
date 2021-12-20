@@ -1,0 +1,4806 @@
+## Acknowledgments
+
+First, I would like to thank my advisor, Persi Diaconis. Over the past
+five years, he has shown me the beautiful connections between random
+walks, combinatorics, finite group theory, and plenty of other
+mathematics. His continued encouragement and advice made the completion
+of this thesis possible. Thanks also go to Dan Bump, Nat Thiem, and Ravi
+Vakil for being on my defense committee and helping me finish my last
+hurdle as a Ph.D. student.
+
+My mentor Joe Gallian has influenced my life in more ways than I ever
+could have imagined when I first went to his REU in the summer of 2001.
+Spending one summer in Duluth as a student, two summers as a research
+advisor, and four summers as a research visitor has done more for my
+development as a research mathematician, teacher, and mentor than
+anything else in my life. At the same time, I first met most of my best
+friends at Duluth, and I will always thank Joe for bringing Phil
+Matchett Wood, Melanie Wood, Dan Isaksen, David Arthur, Stephen Hartke,
+and so many others into my life.
+
+I would also like to thank my friends at Stanford for their steadfast
+friendship over the years, particularly Leo Rosales, Dan Ramras, and
+Dana Paquin.
+
+I’ve saved the best for last. My parents and my girlfriend Jenny are the
+three most important people in my life, and I cannot thank them enough
+for their unconditional love and support. Jenny was my cheerleader in
+the last stressful year of my graduate studies, and my parents have been
+my cheerleaders for the last 26 years. Thank you.
+
+###### Contents
+
+-    1 Introduction
+-    2 The Automorphism Group is Almost Always a @xmath -Group
+    -    2.1 Examples and Computational Data
+    -    2.2 The Main Theorem
+    -    2.3 An Outline of the Proof of the Main Theorem
+    -    2.4 Concluding Remarks on the Main Theorem
+-    3 The Lower @xmath -Series and the Enumeration of @xmath -Groups
+    -    3.1 The Lower @xmath -Series
+    -    3.2 The Lower @xmath -Series and Automorphisms
+    -    3.3 Enumerating Groups in a Variety
+-    4 The Lower @xmath -Series of a Free Group
+    -    4.1 The Free Lie Algebra
+    -    4.2 The Free Lie Algebra and @xmath
+    -    4.3 The Expansion of Subgroups of @xmath
+-    5 Counting Normal Subgroups of Finite @xmath -Groups
+    -    5.1 The Number of Normal Subgroups of a Finite @xmath -Group
+    -    5.2 A Proof of Theorem 2.4
+-    6 Counting Submodules
+    -    6.1 The Number of Submodules of a Module
+    -    6.2 A Proof of Theorem 2.6
+-    7 A Survey on the Automorphism Groups of Finite @xmath -Groups
+    -    7.1 The Automorphisms of Familiar @xmath -Groups
+        -    7.1.1 The Extraspecial @xmath -Groups
+        -    7.1.2 Maximal Unipotent Subgroups of a Chevalley Group
+        -    7.1.3 Sylow @xmath -Subgroups of the Symmetric Group
+        -    7.1.4 @xmath -Groups of Maximal Class
+        -    7.1.5 Stem Covers of an Elementary Abelian @xmath -Group
+    -    7.2 Quotients of Automorphism Groups
+        -    7.2.1 The Quotient @xmath
+        -    7.2.2 The Quotient @xmath
+    -    7.3 Orders of Automorphism Groups
+        -    7.3.1 Nilpotent Automorphism Groups
+        -    7.3.2 Wreath Products
+        -    7.3.3 The Automorphism Group of an Abelian @xmath -Group
+        -    7.3.4 Other @xmath -Groups Whose Automorphism Groups are
+            @xmath -Groups
+-    8 An Application of Automorphisms of @xmath -Groups
+    -    8.1 A Twisted Markov Chain
+        -    8.1.1 An Upper Bound on the Convergence Rate
+        -    8.1.2 A Lower Bound on the Convergence Rate
+-    A Numerical Estimates for Theorem 2.1
+-    B Numerical Estimates for Theorem 8.1
+
+### Notation and Terminology
+
+Let @xmath be a group.
+
+-   If @xmath , then @xmath .
+
+-   @xmath
+
+-   @xmath the center of @xmath
+
+-   @xmath the Frattini subgroup of @xmath
+
+-   @xmath the group of inner automorphisms of @xmath
+
+-   @xmath the group of outer automorphisms of @xmath
+
+-   @xmath the cyclic group on @xmath elements
+
+-   @xmath the minimum cardinality of a generating set of @xmath . If
+    @xmath is a free group, then @xmath is called the rank of @xmath .
+    If @xmath is a finite elementary abelian @xmath -group, then @xmath
+    is the dimension of @xmath as an @xmath -vector space and thus is
+    called the dimension of @xmath .
+
+-   @xmath the general linear group of dimension @xmath over the finite
+    field @xmath
+
+-   @xmath the Gaussian (or @xmath -binomial) coefficent. This equals
+    the number of @xmath -dimensional subspaces of an @xmath -vector
+    space of dimension @xmath .
+
+-   @xmath the Galois number. This equals the total number of subspaces
+    of an @xmath -vector space of dimension @xmath .
+
+## Chapter 1 Introduction
+
+For any fixed prime @xmath , a non-trivial group @xmath is a @xmath
+-group if the order of every element of @xmath is a power of @xmath .
+When @xmath is finite, this is equivalent to saying that the order of
+@xmath is a power of @xmath . The study of @xmath -groups (and
+particularly finite @xmath -groups) is an important subfield of group
+theory. One motivation for studying finite @xmath -groups is Sylow’s
+Theorem 1, which states that if @xmath is a finite group, @xmath divides
+the order of @xmath , and @xmath is the largest power of @xmath dividing
+the order of @xmath , then @xmath has at least one subgroup of order
+@xmath . Such subgroups are called the Sylow @xmath -subgroups of @xmath
+. The fact that @xmath has at least one Sylow @xmath -subgroup for each
+prime @xmath dividing the order of @xmath suggests that in some
+heuristic sense, finite @xmath -groups are the “building blocks” of
+finite groups, and that to understand finite groups, we must first
+understand finite @xmath -groups. This thesis studies the automorphism
+groups of finite @xmath -groups, but this introductory chapter begins
+with a description of two other aspects of finite @xmath -group theory,
+both to give a sense for what @xmath -group theorists study, and because
+they are relevant to the main question addressed in this thesis.
+
+It turns out that understanding finite @xmath -groups (whatever that
+means) is quite hard. Mann [ 68 ] has a wonderful survey of research and
+open questions in @xmath -group theory. Much of the research relies on a
+basic fact about finite @xmath -groups: they are nilpotent groups . A
+group @xmath is nilpotent if the series of subgroups @xmath , @xmath ,
+@xmath , @xmath , eventually reaches the trivial subgroup. Here, @xmath
+denotes the subgroup of @xmath generated by all commutators consisting
+of an element in @xmath and an element in @xmath . If @xmath is the
+smallest positive integer such that @xmath is trivial, then we say that
+@xmath is nilpotent of class @xmath , or just of class @xmath . When
+@xmath is a finite @xmath -group and the order of @xmath is @xmath , the
+class of @xmath is at least 1 and at most @xmath . Finite @xmath -groups
+of class 1 are the abelian @xmath -groups, and those of class @xmath are
+said to be of maximal class .
+
+One triumph in finite @xmath -group theory over the past 30 years has
+been the positive resolution of the five coclass conjectures via the
+joint efforts of several researchers. While we have no hope of a
+complete classification of finite @xmath -groups up to isomorphism (see
+Leedham-Green and McKay [ 59 , Preface] ), the coclass conjectures do
+offer a lot of information about finite @xmath -groups. Mann [ 68 ,
+Section 3] has a short discussion of the subject, and the book by
+Leedham-Green and McKay [ 59 ] is devoted to a proof of the conjectures
+and related research. We will state only one of the conjectures here.
+The coclass of a finite @xmath -group of order @xmath and class @xmath
+is defined to be @xmath . The coclass Conjecture A states that for some
+function @xmath , every finite @xmath -group of coclass @xmath has a
+normal subgroup @xmath of class at most 2 and index at most @xmath . If
+@xmath , one can require @xmath to be abelian.
+
+Another aspect of @xmath -group theory is the enumeration of finite
+@xmath -groups by their order and related questions, as described in
+Mann [ 68 , Section 1] . Let @xmath equal the number of groups of order
+at most @xmath , let @xmath equal the number of nilpotent groups of
+order at most @xmath , let @xmath equal the number of @xmath -groups of
+order at most @xmath , and let @xmath equal the number of @xmath -groups
+of order at most @xmath and class 2. It is known that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+It is an open question as to whether or not
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+if so, it would imply that most finite groups are 2-groups. Pyber [ 81 ]
+has shown the weaker result that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Higman [ 41 ] and Sims [ 85 ] show that @xmath and @xmath are both given
+by the formula @xmath (using little-oh notation). It is an open problem
+to evaluate
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+It is possible that the limit is 1 and that most @xmath -groups have
+class 2.
+
+This thesis explores the structure of the automorphism groups of finite
+@xmath -groups and the connections between these automorphism groups and
+other topics. There are three principal goals. The first goal is to
+prove Theorem 2.1 , which says that, in a certain asymptotic sense, the
+automorphism group of a finite @xmath -group is almost always a @xmath
+-group. A weaker version of this result was announced by Martin in [ 69
+] , and Helleloid and Martin [ 39 ] prove the general result. The
+presentation of the proof in this thesis contains some omitted proof
+details and revised exposition.
+
+There are many reasonable asymptotic senses in which one could ask if
+the automorphism group of a finite @xmath -group is almost always a
+@xmath -group. The most obvious is to sort @xmath -groups by their order
+as in the above questions about the number of @xmath -groups. Nilpotence
+class is another important invariant that one might consider, while the
+coclass conjectures suggest that an approach using coclass might be more
+successful. As it happens, Theorem 2.1 does not use any of these
+parameters, instead turning to the minimum cardinality of a generating
+set of the @xmath -group and an invariant known as the lower @xmath
+-length . While it would be of great interest to prove analogous
+theorems using the invariants suggested above, it seems that the proofs
+would require very different machinery.
+
+Chapter 2 contains a statement of Theorem 2.1 and an outline of the
+proof, while Chapters 3 through 6 and Appendix A complete the full
+proof. The proof relies on a variety of topics: analyzing the lower
+@xmath -series of a free group via its connection with the free Lie
+algebra; counting normal subgroups of a finite @xmath -group; counting
+submodules of a module via Hall polynomials; and using numerical
+estimates on Gaussian coefficients. Some of the intermediate results may
+be of independent interest, including Theorems 4.12 , 5.1 , and 6.1 .
+
+The second goal of this thesis is to survey much of what is known about
+the automorphism groups of finite @xmath -groups. The latter part of
+this introductory chapter discusses what is known in general about these
+automorphism groups. Chapter 7 focuses on three other topics: explicit
+computations on the automorphism groups of finite @xmath -groups;
+constructions of finite @xmath -groups whose automorphism groups satisfy
+certain conditions; and examples of finite @xmath -groups for which it
+is known whether or not the automorphism group is itself a @xmath
+-group.
+
+There are aspects of the research on the automorphism groups of finite
+@xmath -groups that are largely omitted in this survey. We mention three
+here. The first is the conjecture that @xmath for all non-cyclic finite
+@xmath -groups @xmath of order at least @xmath . This has been verified
+for many families of @xmath -groups, and no counter-examples are known;
+there is an old survey by Davitt [ 19 ] . The second is the (large) body
+of work on finer structural questions, like how the automorphism group
+of an abelian @xmath -group splits or examples of finite @xmath -groups
+whose automorphism group fixes all normal subgroups. The third is the
+computational aspect of determining the automorphism group of a finite
+@xmath -group. Eick, Leedham-Green, and O’Brien [ 26 ] describe an
+algorithm for constructing the automorphism group of a finite @xmath
+-group. This algorithm has been implemented by Eick and O’Brien in the
+GAP package AutPGroup [ 28 ] . There are references in [ 26 ] to other
+related research as well.
+
+There are a few survey papers that also summarize some results on
+automorphism groups. Corsi Tani [ 14 ] gives examples of finite @xmath
+-groups whose automorphism group is a @xmath -group; all these examples
+are included in Chapter 7 along with some others. Starostin [ 87 ] and
+Mann [ 68 ] survey open questions about finite @xmath -groups, and each
+include a section on automorphism groups. In particular, Starostin
+focuses on specific examples related to the @xmath conjecture and finer
+structural questions.
+
+The third goal of this thesis is to explore a connection between the
+automorphisms of a finite @xmath -group and random walks. Chapter 8
+focuses on computing the convergence rate of a certain Markov chain on a
+finite abelian @xmath -group that has been “twisted” by an automorphism.
+Appendix B contains numerical estimates used in this computation. The
+introduction to Chapter 8 briefly mentions the appearance of
+automorphisms of @xmath -groups in two other contexts, namely
+projections of random walks and supercharacter theory.
+
+We conclude this introduction with some general results about the
+automorphism group of a finite @xmath -group, for the most part
+following the survey of Mann [ 68 ] . First, we can identify three
+subgroups of @xmath which are themselves @xmath -groups. The inner
+automorphism group @xmath is trivially a @xmath -group. More
+interestingly, let @xmath be the automorphisms of @xmath which induce
+the identity automorphism on @xmath (where @xmath is the center of
+@xmath ), and let @xmath be the automorphisms of @xmath which induce the
+identity automorphism on @xmath (where @xmath is the Frattini subgroup
+of @xmath , defined as the intersection of all maximal subgroups of
+@xmath ). Then @xmath and @xmath are @xmath -groups, both of which
+contain @xmath . More results on @xmath are given by Curran and
+McCaughan [ 17 ] .
+
+The next result is a theorem of Gaschütz [ 30 ] , which states that all
+finite @xmath -groups @xmath have outer automorphisms. Furthermore,
+unless @xmath is cyclic of order @xmath , there is an outer automorphism
+whose order is a power of @xmath . It is an open question of Berkovich
+as to whether this outer automorphism can be chosen to have order @xmath
+. Schmid [ 84 ] extends Gaschütz’ theorem to show that if @xmath is a
+finite nonabelian @xmath -group, then there is an outer automorphism
+that acts trivially on @xmath . Furthermore, if @xmath is neither
+elementary abelian nor extraspecial, then @xmath has a non-trivial
+normal @xmath -subgroup. Webb [ 91 ] proves Gashütz’s theorem and
+Schmid’s first generalization in a simpler way and without group
+cohomology. If @xmath is not elementary abelian nor extraspecial, then
+Müller [ 74 ] shows that @xmath .
+
+As mentioned earlier, one prominent open question is whether or not
+@xmath for all non-cyclic @xmath -groups @xmath of order at least @xmath
+. A related question concerns the automorphism tower of @xmath , namely
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where the maps are the natural maps from @xmath to @xmath . For general
+groups @xmath , a theorem of Wielandt shows that if @xmath is
+centerless, then the automorphism tower of @xmath becomes stationary in
+a finite number of steps. Little is known about the automorphism tower
+of finite @xmath -groups. In particular, it is not known whether or not
+there exist finite non-trivial @xmath -groups @xmath other than @xmath
+with @xmath .
+
+## Chapter 2 The Automorphism Group is Almost Always a @xmath-Group
+
+Over the next five chapters, we will prove that, in some asymptotic
+sense, the automorphism group of a finite @xmath -group is almost always
+a @xmath -group. This chapter begins with some examples of automorphism
+groups of finite @xmath -groups and related computational data. All of
+the examples are discussed in greater detail in Chapter 7 , which is a
+survey of results on the automorphism groups of finite @xmath -groups.
+We continue with a precise statement of the main theorem, Theorem 2.1 ,
+as well as an outline of the proof. The following chapters (and Appendix
+A ) give the details of the proof. A weaker version of this result was
+announced by Martin in [ 69 ] , and Helleloid and Martin [ 39 ] prove
+the general result.
+
+### 2.1 Examples and Computational Data
+
+The claim that the automorphism group of a finite @xmath -group is
+almost always a @xmath -group may not seem entirely plausible, since
+many common finite @xmath -groups have an automorphism group that is not
+a @xmath -group. The first finite @xmath -groups that spring to mind are
+probably the abelian ones. Any finite abelian @xmath -group @xmath is
+isomorphic to @xmath for some choice of integers @xmath , where @xmath
+denotes the cyclic group of order @xmath . Macdonald [ 66 , Chapter II,
+Theorem 1.6] offers an exact formula for the order of @xmath in terms of
+@xmath which shows that @xmath is a @xmath -group if and only if @xmath
+and the integers @xmath are not all distinct.
+
+Another family of finite @xmath -groups consists of the Sylow @xmath
+-subgroups @xmath of the general linear groups over @xmath , where
+@xmath is a power of @xmath . Pavlov [ 80 ] and Weir [ 94 ] offer an
+explicit description of the automorphisms of @xmath and an exact
+determination of the structure of @xmath in terms of semi-direct
+products of elementary abelian and cyclic groups. It follows from their
+work that @xmath is a @xmath -group if and only if @xmath .
+
+A third family of finite @xmath -groups familiar to group theorists
+consists of the extraspecial @xmath -groups. These are the nonabelian
+@xmath -groups @xmath whose center, commutator subgroup, and Frattini
+subgroup are all equal to each other and isomorphic to @xmath . Winter [
+97 ] shows that @xmath , where @xmath is an automorphism of order @xmath
+and the quotient of @xmath by the (elementary abelian) inner
+automorphism group of @xmath is a certain subgroup of a symplectic
+group. As a consequence, @xmath is not a @xmath -group for any prime
+@xmath .
+
+Besides these explicit examples of automorphism groups which are not
+@xmath -groups, Bryant and Kovács [ 10 ] show that any finite group
+occurs as a certain quotient of @xmath for some finite @xmath -group
+@xmath . Of course, if this finite group is not a @xmath -group, then
+@xmath will not be a @xmath -group. But in the course of proving the
+main theorem, we will show that the quotient in question is in fact
+almost always trivial.
+
+Finding finite @xmath -groups whose automorphism group is a @xmath
+-group is reasonably easy when @xmath and quite difficult when @xmath .
+In the case of @xmath , as mentioned before, if @xmath is an abelian
+@xmath -group and (in the notation used above) the integers @xmath are
+not all distinct, then @xmath is a @xmath -group. The automorphism group
+of the dihedral @xmath -group @xmath (for @xmath ) is the 2-group @xmath
+. The automorphism group of the generalized quaternion 2-group @xmath
+(for @xmath ) is the 2-group @xmath (see Zhu and Zuo [ 100 ] ). Newman
+and O’Brien [ 77 ] offer three more infinite families.
+
+When @xmath , the known examples of finite @xmath -groups whose
+automorphisms groups are @xmath -groups are much more complicated. In [
+45 ] , for every integer @xmath , Horoševskiĭ constructs such a @xmath
+-group with class @xmath and, for every integer @xmath , constructs such
+a @xmath -group that is minimally generated by @xmath elements.
+Furthermore, Horoševskiĭ shows in [ 45 ] and [ 46 ] that for any prime
+@xmath , if @xmath are finite @xmath -groups whose automorphism groups
+are @xmath -groups, then the automorphism group of the iterated wreath
+product @xmath is also a @xmath -group. The other known examples arise
+from complicated and unnatural-looking constructions (see Webb [ 92 ] ).
+As previously mentioned, Chapter 7 offers a more detailed survey of the
+automorphism groups of specific @xmath -groups.
+
+In a computational vein, Eick, Leedham-Green, and O’Brien [ 26 ]
+describe an algorithm for constructing the automorphism group of a
+finite @xmath -group. This algorithm has been implemented by Eick and
+O’Brien in the GAP package AutPGroup [ 28 ] . Compiled with the gracious
+help of Eamonn O’Brien (personal communication) and the GAP packages
+AutPGroup and SmallGroups [ 28 ] , Table 2.1 summarizes data on the
+proportion of small @xmath -groups whose automorphism group is a @xmath
+-group. (More information about the SmallGroups package can be found in
+Besche, Eick and O’Brien [ 7 ] .) Our ability to compute the massive
+amount of data encapsulated in Table 2.1 is a testament to the power of
+the AutPGroup algorithm.
+
+Table 2.1 does not offer enough data to make any firm conjectures, but
+we can make some observations. First, the behavior for @xmath and for
+@xmath seems to be different; the proportions in the table for @xmath
+are much higher than for @xmath . We have no explanation for this other
+than the naïve guess that @xmath -groups “often” have automorphisms of
+order @xmath , which prevents the automorphism group from being a @xmath
+-group unless @xmath . The second observation is that for @xmath and
+@xmath , the proportion shown in the table is a non-decreasing function
+of @xmath . Finally, for @xmath and @xmath , the proportion shown in the
+table is a non-decreasing function of @xmath .
+
+Again, this is hardly enough data to make any conjectures, but we might
+begin to hope that the proportion of @xmath -groups of order @xmath
+whose automorphism group is a @xmath -group tends to a limit as @xmath
+or @xmath goes to infinity, and perhaps even that the limit is 1. These
+questions remain open (see Mann [ 68 , Question 9] ). Indeed, our main
+theorem does show that the automorphism group of a finite @xmath -group
+is almost always a @xmath -group, but the asymptotic sense in which we
+mean “almost always” does not refer to the order of the group. The next
+section will explain what we mean by “almost always” and will state the
+main theorem.
+
+### 2.2 The Main Theorem
+
+The precise statement of our theorem depends on the lower @xmath -series
+of a group. The lower @xmath -series of a group @xmath is the descending
+series of subgroups @xmath defined inductively by @xmath and @xmath .
+Here, @xmath is the subgroup generated by @xmath -th powers of elements
+of @xmath , and @xmath is the subgroup generated by commutators
+consisting of an element from @xmath and an element from @xmath .
+Section 3.1 explores the properties of the lower @xmath -series in more
+detail; for the moment, it suffices to know that each @xmath is a
+characteristic subgroup of @xmath and that the quotients @xmath are all
+elementary abelian @xmath -groups. Since @xmath is an elementary abelian
+@xmath -group, it is also an @xmath -vector space, and we will refer to
+the dimension @xmath of @xmath when we mean the dimension of @xmath as
+an @xmath -vector space. We say that @xmath has lower @xmath -length
+@xmath if the number of non-identity terms in its lower @xmath -series
+is @xmath . Also, for any group @xmath , we let @xmath denote the
+smallest cardinality of a generating set of @xmath . As we will see
+later, every @xmath -group @xmath with lower @xmath -length @xmath and
+@xmath is finite, and there are finitely many such @xmath -groups.
+Finally we can state the main theorem.
+
+###### Theorem 2.1.
+
+Let @xmath be the proportion of @xmath -groups @xmath with lower @xmath
+-length at most @xmath and @xmath whose automorphism group is a @xmath
+-group. If @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If one of the following conditions is satisfied:
+
+  -- -------- -- -------- -- -------
+     @xmath      @xmath      
+     @xmath      @xmath      
+     @xmath      @xmath      (2.1)
+     @xmath      @xmath      
+     @xmath      @xmath      
+  -- -------- -- -------- -- -------
+
+then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Some of the given conditions on @xmath and @xmath are necessary. For
+example, the only @xmath -group with lower @xmath -length 1 and @xmath
+is @xmath , so @xmath for @xmath or @xmath . Similarly, the only @xmath
+-group with lower @xmath -length @xmath and @xmath is @xmath , so @xmath
+for @xmath or @xmath . However, it is not clear what conditions on
+@xmath and @xmath are absolutely necessary in Theorem 2.1 .
+
+### 2.3 An Outline of the Proof of the Main Theorem
+
+The proof of Theorem 2.1 breaks down into three parts, which are
+presented in Chapters 3 , 5 , and 6 , and are assembled to prove Theorem
+2.1 at the end of this chapter. In this section, we will outline the
+structure of the proof.
+
+The first step is to connect the enumeration of finite @xmath -groups to
+an analysis of certain subgroups and quotients of free groups. In fact,
+we will prove bijections between certain families of finite @xmath
+-groups and certain orbits of subgroups of a free group. Let @xmath be
+the free group of rank @xmath and let @xmath be the @xmath -th term in
+the lower @xmath -series of @xmath . It turns out that the action of
+@xmath on the vector space @xmath induces an action of @xmath on @xmath
+, and the @xmath -orbits on the subgroups of @xmath lying in @xmath are
+also the @xmath -orbits. We say that an orbit is regular if it has
+trivial stabilizer, that is, if the size of the orbit equals the size of
+the group that is acting.
+
+For any finite @xmath -group @xmath , write @xmath for the group of
+automorphisms of @xmath induced by @xmath , where @xmath is the Frattini
+subgroup of @xmath . We shall see that if @xmath is a @xmath -group then
+so is @xmath ; in fact, our main goal is to prove that @xmath is almost
+always trivial (in the same asymptotic sense as in Theorem 2.1 ). In
+Chapter 3 , after defining and investigating the lower @xmath -series,
+we prove the following theorem.
+
+###### Theorem 2.2.
+
+Fix a prime @xmath and integers @xmath . Let @xmath be the free group of
+rank @xmath and define the following sets:
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+                       @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+                       @xmath   
+                                
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Then there is a well-defined map @xmath given by @xmath , where @xmath .
+Furthermore @xmath induces bijections
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+In order to understand the usefulness of this theorem, note that @xmath
+is in bijection with finite @xmath -groups @xmath of lower @xmath
+-length at most @xmath with @xmath , and this bijection restricts to a
+bijection between @xmath and some of these @xmath -groups whose
+automorphism groups are @xmath -groups. As we will see in Chapter 4 ,
+@xmath is a finite group, and so @xmath is finite. Therefore the ratio
+@xmath is well-defined and is at most the proportion of @xmath -groups
+@xmath with lower @xmath -length at most @xmath and @xmath whose
+automorphism group is a @xmath -group; in the notation of Theorem 2.1 ,
+@xmath . So to prove the limiting statements about @xmath from Theorem
+2.1 , it suffices to prove the same limiting statements about @xmath .
+We state this formally as a corollary of Theorem 2.2 .
+
+###### Corollary 2.3.
+
+Suppose that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath , and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath and @xmath satisfying one of the conditions in ( 2.1 ). Then
+Theorem 2.1 is true.
+
+We will prove the hypotheses of Corollary 2.3 in two steps. Namely, we
+will show that the ratios @xmath and @xmath satisfy the same limiting
+statements (using the results of Chapters 5 and 6 respectively), and
+therefore so does the ratio @xmath . Both of these steps require some
+knowledge of the structure of @xmath . In Chapter 4 , we prove that
+@xmath is isomorphic (as a @xmath -module) to part of the free Lie
+algebra over @xmath . In particular, this lets us use the combinatorics
+of the free Lie algebra to compute certain parameters of the group
+@xmath (see Corollary 4.13 ).
+
+To prove that the ratios @xmath and @xmath satisfy the desired limiting
+statements, we obtain explicit lower bounds for each in Theorems 2.4 and
+2.6 respectively. To state these bounds, we define, for any number
+@xmath , the quantities
+
+  -- -------- -- -------
+     @xmath      (2.2)
+  -- -------- -- -------
+
+###### Theorem 2.4.
+
+Fix a prime @xmath and integers @xmath and @xmath so that either @xmath
+and @xmath or @xmath and @xmath . Let @xmath be the free group of rank
+@xmath and let @xmath be the dimension of @xmath for @xmath . Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Corollary 2.5.
+
+If @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If @xmath and @xmath satisfy one of the conditions in ( 2.1 ), then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Theorem 5.1 gives an upper bound on the number of normal subgroups of a
+finite @xmath -group, and the proof of Theorem 2.4 applies this theorem
+to the quotient @xmath . Corollary 2.5 will follow using bounds on
+@xmath from Lemma A.4 , showing that @xmath satisfies the desired
+limiting statements.
+
+###### Theorem 2.6.
+
+Fix a prime @xmath and integers @xmath and @xmath so that either @xmath
+and @xmath or @xmath and @xmath . Let @xmath be the free group of rank
+@xmath and let @xmath be the dimension of @xmath for @xmath . Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then
+
+1.  -- -- --
+            
+      -- -- --
+
+2.  -- -------- --
+         @xmath   
+      -- -------- --
+
+###### Corollary 2.7.
+
+If @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If @xmath and @xmath , or @xmath and @xmath , or @xmath and @xmath ,
+then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In proving Theorem 2.6 , we use the Cauchy-Frobenius Lemma to estimate
+@xmath by analyzing the submodule structure of @xmath as an @xmath
+-module. As part of this analysis, we use the theory of Hall polynomials
+to count the number of submodules of fixed type of a finite module over
+a discrete valuation ring. Corollary 2.7 will follow using bounds on
+@xmath from Lemma A.4 , showing that @xmath satisfies the desired
+limiting statements.
+
+In stating Theorems 2.4 and 2.6 , we have judged it more satisfactory to
+give explicit numerical bounds, even though the proof of Theorem 2.1
+requires only asymptotic bounds. However, since we have no expectation
+that our proof method gives bounds that are sharp, we have opted for
+(relatively) clean explicit bounds rather than the best possible.
+
+Appendix A contains combinatorial estimates, including bounds on
+Gaussian coefficients, that are needed in Chapters 5 and 6 .
+
+### 2.4 Concluding Remarks on the Main Theorem
+
+In this section, after formally proving Theorem 2.1 by citing results
+from the previous section, we will state some minor variants and
+consequences.
+
+###### Theorem 2.1.
+
+Let @xmath be the proportion of @xmath -groups @xmath with lower @xmath
+-length at most @xmath and @xmath whose automorphism group is a @xmath
+-group. If @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If one of the following conditions is satisfied:
+
+  -- -------- -- -------- --
+     @xmath      @xmath   
+     @xmath      @xmath   
+     @xmath      @xmath   
+     @xmath      @xmath   
+     @xmath      @xmath   
+  -- -------- -- -------- --
+
+then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+This follows directly from Corollaries 2.3 , 2.5 , and 2.7 . ∎
+
+###### Corollary 2.8.
+
+Let @xmath be the proportion of @xmath -groups @xmath with lower @xmath
+-length at most @xmath and @xmath whose automorphism group is a @xmath
+-group. If @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+This follows directly from Theorem 2.1 and the trivial observation that
+while the number of @xmath -groups generated by at most @xmath elements
+and with lower @xmath -length at most @xmath is finite, the number of
+@xmath -groups with lower @xmath -length at most @xmath is infinite. ∎
+
+###### Corollary 2.9.
+
+Let @xmath be the proportion of @xmath -groups @xmath with lower @xmath
+-length @xmath and @xmath whose automorphism group is a @xmath -group.
+If @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If @xmath and @xmath satisfy one of the conditions in 2.1 , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+The number of @xmath -groups @xmath with lower @xmath -length @xmath and
+@xmath is @xmath , so @xmath . As @xmath , it follows from Theorem 2.1
+that @xmath for each of the limits (with corresponding conditions on
+@xmath and/or @xmath ) in question. Since @xmath in each case, Theorem
+2.1 implies that @xmath as well. This proves that @xmath for each of the
+limits in question. ∎
+
+###### Corollary 2.10.
+
+Let @xmath be the proportion of @xmath -groups @xmath with lower @xmath
+-length @xmath and @xmath whose automorphism group is a @xmath -group.
+If @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+This corollary follows from Corollary 2.9 just as Corollary 2.8 follows
+from Corollary 2.1 . ∎
+
+Using Corollary 2.8 , Henn and Priddy [ 40 ] prove the following
+theorem.
+
+###### Theorem 2.11 (Henn and Priddy [40]).
+
+Let @xmath be the proportion of @xmath -groups @xmath with lower @xmath
+-length at most @xmath and @xmath that satisfy the following property:
+if @xmath is a finite group with Sylow @xmath -subgroup @xmath , then
+@xmath has a normal @xmath -complement. If @xmath , then @xmath .
+
+As mentioned earlier in this chapter, the following question remains
+unanswered.
+
+###### Question.
+
+Let @xmath be the proportion of @xmath -groups with order at most @xmath
+whose automorphism group is a @xmath -group. Is it true that @xmath ?
+
+## Chapter 3 The Lower @xmath-Series and the Enumeration of
+@xmath-Groups
+
+If we hope to prove that the automorphism group of almost every @xmath
+-group is itself a @xmath -group, there are two initial questions to
+answer: what do we mean by “almost always”, and how do we relate the set
+of finite @xmath -groups (and their automorphism groups) to something we
+can actually work with? As mentioned in Chapter 2 , the answer to both
+of those questions starts with the lower @xmath -series, a central
+series defined for all groups. This chapter begins with an introduction
+to the lower @xmath -series and its basic properties. It follows with
+the connection between the lower @xmath -series and automorphisms, and
+it closes with theorems on the correspondence between @xmath -groups in
+a variety and orbits of subgroups of a free group.
+
+### 3.1 The Lower @xmath-Series
+
+The lower @xmath -series of a group was introduced independently by
+Skopin [ 86 ] and Lazard [ 58 ] . It is described in detail by Huppert
+and Blackburn [ 49 , Chapter VIII] (under the name @xmath -series) and
+by Bryant and Kovács [ 10 ] . It has also been called the lower central
+@xmath -series, the lower exponent- @xmath central series, or the
+Frattini series.
+
+The lower @xmath -series is particularly suited to computer analysis of
+finite @xmath -groups and forms the basis of the @xmath -group
+generation algorithm of Newman [ 76 ] . This algorithm is described in
+greater detail in O’Brien [ 78 ] . It was modified in [ 79 ] and [ 26 ]
+to construct automorphism groups of finite @xmath -groups. It should
+also be mentioned that results on the lower @xmath -series have appeared
+in [ 26 ] and [ 78 ] , while the link between the lower @xmath -series
+and automorphisms described in Section 3.2 is an extension of results
+that Higman [ 41 ] and Sims [ 85 ] used to count finite @xmath -groups.
+
+###### Definition.
+
+Fix a prime @xmath . For any group @xmath , the lower @xmath -series
+@xmath of @xmath is defined by @xmath for @xmath . @xmath is said to
+have lower @xmath -length @xmath if @xmath is the last non-identity term
+in the lower @xmath -series.
+
+For an example of the lower @xmath -series, suppose that @xmath is a
+finite abelian @xmath -group. Then all commutators of elements in @xmath
+are trivial, so @xmath . We can say precisely what each subgroup @xmath
+is. Recall that a partition @xmath of @xmath is a sequence of integers
+@xmath such that @xmath . A finite abelian @xmath -group of order @xmath
+has type @xmath if it is isomorphic to
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+So suppose that @xmath has type @xmath . For each positive integer
+@xmath , define a new partition @xmath by @xmath for @xmath . Then
+@xmath is a finite abelian @xmath -group of type @xmath . In particular,
+@xmath is non-trivial if and only if @xmath , and so the lower @xmath
+-length of @xmath is @xmath .
+
+For a second example of the lower @xmath -series, let @xmath be the
+group of @xmath upper triangular matrices with entries in @xmath and
+ones on the diagonal; this is a Sylow @xmath -subgroup of @xmath . Then
+@xmath consists of all matrices in @xmath whose entry in position @xmath
+is 0 if @xmath .
+
+Before we list some basic facts about the lower @xmath -series, recall
+that a subgroup is fully invariant if every endomorphism of the group
+restricts to an endomorphism of the subgroup. For any group @xmath , we
+write @xmath to denote the lower central series of @xmath , where @xmath
+. The following proposition states five fundamental properties of the
+lower @xmath -series; the first four facts are proved in Huppert and
+Blackburn [ 49 , Chapter VIII, Theorem 1.5 and Corollary 1.6] and the
+fifth fact is obvious by induction.
+
+###### Proposition 3.1.
+
+For any group @xmath and for all positive integers @xmath and @xmath ,
+
+1.  @xmath .
+
+2.  @xmath .
+
+3.  @xmath .
+
+4.  @xmath is the smallest normal subgroup of @xmath lying in @xmath
+    such that @xmath is an elementary abelian @xmath -group and is
+    central in @xmath .
+
+5.  @xmath is fully invariant in @xmath .
+
+As we will see, the fact that @xmath is elementary abelian, and
+therefore an @xmath -vector space, is a key reason we are able to prove
+the main theorem. It is also important that the lower @xmath -length has
+a special significance for finite groups.
+
+###### Proposition 3.2.
+
+Let @xmath be a finite group. Then @xmath is a @xmath -group if and only
+if @xmath has finite lower @xmath -length.
+
+###### Proof.
+
+Since the order of @xmath is a power of @xmath for all @xmath , it is
+clear that if @xmath is not a @xmath -group, then @xmath has infinite
+lower @xmath -length. In the other direction, suppose @xmath is a @xmath
+-group. It suffices to show that if @xmath is non-trivial, then @xmath .
+Since @xmath is nilpotent, @xmath (see Kurzweil and Stellmacher [ 56 ,
+Lemma 5.1.6] ). Then @xmath is a non-trivial abelian @xmath -group.
+Hence
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and so @xmath . ∎
+
+Note that if @xmath is a finite @xmath -group, then @xmath , the
+Frattini subgroup of @xmath (see, for example, Kurzweil and Stellmacher
+[ 56 , Lemma 5.2.8] ). As a consequence, the Burnside Basis Theorem says
+that the smallest cardinality @xmath of a generating set of @xmath
+equals @xmath , and that any lift to @xmath of a generating set of
+@xmath generates @xmath .
+
+We are actually interested in the lower @xmath -series of free groups of
+finite rank as well as that of finite @xmath -groups. The reason is that
+the lower @xmath -series of a finite @xmath -group is related to the
+lower @xmath -series of a free group in the following way. Let @xmath be
+a finite @xmath -group, and let @xmath be the free group of rank @xmath
+. Then @xmath is isomorphic to @xmath for some normal subgroup @xmath of
+@xmath . It is easy to see by induction that @xmath for all @xmath ;
+namely, if @xmath , then
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+It follows that the lower @xmath -length of @xmath is @xmath , where
+@xmath is the first term in the lower @xmath -series of @xmath that is
+contained in @xmath . The lower @xmath -series of @xmath will be
+discussed in detail in Chapter 4 , but we mention here that the groups
+@xmath are finite @xmath -groups for all @xmath .
+
+### 3.2 The Lower @xmath-Series and Automorphisms
+
+In this section we collect some necessary facts linking the lower @xmath
+-series and automorphisms. The first proposition is fundamental to our
+overall proof strategy, while the remaining propositions are easy
+technical lemmas that will be used in Section 3.3 . To begin, suppose
+that @xmath is a finite @xmath -group, and let @xmath . Any automorphism
+of @xmath induces an element of @xmath . Thus we obtain a map from
+@xmath to @xmath and an exact sequence
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is a subgroup of @xmath . The group @xmath acts trivially
+on @xmath , and hence on each factor @xmath (see Huppert and Blackburn [
+49 , Chapter VIII, Theorem 1.7] ). As @xmath acts on each @xmath and the
+kernel of the action contains @xmath , we obtain an action of @xmath on
+each @xmath . The following key proposition is due to P. Hall [ 36 ,
+Section 1.3] .
+
+###### Proposition 3.3.
+
+If @xmath is a finite @xmath -group, then so is @xmath .
+
+###### Proof.
+
+Suppose @xmath has order @xmath , where @xmath is a prime not equal to
+@xmath or @xmath . Any coset @xmath of @xmath in @xmath is fixed by
+@xmath , since @xmath acts trivially on @xmath . The orbit of an element
+of @xmath under @xmath has size @xmath or @xmath , and @xmath is a power
+of @xmath , so some element of @xmath is fixed by @xmath . Every coset
+of @xmath contains an element fixed by @xmath , and since @xmath is the
+Frattini subgroup of @xmath , these coset representatives generate
+@xmath . Thus @xmath fixes @xmath and @xmath . Hence @xmath is a @xmath
+-group. ∎
+
+###### Proposition 3.4.
+
+If @xmath is a finite @xmath -group and @xmath is an endomorphism of
+@xmath that induces an automorphism on @xmath , then @xmath is an
+automorphism of @xmath .
+
+###### Proof.
+
+The image of @xmath under @xmath contains coset representatives for each
+coset of @xmath . These coset representatives generate @xmath , so the
+image of @xmath under @xmath is all of @xmath . Hence @xmath is an
+automorphism. ∎
+
+Let @xmath be the free group of rank @xmath with free generating set
+@xmath .
+
+###### Proposition 3.5.
+
+If @xmath is a proper fully invariant subgroup of @xmath , then @xmath
+and @xmath , the smallest cardinality of a generating set of @xmath ,
+equals @xmath .
+
+###### Proof.
+
+Suppose @xmath is a fully invariant subgroup of @xmath . The elements
+@xmath , with @xmath , form a complete set of coset representatives for
+the cosets of @xmath in @xmath , so @xmath contains an element @xmath in
+a coset @xmath with some @xmath nonzero. Then the endomorphism of @xmath
+that sends @xmath to 1 for @xmath and sends @xmath to @xmath for some
+@xmath sends @xmath into the coset @xmath . Since @xmath was arbitrary,
+this shows that @xmath contains coset representatives of @xmath for all
+@xmath . These cosets generate @xmath , and so the coset representatives
+generate @xmath . Hence @xmath .
+
+Finally, since @xmath , any normal subgroup @xmath of @xmath contained
+in @xmath satisfies @xmath . ∎
+
+###### Proposition 3.6.
+
+Let @xmath be a fully invariant subgroup of @xmath contained in @xmath
+and suppose that @xmath is a finite @xmath -group. Then any automorphism
+@xmath of @xmath lifts to an automorphism of @xmath .
+
+###### Proof.
+
+Since @xmath is free, there is an endomorphism @xmath of @xmath such
+that @xmath for all @xmath . Therefore @xmath for all @xmath . Then
+@xmath induces @xmath on @xmath , and since @xmath is fully invariant,
+maps @xmath to itself. So @xmath induces an endomorphism @xmath of
+@xmath . But @xmath induces @xmath , an automorphism of @xmath . By
+Proposition 3.4 , @xmath is an automorphism of @xmath . Thus @xmath
+lifts to an automorphism @xmath of @xmath . ∎
+
+### 3.3 Enumerating Groups in a Variety
+
+In this section, we develop a general strategy for enumerating certain
+sets of @xmath -groups and apply this strategy to prove Theorem 2.2 .
+The key idea to use the theory of varieties of groups. Our exposition
+follows Neumann [ 75 , Sections 1.2–1.4] .
+
+Let @xmath be the free group freely generated by @xmath . A word @xmath
+is an element of @xmath . A word @xmath is a law for a group @xmath if
+@xmath for every @xmath . Each subset @xmath of @xmath defines a variety
+of groups @xmath consisting of all groups for which each word in @xmath
+is a law. For example, the class of abelian groups forms the variety
+@xmath defined by the singleton set @xmath . More relevant to our
+investigations is the variety of @xmath -groups of lower @xmath -length
+at most @xmath . This variety is defined by (for example) the set @xmath
+.
+
+For each positive integer @xmath , the variety @xmath contains a
+relatively free group of rank @xmath . This is the group @xmath , where
+@xmath is the free group of rank @xmath and @xmath is the (fully
+invariant) subgroup of @xmath generated by the values @xmath for all
+@xmath . In the variety of abelian groups, the relatively free group of
+rank @xmath is (isomorphic to) @xmath . In the variety of @xmath -groups
+of lower @xmath -length at most @xmath , the relatively free group of
+rank @xmath is @xmath . By Proposition 3.5 , the smallest cardinality of
+a generating set of @xmath is @xmath . The relatively free group of rank
+@xmath has a generating set of cardinality @xmath , called a set of free
+generators , such that every mapping of this generating set into the
+group can be extended to an endomorphism.
+
+When the relatively free group @xmath of rank @xmath in a variety @xmath
+is a finite non-trivial @xmath -group, we can describe @xmath and @xmath
+precisely. In particular, by taking @xmath to be the variety of @xmath
+-groups of lower @xmath -length at most @xmath and @xmath , we can find
+@xmath and @xmath . Furthermore, questions about groups in @xmath and
+their automorphism groups can be translated into questions about certain
+orbits of subgroups of @xmath . This is the content of Theorems 3.7 and
+3.8 , from which Theorem 2.2 follows by specializing to the variety of
+@xmath -groups of lower @xmath -length at most @xmath .
+
+###### Theorem 3.7.
+
+Suppose that @xmath is the relatively free group of rank @xmath in a
+variety of groups @xmath , and suppose that @xmath is a finite @xmath
+-group. Let @xmath be the set of normal subgroups of @xmath lying in
+@xmath , and let @xmath be the @xmath -orbits in @xmath . Then
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where @xmath , is a well-defined bijection.
+
+Fix @xmath and let @xmath . Write @xmath for the normalizer of @xmath in
+@xmath and @xmath for the normal subgroup of @xmath that acts trivially
+on @xmath . Then,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is exact. The subgroup @xmath is isomorphic to the direct product of
+@xmath copies of @xmath . If @xmath , then @xmath , @xmath , and @xmath
+.
+
+###### Proof.
+
+By Proposition 3.6 , any automorphism of @xmath lifts to an automorphism
+of @xmath . Thus @xmath is isomorphic to the full automorphism group of
+@xmath , namely @xmath .
+
+Up to isomorphism, @xmath depends only on the orbit of @xmath , so
+@xmath is well-defined on @xmath . To prove that @xmath is surjective,
+consider any group @xmath with @xmath . Evidently @xmath is isomorphic
+to @xmath for some normal subgroup @xmath of @xmath . If @xmath were not
+contained in @xmath , then we could choose @xmath and extend @xmath to a
+generating set @xmath of @xmath . But then @xmath would be generated by
+the images of @xmath , contradicting @xmath . So @xmath is contained in
+@xmath , and @xmath is in the image of the map @xmath .
+
+To prove that @xmath is injective, suppose that @xmath and @xmath are in
+@xmath and @xmath . Let @xmath be an isomorphism. By [ 75 , Theorem
+44.21] , there is an endomorphism @xmath so that the diagram in Figure 1
+commutes. Then @xmath induces @xmath , and @xmath induces an
+automorphism on @xmath , since @xmath and @xmath are canonically
+isomorphic to @xmath . It follows from Proposition 3.4 that @xmath is an
+automorphism of @xmath . From Figure 1, it is also clear that @xmath .
+Thus @xmath , and @xmath and @xmath are in the same @xmath -orbit.
+
+  -- -- --
+        
+  -- -- --
+
+If we take @xmath , we find that any automorphism of @xmath is induced
+by an automorphism of @xmath , so that @xmath .
+
+Let @xmath be a set of free generators for @xmath , and let @xmath be
+any elements of @xmath . Since @xmath is relatively free, the map @xmath
+that sends @xmath to @xmath for all @xmath extends to an endomorphism of
+@xmath . Then @xmath acts trivially on @xmath , and hence acts trivially
+on @xmath , so @xmath is an automorphism by Proposition 3.4 .
+Conversely, any automorphism of @xmath that acts trivially on @xmath
+must act on each @xmath as multiplication by an element of @xmath . Thus
+@xmath is isomorphic to the direct product of @xmath copies of @xmath .
+The specialized statements for @xmath follow directly from the
+definition of @xmath and the fact that @xmath . ∎
+
+###### Theorem 3.8.
+
+Suppose that @xmath is the relatively free group of rank @xmath in a
+variety of groups @xmath , and suppose that @xmath is a finite @xmath
+-group with lower @xmath -length @xmath . Let @xmath be the set of
+normal subgroups of @xmath lying in @xmath , and let @xmath be the
+@xmath -orbits in @xmath . Then the map @xmath defined in Theorem 3.8
+restricts to a well-defined bijection
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where @xmath .
+
+The subgroup @xmath of @xmath acts trivially on @xmath , so @xmath acts
+on @xmath , and the @xmath and @xmath orbits on @xmath are identical.
+
+Fix @xmath and let @xmath . Write @xmath for the normalizer of @xmath in
+@xmath and @xmath for the normal subgroup of @xmath that acts trivially
+on @xmath . There is a natural isomorphism @xmath , and this extends to
+an exact sequence
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+In particular, @xmath .
+
+###### Proof.
+
+Let @xmath and write @xmath . Then @xmath is isomorphic to @xmath if and
+only if @xmath . This shows that @xmath is a well-defined bijection. As
+noted in Section 3.2 , @xmath acts trivially on @xmath , and by Theorem
+3.7 , @xmath . Thus @xmath acts on @xmath , and the @xmath orbits and
+@xmath orbits on @xmath are identical.
+
+Now suppose @xmath . Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is exact. By the exact sequence in Theorem 3.7 , every automorphism in
+@xmath is induced by an automorphism in @xmath . Since @xmath , the
+automorphism in @xmath must act trivally on @xmath , that is, it must be
+in @xmath . Therefore @xmath surjects onto @xmath . The kernel of this
+map is @xmath , so @xmath . The above exact sequence induces the exact
+sequence
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+By the second exact sequence in Theorem 3.7 , it follows that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is exact. ∎
+
+We can specialize Theorems 3.7 and 3.8 to prove Theorem 2.2 , restated
+here for convenience.
+
+###### Theorem 2.2.
+
+Fix a prime @xmath and integers @xmath . Let @xmath be the free group of
+rank @xmath and define the following sets:
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+                       @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+                       @xmath   
+                                
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Then there is a well-defined map @xmath given by @xmath , where @xmath .
+Furthermore @xmath induces bijections
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+###### Proof.
+
+Take @xmath to be the variety of @xmath -groups of lower @xmath -length
+at most @xmath . Applying Theorems 3.7 and 3.8 with @xmath , @xmath ,
+@xmath , @xmath , @xmath , and @xmath proves all but the statements
+about @xmath . As for those, a subgroup @xmath is in a regular @xmath
+-orbit if and only if @xmath . By Theorem 3.8 , this occurs precisely
+when @xmath . Thus the bijection for @xmath is proved. ∎
+
+## Chapter 4 The Lower @xmath-Series of a Free Group
+
+Let @xmath be the free group of rank @xmath with free generating set
+@xmath . As explained in Chapter 3 , there is an intimate connection
+between the lower @xmath -series of finite @xmath -groups and the lower
+@xmath -series of @xmath . As a result, Chapters 5 and 6 rely on a
+detailed understanding of the quotients @xmath . In this chapter, we
+analyze the @xmath -module structure of @xmath and power and commutator
+maps from @xmath to @xmath . Our main tool will be the connection
+between the lower @xmath -series of @xmath and the free Lie algebra
+described in Theorem 4.8 . The results of Theorem 4.8 appear several
+times in the literature with varying degrees of correctness and detail.
+The best references are Bryant and Kovács [ 10 ] and Huppert and
+Blackburn [ 49 , Chapter VIII] . The proof given below seems to be the
+first time that a complete proof has been written down.
+
+### 4.1 The Free Lie Algebra
+
+We will say just enough about free Lie algebras for our purposes. More
+information about free Lie algebras can be found in Garsia [ 29 ] and
+Reutenauer [ 82 ] . Our discussion follows Bryant and Kovács [ 10 ] .
+
+Let @xmath be any field and let @xmath be an alphabet on @xmath letters.
+Write @xmath for the set of all @xmath -words and @xmath for the set of
+all @xmath -words of length @xmath . Let @xmath denote the free
+associative @xmath -algebra on the generators @xmath ; equivalently,
+@xmath is the non-commutative algebra of polynomials
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+with coefficients @xmath . The algebra @xmath is graded by degree; let
+@xmath denote the homogeneous component of degree @xmath . Also, @xmath
+is a Lie algebra under the Lie bracket @xmath . Let @xmath denote the
+Lie subalgebra of @xmath generated by @xmath and the Lie bracket. Then
+@xmath is the free Lie algebra over @xmath on @xmath . It is also graded
+by degree; let @xmath be the homogeneous component of @xmath of degree
+@xmath .
+
+The group @xmath acts as the group of @xmath -automorphisms on the
+@xmath -vector space @xmath . This action extends to the @xmath -vector
+spaces @xmath and @xmath , and so these may be regarded as @xmath
+-modules.
+
+It will be convenient to specify a basis of @xmath . Lexicographically
+order the set @xmath , where @xmath . A word @xmath is a Lyndon word if
+it is smaller than all of its proper non-trivial tails. Let @xmath be
+the set of Lyndon words, and let @xmath be the set of Lyndon words of
+length @xmath . Inductively define the right standard bracketing @xmath
+of @xmath by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+if @xmath and otherwise by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath and @xmath is the longest proper tail of @xmath that is a
+Lyndon word.
+
+###### Theorem 4.1 (Reutenauer [82, Proof of Theorem 5.1]).
+
+If @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for some @xmath . The set @xmath forms a basis for @xmath .
+
+### 4.2 The Free Lie Algebra and @xmath
+
+The connections between the free Lie algebra and @xmath given in
+Theorems 4.8 and 4.9 rely on several theorems and lemmas in the
+literature. We begin with the connection between @xmath and the lower
+central series of @xmath . For each positive integer @xmath , let @xmath
+. If @xmath , let @xmath denote the image of @xmath in @xmath .
+
+###### Theorem 4.2 (Huppert and Blackburn [49, Chapter VIII, Theorem
+1.9(b) and (c)]).
+
+For each positive integer @xmath , there is a bijection
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+When @xmath is odd or @xmath and @xmath , this map is an isomorphism.
+When @xmath and @xmath , this map restricts to an isomorphism
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The next theorem connects the lower central series of @xmath and the
+free Lie algebra.
+
+###### Theorem 4.3 (Magnus, see Reutenauer [82, Corollary 6.16]).
+
+For each positive integer @xmath , there is a canonical isomorphism
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+satisfying
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all @xmath and @xmath such that @xmath .
+
+###### Corollary 4.4.
+
+For each positive integer @xmath , there is a canonical isomorphism
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+induced by @xmath . Furthermore,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is an isomorphism.
+
+We also need some results from commutator calculus.
+
+###### Theorem 4.5 (P. Hall, adapted from Leedham-Green and McKay [59,
+Theorem 1.1.30]).
+
+Let @xmath and @xmath be elements of a group @xmath . Then for all
+positive integers @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for some elements @xmath and some integers @xmath . Each integer @xmath
+is a @xmath -linear combination of @xmath .
+
+###### Corollary 4.6.
+
+Let @xmath and @xmath be elements of a group @xmath . Then for all
+positive integers @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Furthermore,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+Given a positive integer @xmath , write @xmath with @xmath and @xmath
+relatively prime to @xmath . Then @xmath is divisible by @xmath . It
+follows that any @xmath -linear combination @xmath of @xmath is
+divisible by @xmath , where @xmath is the largest power of @xmath less
+than or equal to @xmath . This shows that each @xmath from Theorem 4.5
+is in @xmath . Then Theorem 4.5 implies that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Next, we must show that @xmath when @xmath . But
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+and @xmath , proving the claim. Finally, the congruences modulo @xmath
+follow directly from the previous congruences and the fact that @xmath
+by Proposition 3.1 . ∎
+
+###### Corollary 4.7.
+
+Let @xmath and @xmath be elements of a group @xmath . Let @xmath be a
+positive integer and suppose @xmath . Then for all positive integers
+@xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+Let @xmath . Then @xmath is the normal closure of @xmath in @xmath by
+Huppert [ 48 , Chapter III, Lemma 1.11] . So @xmath . Furthermore,
+@xmath for all @xmath . Thus for @xmath ,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+and for @xmath ,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+By Corollary 4.6 ,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+∎
+
+These preliminaries and some extra work lead to the following two
+theorems.
+
+###### Theorem 4.8.
+
+Let @xmath be a positive integer. If @xmath is odd or @xmath and @xmath
+, then there is an @xmath -module isomorphism
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the isomorphism from Corollary and @xmath for @xmath .
+If @xmath and @xmath , then there is an @xmath -module isomorphism
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath for @xmath and @xmath is an extension of @xmath by @xmath .
+
+###### Proof.
+
+If @xmath is odd or @xmath and @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and hence @xmath is an isomorphism by Theorem 4.2 and Corollary 4.4 . In
+all cases, induction on @xmath immediately shows that the action of
+@xmath commutes with @xmath , so that if @xmath is an isomorphism, then
+it is an @xmath -module isomorphism.
+
+If @xmath and @xmath , then @xmath is injective since each @xmath is
+injective. Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Clearly @xmath is surjective. The map @xmath is surjective, so @xmath .
+The map @xmath is surjective, so @xmath . It follows that @xmath is an
+extension of @xmath by @xmath .
+
+It remains to show that @xmath is a homomorphism when @xmath and @xmath
+. Let @xmath . Write
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+with @xmath for @xmath . We know
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+and we must show that this equals @xmath .
+
+Note that @xmath for all @xmath . From Corollary 4.6 and the fact that
+@xmath is abelian, we find
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+                       @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Thus @xmath is a homomorphism when @xmath and @xmath , completing the
+proof. ∎
+
+###### Theorem 4.9.
+
+For each positive integer @xmath and @xmath , define the following maps:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Unless @xmath and @xmath , the diagram below on the left commutes and
+@xmath is an injective homomorphism. The diagram below on the right
+commutes and @xmath is a homomorphism.
+
+  -- -- --
+        
+  -- -- --
+
+###### Proof.
+
+Let @xmath . Write @xmath with @xmath for @xmath . Of course, @xmath for
+@xmath . Using Corollary 4.6 with @xmath , if @xmath or @xmath ,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+So @xmath . It is clear that @xmath . Thus @xmath is an injective
+homomorphism unless @xmath and @xmath .
+
+The map @xmath is an (additive) homomorphism by the linearity of the Lie
+bracket. The commutator identity @xmath and the fact that @xmath is
+central in @xmath show that
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+If @xmath , then Corollary 4.7 shows that
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+and clearly @xmath .
+
+If @xmath , note that @xmath for all @xmath . Thus by Corollaries 4.6
+and 4.7 ,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Thus in either case, @xmath is a homomorphism. ∎
+
+We conclude this section with two corollaries of Theorem 4.8 . First,
+the dimension of @xmath is given by Witt’s formula:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the Möbius function (see Reutenauer [ 82 , Appendix
+0.4.2] ). Thus Theorem 4.8 tells us the dimension of @xmath .
+
+###### Corollary 4.10.
+
+Let @xmath be a positive integer. The dimension of @xmath is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We also need to know some numerical bounds on @xmath , but these are
+computed in Lemmas A.3 and A.4 . For the second corollary, let @xmath be
+the natural @xmath -module. Then @xmath and @xmath as @xmath -modules.
+Therefore Theorem 4.8 tells us the following fact.
+
+###### Corollary 4.11.
+
+Let @xmath . Then @xmath contains a @xmath -submodule isomorphic to an
+extension of @xmath by @xmath , where @xmath is the natural @xmath
+-module.
+
+This will be needed to apply Theorem 6.3 to groups of lower @xmath
+-length 2.
+
+### 4.3 The Expansion of Subgroups of @xmath
+
+The remainder of this chapter is devoted to proving the following
+theorem and corollary. Corollary 4.13 will be combined with Theorem 5.1
+to prove Corollary 5.2 , which gives upper bounds for the number of
+normal subgroups of @xmath with certain properties.
+
+###### Theorem 4.12.
+
+Fix a prime @xmath and integers @xmath and @xmath . Suppose that @xmath
+is a normal subgroup of @xmath lying in @xmath . Let
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Viewing @xmath , @xmath , and @xmath as @xmath -vector spaces, their
+dimensions satisfy @xmath and @xmath .
+
+The third isomorphism theorem lets us replace @xmath by @xmath , giving
+the following corollary.
+
+###### Corollary 4.13.
+
+Fix a prime @xmath and integers @xmath , @xmath , and @xmath . Let
+@xmath . Suppose that @xmath is a normal subgroup of @xmath lying in
+@xmath . Let
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Then @xmath and @xmath .
+
+To prove Theorem 4.12 , we will build up to an analogous result for the
+free Lie algebra (Lemma 4.18 ) and then apply Theorem 4.8 . Informally,
+the result for the free Lie algebra says that if we start with a
+finite-dimensional subspace @xmath of @xmath and add to it the subspace
+generated by @xmath , we get a new subspace whose dimension is at least
+@xmath . It seems reasonable to describe this as investigating the
+“expansion of a subspace when taking commutators”, hence the title of
+this section.
+
+We need to define three more maps:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Lemma 4.14.
+
+The following diagram commutes:
+
+  -- -- --
+        
+  -- -- --
+
+If @xmath , then the kernel of @xmath is spanned by @xmath . If @xmath ,
+then @xmath is injective.
+
+###### Proof.
+
+The only statements requiring proof are those about the kernel and
+injectivity of @xmath . Without loss of generality, we may assume that
+@xmath . Suppose that @xmath . Unless @xmath and @xmath , we see that
+@xmath is smaller than @xmath , and hence smaller than all of its proper
+non-trivial tails. So @xmath . Furthermore, @xmath is the longest tail
+of @xmath that is a Lyndon word, so @xmath . Thus the image of @xmath
+under @xmath is the negative of a basis element in @xmath , unique for
+each @xmath . It follows that the kernel of @xmath is spanned by @xmath
+and @xmath is injective for @xmath . ∎
+
+###### Lemma 4.15.
+
+Fix @xmath and @xmath . Suppose that @xmath is a subspace of @xmath .
+Then @xmath .
+
+###### Proof.
+
+Let @xmath denote the free Lie algebra on two generators @xmath and
+@xmath ; there is a natural embedding of @xmath into @xmath . Let @xmath
+be the homogeneous component of degree @xmath in @xmath .
+
+First, we claim that if @xmath and @xmath are distinct elements of
+@xmath and @xmath , then in fact @xmath . We may assume that @xmath .
+Suppose that @xmath . Then writing
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+there must be some word @xmath where @xmath and @xmath contains a letter
+other than @xmath and @xmath . We may assume that @xmath contains the
+letter @xmath , and since @xmath , it must be that @xmath starts with
+@xmath . In that case, by Theorem 4.1 , there is a word beginning with
+@xmath that appears in @xmath with non-zero coefficient. Thus there is a
+word beginning with @xmath and ending with @xmath that appears in @xmath
+with non-zero coefficient. No such word can appear in @xmath ,
+contradicting the fact that @xmath . Hence @xmath and similarly @xmath .
+
+Note that @xmath if @xmath (the letters @xmath and @xmath appear in
+every element of @xmath since @xmath ). Choose @xmath and @xmath so that
+@xmath is as small as possible; in particular this intersection has
+dimension at most @xmath . Let @xmath be a complement to @xmath in
+@xmath .
+
+We can define a more restrictive commutator map on subspaces by @xmath .
+Obviously @xmath . Using Lemma 4.14 and the above claim,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+∎
+
+###### Lemma 4.16.
+
+Fix @xmath . Suppose that @xmath is a subspace of @xmath . Then @xmath .
+
+###### Proof.
+
+Recalling Lemma 4.14 , this is clear if @xmath , and otherwise
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+implying the result since @xmath and @xmath are disjoint. ∎
+
+###### Lemma 4.17.
+
+Let @xmath . Suppose that @xmath is a subspace of @xmath , where @xmath
+is defined in Theorem 4.8 . Then @xmath .
+
+###### Proof.
+
+Let @xmath and let @xmath be a complement to @xmath in @xmath . Note
+that @xmath . By Lemma 4.16 ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+By the commutative diagram in Lemma 4.14 , it follows that @xmath
+contains a subspace of dimension at least @xmath that has trivial
+intersection with @xmath . By Lemma 4.15 , @xmath contains a subspace of
+dimension at least @xmath . Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+∎
+
+###### Lemma 4.18.
+
+Fix @xmath . Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Suppose that @xmath is a subspace of @xmath contained in @xmath . Then
+@xmath .
+
+###### Proof.
+
+The proof will be by induction on @xmath . When @xmath is odd and @xmath
+, Lemma 4.16 gives the result. When @xmath and @xmath , Lemma 4.17 gives
+the result. So assume that @xmath is odd and @xmath or that @xmath and
+@xmath . Assume the result holds for @xmath . Let @xmath . By the
+inductive hypothesis,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Furthermore, @xmath . Let @xmath be a complement to @xmath in @xmath .
+By the commutative diagram in Lemma 4.14 , @xmath . By the definition of
+@xmath and @xmath , @xmath . By Lemma 4.15 ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Thus @xmath contains a subspace of dimension at least @xmath that has
+trivial intersection with @xmath . Therefore
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+∎
+
+###### Proof of Theorem 4.12.
+
+Replacing @xmath by @xmath does not change @xmath , @xmath , or @xmath ,
+so we may assume that @xmath . Recall that by Corollary 4.9 , @xmath is
+injective. Since @xmath , it follows that @xmath .
+
+Also by Corollary 4.9 ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since @xmath is injective, and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+by Lemma 4.18 , it follows that @xmath . ∎
+
+It is reasonable to wonder if the factor of @xmath in Lemma 4.18 (and
+hence in Theorem 4.12 ) is the best possible. It almost certainly is
+not; intuitively a factor of about @xmath seems right, but this appears
+to be much harder to prove and is an interesting question in its own
+right. Fortunately, @xmath suffices for our purposes.
+
+## Chapter 5 Counting Normal Subgroups of Finite @xmath-Groups
+
+The goal of this chapter is to prove Theorem 2.4 . Recall from Chapter 2
+that if
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+then Theorem 2.4 essentially shows that the number of @xmath -orbits in
+@xmath is large relative to the number of orbits in @xmath . This is
+nominally a result about counting orbits, but we can actually show that
+the number of subgroups in @xmath is so large that even if every orbit
+in @xmath was regular (that is, if @xmath was as small as possible) and
+if every orbit in @xmath was trivial (that is, if @xmath was as big as
+possible), Theorem 2.4 would still hold.
+
+### 5.1 The Number of Normal Subgroups of a Finite @xmath-Group
+
+Given a finite @xmath -group @xmath of lower @xmath -length @xmath and
+non-negative integers @xmath , we can form a set @xmath of normal
+subgroups of @xmath by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Our goal in Theorem 5.1 is to give an upper bound on the size of @xmath
+. Specializing this bound to @xmath and summing over certain choices of
+@xmath will give us an upper bound on the size of @xmath , allowing us
+to prove Theorem 2.4 . The bound in Theorem 5.1 depends on certain
+parameters of the group which are difficult to work out in general, but
+were calculated for @xmath in Corollary 4.13 .
+
+An alternate way to view @xmath is to note that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+by the Second Group Isomorphism Theorem. Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is a central series of @xmath with elementary abelian quotients of order
+@xmath (in that order). The set @xmath consists of all normal subgroups
+@xmath of @xmath whose associated series has specified quotients.
+
+Furthermore, each subgroup @xmath determines the following data, which
+we will denote collectively by @xmath :
+
+1.  A subgroup @xmath of @xmath , given by @xmath ;
+
+2.  A normal subgroup @xmath of @xmath , given by @xmath ; and
+
+3.  A complement to @xmath in @xmath , given by @xmath .
+
+In fact, the data @xmath uniquely determines @xmath . Given @xmath , the
+subgroup @xmath is uniquely determined as the inverse image of @xmath in
+@xmath . Then the complement to @xmath in @xmath given by @xmath is
+@xmath for a unique normal subgroup @xmath of @xmath . Thus @xmath and
+@xmath uniquely determines @xmath .
+
+There does not seem to be any prior literature on the number of normal
+subgroups of an arbitrary finite @xmath -group. Birkhoff [ 8 ] gave an
+exact formula for the number of subgroups of a finite abelian @xmath
+-group, but Theorem 5.1 is apparently unrelated to that result. It is
+unclear how good the upper bound in Theorem 5.1 is in general; it is
+simply sufficient for our needs.
+
+###### Theorem 5.1.
+
+Suppose @xmath is a finite @xmath -group with lower @xmath -length
+@xmath . Let @xmath for all @xmath . Suppose @xmath are integers
+satisfying @xmath for all @xmath , and define @xmath as above. Suppose
+that for each @xmath and @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+The proof will be by induction on @xmath . If @xmath , then @xmath is
+elementary abelian of dimension @xmath . In this case, @xmath counts the
+number of subgroups of @xmath of dimension @xmath , and this number is
+@xmath .
+
+For our inductive hypothesis, suppose that @xmath and that the result
+holds in @xmath , a @xmath -group of lower @xmath -length @xmath . For
+@xmath , it is clear that @xmath and @xmath . Thus
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since there is a bijective correspondence between subgroups @xmath and
+data @xmath , we can give an upper bound for @xmath by giving an upper
+bound for the number of possibilities for @xmath . First, @xmath is a
+subspace of @xmath of dimension @xmath . Furthermore, @xmath must
+contain @xmath , which by assumption has dimension at least @xmath .
+Thus the number of choices for @xmath is at most @xmath .
+
+Next, we can show that @xmath . Namely, for each @xmath ,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+and so @xmath . It follows that @xmath . So there are at most @xmath
+choices for @xmath .
+
+Finally, we must bound the number of complements @xmath to @xmath in
+@xmath . Note that @xmath is central in @xmath since @xmath is central
+in @xmath . It follows from (say) Lubotzky and Segal [ 64 , Lemma 1.3.1]
+that the number of complements to @xmath in @xmath is
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+The dimension of @xmath is @xmath . Also,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Note that @xmath , and a similar calculation to Equation 5.1 shows that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which by hypothesis has dimension at least @xmath . Thus
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Using the inductive hypothesis gives
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+                       @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+∎
+
+###### Corollary 5.2.
+
+Fix @xmath and @xmath . Let @xmath be the free group of rank @xmath and
+let @xmath for each @xmath . Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+Letting @xmath in Theorem 5.1 , it is clear that @xmath . Since @xmath ,
+each @xmath is contained in @xmath , and so @xmath contains @xmath and
+@xmath . Thus we can choose @xmath . By Corollary 4.13 , for @xmath , we
+can choose @xmath and @xmath . Finally, Lemma A.2 Equation A.1 gives an
+upper bound for the Gaussian coefficient @xmath . The formula from
+Theorem 5.1 becomes
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+∎
+
+### 5.2 A Proof of Theorem 2.4
+
+We can now prove Theorem 2.4 and Corollary 2.5 , restated here for
+convenience.
+
+###### Theorem 2.4.
+
+Fix a prime @xmath and integers @xmath and @xmath so that either @xmath
+and @xmath or @xmath and @xmath . Let @xmath be the free group of rank
+@xmath and let @xmath be the dimension of @xmath for @xmath . Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+Note that a normal subgroup @xmath of @xmath lies in @xmath if and only
+if @xmath for some integers @xmath . Also, @xmath lies in @xmath if and
+only if @xmath . If @xmath does not lie in @xmath , then @xmath , so
+@xmath . Thus, using Corollary 5.2 , we find
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where the sums are over
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The above sum is precisely the quantity @xmath from the statement of
+Lemma A.5 . Hence
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since @xmath is the number of subspaces of a @xmath -dimensional @xmath
+-vector space, denoted @xmath in Appendix A , it follows from Lemma A.2
+and the fact that @xmath that
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Now @xmath are the @xmath -orbits on @xmath , so
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Also @xmath , since @xmath falls into @xmath orbits, each of size at
+most @xmath . Then
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Therefore
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+∎
+
+###### Corollary 5.3.
+
+If @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If @xmath and @xmath satisfy one of the conditions in ( 2.1 ), then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+When @xmath , the sets @xmath and @xmath are the same, so trivially
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+For all other cases, we will use Theorem 2.4 . We have the inequality
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (5.2)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- -------
+
+When @xmath and @xmath , the quantity ( 5.2 ) has limit @xmath .
+Combined with Theorem 2.4 , this shows that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+When @xmath and @xmath , the quantity ( 5.2 ) is asymptotically @xmath ,
+which shows that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Finally, by Lemma A.4 Equation A.5 ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all values of @xmath and @xmath satisfying one of the conditions in
+( 2.1 ) (except the condition @xmath , which we have already dealt
+with). This, combined with Theorem 2.4 and the fact that @xmath and
+@xmath go to 1 as @xmath , implies that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+∎
+
+## Chapter 6 Counting Submodules
+
+In this chapter we shall prove Theorem 2.6 . This depends on estimating
+@xmath , the number of @xmath -orbits on subspaces of @xmath , via the
+Cauchy-Frobenius Lemma. To do this, we obtain in Theorem 6.2 an upper
+bound for the number of submodules of an @xmath -module, where @xmath .
+Theorem 6.3 strengthens this bound in a special case to deal with @xmath
+. Both theorems draw heavily on the theory of Hall polynomials, which
+count the number of submodules of fixed type and cotype of a finite
+module over a discrete valuation ring.
+
+### 6.1 The Number of Submodules of a Module
+
+Suppose @xmath is an @xmath -module. Let @xmath . We want to count the
+number of subspaces of @xmath (viewed as an @xmath -vector space) fixed
+by @xmath , which is the number of submodules of @xmath as a @xmath
+-module. We note that when @xmath is the natural @xmath -module, Eick
+and O’Brien [ 27 ] give an explicit formula for this number. The
+following preliminaries are based on Macdonald [ 66 , Chapter IV,
+Section 2] .
+
+Any @xmath -module @xmath can be viewed as an @xmath -module, where
+@xmath for all @xmath . Furthermore, the number of @xmath -submodules of
+@xmath equals the number of @xmath -submodules of @xmath . Let @xmath be
+the set of all polynomials in @xmath which are irreducible over @xmath ,
+and let @xmath be the set of all partitions of non-negative integers.
+Let @xmath be the set of all functions @xmath . Since @xmath is a
+principal ideal domain, @xmath has a unique decomposition of the form
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for some @xmath . Here, @xmath is the @xmath -th part of @xmath . Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+For each @xmath , let @xmath denote the localization of @xmath at the
+prime ideal @xmath . Then @xmath is a discrete valuation ring with
+residue field of order @xmath , and @xmath is a finite @xmath -module.
+We call @xmath the type of @xmath .
+
+Any submodule @xmath of @xmath can be written @xmath with @xmath for
+each @xmath . That is, every submodule of @xmath is the direct sum of
+submodules of the summands @xmath . By Macdonald [ 66 , Chapter II,
+Lemma 3.1] the type @xmath of any @xmath -submodule or quotient module
+of @xmath satisfies @xmath .
+
+Both Theorems 6.2 and 6.3 depend on Theorem 6.1 , where we calculate the
+number of submodules of fixed type in a module of fixed type over a
+discrete valuation ring. This generalizes Birkhoff’s formula for the
+number of subgroups of a finite abelian @xmath -group (see [ 8 ] ); to
+recover Birkhoff’s result, let @xmath be the ring of @xmath -adic
+integers. The reliance of Theorem 6.1 (and its proof) on the theory of
+Hall polynomials is hidden in the citation of results from Macdonald [
+66 , Chapter II] . While we will not pursue this connection, it should
+be noted that the quantity @xmath appearing in Theorem 6.1 is equal to
+@xmath , where @xmath is the Hall polynomial corresponding to @xmath ,
+@xmath , and @xmath , and so Theorem 6.1 can also be phrased as a result
+about a sum of Hall polynomials.
+
+###### Theorem 6.1.
+
+Let @xmath be a discrete valuation ring with maximal ideal @xmath and
+let @xmath be the residue field of order @xmath . Let @xmath and @xmath
+be partitions with @xmath and let @xmath be a finite @xmath -module of
+type @xmath . Then the number of submodules of @xmath of type @xmath is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is taken to be @xmath .
+
+###### Proof.
+
+The proof is by induction on @xmath . If @xmath , then @xmath and the
+result holds. Suppose @xmath , and let the smallest part of @xmath be
+@xmath , so that either @xmath and @xmath , or @xmath and @xmath . Write
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let @xmath be any submodule of @xmath of type @xmath , and let @xmath be
+any element of @xmath with @xmath , @xmath , and @xmath . Then @xmath
+has type @xmath . There are @xmath choices for @xmath , and for each
+@xmath it follows from [ 66 , Chapter II, Equation 1.8] that the number
+of choices for @xmath is just
+
+  -- -------- -- -------
+     @xmath      (6.1)
+  -- -------- -- -------
+
+On the other hand, fix a submodule @xmath of @xmath of type @xmath ; we
+can count the number of choices of @xmath and @xmath so that @xmath .
+Here @xmath is a submodule of @xmath of type @xmath whose quotient has
+type @xmath , and by [ 66 , Chapter II, Equation 4.13] , the number of
+choices for @xmath is
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+Given @xmath , it follows from [ 66 , Chapter II, Equation 1.8] that
+there are
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+choices for @xmath . Thus any submodule @xmath of @xmath of type @xmath
+arises as @xmath in
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+ways. The total number of submodules @xmath of @xmath of type @xmath is
+then
+
+  -- -------- -------- -------- -------- -------
+     @xmath   @xmath   @xmath            (6.2)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- -------
+
+where the second inequality uses @xmath . By induction, we know that
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+                       @xmath   
+                       @xmath   
+              @xmath   @xmath   
+                       @xmath   
+              @xmath   @xmath   
+                       @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Substituting this expression into Equation 6.2 gives the result. ∎
+
+Using Theorem 6.1 , the techniques of Appendix A , and the definitions
+of @xmath and @xmath from Equation 2.2 , we can give an upper bound for
+the total number of submodules of a finite @xmath -module @xmath . Note
+that every subspace of @xmath is a @xmath -module if and only if @xmath
+acts as a scalar on @xmath , that is, as multiplication by an element of
+@xmath .
+
+###### Theorem 6.2.
+
+Fix @xmath and @xmath . Suppose that @xmath is an @xmath -module. Let
+@xmath and let @xmath be the number of submodules of @xmath . Then
+either @xmath acts as a scalar on @xmath and @xmath , or @xmath does not
+act as a scalar and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath .
+
+###### Proof.
+
+Write @xmath , where for each @xmath , @xmath for some @xmath and @xmath
+.
+
+Case 1: @xmath .
+
+Each submodule of @xmath is a direct sum of submodules of the summands
+@xmath , so @xmath . Then by Lemma A.2 ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+since @xmath .
+
+Case 2: @xmath .
+
+In this case, @xmath for some @xmath . Let @xmath and @xmath , and let
+@xmath have type @xmath as a @xmath -module, where @xmath .
+
+Subcase 2.1: @xmath has at least two parts .
+
+If @xmath and @xmath , then by Theorem 6.1 and Lemma A.2 Equation A.1 ,
+the number of submodules of @xmath of type @xmath is
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Thus
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where the last inequality follows from Lemma A.1 . Now @xmath and @xmath
+so, remembering that @xmath and using Lemma A.6 ,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+if @xmath . For @xmath ,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Subcase 2.2: @xmath has one part .
+
+In this case, @xmath . If @xmath , then by Lemma A.2 Equation A.1 ,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+since @xmath . On the other hand, if @xmath , then @xmath for some
+@xmath and @xmath so that @xmath acts as the scalar @xmath on @xmath and
+@xmath . ∎
+
+The next theorem strengthens the preceding result when the module
+structure is known more precisely and will be needed to deal with groups
+of lower @xmath -length 2.
+
+###### Theorem 6.3.
+
+Fix @xmath and @xmath with @xmath . Suppose that @xmath is an @xmath
+-module on which @xmath acts non-trivially and that @xmath is an @xmath
+-module extension of @xmath by @xmath . Let @xmath , let @xmath , and
+let @xmath be the number of submodules of @xmath . Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+First, if @xmath , then @xmath . In this case,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+proving the result. So we may assume that @xmath .
+
+Write @xmath , where for each @xmath , @xmath for some @xmath and @xmath
+; we may assume that @xmath . Note that @xmath . Then @xmath where
+@xmath is the projection from @xmath onto @xmath .
+
+Fix @xmath and set @xmath . Also let @xmath . Then @xmath since any
+submodule of @xmath is a direct sum of submodules of the summands @xmath
+. By Lemma A.2 ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+When @xmath , it follows that
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+proving the result. If we cannot choose @xmath so that @xmath , then
+since @xmath implies that @xmath , it must be that @xmath and @xmath .
+Write @xmath ; then @xmath . (It is possible that @xmath is the zero
+module and that @xmath .) At this point we need to prove a technical
+claim which we will use twice.
+
+Claim: Suppose that @xmath is the direct sum of @xmath -modules @xmath
+and @xmath of dimensions @xmath and @xmath over @xmath , and suppose
+that @xmath . If @xmath acts as a scalar @xmath on @xmath , then @xmath
+and @xmath is the direct sum of @xmath copies of @xmath .
+
+Proof of claim: If @xmath , then @xmath . If @xmath acts as a scalar
+@xmath on @xmath , then @xmath and @xmath with @xmath . In this case
+@xmath acts as the scalar @xmath on @xmath , so @xmath . If @xmath ,
+then @xmath and hence @xmath . But then @xmath , which is impossible.
+Therefore @xmath . Since @xmath acts on @xmath non-trivially, the action
+on @xmath is non-trivial and @xmath is the direct sum of @xmath copies
+of @xmath .
+
+Now take @xmath and @xmath so that @xmath . Suppose that @xmath acts on
+@xmath as a scalar @xmath . Since @xmath and @xmath , we see that @xmath
+, and by the claim, @xmath and @xmath is the direct sum of @xmath copies
+of @xmath . If @xmath is the zero module, this contradicts the fact that
+@xmath acts non-trivially on @xmath . Otherwise, @xmath . Since @xmath
+is the image of @xmath , it follows that @xmath , and @xmath , which is
+false. Therefore @xmath does not act on @xmath as a scalar, and hence
+does not act on @xmath as a scalar.
+
+We may assume that @xmath where @xmath has degree @xmath over @xmath and
+@xmath and @xmath have types @xmath and @xmath respectively, where
+@xmath . Write @xmath and @xmath .
+
+Case 1: @xmath .
+
+Writing @xmath for the number of submodules of @xmath , we have
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Then
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where the last line uses the fact that @xmath . Thus @xmath .
+
+Case 2: @xmath .
+
+In this case, @xmath for some @xmath . Since @xmath does not act as a
+scalar on @xmath or @xmath , we know @xmath .
+
+By Equation 6.1 ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+so
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Subcase 2.1: @xmath
+
+If @xmath , then
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+If @xmath , then
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Finally, if @xmath , then by Lemma A.6 , we get
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+The right-hand side is maximized at @xmath or @xmath . Since @xmath and
+@xmath , it turns out that it is maximized at @xmath , where we get a
+bound of @xmath .
+
+Subcase 2.2: @xmath .
+
+So we may assume that @xmath . Then @xmath , and so @xmath . Since
+@xmath , it follows that @xmath and @xmath . Note that @xmath is the
+number of summands of @xmath that are isomorphic to @xmath . So write
+@xmath , where @xmath and @xmath acts as the scalar @xmath on @xmath and
+not on @xmath . Set @xmath . Then @xmath and by the claim, @xmath and
+@xmath is a direct sum of @xmath copies of @xmath . Then @xmath is
+contained in @xmath plus the components of @xmath that @xmath does not
+act as a scalar on, so that @xmath , which is impossible. ∎
+
+### 6.2 A Proof of Theorem 2.6
+
+We can now prove Theorem 2.6 and Corollary 2.7 , restated here for
+convenience.
+
+###### Theorem 2.6.
+
+Fix a prime @xmath and integers @xmath and @xmath so that either @xmath
+and @xmath or @xmath and @xmath . Let @xmath be the free group of rank
+@xmath and let @xmath be the dimension of @xmath . Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then
+
+1.  -- -- --
+            
+      -- -- --
+
+2.  -- -------- --
+         @xmath   
+      -- -------- --
+
+###### Proof.
+
+Let @xmath be the set of elements of @xmath fixed by @xmath . Then
+@xmath is just the number of submodules of @xmath viewed as a @xmath
+-module. We explain first why only the identity element of @xmath can
+act as a scalar on @xmath . By Corollary 4.11 , @xmath has a @xmath
+-submodule @xmath which is isomorphic to an extension of @xmath by
+@xmath , where @xmath is the natural @xmath -module. If @xmath acts on
+@xmath as a scalar @xmath , then it acts on @xmath as the scalar @xmath
+, and hence on @xmath as the scalar @xmath . Thus @xmath and @xmath , so
+that @xmath is the identity on @xmath , that is, the identity element in
+@xmath .
+
+Suppose first that @xmath . We know from Theorem 6.2 that if @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+By the Cauchy-Frobenius Lemma,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+By Equation A.2 and the fact that @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Since @xmath , it follows that
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+If @xmath , then @xmath is an extension of @xmath by @xmath , and using
+the estimates of Lemma 6.3 and the argument above we obtain
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+This proves part @xmath .
+
+To prove part @xmath , we observe that @xmath , where the sum is over
+all @xmath -orbits in @xmath and @xmath is the order of the stabilizer
+in @xmath of any element @xmath of the orbit under consideration. Now
+@xmath is just the number of orbits for which @xmath , so
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+That is,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+so that
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+∎
+
+###### Corollary 6.4.
+
+If @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If @xmath , then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If @xmath and @xmath , or @xmath and @xmath , or @xmath and @xmath ,
+then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+It is clear from Theorem 2.6 that the first two limits hold. For the
+third limit, note that by Lemma A.4 Equation A.5 ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for all values of @xmath and @xmath for which Equation A.5 holds. For
+the finitely many values of @xmath and @xmath for which Equation A.5
+does not hold but @xmath and @xmath , or @xmath and @xmath , or @xmath
+and @xmath , a computer check shows that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Combined with Theorem 2.6 , this shows that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for the given values of @xmath and @xmath . ∎
+
+## Chapter 7 A Survey on the Automorphism Groups of Finite @xmath-Groups
+
+This chapter constitutes a survey of some of what is known about the
+automorphism groups of finite @xmath -groups. The focus is on three
+topics: explicit computations for familiar finite @xmath -groups;
+constructions of finite @xmath -groups whose automorphism groups satisfy
+certain conditions; and the discovery of finite @xmath -groups whose
+automorphism groups are or are not @xmath -groups themselves.
+
+### 7.1 The Automorphisms of Familiar @xmath-Groups
+
+There are several familiar families of finite @xmath -groups for which
+some information about their automorphism groups is known. In
+particular, for a couple of these families, the automorphism groups have
+been described in a reasonably complete manner. The goal of this section
+to present these results as concretely as possible. We begin with a
+nearly exact determination of the automorphism groups of the
+extraspecial @xmath -groups. The next subsection discusses the maximal
+unipotent subgroups of Chevalley groups, for which Gibbs [ 31 ]
+describes six types of automorphisms that generate the automorphism
+group. For type @xmath , Pavlov [ 80 ] and Weir [ 94 ] have
+(essentially) computed the exact structure of the automorphism group.
+The last three subsections summarize what is known about the
+automorphism groups of the Sylow @xmath -subgroups of the symmetric
+group, @xmath -groups of maximal class, and certain stem covers. We note
+that Barghi and Ahmedy [ 6 ] claim to determine the automorphism group
+of a class of special @xmath -groups constructed by Verardi [ 90 ] ;
+unfortunately, as pointed out in the MathSciNet review of [ 6 ] , the
+proofs are incorrect.
+
+#### 7.1.1 The Extraspecial @xmath-Groups
+
+Winter [ 97 ] gives a nearly complete description of the automorphism
+group of an extraspecial @xmath -group. (Griess [ 35 ] states many of
+these results without proof.) Following Winter’s exposition, we will
+present some basic facts about extraspecial @xmath -groups and then
+describe their automorphisms.
+
+Recall that a finite @xmath -group @xmath is special if either @xmath is
+elementary abelian or @xmath . Furthermore, a non-abelian special @xmath
+-group @xmath is extraspecial if @xmath . The order of an extraspecial
+@xmath -group is always an odd power of @xmath , and there are two
+isomorphism classes of extraspecial @xmath -groups of order @xmath for
+each prime @xmath and positive integer @xmath , as proved in Gorenstein
+[ 34 , Theorem 5.2] . When @xmath , both isomorphism classes have
+exponent @xmath . When @xmath is odd, one of these isomorphism classes
+has exponent @xmath and the other has exponent @xmath .
+
+Any extraspecial @xmath -group @xmath of order @xmath has generators
+@xmath satisfying the following relations, where @xmath is a fixed
+generator of @xmath :
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+When @xmath is odd, either @xmath for @xmath , in which case @xmath has
+exponent @xmath , or @xmath and @xmath for @xmath , in which case @xmath
+has exponent @xmath . When @xmath , either @xmath for @xmath , or @xmath
+and @xmath for @xmath .
+
+Recall that if two groups @xmath and @xmath have isomorphic centers
+@xmath , then the central product of @xmath and @xmath is the group
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+All extraspecial @xmath -groups can be written as iterated central
+products as follows. If @xmath is odd, let @xmath be the extraspecial
+@xmath -group of order @xmath and exponent @xmath , and let @xmath be
+the extraspecial @xmath -group of order @xmath and exponent @xmath . The
+extraspecial @xmath -group of order @xmath and exponent @xmath is the
+central product of @xmath copies of @xmath , while the extraspecial
+@xmath -group of order @xmath and exponent @xmath is the central product
+of @xmath copies of @xmath and one copy of @xmath . If @xmath , the
+extraspecial @xmath -group of order @xmath and @xmath is isomorphic to
+the central product of @xmath copies of the dihedral group @xmath ,
+while the extraspecial @xmath -group of order @xmath and @xmath is
+isomorphic to the central product of @xmath copies of @xmath and one
+copy of the quaternion group @xmath .
+
+One of the isomorphism classes can be viewed more concretely. The group
+of @xmath matrices with ones on the diagonal, arbitrary entries from
+@xmath in the rest of the first row and last column, and zeroes
+elsewhere is an extraspecial @xmath -group of order @xmath . When @xmath
+is odd, this is the extraspecial @xmath -group of exponent @xmath . When
+@xmath , this is the central product of @xmath copies of @xmath .
+
+In [ 97 ] , Winter states the following theorem on the automorphism
+groups of the extraspecial @xmath -groups for all primes @xmath (an
+explicit description of the automorphisms follows the theorem).
+
+###### Theorem 7.1 (Winter [97]).
+
+Let @xmath be an extraspecial @xmath -group of order @xmath . Let @xmath
+and let @xmath be the normal subgroup of @xmath which acts trivially on
+@xmath . Then
+
+1.  @xmath .
+
+2.  @xmath , where @xmath is an automorphism of order @xmath .
+
+3.   If @xmath is odd and @xmath has exponent @xmath , then @xmath , and
+    the order of @xmath is @xmath .
+
+4.   If @xmath is odd and @xmath has exponent @xmath , then @xmath ,
+    where @xmath is a normal extraspecial @xmath -group of order @xmath
+    , and the order of @xmath is @xmath . The group @xmath is isomorphic
+    to the subgroup of @xmath consisting of elements whose matrix @xmath
+    with respect to a fixed basis satisfies @xmath and @xmath for @xmath
+    .
+
+5.   If @xmath and @xmath is isomorphic to the central product of @xmath
+    copies of @xmath , then @xmath is isomorphic to the orthogonal group
+    of order @xmath that preserves the quadratic form @xmath over @xmath
+    .
+
+6.   If @xmath and @xmath is isomorphic to the central product of @xmath
+    copies of @xmath and one copy of @xmath , then @xmath is isomorphic
+    to the orthogonal group of order @xmath that preserves the quadratic
+    form @xmath over @xmath .
+
+The automorphisms in @xmath can be described more explicitly. First, the
+automorphism @xmath may be chosen as follows. Let @xmath be a primitive
+root modulo @xmath with @xmath . Then define @xmath by @xmath and @xmath
+for @xmath and by @xmath . Next, the inner automorphisms are the @xmath
+automorphisms @xmath such that @xmath and @xmath for each @xmath and
+some choice of integers @xmath .
+
+It remains to describe @xmath . For each @xmath , let @xmath denote the
+coset @xmath . Now @xmath becomes a non-degenerate symplectic space over
+@xmath with the symplectic form @xmath , where @xmath and @xmath . The
+symplectic group @xmath acts on @xmath , preserving the given symplectic
+form. Let @xmath and let @xmath be the matrix of @xmath relative to the
+basis @xmath (with @xmath ). Each element @xmath can be uniquely
+expressed as @xmath with @xmath . Define @xmath by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then @xmath induces @xmath on @xmath , and @xmath is an automorphism of
+@xmath if and only if @xmath is in the subgroup of @xmath to which
+@xmath is isomorphic (as given in statement 3, 4, 5, or 6 of Theorem 7.1
+, depending on @xmath and the isomorphism class of @xmath ).
+
+Note that the set of automorphisms @xmath does not necessarily
+constitute a subgroup of @xmath , and so it is not obvious that @xmath
+splits over @xmath (and Winter does not address this issue). However, as
+Griess proves in [ 35 ] , when @xmath , @xmath splits if @xmath and does
+not split if @xmath . Griess also states, but does not prove, that when
+@xmath is odd, @xmath always splits over @xmath . This observation is
+also made in, and can be deduced from, Isaacs [ 50 ] and [ 51 ] and
+Glasby and Howlett [ 32 ] .
+
+A short exposition of this proof when @xmath is odd and @xmath has
+exponent @xmath was communicated via the group-pub-forum mailing list by
+Isaacs [ 52 ] . Let @xmath be the central involution of the symplectic
+group @xmath , and let @xmath be a Sylow 2-subgroup of @xmath . Then
+@xmath is normal in @xmath , @xmath , and the non-identity element of
+@xmath acts on @xmath by sending each element to its inverse. Then
+@xmath . On the other hand, by the Frattini argument, @xmath , and since
+@xmath , it follows that @xmath . But this means that @xmath is a
+complement of @xmath in @xmath , and so @xmath splits over @xmath .
+According to Griess [ 35 ] , the proof when @xmath has exponent @xmath
+is more technical.
+
+#### 7.1.2 Maximal Unipotent Subgroups of a Chevalley Group
+
+Associated to any simple Lie algebra @xmath over @xmath and any field
+@xmath is the Chevalley group @xmath of type @xmath over @xmath . Table
+7.1 lists the Chevalley groups of types @xmath , @xmath , @xmath , and
+@xmath over the finite field @xmath , as given in Carter [ 12 ] . A few
+clarifications are necessary: the entry for type @xmath requires that
+@xmath have odd characteristic; @xmath is the orthogonal group which
+leaves the quadratic form @xmath invariant over @xmath ; and @xmath is
+the orthogonal group which leaves the quadratic form @xmath invariant
+over @xmath . Gibbs [ 31 ] examines the automorphisms of a maximal
+unipotent subgroup of a Chevalley group over a field of characteristic
+not two or three. We are only interested in finite groups, so from now
+on we will let @xmath , where @xmath has characteristic @xmath and
+@xmath . In this case, the maximal unipotent subgroups are the Sylow
+@xmath -subgroups of the Chevalley group. After some preliminaries on
+maximal unipotent subgroups, we will present his results.
+
+Let @xmath , @xmath , and @xmath denote the sets of roots, positive
+roots, and fundamental roots, respectively, of @xmath relative to some
+Cartan subalgebra. Then the Chevalley group @xmath is generated by
+@xmath . One maximal unipotent subgroup @xmath of @xmath is constructed
+as follows. As a set,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+For any @xmath and @xmath , the multiplication in @xmath is given by
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Here @xmath and @xmath are positive integers and @xmath are certain
+integers which depend on @xmath . The order of @xmath is @xmath , where
+@xmath , and @xmath is a Sylow @xmath -subgroup of @xmath .
+
+Gibbs [ 31 ] shows that @xmath is generated by six types of
+automorphisms, namely graph automorphisms, diagonal automorphisms, field
+automorphisms, central automorphisms, extremal automorphisms, and inner
+automorphisms. Let the subgroup of @xmath generated by each type of
+automorphism be denoted by @xmath , @xmath , @xmath , @xmath , @xmath ,
+and @xmath respectively. Let @xmath be the additive group generated by
+the roots of @xmath and let @xmath be the highest root. Label the
+fundamental roots @xmath .
+
+1.  Graph Automorphisms : An automorphism @xmath of @xmath that permutes
+    both @xmath and @xmath induces a graph automorphism of @xmath by
+    sending @xmath to @xmath for all @xmath and @xmath . Graph
+    automorphisms correspond to automorphisms of the Dynkin diagram, and
+    so types @xmath , @xmath , and @xmath have a graph automorphism of
+    order 2, while the graph automorphisms in type @xmath form a group
+    isomorphic to @xmath .
+
+2.  Diagonal Automorphisms : Every character @xmath of @xmath with
+    values in @xmath induces a diagonal automorphism which maps @xmath
+    to @xmath for all @xmath and @xmath .
+
+3.  Field Automorphisms : Every automorphism @xmath of @xmath induces a
+    field automorphism of @xmath which maps @xmath to @xmath for all
+    @xmath and @xmath .
+
+4.  Central Automorphisms : Let @xmath be endomorphisms of @xmath .
+    These induce a central automorphism that maps @xmath to @xmath for
+    @xmath and all @xmath .
+
+5.  Extremal Automorphisms : Suppose @xmath is a fundamental root such
+    that @xmath is also a root. Let @xmath . This determines an extremal
+    automorphism which acts trivially on @xmath for @xmath and sends
+    @xmath to
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    Here @xmath is a certain constant that depends on the type. In type
+    @xmath , @xmath is also a root, and the map that acts trivially on
+    @xmath for @xmath and sends @xmath to
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+    is also an automorphism of @xmath .
+
+Steinberg [ 88 ] showed that the automorphism group of a Chevalley group
+over a finite field is generated by graph, diagonal, field, and inner
+automorphisms, which shows that @xmath , @xmath , and @xmath are, in
+fact, subgroups of @xmath . It is easy to see that the central
+automorphisms are automorphisms, and a quick computation verifies this
+for the extremal automorphisms as well. Note that by multiplying an
+extremal automorphism by a judicious choice of central automorphism, the
+@xmath term in the description of the extremal automorphisms disappears.
+Therefore, it is legitimate to omit the @xmath term in the definition of
+an extremal automorphism, and this is what we will use for what follows.
+
+Gibbs does not compute the precise structure of @xmath . This has been
+done in type @xmath , however, for all characteristics; Pavlov [ 80 ]
+computes @xmath over @xmath , while Weir [ 94 ] computes it over @xmath
+(although his computations contain a mistake which we will address in a
+moment). We will present the result for type @xmath as explicitly as
+possible, pausing to note that it does seem feasible to compute the
+structure of @xmath for other types in a similar manner.
+
+As mentioned before, in type @xmath , we can view @xmath as the set of
+@xmath upper triangular matrices with ones on the diagonal and arbitrary
+entries from @xmath above the diagonal. There are @xmath positive roots
+in type @xmath , given by @xmath for @xmath . Let @xmath be the @xmath
+matrix with a @xmath in the @xmath -entry and zeroes elsewhere. Then
+@xmath , where @xmath . In particular, @xmath . In type @xmath , some of
+the given types of automorphisms admit simpler descriptions; we will be
+content to describe their action on the elements @xmath .
+
+As mentioned, in type @xmath there is one nontrivial graph automorphism
+of order @xmath , and it acts by sending @xmath to @xmath . The diagonal
+automorphisms correspond to selecting @xmath and mapping @xmath to
+@xmath . This is equivalent to conjugation by a diagonal matrix of
+determinant 1. The diagonal automorphisms form an elementary abelian
+subgroup of order @xmath . The field automorphisms of @xmath are
+generated by the Frobenius automorphism and form a cyclic subgroup of
+order @xmath .
+
+Let @xmath generate the additive group of @xmath . Then the elements
+@xmath for @xmath generate @xmath . The central automorphisms are
+generated by the automorphisms @xmath which send @xmath to @xmath and
+fix @xmath for @xmath and @xmath , where @xmath and @xmath . (When
+@xmath or @xmath , this automorphism is inner.) The extremal
+automorphisms are generated by the automorphism that sends @xmath to
+@xmath and fixes @xmath for @xmath and the automorphism that sends
+@xmath to @xmath and fixes @xmath for @xmath . Finally the inner
+automorphism group is, of course, isomorphic to @xmath (the center of
+@xmath is generated by @xmath ).
+
+It is not hard to use these descriptions to deduce that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Furthermore @xmath is elementary abelian of order @xmath , @xmath is
+elementary abelian of order @xmath , @xmath is cyclic of order @xmath ,
+and @xmath has order @xmath . It follows that the order of @xmath is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The error in Weir’s paper [ 94 ] stems from his claim that any @xmath
+acting on @xmath induces an automorphism of @xmath that maps @xmath to
+@xmath , generalizing the field automorphisms. However, it is clear that
+@xmath must, in fact, be a field automorphism, as for any @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Applying @xmath to all terms shows that @xmath .
+
+#### 7.1.3 Sylow @xmath-Subgroups of the Symmetric Group
+
+The automorphism groups of Sylow @xmath -subgroups of the symmetric
+group for @xmath were examined independently by Bondarchuk [ 9 ] and
+Lentoudis [ 60 , 61 , 62 , 63 ] . Their results are reasonably
+technical. They do show that the order of the automorphism group of the
+Sylow @xmath -subgroup of @xmath is
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Note that the Sylow- @xmath subgroup of @xmath is isomorphic to the
+@xmath -fold iterated wreath product of @xmath .
+
+#### 7.1.4 @xmath-Groups of Maximal Class
+
+A @xmath -group of order @xmath is of maximal class if it has nilpotence
+class @xmath . Many examples are given in [ 59 , Examples 3.1.5] , with
+the most familiar being the dihedral and quaternion groups of order
+@xmath when @xmath . It is not too hard to prove some basic results
+about the automorphism group of an arbitrary @xmath -group of maximal
+class. Our presentation follows Baartmans and Woeppel [ 4 , Section 1] .
+
+###### Theorem 7.2.
+
+Let @xmath be a @xmath -group of maximal class of order @xmath , where
+@xmath and @xmath is odd. Then @xmath has a normal Sylow @xmath
+-subgroup @xmath and @xmath has a @xmath -complement @xmath , so that
+@xmath . Furthermore, @xmath is isomorphic to a subgroup of @xmath .
+
+The proof of this theorem begins by observing that @xmath has a
+characteristic cyclic series @xmath ; that is, each @xmath is
+characteristic and @xmath is cyclic (see Huppert [ 48 , Lemmas 14.2 and
+14.4] ). By a result of Durbin and McDonald [ 25 ] , @xmath is
+supersolvable and so has a normal Sylow @xmath -subgroup @xmath with
+@xmath -complement @xmath , and the exponent of @xmath divides @xmath
+for some @xmath . The additional result about the structure of @xmath
+comes from examining the actions of @xmath on the characteristic cyclic
+series and on @xmath . Baartmans and Woeppel remark that the above
+theorem holds for any finite @xmath -group @xmath with a characteristic
+cyclic series.
+
+Baartmans and Woeppel [ 4 ] follow up these general results by focusing
+on automorphisms of @xmath -groups of maximal class of exponent @xmath
+with a maximal subgroup which is abelian. More specifically, the
+characteristic cyclic series can be taken to be a composition series, in
+which case @xmath for @xmath and @xmath . Baartmans and Woeppel assume
+that @xmath is abelian.
+
+In this case, they show by construction that @xmath . Furthermore,
+@xmath is metabelian of nilpotence class @xmath and order @xmath .
+(Recall that a metabelian group is a group whose commutator subgroup is
+abelian.) The group @xmath has order @xmath and maximal class @xmath .
+The commutator subgroup @xmath is the subgroup of @xmath induced by
+@xmath . Baartmans and Woeppel do explicitly describe the automorphisms
+of @xmath , but the descriptions are too complicated to include here.
+
+Other authors who investigate automorphisms of certain finite @xmath
+-groups of maximal class include: Abbasi [ 1 ] ; Miech [ 70 ] , who
+focuses on metabelian groups of maximal class; and Wolf [ 98 ] , who
+looks at the centralizer of @xmath in certain subgroups of @xmath .
+
+Finally, in [ 55 ] , Juhász considers more general @xmath -groups than
+@xmath -groups of maximal class. Specifically, he looks at @xmath
+-groups @xmath of nilpotence class @xmath in which @xmath and @xmath for
+@xmath . He refers to such groups as being of type @xmath . Groups of
+type @xmath are the @xmath -groups of maximal class of order @xmath .
+
+Assume that @xmath and @xmath . As with groups of maximal class, the
+automorphism group of a group @xmath of type @xmath is a semi-direct
+product of a normal Sylow @xmath -subgroup @xmath and its @xmath
+-complement @xmath , and @xmath is isomorphic to a subgroup of @xmath .
+Juhász’ results are largely technical, dealing with the structure of
+@xmath , especially when @xmath is metabelian.
+
+#### 7.1.5 Stem Covers of an Elementary Abelian @xmath-Group
+
+In [ 93 ] , Webb looks at the automorphism groups of stem covers of
+elementary abelian @xmath -groups. We start with some preliminaries on
+stem covers. A group @xmath is a central extension of @xmath by @xmath
+if @xmath is a normal subgroup of @xmath lying in @xmath and @xmath . If
+@xmath lies in @xmath as well, then @xmath is a stem extension of @xmath
+. The Schur multiplier @xmath of @xmath is defined to be the second
+cohomology group @xmath , and it turns out that @xmath is isomorphic to
+a subgroup of @xmath . Alternatively, @xmath can be defined as the
+maximum group @xmath so that there exists a stem extension of @xmath by
+@xmath . Such a stem extension is called a .
+
+Webb takes @xmath to be elementary abelian of order @xmath with @xmath
+odd and @xmath . Let @xmath be a stem cover of @xmath . Then @xmath and
+has order @xmath . Therefore @xmath are the automorphisms of @xmath
+which act trivially on @xmath . Each automorphism @xmath corresponds
+uniquely to a homomorphism @xmath via the relationship @xmath for all
+@xmath . Of course, @xmath is an elementary abelian @xmath -group of
+order @xmath , and so @xmath is an extension of a subgroup of @xmath by
+an elementary abelian @xmath -group of order @xmath . Webb proves that
+the subgroup of @xmath in question is usually trivial, leading to her
+main theorem.
+
+###### Theorem 7.3 (Webb [93]).
+
+Let @xmath be elementary abelian of order @xmath with @xmath odd. As
+@xmath , the proportion of stem covers of @xmath with elementary abelian
+automorphism group of order @xmath tends to 1.
+
+### 7.2 Quotients of Automorphism Groups
+
+Not every finite @xmath -group is the automorphism group of a finite
+@xmath -group. A recent paper in this vein is by Cutolo, Smith, and
+Wiegold [ 18 ] , who show that the only @xmath -group of maximal class
+which is the automorphism group of a finite @xmath -group is @xmath .
+But there are several extant results which show that certain quotients
+of the automorphism group can be arbitrary.
+
+#### 7.2.1 The Quotient @xmath
+
+###### Theorem 7.4 (Heineken and Liebeck [38]).
+
+Let @xmath be a finite group and let @xmath be an odd prime. There
+exists a finite @xmath -group @xmath of class @xmath and exponent @xmath
+such that @xmath .
+
+The construction given by Heineken and Liebeck can be described rather
+easily. Let @xmath be a group generated by elements @xmath . Let @xmath
+be the directed Cayley graph of @xmath relative to the given generators.
+Form a new digraph @xmath by replacing every arc in @xmath by a directed
+path of length @xmath if the original arc corresponded to the generator
+@xmath . Then @xmath .
+
+Let @xmath be the vertices of @xmath . Let @xmath be the @xmath -group
+generated by elements @xmath where
+
+1.  @xmath is the elementary abelian @xmath -group freely generated by
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+2.  For each vertex @xmath , if @xmath has outgoing arcs to @xmath ,
+    then
+
+      -- -------- --
+         @xmath   
+      -- -------- --
+
+Heineken and Liebeck show that @xmath when @xmath . (They give a special
+construction for @xmath .) As Webb [ 93 ] notes, @xmath is a special
+@xmath -group.
+
+They are actually able to determine the automorphism group of @xmath
+much more precisely, at least when @xmath . Let the vertices of @xmath
+be called group-points ; they are naturally identified with vertices of
+@xmath . Let @xmath be the set of vertices of @xmath consisting of the
+group-point @xmath corresponding to the identity of @xmath and all
+vertices that can be reached along a directed path from @xmath that does
+not pass through any other group-points. Assume that the vertices of
+@xmath are labeled so that @xmath are the elements of @xmath . The
+central automorphisms which fix @xmath generate an elementary abelian
+@xmath -group @xmath of dimension @xmath . Every central automorphism of
+@xmath is of the form @xmath , where the elements @xmath and @xmath are
+uniquely determined. Thus @xmath is the direct product of the conjugates
+of @xmath in @xmath and @xmath . It follows that @xmath has order @xmath
+, where @xmath and @xmath when @xmath and @xmath when @xmath .
+
+Lawton [ 57 ] modifies Heineken and Liebeck’s techniques to construct
+smaller groups @xmath with @xmath . He uses undirected graphs which are
+much smaller, and the @xmath -groups he defines is significantly
+simpler.
+
+Webb [ 92 ] uses similar, though more complicated techniques, to obtain
+further results. She defines a class of graphs called @xmath -graphs ;
+it turns out that almost all finite graphs are @xmath -graphs (that is,
+the proportion of graphs on @xmath vertices which are @xmath -graphs
+goes to 1 as @xmath goes to infinity). To each @xmath -graph @xmath ,
+Webb associates a special @xmath -group @xmath for which @xmath . The
+set of all special @xmath -groups that arise from @xmath -graphs on
+@xmath vertices is denoted by @xmath .
+
+###### Theorem 7.5 (Webb).
+
+Let @xmath be any prime. Then the proportion of groups in @xmath whose
+automorphism group is @xmath , where @xmath , goes to 1 as @xmath .
+
+The reason the group @xmath arises as the automorphism group is that for
+@xmath , @xmath is isomorphic to @xmath , and hence it is isomorphic to
+@xmath . Webb then shows that @xmath is usually trivial.
+
+###### Theorem 7.6 (Webb).
+
+Let @xmath be a finite group which is not cyclic of order five or less.
+Then for any prime @xmath , there is a special @xmath -group @xmath with
+@xmath .
+
+In particular, Theorem 7.6 extends Heineken and Liebeck’s result to the
+case @xmath . Note that in Theorems 7.4 and 7.6 , the constructed groups
+are special and @xmath , so that these theorems also prescribe @xmath .
+The @xmath analogue of Heineken and Liebeck’s result was discussed by
+Hughes [ 47 ] .
+
+#### 7.2.2 The Quotient @xmath
+
+Bryant and Kovács [ 10 ] look at prescribing the quotient @xmath ,
+taking a different approach from Heineken and Liebeck in that they
+assign @xmath as a linear group (and they do not bound the class of
+@xmath ).
+
+###### Theorem 7.7 (Bryant and Kovács [10]).
+
+Let @xmath be any prime. Let @xmath be a finite group with dimension
+@xmath as a linear group over @xmath . Then there exists a finite @xmath
+-group @xmath such that @xmath and @xmath .
+
+This theorem is non-constructive, in contrast to the results of Heineken
+and Liebeck. To understand the main idea, let @xmath be the free group
+of rank @xmath . By Theorems 3.7 and 3.8 , if @xmath is a normal
+subgroup of @xmath with @xmath , then @xmath is a finite @xmath -group
+and @xmath is isomorphic to the normalizer of @xmath in @xmath . Bryant
+and Kovács show that if @xmath is large enough, then @xmath contains a
+regular @xmath -module, which shows that any subgroup @xmath of @xmath
+occurs as the normalizer of some normal subgroup @xmath of @xmath with
+@xmath .
+
+### 7.3 Orders of Automorphism Groups
+
+The first two subsections in this section describe some general theorems
+about the orders of automorphism groups of finite @xmath -groups. The
+third subsection gives the order of the automorphism group of an abelian
+@xmath -group, and the last subsection offers many explicit examples of
+@xmath -groups whose automorphism group is a @xmath -group. As proved in
+Chapters 2 through 6 , in some asymptotic senses, the automorphism group
+of a finite @xmath -group is almost always a @xmath -group. However, as
+mentioned in Section 2.4 , the answer to the following question is
+unknown.
+
+###### Question.
+
+Let @xmath be the proportion of @xmath -groups with order at most @xmath
+whose automorphism group is a @xmath -group. Is it true that @xmath ?
+
+#### 7.3.1 Nilpotent Automorphism Groups
+
+In [ 99 ] , Ying states two results about the occurrence of automorphism
+groups of @xmath -groups which are @xmath -groups, the second being a
+generalization of a result of Heineken and Liebeck [ 37 ] .
+
+###### Theorem 7.8.
+
+If @xmath is a finite @xmath -group and @xmath is nilpotent, then either
+@xmath is cyclic or @xmath is a @xmath -group.
+
+###### Theorem 7.9.
+
+Let @xmath be an odd prime and let @xmath be a finite @xmath -group
+generated by two elements and with cyclic commutator subgroup. Then
+@xmath is not a @xmath -group if and only if @xmath is the semi-direct
+product of an abelian subgroup by a cyclic subgroup.
+
+Heineken and Liebeck [ 37 ] also have a criterion which determines
+whether or not a @xmath -group of class 2 and generated by two elements
+has an automorphism of order 2 or if the automorphism group is a @xmath
+-group. If @xmath is an odd prime and @xmath is a @xmath -group that
+admits an automorphism which inverts some non-trivial element of @xmath
+, then @xmath is an s.i. group (a some-inversion group). Clearly if
+@xmath is an s.i. group, it has an automorphism of order 2. If @xmath is
+not an s.i. group, it is called an n.i. group (a no-inversion group).
+
+###### Theorem 7.10.
+
+Let @xmath be an odd prime and let @xmath be a @xmath -group of class 2
+generated by two elements. Choose generators @xmath and @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and suppose that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+1.   If either @xmath or @xmath , then @xmath is an s.i. group.
+
+2.   If @xmath and @xmath with @xmath , and @xmath is non-negative, then
+    @xmath is an s.i. group.
+
+3.   If @xmath and @xmath are defined as in (2) and @xmath is negative,
+    then @xmath is an n.i. group and its automorphism group is a @xmath
+    -group.
+
+#### 7.3.2 Wreath Products
+
+For any group @xmath , let @xmath be the set of distinct prime factors
+of @xmath . In [ 46 ] , Horoševskiĭ gives the following two theorems on
+the order of the automorphism group of a wreath product.
+
+###### Theorem 7.11.
+
+Let @xmath and @xmath be non-trivial finite groups, and let @xmath be a
+maximal abelian subgroup of @xmath which can be distinguished as a
+direct factor of @xmath . Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Theorem 7.12.
+
+Let @xmath be non-trivial finite @xmath -groups. Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Thus given any finite @xmath -groups whose automorphism groups are
+@xmath -groups, we can construct infinitely many more by taking iterated
+wreath products.
+
+#### 7.3.3 The Automorphism Group of an Abelian @xmath-Group
+
+Macdonald [ 66 , Chapter II, Theorem 1.6] calculates the order of the
+automorphism group of an abelian @xmath -group using Hall polynomials.
+
+###### Theorem 7.13.
+
+Let @xmath be an abelian @xmath -group of type @xmath . Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is the number of parts of @xmath equal to @xmath , @xmath ,
+and @xmath .
+
+There are a variety of results in the literature on the automorphism
+groups of abelian @xmath -groups, of which we will mention three that
+are interesting and not so technical. Morgado [ 72 , 73 ] proves the
+following theorem about the splitting of the sequence @xmath described
+in Chapter 3 .
+
+###### Theorem 7.14.
+
+Let @xmath be an elementary abelian @xmath -group. Let @xmath be the
+subgroup of @xmath that acts trivially on @xmath and let @xmath be the
+subgroup of @xmath induced by the action of @xmath on @xmath . If @xmath
+, then the exact sequence @xmath splits if and only @xmath has type
+@xmath for some positive integer @xmath . If @xmath or @xmath , this
+condition is sufficient but not necessary.
+
+In a similar vein, Aviñó discusses the splitting of @xmath over a
+different naturally defined normal subgroup. A different type of result
+comes from Abraham [ 2 ] , who shows that for any integer @xmath and for
+@xmath , the automorphism group of any abelian @xmath -group G contains
+a unique subgroup which is maximal with respect to being normal and
+having exponent at most @xmath .
+
+#### 7.3.4 Other @xmath-Groups Whose Automorphism Groups are
+@xmath-Groups
+
+In this subsection, we collect constructions of finite @xmath -groups
+whose automorphism groups are @xmath -groups.
+
+The first example of a finite @xmath -group whose automorphism group is
+a @xmath -group was given by Miller [ 71 ] , who constructed a
+non-abelian group of order 64 with an abelian automorphism group of
+order 128. Generalized Miller’s construction, Struik [ 89 ] gave the
+following infinite family of 2-groups whose automorphism groups are
+abelian @xmath -groups:
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+                       @xmath   
+  -- -------- -------- -------- --
+
+where @xmath . ( @xmath can be expressed as a semi-direct product as
+well.) Struik shows that @xmath . (As noted in [ 89 ] , it turns out
+that Macdonald [ 65 , p. 237, Revision Problem #46] asks the reader to
+show that @xmath is an abelian @xmath -group.) Also, Jamali [ 53 ] has
+constructed, for @xmath and @xmath , a non-abelian @xmath -generator
+group of order @xmath with exponent @xmath and abelian automorphism
+group @xmath .
+
+More examples of 2-groups whose automorphism groups are 2-groups are
+given by Newman and O’Brien [ 77 ] . As an outgrowth of their
+computations on @xmath -groups of order dividing 128, they present
+(without proof) three infinite families of 2-groups for which @xmath .
+They are, for @xmath ,
+
+1.  @xmath ,
+
+2.  @xmath , and
+
+3.  @xmath .
+
+Moving on to finite @xmath -groups where @xmath is odd, for each @xmath
+Horoševskiĭ [ 45 ] constructs a @xmath -group with nilpotence class
+@xmath whose automorphism group is a @xmath -group, and for each @xmath
+he constructs a @xmath -group on @xmath generators for each @xmath whose
+automorphism group is a @xmath -group. (He gives explicit presentations
+for these groups.)
+
+Curran [ 15 ] shows that if @xmath , then there is exactly one group of
+order @xmath whose automorphism group is a @xmath -group (and it has
+order @xmath ). It has the following presentation:
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+                       @xmath   
+  -- -------- -------- -------- --
+
+When @xmath , there are no groups of order @xmath whose automorphism
+group is a @xmath -group. However, in this case, there are three groups
+of order @xmath which have no automorphisms of order 2. Curran also
+shows that @xmath is the smallest order of a @xmath -group which can
+occur as an automorphism group (when @xmath is odd).
+
+Then, in [ 16 ] , Curran constructs 3-groups @xmath of order @xmath with
+@xmath where @xmath and @xmath -groups @xmath for certain primes @xmath
+with @xmath . The MathSciNet review of [ 16 ] remarks that F. Menegazzo
+notes that for odd @xmath and @xmath , the automorphism group of
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+has order @xmath .
+
+Ban and Yu [ 5 ] prove the existence of a group @xmath of order @xmath
+with @xmath , for @xmath and @xmath . In [ 37 ] , Heineken and Liebeck
+construct a @xmath -group of order @xmath and exponent @xmath for each
+odd prime @xmath which has an automorphism group of order @xmath .
+
+Jonah and Konvisser [ 54 ] exhibit @xmath nonisomorphic groups of order
+@xmath with elementary abelian automorphism group of order @xmath for
+each prime @xmath . All of these groups have elementary abelian and
+isomorphic commutator subgroups and commutator quotient groups, and they
+are nilpotent of class two. All their automorphisms are central.
+
+Malone [ 67 ] gives more examples of @xmath -groups in which all
+automorphisms are central: for each odd prime @xmath , he constructs a
+nonabelian finite @xmath -group @xmath with a nonabelian automorphism
+group which comprises only central automorphisms. Moreoever, his proof
+shows that if @xmath is any nonabelian finite @xmath -group with @xmath
+and @xmath , then the direct product of @xmath with a cyclic group of
+order @xmath has the required property for @xmath .
+
+Caranti and Scoppola [ 11 ] show that for every prime @xmath , if @xmath
+, there is a metabelian @xmath -group of maximal class of order @xmath
+which has automorphism group of order @xmath , and if @xmath , there is
+a metabelian @xmath -group of maximal class of order @xmath with an
+automorphism group of order @xmath . They also show the existence of
+non-metabelian @xmath -groups ( @xmath ) of maximal class whose
+automorphism groups have orders @xmath and @xmath .
+
+## Chapter 8 An Application of Automorphisms of @xmath-Groups
+
+Given all of the preceding information on the automorphism groups of
+finite @xmath -groups, we would like to consider the connections between
+these automorphism groups and topics outside of group theory. The
+connection we will explore in this chapter involves a certain Markov
+chain on a finite @xmath -group that has been “twisted” by a simple
+automorphism of the group. In Section 8.1 , we bound the convergence
+rate of this Markov chain. This generalizes results of Chung, Diaconis,
+and Graham [ 13 ] .
+
+There are two appearances of automorphisms of finite @xmath -groups in
+other contexts that we will mention but will not explore. One is that if
+we have a group @xmath , a subgroup @xmath of @xmath , and a random walk
+on @xmath driven by a probability measure constant on the @xmath -orbits
+in @xmath , then the random walk projects to a Markov chain on the
+@xmath -orbits in @xmath . A classical example of this is the fact that
+a standard random walk on the hypercube projects to the Ehrenfest urn
+model. See Diaconis [ 20 , Section 3A.3] for more information.
+
+Automorphisms of @xmath -groups also arise in supercharacter theory,
+which has been developed recently in the work of Diaconis and Isaacs [
+22 ] and Diaconis and Thiem [ 24 ] , generalizing results of André, Yan,
+and others. One way to construct a supercharacter theory on a group
+@xmath uses the action of a subgroup of @xmath on @xmath . Neither the
+projection construction nor the supercharacter construction involving
+automorphisms seems to have been explored in general.
+
+### 8.1 A Twisted Markov Chain
+
+We begin this section by reviewing some basic facts about probabilities
+on groups. Let @xmath be a finite group and let @xmath and @xmath be
+probabilities on @xmath . The convolution @xmath is the probability on
+@xmath defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The Fourier transform @xmath of @xmath is defined on representations
+@xmath of @xmath by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Convolution and the Fourier transform are related by the equation @xmath
+. The total variation distance between @xmath and @xmath is given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The Upper Bound Lemma of Diaconis and Shahshahani [ 23 ] bounds the
+total variation distance between @xmath and the uniform distribution
+@xmath using the Fourier transform:
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath denote complex conjugation. The inequality is an
+application of the Cauchy-Schwartz inequality, the intermediate term is
+the chi-square distance between @xmath and @xmath , and the equality
+follows from the Plancherel Theorem. When @xmath is abelian, the Upper
+Bound Lemma reduces to
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Now we can proceed to discuss certain Markov chains on @xmath . Suppose
+that @xmath is an automorphism of @xmath and @xmath is a probability on
+@xmath . Let @xmath be the identity element @xmath of @xmath , and
+define random variables @xmath on @xmath by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where the @xmath are independent random variables on @xmath , each with
+distribution @xmath . Then @xmath is a Markov chain. Let @xmath be the
+probability distribution induced by @xmath . We can express @xmath as a
+simple convolution of probabilities by writing
+
+  -- -------- -- -------
+     @xmath      (8.1)
+  -- -------- -- -------
+
+Then @xmath , where @xmath denotes the probability distribution given by
+@xmath . We would like to know bounds on the distance @xmath ; that is,
+how fast does @xmath converge to the uniform distribution?
+
+Various cases of this Markov chain have been examined by several
+authors. Chung, Diaconis, and Graham [ 13 ] analyze @xmath when @xmath ,
+where @xmath is an odd prime, @xmath is multiplication by 2, and @xmath
+. They show that the chain converges in @xmath steps. Furthermore,
+although this is the correct rate of convergence for infinitely many
+@xmath , the correct rate of convergence is @xmath time for almost all
+@xmath (although no infinite sequence of primes @xmath for which this is
+true is known). They also discuss some other choices of @xmath and
+@xmath .
+
+The motivation in [ 13 ] stems from the theory of pseudorandom number
+generators. The Markov chain @xmath on @xmath when @xmath is the
+identity automorphism and @xmath takes @xmath steps to converge. The
+Markov chain analyzed by Chung, Diaconis, and Graham requires the same
+number of random bits but converges much faster. For the general
+problem, we can view @xmath as a “twist” of the Markov chain obtained
+when @xmath is the identity automorphism. Intuitively, we might expect
+that the twisted chain converges faster (or at least as fast). If so, it
+would be interesting to know when the convergence of a Markov chain can
+be sped up by twisting it with an automorphism.
+
+Diaconis and Graham [ 21 ] analyze @xmath when @xmath , @xmath is
+multiplication by a matrix in a specific conjugacy class of @xmath , and
+@xmath is the probability on @xmath satisfying @xmath and @xmath with
+@xmath . They show that the chain converges in @xmath time.
+
+Asci [ 3 ] examines the case when @xmath and @xmath is a general element
+of @xmath , generalizing the work of Chung, Diaconis, and Graham. Asci
+shows that the Markov chain converges in @xmath steps in general, while
+if @xmath has integer eigenvalues which are all neither 1 nor -1, then
+@xmath steps suffice. Also, if @xmath has integer eigenvalues and
+exactly one eigenvalue has absolute value 1, then @xmath steps are
+necessary and sufficient for convergence.
+
+In this section, we sharpen Asci’s results in certain cases. In the
+context of the general problem, we consider the group @xmath , where
+@xmath is an odd prime. The automorphism @xmath will be multiplication
+by a diagonalizable matrix in @xmath , and @xmath will satisfy @xmath
+and @xmath , where @xmath is the @xmath -th unit vector, @xmath , and
+@xmath . In Subsection 8.1.1 , we prove an upper bound on the
+convergence rate of @xmath . In Subsection 8.1.2 , we consider a special
+case of @xmath and show that in this case, the convergence rate is
+within a constant multiple of the upper bound. Our methods are largely
+direct generalizations of the methods of Chung, Diaconis, and Graham
+used in [ 13 ] .
+
+Before moving on the statements and proofs, it should be mentioned that
+Hildebrand [ 42 , 43 , 44 ] has written several papers generalizing the
+work of Chung, Diaconis, and Graham so that at each step of the Markov
+chain on @xmath , the automorphism @xmath is chosen independently from a
+fixed probability distribution on @xmath . Among many other results,
+Hildebrand shows that in all non-trivial cases, the Markov chain
+converges in @xmath steps, and under more restrictive conditions, the
+Markov chain converges in @xmath steps.
+
+#### 8.1.1 An Upper Bound on the Convergence Rate
+
+For the remainder of this section, let @xmath and define a probability
+distribution @xmath on @xmath by @xmath and @xmath , where @xmath is the
+@xmath -th unit vector, @xmath , and @xmath . Suppose @xmath is
+diagonalizable (over @xmath ) and has eigenvalues @xmath . Let @xmath be
+the Markov chain on @xmath given by @xmath and @xmath , where the @xmath
+are independent random variables with distribution @xmath , and let
+@xmath be the probability distribution on @xmath induced by @xmath .
+
+The upper bound we derive for the convergence rate of @xmath depends on
+the simpler Markov chain that is obtained when @xmath and is discussed
+in [ 13 ] . Define a Markov chain @xmath on @xmath by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath is a non-zero element of @xmath and the @xmath are
+independent random variables with distribution @xmath , where @xmath and
+@xmath . Write @xmath for the measure induced by @xmath . Write @xmath
+for the expression given by the Upper Bound Lemma for @xmath . The
+irreducible characters of @xmath are @xmath for @xmath . Therefore,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+In particular, when @xmath , the proof of [ 13 , Theorem 1] directly
+extends to show that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath , @xmath , and @xmath . We will apply this result to our
+chain in Corollary 8.2 ; analogous results for other @xmath would lead
+to analogous results for @xmath . Returning to our chain @xmath , we can
+bound the convergence rate of @xmath using the expressions @xmath .
+
+###### Theorem 8.1.
+
+Let @xmath be an odd prime. Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+The matrix @xmath is diagonalizable, so we can choose @xmath so that
+@xmath is a diagonal matrix (with entries @xmath ). Define a new Markov
+chain @xmath on @xmath by @xmath and @xmath , where the @xmath are
+independent random variables with distribution @xmath . From Equation
+8.1 , we see that the random variable @xmath is identically distributed
+to @xmath . Thus @xmath and @xmath are equal, and we may assume that
+@xmath is a diagonal matrix. (Diaconis and Graham [ 21 ] were the first
+to observe that the convergence rate of the Markov chain only depends on
+the conjugacy class of @xmath , or the conjugacy class of @xmath in
+@xmath in the general case.)
+
+The measure @xmath is the convolution of the measures @xmath , given by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath . The Fourier transform of @xmath is given by
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Let @xmath . By the Upper Bound Lemma,
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+By the arithmetic-geometric mean inequality and the fact that @xmath for
+all @xmath ,
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+Finally, the inequalities @xmath for @xmath and @xmath for all @xmath
+and @xmath show that
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+∎
+
+###### Corollary 8.2.
+
+Let @xmath . When @xmath and @xmath , if @xmath for @xmath , then @xmath
+.
+
+###### Proof.
+
+Let @xmath . By Theorem 8.1 and the previous comment bounding @xmath ,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+∎
+
+#### 8.1.2 A Lower Bound on the Convergence Rate
+
+In this subsection, we will show that when @xmath , @xmath , and @xmath
+, the upper bound given by Corollary 8.2 for the rate of convergence of
+the Markov chain @xmath defined in Subsection 8.1.1 is correct up to a
+constant multiple.
+
+###### Theorem 8.3.
+
+Suppose @xmath is prime. For the Markov chain @xmath with @xmath and
+@xmath , if
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for large @xmath .
+
+###### Proof.
+
+Our proof uses the Second Moment Method developed by Wilson; see [ 83 ]
+for more details. For any function @xmath and any constants @xmath ,
+Chebyshev’s inequality says that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+If @xmath and @xmath denote the complements of the sets in question and
+they are disjoint, then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+To prove the theorem, it is enough to choose an appropriate function
+@xmath so that if @xmath and @xmath is large enough, then @xmath and
+@xmath are disjoint. Define @xmath to be the function
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath . Let @xmath with @xmath to be chosen later. Recall that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The expectation and variance of @xmath under the uniform distribution
+@xmath and the distribution @xmath on @xmath are calculated in Lemma B.1
+. Let
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Then, by Lemma B.1 ,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Using this information in the bounds obtained by Chebyshev’s inequality
+(with @xmath ) gives
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Choose @xmath to be an even integer of the form
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+To show that @xmath and @xmath are disjoint for large enough @xmath , it
+is enough to show that @xmath and @xmath as @xmath . The first fact is
+proved in Lemma B.2 and the second fact is proved in Lemma B.8 . The
+theorem follows from this and the bound @xmath obtained from Lemma B.2 .
+∎
+
+## Appendix A Numerical Estimates for Theorem 2.1
+
+The purpose of this section is to prove several estimates needed in
+Chapters 5 and 6 . Most of the estimates involve Gaussian coefficients,
+and so we will begin with the relevant definitions and bounds on the
+Gaussian coefficients obtained by Wilf [ 96 ] .
+
+The Gaussian coefficient (also called the @xmath -binomial coefficient )
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is the number of @xmath -dimensional subspaces of a vector space of
+dimension @xmath over @xmath . We shall be concerned with estimates for
+@xmath and for the Galois number
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+which is the total number of subspaces of a vector space of dimension
+@xmath over @xmath . (A survey of these numbers is given by Goldman and
+Rota [ 33 ] .) First we need a technical lemma.
+
+###### Lemma A.1.
+
+Let @xmath and define
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Let @xmath with @xmath . For any pair of integers @xmath , set
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then @xmath for some real number @xmath .
+
+###### Proof.
+
+Suppose the maximum of @xmath in @xmath occurs at @xmath . The global
+maximum of @xmath occurs at @xmath , so one of three cases holds: @xmath
+, @xmath , or @xmath . In each case, if @xmath , then
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+Thus
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+and it suffices to show that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath . To prove this inequality, define the theta function
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath . Jacobi’s functional equation for this function (see
+Whittaker and Watson [ 95 , Section 21.51] ) asserts that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where @xmath denotes @xmath for @xmath . The function @xmath is related
+to the theta function as follows:
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where @xmath . Applying the functional equation leads to
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+This completes the proof. ∎
+
+For @xmath , define
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Note that both @xmath and @xmath decrease to 1 as @xmath . If @xmath ,
+then @xmath and @xmath . The following estimates on Gaussian
+coefficients and Galois numbers were either obtained by Wilf [ 96 ] or
+follow from his work.
+
+###### Lemma A.2.
+
+Let @xmath be a prime power. Then
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (A.1)
+     @xmath   @xmath   @xmath      
+              @xmath   @xmath      
+              @xmath   @xmath      
+  -- -------- -------- -------- -- -------
+
+###### Proof.
+
+Equation A.1 and @xmath are proved in [ 96 ] . The inequality @xmath
+follows from Lemma A.1 , taking @xmath and noting that @xmath for all
+@xmath . This proves @xmath .
+
+The lower bound for @xmath is slightly more complicated, but it is easy
+to see from [ 96 ] , Lemma A.1 , and the definition of @xmath that
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where the last inequality uses the fact that @xmath . ∎
+
+Next we will find numerical bounds for @xmath , the rank of @xmath .
+These are needed for Lemma A.5 and Theorems 2.5 and 2.7 . Recall that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Lemma A.3.
+
+For any positive integer @xmath and @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+For any @xmath and @xmath , the expression
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+counts (for example) the number of infinite @xmath -ary sequences with
+(minimum) period @xmath . This is at most @xmath , the number of
+infinite @xmath -ary sequences whose period divides @xmath . Thus
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We will prove the claim by induction on @xmath . When @xmath , this is
+trivially true. When @xmath ,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+and the claim is true. Now suppose @xmath and assume that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Then
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+The claim holds by induction. ∎
+
+###### Lemma A.4.
+
+Suppose @xmath and @xmath or @xmath and @xmath . Then
+
+  -- -------- -- -------
+     @xmath      (A.3)
+  -- -------- -- -------
+
+and
+
+  -- -------- -- -------
+     @xmath      (A.4)
+  -- -------- -- -------
+
+Suppose @xmath and @xmath , or @xmath and @xmath , or @xmath and @xmath
+, or @xmath and @xmath . Then
+
+  -- -------- -- -------
+     @xmath      (A.5)
+  -- -------- -- -------
+
+###### Proof.
+
+By the definition of @xmath and Lemma A.3 ,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+To prove Equation A.3 for given values of @xmath and @xmath , it is
+certainly sufficient to show that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+or equivalently that
+
+  -- -------- -- -------
+     @xmath      (A.6)
+  -- -------- -- -------
+
+The left-hand side of this equation is obviously increasing as a
+function of @xmath . Furthermore,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Thus if Equation A.6 holds for some positive integers @xmath and @xmath
+, it holds for all larger @xmath and @xmath . It turns out that Equation
+A.6 holds for the following pairs of values: @xmath and @xmath ; @xmath
+and @xmath ; @xmath and @xmath , and @xmath and @xmath . This proves
+Equation A.3 for all values of @xmath and @xmath except: @xmath and
+@xmath ; @xmath and @xmath ; and @xmath and @xmath . A computer check
+shows that Equation A.3 in these cases as well, proving the general
+claim about Equation A.3 .
+
+Turning to Equation A.4 , we find
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+To prove Equation A.4 for given values of @xmath and @xmath , it
+suffices to show that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+or equivalently that
+
+  -- -------- -- -------
+     @xmath      (A.7)
+  -- -------- -- -------
+
+As with Equation A.6 , if this equation holds for some positive integers
+@xmath and @xmath , then it holds for all larger @xmath and @xmath . In
+fact, it holds for @xmath and @xmath and for @xmath and @xmath . This
+proves Equation A.4 .
+
+Finally, for Equation A.5 , we have
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+To prove Equation A.5 for given values of @xmath and @xmath , it
+suffices to show that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+or equivalently that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+As with Equations A.6 and A.7 , if this equation holds for some positive
+integers @xmath and @xmath , then it holds for all larger @xmath and
+@xmath . In fact, it holds for the following pairs of values: @xmath and
+@xmath ; @xmath and @xmath ; @xmath and @xmath ; @xmath and @xmath , and
+@xmath and @xmath . The finitely many cases of Equation A.5 remaining
+are true by a computer check. ∎
+
+The following lemma is needed in Chapter 5 to bound products of Gaussian
+coefficients, and we will finish this appendix with Lemma A.6 , which is
+used in Chapter 6 .
+
+###### Lemma A.5.
+
+Fix a prime @xmath and integers @xmath and @xmath or @xmath and @xmath .
+Let @xmath be the free group of rank @xmath , and let @xmath be the
+dimension of @xmath for all @xmath . For @xmath and @xmath , let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where the sum is over all integers @xmath such that
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Then for @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+First note that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+As a function of @xmath , the expression @xmath is at most @xmath , so
+that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+by Lemma A.1 . The proof of the theorem is by backward induction on
+@xmath . Note that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+When @xmath , using our bound on @xmath gives
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+As a function of @xmath , the polynomial
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+is maximized at
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+By Lemma A.4 , Equation A.3 , this is at most 1 when @xmath and @xmath
+or @xmath and @xmath . So as @xmath ranges from @xmath to @xmath , the
+polynomial is maximized at @xmath . By Lemma A.1 ,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+This proves the theorem for the base case @xmath . By induction, for
+@xmath ,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+                       @xmath   
+  -- -------- -------- -------- --
+
+As a function of @xmath , the polynomial
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+is maximized at
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+By Lemma A.4 , Equation A.4 , this is at most 1/2 when @xmath and @xmath
+or @xmath and @xmath . So as @xmath ranges from @xmath to @xmath , the
+polynomial is maximized at @xmath . Thus
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and the result is proved by induction. ∎
+
+###### Lemma A.6.
+
+Suppose that @xmath are positive integers with @xmath . Then
+
+  -- -------- -- -------
+     @xmath      (A.8)
+  -- -------- -- -------
+
+and this bound is achieved when @xmath . Furthermore, if @xmath and
+@xmath , then
+
+  -- -------- -- -------
+     @xmath      (A.9)
+  -- -------- -- -------
+
+###### Proof.
+
+For Equation A.8 , we use a simple induction argument. It is clearly
+true for @xmath . Suppose it is true up through @xmath ; we will prove
+it for @xmath .
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+proving Equation A.8 . As for Equation A.9 ,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where the first inequality follows from Equation A.8 and the second
+inequality follows from the fact that since @xmath and @xmath , we know
+that @xmath . ∎
+
+## Appendix B Numerical Estimates for Theorem 8.1
+
+This appendix contains numerical estimates used in the proof of Theorem
+8.3 . All of the following results assume that @xmath is prime, @xmath ,
+and @xmath . Let @xmath and define a probability distribution on @xmath
+by @xmath , where @xmath is the @xmath -th unit vector and @xmath . Let
+@xmath be the Markov chain on @xmath given by @xmath and @xmath , where
+the @xmath are independent random variables with distribution @xmath ,
+and let @xmath be the probability distribution on @xmath induced by
+@xmath . The function @xmath is defined by
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Finally, @xmath and @xmath are defined by the product formulas
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Lemma B.1.
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+###### Proof.
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+                       @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+                       @xmath   
+              @xmath   @xmath   
+                       @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+∎
+
+###### Lemma B.2.
+
+@xmath is bounded away from @xmath and @xmath independent of @xmath and
+@xmath , in particular,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Thus @xmath as @xmath when @xmath .
+
+###### Proof.
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+∎
+
+For the following lemmas, let
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and for convenience write @xmath .
+
+###### Lemma B.3.
+
+@xmath and @xmath for all @xmath .
+
+###### Proof.
+
+This follows from Fact 1 in [ 13 ] in the case of @xmath and is obvious
+in the case of @xmath . ∎
+
+###### Lemma B.4.
+
+There exists a constant @xmath independent of @xmath and @xmath so that
+for @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+∎
+
+###### Lemma B.5.
+
+There exists a constant @xmath independent of @xmath and @xmath so that
+for @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+                       @xmath   
+                       @xmath   
+              @xmath   @xmath   
+                       @xmath   
+                       @xmath   
+  -- -------- -------- -------- --
+
+Note that by Equation B , it follows that @xmath . It follows from Lemma
+B.4 that
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Furthermore (using the fact that @xmath ),
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+and similarly
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+It follows that there is an absolute constant @xmath independent of
+@xmath and @xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath . ∎
+
+###### Lemma B.6.
+
+There exists a constant @xmath independent of @xmath and @xmath so that
+for @xmath ,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+###### Proof.
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+                       @xmath   
+                       @xmath   
+              @xmath   @xmath   
+                       @xmath   
+                       @xmath   
+  -- -------- -------- -------- --
+
+As before,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Furthermore (using the fact that @xmath ),
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+and similarly,
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+For the lower bound, we have
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+and similarly,
+
+  -- -- -------- -------- --
+                 @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+        @xmath   @xmath   
+  -- -- -------- -------- --
+
+It follows that there is an absolute constant independent of @xmath and
+@xmath such that
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+for @xmath . ∎
+
+###### Lemma B.7.
+
+@xmath and @xmath .
+
+###### Proof.
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+∎
+
+###### Lemma B.8.
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+as @xmath .
+
+###### Proof.
+
+Note that
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+By Lemmas B.5 and B.6 ,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Then, using Lemma B.7 and Lemma B.3 , it follows that
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Similarly,
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+This proves the lemma. ∎

@@ -1,0 +1,2176 @@
+##### Contents
+
+-    1 Introduction
+-    2 Classical Open Systems: Langevin and Fokker-Planck Equations
+    -    2.1 Introduction
+    -    2.2 Bath-of-Oscillators Formalism
+        -    2.2.1 Counter-Term
+        -    2.2.2 Bath-of-Oscillators Hamiltonian
+    -    2.3 The Equation of Motion (Langevin)
+        -    2.3.1 Derivation
+        -    2.3.2 Fluctuation and Dissipation
+        -    2.3.3 Examples: Brownian Particle and Spin
+        -    2.3.4 Rubin Model [ 5 , 8 ]
+    -    2.4 Fokker-Planck Equations
+        -    2.4.1 Derivation à la Zwanzig [ 2 ]
+        -    2.4.2 Applications to Brownian Particle and Spin
+        -    2.4.3 Solving the Fokker-Planck Equations [ 9 ]
+    -    2.5 Summary
+-    3 Translational Brownian Motion: Particle in a Periodic Potential
+    -    3.1 Introduction
+    -    3.2 Strong Damping: Smoluchowski Equation
+    -    3.3 Converting the Smoluchowski Equation into Recurrence Form
+    -    3.4 Stationary Response (DC)
+    -    3.5 System Under AC Driving
+        -    3.5.1 Perturbative Treatment
+        -    3.5.2 Exact Treatment
+    -    3.6 Summary
+-    4 Rotational Brownian Motion: Debye Dipole
+    -    4.1 Introduction
+    -    4.2 Fokker-Planck Equation
+        -    4.2.1 Debye Orientational Diffusion Equation
+        -    4.2.2 Method of Solution
+    -    4.3 Equilibrium Properties
+    -    4.4 Driven Dipole
+        -    4.4.1 Linear Response
+        -    4.4.2 Beyond Linear Response
+    -    4.5 Discussion
+-    5 Quantum Open Systems
+    -    5.1 Hamiltonian and Reduced Description
+    -    5.2 Perturbation Theory in System-Bath Coupling
+        -    5.2.1 Evolution Operator
+        -    5.2.2 Heisenberg Equation
+    -    5.3 Quantum Master Equation (Bloch-Redfield)
+        -    5.3.1 Hubbard Operators
+        -    5.3.2 Bloch-Redfield Equation
+        -    5.3.3 Ladder Couplings
+        -    5.3.4 Secular Approximation
+    -    5.4 Application to the Bath-of-Oscillators Model
+        -    5.4.1 Hamiltonian Redux
+        -    5.4.2 Bath Correlator
+        -    5.4.3 Relaxation Coefficients
+    -    5.5 Discussion of the Approximations
+-    6 Quantum Harmonic Oscillator
+    -    6.1 Introduction
+    -    6.2 Method of Solution
+        -    6.2.1 Coefficients of the Master Equation
+        -    6.2.2 Casting the Master Equation into Recurrence Form
+        -    6.2.3 Implementation
+    -    6.3 Equilibrium Results: Dispersion of Coordinate and Momentum
+    -    6.4 Response to Static Field
+    -    6.5 Linear Response to Time-Dependent Field
+        -    6.5.1 Perturbative Chain of Equations
+        -    6.5.2 AC Susceptibility Curves (Dispersion and Absorption)
+        -    6.5.3 Secular Approximation Revisited
+    -    6.6 Discussion
+-    7 Summary
+-    A Appendices
+    -    A.1 Continued-Fraction Method
+    -    A.2 Hubbard Operators
+    -    A.3 Transition Rate
+
+## Acknowledgments
+
+I thank José García-Palacios for guiding me throughout this project. I
+also thank A/P Gong Jiangbin and Prof. Wang Jian-Sheng for being my
+supervisors. Above all, I thank my mum for her sacrifice to make my
+higher education possible.
+
+## Chapter 1 Introduction
+
+Most coffee lovers have the frustrating experience of having their
+coffees cooled down before they could finish them. High school physics
+tells us that it is due to the heat transferred to the surroundings. In
+the language of statistical mechanics, it is because of the interaction
+with the environment. Every object, big or small, classical or quantum,
+is subject to this interaction.
+
+The focus of this thesis is to study the effects of the environment on
+the statics and dynamics of our systems. The effects are two-fold:
+fluctuation and dissipation. Think of the pollen grains in water as
+observed by Robert Brown. Their trajectories exhibit random behavior due
+to the collisions with the water molecules. This randomness makes us
+unable to make exact predictions of the system evolution, we can only
+talk about its statistical properties. During the collisions, some of
+the pollen grains’ momentum is transferred to the medium, causing them
+to lose energy. Due of this dissipative process, the system can relax to
+a stationary state. These random and dissipative effects apply to any
+open systems, and we will address them in both classical and quantum
+regimes.
+
+This thesis is organized as follows. We deal with classical open systems
+in Chapter 2 to Chapter 4, while Chapter 5 and Chapter 6 are devoted to
+the study of open quantum systems. In Chapter 2, we start from a
+microscopic viewpoint of classical open systems, and introduce two
+equivalent approaches to study them: the Langevin equation (trajectory)
+and the Fokker-Planck equation (distribution). We then solve the
+Fokker-Planck equation of a particle in periodic potential, and study
+its steady-state properties in time independent and time-dependent
+fields (Chapter 3). Similar study is done for a classical dipole in
+Chapter 4.
+
+In Chapter 5, we start the exploration of quantum open systems by
+discussing the reduced description of the open systems. Then using
+perturbation theory, we present a concise derivation of the so-called
+master equation: the equation of motion of the reduced density matrix.
+In Chapter 6, we use the master equation to study a damped quantum
+harmonic oscillator and make comparison with exact results when
+available.
+
+## Chapter 2 Classical Open Systems: Langevin and Fokker-Planck
+Equations
+
+### 2.1 Introduction
+
+In 1908, the French physicist Paul Langevin proposed a modified version
+of the Newton equation to describe the dissipative and random behavior
+of a Brownian particle [ 1 ] . Consider a particle in one dimension for
+notational simplicity, the phenomenological equation of motion reads
+
+  -- -------- -- -------
+     @xmath      (2.1)
+  -- -------- -- -------
+
+The term @xmath causes dissipation, and @xmath is the damping rate. The
+random force @xmath originates from the impacts with the fluid
+molecules. It is assumed that the random force is Gaussian distributed,
+and thus fully described by the first two moments:
+
+  -- -------- -- -------
+     @xmath      (2.2)
+  -- -------- -- -------
+
+Equation ( 2.1 ) has a time-local frictional term, thus assuming the
+friction does not depend on the velocity of the past. In many cases of
+interest, the bath has a finite memory time, and the coresponding
+equation of motion is
+
+  -- -------- -- -------
+     @xmath      (2.3)
+  -- -------- -- -------
+
+which is called the generalized Langevin equation. The damping rate is
+replaced by a memory function @xmath , which comes from the finite noise
+correlation time @xmath .
+
+There are problems with these phenomenological equations: they are not
+time reversal-invariant and therefore contradict Newton’s reversible
+laws. Furthermore, we cannot carry forward this formalism into the
+quantum regime since we do not know how to quantize a dissipative
+equation. In the next section, we will start from a “microscopic” point
+of view to describe fluctuations and dissipation using a time-honored
+framework in classical physics— Hamiltonian mechanics.
+
+### 2.2 Bath-of-Oscillators Formalism
+
+Here we will derive the Langevin equation by considering the
+Hamiltonian equations of the global system, system plus bath (from now
+on we will call the system of interest the “system”, the surroundings
+the “bath”).
+
+To obtain the equations of motion, we need the Hamiltonian
+
+  -- -------- -- -------
+     @xmath      (2.4)
+  -- -------- -- -------
+
+This total Hamiltonian @xmath consists of the system Hamiltonian @xmath
+, the bath Hamiltonian @xmath and the interaction term @xmath . We need
+to give content to the bath and coupling Hamiltonians.
+
+Following Zwanzig [ 2 ] and others [ 3 , 4 , 5 ] , the bath is modeled
+as a set of harmonic oscillators. The replacement of the true bath by a
+set of harmonic oscillators is effectively equivalent to the assumption
+that the coupling is weak such that the bath is only slightly perturbed
+away from its equilibrium configuration [ 3 ] . By the same argument, it
+is reasonable to assume that the system-bath coupling is linear with
+respect to the bath coordinates. We write the Hamiltonians as
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (2.5)
+     @xmath   @xmath   @xmath      (2.6)
+     @xmath   @xmath   @xmath      (2.7)
+  -- -------- -------- -------- -- -------
+
+where @xmath denotes the bath modes (which can be continuous), @xmath
+the coupling constants. @xmath can be any function of the system’s
+coordinate and momentum @xmath . It is worth noting that though the
+influence of the system on the bath is small, the opposite might not be
+true.
+
+#### 2.2.1 Counter-Term
+
+An additional term @xmath is added to the coupling Hamiltonian to
+compensate the re-normalization caused by the term @xmath [ 6 ] . In
+other words, we want to ensure that the global minimum of the
+Hamiltonian is determined by the bare potential @xmath alone. To look
+for the minimum with respect to the bath, we need
+
+  -- -------- -- -------
+     @xmath      (2.8)
+  -- -------- -- -------
+
+and obtain @xmath . Using this result, we find the minimum with respect
+to the system coordinate
+
+  -- -------- -- -------
+     @xmath      (2.9)
+  -- -------- -- -------
+
+In order to satisfy @xmath , we need the counter-term
+
+  -- -------- -- --------
+     @xmath      (2.10)
+  -- -------- -- --------
+
+#### 2.2.2 Bath-of-Oscillators Hamiltonian
+
+Finally gathering all the above results, we can write the total
+Hamiltonian in the form
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+This model is frequently called the Caldeira-Leggett model in the
+context of quantum dissipative systems [ 3 , 4 ] . This framework can
+also be used to study problems involving spin, in which the coupling is
+a function of spin variable, @xmath . In the next section, we will show
+that the Hamiltonian ( 2.2.2 ) describes dissipation and fluctuations in
+the system.
+
+### 2.3 The Equation of Motion (Langevin)
+
+#### 2.3.1 Derivation
+
+Consider a dynamical variable @xmath that only depends on the system’s
+coordinate and momentum, the Hamiltonian equations of @xmath , @xmath
+and @xmath are given by
+
+  -- -------- -- --------
+     @xmath      (2.12)
+     @xmath      (2.13)
+  -- -------- -- --------
+
+where the Poisson bracket is
+
+  -- -------- -- --------
+     @xmath      (2.14)
+  -- -------- -- --------
+
+The solution to the bath coordinate is that of a forced harmonic
+oscillator
+
+  -- -------- -- --------
+     @xmath      (2.15)
+  -- -------- -- --------
+
+where the homogeneous part is the free harmonic oscillator evolution
+
+  -- -------- -- --------
+     @xmath      (2.16)
+  -- -------- -- --------
+
+Substituting Eq. ( 2.15 ) and Eq. ( 2.16 ) into Eq. ( 2.12 ) and
+performing integration by parts, we obtain
+
+  -- -------- -- --------
+     @xmath      (2.17)
+  -- -------- -- --------
+
+where
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (2.18)
+     @xmath   @xmath   @xmath      (2.19)
+  -- -------- -------- -------- -- --------
+
+We have obtained an equation similar to the Langevin equation for a
+general dynamic variable @xmath . The first term in Eq. ( 2.17 ) is the
+free evolution. The second term gives rise to the fluctuations. The
+integral term keeps the memory of the previous states and causes
+dissipation. We will justify the interpretation of fluctuations and
+dissipation in the next subsection.
+
+#### 2.3.2 Fluctuation and Dissipation
+
+##### Fluctuation
+
+The term @xmath contains the free evolution of the bath oscillators and
+the initial state of the system. Being the sum of many terms with
+different frequencies and phases, it behaves like a random force (see
+Figure 2.1 ). Let us assume the initial distribution of the bath follows
+the classical canonical distribution
+
+  -- -------- -- --------
+     @xmath      (2.20)
+  -- -------- -- --------
+
+Drawing @xmath and @xmath from the canonical distribution, @xmath
+becomes a random force with Gaussian distribution. Then it is fully
+characterized by the first two moments
+
+  -- -------- -- --------
+     @xmath      (2.21)
+  -- -------- -- --------
+
+where the correlator is related to the damping kernel as @xmath .
+
+##### Dissipation
+
+If we particularize the equation of motion to the system Hamiltonian,
+the free evolution is zero and we are left with
+
+  -- -------- -- --------
+     @xmath      (2.22)
+  -- -------- -- --------
+
+The first term averages to zero, loosely speaking. Otherwise, we assume
+@xmath , where there is no thermal fluctuation and the first term is
+automatically zero. We are then left with the integral. For simplicity,
+we consider a free particle @xmath with coordinate coupling @xmath , and
+delta damping kernel @xmath , one finds
+
+  -- -------- -- --------
+     @xmath      (2.23)
+  -- -------- -- --------
+
+The negative rate of change indicates that dissipation indeed takes
+place. Eq. ( 2.21 ) relates the noise or fluctuating force to the
+dissipation, and is known as the fluctuation-dissipation theorem.
+
+##### Spectral Density
+
+It is convenient to introduce the spectral density
+
+  -- -------- -- --------
+     @xmath      (2.24)
+  -- -------- -- --------
+
+The correlator ( 2.21 ) and the damping kernel can then be written as
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (2.25)
+     @xmath   @xmath   @xmath      (2.26)
+  -- -------- -------- -------- -- --------
+
+For a bath with discrete modes, the spectral density is a set of delta
+peaks. However in a dissipative bath, the eigenfrequencies @xmath form a
+continuum and @xmath becomes a smooth function of @xmath .
+
+All the effects of the bath are incorporated into @xmath , which
+involves the frequencies and couplings. It these are not fully known,
+one proceeds to “model” the bath, assuming different functional
+dependences. In the next section, we will discuss a system (Rubin model)
+where @xmath can be explicitly computed, and this will provide us
+insights how to properly do such modeling.
+
+#### 2.3.3 Examples: Brownian Particle and Spin
+
+In this section, we study the Langevin equations ( 2.17 ) for a Brownian
+particle (translational motion) and a Brownian spin (rotational motion).
+
+##### Brownian Particle
+
+Consider a particle with Hamiltonian @xmath , with its coordinate (
+@xmath ) coupled to the bath. Equation ( 2.17 ) for @xmath and @xmath
+then gives
+
+  -- -------- -- --------
+     @xmath      (2.27)
+  -- -------- -- --------
+
+which is exactly the generalized Langevin equation introduced
+phenomenologically at the beginning of this chapter.
+
+If the bath is Ohmic (Markovian limit), namely @xmath , the damping
+kernel becomes a delta function and we recover the usual Langevin
+equation
+
+  -- -------- -- --------
+     @xmath      (2.28)
+  -- -------- -- --------
+
+with the bath correlator
+
+  -- -------- -- --------
+     @xmath      (2.29)
+  -- -------- -- --------
+
+##### Brownian Spin
+
+Equation ( 2.17 ) is also valid for a spin with Hamiltonian @xmath ¹ ¹ 1
+The underlaying canonical variables are @xmath and @xmath [ 7 ] . But
+our formalism does not depend on the canonical variables, as we derive
+the equation of motion for any @xmath and we can set @xmath for @xmath .
+. Using the spectral density @xmath , we write directly the memoryless
+equation of motion for @xmath
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (2.31)
+     @xmath   @xmath   @xmath      (2.32)
+     @xmath   @xmath               (2.33)
+  -- -------- -------- -------- -- --------
+
+This is the Lagenvin equation for a spin. The first term arises from the
+free Hamiltonian and causes the spin to precess around the field
+direction. For example, the Hamiltonian of a spin @xmath in a magnetic
+field @xmath is @xmath and @xmath . The second and third terms describe
+the fluctuation and dissipation as discussed before. The damping term is
+a generalization of the phenomenological equations proposed by Gilbert
+and Landau-Lifshitz [ 7 ] .
+
+#### 2.3.4 Rubin Model [5, 8]
+
+Here we look at an instructive example where the oscillator-bath model
+represents the actual Hamiltonian. In the Rubin model (see Figure 2.2),
+a heavy particle of mass @xmath and coordinate @xmath is bilinearly
+coupled to a half infinite chain of harmonic oscillators with mass
+@xmath and spring constant @xmath . The total Hamiltonian is
+
+  -- -------- -- --------
+     @xmath      (2.34)
+  -- -------- -- --------
+
+To cast the above Hamiltonian into the standard form ( 2.2.2 ), we make
+the following transformation to normal modes @xmath
+
+  -- -------- -- --------
+     @xmath      (2.35)
+  -- -------- -- --------
+
+In normal mode representation, the Hamiltonian reads
+
+  -- -------- -- --------
+     @xmath      (2.36)
+  -- -------- -- --------
+
+The eigenfrequency @xmath and the coupling function @xmath are
+
+  -- -------- -- --------
+     @xmath      (2.37)
+  -- -------- -- --------
+
+Comparing with Eq. ( 2.24 ), the spectral density is found to be
+
+  -- -------- -- --------
+     @xmath      (2.38)
+  -- -------- -- --------
+
+where @xmath is the Heaviside step function. The frequency @xmath is the
+highest frequency in the bath and cuts off the spectral density @xmath
+(see Figure 2.3). In fact, in any physical system, there always exists a
+cut-off frequency such that the contribution at high frequencies is
+suppressed. With the above spectral density, the damping kernel Eq. (
+2.25 ) becomes
+
+  -- -------- -- --------
+     @xmath      (2.39)
+  -- -------- -- --------
+
+where @xmath is the first order Bessel function. The memory time in the
+kernel is of the order of @xmath . For large @xmath (corresponds to a
+stiff spring), the kernel becomes a sharply peaked function around zero
+(see Figure 2.4).
+
+The Rubin model not only gives us a concrete example where the
+oscillators represent a true bath, it provides us useful insights about
+the properties that are common to any physical bath. The continuum limit
+of the spectral density comes from the infinite number of degrees of
+freedom of the chain of oscillators. There is a natural cut-off to the
+spectral density at high frequency. We also see that, at large @xmath ,
+we approach the Ohmic limit [Markovian, @xmath ], the damping kernel
+becomes short-lived and the harmonic chain exhibits little retardation.
+
+### 2.4 Fokker-Planck Equations
+
+We have studied the trajectory approach to the open systems based on the
+Langevin equation. Here we will look at the phase space distribution
+function and its evolution equation, the Fokker-Planck equation. Both
+approaches are equivalent, provided the noise is delta correlated and
+has a Gaussian distribution; we will see why soon.
+
+#### 2.4.1 Derivation à la Zwanzig [2]
+
+To derive the Fokker-Planck equation, we start with a general Langevin
+equation of a set of variables, @xmath , the equation of motion  in
+vector form is
+
+  -- -------- -- --------
+     @xmath      (2.40)
+  -- -------- -- --------
+
+where the noise term @xmath is Gaussian distributed and has the
+following properties
+
+  -- -------- -- --------
+     @xmath      (2.41)
+  -- -------- -- --------
+
+We are interested in the probability distribution of the dynamical
+variables, @xmath . The normalization condition requires
+
+  -- -------- -- --------
+     @xmath      (2.42)
+  -- -------- -- --------
+
+Similar to the conservation law in electromagnetism ² ² 2 In
+electromagnetism, we have the continuity equation: @xmath , where @xmath
+and @xmath are the current density and charge density respectively. , we
+have the continuity equation
+
+  -- -------- -- --------
+     @xmath      (2.43)
+  -- -------- -- --------
+
+Replacing @xmath by Eq. ( 2.40 ), one has
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (2.44)
+              @xmath   @xmath      (2.45)
+  -- -------- -------- -------- -- --------
+
+It is still a stochastic differential equation since it contains the
+noise. We are interested in the noise average of @xmath . We denote the
+noiseless part of the operator
+
+  -- -- -- --------
+           (2.46)
+  -- -- -- --------
+
+so that
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (2.47)
+  -- -------- -------- -------- -- --------
+
+The formal solution to the differential equation is (after setting
+initial time @xmath )
+
+  -- -------- -- --------
+     @xmath      (2.48)
+  -- -------- -- --------
+
+Note that @xmath only depends on the noise @xmath at earlier time @xmath
+. Substituting the above equation into Eq. ( 2.47 ), we obtain
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+                       @xmath   
+  -- -------- -------- -------- --
+
+Now we take the average over noise. The second term averages to zero.
+Since the noise is Gaussian, we can express any moments in terms of the
+first two moments. The last term contains two explicit noise factors,
+@xmath and @xmath , and also the implicit noise factors in @xmath .
+Since @xmath only depends on the noise at earlier time @xmath ; the
+pairing with either @xmath or @xmath gives zero contribution as the
+noise is delta correlated. We only need to consider the pairing @xmath .
+Denoting the noise average of the distribution as @xmath , the result is
+the Fokker-Planck equation
+
+  -- -------- -- --------
+     @xmath      (2.50)
+  -- -------- -- --------
+
+The first term on the right hand side is what one has in the absence of
+noise. The effect of the noise is introduced by the second term. This
+term has a diffusion structure, with a second order derivative, as in
+the standard diffusion equations.
+
+#### 2.4.2 Applications to Brownian Particle and Spin
+
+As in the previous section, we will see the examples of a Brownian
+particle and a Brownian spin.
+
+##### Brownian Particle
+
+According to the recipe above, we can write down the
+Fokker-Planck equation for a Brownian particle from its Langevin
+equation ( 2.28 ). The quantities that enter into the general
+Fokker-Planck equation ( 2.50 ) are
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+The resulting Fokker-Planck equation is called the Klein-Kramers
+equation [ 9 ]
+
+  -- -------- -- --------
+     @xmath      (2.51)
+  -- -------- -- --------
+
+The first two terms arise from the Liouville operator @xmath , while the
+last two terms capture the effects of the interaction with the bath:
+damping and diffusion.
+
+##### Brownian Spin
+
+The corresponding Fokker-Planck equation for a Brownian spin is [ 7 ]
+
+  -- -------- -- --------
+     @xmath      (2.52)
+  -- -------- -- --------
+
+We will return to this type of orientational diffusion equation in
+Chapter 4 when we study the Debye dipole.
+
+#### 2.4.3 Solving the Fokker-Planck Equations [9]
+
+In most cases, the Fokker-Planck equation is not solvable analytically,
+and we have to resort to numerical methods. Here we will discuss the
+numerical method employed in this thesis. Let us consider a one-variable
+case; we can express the distribution function @xmath in terms of an
+appropriate set of basis function @xmath
+
+  -- -------- -- --------
+     @xmath      (2.53)
+  -- -------- -- --------
+
+The sum depends on the choice of basis function. Once we solve for the
+coefficients @xmath , we have full knowledge of the non-equilibrium
+distribution function.
+
+The use of Eq. ( 2.53 ) casts the Fokker-Planck equation into a set of
+recurrence relations
+
+  -- -------- -- --------
+     @xmath      (2.54)
+  -- -------- -- --------
+
+where Q’s are some known constants, and we seek for short-ranged
+coupling. We will only encounter 3-term recurrence relations in this
+thesis, namely
+
+  -- -------- -- --------
+     @xmath      (2.55)
+  -- -------- -- --------
+
+This type of recurrence relations can be solved efficiently using the
+continued fraction method. The details of the continued fraction method
+are discussed in Appendix A.1.
+
+##### Fokker-Planck versus Langevin
+
+Though it is possible to run Langevin simulations to obtain the average
+of a dynamical variable, solving Fokker-Planck equations with the
+continued fraction method requires much shorter computational time (few
+minutes on a laptop). The drawback is that we do not have any
+information about the trajectories. Though this drawback is offset by
+the fact that the distribution can also provide us valuable physical
+insights.
+
+### 2.5 Summary
+
+It is a long chapter, let us summarize what has been presented. We first
+described fluctuations and dissipation in an open system by modeling the
+bath as a set of harmonic oscillators. Using Hamiltonian mechanics, a
+Langevin-like equation of motion was obtained. Particularizing to the
+problems of particle and spin, we recovered the phenomenological
+Langevin equations. The example of Rubin Model provided us useful
+insights of the bath-of-oscillators model.
+
+We then derived the Fokker-Planck equation by making use of the
+continuity equation for the probability distribution. The
+Fokker-Planck equations for particle and spin were obtained from their
+corresponding Langevin equations. Eventually, the use of the continued
+fraction method in solving Fokker-Planck equations was discussed. In the
+next two chapters, we will demonstrate the use of this method in solving
+the Fokker-Planck equations for a particle in a periodic potential and a
+dipole (spin), both in the large damping limit.
+
+## Chapter 3 Translational Brownian Motion: Particle in a Periodic
+Potential
+
+### 3.1 Introduction
+
+In this chapter, we apply the continued fraction method to solve the
+Fokker-Planck equation for a Brownian particle in a periodic potential.
+This problem finds applications in the non-linear pendulums, superionic
+conductors, phased-locked loops in radio, Josephson tunneling junctions,
+etc. [ 9 ] . Similar works can be found in [ 10 ] and [ 11 ] , where the
+Langevin equation is used instead.
+
+Consider a one-dimensional case, the particle is kicked around by the
+Langevin force. When the Langevin force is large enough, the particle
+will travel from one potential well to the next, causing it to diffuse
+in both directions. If we apply an external force, the particle will
+diffuse in one direction preferably (see Figure 3.2 ), and we are
+interested in the drift velocity @xmath .
+
+The Langevin equation can be written as
+
+  -- -------- -- -------
+     @xmath      (3.1)
+  -- -------- -- -------
+
+where @xmath is the external applied force ¹ ¹ 1 Risken [ 9 ] discusses
+the application to super-ionic conductors. A super-ionic conductor
+consists of a a nearly fixed ion lattice in which some other ions are
+highly mobile. If an external field is applied to a one-dimensional
+model, neglecting the ion-ion interaction, the equation of motion is the
+same as Eq. ( 3.1 ). . We consider a periodic potential of the form
+
+  -- -------- -- -------
+     @xmath      (3.2)
+  -- -------- -- -------
+
+where @xmath is the height of the well. The minus sign is inserted for
+convenience.
+
+### 3.2 Strong Damping: Smoluchowski Equation
+
+In the regime of high friction, the velocity of the particle reaches
+steady state rapidly, thus the inertial term, @xmath , can be omitted.
+The resulting Langevin equation reads
+
+  -- -------- -- -------
+     @xmath      (3.3)
+  -- -------- -- -------
+
+Following Risken [ 9 ] , we introduce the following dimensionless
+variables,
+
+  -- -------- -- -------
+     @xmath      (3.4)
+  -- -------- -- -------
+
+The Langevin equation is transformed to
+
+  -- -------- -- -------
+     @xmath      (3.5)
+  -- -------- -- -------
+
+and the noise correlation function becomes
+
+  -- -------- -- -------
+     @xmath      (3.6)
+  -- -------- -- -------
+
+We will drop the tildes and it is understood that we are using the
+normalized units. The corresponding Fokker-Planck equation, according to
+( 2.50 ), for the distribution @xmath is given by
+
+  -- -------- -- -------
+     @xmath      (3.7)
+  -- -------- -- -------
+
+This is a special case of the Smoluchowski equation, the
+Fokker-Planck equation for an over-damped Brownian particle.
+
+### 3.3 Converting the Smoluchowski Equation into Recurrence Form
+
+In the steady state (long time limit), we expect the distribution to be
+periodic in space. In fact, in the problems of pendulums or Josephson
+junctions, the systems are indeed periodic (from @xmath to @xmath ).
+Then, we can express the distribution function as a Fouries series in
+space
+
+  -- -------- -- -------
+     @xmath      (3.8)
+  -- -------- -- -------
+
+and we will need to solve for the coefficients @xmath . Substituting the
+expansion ( 3.8 ) into the Smoluchowski equation ( 3.7 ), we obtain the
+three-term recurrence relation
+
+  -- -------- -- -------
+     @xmath      (3.9)
+  -- -------- -- -------
+
+where
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (3.10)
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      
+  -- -------- -------- -------- -- --------
+
+The zeroth term @xmath , which is used as the “seed” in the continued
+fraction method (Appendix A.1), is fixed by the normalization condition.
+We normalize the distribution function over a period,
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (3.11)
+  -- -------- -------- -------- -- --------
+
+The drift velocity can be obtained by taking ensemble average of the
+Langevin equation ( 3.5 ),
+
+  -- -------- -- --------
+     @xmath      (3.12)
+  -- -------- -- --------
+
+Solving the recurrence relations, we get the distribution @xmath and
+hence the average of any function involving @xmath . From the expression
+above, we then can obtain the drift velocity @xmath .
+
+We will consider applied force of the form
+
+  -- -------- -- --------
+     @xmath      (3.13)
+  -- -------- -- --------
+
+The first term is a constant force which tilts the potential profile
+while the second term drives the system and allows us to study the
+dynamical properties.
+
+### 3.4 Stationary Response (DC)
+
+In the absence of AC driving @xmath , the stationary solution @xmath of
+the three-term recurrence relation ( 3.9 ) can be obtained using the
+scalar continued fraction method (Appendix A.1). In Figure 3.3 , the
+drift velocity is plotted against the applied force, @xmath , at
+different temperatures. There are regions where the curves stay flat;
+the particle is “locked” in the potential well and there is not enough
+applied force or Langevin force (at low temperature) to push it away
+from the well. At large @xmath (or high temperature), the effect of the
+potential well is less, and the velocity grows linearly with the applied
+force. In between, we have the depinning transition between the two
+regimes. At @xmath , this transition takes place when the force equals
+the cosine well depth ( @xmath ), and breaks the minima structure.
+
+### 3.5 System Under AC Driving
+
+In the presence of driving, the system will never reach a stationary
+state. Instead, in the long time dynamics, we expect it to be
+oscillating with the same period as the driving. This is similar to the
+case of a driven damped oscillator, where the driving frequency is the
+only time scale in the long time dynamics. Therefore, we can take care
+of the time dependence of the distribution function by expanding it into
+a Fourier series in time @xmath . Together with the Fourier series in
+space @xmath , we have
+
+  -- -------- -- --------
+     @xmath      (3.14)
+  -- -------- -- --------
+
+In the driven system, we are interested in the susceptibility @xmath ,
+defined as
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (3.15)
+              @xmath               (3.16)
+  -- -------- -------- -------- -- --------
+
+where @xmath denotes the time-independent part of the drift velocity. We
+will adopt the following convention,
+
+  -- -------- -- --------
+     @xmath      (3.17)
+  -- -------- -- --------
+
+In the regime of linear response @xmath , we only have the first order
+term (we omit the superscript), and the linear susceptibility is
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (3.18)
+  -- -------- -------- -------- -- --------
+
+The interpretation is easier in linear response: susceptibility is the
+coefficient of the time dependent part (of a dynamical quantity) that is
+oscillating at the driving frequency. The real part is in phase with the
+driving, while the imaginary part is the out of phase contribution.
+
+#### 3.5.1 Perturbative Treatment
+
+In the case of weak driving, we can expand the distribution function in
+Taylor’s series of the driving amplitude @xmath ,
+
+  -- -------- -- --------
+     @xmath      (3.19)
+  -- -------- -- --------
+
+and we need to solve for the coefficients @xmath . In this problem, the
+driving amplitude should be @xmath for this expansion to hold.
+
+The expansion ( 3.19 ) turns the Smoluchowski equation ( 3.7 ) into
+
+  -- -------- -- --------
+     @xmath      (3.20)
+  -- -------- -- --------
+
+where
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (3.21)
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      
+  -- -------- -------- -------- -- --------
+
+The perturbative structure is clear in Eq. ( 3.20 ). The solution of the
+previous order equation @xmath enters into the inhomogeneous part of the
+next order @xmath . The zeroth order equation is homogeneous, and its
+solution enters the right hand side of first order equation, and so on.
+This set of iterative equations can be computed up to any order, until
+the solution converges.
+
+We will first start looking at the linear response, i.e. we only solve
+up to the first order. The linear susceptibility is plotted in Figure
+3.4 . Most of the interesting behaviors happen around the resonant
+frequency (the frequency of oscillations near the bottom of the wells,
+in our units, @xmath ). It is the same situation as the response of a
+driven damped oscillator. The increment of the constant field, up to
+@xmath , does not change the susceptibility profile much; the particle
+is locked in the potential well for small fields. Note that we have used
+a low temperature @xmath , such that the locking behavior is evident
+(recall the deppining behaviors in Figure 3.3 ). When the field is
+increased until it reaches the depinning regime, the profile changes
+considerably. It is because the particle gains enough energy to hop from
+one well to the next, it is no longer trapped.
+
+Let us look at the low frequency region (adiabatic driving), where the
+system responds in phase with the field. At small force (up to @xmath ),
+the response is zero. It can be explained by looking at the flat portion
+of the drift velocity curves in Figure 3.3 . Turn on the driving, the
+system moves back and forth along the @xmath -axis, but there is no
+vertical movement. At large force, the drift velocity curve is sloped,
+thus giving non-zero response.
+
+The real part of the susceptibility is proportional to the power
+dissipated into the medium due to the driving. The power is calculated
+by multiplication of the velocity and the force, @xmath . In our
+context,
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+Taking the time average over a cycle, one finds @xmath .
+
+#### 3.5.2 Exact Treatment
+
+Now we solve the Fokker-Planck equation exactly, using the matrix
+continued fraction method. This method is more computationally
+expensive, since it involves matrix multiplication and inversion.
+
+We define the vector
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+Substituting the expansion ( 3.14 ) into the Smoluchowski equation ( 3.7
+), we obtain
+
+  -- -------- -- --------
+     @xmath      (3.23)
+  -- -------- -- --------
+
+where
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (3.24)
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      
+                                   
+  -- -------- -------- -------- -- --------
+
+and
+
+  -- -- --
+        
+  -- -- --
+
+@xmath is the identity matrix. The recurrence relations can be solved by
+the matrix continued fraction method (Appendix A.1).
+
+We plot the real time dynamical loops (hysteresis loops): the curves of
+the drift velocity against the real time driving field, @xmath , in
+Figure 3.5 . At small driving, the loops are elliptical since the
+response is linear to the driving field. When the driving field
+increases, the contribution from the (non-linear) higher harmonic
+susceptibilities, @xmath , @xmath , @xmath , etc., becomes significant
+and the loops are distorted. The area of the loop is proportional to the
+power dissipated.
+
+To see the contribution of the non-linear susceptibilities, we plot the
+first three harmonics in Figure 3.6 . As opposed to the linear response,
+the susceptibilities at low frequency are lifted from zero at large
+driving field. It is because the constant and driving forces combined
+are large enough to kick the particle away from the potential well, the
+particle is no longer trapped. We also observe oscillatory behaviors of
+the susceptibility curves in the frequency range @xmath . We will relate
+the oscillations with the celebrated Shapiro steps discussed below.
+
+We plot the time averaged drift velocity @xmath in Figure 3.7 . The
+curves exhibit Shapiro steps at the multiples of the driving frequency,
+@xmath , where @xmath (see Ref. [ 13 ] for a discussion). The system is
+locked at the resonant frequency @xmath . The appearance of the Shapiro
+steps is due to the fact that the quantity @xmath becomes stable with
+respect to a small change in external parameter ( @xmath here) at
+resonant frequency [ 12 ] . One needs a finite change to push the system
+away from this stability. This phenomenon is well known in the context
+of Josephson junctions.
+
+To relate it with the oscillatory behavior observed in the
+susceptibility curves, we look at a particular value of @xmath and vary
+the driving frequency, the curve in Figure 3.7 will rotate back and
+forth. The curve is flat when the frequency is resonant and sloped when
+it is not (see Figure 3.8 ). This “modulation” might explain the
+oscillatory features in the susceptibility curves.
+
+### 3.6 Summary
+
+In this chapter, we showed explicitly how the continued fraction method
+is used to solve a Fokker-Planck  equation. We obtained both the
+time-independent and time-dependent solutions. We also presented two
+approaches of using the continued fraction methods: perturbative and
+exact. Strong non-linear effects are observed in the dynamical
+hysteresis loops under strong driving. We could include the inertia term
+@xmath and solve the Klein-Kramers equation ( 2.51 ). This would require
+one more matrix index for the expansion in momentum, which entails
+larger computational efforts, see Refs. [ 9 ] and [ 13 ] .
+
+## Chapter 4 Rotational Brownian Motion: Debye Dipole
+
+### 4.1 Introduction
+
+Here we will study a Fokker-Planck equation of different structure,
+which involves a dipole. We investigate the problem of non-interacting
+dipoles subject to DC and/or AC fields. This problem was first studied
+by Peter Debye in the 1920’s, and constitutes the first example of
+rotational Brownian motion. In the Debye model, he assumed high friction
+and isotropy, i.e. the Brownian motion exhibits no preferential
+direction. The orientation of the dipoles solely depends on the angle
+between the electric field and the dipole vector, @xmath in Figure 4.1 .
+This problem not only finds applications in dielectric relaxation, but
+also rotational relaxation of ferromagnetic nanoparticles [ 1 ] .
+
+### 4.2 Fokker-Planck Equation
+
+#### 4.2.1 Debye Orientational Diffusion Equation
+
+In the high friction limit, the Fokker-Planck equation describing the
+dipoles is [ 14 ]
+
+  -- -------- -------- -- -- -------
+     @xmath   @xmath         (4.1)
+  -- -------- -------- -- -- -------
+
+where @xmath is the viscosity coefficient. We define the Debye
+relaxation time and the dimensionless field parameter
+
+  -- -------- -- -------
+     @xmath      (4.2)
+  -- -------- -- -------
+
+Making the transformation @xmath , the resulting Fokker-Planck equation
+reads
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (4.3)
+  -- -------- -------- -------- -- -------
+
+#### 4.2.2 Method of Solution
+
+Because of the range of @xmath ( @xmath to @xmath ), the natural choice
+of the basis function here is the Legendre polynomials @xmath ¹ ¹ 1 The
+Legendre polynomials can be expressed as the Rodrigues’ formula @xmath
+They obey the orthogonality relation @xmath . ,
+
+  -- -------- -- -------
+     @xmath      (4.4)
+  -- -------- -- -------
+
+Substituting Eq. ( 4.4 ) into Eq. ( 4.3 ), we obtain the three-term
+recurrence relation
+
+  -- -------- -- -------
+     @xmath      (4.5)
+  -- -------- -- -------
+
+where
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (4.6)
+     @xmath   @xmath   @xmath      (4.7)
+     @xmath   @xmath   @xmath      
+  -- -------- -------- -------- -- -------
+
+Similar to the previous chapter, we consider the combination of DC and
+AC fields,
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (4.8)
+     @xmath   @xmath   @xmath      (4.9)
+  -- -------- -------- -------- -- -------
+
+The object of interest here is the average orientation @xmath .
+
+### 4.3 Equilibrium Properties
+
+Without driving, we solve for the equilibrium solution to the recurrence
+relation ( 4.5 ) with the scalar continued fraction method (Appendix
+A.1), and study its average orientation. In fact, we can obtain the
+analytic result using elementary statistical mechanics. The canonical
+distribution of such a system is given by
+
+  -- -------- -- --------
+     @xmath      (4.10)
+  -- -------- -- --------
+
+where the Hamiltonian is @xmath and @xmath the partition function ² ² 2
+One can easily show that Eq. ( 4.10 ) is the stationary solution by
+substituting it into the Fokker-Planck equation ( 4.1 ). . The average
+orientation is defined as
+
+  -- -------- -- --------
+     @xmath      (4.11)
+  -- -------- -- --------
+
+where the integration is carried over the solid angle. The result is the
+Langevin function
+
+  -- -------- -- --------
+     @xmath      (4.12)
+  -- -------- -- --------
+
+The Langevin function is plotted together with the numerical results in
+Figure 4.2 . At small field, the average orientation grows linearly with
+@xmath since @xmath . At large field, we reach the saturated region
+where @xmath , the dipoles are almost fully aligned with the field. The
+comparison with the Langevin function serves as a test for our numerical
+method.
+
+### 4.4 Driven Dipole
+
+As in the previous chapter, we focus on the time periodic solution and
+perform the Fourier time expansion of the distribution function of a
+driven system,
+
+  -- -------- -- --------
+     @xmath      (4.13)
+  -- -------- -- --------
+
+We will not discuss the perturbative treatment and the exact treatment
+again, they are almost identical as in Chapter 3.
+
+Again, the susceptibilities @xmath are defined as
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (4.14)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+where @xmath is the time-independent part. In the regime of linear
+response (weak driving), we only keep the linear susceptibility
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (4.15)
+  -- -------- -------- -------- -- --------
+
+#### 4.4.1 Linear Response
+
+From linear response theory, the susceptibility at zero DC field is
+given by the Debye relaxation formula [ 14 ]
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (4.16)
+  -- -------- -------- -------- -- --------
+
+The expression is compared with the numerical results in Figure 4.3 as a
+check of our numerical method, the top curves ( @xmath ) of both panels.
+We also try a heuristic expression for the linear susceptibility at
+non-zero DC field,
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (4.17)
+  -- -------- -------- -------- -- --------
+
+where the effective relaxation time is
+
+  -- -------- -- --------
+     @xmath      (4.18)
+  -- -------- -- --------
+
+(The effective time is defined as the initial slope of the relaxation
+curve when there is a small change of the applied field [ 15 ] .)
+
+We compare the expression with the numerical results in Figure 4.3 and
+good agreement is observed. The reason the derivative of the Langevin
+function, @xmath , enters can be justified. Without driving, the average
+orientation takes the value of @xmath . Turn on the driving, we move
+back and forth along the Langevin curve and the vertical movement
+depends on the slope @xmath of the curve. @xmath decreases with
+increasing constant field because of the decreasing slope of the
+Langevin function. In the limit when the dipoles are nearly fully
+aligned by the large constant field, it is more difficult to rotate
+them, and their response drops.
+
+Note that the power dissipated is proportional to the imaginary part of
+the susceptibility, as opposed to the real part in the transport
+problem. It is due to the fact that we need to take the time derivative
+of @xmath to get the “velocity”, giving @xmath . The imaginary unit
+exchanges the role of the real and imaginary parts in the dissipation.
+
+#### 4.4.2 Beyond Linear Response
+
+Beyond linear response, we solve for the polarization at arbitrary AC
+field, and the hysteresis loops are plotted in Figure 4.4 . The
+deformation of the elliptical loops can clearly be seen at large
+driving, due to the contribution of higher harmonic susceptibilities.
+The loops develop a spike-like structure at the tips, as in the custom
+hysteresis loops of magnetism.
+
+We also plot the first three harmonics of the susceptibility in Figure
+4.5 . The susceptibility can no longer be described by the
+phenomenological Eq. ( 4.17 ) at large driving (it only works for @xmath
+), as one can see from the susceptibility curves. As we increase the
+driving amplitude, the magnitude of the susceptibility at low frequency
+(adiabatic) drops. This is also related to the decreasing slope of the
+Langevin function.
+
+The results from the perturbative treatment are plotted in Figure 4.5 as
+a consistency check. The radius of convergence for the perturbative
+treatment is about @xmath , which is large as compared to the previous
+chapter where @xmath . In this range, we can already observe significant
+deviation from the linear response results ( @xmath ) before it breaks
+down (symbols in Figure 4.5 ). In the problem of Brownian particle in a
+periodic potential, the perturbative expansion fails before we can
+observe any significant non-linear effect.
+
+### 4.5 Discussion
+
+Here we end our discussion on classical open systems. To conclude, we
+have presented the Hamiltonian viewpoint of open systems and two
+equivalent ways of studying them: the Langevin and the
+Fokker-Planck equations. We then used the continued fraction method to
+solve the Fokker-Planck equations for particle in a periodic potential
+and dipole under driving force, and studied their linear and non-linear
+responses. We shall devote the next two chapters to the study of open
+quantum systems.
+
+## Chapter 5 Quantum Open Systems
+
+### 5.1 Hamiltonian and Reduced Description
+
+In quantum open systems, we study the fluctuation and dissipation on a
+quantum system due to the interaction with the environment. Unlike the
+classical counterparts, it is difficult to introduce phenomenological
+equations to describe these effects, because of the unitarity of the
+quantum dynamics. Previous attempts are plagued with various problems,
+e.g. violating the uncertainty principle or the superposition principle
+[ 5 ] .
+
+Therefore, it is natural to view an open quantum system as a system with
+a few degrees of freedom coupled to a bath with many (infinite) degrees
+of freedom. The total Hamiltonian, @xmath , describing such a model is
+written as
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where @xmath is the free Hamiltonian of the system plus bath and @xmath
+is their interaction Hamiltonian. The combined system is fully described
+by the total density matrix, @xmath , whose dynamics is governed by the
+von Neumann equation
+
+  -- -------- -- -------
+     @xmath      (5.2)
+  -- -------- -- -------
+
+However, in most cases, we are only interested in the properties and
+evolution of the system (we do not have much control on the bath). We
+then introduce the reduced density matrix of the system, obtained by
+partial tracing over the bath degrees of freedom,
+
+  -- -------- -- -------
+     @xmath      (5.3)
+  -- -------- -- -------
+
+The reduced density matrix contains all the information we need in most
+cases of interest (heat transport is an exception though). In the
+following sections, we will derive a differential equation to describe
+its time evolution using the second-order perturbation theory.
+
+### 5.2 Perturbation Theory in System-Bath Coupling
+
+#### 5.2.1 Evolution Operator
+
+In general, we are not able to obtain an exact equation of motion for
+the reduced density matrix similar to the classical equation Eq. ( 2.17
+); we have to resort to perturbation theory. We start with the evolution
+operator,
+
+  -- -------- -- -------
+     @xmath      (5.4)
+  -- -------- -- -------
+
+To facilitate the perturbative treatment, we use the identity [ 16 ]
+
+  -- -------- -- -------
+     @xmath      (5.5)
+  -- -------- -- -------
+
+It can be confirmed by multiplying both sides by @xmath and
+differentiating with respect to @xmath . Using this identity, the
+evolution operator can be expressed in the following Dyson-like form
+
+  -- -------- -- -------
+     @xmath      (5.6)
+  -- -------- -- -------
+
+Let us make the transformation @xmath and keep up to the first order
+term in @xmath , we obtain
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (5.7)
+  -- -------- -------- -------- -- -------
+
+where
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (5.8)
+     @xmath   @xmath   @xmath      (5.9)
+  -- -------- -------- -------- -- -------
+
+#### 5.2.2 Heisenberg Equation
+
+Now instead of looking at the evolution of the reduced density matrix,
+we look at the Heisenberg equation of an operator acting only on the
+system’s Hilbert space,
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (5.10)
+                       @xmath   @xmath   
+  -- -------- -------- -------- -------- --------
+
+Other than telling us the evolution of an operator (say momentum or
+position operator of the system), the above equation also allows us to
+study the evolution of the reduced density matrix upon choosing an
+appropriate operator, as what we will do in the next section.
+
+Making use of Eq. ( 5.7 ) and the similarity transformation property
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (5.11)
+  -- -------- -------- -------- -- --------
+
+the Heisenberg equation becomes
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (5.12)
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+The second order perturbative structure is clear. The first term arises
+from the free evolution, the second and third terms are the first and
+second order corrections, respectively. It is worth recalling that we
+are still in the Heisenberg picture, while the operators with tildes are
+evolved by its free Hamiltonian [cf. Eq. ( 5.9 )].
+
+We have obtained a generic equation of motion for a system operator
+based on perturbation theory. In the next few sections, we will make use
+of this equation to derive the so-called master equation: the equation
+of motion for the reduced density matrix.
+
+### 5.3 Quantum Master Equation (Bloch-Redfield)
+
+#### 5.3.1 Hubbard Operators
+
+We introduce the Hubbard operators @xmath , where @xmath is the set of
+energy-eigenstates of the system Hamiltonian,
+
+  -- -------- -- --------
+     @xmath      (5.13)
+  -- -------- -- --------
+
+The properties of the Hubbard operators can be found in Appendix A.2.
+The Heisenberg equation of the Hubbard operator is
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where the energy level difference is @xmath and the relaxation term
+reads
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (5.14)
+  -- -------- -------- -------- -- --------
+
+We introduced the Hubbard operators because they are useful in getting
+the elements of the reduced density matrix by tracing,
+
+  -- -------- -- --------
+     @xmath      (5.15)
+  -- -------- -- --------
+
+Before we could obtain the master equation, we need to make a few more
+assumptions.
+
+##### Decoupled Initial Condition
+
+The factorized initial condition
+
+  -- -------- -- --------
+     @xmath      (5.16)
+  -- -------- -- --------
+
+is a vital assumption in the process of tracing and getting the matrix
+elements. We will discuss the decoupled initial condition at the end of
+this chapter.
+
+##### Coupling Structure and Bath “Centering”
+
+The coupling is in standard factorized form (additional summation would
+give the general case, but this just brings notational changes),
+
+  -- -------- -- --------
+     @xmath      (5.17)
+  -- -------- -- --------
+
+The coupling is defined such that the first moment of the bath
+Hamiltonian vanishes, @xmath . If this were not the case, we redefine
+the coupling, and lump the non-zero average into the system Hamiltonian
+[this is equivalent to the zero average of the Langevin force in Eq. (
+2.21 )].
+
+#### 5.3.2 Bloch-Redfield Equation
+
+With these conditions, the equation of motion obtained after tracing is
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (5.18)
+  -- -------- -------- -------- -- --------
+
+where the relaxation term is
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+                       @xmath   
+                       @xmath   
+  -- -------- -------- -------- --
+
+in which @xmath . The transition rate is
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (5.20)
+              @xmath   @xmath      (5.21)
+  -- -------- -------- -------- -- --------
+
+where the bath correlator is @xmath . The real part of the transition
+rate determines the speed at which the stationary solution is reached.
+Upon taking the initial time at @xmath , the transition rate becomes a
+half Fourier transfrom of the bath correlator.
+
+Equation ( 5.18 ) is frequently called the Bloch-Redfield equation [ 17
+] , which is widely used in magnetic resonance (nuclear, electron, or
+ferromagnetic), optical spectroscopy, laser physics, and
+electron-transfer reactions in molecules and bio-molecules. This
+equation is generic, we have not specified our system, bath or the
+coupling. All the information of the bath goes into the correlator
+@xmath , and we will need to specify the bath coupling, @xmath , the
+spectral density @xmath and its initial state @xmath .
+
+#### 5.3.3 Ladder Couplings
+
+Let us consider the couplings of the type
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (5.22)
+  -- -------- -------- -------- -- --------
+
+It is suited to study the harmonic oscillator problem with
+coordinate/momentum coupling
+
+  -- -------- -- --------
+     @xmath      (5.23)
+  -- -------- -- --------
+
+or spin problems with general couplings of the form
+
+  -- -------- -- --------
+     @xmath      (5.24)
+  -- -------- -- --------
+
+where @xmath is the anti-commutator and @xmath describes the symmetry of
+the interaction [ 21 ] .
+
+With such coupling, the relaxation term becomes
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (5.25)
+                                @xmath   
+                                @xmath   
+                                @xmath   
+                                @xmath   
+                                @xmath   
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+#### 5.3.4 Secular Approximation
+
+At this stage, one invariably invokes the secular approximation,
+discarding the terms of the type @xmath and @xmath . We basically get
+rid of the last four lines of the relaxation term above and keep
+
+  -- -------- -------- -------- -------- --------
+     @xmath   @xmath   @xmath            (5.26)
+                                @xmath   
+                                @xmath   
+  -- -------- -------- -------- -------- --------
+
+We will justify this approximation in the discussions at the end of the
+chapter. After the secular approximation, the coupling of the matrix
+elements becomes simpler. Any matrix element, @xmath , is only coupled
+to its adjacent diagonal neighbors, @xmath and @xmath . This
+short-ranged coupling simplifies the implementation of the continued
+fraction method.
+
+### 5.4 Application to the Bath-of-Oscillators Model
+
+#### 5.4.1 Hamiltonian Redux
+
+In this model, the system is coupled linearly to the coordinates of a
+bath of oscillators ( @xmath ), as in the classical case. The
+Hamiltonian is
+
+  -- -------- -- --------
+     @xmath      (5.27)
+  -- -------- -- --------
+
+Because of the close resemblance to the classical counterpart, this
+model gains the name of “Quantum Brownian Motion”. The only difference
+is that all @xmath ’s and @xmath ’s are now quantum operators. For
+instance, we will substitute the bath coordinates with the bosonic
+operators, @xmath .
+
+#### 5.4.2 Bath Correlator
+
+The bath is assumed to be at thermal equilibrium initially,
+
+  -- -------- -- --------
+     @xmath      (5.28)
+  -- -------- -- --------
+
+The bath correlator thus reads
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+              @xmath   @xmath   
+              @xmath   @xmath   
+  -- -------- -------- -------- --
+
+where the Bose function is
+
+  -- -------- -- --------
+     @xmath      (5.30)
+  -- -------- -- --------
+
+At high temperature, the real part of the correlator behaves
+classically, as in Eq. ( 2.25 ). The imaginary part arises from the
+non-commutability of the bosonic operators and has no classical analog.
+
+#### 5.4.3 Relaxation Coefficients
+
+##### Counter-Term and Renormalized Rate
+
+The counter-term @xmath , can be handled by modifying the transition
+rate as
+
+  -- -------- -- --------
+     @xmath      (5.31)
+  -- -------- -- --------
+
+where @xmath is the damping kernel evaluated at @xmath [cf. Eq. ( 2.26
+)]
+
+  -- -------- -- --------
+     @xmath      (5.32)
+  -- -------- -- --------
+
+##### Drude-Ohmic Damping
+
+We discussed in the Rubin model (cf. Section 2.3.4) that, in a physical
+model, the density of the bath modes is cut-off at high frequency. A
+frequently used model satisfying this condition is the Ohmic spectral
+density with Drude cut-off,
+
+  -- -------- -- --------
+     @xmath      (5.33)
+  -- -------- -- --------
+
+The damping coefficient, @xmath , keeps track of the coupling strength,
+and is proportional to @xmath in the total Hamiltonian ( 5.27 ). This
+should not be confused with the gamma with time argument, which is the
+damping kernel.
+
+For the above spectral density, transition rate is found to be
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (5.34)
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      
+  -- -------- -------- -------- -- --------
+
+@xmath is the Psi function defined as the derivative of the logarithm of
+gamma function, @xmath . Some properties of the transition rate are
+discussed in Appendix A.3.
+
+### 5.5 Discussion of the Approximations
+
+At this point, we have our master equation ready for use, we just need
+to specify the spectrum (energy levels) of the system. But before we try
+to solve for any system, there is a need to discuss some of the
+subtleties of the master equation.
+
+##### Weak Coupling
+
+We need to be more specific on what we mean by weak coupling. We assume
+@xmath is small, and thus @xmath can be treated as a perturbation to the
+free evolution. But letting @xmath , the integral in the transition rate
+@xmath [see Eq. ( 5.21 )] would become very large and the perturbation
+theory breaks down. In many problems of interest, there exists a
+correlation time @xmath , such that the correlator is negligible @xmath
+after @xmath . Thus, the integral would not grow as we feared. The weak
+coupling approximation is then valid in the regime of
+
+  -- -------- -- --------
+     @xmath      (5.35)
+  -- -------- -- --------
+
+##### Secular Approximation
+
+The secular approximation is equivalent to the rotating wave
+approximation (RWA) in quantum optics. Specifically, a coupling of the
+form, @xmath is reduced to @xmath . It is argued that the secular term
+@xmath is rotating at @xmath , which is much faster than the term @xmath
+, and can be averaged out. In the case of @xmath being negative, one
+discards the terms @xmath and @xmath instead, since they are the ones
+which are rotating faster.
+
+##### Decoupled Initial Condition
+
+We have chosen the factorized initial condition to facilitate the
+process of tracing. In the context of condensed matter, the system and
+bath do not meet at our chosen time, they have always been in contact.
+Thus, we set the initial time at minus infinity, and hope that the
+artificial initial condition is forgotten by the time we start to
+manipulate the system at @xmath [ 5 ] .
+
+In the next chapter, we will use the master equation to study a damped
+quantum harmonic oscillator and make comparison with some exact results
+as bench-marking.
+
+## Chapter 6 Quantum Harmonic Oscillator
+
+### 6.1 Introduction
+
+In this chapter, we study the properties of a quantum harmonic
+oscillator linearly coupled in coordinate to the bath. The
+Hamiltonian is
+
+  -- -------- -- -------
+     @xmath      (6.1)
+  -- -------- -- -------
+
+The study of the damped quantum harmonic oscillator is important because
+this model applies to any system slightly displaced from its stable
+local potential minimum. On the other hand, this is one of the few
+problems amenable to exact solution, by the use of path integrals or
+diagonalization of the Hamiltonian. Thus, we can make comparison and
+assess the validity of the master equation derived in the previous
+chapter. This comparison is essential before we solve for systems with
+no exact solution.
+
+We will first show how to cast the master equation into a set of
+recurrence relations and how to solve them. After which we will study
+the equilibrium and driven properties of a damped quantum harmonic
+oscillator.
+
+### 6.2 Method of Solution
+
+#### 6.2.1 Coefficients of the Master Equation
+
+The eigen-energies of a quantum harmonic oscillator are equally spaced,
+
+  -- -------- -- -------
+     @xmath      (6.2)
+  -- -------- -- -------
+
+The matrix elements of the coupling Hamiltonian ( @xmath ) entering the
+relaxation term ( 5.26 ) are
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      (6.3)
+     @xmath   @xmath   @xmath      
+                                   
+  -- -------- -------- -------- -- -------
+
+#### 6.2.2 Casting the Master Equation into Recurrence Form
+
+We can construct vectors from the columns of the reduced density matrix
+(truncated at the @xmath level),
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+and the master equation acquires the following recurrence form
+
+  -- -------- -- -------
+     @xmath      (6.5)
+  -- -------- -- -------
+
+where the elements of the matrices @xmath ’s are
+
+  -- -------- -------- -------- -- -------
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      
+     @xmath   @xmath   @xmath      (6.6)
+  -- -------- -------- -------- -- -------
+
+#### 6.2.3 Implementation
+
+The truncation level @xmath has to be chosen such that @xmath , and the
+energy levels higher than @xmath become irrelevant. When we solve for
+systems with finite levels (e.g. spin problems [ 21 ] ), there is no
+need to perform truncation and the recurrence relation is exact.
+
+We are happy when we see the 3-term reccurrence relation, since we know
+how to solve it with the continued fraction method. To obtain the
+solution, we first need the “seed” @xmath so that all other @xmath ’s
+can be calculated by the equation (cf. Appendix A.1)
+
+  -- -------- -- -------
+     @xmath      (6.7)
+  -- -------- -- -------
+
+But there is a problem in solving for the stationary solution ( @xmath
+). Eq. ( 6.5 ) is a set of homogeneous equations where the solution
+involves a multiplicative constant. Unlike the classical problems, we
+cannot obtain the “seed” @xmath , from the normalization condition
+@xmath , as it involves all the vectors @xmath ’s. This problem can
+circumvented by fixing one of the matrix elements in @xmath . The first
+vector obeys
+
+  -- -------- -- -------
+     @xmath      (6.8)
+  -- -------- -- -------
+
+where @xmath is some function of the @xmath ’s. We provide an extra
+equation by requiring the first element of @xmath to be 1, getting a set
+of over-determined equations
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+where
+
+  -- -------- --
+     @xmath   
+  -- -------- --
+
+We can solve this set of equations by using the least square method. The
+subsequent @xmath ’s can then be generated by the upward iterations Eq.
+( 6.7 ) in the continued fraction method. Eventually, we will need to
+normalize the density matrix by the operation @xmath .
+
+As opposed to the classical problems, the indexed structure is
+automatically given by the energy levels, it saves us the troubles of
+choosing an appropriate basis function and manipulating to get the
+recurrence structure. The price to pay is the extra effort in getting
+the seed. The master equation can actually be solved by inverting a
+matrix of dimension @xmath , which involves computational efforts of
+@xmath . In using the continued fraction method, all the matrices are of
+dimension @xmath , thus we have reduced the complexity to @xmath with
+@xmath iterations. This allows us to reach the high temperature regime,
+where high energy levels are excited and @xmath becomes large. In the
+next few sections, we will use the continued fraction method to study
+the equilibrium properties and the response to applied fields.
+
+### 6.3 Equilibrium Results: Dispersion of Coordinate and Momentum
+
+The equilibrium solution ( @xmath ) is found to be the canonical
+distribution
+
+  -- -------- -- -------
+     @xmath      (6.9)
+  -- -------- -- -------
+
+independent of the coupling strength @xmath ¹ ¹ 1 Though the numerical
+solution does not depend on the coupling strength, the exact solution
+says otherwise [ 5 ] : it is canonical only in the limit of @xmath . For
+any finite @xmath , the exact solution is different from the canonical
+distribution, and the correction is of the order of @xmath [ 18 ] . To
+explain the discrepancy, one should recall the approximations we have
+made: the secular approximation and the weak coupling approximation.
+Because of these two approximations, we always obtain the canonical
+distribution as the stationary solution. However, the correction is
+small within the weak coupling regime. . Some of the interesting
+thermal-equilibrium quantities are the mean square of the coordinate and
+momentum, plotted in Figure 6.1 .
+
+The results from the canonical distribution are
+
+  -- -------- -- --------
+     @xmath      (6.10)
+  -- -------- -- --------
+
+At high temperature, both quantities grow linearly with the temperature.
+The system behaves classically at high temperature and follows the
+equipartition law. At @xmath , they reach the standard quantum limit
+@xmath , as opposed to zero in the classical case, a manifestation of
+the zero point energy.
+
+Therefore, we have achieved our goal of reproducing the dispersion
+curves by solving the quantum master equation with the continued
+fraction method. The results are in full agreement with the statistical
+mechanics, using a truncation level of @xmath .
+
+### 6.4 Response to Static Field
+
+The master equation after the secular approximation is of Pauli type: it
+involves only the diagonal terms. In order to check our handling of the
+off-diagonal structure, we apply a static force, @xmath , to the
+harmonic oscillator. We assume the applied force is small (of the order
+of @xmath ), such that we can ignore the change to the relaxation term.
+@xmath is already of the order of @xmath , thus, any modification is at
+least of the order of @xmath and can be discarded. We just have to alter
+the free Hamiltonian, the equation of motion of the Hubbard operator
+then reads
+
+  -- -------- -- --------
+     @xmath      (6.11)
+  -- -------- -- --------
+
+The corresponding master equation is
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (6.12)
+  -- -------- -------- -------- -- --------
+
+where @xmath remains the same as Eq. ( 5.26 ) and
+
+  -- -------- -------- -------- --
+     @xmath   @xmath   @xmath   
+                       @xmath   
+  -- -------- -------- -------- --
+
+gives the off-diagonal structure. The addition of the DC force does not
+break the short-ranged coupling of the matrix elements, we are still
+able to solve Eq. ( 6.12 ) with the continued fraction method.
+
+The DC response is characterized by the DC susceptibility defined as
+
+  -- -------- -- --------
+     @xmath      (6.14)
+  -- -------- -- --------
+
+Let us first see how this quantity behaves classically. The Langevin
+equation of a forced oscillator is
+
+  -- -------- -- --------
+     @xmath      (6.15)
+  -- -------- -- --------
+
+At equilibrium, both terms on the left hand side vanish. Taking average,
+one finds
+
+  -- -------- -- --------
+     @xmath      (6.16)
+  -- -------- -- --------
+
+which is independent of the temperature. As the system is linear, we
+expect this to hold in the quantum problem. Figure 6.2 shows that this
+is indeed the case, and it serves as a check of our handling of the
+off-diagonal structure of the quantum master equation.
+
+### 6.5 Linear Response to Time-Dependent Field
+
+#### 6.5.1 Perturbative Chain of Equations
+
+As we did in the classical problems, we apply a small AC field, @xmath ,
+and study the system’s response characterized by the AC susceptibility
+
+  -- -------- -- --------
+     @xmath      (6.17)
+  -- -------- -- --------
+
+To obtain the new master equation, we just need to replace @xmath in
+Eq. ( 6.11 ) and Eq. ( 6.12 ) by @xmath . Assuming the driving force is
+small, the system is only slightly perturbed from its equilibrium state.
+We can split the matrix elements into time-independent and
+time-dependent parts
+
+  -- -------- -- --------
+     @xmath      (6.18)
+  -- -------- -- --------
+
+and solve the recurrence relations for zeroth order and first order in
+@xmath sequentially.
+
+  -- -- -- -------- -- --------
+           @xmath      (6.19)
+           @xmath      (6.20)
+  -- -- -- -------- -- --------
+
+The superscript in @xmath and @xmath indicates the order of density
+matrix element that should be used in the expression. The solution of
+the zeroth order enters into the first order equation, on its right hand
+side. Therefore, these equations have to be solved sequentially.
+
+#### 6.5.2 AC Susceptibility Curves (Dispersion and Absorption)
+
+The AC susceptibility is plotted in Figure 6.3 and we observe resonant
+behavior at @xmath . The imaginary (absorptive) part is of Lorentzian
+shape with peak at around @xmath . At resonant frequency, the real part
+becomes zero because the system is oscillating completely out of phase
+with the driving ( @xmath ), as one can see from Eq. ( 6.17 ) by setting
+@xmath . The dependence of the absorptive part on the damping strength
+can be seen in Figure 6.4 . The peaks become flattened and shifted to
+the right when the damping strength is increased. This dependence is
+useful if we wish to estimate the damping strength by measuring the
+height or the full width half maximum of the absorption peaks.
+
+These results are in good agreement with the analytical result obtained
+by stochastic modeling [ 5 ]
+
+  -- -------- -- --------
+     @xmath      (6.21)
+  -- -------- -- --------
+
+Since the agreement is nearly perfect, we have not shown the analytical
+curves in the figures above.
+
+#### 6.5.3 Secular Approximation Revisited
+
+As one can see from the susceptibility curves, the dominant contribution
+comes from the region around the resonant frequency. We can relate it
+with the secular approximation we have made earlier. We keep the terms
+with resonant frequency and discard the off-resonant terms since their
+contribution is minute. As one increases the damping, the curves flatten
+and the contribution from the region away from the resonant frequency
+becomes important as well. This means the secular approximation is less
+accurate at large damping. Actually, the error introduced by the secular
+approximation is of the order of @xmath [ 19 ] . A thorough
+investigation of the secular approximation in the Jaynes-Cummings model
+(two-level system in one-mode electromagnetic field) in a dissipative
+bath can be found in Ref. [ 20 ] .
+
+### 6.6 Discussion
+
+To conclude, we have used the master equation of Chapter 5 to solve for
+the damped quantum harmonic oscillator and discussed some of the
+implementation issues. We studied its thermodynamical properties with
+and without constant field. After which we investigated the response to
+a time-dependent field and obtained the absorption-dispersion curves.
+The results are consistent with the exact results, provided @xmath .
+
+This agreement gives us confidence on our handling of the quantum master
+equation and our implementation of the continued fraction method. It is
+important as this efficient method is independent of the approximations
+used to get the quantum master equation, so our implementation could be
+extended to master equation with improved approximations. Possible
+extensions include the removal of the secular approximation or the
+inclusion of higher order terms in the system-bath coupling. These will
+break the 3-term recurrence structure, and more efforts are needed to
+solve them. The investigation is still ongoing and we shall leave them
+out of the thesis.
+
+## Chapter 7 Summary
+
+To end the thesis, let us summarize our main results:
+
+-   In the classical regime, we reviewed how the fluctuation and
+    dissipation of an open system can be explained by modeling the bath
+    as a set of harmonic oscillators. Two equivalent approaches were
+    presented to study classical open systems: the trajectory approach
+    (Langevin equation) and the distribution function approach
+    (Fokker-Planck equation). The use of the continued fraction method
+    in solving Fokker-Planck equations was also discussed.
+
+-   We then demonstrated the use of the continued fraction method in
+    solving the Fokker-Planck equations for particle in a periodic
+    potential and classical dipole, both in high friction limit. We
+    solved for both equilibrium and time-dependent solutions. The time
+    dependent solution is obtained at arbitrary DC and AC fields. At
+    large AC field, we observed significant deviation from the linear
+    response results. The non-linear effects are reflected in the
+    distortion of the shapes of the dynamical hysteresis loops.
+
+    Previous studies of the particle problem focused on the zeroth and
+    first harmonic susceptibilities; and for the dipole the first few
+    harmonics but in the limit of weak driving. Here we obtained all the
+    harmonics, for any driving strength and biasing DC field. We
+    interpreted their characteristic features and presented all the
+    information in a compact way with the dynamical hysteresis loops;
+    this was not discussed in the literatures before. The assessment of
+    the perturbative approach versus exact approach is also new for both
+    problems. This assessment can be of valuable methodological
+    interest.
+
+-   In the quantum regime, we reviewed the derivation of the quantum
+    master equation for the reduced density matrix, and its application
+    to the bath-of-oscillators model. Approximations and subtleties of
+    the master equations were also discussed.
+
+-   We went on to solve the master equation of a damped quantum harmonic
+    oscillator using the continued fraction method. This problem allows
+    us to make comparison with exact results and assess the validity of
+    the master equation. We investigated both the equilibrium and
+    time-dependent solutions. Driven systems are more challenging in the
+    quantum case, so we are content with implementing a linear response
+    treatment. These results are in good agreement with the exact
+    results (when available) under the condition @xmath .
+
+    This showed that we successfully implemented the efficient continued
+    fraction method in solving the master equation. This method reduces
+    the computational complexity significantly and allows us to solve
+    for systems with many levels. In fact, the problem of damped quantum
+    harmonic oscillator constitutes the first attempt in using the
+    continued fraction method to solve for a mechanical system (it was
+    originally proposed and tested for spin systems with finite number
+    of levels). This widens the application range of this approach, and
+    opens doors for further studies.
+
+## Appendix A Appendices
+
+### a.1 Continued-Fraction Method
+
+Here we give a summary on solving the 3-term recurrence relation of the
+form
+
+  -- -------- -- -------
+     @xmath      (A.1)
+  -- -------- -- -------
+
+with the continued fraction method. The coefficients @xmath ’s and the
+inhomogeneous part @xmath ’s are some known constants. Risken [ 9 ]
+introduced the following ansatz
+
+  -- -------- -- -------
+     @xmath      (A.2)
+  -- -------- -- -------
+
+and obtained the relations
+
+  -- -------- -- -------
+     @xmath      (A.3)
+  -- -------- -- -------
+
+For finite recurrence, @xmath for some @xmath . We can enforce this by
+setting @xmath , and generate all the other @xmath ’s and @xmath ’s by
+the downward iteration Eq. ( A.3 ). To obtain all @xmath ’s, we only
+need the “seed” @xmath , which can be obtained by solving
+
+  -- -------- -- -------
+     @xmath      (A.4)
+  -- -------- -- -------
+
+Other @xmath ’s can then be generated by the relation Eq. ( A.2 ). In
+the case of homogeneous equation ( @xmath ), we have to obtain @xmath by
+other means, i.e. normalization of distribution.
+
+As for the name of the method, note that @xmath is expressed in terms of
+@xmath in the denominator, which can be in turn written in terms of
+@xmath and so on. It produces the continued-fraction structure
+
+  -- -------- -- -------
+     @xmath      (A.5)
+  -- -------- -- -------
+
+When the quantities in the recurrence relation are scalar, we call this
+the scalar continued fraction method. However, this method also applies
+to vectors recurrence relation, we then talk about matrix continued
+fraction . In such case, @xmath , @xmath and @xmath become vectors,
+while @xmath and @xmath are matrices. The inversion in Eq. ( A.3 ) then
+becomes matrix inversion from the left ( @xmath ).
+
+In fact, the recurrence relation can be treated as a set of linear
+equations, and solved by inverting a matrix of dimension @xmath (for
+scalar recurrence relation). The operation involves complexity of @xmath
+. The use of continued fraction method reduces the complexity to @xmath
+, and allows us to handle a much larger system of equations.
+
+### a.2 Hubbard Operators
+
+Here we discuss some of the properties of the Hubbard operators @xmath .
+They form a complete set, and one can think of @xmath as a matrix with
+zeros everywhere, except 1 at the position @xmath . Some of the useful
+properties are
+
+-   Any operator can be expressed in terms of the Hubbard operators:
+
+      -- -------- -- -------
+         @xmath      (A.6)
+      -- -------- -- -------
+
+-   Equal-time relation
+
+      -- -------- -- -------
+         @xmath      (A.7)
+      -- -------- -- -------
+
+-   Commutator
+
+      -- -------- -- -------
+         @xmath      (A.8)
+      -- -------- -- -------
+
+-   Adjoint
+
+      -- -------- -- -------
+         @xmath      (A.9)
+      -- -------- -- -------
+
+-   Relation with the density matrix
+
+      -- -------- -- --------
+         @xmath      (A.10)
+      -- -------- -- --------
+
+Using the eigenstates of the system, the Heisenberg equation of the
+Hubbard operator becomes
+
+  -- -------- -- --------
+     @xmath      (A.11)
+  -- -------- -- --------
+
+where @xmath .
+
+### a.3 Transition Rate
+
+To obtain the expression Eq. ( 5.34 ), one needs the identity
+
+  -- -------- -- --------
+     @xmath      (A.12)
+  -- -------- -- --------
+
+in evaluation of the imaginary part. The Psi function, defined as @xmath
+, has the following properties [ 22 ] :
+
+  -- -------- -------- -------- -- --------
+     @xmath   @xmath   @xmath      (A.13)
+     @xmath   @xmath   @xmath      (A.14)
+     @xmath   @xmath   @xmath      (A.15)
+  -- -------- -------- -------- -- --------
+
+From the last expression with an integral, we obtain Eq. ( A.12 ) upon a
+partial fraction expansion of the denominator
+
+  -- -------- -- --------
+     @xmath      (A.16)
+  -- -------- -- --------
+
+The real part and imaginary part of the transition rate are plotted in
+Figure A.1 . At low temperature, the real part decreases monotonically
+and is negligible at positive @xmath , indicating that the process is
+dominated by de-excitation. At high temperature, the contribution from
+both excitation and de-excitation are important.
