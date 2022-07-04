@@ -1,6 +1,6 @@
 # Very Long scientific papers
 
-This dataset contains code and data for the very long scientific papers dataset from arxiv.org. The data is stored under the `final/test` directory with `PAPER_ID.main.txt` and corresponding `PAPER_ID.abstract.txt` files.
+This dataset contains code and data for the very long scientific papers dataset based on arxiv.org. The data is stored under the `final/test` directory with `PAPER_ID.main.txt` and corresponding `PAPER_ID.abstract.txt` files.
 
 ## Data gathering process
 
